@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="fmesher" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/fmesher" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/fmesher" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="complex.cpp" />
+		<Unit filename="complex.h" />
+		<Unit filename="fmesher.cpp" />
+		<Unit filename="fmesher.h" />
+		<Unit filename="intpoint.cpp" />
+		<Unit filename="intpoint.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="nosebl.cpp" />
+		<Unit filename="nosebl.h" />
+		<Unit filename="stdstring.h" />
+		<Unit filename="triangle.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="triangle.h" />
+		<Unit filename="writepoly.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

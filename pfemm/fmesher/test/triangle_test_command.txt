@@ -1,0 +1,64 @@
+
+call 1
+
+
+"C:\Program Files (x86)\femm42\bin\triangle.exe" -pPq30.0eAazI "C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp"
+
+
+Opening C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp.poly.
+Constructing Delaunay triangulation by divide-and-conquer method.
+Inserting segments into Delaunay triangulation.
+Removing unwanted triangles.
+Spreading regional attributes and area constraints.
+Adding Steiner points to enforce quality.
+
+Writing C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp.node.
+Writing C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp.ele.
+NOT writing a .poly file.
+Writing C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp.edge.
+
+Statistics:
+
+  Input points: 60
+  Input segments: 80
+  Input holes: 0
+
+  Mesh points: 9058
+  Mesh triangles: 17830
+  Mesh edges: 26887
+  Mesh boundary edges: 284
+  Mesh segments: 1271
+
+
+
+call 2
+
+
+"C:\Program Files (x86)\femm42\bin\triangle.exe" -pPq%feAazIY %s "C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp"
+
+
+Opening C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp.poly.
+Constructing Delaunay triangulation by divide-and-conquer method.
+Inserting segments into Delaunay triangulation.
+Removing unwanted triangles.
+Spreading regional attributes and area constraints.
+Adding Steiner points to enforce quality.
+
+Writing C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp.node.
+Writing C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp.ele.
+NOT writing a .poly file.
+Writing C:\Users\Richard\Documents\pgr_sync\C_Projects\mfemm\Temp.edge.
+
+Statistics:
+
+  Input points: 60
+  Input segments: 2
+  Input holes: 0
+
+  Mesh points: 0
+  Mesh triangles: 0
+  Mesh edges: 0
+  Mesh boundary edges: 0
+  Mesh segments: 0
+
+
