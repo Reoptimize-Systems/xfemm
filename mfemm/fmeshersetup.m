@@ -19,17 +19,17 @@ function fmeshersetup(dodebug)
         dodebug = false;
     end
     
-    if ~isoctave
-        
-        % First check a C++ compiler is present
-        cc = mex.getCompilerConfigurations('C++', 'Selected');
-
-        if isempty(cc)
-            error(['You must have a C++ compiler setup. Run mex -setup to choose ', ...
-                   'an appropriate compiler, you may need to install one on your system.']);
-        end
-
-    end
+%     if ~isoctave
+%         
+%         % First check a C++ compiler is present
+%         cc = mex.getCompilerConfigurations('C++', 'Selected');
+% 
+%         if isempty(cc)
+%             error(['You must have a C++ compiler setup. Run mex -setup to choose ', ...
+%                    'an appropriate compiler, you may need to install one on your system.']);
+%         end
+% 
+%     end
 
     % store the current directory
     origdir = pwd;
@@ -77,7 +77,7 @@ function fmeshersetup(dodebug)
             'fmesher/complex.cpp', ...
             'fmesher/intpoint.cpp', ...
             'fmesher/nosebl.cpp', ...
-            'fmesher/writepoly.cpp');
+            'fmesher/writepoly.cpp', '-v');
         
     end
      
