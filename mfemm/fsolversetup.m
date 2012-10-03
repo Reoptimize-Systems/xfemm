@@ -20,14 +20,15 @@ function fsolversetup(dodebug)
     end
     
     if isoctave
-        cc.Name = 'GNU C++';
+        cc.Name = 'gcc';
     else
-        % First check a C++ compiler is present, and selected
-        cc = mex.getCompilerConfigurations('C++', 'Selected');
-    
-        if isempty(cc)
-            error(['You must have a C++ compiler setup. Run mex -setup to choose ', ...
-                   'an appropriate compiler, you may need to install one on your system.']);
+        try
+            % First check a C++ compiler is present, and selected
+            cc = mex.getCompilerConfigurations('C++', 'Selected');
+        catch
+            % if the getCompilerConfigurations call fails, try with gcc,
+            % assuming that we are on windows and perhaps using gnumex
+            cc.Name = 'gcc';
         end
     end
 
@@ -45,15 +46,13 @@ function fsolversetup(dodebug)
         common_compiler_flags = '-D"printf=mexPrintf"';
     end
 
-    % build the lua library??
-    
+    % TODO: build the lua library??
     
     % test for the pernickity Visual C++ compiler, when oh when will The
     % Mathworks support mingw by default?
-    if strmatch('Microsoft Visual C++', cc.Name)
-        liblua = {'-I.\fsolver\liblua', ...
-                  'fsolver\liblua\liblua.lib'};
-    elseif strmatch('GNU C++', cc.Name)
+    if strcmp('Microsoft Visual C++', cc.Name)
+        liblua = {'fsolver\liblua\liblua.lib', '-I.\fsolver\liblua'};
+    elseif strcmp('gcc', cc.Name)
         liblua = {'fsolver/liblua/liblua.a', '-I./fsolver/liblua'};
     end
     
@@ -74,8 +73,12 @@ function fsolversetup(dodebug)
         'fsolver/spars.cpp'}, ...
         liblua];
     
-    % call mex with the appropriately constructed commands
-    mex(mexcommands{:}); 
+    if isoctave
+        mkoctfile('--mex', mexcommands{:});
+    else
+        % call mex with the appropriately constructed commands
+        mex(mexcommands{:}); 
+    end
      
     % return to original directory
     cd(origdir);
