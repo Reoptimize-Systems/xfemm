@@ -1,4 +1,4 @@
-function [FemmProblem, ind] = addboundaryprop_mfemm(FemmProblem, Name, BdryType, varargin)
+function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem, Name, BdryType, varargin)
 % creates and adds a new boundary to an mfemm FemmProblem structure
 % 
 % Syntax
@@ -8,6 +8,7 @@ function [FemmProblem, ind] = addboundaryprop_mfemm(FemmProblem, Name, BdryType,
 %
 % Description
 %
+% 
 
 % Copyright 2012 Richard Crozier
 % 
@@ -35,13 +36,13 @@ function [FemmProblem, ind] = addboundaryprop_mfemm(FemmProblem, Name, BdryType,
         
         FemmProblem.BoundaryProps = BoundaryProp;
         
-        ind = 1;
+        boundind = 1;
         
     else
         
-        ind = numel(FemmProblem.BoundaryProps) + 1;
+        boundind = numel(FemmProblem.BoundaryProps) + 1;
         
-        FemmProblem.BoundaryProps(ind) = BoundaryProp;
+        FemmProblem.BoundaryProps(boundind) = BoundaryProp;
         
     end
     
