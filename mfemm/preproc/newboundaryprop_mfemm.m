@@ -33,16 +33,15 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, Arg3, varargin)
         elcount = elementcount_mfemm(FemmProblem);
         
         NBoundaryProps = elcount.NBoundaryProps;
+        makeid = true;
         
     elseif isscalar(Arg3)
         
         NBoundaryProps = Arg3;
+        makeid = true;
         
     else
-        error('MFEMM:newboundaryprop_mfemm:incorrectarg', ...
-            ['Third argument to newboundaryprop_mfemm must be a ', ...
-             'FemmProblem Structure or the number of existing ', ...
-             'boundaries in the problem.']);
+        makeid = false;
     end
     
     % Create a new boundary structure with default/empty fields
@@ -51,8 +50,13 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, Arg3, varargin)
     % Parse the optional arguments
     BoundaryProp = parse_pv_pairs(BoundaryProp, varargin);
     
-    % Give it the correct name, with a unique id
-    BoundaryProp.Name = sprintf('ID: %d - %s', NBoundaryProps + 1, Name);
+    if makeid
+        % Give it the correct name, with a unique id
+        BoundaryProp.Name = sprintf('ID: %d - %s', NBoundaryProps + 1, Name);
+    else
+        % Use the name passed in, withut making it unique
+        BoundaryProp.Name = Name;
+    end
     
     BoundaryProp.BdryType = BdryType;
     
