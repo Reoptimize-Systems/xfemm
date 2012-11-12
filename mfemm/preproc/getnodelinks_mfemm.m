@@ -16,6 +16,11 @@ function links = getnodelinks_mfemm(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    links = [cell2mat({FemmProblem.Segments(:).n0}'), cell2mat({FemmProblem.Segments(:).n1}')];
+    if isfield(FemmProblem, 'Segments')
+        links = [cell2mat({FemmProblem.Segments(:).n0}'), ...
+                 cell2mat({FemmProblem.Segments(:).n1}')];
+    else
+        links = [];
+    end
 
 end
