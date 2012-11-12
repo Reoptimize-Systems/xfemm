@@ -3,103 +3,9 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
 %
 % Syntax
 %
-% FemmProblem = mirrorsegments(FemmProblem, seginds, disttol, 'Parameter', 'Value')
+% FemmProblem = mirrorsegments(FemmProblem, seginds, disttol, varargin)
 %
 % 
-% Input
-%
-% FemmProblem - An mfemm problem structure containing segments, some of
-%   which are to be mirrored.
-% 
-% seginds - Indices of the segments in the FemmProblem Structure which are
-%   to be mirrored.
-%
-% disttol - Distance from the line of reflection at which the segment's
-%   nodes are considered to lie on the line of reflection, and will not be
-%   duplicated.
-%
-% 
-% The method of reflection is then specified through a parameter value
-% pair. The options and expected input are as follows:
-%
-%   LineEq       In this case the line of reflection is specified using a
-%                line equation of the form y = mx + c. The value supplied
-%                in this case must be a vector of two values, the first of
-%                which is 'm', the gradient of the line, and the second of
-%                which is 'c', the intercept with the y-axis.
-%
-%                              line of reflection
-%                                  .                                        
-%                                 .                                         
-%                      |         .
-%                      |        .
-%                      |       . ¦
-%                      |      .  ¦dy     m = dy / dx             
-%                      |     .----                                              
-%                      |    .   dx
-%                 _____|___._____________________                           
-%                    ¦ |  .                                                 
-%                  c ¦ | .                                                  
-%                    ¦ |.                                                   
-%                    v x                                                    
-%                     .    
-%
-% 	TwoPoints    The line of reflection is specified as a line passing
-% 	             through two coordinates. In this case the value is
-% 	             expected to be a vector of four values, the first two
-% 	             values are the x and y coordinate of the first point, and
-% 	             the second two values the x and y coordinate of the secod
-% 	             point.
-%
-%                                 line of reflection
-%                                  .                                        
-%                                 .                                         
-%                      |         x  point 2                                       
-%                      |        .                                      
-%                      |       .                                         
-%               ..............x.......................                      
-%                      |     . point 1                                            
-%                      |    .                                             
-%                 _____|___._____________________                           
-%                      |  .                                                 
-%                      | .                                                  
-%                      |.                                                   
-%                      .                                                    
-%                     .   
-%
-%   AnglePoint   The line of reflection is specified as a single point and
-%                an angle from a line parallel to the x-axis (i.e.
-%                horizontal) passing through the point at which the line of
-%                relflection passes through the point. In this case a 
-%                vector containing three values is expected as input, the 
-%                first value is the angle in radians, and the next two
-%                values are the x and y coordinates of the point through
-%                which the line passes.
-%
-%                              line of reflection
-%                                  .                                        
-%                                 .                                         
-%                      |         ._                                         
-%                      |        .   \  angle                                     
-%                      |       .     \                                     
-%               ..............x......|.................                      
-%                      |     . point                                             
-%                      |    .                                              
-%                 _____|___._____________________                           
-%                      |  .                                                 
-%                      | .                                                  
-%                      |.                                                   
-%                      .                                                    
-%                     .                                                     
-% 
-% Output
-%
-% FemmProblem - A modified FemmProblem structure now also containing the
-%   mirrored new segments
-%
-%
-% See also: 
-%
 
 % Copyright 2012 Richard Crozier
 % 
@@ -120,6 +26,7 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
     end
     
     newseginds = [];
+    mirrorednodeids = [-1, -1];
     
     for i = 1:numel(seginds)
        
@@ -129,49 +36,143 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
                           
         newsegcoords = reflect2d(segnodecoords, varargin{:});
         
-        % get the distances between nodes
+        % get all the existing node coordinates
+%         existingnodecoords = getnodecoords_mfemm(FemmProblem);
+        
+        % get the distances between the nodes of the segment being
+        % mirrored, and those of the new segment which would be created by
+        % the mirroring
         nodedists = diag(ipdm(segnodecoords, newsegcoords));
         
-        % add the mirrored nodes to the problem if they are separated from
-        % the existing node by at least tol
-        [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, ...
-            newsegcoords(nodedists > disttol, 1), newsegcoords(nodedists > disttol, 2));
-            
+%         if any(nodedists > disttol)
+%             
+%                 
+%                 % add the mirrored nodes to the problem if they are separated from
+%                 % the existing node by at least tol
+%                 [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, ...
+%                                                                   newsegcoords(nodedists > disttol, 1), ...
+%                                                                   newsegcoords(nodedists > disttol, 2));
+% 
+%                 mirrorednodeids = [mirrorednodeids, nodeids];
+%             
+%             
+%         end
+        
         SegProps = FemmProblem.Segments(seginds(i));
         SegProps = rmfield(SegProps, 'n0');
         SegProps = rmfield(SegProps, 'n1');
         
         % join the relevant nodes to make a new segment with the same
         % properties as the original segment
-        if (nodedists(1) < disttol) && (nodedists(2) < disttol)
+        if (nodedists(1) <= disttol) && (nodedists(2) <= disttol)
             % do nothing the segment lies along the line of reflection
-        elseif nodedists(1) < disttol
-            % the first node of the segment lies on the line of reflection
+            nodedists;
             
+        elseif (nodedists(1) <= disttol) && (nodedists(2) > disttol)
+            % node n0 of the existing segment lies on the line of
+            % reflection, we only need to reflect node n1 of the segment
+            % we first check we have not already mirroed node n1 of this
+            % segment when processing another segment
+            [Lia,Locb] = ismember(FemmProblem.Segments(seginds(i)).n1, mirrorednodeids(:,1));
+            
+            if any(Lia)
+                % we've already mirred the node for another segment, so the
+                % node ids for the new segment connection are taken from
+                % the list of mirrored nodes
+                nodeids = mirrorednodeids(Locb,2);
+            else
+                % add the mirrored nodes to the problem if they are separated from
+                % the existing node by at least tol
+                [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, ...
+                                                                  newsegcoords(2,1), ...
+                                                                  newsegcoords(2,2));
+                                                              
+                mirrorednodeids = [mirrorednodeids; ...
+                                   FemmProblem.Segments(seginds(i)).n1, nodeids]; 
+                
+            end
+            
+            % link existing node n0, to the mirred version of node n1 of
+            % the existing segment
             [FemmProblem, newsegind] = addsegments_mfemm(FemmProblem, ...
                                        FemmProblem.Segments(seginds(i)).n0, ...
-                                       nodeids(1), ...
+                                       nodeids, ...
                                        SegProps);
                                    
-        elseif nodedists(2) < disttol
-            % the second node of the segment lies on the line of reflection
+        elseif (nodedists(2) <= disttol) && (nodedists(1) > disttol)
+            
+            [Lia,Locb] = ismember(FemmProblem.Segments(seginds(i)).n1, mirrorednodeids(:,1));
+            
+            if any(Lia)
+                nodeids = mirrorednodeids(Locb,2);
+            else
+                % add the mirrored nodes to the problem if they are separated from
+                % the existing node by at least tol
+                [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, ...
+                                                                  newsegcoords(1,1), ...
+                                                                  newsegcoords(1,2));
+                                                              
+                mirrorednodeids = [mirrorednodeids; ...
+                                   FemmProblem.Segments(seginds(i)).n0, nodeids]; 
+                
+            end
+            
             [FemmProblem, newsegind] = addsegments_mfemm(FemmProblem, ...
-                                       nodeids(1), ...
+                                       nodeids, ...
                                        FemmProblem.Segments(seginds(i)).n1, ...
                                        SegProps);
             
         else
-            % neither node of the segment lies on the line of reflection
+            
+            [Lia,Locb] = ismember(FemmProblem.Segments(seginds(i)).n0, mirrorednodeids(:,1));
+            
+            if any(Lia)
+                nodeids = mirrorednodeids(Locb,2);
+            else
+                % add the mirrored nodes to the problem if they are separated from
+                % the existing node by at least tol
+                [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, ...
+                                                                  newsegcoords(1,1), ...
+                                                                  newsegcoords(1,2));
+                                                              
+                mirrorednodeids = [mirrorednodeids; ...
+                                   FemmProblem.Segments(seginds(i)).n0, nodeids]; 
+                
+            end
+            
+            [Lia,Locb] = ismember(FemmProblem.Segments(seginds(i)).n1, mirrorednodeids(:,1));
+            
+            if any(Lia)
+                nodeids = [nodeids, mirrorednodeids(Locb,2)];
+            else
+                % add the mirrored nodes to the problem if they are separated from
+                % the existing node by at least tol
+                [FemmProblem, nodeinds, nodeids(2)] = addnodes_mfemm(FemmProblem, ...
+                                                                     newsegcoords(2,1), ...
+                                                                     newsegcoords(2,2));
+                                                              
+                mirrorednodeids = [mirrorednodeids; ...
+                                   FemmProblem.Segments(seginds(i)).n1, nodeids(2)]; 
+                
+            end
+            
             [FemmProblem, newsegind] = addsegments_mfemm(FemmProblem, ...
-                                       nodeids(1), ...
-                                       nodeids(2), ...
-                                       SegProps);
+                                                         nodeids(1), ...
+                                                         nodeids(2), ...
+                                                         SegProps);
             
         end
         
         newseginds = [newseginds, newsegind];
         
-        
     end
 
 end 
+
+function mergenodes_mfemm(FemmProblem, tol)
+
+    nodelocs = getnodecoords_mfemm(FemmProblem);
+    
+    
+
+end
