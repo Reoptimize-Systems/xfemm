@@ -3,9 +3,103 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
 %
 % Syntax
 %
-% FemmProblem = mirrorsegments(FemmProblem, seginds, disttol, varargin)
+% FemmProblem = mirrorsegments(FemmProblem, seginds, disttol, 'Parameter', 'Value')
 %
 % 
+% Input
+%
+% FemmProblem - An mfemm problem structure containing segments, some of
+%   which are to be mirrored.
+% 
+% seginds - Indices of the segments in the FemmProblem Structure which are
+%   to be mirrored.
+%
+% disttol - Distance from the line of reflection at which the segment's
+%   nodes are considered to lie on the line of reflection, and will not be
+%   duplicated.
+%
+% 
+% The method of reflection is then specified through a parameter value
+% pair. The options and expected input are as follows:
+%
+%   LineEq       In this case the line of reflection is specified using a
+%                line equation of the form y = mx + c. The value supplied
+%                in this case must be a vector of two values, the first of
+%                which is 'm', the gradient of the line, and the second of
+%                which is 'c', the intercept with the y-axis.
+%
+%                              line of reflection
+%                                  .                                        
+%                                 .                                         
+%                      |         .
+%                      |        .
+%                      |       . ¦
+%                      |      .  ¦dy     m = dy / dx             
+%                      |     .----                                              
+%                      |    .   dx
+%                 _____|___._____________________                           
+%                    ¦ |  .                                                 
+%                  c ¦ | .                                                  
+%                    ¦ |.                                                   
+%                    v x                                                    
+%                     .    
+%
+% 	TwoPoints    The line of reflection is specified as a line passing
+% 	             through two coordinates. In this case the value is
+% 	             expected to be a vector of four values, the first two
+% 	             values are the x and y coordinate of the first point, and
+% 	             the second two values the x and y coordinate of the secod
+% 	             point.
+%
+%                                 line of reflection
+%                                  .                                        
+%                                 .                                         
+%                      |         x  point 2                                       
+%                      |        .                                      
+%                      |       .                                         
+%               ..............x.......................                      
+%                      |     . point 1                                            
+%                      |    .                                             
+%                 _____|___._____________________                           
+%                      |  .                                                 
+%                      | .                                                  
+%                      |.                                                   
+%                      .                                                    
+%                     .   
+%
+%   AnglePoint   The line of reflection is specified as a single point and
+%                an angle from a line parallel to the x-axis (i.e.
+%                horizontal) passing through the point at which the line of
+%                relflection passes through the point. In this case a 
+%                vector containing three values is expected as input, the 
+%                first value is the angle in radians, and the next two
+%                values are the x and y coordinates of the point through
+%                which the line passes.
+%
+%                              line of reflection
+%                                  .                                        
+%                                 .                                         
+%                      |         ._                                         
+%                      |        .   \  angle                                     
+%                      |       .     \                                     
+%               ..............x......|.................                      
+%                      |     . point                                             
+%                      |    .                                              
+%                 _____|___._____________________                           
+%                      |  .                                                 
+%                      | .                                                  
+%                      |.                                                   
+%                      .                                                    
+%                     .                                                     
+% 
+% Output
+%
+% FemmProblem - A modified FemmProblem structure now also containing the
+%   mirrored new segments
+%
+%
+% See also: 
+%
 
 % Copyright 2012 Richard Crozier
 % 
@@ -52,21 +146,22 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
         if (nodedists(1) < disttol) && (nodedists(2) < disttol)
             % do nothing the segment lies along the line of reflection
         elseif nodedists(1) < disttol
+            % the first node of the segment lies on the line of reflection
             
             [FemmProblem, newsegind] = addsegments_mfemm(FemmProblem, ...
                                        FemmProblem.Segments(seginds(i)).n0, ...
-                                       nodeids(2), ...
+                                       nodeids(1), ...
                                        SegProps);
                                    
         elseif nodedists(2) < disttol
-            
+            % the second node of the segment lies on the line of reflection
             [FemmProblem, newsegind] = addsegments_mfemm(FemmProblem, ...
                                        nodeids(1), ...
                                        FemmProblem.Segments(seginds(i)).n1, ...
                                        SegProps);
             
         else
-            
+            % neither node of the segment lies on the line of reflection
             [FemmProblem, newsegind] = addsegments_mfemm(FemmProblem, ...
                                        nodeids(1), ...
                                        nodeids(2), ...

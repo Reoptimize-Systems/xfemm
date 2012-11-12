@@ -6,6 +6,17 @@ function [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, x, y, va
 % [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, x, y, varargin)
 %
 %
+% Input
+%
+% FemmProblem - A FemmProblem structure as created by newproblem_mfemm.m
+%
+% x - A matrix of x (or r for axisymmetric problems)coordinates of the
+%   nodes to be added to the problem structure
+%
+% y - A matrix of y (or z for axisymmetric problems) coordinates of the
+%   nodes to be added to the problem structure. Must be the same size as x.
+%
+% 
 
 % Copyright 2012 Richard Crozier
 % 
