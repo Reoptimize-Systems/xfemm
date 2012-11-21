@@ -45,7 +45,7 @@ function writefemmfile(filename, FemmProblem)
 %       LengthUnits - either a string containing the length units of the
 %       simulaton, or a scalar value coding for one of the strings. This
 %       can be one of: 'millimeters', 'centimeters', 'meters', 'mils',
-%       'microns', ro 'inches'. The same values can be set by using the
+%       'microns', or 'inches'. The same values can be set by using the
 %       scalar values 1, 2, 3, 4, 5, or any other value to yield 'inches'
 %
 %       ProblemType - a scalar value determining which type of problem is
