@@ -1,11 +1,14 @@
 function [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, x, y, varargin)
-% adds one or more nodes to an mfemm FemmProblem structure
+% adds one or more nodes to an mfemm FemmProblem structure at the specified
+% locations
 %
 % Syntax
 %
 % [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, x, y, varargin)
 %
+% Description
 %
+% 
 % Input
 %
 % FemmProblem - A FemmProblem structure as created by newproblem_mfemm.m

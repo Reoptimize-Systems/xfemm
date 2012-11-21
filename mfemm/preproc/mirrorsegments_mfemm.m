@@ -83,9 +83,12 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
             else
                 % add the mirrored nodes to the problem if they are separated from
                 % the existing node by at least tol
+                NodeProps = FemmProblem.Nodes(mirrorednodeids(Locb,2)+1);
+                NodeProps = rmfield(NodeProps, 'Coords');
                 [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, ...
                                                                   newsegcoords(2,1), ...
-                                                                  newsegcoords(2,2));
+                                                                  newsegcoords(2,2), ...
+                                                                  NodeProps);
                                                               
                 mirrorednodeids = [mirrorednodeids; ...
                                    FemmProblem.Segments(seginds(i)).n1, nodeids]; 
@@ -108,6 +111,8 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
             else
                 % add the mirrored nodes to the problem if they are separated from
                 % the existing node by at least tol
+                NodeProps = FemmProblem.Nodes(mirrorednodeids(Locb,2)+1);
+                NodeProps = rmfield(NodeProps, 'Coords');
                 [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, ...
                                                                   newsegcoords(1,1), ...
                                                                   newsegcoords(1,2));
@@ -131,9 +136,12 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
             else
                 % add the mirrored nodes to the problem if they are separated from
                 % the existing node by at least tol
+                NodeProps = FemmProblem.Nodes(mirrorednodeids(Locb,2)+1);
+                NodeProps = rmfield(NodeProps, 'Coords');
                 [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, ...
                                                                   newsegcoords(1,1), ...
-                                                                  newsegcoords(1,2));
+                                                                  newsegcoords(1,2), ...
+                                                                  NodeProps);
                                                               
                 mirrorednodeids = [mirrorednodeids; ...
                                    FemmProblem.Segments(seginds(i)).n0, nodeids]; 
@@ -147,9 +155,12 @@ function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varar
             else
                 % add the mirrored nodes to the problem if they are separated from
                 % the existing node by at least tol
+                NodeProps = FemmProblem.Nodes(mirrorednodeids(Locb,2)+1);
+                NodeProps = rmfield(NodeProps, 'Coords');
                 [FemmProblem, nodeinds, nodeids(2)] = addnodes_mfemm(FemmProblem, ...
                                                                      newsegcoords(2,1), ...
-                                                                     newsegcoords(2,2));
+                                                                     newsegcoords(2,2), ...
+                                                                     NodeProps);
                                                               
                 mirrorednodeids = [mirrorednodeids; ...
                                    FemmProblem.Segments(seginds(i)).n1, nodeids(2)]; 
