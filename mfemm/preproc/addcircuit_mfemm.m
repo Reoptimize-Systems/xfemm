@@ -5,6 +5,21 @@ function [FemmProblem, circuitind] = addcircuit_mfemm(FemmProblem, Name, varargi
 %
 % [FemmProblem, circuitind] = addcircuit_mfemm(FemmProblem, Name, 'Parameter', 'Value')
 %
+% Description
+%
+% addcircuit_mfemm(FemmProblem, Name) adds a circuit structure with the
+% name in 'Name' to the mfemm problem in FemmProblem. The following
+% optional parameter value pairs can also be provided:
+%
+%   'CircType' - 1 or 0, if 1 it is a series circuit. If zero a parallel
+%     circuit. Defaults to 1, a series circuit, if not specified.
+%
+%   'TotalAmps_re' - Real component of the current in the circuit in amps,
+%     defaults to zero if not supplied.
+%
+%   'TotalAmps_im' - Imaginary component of the current in the circuit in
+%     amps, defaults to zero if not supplied.
+%
 
 % Copyright 2012 Richard Crozier
 % 
