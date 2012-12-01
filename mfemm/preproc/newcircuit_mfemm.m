@@ -1,5 +1,28 @@
 function Circuit = newcircuit_mfemm(Name, varargin)
 % creates a new circuit for an mfemm FemmProblem structure
+% 
+% Syntax
+%
+% Circuit = newcircuit_mfemm(Name)
+% Circuit = newcircuit_mfemm(..., 'Paramter', 'value')
+% 
+% Description
+%
+% newcircuit_mfemm(Name) creates a circuit structure with the name in
+% 'Name'. The following optional parameter value pairs can also be
+% provided:
+%
+%   'CircType' - 1 or 0, if 1 it is a series circuit. If zero a parallel
+%     circuit. Defaults to 1, a series circuit, if not specified.
+%
+%   'TotalAmps_re' - Real component of the current in the circuit in amps,
+%     defaults to zero if not supplied.
+%
+%   'TotalAmps_im' - Imaginary component of the current in the circuit in
+%     amps, defaults to zero if not supplied.
+%
+% 
+
 
 % Copyright 2012 Richard Crozier
 % 
