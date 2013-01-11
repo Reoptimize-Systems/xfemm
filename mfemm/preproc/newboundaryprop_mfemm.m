@@ -1,12 +1,12 @@
 function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, Arg3, varargin)
-% newblocklabel_mfemm:  generates a block label structure for an mfemm
-% FemmProblem
+% newblocklabel_mfemm:  generates a boundary property structure for an
+% mfemm FemmProblem structure
 % 
 % Syntax
 % 
-% Boundary = newboundary_mfemm(x, y, NBoundaryProps)
-% Boundary = newboundary_mfemm(x, y, FemmProblem)
-% Boundary = newboundary_mfemm(..., 'Parameter', 'Value')
+% Boundary = newboundaryprop_mfemm(x, y, NBoundaryProps)
+% Boundary = newboundaryprop_mfemm(x, y, FemmProblem)
+% Boundary = newboundaryprop_mfemm(..., 'Parameter', 'Value')
 %
 % Description
 %

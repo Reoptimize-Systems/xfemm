@@ -5,6 +5,8 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 % 
 % FemmProblem = addboundaryprop_mfemm(FemmProblem, Name, BdryType)
 % FemmProblem = addboundaryprop_mfemm(..., 'Parameter', 'Value')
+% [..., boundind] = addboundaryprop_mfemm(...)
+% [..., boundname] = addboundaryprop_mfemm(...)
 %
 % Description
 %
@@ -45,5 +47,7 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
         FemmProblem.BoundaryProps(boundind) = BoundaryProp;
         
     end
+    
+    boundname = BoundaryProp.Name;
     
 end

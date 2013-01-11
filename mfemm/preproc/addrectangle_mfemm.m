@@ -1,5 +1,11 @@
 function [FemmProblem, seginds, nodeinds, nodeids, centre] = addrectangle_mfemm(FemmProblem, x, y, w, h, varargin)
 % adds a rectangular region 
+%
+% Syntax
+%
+% [FemmProblem, seginds, nodeinds, nodeids, centre] = addrectangle_mfemm(FemmProblem, x, y, w, h, varargin)
+%
+% 
 
 % Copyright 2012 Richard Crozier
 % 
