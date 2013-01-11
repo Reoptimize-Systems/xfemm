@@ -2269,7 +2269,7 @@ CComplex CFemmviewDoc::Ctr(int i)
 	int j;
 
 	for(j=0,c=0;j<3;j++){
-		p.Set(meshnode[meshelem[i].p[j]].x/3.,meshnode[meshelem[i].p[j]].y/3.);
+		p.Set(meshnode[ meshelem[i].p[j] ].x/3., meshnode[ meshelem[i].p[j] ].y/3.);
 		c+=p;
 	}
 
