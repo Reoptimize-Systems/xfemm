@@ -852,7 +852,9 @@ bool FMesher::LoadFEMFile(CStdString PathName)
             double dblvers;
             sscanf(v,"%lf",&dblvers);
             vers = (int) (10.*dblvers + 0.5);
-            if(vers>40) AfxMessageBox((std::string)"This file is from a newer version of FEMM\nThis file may contain attributes not\nsupported by this version of FEMM");
+            if(vers>40) {
+                AfxMessageBox((std::string)"This file is from a newer version of FEMM\nThis file may contain attributes not\nsupported by this version of FEMM");
+            }
             q[0] = NULL;
         }
 
@@ -1571,7 +1573,7 @@ bool FMesher::LoadFEMFile(CStdString PathName)
                 }
                 else if(t <= (int)blockproplist.size())
                 {
-                    blk.BlockType=blockproplist[t-1].BlockName;
+                    blk.BlockType = blockproplist[t-1].BlockName;
                 }
 
                 v = ParseDbl(v,&blk.MaxArea);
