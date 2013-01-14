@@ -4,6 +4,10 @@
 // #include "stdafx.h"
 // #include <afx.h>
 // #include <afxtempl.h>
+#include <string>
+#include <cstdio>
+// include the boost format lib to get nicer string handling capabilies
+#include "boost/format.hpp"
 #include "problem.h"
 #include "femm.h"
 #include "xyplot.h"
@@ -22,15 +26,17 @@ extern void lua_strlibopen (lua_State *L);
 extern void lua_mathlibopen (lua_State *L);
 extern void lua_dblibopen (lua_State *L);
 
-char *ParseDbl(char *t, double *f);
-char *ParseString(char *t, CString *s);
-char *ParseInt(char *t, int *f);
+// char *ParseDbl(char *t, double *f);
+// char *ParseString(char *t, CString *s);
+// char *ParseInt(char *t, int *f);
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+using std::string;
 
 // FPProc construction/destruction
 
@@ -39,43 +45,145 @@ double sqr(double x)
 	return x*x;
 }
 
+char *ParseDbl(char *t, double *f)
+{
+	if (t==NULL) return NULL;
+
+	int i,j,k,u,ws;
+	static char w[]="\t, \n";
+	char *v;
+
+	k=strlen(t); if(k==0) return NULL;
+
+	for(i=0,u=0,v=NULL;i<k;i++){
+		for(j=0,ws=0;j<4;j++){
+			if (t[i]==w[j]){
+				ws=1;
+				if (u==1) u=2;
+			}
+		}
+		if ((ws==0) && (u==0)) u=1;
+		if ((ws==0) && (u==2)){
+			v=t+i;
+			break;
+		}
+	}
+
+	if (u==0) return NULL;	//nothing left in the string;
+	if (v==NULL) v=t+k;
+
+	sscanf(t,"%lf",f);
+
+	return v;
+}
+
+char *ParseInt(char *t, int *f)
+{
+	if (t==NULL) return NULL;
+
+	int i,j,k,u,ws;
+	static char w[]="\t, \n";
+	char *v;
+
+	k=strlen(t); if(k==0) return NULL;
+
+	for(i=0,u=0,v=NULL;i<k;i++){
+		for(j=0,ws=0;j<4;j++){
+			if (t[i]==w[j]){
+				ws=1;
+				if (u==1) u=2;
+			}
+		}
+		if ((ws==0) && (u==0)) u=1;
+		if ((ws==0) && (u==2)){
+			v=t+i;
+			break;
+		}
+	}
+
+	if (u==0) return NULL;	//nothing left in the string;
+	if (v==NULL) v=t+k;
+
+	sscanf(t,"%i",f);
+
+	return v;
+}
+
+char *ParseString(char *t, CStdString *s)
+{
+	if (t==NULL) return NULL;
+	if (strlen(t)==0) return t;
+
+	int n1,n2,k;
+
+	// find first quote in the source string
+	for(k=0,n1=-1;k< (int) strlen(t);k++)
+	{
+		if (t[k]=='\"'){
+			n1=k;
+			break;
+		}
+	}
+
+	if (n1<0) return t;
+
+	// find second quote in the source string
+	for(k=n1+1,n2=-1;k< (int) strlen(t);k++)
+	{
+		if (t[k]=='\"'){
+			n2=k;
+			break;
+		}
+	}
+
+	if (n2<0) return t;
+
+	*s=t;
+	*s=s->Mid(n1+1,n2-n1-1);
+
+	return (t+n2+1);
+}
+
+
 FPProc::FPProc()
 {
 	// set some default values for problem definition
-	d_LineIntegralPoints=400;
-	d_ShiftH=TRUE;
-	Frequency=0.;
-	Depth=1/0.0254;
-	LengthUnits=0;
-	ProblemType=FALSE;
-	ProblemNote="Add comments here.";
-	FirstDraw=-1;
-	A_High=0.;
-	A_Low=0.;
-	A_lb=0.;
-	A_ub=0.;
-	extRo=extRi=extZo=0;
-	Smooth=TRUE;
-	NumList=NULL;
-	ConList=NULL;
-	bHasMask=FALSE;
-	LengthConv=(double *)calloc(6,sizeof(double));
-	LengthConv[0]=0.0254;	//inches
-	LengthConv[1]=0.001;	//millimeters
-	LengthConv[2]=0.01;		//centimeters
-	LengthConv[3]=1.;		//meters
-	LengthConv[4]=2.54e-05; //mils
-	LengthConv[5]=1.e-06;	//micrometers
-	Coords=FALSE;
+	d_LineIntegralPoints = 400;
+	d_ShiftH = TRUE;
+	Frequency = 0.;
+	Depth = 1/0.0254;
+	LengthUnits = 0;
+	ProblemType = FALSE;
+	ProblemNote = "Add comments here.";
+	FirstDraw = -1;
+	A_High = 0.;
+	A_Low = 0.;
+	A_lb = 0.;
+	A_ub = 0.;
+	extRo = extRi = extZo = 0;
+	Smooth = TRUE;
+	NumList = NULL;
+	ConList = NULL;
+	bHasMask = FALSE;
+	LengthConv = (double *)calloc(6,sizeof(double));
+	LengthConv[0] = 0.0254;   //inches
+	LengthConv[1] = 0.001;    //millimeters
+	LengthConv[2] = 0.01;     //centimeters
+	LengthConv[3] = 1.;       //meters
+	LengthConv[4] = 2.54e-05; //mils
+	LengthConv[5] = 1.e-06;   //micrometers
+	Coords = FALSE;
 
-	for(int i=0;i<9;i++)
-		d_PlotBounds[i][0]=d_PlotBounds[i][1]=
-		PlotBounds[i][0]=PlotBounds[i][1]=0;
+    for(int i=0;i<9;i++)
+    {
+        d_PlotBounds[i][0] = d_PlotBounds[i][1] =
+                PlotBounds[i][0] = PlotBounds[i][1] = 0;
+    }
 
 	// determine path to bin directory
-	BinDir=((CFemmApp *)AfxGetApp())->GetExecutablePath();
+// 	BinDir=((CFemmApp *)AfxGetApp())->GetExecutablePath();
 
-	ScanPreferences();
+// 	ScanPreferences();
 
 	// lua initialization stuff
 	initalise_lua();
@@ -84,51 +192,67 @@ FPProc::FPProc()
 FPProc::~FPProc()
 {
 	int i;
+    
 	free(LengthConv);
-	for(i=0;i<meshnode.GetSize();i++)
+	for(i=0;i<meshnode.size();i++)
 		if(ConList[i]!=NULL) free(ConList[i]);
 	free(ConList);
 	free(NumList);
-	if (pFemmviewdoc==this) pFemmviewdoc=NULL;
+    
+	if (pFemmviewdoc==this) pFemmviewdoc = NULL;
 }
 
-BOOL FPProc::OnNewDocument()
+/**
+ * Clear out all data associated with the last document to be loaded
+ * 
+ */
+BOOL FPProc::ClearDocument()
 {
-	if (!CDocument::OnNewDocument())
-		return FALSE;
+    
+    // clear out all current lines, nodes, and block labels
+	if(NumList!=NULL){
+		for(int i=0; i<meshnode.size(); i++)
+        {
+			if(ConList[i]!=NULL) 
+            {
+                free(ConList[i]);
+            }
+        }
+		free(ConList); 
+        ConList = NULL;
+		free(NumList); 
+        NumList = NULL;
+	}
+	nodelist.clear();
+	linelist.clear();
+	blocklist.clear();
+	arclist.clear();
+	nodeproplist.clear();
+	lineproplist.clear();
+	blockproplist.clear();
+	circproplist.clear();
+	meshnode.clear();
+	meshelem.clear();
+	contour.clear();   
+    
+}
 
+BOOL FPProc::NewDocument()
+{
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
-	int i;
 
 	// clear out all current lines, nodes, and block labels
-	if(NumList!=NULL)
-	{
-		for(i=0;i<meshnode.GetSize();i++)
-			if(ConList[i]!=NULL) free(ConList[i]);
-		free(ConList); ConList=NULL;
-		free(NumList); NumList=NULL;
-	}
-	nodelist.RemoveAll();
-	linelist.RemoveAll();
-	blocklist.RemoveAll();
-	arclist.RemoveAll();
-	nodeproplist.RemoveAll();
-	lineproplist.RemoveAll();
-	blockproplist.RemoveAll();
-	circproplist.RemoveAll();
-	meshnode.RemoveAll();
-	meshelem.RemoveAll();
-	contour.RemoveAll();
-
+	ClearDocument()
 
 	// set problem attributes to generic ones;
-	Frequency=0.;
-	LengthUnits=0;
-	ProblemType=FALSE;
-	ProblemNote="Add comments here.";
-	bHasMask=FALSE;
-	extRo=extRi=extZo=0;
+	Frequency = 0.;
+	LengthUnits = 0;
+	ProblemType = FALSE;
+	ProblemNote = "Add comments here.";
+	bHasMask = FALSE;
+	extRo = extRi = extZo = 0;
+    Depth = -1;
 
 	return TRUE;
 }
@@ -136,17 +260,17 @@ BOOL FPProc::OnNewDocument()
 /////////////////////////////////////////////////////////////////////////////
 // FPProc serialization
 
-void FPProc::Serialize(CArchive& ar)
-{
-	if (ar.IsStoring())
-	{
-		// TODO: add storing code here
-	}
-	else
-	{
-		// TODO: add loading code here
-	}
-}
+// void FPProc::Serialize(CArchive& ar)
+// {
+// 	if (ar.IsStoring())
+// 	{
+// 		// TODO: add storing code here
+// 	}
+// 	else
+// 	{
+// 		// TODO: add loading code here
+// 	}
+// }
 
 /////////////////////////////////////////////////////////////////////////////
 // FPProc diagnostics
@@ -166,10 +290,9 @@ void FPProc::Dump(CDumpContext& dc) const
 /////////////////////////////////////////////////////////////////////////////
 // FPProc commands
 
-BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
+
+BOOL FPProc::OpenDocument(string pathname)
 {
-	if (!CDocument::OnOpenDocument(lpszPathName))
-		return FALSE;
 
 	FILE *fp;
 	int i,j,k,t;
@@ -177,7 +300,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 	char *v;
 	double b,bi,br;
 	double zr,zi;
-	BOOL flag=FALSE;
+	BOOL flag = FALSE;
 	CPointProp	  PProp;
 	CBoundaryProp BProp;
 	CMaterialProp MProp;
@@ -190,37 +313,15 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 	CMeshNode	mnode;
 	CPoint		mline;
 
-	// make sure old document is cleared out...
-	if(NumList!=NULL){
-		for(i=0;i<meshnode.GetSize();i++)
-			if(ConList[i]!=NULL) free(ConList[i]);
-		free(ConList); ConList=NULL;
-		free(NumList); NumList=NULL;
-	}
-	nodelist.RemoveAll();
-	linelist.RemoveAll();
-	blocklist.RemoveAll();
-	arclist.RemoveAll();
-	nodeproplist.RemoveAll();
-	lineproplist.RemoveAll();
-	blockproplist.RemoveAll();
-	circproplist.RemoveAll();
-	meshnode.RemoveAll();
-	meshelem.RemoveAll();
-	contour.RemoveAll();
+	// clear out all the document data and set defaults to standard values
+	NewDocument();
 
-	if ((fp=fopen(lpszPathName,"rt"))==NULL){
+    // attempt to open the file for reading
+	if ((fp = fopen(pathname,"rt")) == NULL)
+    {
 		AfxMessageBox("Couldn't read from specified .poly file");
 		return FALSE;
 	}
-
-	// define some defaults
-	Frequency=0.;
-	ProblemType=0;
-	Coords=0;
-	ProblemNote="";
-	bHasMask=FALSE;
-	Depth=-1;
 
 	// parse the file
 	while (flag==FALSE)
@@ -421,7 +522,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 					i=-1;
 				}
 			}
-			BProp.BdryName=v;
+			BProp.BdryName = v;
 			q[0]=NULL;
 		}
 
@@ -777,7 +878,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 				//some defaults
 				blk.MaxArea=0.;
 				blk.MagDir=0.;
-				blk.MagDirFctn.Empty();
+				blk.MagDirFctn.clear();
 				blk.Turns=1;
 				blk.InCircuit=0;
 				blk.InGroup=0;
@@ -861,7 +962,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 	if(Depth==-1) Depth=1; else Depth*=LengthConv[LengthUnits];
 
 	// element centroids and radii;
-	for(i=0;i<meshelem.GetSize();i++)
+	for(i=0;i<meshelem.size();i++)
 	{
 		meshelem[i].ctr=Ctr(i);
 		for(j=0,meshelem[i].rsqr=0;j<3;j++)
@@ -877,29 +978,47 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 	lua_baselibopen(LocalLua);
 	lua_strlibopen(LocalLua);
 	lua_mathlibopen(LocalLua);
-	for(i=0;i<meshelem.GetSize();i++){
-		if(blocklist[meshelem[i].lbl].MagDirFctn.GetLength()==0){
-			meshelem[i].magdir=blocklist[meshelem[i].lbl].MagDir;
+	for(i=0; i<meshelem.size(); i++)
+    {
+		if(blocklist[meshelem[i].lbl].MagDirFctn.length()==0)
+        {
+            // The magnetisation direction in the associated blockis just 
+            // a number, so store it for this element
+			meshelem[i].magdir = blocklist[meshelem[i].lbl].MagDir;
 		}
-		else{
-			CString str;
-			CComplex X;
-			X=meshelem[i].ctr;
-			str.Format("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s",
-				X.re,X.im,arg(X)*180/PI,abs(X),blocklist[meshelem[i].lbl].MagDirFctn);
+		else
+        {
+            // The magnetization direction is defined by a lua calculation
+			string str;
+            CComplex X;
+            
+			// Get the element centroid
+            X = meshelem[i].ctr;
+            // generate the string using boost::format 
+			str << boost::format("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s")
+                                 % X.re 
+                                 % X.im 
+                                 % arg(X)*180/PI 
+                                 % abs(X) 
+                                 % blocklist[meshelem[i].lbl].MagDirFctn;
+            // Have the lua interpreter evaluate the string 
 			lua_dostring(LocalLua,str);
-			meshelem[i].magdir=Re(lua_tonumber(LocalLua,-1));
-			lua_pop(LocalLua, 1);
+			// Put the last number produced by lua into the element mag 
+            // direction
+            meshelem[i].magdir = Re(lua_tonumber(LocalLua,-1));
+			
+            lua_pop(LocalLua, 1);
 		}
 	}
 	lua_close(LocalLua);
 
 	// Find flux density in each element;
-	for(i=0;i<meshelem.GetSize();i++) GetElementB(meshelem[i]);
+	for(i=0;i<meshelem.size();i++) GetElementB(meshelem[i]);
 
 	// Find extreme values of A;
-	A_Low=meshnode[0].A.re; A_High=meshnode[0].A.re;
-	for(i=1;i<meshnode.GetSize();i++)
+	A_Low = meshnode[0].A.re; 
+    A_High = meshnode[0].A.re;
+	for(i=1;i<meshnode.size();i++)
 	{
 		if (meshnode[i].A.re>A_High) A_High=meshnode[i].A.re;
 		if (meshnode[i].A.re<A_Low)  A_Low =meshnode[i].A.re;
@@ -921,7 +1040,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 		double ds;
 		double w=2.*PI*Frequency;
 
-		for(k=0;k<blockproplist.GetSize();k++){
+		for(k=0;k<blockproplist.size();k++){
 		if (blockproplist[k].LamType==0){
 			blockproplist[k].mu_fdx = blockproplist[k].mu_x*
 									  exp(-I*blockproplist[k].Theta_hx*PI/180.);
@@ -960,25 +1079,25 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 	}}
 
 	// compute fill factor associated with each block label
-	for(k=0;k<blocklist.GetSize();k++)
+	for(k=0;k<blocklist.size();k++)
 	{
 		GetFillFactor(k);
 	}
 
 	// build list of elements connected to each node;
 	// allocate connections list;
-	NumList=(int *)calloc(meshnode.GetSize(),sizeof(int));
-	ConList=(int **)calloc(meshnode.GetSize(),sizeof(int *));
+	NumList=(int *)calloc(meshnode.size(),sizeof(int));
+	ConList=(int **)calloc(meshnode.size(),sizeof(int *));
 	// find out number of connections to each node;
-	for(i=0;i<meshelem.GetSize();i++)
+	for(i=0;i<meshelem.size();i++)
 		for(j=0;j<3;j++)
 			NumList[meshelem[i].p[j]]++;
 	// allocate space for connections lists;
-	for(i=0;i<meshnode.GetSize();i++)
+	for(i=0;i<meshnode.size();i++)
 		ConList[i]=(int *)calloc(NumList[i],sizeof(int));
 	// build list;
-	for(i=0;i<meshnode.GetSize();i++) NumList[i]=0;
-	for(i=0;i<meshelem.GetSize();i++)
+	for(i=0;i<meshnode.size();i++) NumList[i]=0;
+	for(i=0;i<meshelem.size();i++)
 		for(j=0;j<3;j++){
 			k=meshelem[i].p[j];
 			ConList[k][NumList[k]]=i;
@@ -1000,7 +1119,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 		Ji_High=Ji_Low;
 		J_Low=abs(Jelm[0]);
 		J_High=J_Low;
-		for(i=0;i<meshelem.GetSize();i++)
+		for(i=0;i<meshelem.size();i++)
 		{
 			GetJA(i,Jelm,Aelm);
 			for(j=0;j<3;j++){
@@ -1063,7 +1182,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 		H_Low=sqrt(Hr_Low*Hr_Low + Hi_Low*Hi_Low);
 		H_High=H_Low;
 
-		for(i=0;i<meshelem.GetSize();i++)
+		for(i=0;i<meshelem.size();i++)
 		{
 			GetNodalB(meshelem[i].b1,meshelem[i].b2,meshelem[i]);
 			for(j=0;j<3;j++){
@@ -1129,13 +1248,13 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 
 	// compute total resulting current for circuits with an a priori defined
 	// voltage gradient;  Need this to display circuit results & impedance.
-	for(i=0;i<circproplist.GetSize();i++)
+	for(i=0;i<circproplist.size();i++)
 	{
 		CComplex Jelm[3],Aelm[3];
 		double a;
 
 		if(circproplist[i].CircType>1)
-		for(j=0,circproplist[i].Amps=0.;j<meshelem.GetSize();j++)
+		for(j=0,circproplist[i].Amps=0.;j<meshelem.size();j++)
 		{
 			if(blocklist[meshelem[j].lbl].InCircuit==i)
 			{
@@ -1155,7 +1274,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 	// Check to see if any regions are multiply defined
 	// (i.e. tagged by more than one block label). If so,
 	// display an error message and mark the problem blocks.
-	for(k=0,bMultiplyDefinedLabels=FALSE;k<blocklist.GetSize();k++)
+	for(k=0,bMultiplyDefinedLabels=FALSE;k<blocklist.size();k++)
 	{
 		if((i=InTriangle(blocklist[k].x,blocklist[k].y))>=0)
 		{
@@ -1164,11 +1283,11 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 				blocklist[meshelem[i].lbl].IsSelected=TRUE;
 				if (!bMultiplyDefinedLabels)
 				{
-					CString msg;
-					msg ="Some regions in the problem have been defined\n";
-					msg+="by more than one block label.  These potentially\n";
-					msg+="problematic regions will appear as selected in\n";
-					msg+="the initial view.";
+                    
+					string msg = "Some regions in the problem have been defined\n";
+					msg += "by more than one block label.  These potentially\n";
+					msg += "problematic regions will appear as selected in\n";
+					msg += "the initial view.";
 					AfxMessageBox(msg);
 					bMultiplyDefinedLabels=TRUE;
 				}
@@ -1181,7 +1300,7 @@ BOOL FPProc::OnOpenDocument(LPCTSTR lpszPathName)
 	// permanent magnets with a nonlinear demagnetization curve
 	if (Frequency==0)
 	{
-		for(k=0;k<blockproplist.GetSize();k++)
+		for(k=0;k<blockproplist.size();k++)
 		{
 			if ((blockproplist[k].H_c>0) && (blockproplist[k].BHpoints>0))
 			{
@@ -1201,7 +1320,7 @@ int FPProc::InTriangle(double x, double y)
 	int j,hi,lo,sz;
 	double z;
 
-	sz=meshelem.GetSize();
+	sz=meshelem.size();
 	if((k<0) || (k>=sz)) k=0;
 
 	// In most applications, the triangle we're looking
@@ -1826,8 +1945,8 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
 
 		// check to see if the point has a point current; if so, just
 		// use element average values;
-		if (nodeproplist.GetSize()!=0)
-		for(j=0;j<nodelist.GetSize();j++)
+		if (nodeproplist.size()!=0)
+		for(j=0;j<nodelist.size();j++)
 		{
 			if (abs(p-(nodelist[j].x+nodelist[j].y*I))<1.e-08)
 			if(nodelist[j].BoundaryMarker>=0)
@@ -1914,28 +2033,28 @@ void FPProc::GetElementB(CElement &elm)
 }
 
 
-void FPProc::OnReload()
-{
-	// TODO: Add your command handler code here
-	CString pname = GetPathName();
-	if(pname.GetLength()>0)
-	{
-		OnNewDocument();
-		SetPathName(pname,FALSE);
-		OnOpenDocument(pname);
-	}
-}
+// void FPProc::OnReload()
+// {
+// 	// TODO: Add your command handler code here
+// 	CString pname = GetPathName();
+// 	if(pname.GetLength()>0)
+// 	{
+// 		NewDocument();
+// 		SetPathName(pname,FALSE);
+// 		OpenDocument(pname);
+// 	}
+// }
 
 int FPProc::ClosestNode(double x, double y)
 {
 	int i,j;
 	double d0,d1;
 
-	if(nodelist.GetSize()==0) return -1;
+	if(nodelist.size()==0) return -1;
 
 	j=0;
 	d0=nodelist[0].GetDistance(x,y);
-	for(i=0;i<nodelist.GetSize();i++){
+	for(i=0;i<nodelist.size();i++){
 		d1=nodelist[i].GetDistance(x,y);
 		if(d1<d0){
 			d0=d1;
@@ -1954,8 +2073,8 @@ void FPProc::GetLineValues(CXYPlot &p,int PlotType,int NumPlotPoints)
 	CPointVals v;
 	BOOL flag;
 
-	q=(double *)calloc(contour.GetSize(),sizeof(double));
-	for(i=1,z=0.;i<contour.GetSize();i++)
+	q=(double *)calloc(contour.size(),sizeof(double));
+	for(i=1,z=0.;i<contour.size();i++)
 	{
 		z+=abs(contour[i]-contour[i-1]);
 		q[i]=z;
@@ -2101,7 +2220,7 @@ void FPProc::GetLineValues(CXYPlot &p,int PlotType,int NumPlotPoints)
 
 	for(i=0,k=1,z=0,elm=-1;i<NumPlotPoints;i++,z+=dz)
 	{
-		while((z>q[k]) && (k<(contour.GetSize()-1))) k++;
+		while((z>q[k]) && (k<(contour.size()-1))) k++;
 		u=(z-q[k-1])/(q[k]-q[k-1]);
 		pt=contour[k-1]+u*(contour[k]-contour[k-1]);
 		t=contour[k]-contour[k-1];
@@ -2439,7 +2558,7 @@ CComplex FPProc::BlockIntegral(int inttype)
 	z=0; for(i=0;i<3;i++) U[i]=1.;
 
 	if(inttype==6) z= BlockIntegral(3) + BlockIntegral(4); //total losses
-	else for(i=0;i<meshelem.GetSize();i++)
+	else for(i=0;i<meshelem.size();i++)
 	{
 	  if(blocklist[meshelem[i].lbl].IsSelected==TRUE)
 	  {
@@ -2847,7 +2966,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 		double l;
 		int i,k;
 
-		k=contour.GetSize();
+		k=contour.size();
 		GetPointValues(contour[0].re,contour[0].im, u);
 		a0=u.A;
 		GetPointValues(contour[k-1].re,contour[k-1].im,u);
@@ -2879,7 +2998,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 		BOOL flag;
 
 		z[0]=0;
-		for(k=1;k<contour.GetSize();k++)
+		for(k=1;k<contour.size();k++)
 		{
 			dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
 			for(i=0,elm=-1;i<NumPlotPoints;i++)
@@ -2919,7 +3038,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 			}
 
 
-			for(i=0,l=0;i<contour.GetSize()-1;i++)
+			for(i=0,l=0;i<contour.size()-1;i++)
 				l+=abs(contour[i+1]-contour[i]);
 			l*=LengthConv[LengthUnits];
 			if(l!=0) z[1]=z[0]/l;
@@ -2929,7 +3048,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 	// inttype==2 => Contour Length
 	if(inttype==2){
 		int i,k;
-		k=contour.GetSize();
+		k=contour.size();
 		for(i=0,z[0].re=0;i<k-1;i++)
 			z[0].re+=abs(contour[i+1]-contour[i]);
 		z[0].re*=LengthConv[LengthUnits];
@@ -2956,7 +3075,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 
 		for(i=0;i<4;i++) z[i]=0;
 
-		for(k=1;k<contour.GetSize();k++)
+		for(k=1;k<contour.size();k++)
 		{
 			dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
 			for(i=0,elm=-1;i<NumPlotPoints;i++)
@@ -3050,7 +3169,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 
 		for(i=0;i<2;i++) z[i].Set(0,0);
 
-		for(k=1;k<contour.GetSize();k++)
+		for(k=1;k<contour.size();k++)
 		{
 			dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
 			for(i=0,elm=-1;i<NumPlotPoints;i++)
@@ -3129,7 +3248,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 		BOOL flag;
 
 		z[0]=0;
-		for(k=1;k<contour.GetSize();k++)
+		for(k=1;k<contour.size();k++)
 		{
 			dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
 			for(i=0,elm=-1;i<NumPlotPoints;i++)
@@ -3169,7 +3288,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 			}
 
 
-			for(i=0,l=0;i<contour.GetSize()-1;i++)
+			for(i=0,l=0;i<contour.size()-1;i++)
 				l+=abs(contour[i+1]-contour[i]);
 			l*=LengthConv[LengthUnits];
 			if(l!=0) z[1]=z[0]/l;
@@ -3186,11 +3305,11 @@ int FPProc::ClosestArcSegment(double x, double y)
 	double d0,d1;
 	int i,j;
 
-	if(arclist.GetSize()==0) return -1;
+	if(arclist.size()==0) return -1;
 
 	j=0;
 	d0=ShortestDistanceFromArc(CComplex(x,y),arclist[0]);
-	for(i=0;i<arclist.GetSize();i++){
+	for(i=0;i<arclist.size();i++){
 		d1=ShortestDistanceFromArc(CComplex(x,y),arclist[i]);
 		if(d1<d0){
 			d0=d1;
@@ -3261,46 +3380,49 @@ double FPProc::ShortestDistanceFromSegment(double p, double q, int segm)
 	return sqrt((p-x[2])*(p-x[2]) + (q-y[2])*(q-y[2]));
 }
 
-BOOL FPProc::ScanPreferences()
-{
-	FILE *fp;
-	CString fname;
-
-	fname=BinDir+"femmview.cfg";
-
-	fp=fopen(fname,"rt");
-	if (fp!=NULL)
-	{
-		BOOL flag=FALSE;
-		char s[1024];
-		char q[1024];
-		char *v;
-
-		// parse the file
-		while (fgets(s,1024,fp)!=NULL)
-		{
-			sscanf(s,"%s",q);
-
-			if( _strnicmp(q,"<LineIntegralPoints>",20)==0)
-			{
-			  v=StripKey(s);
-			  sscanf(v,"%i",&d_LineIntegralPoints);
-			  q[0]=NULL;
-			}
-
-			if( _strnicmp(q,"<ShiftH>",8)==0)
-			{
-			  v=StripKey(s);
-			  sscanf(v,"%i",&d_ShiftH);
-			  q[0]=NULL;
-			}
-		}
-		fclose(fp);
-	}
-	else return FALSE;
-
-	return TRUE;
-}
+// BOOL FPProc::ScanPreferences()
+// {
+// 	FILE *fp;
+// 	string fname;
+// 
+// 	fname= (string)BinDir + "femmview.cfg";
+// 
+//     d_LineIntegralPoints = 100;
+//     d_ShiftH = 
+//             
+// 	fp=fopen(fname,"rt");
+// 	if (fp!=NULL)
+// 	{
+// 		BOOL flag=FALSE;
+// 		char s[1024];
+// 		char q[1024];
+// 		char *v;
+// 
+// 		// parse the file
+// 		while (fgets(s,1024,fp)!=NULL)
+// 		{
+// 			sscanf(s,"%s",q);
+// 
+// 			if( _strnicmp(q,"<LineIntegralPoints>",20)==0)
+// 			{
+// 			  v=StripKey(s);
+// 			  sscanf(v,"%i",&d_LineIntegralPoints);
+// 			  q[0]=NULL;
+// 			}
+// 
+// 			if( _strnicmp(q,"<ShiftH>",8)==0)
+// 			{
+// 			  v=StripKey(s);
+// 			  sscanf(v,"%i",&d_ShiftH);
+// 			  q[0]=NULL;
+// 			}
+// 		}
+// 		fclose(fp);
+// 	}
+// 	else return FALSE;
+// 
+// 	return TRUE;
+// }
 
 void FPProc::BendContour(double angle, double anglestep)
 {
@@ -3313,7 +3435,7 @@ void FPProc::BendContour(double angle, double anglestep)
 
 	// check to see if there are at least enough
 	// points to have made one line;
-	k=contour.GetSize()-1;
+	k=contour.size()-1;
 	if (k<1) return;
 
 	// restrict the angle of the contour to 180 degrees;
@@ -3360,7 +3482,7 @@ CComplex FPProc::GetStrandedVoltageDrop(int lbl)
 
 	U[0]=1; U[1]=1; U[2]=1;
 
-	for(i=0,dVolts=0,atot=0;i<meshelem.GetSize();i++)
+	for(i=0,dVolts=0,atot=0;i<meshelem.size();i++)
 	{
 		  if(meshelem[i].lbl==lbl)
 		  {
@@ -3413,7 +3535,7 @@ void FPProc::GetFillFactor(int lbl)
 	if (blockproplist[blocklist[lbl].BlockType].LamType<3) return;
 
 	// compute total area of associated block
-	for(i=0,atot=0;i<meshelem.GetSize();i++)
+	for(i=0,atot=0;i<meshelem.size();i++)
 		  if(meshelem[i].lbl==lbl) atot+=ElmArea(i)*lc;
 	if (atot==0) return;
 
@@ -3542,7 +3664,7 @@ CComplex FPProc::GetStrandedLinkage(int lbl)
 
 	U[0]=1; U[1]=1; U[2]=1;
 
-	for(i=0,FluxLinkage=0,atot=0;i<meshelem.GetSize();i++)
+	for(i=0,FluxLinkage=0,atot=0;i<meshelem.size();i++)
 	{
 		  if(meshelem[i].lbl==lbl)
 		  {
@@ -3584,7 +3706,7 @@ CComplex FPProc::GetSolidAxisymmetricLinkage(int lbl)
 
 	U[0]=1; U[1]=1; U[2]=1;
 
-	for(i=0,FluxLinkage=0,atot=0;i<meshelem.GetSize();i++)
+	for(i=0,FluxLinkage=0,atot=0;i<meshelem.size();i++)
 	{
 		  if(meshelem[i].lbl==lbl)
 		  {
@@ -3621,7 +3743,7 @@ CComplex FPProc::GetParallelLinkage(int numcirc)
 
 	U[0]=1; U[1]=1; U[2]=1;
 
-	for(i=0,FluxLinkage=0,atot=0;i<meshelem.GetSize();i++)
+	for(i=0,FluxLinkage=0,atot=0;i<meshelem.size();i++)
 	{
 		  if(blocklist[meshelem[i].lbl].InCircuit==numcirc)
 		  {
@@ -3670,7 +3792,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
 
 	U[0]=1; U[1]=1; U[2]=1;
 
-	for(i=0,FluxLinkage=0,atot=0;i<meshelem.GetSize();i++)
+	for(i=0,FluxLinkage=0,atot=0;i<meshelem.size();i++)
 	{
 		  if(blocklist[meshelem[i].lbl].InCircuit==numcirc)
 		  {
@@ -3705,7 +3827,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
 	// if the circuit is a "series" circuit...
 	if(circproplist[circnum].CircType==1)
 	{
-		for(i=0;i<blocklist.GetSize();i++)
+		for(i=0;i<blocklist.size();i++)
 		{
 			if (blocklist[i].InCircuit==circnum)
 			{
@@ -3729,7 +3851,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
 		// root through the block labels until
 		// we find one that gives us the voltage drop.
 		BOOL flag=FALSE;
-		for(i=0;i<blocklist.GetSize();i++)
+		for(i=0;i<blocklist.size();i++)
 		{
 			if ((blocklist[i].InCircuit==circnum) && (blocklist[i].Case==0))
 			{
@@ -3738,7 +3860,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
 				else
 					Volts -= (Depth*blocklist[i].dVolts);
 				flag=TRUE;
-				i=blocklist.GetSize();
+				i=blocklist.size();
 			}
 		}
 
@@ -3756,7 +3878,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
 
 			U[0]=1; U[1]=1; U[2]=1;
 
-			for(i=0,FluxLinkage=0,atot=0;i<meshelem.GetSize();i++)
+			for(i=0,FluxLinkage=0,atot=0;i<meshelem.size();i++)
 			{
 				  if(blocklist[meshelem[i].lbl].InCircuit==circnum)
 				  {
@@ -3791,7 +3913,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
 	// and divide through by i.conj to get the flux linkage.
 	if((circproplist[circnum].Amps.re!=0) || (circproplist[circnum].Amps.im!=0))
 	{
-		for(i=0,FluxLinkage=0;i<meshelem.GetSize();i++)
+		for(i=0,FluxLinkage=0;i<meshelem.size();i++)
 		{
 			if(blocklist[meshelem[i].lbl].InCircuit==circnum)
 			{
@@ -3840,7 +3962,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
 			// First, deal with "series" circuits...
 			if(circproplist[circnum].CircType==1)
 			{
-				for(i=0,FluxLinkage=0;i<blocklist.GetSize();i++)
+				for(i=0,FluxLinkage=0;i<blocklist.size();i++)
 				{
 					if(blocklist[i].InCircuit==circnum)
 					{
@@ -3859,7 +3981,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
 				// first, see whether some of the blocks have nonzero conductivity;
 				// flag=TRUE means that at least one of the blocks has a
 				// nonzero conductivity.
-				for(i=0,flag=FALSE;i<blocklist.GetSize();i++)
+				for(i=0,flag=FALSE;i<blocklist.size();i++)
 					if((blocklist[i].Case==0) &&
 						(blocklist[i].InCircuit==circnum)) flag=TRUE;
 
@@ -3970,7 +4092,7 @@ void FPProc::FindBoundaryEdges()
   static int minus1mod3[3] = {2, 0, 1};
 
   // Init all elements' neigh to be unfinished.
-  for(i = 0; i < meshelem.GetSize(); i ++) {
+  for(i = 0; i < meshelem.size(); i ++) {
     for(j = 0; j < 3; j ++)
 	  meshelem[i].n[j] = 0;
   }
@@ -3980,7 +4102,7 @@ void FPProc::FindBoundaryEdges()
   BOOL done;
 
   // Loop all elements, to find and set there neighs.
-  for(i = 0; i < meshelem.GetSize(); i ++) {
+  for(i = 0; i < meshelem.size(); i ++) {
     for(j = 0; j < 3; j ++) {
       if(meshelem[i].n[j] == 0) {
         // Get this edge's org and dest node index,
