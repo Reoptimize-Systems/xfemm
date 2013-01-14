@@ -5,12 +5,12 @@
 #include "luadebug.h"
 #include "luaconsoledlg.h"
 
-extern CFemmApp theApp; //<DP>
+// extern CFemmApp theApp; //<DP>
 
 #ifndef FPPROC_H
 #define FPPROC_H
 
-class FPProc : public CDocument
+class FPProc
 {
 
 // Attributes
@@ -47,37 +47,37 @@ public:
 //	double  J_High, J_Low;
 
 	// Some default behaviors
-	CString BinDir;
 	int  d_LineIntegralPoints;
 	BOOL d_ShiftH;
 	BOOL bHasMask;
 	
 	// lists of nodes, segments, and block labels
-	CArray< femmviewdata::CNode, femmviewdata::CNode&>             nodelist;
-	CArray< femmviewdata::CSegment, femmviewdata::CSegment&>       linelist;
-	CArray< femmviewdata::CBlockLabel, femmviewdata::CBlockLabel&> blocklist;
-	CArray< femmviewdata::CArcSegment, femmviewdata::CArcSegment&> arclist;
+	std::vector< CNode >       nodelist;
+	std::vector< CSegment >    linelist;
+	std::vector< CArcSegment > arclist;
+	std::vector< CBlockLabel > blocklist;
 
-	// CArrays containing the mesh information
-	CArray< femmviewdata::CMeshNode, femmviewdata::CMeshNode&>			meshnode;
-	CArray< femmviewdata::CElement, femmviewdata::CElement&>			meshelem;
+	// vectors containing the mesh information
+	std::vector< CMeshNode >  meshnode;
+	std::vector< CElement >   meshelem;
 	
 	// List of elements connected to each node;
 	int *NumList;
 	int **ConList;
 
 	// lists of properties
-	CArray< femmviewdata::CMaterialProp, femmviewdata::CMaterialProp& > blockproplist;
-	CArray< femmviewdata::CBoundaryProp, femmviewdata::CBoundaryProp& > lineproplist;
-	CArray< femmviewdata::CPointProp,    femmviewdata::CPointProp&    > nodeproplist;	
-	CArray< femmviewdata::CCircuit,      femmviewdata::CCircuit&      > circproplist;
+    std::vector< CMaterialProp > blockproplist;
+	std::vector< CBoundaryProp > lineproplist;
+	std::vector< CPointProp >    nodeproplist;
+	std::vector< CCircuit >      circproplist;
 
 	// list of points in a user-defined contour;
-	CArray< CComplex, CComplex& > contour;
+	std::vector< CComplex > contour;
 
 	// stuff that PTLOC needs
-	CArray< CMeshNode, CMeshNode&> *pmeshnode;
-	CArray< CElement, CElement&>   *pmeshelem;
+	std::vector< CMeshNode >  *pmeshnode;
+	std::vector< CElement >   *pmeshelem;
+    
 //	TriEdge recenttri;
 //	int samples;
 //	unsigned long randomseed; 
@@ -133,9 +133,9 @@ public:
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(FPProc)
 public:
-	virtual BOOL OnNewDocument();
-	virtual void Serialize(CArchive& ar);
-	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual BOOL NewDocument();
+// 	virtual void Serialize(CArchive& ar);
+	virtual BOOL OpenDocument(LPCTSTR lpszPathName);
 	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
 	//}}AFX_VIRTUAL
 
