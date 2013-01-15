@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 #include "lua.h"
 #include "luadebug.h"
-#include "luaconsoledlg.h"
+//#include "luaconsoledlg.h"
 
 // extern CFemmApp theApp; //<DP>
 
@@ -15,10 +15,10 @@ class FPProc
 
 // Attributes
 public:
-    
+
     FPProc();
     virtual ~FPProc();
-    
+
     // General problem attributes
     double  Frequency;
     double  Depth;
@@ -50,7 +50,7 @@ public:
     int  d_LineIntegralPoints;
     BOOL d_ShiftH;
     BOOL bHasMask;
-    
+
     // lists of nodes, segments, and block labels
     std::vector< CNode >       nodelist;
     std::vector< CSegment >    linelist;
@@ -60,7 +60,7 @@ public:
     // vectors containing the mesh information
     std::vector< CMeshNode >  meshnode;
     std::vector< CElement >   meshelem;
-    
+
     // List of elements connected to each node;
     int *NumList;
     int **ConList;
@@ -77,13 +77,13 @@ public:
     // stuff that PTLOC needs
     std::vector< CMeshNode >  *pmeshnode;
     std::vector< CElement >   *pmeshelem;
-    
+
 //    TriEdge recenttri;
 //    int samples;
-//    unsigned long randomseed; 
+//    unsigned long randomseed;
 //    TriEdge bdrylinkhead[512];
 //    int numberofbdrylink;
-    
+
     // member functions
     int InTriangle(double x, double y);
     BOOL InTriangleTest(double x, double y, int i);
