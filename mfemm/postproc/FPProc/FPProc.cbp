@@ -32,7 +32,11 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="fpproc.cpp" />
+		<Unit filename="fpproc.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="problem.cpp" />
+		<Unit filename="problem.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
