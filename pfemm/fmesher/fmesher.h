@@ -107,7 +107,7 @@ public:
 	std::vector< CArcSegment > undoarclist;
 	std::vector< CBlockLabel > undoblocklist;
 
-	// CArrays containing the mesh information
+	// vectors containing the mesh information
 	std::vector< myPoint >		meshline;
 	std::vector< myPoint >		greymeshline;
 	std::vector< CNode >		meshnode;
