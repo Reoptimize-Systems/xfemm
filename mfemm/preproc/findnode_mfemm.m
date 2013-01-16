@@ -1,5 +1,18 @@
 function [id, xycoords] = findnode_mfemm(FemmProblem, loc)
 % findnode_mfemm: finds the node nearest a given location
+%
+% Syntax
+%
+% [id, xycoords] = findnode_mfemm(FemmProblem, loc)
+%
+% Input
+%
+%  FemmProblem - an mfemm problem structure containing at least one node
+%
+%  loc - (n x 2) matrix of sets of x and y positions. The node closest to
+%    each location will be found.
+%
+% 
 
 % Copyright 2012 Richard Crozier
 % 
@@ -18,14 +31,18 @@ function [id, xycoords] = findnode_mfemm(FemmProblem, loc)
 
     nodecoords = getnodecoords_mfemm(FemmProblem);
     
-    % find the nearest node to the location
-    % ipdm returns a structure with fields named 'rowindex',
-    % 'columnindex', and 'distance'.
-    result = ipdm(loc, nodecoords, 'Result', 'Structure', 'Subset', 'NearestNeighbor');
+    for ind = 1:size(loc,1)
+        
+        % find the nearest node to the location
+        % ipdm returns a structure with fields named 'rowindex',
+        % 'columnindex', and 'distance'.
+        result = ipdm(loc(ind,:), nodecoords, 'Result', 'Structure', 'Subset', 'NearestNeighbor');
+
+        % get the indices of the nodes and subtract 1 to make zero based
+        id(ind) = result.columnindex - 1;
+
+        xycoords = cat(1, FemmProblem.Nodes(id+1).Coords);
     
-    % get the indices of the nodes and subtract 1 to make zero based
-    id = result.columnindex - 1;
-    
-    xycoords = cat(1, FemmProblem.Nodes(id+1).Coords);
+    end
 
 end
