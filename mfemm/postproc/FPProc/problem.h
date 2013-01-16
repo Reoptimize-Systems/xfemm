@@ -1,12 +1,30 @@
+#include <string>
+#include "complex.h"
+
+
+#ifndef BOOL
+#define BOOL int
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 namespace FPProcdata{
 /////////////////////////////////////////////////////////////////////////////
 // CNode -- structure that holds information about each control point.
+
+using std::string;
 
 class CNode
 {
     public:
         CNode();
-            
+
         double x,y;
         int xs,ys;
         BOOL IsSelected;
@@ -24,12 +42,12 @@ class CMeshNode
 {
     public:
         CMeshNode();
-            
+
         double x,y;
         CComplex A;
         double msk;
         int xs,ys;
-        
+
         double GetDistance(double xo, double yo);
         CComplex CC();
 
@@ -43,7 +61,7 @@ class CSegment
 {
     public:
         CSegment();
-            
+
         int n0,n1;
         double MaxSideLength;
         BOOL IsSelected;
@@ -60,7 +78,7 @@ class CArcSegment
 {
     public:
         CArcSegment();
-            
+
         int n0,n1;
         BOOL IsSelected;
         BOOL Hidden;
@@ -79,7 +97,7 @@ class CBlockLabel
 {
     public:
         CBlockLabel();
-                
+
         double x,y;
         double MaxArea;
         double MagDir;
@@ -124,7 +142,7 @@ class CMaterialProp
         void GetMu(CComplex b1,CComplex b2,CComplex &mu1, CComplex &mu2);
         double GetEnergy(double b);        // straight from the
         double GetCoEnergy(double b);    // BH curve data
-    
+
         // routines that are actually called to get
         // energy and coenergy.  These catch and take
         // care of all of the weird special cases
@@ -138,7 +156,7 @@ class CMaterialProp
         double mu_x,mu_y;        // permeabilities, relative
         int BHpoints;            // number of points in the BH curve...
         double   *Bdata;
-        CComplex *Hdata;        // entries in B-H curve;    
+        CComplex *Hdata;        // entries in B-H curve;
         CComplex *slope;            // slopes used in interpolation
                                 // of BHdata
         int    LamType;            // flag that tells how block is laminated;
@@ -165,7 +183,7 @@ class CMaterialProp
 class CBoundaryProp
 {
     public:
-    
+
         CBoundaryProp();
 
         string BdryName;
@@ -175,10 +193,10 @@ class CBoundaryProp
                                 // 2 = Mixed BC
 
         double A0,A1,A2,phi;    // set value of A for BdryFormat=0;
-    
+
         double Mu,Sig;            // material properties necessary to apply
                                 // eddy current BC
-        
+
         CComplex c0,c1;            // coefficients for mixed BC
 
     private:
@@ -191,7 +209,7 @@ class CPointProp
         CPointProp();
 
         string PointName;
-        double Jr,Ji;            // applied point current, A 
+        double Jr,Ji;            // applied point current, A
         double Ar,Ai;                // prescribed nodal value;
 
     private:
@@ -242,7 +260,7 @@ class CPointVals
         double Ph;            // power dissipated by hysteresis
         double Pe;            // power dissipated by eddy currents
         double ff;            // winding fill factor
-        
+
         CPointVals();
 
     private:

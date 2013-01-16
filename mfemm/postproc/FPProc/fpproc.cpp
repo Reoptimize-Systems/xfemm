@@ -5,11 +5,12 @@
 // #include <afx.h>
 // #include <afxtempl.h>
 #include <string>
+#include <cstring>
 #include <cstdio>
 // include the boost format lib to get nicer string handling capabilies
 #include "boost/format.hpp"
 #include "problem.h"
-#include "femm.h"
+//#include "femm.h"
 //#include "xyplot.h"
 #include "fpproc.h"
 //#include "femmviewView.h"
@@ -17,7 +18,7 @@
 
 extern lua_State * lua;
 extern void *pFemmviewdoc;
-extern CLuaConsoleDlg *LuaConsole;
+//extern CLuaConsoleDlg *LuaConsole;
 extern BOOL bLinehook;
 
 extern void lua_baselibopen (lua_State *L);
@@ -53,7 +54,7 @@ char *ParseDbl(char *t, double *f)
     static char w[]="\t, \n";
     char *v;
 
-    k=strlen(t);
+    k=std::strlen(t);
     if(k==0) return NULL;
 
     for(i=0,u=0,v=NULL; i<k; i++)
@@ -119,7 +120,7 @@ char *ParseInt(char *t, int *f)
     return v;
 }
 
-char *ParseString(char *t, CStdString *s)
+char *ParseString(char *t, string *s)
 {
     if (t==NULL) return NULL;
     if (strlen(t)==0) return t;
@@ -139,7 +140,7 @@ char *ParseString(char *t, CStdString *s)
     if (n1<0) return t;
 
     // find second quote in the source string
-    for(k=n1+1,n2=-1; k< (int) strlen(t); k++)
+    for(k=n1+1,n2=-1; k< (int) std::strlen(t); k++)
     {
         if (t[k]=='\"')
         {
@@ -2249,285 +2250,285 @@ int FPProc::ClosestNode(double x, double y)
     return j;
 }
 
-void FPProc::GetLineValues(CXYPlot &p,int PlotType,int NumPlotPoints)
-{
-    double *q,z,u,dz;
-    CComplex pt,n,t;
-    int i,j,k,m,elm;
-    CPointVals v;
-    BOOL flag;
-
-    q=(double *)calloc(contour.size(),sizeof(double));
-    for(i=1,z=0.; i<contour.size(); i++)
-    {
-        z+=abs(contour[i]-contour[i-1]);
-        q[i]=z;
-    }
-    dz=z/(NumPlotPoints-1);
-
-    /*
-        m_XYPlotType.AddString("Potential");
-        m_XYPlotType.AddString("|B|        (Magnitude of flux density)");
-        m_XYPlotType.AddString("B . n      (Normal flux density)");
-        m_XYPlotType.AddString("B . t      (Tangential flux density)");
-        m_XYPlotType.AddString("|H|        (Magnitude of field intensity)");
-        m_XYPlotType.AddString("H . n      (Normal field intensity)");
-        m_XYPlotType.AddString("H . t      (Tangential field intensity)");
-        m_XYPlotType.AddString("J_eddy
-    */
-
-    if(Frequency==0)
-    {
-        switch (PlotType)
-        {
-        case 0:
-            p.Create(NumPlotPoints,2);
-            if (ProblemType==0) strcpy(p.lbls[1],"Potential, Wb/m");
-            else strcpy(p.lbls[1],"Flux, Wb");
-            break;
-        case 1:
-            p.Create(NumPlotPoints,2);
-            strcpy(p.lbls[1],"|B|, Tesla");
-            break;
-        case 2:
-            p.Create(NumPlotPoints,2);
-            strcpy(p.lbls[1],"B.n, Tesla");
-            break;
-        case 3:
-            p.Create(NumPlotPoints,2);
-            strcpy(p.lbls[1],"B.t, Tesla");
-            break;
-        case 4:
-            p.Create(NumPlotPoints,2);
-            strcpy(p.lbls[1],"|H|, Amp/m");
-            break;
-        case 5:
-            p.Create(NumPlotPoints,2);
-            strcpy(p.lbls[1],"H.n, Amp/m");
-            break;
-        case 6:
-            p.Create(NumPlotPoints,2);
-            strcpy(p.lbls[1],"H.t, Amp/m");
-            break;
-        default:
-            p.Create(NumPlotPoints,2);
-            break;
-        }
-    }
-    else
-    {
-        switch (PlotType)
-        {
-        case 0:
-            p.Create(NumPlotPoints,4);
-            if(ProblemType==0)
-            {
-                strcpy(p.lbls[1],"|A|, Wb/m");
-                strcpy(p.lbls[2],"Re[A], Wb/m");
-                strcpy(p.lbls[3],"Im[A], Wb/m");
-            }
-            else
-            {
-                strcpy(p.lbls[1],"|Flux|, Wb");
-                strcpy(p.lbls[2],"Re[Flux], Wb");
-                strcpy(p.lbls[3],"Im[Flux], Wb");
-            }
-            break;
-        case 1:
-            p.Create(NumPlotPoints,2);
-            strcpy(p.lbls[1],"|B|, Tesla");
-            break;
-        case 2:
-            p.Create(NumPlotPoints,4);
-            strcpy(p.lbls[1],"|B.n|, Tesla");
-            strcpy(p.lbls[2],"Re[B.n], Tesla");
-            strcpy(p.lbls[3],"Im[B.n], Tesla");
-            break;
-        case 3:
-            p.Create(NumPlotPoints,4);
-            strcpy(p.lbls[1],"|B.t|, Tesla");
-            strcpy(p.lbls[2],"Re[B.t], Tesla");
-            strcpy(p.lbls[3],"Im[B.t], Tesla");
-            break;
-        case 4:
-            p.Create(NumPlotPoints,2);
-            strcpy(p.lbls[1],"|H|, Amp/m");
-            break;
-        case 5:
-            p.Create(NumPlotPoints,4);
-            if(ProblemType==0)
-            {
-                strcpy(p.lbls[1],"|H.n|, Amp/m");
-                strcpy(p.lbls[2],"Re[H.n], Amp/m");
-                strcpy(p.lbls[3],"Im[H.n], Amp/m");
-            }
-            break;
-        case 6:
-            p.Create(NumPlotPoints,4);
-            strcpy(p.lbls[1],"|H.t|, Amp/m");
-            strcpy(p.lbls[2],"Re[H.t], Amp/m");
-            strcpy(p.lbls[3],"Im[H.t], Amp/m");
-            break;
-        case 7:
-            p.Create(NumPlotPoints,4);
-            strcpy(p.lbls[1],"|Je|, MA/m^2");
-            strcpy(p.lbls[2],"Re[Je], MA/m^2");
-            strcpy(p.lbls[3],"Im[Je], MA/m^2");
-            break;
-        case 8:
-            p.Create(NumPlotPoints,4);
-            strcpy(p.lbls[1],"|Js+Je|, MA/m^2");
-            strcpy(p.lbls[2],"Re[Js+Je], MA/m^2");
-            strcpy(p.lbls[3],"Im[Js+Je], MA/m^2");
-            break;
-        default:
-            p.Create(NumPlotPoints,2);
-            break;
-        }
-    }
-
-    switch(LengthUnits)
-    {
-    case 1:
-        strcpy(p.lbls[0],"Length, mm");
-        break;
-    case 2:
-        strcpy(p.lbls[0],"Length, cm");
-        break;
-    case 3:
-        strcpy(p.lbls[0],"Length, m");
-        break;
-    case 4:
-        strcpy(p.lbls[0],"Length, mils");
-        break;
-    case 5:
-        strcpy(p.lbls[0],"Length, um");
-        break;
-    default:
-        strcpy(p.lbls[0],"Length, inches");
-        break;
-    }
-
-    for(i=0,k=1,z=0,elm=-1; i<NumPlotPoints; i++,z+=dz)
-    {
-        while((z>q[k]) && (k<(contour.size()-1))) k++;
-        u=(z-q[k-1])/(q[k]-q[k-1]);
-        pt=contour[k-1]+u*(contour[k]-contour[k-1]);
-        t=contour[k]-contour[k-1];
-        t/=abs(t);
-        n = I*t;
-        pt+=(n*1.e-06);
-
-        if (elm<0) elm=InTriangle(pt.re,pt.im);
-        else if (InTriangleTest(pt.re,pt.im,elm)==FALSE)
-        {
-            flag=FALSE;
-            for(j=0; j<3; j++)
-                for(m=0; m<NumList[meshelem[elm].p[j]]; m++)
-                {
-                    elm=ConList[meshelem[elm].p[j]][m];
-                    if (InTriangleTest(pt.re,pt.im,elm)==TRUE)
-                    {
-                        flag=TRUE;
-                        m=100;
-                        j=3;
-                    }
-                }
-            if (flag==FALSE) elm=InTriangle(pt.re,pt.im);
-        }
-        if(elm>=0)
-            flag=GetPointValues(pt.re,pt.im,elm,v);
-        else flag=FALSE;
-
-        p.M[i][0]=z;
-        if ((Frequency==0) && (flag!=FALSE))
-        {
-            switch (PlotType)
-            {
-            case 0:
-                p.M[i][1]=v.A.re;
-                break;
-            case 1:
-                p.M[i][1]=sqrt(v.B1.Abs()*v.B1.Abs() + v.B2.Abs()*v.B2.Abs());
-                break;
-            case 2:
-                p.M[i][1]= n.re*v.B1.re + n.im*v.B2.re;
-                break;
-            case 3:
-                p.M[i][1]= t.re*v.B1.re + t.im*v.B2.re;
-                break;
-            case 4:
-                p.M[i][1]=sqrt(v.H1.Abs()*v.H1.Abs() + v.H2.Abs()*v.H2.Abs());
-                break;
-            case 5:
-                p.M[i][1]= n.re*v.H1.re + n.im*v.H2.re;
-                break;
-            case 6:
-                p.M[i][1]= t.re*v.H1.re + t.im*v.H2.re;
-                break;
-            default:
-                p.M[i][1]=0;
-                break;
-            }
-        }
-        else if (flag!=FALSE)
-        {
-            switch (PlotType)
-            {
-            case 0:
-                p.M[i][1]=v.A.Abs();
-                p.M[i][2]=v.A.re;
-                p.M[i][3]=v.A.im;
-                break;
-            case 1:
-                p.M[i][1]=sqrt(v.B1.Abs()*v.B1.Abs() + v.B2.Abs()*v.B2.Abs());
-                break;
-            case 2:
-                p.M[i][2]= n.re*v.B1.re + n.im*v.B2.re;
-                p.M[i][3]= n.re*v.B1.im + n.im*v.B2.im;
-                p.M[i][1]=sqrt(p.M[i][2]*p.M[i][2] +
-                               p.M[i][3]*p.M[i][3]);
-                break;
-            case 3:
-                p.M[i][2]= t.re*v.B1.re + t.im*v.B2.re;
-                p.M[i][3]= t.re*v.B1.im + t.im*v.B2.im;
-                p.M[i][1]=sqrt(p.M[i][2]*p.M[i][2] +
-                               p.M[i][3]*p.M[i][3]);
-                break;
-            case 4:
-                p.M[i][1]=sqrt(v.H1.Abs()*v.H1.Abs() + v.H2.Abs()*v.H2.Abs());
-                break;
-            case 5:
-                p.M[i][2]= n.re*v.H1.re + n.im*v.H2.re;
-                p.M[i][3]= n.re*v.H1.im + n.im*v.H2.im;
-                p.M[i][1]=sqrt(p.M[i][2]*p.M[i][2] +
-                               p.M[i][3]*p.M[i][3]);
-                break;
-            case 6:
-                p.M[i][2]= t.re*v.H1.re + t.im*v.H2.re;
-                p.M[i][3]= t.re*v.H1.im + t.im*v.H2.im;
-                p.M[i][1]=sqrt(p.M[i][2]*p.M[i][2] +
-                               p.M[i][3]*p.M[i][3]);
-                break;
-            case 7:
-                p.M[i][2]= v.Je.re;
-                p.M[i][3]= v.Je.im;
-                p.M[i][1]= abs(v.Je);
-                break;
-            case 8:
-                p.M[i][2]= v.Je.re+v.Js.re;
-                p.M[i][3]= v.Je.im+v.Js.im;
-                p.M[i][1]= abs(v.Je+v.Js);
-                break;
-            default:
-                p.M[i][1]=0;
-                break;
-            }
-        }
-    }
-
-    free(q);
-}
+//void FPProc::GetLineValues(CXYPlot &p,int PlotType,int NumPlotPoints)
+//{
+//    double *q,z,u,dz;
+//    CComplex pt,n,t;
+//    int i,j,k,m,elm;
+//    CPointVals v;
+//    BOOL flag;
+//
+//    q=(double *)calloc(contour.size(),sizeof(double));
+//    for(i=1,z=0.; i<contour.size(); i++)
+//    {
+//        z+=abs(contour[i]-contour[i-1]);
+//        q[i]=z;
+//    }
+//    dz=z/(NumPlotPoints-1);
+//
+//    /*
+//        m_XYPlotType.AddString("Potential");
+//        m_XYPlotType.AddString("|B|        (Magnitude of flux density)");
+//        m_XYPlotType.AddString("B . n      (Normal flux density)");
+//        m_XYPlotType.AddString("B . t      (Tangential flux density)");
+//        m_XYPlotType.AddString("|H|        (Magnitude of field intensity)");
+//        m_XYPlotType.AddString("H . n      (Normal field intensity)");
+//        m_XYPlotType.AddString("H . t      (Tangential field intensity)");
+//        m_XYPlotType.AddString("J_eddy
+//    */
+//
+//    if(Frequency==0)
+//    {
+//        switch (PlotType)
+//        {
+//        case 0:
+//            p.Create(NumPlotPoints,2);
+//            if (ProblemType==0) strcpy(p.lbls[1],"Potential, Wb/m");
+//            else strcpy(p.lbls[1],"Flux, Wb");
+//            break;
+//        case 1:
+//            p.Create(NumPlotPoints,2);
+//            strcpy(p.lbls[1],"|B|, Tesla");
+//            break;
+//        case 2:
+//            p.Create(NumPlotPoints,2);
+//            strcpy(p.lbls[1],"B.n, Tesla");
+//            break;
+//        case 3:
+//            p.Create(NumPlotPoints,2);
+//            strcpy(p.lbls[1],"B.t, Tesla");
+//            break;
+//        case 4:
+//            p.Create(NumPlotPoints,2);
+//            strcpy(p.lbls[1],"|H|, Amp/m");
+//            break;
+//        case 5:
+//            p.Create(NumPlotPoints,2);
+//            strcpy(p.lbls[1],"H.n, Amp/m");
+//            break;
+//        case 6:
+//            p.Create(NumPlotPoints,2);
+//            strcpy(p.lbls[1],"H.t, Amp/m");
+//            break;
+//        default:
+//            p.Create(NumPlotPoints,2);
+//            break;
+//        }
+//    }
+//    else
+//    {
+//        switch (PlotType)
+//        {
+//        case 0:
+//            p.Create(NumPlotPoints,4);
+//            if(ProblemType==0)
+//            {
+//                strcpy(p.lbls[1],"|A|, Wb/m");
+//                strcpy(p.lbls[2],"Re[A], Wb/m");
+//                strcpy(p.lbls[3],"Im[A], Wb/m");
+//            }
+//            else
+//            {
+//                strcpy(p.lbls[1],"|Flux|, Wb");
+//                strcpy(p.lbls[2],"Re[Flux], Wb");
+//                strcpy(p.lbls[3],"Im[Flux], Wb");
+//            }
+//            break;
+//        case 1:
+//            p.Create(NumPlotPoints,2);
+//            strcpy(p.lbls[1],"|B|, Tesla");
+//            break;
+//        case 2:
+//            p.Create(NumPlotPoints,4);
+//            strcpy(p.lbls[1],"|B.n|, Tesla");
+//            strcpy(p.lbls[2],"Re[B.n], Tesla");
+//            strcpy(p.lbls[3],"Im[B.n], Tesla");
+//            break;
+//        case 3:
+//            p.Create(NumPlotPoints,4);
+//            strcpy(p.lbls[1],"|B.t|, Tesla");
+//            strcpy(p.lbls[2],"Re[B.t], Tesla");
+//            strcpy(p.lbls[3],"Im[B.t], Tesla");
+//            break;
+//        case 4:
+//            p.Create(NumPlotPoints,2);
+//            strcpy(p.lbls[1],"|H|, Amp/m");
+//            break;
+//        case 5:
+//            p.Create(NumPlotPoints,4);
+//            if(ProblemType==0)
+//            {
+//                strcpy(p.lbls[1],"|H.n|, Amp/m");
+//                strcpy(p.lbls[2],"Re[H.n], Amp/m");
+//                strcpy(p.lbls[3],"Im[H.n], Amp/m");
+//            }
+//            break;
+//        case 6:
+//            p.Create(NumPlotPoints,4);
+//            strcpy(p.lbls[1],"|H.t|, Amp/m");
+//            strcpy(p.lbls[2],"Re[H.t], Amp/m");
+//            strcpy(p.lbls[3],"Im[H.t], Amp/m");
+//            break;
+//        case 7:
+//            p.Create(NumPlotPoints,4);
+//            strcpy(p.lbls[1],"|Je|, MA/m^2");
+//            strcpy(p.lbls[2],"Re[Je], MA/m^2");
+//            strcpy(p.lbls[3],"Im[Je], MA/m^2");
+//            break;
+//        case 8:
+//            p.Create(NumPlotPoints,4);
+//            strcpy(p.lbls[1],"|Js+Je|, MA/m^2");
+//            strcpy(p.lbls[2],"Re[Js+Je], MA/m^2");
+//            strcpy(p.lbls[3],"Im[Js+Je], MA/m^2");
+//            break;
+//        default:
+//            p.Create(NumPlotPoints,2);
+//            break;
+//        }
+//    }
+//
+//    switch(LengthUnits)
+//    {
+//    case 1:
+//        strcpy(p.lbls[0],"Length, mm");
+//        break;
+//    case 2:
+//        strcpy(p.lbls[0],"Length, cm");
+//        break;
+//    case 3:
+//        strcpy(p.lbls[0],"Length, m");
+//        break;
+//    case 4:
+//        strcpy(p.lbls[0],"Length, mils");
+//        break;
+//    case 5:
+//        strcpy(p.lbls[0],"Length, um");
+//        break;
+//    default:
+//        strcpy(p.lbls[0],"Length, inches");
+//        break;
+//    }
+//
+//    for(i=0,k=1,z=0,elm=-1; i<NumPlotPoints; i++,z+=dz)
+//    {
+//        while((z>q[k]) && (k<(contour.size()-1))) k++;
+//        u=(z-q[k-1])/(q[k]-q[k-1]);
+//        pt=contour[k-1]+u*(contour[k]-contour[k-1]);
+//        t=contour[k]-contour[k-1];
+//        t/=abs(t);
+//        n = I*t;
+//        pt+=(n*1.e-06);
+//
+//        if (elm<0) elm=InTriangle(pt.re,pt.im);
+//        else if (InTriangleTest(pt.re,pt.im,elm)==FALSE)
+//        {
+//            flag=FALSE;
+//            for(j=0; j<3; j++)
+//                for(m=0; m<NumList[meshelem[elm].p[j]]; m++)
+//                {
+//                    elm=ConList[meshelem[elm].p[j]][m];
+//                    if (InTriangleTest(pt.re,pt.im,elm)==TRUE)
+//                    {
+//                        flag=TRUE;
+//                        m=100;
+//                        j=3;
+//                    }
+//                }
+//            if (flag==FALSE) elm=InTriangle(pt.re,pt.im);
+//        }
+//        if(elm>=0)
+//            flag=GetPointValues(pt.re,pt.im,elm,v);
+//        else flag=FALSE;
+//
+//        p.M[i][0]=z;
+//        if ((Frequency==0) && (flag!=FALSE))
+//        {
+//            switch (PlotType)
+//            {
+//            case 0:
+//                p.M[i][1]=v.A.re;
+//                break;
+//            case 1:
+//                p.M[i][1]=sqrt(v.B1.Abs()*v.B1.Abs() + v.B2.Abs()*v.B2.Abs());
+//                break;
+//            case 2:
+//                p.M[i][1]= n.re*v.B1.re + n.im*v.B2.re;
+//                break;
+//            case 3:
+//                p.M[i][1]= t.re*v.B1.re + t.im*v.B2.re;
+//                break;
+//            case 4:
+//                p.M[i][1]=sqrt(v.H1.Abs()*v.H1.Abs() + v.H2.Abs()*v.H2.Abs());
+//                break;
+//            case 5:
+//                p.M[i][1]= n.re*v.H1.re + n.im*v.H2.re;
+//                break;
+//            case 6:
+//                p.M[i][1]= t.re*v.H1.re + t.im*v.H2.re;
+//                break;
+//            default:
+//                p.M[i][1]=0;
+//                break;
+//            }
+//        }
+//        else if (flag!=FALSE)
+//        {
+//            switch (PlotType)
+//            {
+//            case 0:
+//                p.M[i][1]=v.A.Abs();
+//                p.M[i][2]=v.A.re;
+//                p.M[i][3]=v.A.im;
+//                break;
+//            case 1:
+//                p.M[i][1]=sqrt(v.B1.Abs()*v.B1.Abs() + v.B2.Abs()*v.B2.Abs());
+//                break;
+//            case 2:
+//                p.M[i][2]= n.re*v.B1.re + n.im*v.B2.re;
+//                p.M[i][3]= n.re*v.B1.im + n.im*v.B2.im;
+//                p.M[i][1]=sqrt(p.M[i][2]*p.M[i][2] +
+//                               p.M[i][3]*p.M[i][3]);
+//                break;
+//            case 3:
+//                p.M[i][2]= t.re*v.B1.re + t.im*v.B2.re;
+//                p.M[i][3]= t.re*v.B1.im + t.im*v.B2.im;
+//                p.M[i][1]=sqrt(p.M[i][2]*p.M[i][2] +
+//                               p.M[i][3]*p.M[i][3]);
+//                break;
+//            case 4:
+//                p.M[i][1]=sqrt(v.H1.Abs()*v.H1.Abs() + v.H2.Abs()*v.H2.Abs());
+//                break;
+//            case 5:
+//                p.M[i][2]= n.re*v.H1.re + n.im*v.H2.re;
+//                p.M[i][3]= n.re*v.H1.im + n.im*v.H2.im;
+//                p.M[i][1]=sqrt(p.M[i][2]*p.M[i][2] +
+//                               p.M[i][3]*p.M[i][3]);
+//                break;
+//            case 6:
+//                p.M[i][2]= t.re*v.H1.re + t.im*v.H2.re;
+//                p.M[i][3]= t.re*v.H1.im + t.im*v.H2.im;
+//                p.M[i][1]=sqrt(p.M[i][2]*p.M[i][2] +
+//                               p.M[i][3]*p.M[i][3]);
+//                break;
+//            case 7:
+//                p.M[i][2]= v.Je.re;
+//                p.M[i][3]= v.Je.im;
+//                p.M[i][1]= abs(v.Je);
+//                break;
+//            case 8:
+//                p.M[i][2]= v.Je.re+v.Js.re;
+//                p.M[i][3]= v.Je.im+v.Js.im;
+//                p.M[i][1]= abs(v.Je+v.Js);
+//                break;
+//            default:
+//                p.M[i][1]=0;
+//                break;
+//            }
+//        }
+//    }
+//
+//    free(q);
+//}
 
 BOOL FPProc::InTriangleTest(double x, double y, int i)
 {
@@ -3708,12 +3709,12 @@ void FPProc::BendContour(double angle, double anglestep)
 }
 
 
-BOOL FPProc::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
-{
-    // TODO: Add your specialized code here and/or call the base class
-    if (bLinehook!=FALSE) return TRUE;
-    return CDocument::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
-}
+//BOOL FPProc::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+//{
+//    // TODO: Add your specialized code here and/or call the base class
+//    if (bLinehook!=FALSE) return TRUE;
+//    return CDocument::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+//}
 
 CComplex FPProc::GetStrandedVoltageDrop(int lbl)
 {
