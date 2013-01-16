@@ -1,4 +1,4 @@
-function FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varargin)
+function [FemmProblem, newseginds] = mirrorsegments_mfemm(FemmProblem, seginds, disttol, varargin)
 % mirros one or more segments along a line
 %
 % Syntax
