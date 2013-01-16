@@ -27,8 +27,8 @@ function writefemmfile(filename, FemmProblem)
 %   ArcSegments (optional)
 %   BlockLabels 
 %
-%   ProbInfo must be a structure containing information about the problem. It
-%   must have the following fields:
+%   ProbInfo must be a scalar structure containing information about the
+%   problem. It must have the following fields:
 %
 %       Frequency - a scalar value giving the AC frequecy of the problem
 %       e.g. 0
@@ -58,11 +58,15 @@ function writefemmfile(filename, FemmProblem)
 %
 %       ACSolver - Can be 0 or 1 (TODO, find out what each is!)
 %
-%   PointProps 
+%   PointProps is a structure array, each member of which contains
+%   information on point properties which can be applied to nodes in the
+%   simulation. The structures must have the following fields:
+%
 %
 %   BoundaryProps 
 %
-%   Materials 
+%   Materials is a structure containing information on the materials
+%   used in the simulation. It must have the following fields:
 %
 %   Circuits 
 %
@@ -91,13 +95,17 @@ function writefemmfile(filename, FemmProblem)
 
 	% check to see if we are ready to write a datafile;
 
-    fp = fopen(filename, 'wt');
+    [fp, message] = fopen(filename, 'wt');
     if fp == -1
-        error('Couldn''t write to specified file.');
+        error('MFEMM:writefemmfile:nofileopen', message);
     end
     
     C = onCleanup(@()fclose(fp));
 
+    if numel(FemmProblem.ProbInfo) > 1
+        error('MFEMM:writefemmfile:probinfonum', 'FemmProblem.ProbInfo must be a scalar structure.');
+    end
+    
 	fprintf(fp,'[Format]      =  4.0\n');
 	fprintf(fp,'[Frequency]   =  %.17g\n',FemmProblem.ProbInfo.Frequency);
 	fprintf(fp,'[Precision]   =  %.17g\n',FemmProblem.ProbInfo.Precision);
@@ -142,7 +150,8 @@ function writefemmfile(filename, FemmProblem)
         end
 
     else
-        error('LengthUnits must be a string or scalar value, see help for details')
+        error('MFEMM:writefemmfile:badlength', ...
+              'LengthUnits must be a string or scalar value, see help for details')
     end
 
 
@@ -169,7 +178,7 @@ function writefemmfile(filename, FemmProblem)
             end
             
         else
-            error('Unrecognised problem type')
+            error('MFEMM:writefemmfile:badprobtype', 'Unrecognised problem type')
         end
         
     else
@@ -211,7 +220,7 @@ function writefemmfile(filename, FemmProblem)
             fprintf(fp, '[Coordinates] =  polar\n');
 
         else
-            error('Unrecognised coordinate type')
+            error('MFEMM:writefemmfile:badcoordtype', 'Unrecognised coordinate type')
         end
 
 
@@ -344,12 +353,12 @@ function writefemmfile(filename, FemmProblem)
                 FemmProblem.Circuits(i).CircType = 0;
 
             else
-                error('Unrecognised circuit type')
+                error('MFEMM:writefemmfile:badcircuittype', 'Unrecognised circuit type')
             end
 
         elseif isscalar(FemmProblem.Circuits(i).CircType)
             if ~any(FemmProblem.Circuits(i).CircType == [0,1])
-                error('Unrecognised circuit type')
+                error('MFEMM:writefemmfile:badcircuittype', 'Unrecognised circuit type')
             end
         end
 
