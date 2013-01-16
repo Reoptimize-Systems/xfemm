@@ -7,6 +7,20 @@
 
 // extern CFemmApp theApp; //<DP>
 
+#ifndef BOOL
+#define BOOL int
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+using namespace FPProcdata;
+
 #ifndef FPPROC_H
 #define FPPROC_H
 
@@ -26,7 +40,7 @@ public:
     double *LengthConv;
     BOOL    ProblemType;
     BOOL    Coords;
-    CString ProblemNote;
+    string  ProblemNote;
     BOOL    FirstDraw;
     BOOL    Smooth;
     BOOL    bMultiplyDefinedLabels;
@@ -89,21 +103,21 @@ public:
     BOOL InTriangleTest(double x, double y, int i);
     BOOL GetPointValues(double x, double y, CPointVals &u);
     BOOL GetPointValues(double x, double y, int k, CPointVals &u);
-    void GetLineValues(CXYPlot &p, int PlotType, int npoints);
-    void GetElementB(femmviewdata::CElement &elm);
+    // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
+    void GetElementB(CElement &elm);
     void OnReload();
     void FindBoundaryEdges();
     int ClosestNode(double x, double y);
     CComplex Ctr(int i);
     double ElmArea(int i);
-    double ElmArea(femmviewdata::CElement *elm);
-    void GetPointB(double x, double y, CComplex &B1, CComplex &B2, femmviewdata::CElement &elm);
-    void GetNodalB(CComplex *b1, CComplex *b2,femmviewdata::CElement &elm);
+    double ElmArea(CElement *elm);
+    void GetPointB(double x, double y, CComplex &B1, CComplex &B2, CElement &elm);
+    void GetNodalB(CComplex *b1, CComplex *b2,CElement &elm);
     CComplex BlockIntegral(int inttype);
     void LineIntegral(int inttype, CComplex *z);
     int ClosestArcSegment(double x, double y);
-    void GetCircle(femmviewdata::CArcSegment &asegm,CComplex &c, double &R);
-    double ShortestDistanceFromArc(CComplex p, femmviewdata::CArcSegment &arc);
+    void GetCircle(CArcSegment &asegm,CComplex &c, double &R);
+    double ShortestDistanceFromArc(CComplex p, CArcSegment &arc);
     double ShortestDistanceFromSegment(double p, double q, int segm);
     CComplex GetJA(int k,CComplex *J,CComplex *A);
     CComplex PlnInt(double a, CComplex *u, CComplex *v);
@@ -133,10 +147,11 @@ public:
     // ClassWizard generated virtual function overrides
     //{{AFX_VIRTUAL(FPProc)
 public:
+    virtual BOOL ClearDocument();
     virtual BOOL NewDocument();
 //     virtual void Serialize(CArchive& ar);
-    virtual BOOL OpenDocument(LPCTSTR lpszPathName);
-    virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
+    virtual BOOL OpenDocument(std::string lpszPathName);
+    //virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
     //}}AFX_VIRTUAL
 
 // Implementation
@@ -144,8 +159,8 @@ public:
     // lua extensions
     bool luafired;
     void initalise_lua();
-    PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp);
-    void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi,HBITMAP hBMP, HDC hDC) ;
+    //PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp);
+    //void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi,HBITMAP hBMP, HDC hDC) ;
 
 #ifdef _DEBUG
     virtual void AssertValid() const;
