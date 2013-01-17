@@ -26,7 +26,7 @@ function [FemmProblem] = translatenodes_mfemm(FemmProblem, x, y, nodeids)
     if nargin < 4
         nodeinds = 1:numel(FemmProblem.Nodes);
     else
-        nodeinds = nodeids - 1;
+        nodeinds = nodeids + 1;
     end
     
     for ind = nodeinds
