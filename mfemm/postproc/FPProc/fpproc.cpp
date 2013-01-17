@@ -91,7 +91,7 @@ char *ParseInt(char *t, int *f)
     static char w[]="\t, \n";
     char *v;
 
-    k=strlen(t);
+    k=std::strlen(t);
     if(k==0) return NULL;
 
     for(i=0,u=0,v=NULL; i<k; i++)
@@ -123,12 +123,12 @@ char *ParseInt(char *t, int *f)
 char *ParseString(char *t, string *s)
 {
     if (t==NULL) return NULL;
-    if (strlen(t)==0) return t;
+    if (std::strlen(t)==0) return t;
 
     int n1,n2,k;
 
     // find first quote in the source string
-    for(k=0,n1=-1; k< (int) strlen(t); k++)
+    for(k=0,n1=-1; k< (int) std::strlen(t); k++)
     {
         if (t[k]=='\"')
         {
@@ -152,7 +152,7 @@ char *ParseString(char *t, string *s)
     if (n2<0) return t;
 
     *s=t;
-    *s=s->Mid(n1+1,n2-n1-1);
+    *s=s->substr(n1+1,n2-n1-1);
 
     return (t+n2+1);
 }
@@ -425,7 +425,7 @@ BOOL FPProc::OpenDocument(string pathname)
         {
             v=StripKey(s);
             // put in carriage returns;
-            k=strlen(v);
+            k=std::strlen(v);
             for(i=0; i<k; i++)
                 if((v[i]=='\\') && (v[i+1]=='n'))
                 {
@@ -439,7 +439,7 @@ BOOL FPProc::OpenDocument(string pathname)
                     v=v+i+1;
                     i=k;
                 }
-            k=strlen(v);
+            k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
                 {
                     if(v[i]=='\"')
@@ -488,14 +488,14 @@ BOOL FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<pointname>",11)==0)
         {
             v=StripKey(s);
-            k=strlen(v);
+            k=std::strlen(v);
             for(i=0; i<k; i++)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
                     i=k;
                 }
-            k=strlen(v);
+            k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
                 {
                     if(v[i]=='\"')
@@ -561,14 +561,14 @@ BOOL FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<bdryname>",10)==0)
         {
             v=StripKey(s);
-            k=strlen(v);
+            k=std::strlen(v);
             for(i=0; i<k; i++)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
                     i=k;
                 }
-            k=strlen(v);
+            k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
                 {
                     if(v[i]=='\"')
@@ -689,14 +689,14 @@ BOOL FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<blockname>",10)==0)
         {
             v=StripKey(s);
-            k=strlen(v);
+            k=std::strlen(v);
             for(i=0; i<k; i++)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
                     i=k;
                 }
-            k=strlen(v);
+            k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
                 {
                     if(v[i]=='\"')
@@ -849,14 +849,14 @@ BOOL FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<circuitname>",13)==0)
         {
             v=StripKey(s);
-            k=strlen(v);
+            k=std::strlen(v);
             for(i=0; i<k; i++)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
                     i=k;
                 }
-            k=strlen(v);
+            k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
                 {
                     if(v[i]=='\"')
