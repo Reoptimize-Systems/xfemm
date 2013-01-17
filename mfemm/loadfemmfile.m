@@ -600,7 +600,7 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
                 C = textscan(s,'%d\t%d\t%f\t%f\t%d\t%d\t%d');
 
-                arcsegprops.MaxSideLength = C{4};
+                arcsegprops.MaxSegDegrees = C{4};
 
                 arcsegprops.BoundaryMarker = C{5};
 
