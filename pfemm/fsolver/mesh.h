@@ -19,6 +19,8 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
+#include "complex.h"
+
 // replace original windows BOOL type, which is actually
 // just an int
 //#ifndef BOOL
@@ -33,7 +35,7 @@
 #define TRUE 1
 #endif
 
-#include "complex.h"
+
 // guard mesh class definitions
 #ifndef MESH_H
 #define MESH_H
