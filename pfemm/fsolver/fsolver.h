@@ -22,8 +22,13 @@
 // fsolver.h : interface of the FSolver class
 //
 /////////////////////////////////////////////////////////////////////////////
+#ifndef muo
 #define muo 1.2566370614359173e-6
+#endif
+
+#ifndef Golden
 #define Golden 0.3819660112501051517954131656
+#endif
 
 // replace original windows BOOL type, which is actually
 // just an int
