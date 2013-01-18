@@ -15,29 +15,31 @@
 * WARNING: if you change the order of this enumeration,
 * grep "ORDER TM"
 */
-typedef enum {
-  TM_GETTABLE = 0,
-  TM_SETTABLE,
-  TM_INDEX,
-  TM_GETGLOBAL,
-  TM_SETGLOBAL,
-  TM_ADD,
-  TM_SUB,
-  TM_MUL,
-  TM_DIV,
-  TM_POW,
-  TM_UNM,
-  TM_LT,
-  TM_CONCAT,
-  TM_GC,
-  TM_FUNCTION,
-  TM_N		/* number of elements in the enum */
+typedef enum
+{
+    TM_GETTABLE = 0,
+    TM_SETTABLE,
+    TM_INDEX,
+    TM_GETGLOBAL,
+    TM_SETGLOBAL,
+    TM_ADD,
+    TM_SUB,
+    TM_MUL,
+    TM_DIV,
+    TM_POW,
+    TM_UNM,
+    TM_LT,
+    TM_CONCAT,
+    TM_GC,
+    TM_FUNCTION,
+    TM_N		/* number of elements in the enum */
 } TMS;
 
 
-struct TM {
-  Closure *method[TM_N];
-  TString *collected;  /* list of garbage-collected udata with this tag */
+struct TM
+{
+    Closure *method[TM_N];
+    TString *collected;  /* list of garbage-collected udata with this tag */
 };
 
 

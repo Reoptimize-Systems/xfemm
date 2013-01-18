@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="fsolver/fsolver.cbp">
+			<Depends filename="liblua/liblua.cbp" />
+			<Depends filename="libfemm/libfemm.cbp" />
+		</Project>
+		<Project filename="liblua/liblua.cbp">
+			<Depends filename="libfemm/libfemm.cbp" />
+		</Project>
+		<Project filename="fpproc/FPProc.cbp">
+			<Depends filename="liblua/liblua.cbp" />
+			<Depends filename="libfemm/libfemm.cbp" />
+		</Project>
+		<Project filename="libfemm/libfemm.cbp" />
+		<Project filename="fmesher/fmesher.cbp" active="1">
+			<Depends filename="libfemm/libfemm.cbp" />
+		</Project>
+	</Workspace>
+</CodeBlocks_workspace_file>

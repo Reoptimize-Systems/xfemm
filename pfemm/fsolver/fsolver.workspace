@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<CodeBlocks_workspace_file>
-	<Workspace title="fsolver workspace">
-		<Project filename="fsolver.cbp" active="1">
-			<Depends filename="liblua/liblua.cbp" />
-		</Project>
-		<Project filename="liblua/liblua.cbp" />
-	</Workspace>
-</CodeBlocks_workspace_file>

@@ -4,6 +4,7 @@
 // #include "stdafx.h"
 // #include <afx.h>
 // #include <afxtempl.h>
+#include <cstdlib>
 #include <string>
 #include <cstring>
 #include <cstdio>

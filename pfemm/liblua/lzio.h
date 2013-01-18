@@ -40,13 +40,14 @@ size_t zread (ZIO* z, void* b, size_t n);	/* read next n bytes */
 #define ZBSIZE	256			/* buffer size */
 #endif
 
-struct zio {
-  size_t n;				/* bytes still unread */
-  const unsigned char* p;		/* current position in buffer */
-  int (*filbuf)(ZIO* z);
-  void* u;				/* additional data */
-  const char *name;
-  unsigned char buffer[ZBSIZE];		/* buffer */
+struct zio
+{
+    size_t n;				/* bytes still unread */
+    const unsigned char* p;		/* current position in buffer */
+    int (*filbuf)(ZIO* z);
+    void* u;				/* additional data */
+    const char *name;
+    unsigned char buffer[ZBSIZE];		/* buffer */
 };
 
 

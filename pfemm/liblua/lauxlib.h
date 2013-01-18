@@ -20,9 +20,10 @@
 #endif
 
 
-struct luaL_reg {
-  const char *name;
-  lua_CFunction func;
+struct luaL_reg
+{
+    const char *name;
+    lua_CFunction func;
 };
 
 
@@ -71,11 +72,12 @@ LUALIB_API int luaL_findstring (const char *name, const char *const list[]);
 #endif
 
 
-typedef struct luaL_Buffer {
-  char *p;			/* current position in buffer */
-  int level;
-  lua_State *L;
-  char buffer[LUAL_BUFFERSIZE];
+typedef struct luaL_Buffer
+{
+    char *p;			/* current position in buffer */
+    int level;
+    lua_State *L;
+    char buffer[LUAL_BUFFERSIZE];
 } luaL_Buffer;
 
 #define luaL_putchar(B,c) \
