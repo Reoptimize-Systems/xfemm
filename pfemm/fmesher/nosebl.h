@@ -19,9 +19,12 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#include<vector>
-#include "stdstring.h"
+#include <vector>
+#include <string>
+//#include "stdstring.h"
 #include "complex.h"
+
+using namespace std;
 
 namespace femmedata
 {
@@ -37,7 +40,7 @@ class CNode
 		double x,y;
 		int xs,ys;
 		int IsSelected;
-		CStdString BoundaryMarker;
+		string BoundaryMarker;
 		int InGroup;
 
 		double GetDistance(double xo, double yo);
@@ -60,7 +63,7 @@ class CSegment
 		int IsSelected;
 		bool Hidden;
 		double MaxSideLength;
-		CStdString BoundaryMarker;
+		string BoundaryMarker;
 		int InGroup;
 
 		void ToggleSelect();
@@ -79,7 +82,7 @@ class CArcSegment
 		int IsSelected;
 		bool Hidden;
 		double MaxSideLength,ArcLength;
-		CStdString BoundaryMarker;
+		string BoundaryMarker;
 		int InGroup;
 
 		void ToggleSelect();
@@ -100,9 +103,9 @@ class CBlockLabel
 		double MagDir;
 		int    Turns;
 		int IsSelected;
-		CStdString BlockType;
-		CStdString InCircuit;
-		CStdString MagDirFctn;
+		string BlockType;
+		string InCircuit;
+		string MagDirFctn;
 		int InGroup;
 		bool IsExternal;
 
@@ -119,10 +122,10 @@ class CMaterialProp
 
 		CMaterialProp();
 		~CMaterialProp();
-		void StripBHData(CStdString &b, CStdString &h);
-		void BHDataToCString(CStdString &b, CStdString &h);
+		void StripBHData(string &b, string &h);
+		void BHDataToCString(string &b, string &h);
 
-		CStdString BlockName;
+		string BlockName;
 		double mu_x,mu_y;		// permeabilities, relative
 
 		int    BHpoints;		// number of B-H datapoints;
@@ -153,7 +156,7 @@ class CBoundaryProp
 
 		CBoundaryProp();
 
-		CStdString BdryName;
+		string BdryName;
 		int BdryFormat;			// type of boundary condition we are applying
 								// 0 = constant value of A
 								// 1 = Small skin depth eddy current BC
@@ -181,7 +184,7 @@ class CPointProp
 
 		CPointProp();
 
-		CStdString PointName;
+		string PointName;
 		CComplex Jp;			// applied point current, Amps
 		CComplex Ap;			// prescribed nodal value of vector potential;
 
@@ -194,7 +197,7 @@ class CCircuit
 
 		CCircuit();
 
-		CStdString CircName;
+		string CircName;
 		CComplex Amps;
 		int		CircType;
 
@@ -208,7 +211,7 @@ class CPeriodicBoundary
 
 		CPeriodicBoundary();
 
-		CStdString BdryName;
+		string BdryName;
 		int BdryFormat;			// 0 = Periodic
 								// 1 = Antiperiodic
 		int nseg;				// number of segs with this bc

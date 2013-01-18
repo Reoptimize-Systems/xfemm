@@ -68,7 +68,7 @@ protected:
 public:
 
     FMesher();
-    FMesher(CStdString);
+    FMesher(string);
 
 	// General problem attributes
 	double  Frequency;
@@ -79,7 +79,7 @@ public:
 	int		ACSolver;
 	bool    ProblemType;
 	bool	Coords;
-	CStdString ProblemNote;
+	string  ProblemNote;
 	bool	FirstDraw;
 	bool	NoDraw;
 
@@ -93,7 +93,7 @@ public:
 	int		d_type;
 	int		d_solver;
 
-	CStdString BinDir;
+	string BinDir;
 
 	// lists of nodes, segments, and block labels
 	std::vector< CNode >       nodelist;
@@ -137,10 +137,10 @@ public:
 // Implementation
 public:
 
-    bool LoadFEMFile(CStdString PathName);
-    bool SaveFEMFile(CStdString PathName);
-    bool WriteTriangulationFiles(const struct triangulateio &out, CStdString Pathname);
-    char* StripKey(char *c);
+    bool LoadFEMFile(string PathName);
+    bool SaveFEMFile(string PathName);
+    bool WriteTriangulationFiles(const struct triangulateio &out, string Pathname);
+    //char* StripKey(char *c);
     //void downstr(char *s);
 	//int _strnicmp( char *string1, char *string2, int count );
 
@@ -170,8 +170,8 @@ public:
 	//void MirrorSelected(double x0, double y0, double x1, double y1, int ea);
 	//void RotateCopy(CComplex c, double t, int ncopies, int EditAction);
 	//void TranslateCopy(double dx, double dy, int ncopies, int EditAction);
-    //bool ReadDXF(CStdString fname, double DefTol=-1.);
-	//bool WriteDXF(CStdString fname);
+    //bool ReadDXF(string fname, double DefTol=-1.);
+	//bool WriteDXF(string fname);
     //bool CanCreateRadius(int n);
 	//bool CreateRadius(int n, double r);
     //bool SelectOrphans();
@@ -193,9 +193,9 @@ public:
 
 
     // Core functions
-	bool LoadMesh(CStdString PathName);
-	bool DoNonPeriodicBCTriangulation(CStdString PathName);
-	bool DoPeriodicBCTriangulation(CStdString PathName);
+	bool LoadMesh(string PathName);
+	bool DoNonPeriodicBCTriangulation(string PathName);
+	bool DoPeriodicBCTriangulation(string PathName);
 	void UpdateUndo();
 	void Undo();
 	//bool OldOnOpenDocument(LPCTSTR lpszPathName);
@@ -211,17 +211,6 @@ public:
     // replacement for MFC AfxMessageBox
     void AfxMessageBox(char* msg);
     void AfxMessageBox(std::string msg);
-
-protected:
-
-
-public:
-
-private:
-
-    char* ParseDbl(char *t, double *f);
-    char* ParseInt(char *t, int *f);
-    char* ParseString(char *t, CStdString *s);
 
 };
 

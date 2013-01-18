@@ -35,6 +35,16 @@
 					<Add directory="liblua\obj\Release" />
 				</Linker>
 			</Target>
+			<Target title="Library">
+				<Option output="libfsolver" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -52,7 +62,10 @@
 		<Unit filename="fsolver.h" />
 		<Unit filename="harmonic2d.cpp" />
 		<Unit filename="harmonicaxi.cpp" />
-		<Unit filename="main.cpp" />
+		<Unit filename="main.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="spars.cpp" />
 		<Unit filename="spars.h" />
 		<Unit filename="static2d.cpp" />

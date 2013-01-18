@@ -4,10 +4,9 @@
 
 1339768008 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\intpoint.h
 
-1339768008 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\main.cpp
+1358512111 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\main.cpp
 	<iostream>
-	"stdio.h"
-	"stdstring.h"
+	<string.h>
 	"fmesher.h"
 
 1339768008 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\stdstring.h
@@ -32,7 +31,7 @@
 	<malloc.h>
 	<afxconv.h>
 
-1358498549 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\fmesher.h
+1358514470 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\fmesher.h
 	<vector>
 	<string>
 	"nosebl.h"
@@ -40,16 +39,19 @@
 	"stdstring.h"
 	"intpoint.h"
 
-1339768008 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\nosebl.h
+1358512662 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\nosebl.h
 	<vector>
-	"stdstring.h"
+	<string>
 	"complex.h"
 
 1358499532 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\libfemm\complex.h
 
-1339768008 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\nosebl.cpp
+1358513937 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\nosebl.cpp
+	<cstdlib>
+	<cstdio>
 	<vector>
 	<cmath>
+	<string>
 	<cstring>
 	"nosebl.h"
 
@@ -65,13 +67,23 @@
 
 1345729594 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\triangle.h
 
-1345729594 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\writepoly.cpp
+1358514087 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\writepoly.cpp
 	"stdio.h"
-	"stdstring.h"
 	<cmath>
 	<vector>
+	<string>
 	<malloc.h>
 	"fmesher.h"
 	"intpoint.h"
 	"triangle.h"
+
+1358514151 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\fmesher.cpp
+	<iostream>
+	"stdio.h"
+	<vector>
+	<cmath>
+	<string>
+	<cstring>
+	"fmesher.h"
+	"intpoint.h"
 

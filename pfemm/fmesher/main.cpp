@@ -1,28 +1,28 @@
 #include <iostream>
-#include "stdio.h"
-#include "stdstring.h"
+#include <string.h>
+//#include "stdio.h"
+//#include "stdstring.h"
 #include "fmesher.h"
 
+using std::string;
 
 int main(int argc, char ** argv)
 {
 
     FMesher MeshObj;
     bool MeshUpToDate;
-    CStdString FilePath;
-    char tempFilePath[1024];
+    string FilePath;
+    //char tempFilePath[1024];
 
     if (argc < 2)
     {
         // request the file name from the user
-        printf("Enter fem file name:\n");
+        cout << "Enter fem file name:" << endl;
+        getline(cin,FilePath);
 
         //scanf("%s", tempFilePath);
-
-        gets(tempFilePath);
-
-        FilePath = tempFilePath;
-
+        // gets(tempFilePath);
+        // FilePath = tempFilePath;
     }
     else if(argc > 2)
     {

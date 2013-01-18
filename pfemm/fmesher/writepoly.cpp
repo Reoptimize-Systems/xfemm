@@ -24,9 +24,10 @@
 // to triangle from the FMesher class
 
 #include "stdio.h"
-#include "stdstring.h"
+//#include "stdstring.h"
 #include <cmath>
 #include <vector>
+#include <string>
 #include <malloc.h>
 #include "fmesher.h"
 #include "intpoint.h"
@@ -60,6 +61,8 @@ extern "C" {
 #ifndef DEFAULT_MINIMUM_ANGLE
 #define DEFAULT_MINIMUM_ANGLE 30.0
 #endif
+
+using namespace std;
 
 double FMesher::LineLength(int i)
 {
@@ -144,19 +147,19 @@ bool FMesher::HasPeriodicBC()
 }
 
 
-bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, CStdString PathName)
+bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string PathName)
 {
     FILE *fp;
 	int i, j, nexttriattrib;
 	std::string msg;
 
-	CStdString plyname = PathName.Left(PathName.ReverseFind('.')) + ".edge";
+	string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".edge";
 
     if (out.numberofedges > 0)
     {
         // check to see if we are ready to write an edge datafile;
 
-        if ((fp = fopen(plyname,"wt"))==NULL){
+        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
             msg = "Couldn't write to specified .edge file";
             AfxMessageBox(msg);
             return false;
@@ -177,7 +180,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, CStdStrin
 
     }
 
-	plyname = PathName.Left(PathName.ReverseFind('.')) + ".ele";
+	plyname = PathName.substr(0, PathName.find_last_of('.')) + ".ele";
 
     if (out.numberoftriangles > 0)
     {
@@ -185,7 +188,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, CStdStrin
         // check to see if we are ready to write a .ele datafile containing
         // thr triangle elements
 
-        if ((fp = fopen(plyname,"wt"))==NULL){
+        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
             AfxMessageBox((std::string)"Couldn't write to specified .ele file");
             return false;
         }
@@ -228,7 +231,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, CStdStrin
 
     }
 
-    plyname = PathName.Left(PathName.ReverseFind('.')) + ".node";
+    plyname = PathName.substr(0, PathName.find_last_of('.')) + ".node";
 
     if (out.numberofpoints > 0)
     {
@@ -236,7 +239,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, CStdStrin
         // check to see if we are ready to write a .node datafile containing
         // the nodes
 
-        if ((fp = fopen(plyname,"wt"))==NULL){
+        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
             AfxMessageBox((std::string)"Couldn't write to specified .node file");
             return false;
         }
@@ -260,15 +263,15 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, CStdStrin
 }
 
 // What we do in the normal case is DoNonPeriodicBCTriangulation
-bool FMesher::DoNonPeriodicBCTriangulation(CStdString PathName)
+bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
 {
 	FILE *fp;
 	unsigned int i,j,k;
 	int l,t,NRegionalAttribs,Nholes;
 	double z,R,dL;
 	CComplex a0,a1,a2,c;
-	CStdString s;
-	CStdString plyname;
+	//CStdString s;
+	string plyname;
 	std::vector < CNode >       nodelst;
 	std::vector < CSegment >    linelst;
 	std::vector < CArcSegment > arclst;
@@ -421,7 +424,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(CStdString PathName)
 
 
 	// create correct output filename;
-	CStdString pn = PathName;
+	string pn = PathName;
 //	CStdString plyname=pn.Left(pn.ReverseFind('.')) + ".poly";
 //
 //	// check to see if we are ready to write a datafile;
@@ -502,8 +505,8 @@ bool FMesher::DoNonPeriodicBCTriangulation(CStdString PathName)
 //	fclose(fp);
 
 	// write out a trivial pbc file
-	plyname=pn.Left(pn.ReverseFind('.')) + ".pbc";
-	if ((fp=fopen(plyname,"wt"))==NULL){
+	plyname = pn.substr(0,pn.find_last_of('.')) + ".pbc";
+	if ((fp=fopen(plyname.c_str(),"wt"))==NULL){
 		AfxMessageBox((std::string)"Couldn't write to specified .pbc file");
 		return false;
 	}
@@ -649,7 +652,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(CStdString PathName)
     out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
     out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
 
-    CStdString rootname = pn.Left(pn.ReverseFind('.'));
+    string rootname = pn.substr(0,pn.find_last_of('.'));
 
 	sprintf(CommandLine, "-pPq%feAazQI", MinAngle);
 
@@ -724,7 +727,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(CStdString PathName)
 
 // Call triangle twice to order segments on the boundary properly
 // for periodic or antiperiodic boundary conditions
-bool FMesher::DoPeriodicBCTriangulation(CStdString PathName)
+bool FMesher::DoPeriodicBCTriangulation(string PathName)
 {
 	FILE *fp;
 	unsigned int i, j, k, n;
@@ -733,8 +736,8 @@ bool FMesher::DoPeriodicBCTriangulation(CStdString PathName)
 	CComplex a0,a1,a2,c;
 	CComplex b0,b1,b2;
 	char instring[1024];
-	CStdString s;
-	CStdString plyname;
+	//string s;
+	string plyname;
 	std::vector < CNode >             nodelst;
 	std::vector < CSegment >          linelst;
 	std::vector < CArcSegment >       arclst;
@@ -911,7 +914,7 @@ bool FMesher::DoPeriodicBCTriangulation(CStdString PathName)
 
 
 	// create correct output filename;
-	CStdString pn = PathName;
+	string pn = PathName;
 //	CStdString plyname=pn.Left(pn.ReverseFind('.')) + ".poly";
 //
 //	// check to see if we are ready to write a datafile;
@@ -1140,7 +1143,7 @@ bool FMesher::DoPeriodicBCTriangulation(CStdString PathName)
     out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
     out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
 
-    CStdString rootname = pn.Left(pn.ReverseFind('.'));
+    string rootname = pn.substr(0,pn.find_last_of('.'));
 
 	sprintf(CommandLine, "-pPq%feAazI", MinAngle);
 
@@ -1218,8 +1221,8 @@ bool FMesher::DoPeriodicBCTriangulation(CStdString PathName)
 
 
 	// read meshlines;
-	plyname=pn.Left(pn.ReverseFind('.')) + ".edge";
-	if((fp=fopen(plyname,"rt"))==NULL){
+	plyname = pn.substr(0,pn.find_last_of('.')) + ".edge";
+	if((fp=fopen(plyname.c_str(),"rt"))==NULL){
 		AfxMessageBox((std::string)"Call to triangle was unsuccessful");
 		Undo();  UnselectAll();
 		return false;
@@ -1313,8 +1316,8 @@ bool FMesher::DoPeriodicBCTriangulation(CStdString PathName)
 	// elements each reference segment appears in.  If a
 	// segment is on the boundary, it ought to appear in just
 	// one element.  Otherwise, it appears in two.
-	plyname=pn.Left(pn.ReverseFind('.')) + ".ele";
-	if((fp=fopen(plyname,"rt"))==NULL){
+	plyname = pn.substr(0,pn.find_last_of('.')) + ".ele";
+	if((fp=fopen(plyname.c_str(),"rt"))==NULL){
 		AfxMessageBox((std::string)"Call to triangle was unsuccessful");
 		Undo();  UnselectAll();
 		return false;
@@ -2009,8 +2012,8 @@ bool FMesher::DoPeriodicBCTriangulation(CStdString PathName)
 	}
 */
 	// write out a pbc file containing a list of linked nodes
-	plyname=pn.Left(pn.ReverseFind('.')) + ".pbc";
-	if ((fp=fopen(plyname,"wt"))==NULL){
+	plyname = pn.substr(0,pn.find_last_of('.')) + ".pbc";
+	if ((fp=fopen(plyname.c_str(),"wt"))==NULL){
 		AfxMessageBox((std::string)"Couldn't write to specified .pbc file");
 		Undo();  UnselectAll();
 		return false;
@@ -2165,7 +2168,7 @@ bool FMesher::DoPeriodicBCTriangulation(CStdString PathName)
     out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
     out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
 
-    rootname = pn.Left(pn.ReverseFind('.'));
+    rootname = pn.substr(0,pn.find_last_of('.'));
 
 	sprintf(CommandLine,"-pPq%feAazIY", MinAngle);
 

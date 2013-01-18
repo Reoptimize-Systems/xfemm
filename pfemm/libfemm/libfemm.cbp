@@ -42,6 +42,8 @@
 		<Unit filename="fullmatrix.h" />
 		<Unit filename="matprop.cpp" />
 		<Unit filename="mesh.h" />
+		<Unit filename="parse.cpp" />
+		<Unit filename="parse.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

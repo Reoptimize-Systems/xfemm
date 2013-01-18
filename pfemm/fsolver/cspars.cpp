@@ -903,7 +903,7 @@ int CBigComplexLinProb::BiCGSTAB(int flag)
     CComplex om,alf,rho1,rho2,bta;
     CComplex *P2,*R2,*Z2,*t;
     int i,j,k;
-    CStdString out;
+//    CStdString out;
 
     P2=(CComplex *)calloc(n,sizeof(CComplex));
     Z2=(CComplex *)calloc(n,sizeof(CComplex));
@@ -957,7 +957,7 @@ int CBigComplexLinProb::BiCGSTAB(int flag)
         // display progress to the user
         if (k==50*(k/50))
         {
-            out.Format("BiCGSTAB Solver (%i,%g)",k,er);
+//            out.Format("BiCGSTAB Solver (%i,%g)",k,er);
 //			TheView->SetDlgItemText(IDC_FRAME1,out);
         }
         prg2=(int) (20.*log10(er)/(log10(Precision)));
