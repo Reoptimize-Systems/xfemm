@@ -49,10 +49,12 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="..\libfemm" />
+			<Add directory="..\liblua" />
 		</Compiler>
 		<Linker>
-			<Add library="..\liblua\lua.dll" />
-			<Add library="..\libfemm\femm.dll" />
+			<Add library="..\liblua\liblua.a" />
+			<Add library="..\libfemm\libfemm.a" />
 			<Add directory="..\liblua" />
 			<Add directory="..\libfemm" />
 		</Linker>

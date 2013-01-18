@@ -24,7 +24,6 @@
 #include <string>
 #include "nosebl.h"
 #include "complex.h"
-#include "stdstring.h"
 #include "intpoint.h"
 //#include "lua.h"
 //#include "luaconsoledlg.h"

@@ -10,7 +10,7 @@
 #include <cstdio>
 #include <cmath>
 // include the boost format lib to get nicer string handling capabilies
-#include "boost/format.hpp"
+//#include "boost/format.hpp"
 #include "problem.h"
 #include "complex.h"
 #include "parse.h"
@@ -134,7 +134,7 @@ FPProc::FPProc()
  */
 FPProc::~FPProc()
 {
-    int i;
+    unsigned int i;
 
     free(LengthConv);
     for(i=0; i<meshnode.size(); i++)
@@ -149,13 +149,13 @@ FPProc::~FPProc()
  * Clear out all data associated with the last document to be loaded
  *
  */
-BOOL FPProc::ClearDocument()
+void FPProc::ClearDocument()
 {
 
     // clear out all current lines, nodes, and block labels
     if(NumList!=NULL)
     {
-        for(int i=0; i<meshnode.size(); i++)
+        for(unsigned int i=0; i<meshnode.size(); i++)
         {
             if(ConList[i]!=NULL)
             {
@@ -1012,8 +1012,9 @@ BOOL FPProc::OpenDocument(string pathname)
     lua_baselibopen(LocalLua);
     lua_strlibopen(LocalLua);
     lua_mathlibopen(LocalLua);
+    char magbuff[4096];
     // create the formatter object in case of a lua defined mag direction
-    boost::format fmatter("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s");
+    //boost::format fmatter("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s");
     for(i=0; i<meshelem.size(); i++)
     {
         if(blocklist[meshelem[i].lbl].MagDirFctn.length()==0)
@@ -1031,14 +1032,17 @@ BOOL FPProc::OpenDocument(string pathname)
             // Get the element centroid
             X = meshelem[i].ctr;
             // generate the string using boost::format
-            fmatter % (X.re)
-            % (X.im)
-            % (arg(X)*180/PI)
-            % (abs(X))
-            % (blocklist[meshelem[i].lbl].MagDirFctn);
-            // get the created string
-            str = fmatter.str();
-
+//            fmatter % (X.re)
+//            % (X.im)
+//            % (arg(X)*180/PI)
+//            % (abs(X))
+//            % (blocklist[meshelem[i].lbl].MagDirFctn);
+//            // get the created string
+//            str = fmatter.str();
+            // generate the string using snprintf
+            std::snprintf(magbuff, 4096, "x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s",
+                          (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (blocklist[meshelem[i].lbl].MagDirFctn.c_str() ) );
+            str = magbuff;
             // Have the lua interpreter evaluate the string
             lua_dostring(LocalLua,str.c_str());
             // Put the last number produced by lua into the element mag
@@ -1046,6 +1050,8 @@ BOOL FPProc::OpenDocument(string pathname)
             meshelem[i].magdir = Re(lua_tonumber(LocalLua,-1));
 
             lua_pop(LocalLua, 1);
+            // clear the string buffer for the next iteration
+            memset(magbuff, 0, sizeof(magbuff));
         }
     }
     lua_close(LocalLua);
