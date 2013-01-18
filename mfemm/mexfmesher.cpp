@@ -5,13 +5,8 @@
 // when compiling on windows
 // #define WINDOWS
 
-#ifdef WINDOWS
-#include "fmesher\stdstring.h"
-#include "fmesher\fmesher.h"
-#else
-#include "fmesher/stdstring.h"
-#include "fmesher/fmesher.h"
-#endif
+#include <string>
+#include "fmesher.h"
 
 #include "mex.h"
 
@@ -31,7 +26,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 int nrhs, const mxArray *prhs[])
 {
     FMesher MeshObj;
-    CStdString FilePath;
+    std::string FilePath;
     char *buf;
     mwSize buflen;
     int status;
