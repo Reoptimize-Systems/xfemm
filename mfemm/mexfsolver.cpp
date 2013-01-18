@@ -3,25 +3,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-
-// If the windows flag is defined we use diferent file separators
-// normally you would set this using the -DWINDOWS mex compiler option
-// when compiling on windows
-// #define WINDOWS
-
-#ifdef WINDOWS
-#include "fsolver\stdstring.h"
-#include "fsolver\fsolver.h"
-#include "fsolver\complex.h"
-#include "fsolver\spars.h"
-#include "fsolver\mesh.h"
-#else
-#include "fsolver/stdstring.h"
-#include "fsolver/fsolver.h"
-#include "fsolver/complex.h"
-#include "fsolver/spars.h"
-#include "fsolver/mesh.h"
-#endif
+#include "fsolver.h"
+#include "complex.h"
+#include "spars.h"
+#include "mesh.h"
 
 #include "mex.h"
 
@@ -41,7 +26,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 int nrhs, const mxArray *prhs[])
 {
     FSolver SolveObj;
-    CStdString FilePath;
+    std::string FilePath;
     char *buf;
     mwSize buflen;
     int status;
