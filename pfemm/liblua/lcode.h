@@ -23,12 +23,13 @@
 /*
 ** grep "ORDER OPR" if you change these enums
 */
-typedef enum BinOpr {
-  OPR_ADD, OPR_SUB, OPR_MULT, OPR_DIV, OPR_POW,
-  OPR_CONCAT,
-  OPR_NE, OPR_EQ, OPR_LT, OPR_LE, OPR_GT, OPR_GE,
-  OPR_AND, OPR_OR,
-  OPR_NOBINOPR
+typedef enum BinOpr
+{
+    OPR_ADD, OPR_SUB, OPR_MULT, OPR_DIV, OPR_POW,
+    OPR_CONCAT,
+    OPR_NE, OPR_EQ, OPR_LT, OPR_LE, OPR_GT, OPR_GE,
+    OPR_AND, OPR_OR,
+    OPR_NOBINOPR
 } BinOpr;
 
 typedef enum UnOpr { OPR_MINUS, OPR_NOT, OPR_NOUNOPR } UnOpr;
@@ -38,10 +39,11 @@ enum Mode {iO, iU, iS, iAB};  /* instruction format */
 
 #define VD	100	/* flag for variable delta */
 
-extern const struct OpProperties {
-  char mode;
-  unsigned char push;
-  unsigned char pop;
+extern const struct OpProperties
+{
+    char mode;
+    unsigned char push;
+    unsigned char pop;
 } luaK_opproperties[];
 
 

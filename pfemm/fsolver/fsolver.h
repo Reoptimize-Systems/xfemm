@@ -57,68 +57,68 @@ class FSolver
 // Attributes
 public:
 
-	FSolver();
-	~FSolver();
+    FSolver();
+    ~FSolver();
 
-	// General problem attributes
-	double  Frequency;
-	double  Precision;
-	double  Relax;
-	int		LengthUnits;
-	int		ACSolver;
-	int     ProblemType;
-	int	    Coords;
+    // General problem attributes
+    double  Frequency;
+    double  Precision;
+    double  Relax;
+    int		LengthUnits;
+    int		ACSolver;
+    int     ProblemType;
+    int	    Coords;
 
-	// axisymmetric external region parameters
-	double  extRo,extRi,extZo;
+    // axisymmetric external region parameters
+    double  extRo,extRi,extZo;
 
-	//CFknDlg *TheView;
+    //CFknDlg *TheView;
 
-	// CArrays containing the mesh information
-	int	BandWidth;
-	CNode *meshnode;
-	CElement *meshele;
+    // CArrays containing the mesh information
+    int	BandWidth;
+    CNode *meshnode;
+    CElement *meshele;
 
-	int NumNodes;
-	int NumEls;
+    int NumNodes;
+    int NumEls;
 
-	// lists of properties
-	int NumBlockProps;
-	int NumPBCs;
-	int NumLineProps;
-	int NumPointProps;
-	int NumCircProps;
-	int NumBlockLabels;
-	int NumCircPropsOrig;
+    // lists of properties
+    int NumBlockProps;
+    int NumPBCs;
+    int NumLineProps;
+    int NumPointProps;
+    int NumCircProps;
+    int NumBlockLabels;
+    int NumCircPropsOrig;
 
-	CMaterialProp	*blockproplist;
-	CBoundaryProp	*lineproplist;
-	CPointProp		*nodeproplist;
-	CCircuit		*circproplist;
-	CBlockLabel		*labellist;
-	CCommonPoint	*pbclist;
-	// stuff usually kept track of by CDocument
-	char *PathName;
+    CMaterialProp	*blockproplist;
+    CBoundaryProp	*lineproplist;
+    CPointProp		*nodeproplist;
+    CCircuit		*circproplist;
+    CBlockLabel		*labellist;
+    CCommonPoint	*pbclist;
+    // stuff usually kept track of by CDocument
+    char *PathName;
 
 
 // Operations
 public:
 
-	int LoadMesh();
-	int LoadFEMFile();
-	int Cuthill();
-	int SortElements();
-	int Static2D(CBigLinProb &L);
-	int WriteStatic2D(CBigLinProb &L);
-	int Harmonic2D(CBigComplexLinProb &L);
-	int WriteHarmonic2D(CBigComplexLinProb &L);
-	int StaticAxisymmetric(CBigLinProb &L);
-	int HarmonicAxisymmetric(CBigComplexLinProb &L);
-	void GetFillFactor(int lbl);
-	double ElmArea(int i);
-	void CleanUp();
-	void AfxMessageBox(const char* message);
-	void MsgBox(const char* message);
+    int LoadMesh();
+    int LoadFEMFile();
+    int Cuthill();
+    int SortElements();
+    int Static2D(CBigLinProb &L);
+    int WriteStatic2D(CBigLinProb &L);
+    int Harmonic2D(CBigComplexLinProb &L);
+    int WriteHarmonic2D(CBigComplexLinProb &L);
+    int StaticAxisymmetric(CBigLinProb &L);
+    int HarmonicAxisymmetric(CBigComplexLinProb &L);
+    void GetFillFactor(int lbl);
+    double ElmArea(int i);
+    void CleanUp();
+    void AfxMessageBox(const char* message);
+    void MsgBox(const char* message);
 
 };
 #endif

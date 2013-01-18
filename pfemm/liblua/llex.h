@@ -21,43 +21,47 @@
 * WARNING: if you change the order of this enumeration,
 * grep "ORDER RESERVED"
 */
-enum RESERVED {
-  /* terminal symbols denoted by reserved words */
-  TK_AND = FIRST_RESERVED, TK_BREAK,
-  TK_DO, TK_ELSE, TK_ELSEIF, TK_END, TK_FOR, TK_FUNCTION, TK_IF, TK_LOCAL,
-  TK_NIL, TK_NOT, TK_OR, TK_REPEAT, TK_RETURN, TK_THEN, TK_UNTIL, TK_WHILE,
-  /* other terminal symbols */
-  TK_NAME, TK_CONCAT, TK_DOTS, TK_EQ, TK_GE, TK_LE, TK_NE, TK_NUMBER,
-  TK_STRING, TK_EOS
+enum RESERVED
+{
+    /* terminal symbols denoted by reserved words */
+    TK_AND = FIRST_RESERVED, TK_BREAK,
+    TK_DO, TK_ELSE, TK_ELSEIF, TK_END, TK_FOR, TK_FUNCTION, TK_IF, TK_LOCAL,
+    TK_NIL, TK_NOT, TK_OR, TK_REPEAT, TK_RETURN, TK_THEN, TK_UNTIL, TK_WHILE,
+    /* other terminal symbols */
+    TK_NAME, TK_CONCAT, TK_DOTS, TK_EQ, TK_GE, TK_LE, TK_NE, TK_NUMBER,
+    TK_STRING, TK_EOS
 };
 
 /* number of reserved words */
 #define NUM_RESERVED	((int)(TK_WHILE-FIRST_RESERVED+1))
 
 
-typedef class {
-	public:
-  Number r;
-  TString *ts;
+typedef class
+{
+public:
+    Number r;
+    TString *ts;
 } SemInfo;  /* semantics information */
 
 
-typedef struct Token {
-  int token;
-  SemInfo seminfo;
+typedef struct Token
+{
+    int token;
+    SemInfo seminfo;
 } Token;
 
 
-typedef struct LexState {
-  int current;  /* current character */
-  Token t;  /* current token */
-  Token lookahead;  /* look ahead token */
-  struct FuncState *fs;  /* `FuncState' is private to the parser */
-  struct lua_State *L;
-  struct zio *z;  /* input stream */
-  int linenumber;  /* input line counter */
-  int lastline;  /* line of last token `consumed' */
-  TString *source;  /* current source name */
+typedef struct LexState
+{
+    int current;  /* current character */
+    Token t;  /* current token */
+    Token lookahead;  /* look ahead token */
+    struct FuncState *fs;  /* `FuncState' is private to the parser */
+    struct lua_State *L;
+    struct zio *z;  /* input stream */
+    int linenumber;  /* input line counter */
+    int lastline;  /* line of last token `consumed' */
+    TString *source;  /* current source name */
 } LexState;
 
 

@@ -73,7 +73,12 @@ typedef unsigned long lint32;  /* unsigned int with at least 32 bits */
 
 
 /* type to ensure maximum alignment */
-union L_Umaxalign { double d; char *s; long l; };
+union L_Umaxalign
+{
+    double d;
+    char *s;
+    long l;
+};
 
 
 

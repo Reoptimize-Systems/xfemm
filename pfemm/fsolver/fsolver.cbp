@@ -14,11 +14,10 @@
 				<Option projectLibDirsRelation="2" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="liblua" />
+					<Add directory="..\liblua" />
 				</Compiler>
 				<Linker>
-					<Add library="liblua\liblua.a" />
-					<Add directory="liblua" />
+					<Add directory="..\liblua" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -41,19 +40,19 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="complex.cpp" />
-		<Unit filename="complex.h" />
+		<Linker>
+			<Add library="..\liblua\lua.dll" />
+			<Add library="..\libfemm\femm.dll" />
+			<Add directory="..\liblua" />
+			<Add directory="..\libfemm" />
+		</Linker>
 		<Unit filename="cspars.cpp" />
 		<Unit filename="cuthill.cpp" />
 		<Unit filename="fsolver.cpp" />
 		<Unit filename="fsolver.h" />
-		<Unit filename="fullmatrix.cpp" />
-		<Unit filename="fullmatrix.h" />
 		<Unit filename="harmonic2d.cpp" />
 		<Unit filename="harmonicaxi.cpp" />
 		<Unit filename="main.cpp" />
-		<Unit filename="matprop.cpp" />
-		<Unit filename="mesh.h" />
 		<Unit filename="spars.cpp" />
 		<Unit filename="spars.h" />
 		<Unit filename="static2d.cpp" />
