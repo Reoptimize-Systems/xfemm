@@ -19,15 +19,16 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#include<stdio.h>
-#include<math.h>
+#include <string>
+#include <cstdio>
+#include <math.h>
 #include <malloc.h>
 #include "complex.h"
 #include "mesh.h"
 #include "spars.h"
 #include "fsolver.h"
 #include "lua.h"
-#include "boost/format.hpp"
+//#include "boost/format.hpp"
 
 #define Log log
 
@@ -350,18 +351,22 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                 // contribution to be from magnetization in the block;
                 t=labellist[El->lbl].MagDir;
                 // create the formatter object in case of a lua defined mag direction
-                boost::format fmatter("r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s");
+//                boost::format fmatter("r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s");
                 if (labellist[El->lbl].MagDirFctn!=NULL) // functional magnetization direction
                 {
-                    string str;
+                    char magbuff[4096];
+                    std::string str;
                     CComplex X;
                     int top1,top2;
                     for (j=0,X=0; j<3; j++) X+=(meshnode[n[j]].x + I*meshnode[n[j]].y);
                     X=X/units[LengthUnits]/3.;
                     // generate the string using boost::format
-                    fmatter % (X.re) % (X.im) % (arg(X)*180/PI) % (abs(X)) % (labellist[El->lbl].MagDirFctn);
+//                    fmatter % (X.re) % (X.im) % (arg(X)*180/PI) % (abs(X)) % (labellist[El->lbl].MagDirFctn);
                     // get the created string
-                    str = fmatter.str();
+//                    str = fmatter.str();
+                    std::snprintf(magbuff, sizeof magbuff, "r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s",
+                                 (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn));
+                    str = magbuff;
                     top1=lua_gettop(lua);
                     if(lua_dostring(lua,str.c_str())!=0)
                     {
@@ -374,7 +379,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                     if (top2!=top1)
                     {
                         str=lua_tostring(lua,-1);
-                        if (str.GetLength()==0)
+                        if (str.length()==0)
                         {
 //					MsgBox( "\"%s\" does not evaluate to a numerical value",
 //						labellist[El->lbl].MagDirFctn);

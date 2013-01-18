@@ -165,7 +165,7 @@ public:
     void GetMagnetization(int n, CComplex &M1, CComplex &M2);
     void GetH(double b1, double b2, double &h1, double &h2, int k);
     void GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k);
-    BOOL ClearDocument();
+    void ClearDocument();
     BOOL NewDocument();
 //     virtual void Serialize(CArchive& ar);
     BOOL OpenDocument(std::string lpszPathName);

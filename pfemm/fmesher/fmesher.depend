@@ -31,12 +31,11 @@
 	<malloc.h>
 	<afxconv.h>
 
-1358514470 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\fmesher.h
+1358525147 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\fmesher.h
 	<vector>
 	<string>
 	"nosebl.h"
 	"complex.h"
-	"stdstring.h"
 	"intpoint.h"
 
 1358512662 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\nosebl.h
@@ -77,13 +76,17 @@
 	"intpoint.h"
 	"triangle.h"
 
-1358514151 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\fmesher.cpp
+1358515438 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fmesher\fmesher.cpp
 	<iostream>
 	"stdio.h"
 	<vector>
 	<cmath>
 	<string>
 	<cstring>
+	"parse.h"
 	"fmesher.h"
 	"intpoint.h"
+
+1358522341 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\libfemm\parse.h
+	<string>
 

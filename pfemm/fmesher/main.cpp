@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string.h>
 //#include "stdio.h"
-//#include "stdstring.h"
 #include "fmesher.h"
 
 using std::string;
@@ -10,7 +9,7 @@ int main(int argc, char ** argv)
 {
 
     FMesher MeshObj;
-    bool MeshUpToDate;
+//    bool MeshUpToDate;
     string FilePath;
     //char tempFilePath[1024];
 
@@ -26,7 +25,8 @@ int main(int argc, char ** argv)
     }
     else if(argc > 2)
     {
-        printf("Too many arguments");
+        cout << "Too many input arguments" << endl;
+        return -4;
     }
     else
     {
@@ -91,7 +91,7 @@ int main(int argc, char ** argv)
 
     //}
 
-    printf("\nNo errors");
+    cout << "No errors" << endl;
     return 0;
 
 }

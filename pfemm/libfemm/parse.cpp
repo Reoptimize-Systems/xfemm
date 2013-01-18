@@ -4,6 +4,7 @@
 
 using namespace std;
 
+
 char* StripKey(char *c)
 {
     char *d;
