@@ -7,14 +7,37 @@
 #include <string>
 #include <cstring>
 #include <cstdio>
+#include <cmath>
 // include the boost format lib to get nicer string handling capabilies
 #include "boost/format.hpp"
 #include "problem.h"
+#include "complex.h"
 //#include "femm.h"
 //#include "xyplot.h"
-#include "fpproc.h"
 //#include "femmviewView.h"
 #include "lua.h"
+#include "lualib.h"
+#include "fpproc.h"
+
+#ifndef muo
+#define muo 1.2566370614359173e-6
+#endif
+
+#ifndef Golden
+#define Golden 0.3819660112501051517954131656
+#endif
+
+#ifndef PLANAR
+#define PLANAR 0
+#endif
+
+#ifndef AXISYMMETRIC
+#define AXISYMMETRIC 1
+#endif
+
+#ifndef _MSC_VER
+#define _strnicmp strncasecmp
+#endif
 
 extern lua_State * lua;
 extern void *pFemmviewdoc;
@@ -37,13 +60,30 @@ extern void lua_dblibopen (lua_State *L);
 static char THIS_FILE[] = __FILE__;
 #endif
 
-using std::string;
+using namespace std;
 
 // FPProc construction/destruction
 
 double sqr(double x)
 {
     return x*x;
+}
+
+char* StripKey(char *c)
+{
+	char *d;
+	int i,k;
+
+	k=strlen(c);
+
+	for(i=0;i<k;i++){
+		if (c[i] == '='){
+			d=c+i+1;
+			return d;
+		}
+	}
+
+	return c+k;
 }
 
 char *ParseDbl(char *t, double *f)
@@ -157,6 +197,17 @@ char *ParseString(char *t, string *s)
     return (t+n2+1);
 }
 
+// Replacement function for windows MFC function AfxMessageBox
+void FPProc::AfxMessageBox(const char* message)
+{
+    printf(message);
+}
+
+void FPProc::MsgBox(const char* message)
+{
+    printf(message);
+}
+
 /**
  * Constuctor for the FPProc class.
  */
@@ -201,7 +252,7 @@ FPProc::FPProc()
 //     ScanPreferences();
 
     // lua initialization stuff
-    initalise_lua();
+    // initalise_lua();
 }
 
 /**
@@ -217,7 +268,7 @@ FPProc::~FPProc()
     free(ConList);
     free(NumList);
 
-    if (pFemmviewdoc==this) pFemmviewdoc = NULL;
+    //if (pFemmviewdoc==this) pFemmviewdoc = NULL;
 }
 
 /**
@@ -267,7 +318,7 @@ BOOL FPProc::NewDocument()
     // (SDI documents will reuse this document)
 
     // clear out all current lines, nodes, and block labels
-    ClearDocument()
+    ClearDocument();
 
     // set problem attributes to generic ones;
     Frequency = 0.;
@@ -325,23 +376,23 @@ BOOL FPProc::OpenDocument(string pathname)
     double b,bi,br;
     double zr,zi;
     BOOL flag = FALSE;
-    CPointProp      PProp;
+    CPointProp    PProp;
     CBoundaryProp BProp;
     CMaterialProp MProp;
     CCircuit      CProp;
-    CNode        node;
-    CSegment    segm;
-    CArcSegment asegm;
-    CElement    elm;
-    CBlockLabel blk;
-    CMeshNode    mnode;
-    CPoint        mline;
+    CNode         node;
+    CSegment      segm;
+    CArcSegment   asegm;
+    CElement      elm;
+    CBlockLabel   blk;
+    CMeshNode     mnode;
+    //CPoint        mline;
 
     // clear out all the document data and set defaults to standard values
     NewDocument();
 
     // attempt to open the file for reading
-    if ((fp = fopen(pathname,"rt")) == NULL)
+    if ((fp = fopen(pathname.c_str(),"rt")) == NULL)
     {
         AfxMessageBox("Couldn't read from specified .poly file");
         return FALSE;
@@ -538,24 +589,24 @@ BOOL FPProc::OpenDocument(string pathname)
 
         if( _strnicmp(q,"<endpoint>",9)==0)
         {
-            nodeproplist.Add(PProp);
+            nodeproplist.push_back(PProp);
             q[0]=NULL;
         }
 
         // Boundary Properties;
         if( _strnicmp(q,"<beginbdry>",11)==0)
         {
-            BProp.BdryName="New Boundary";
-            BProp.BdryFormat=0;
-            BProp.A0=0.;
-            BProp.A1=0.;
-            BProp.A2=0.;
-            BProp.phi=0.;
-            BProp.Mu=0.;
-            BProp.Sig=0.;
-            BProp.c0=0.;
-            BProp.c1=0.;
-            q[0]=NULL;
+            BProp.BdryName = "New Boundary";
+            BProp.BdryFormat = 0;
+            BProp.A0  = 0.;
+            BProp.A1  = 0.;
+            BProp.A2  = 0.;
+            BProp.phi = 0.;
+            BProp.Mu  = 0.;
+            BProp.Sig = 0.;
+            BProp.c0  = 0.;
+            BProp.c1  = 0.;
+            q[0] = NULL;
         }
 
         if( _strnicmp(q,"<bdryname>",10)==0)
@@ -659,7 +710,7 @@ BOOL FPProc::OpenDocument(string pathname)
         }
         if( _strnicmp(q,"<endbdry>",9)==0)
         {
-            lineproplist.Add(BProp);
+            lineproplist.push_back(BProp);
             q[0]=NULL;
         }
 
@@ -829,7 +880,7 @@ BOOL FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<endblock>",9)==0)
         {
             if (MProp.BHpoints>0) MProp.GetSlopes(Frequency*2.*PI);
-            blockproplist.Add(MProp);
+            blockproplist.push_back(MProp);
             MProp.BHpoints=0;
             MProp.Bdata=NULL;
             MProp.Hdata=NULL;
@@ -896,7 +947,7 @@ BOOL FPProc::OpenDocument(string pathname)
 
         if( _strnicmp(q,"<endcircuit>",12)==0)
         {
-            circproplist.Add(CProp);
+            circproplist.push_back(CProp);
             q[0]=NULL;
         }
 
@@ -910,7 +961,7 @@ BOOL FPProc::OpenDocument(string pathname)
                 fgets(s,1024,fp);
                 sscanf(s,"%lf    %lf    %i\n",&node.x,&node.y,&t);
                 node.BoundaryMarker=t-1;
-                nodelist.Add(node);
+                nodelist.push_back(node);
             }
             q[0]=NULL;
         }
@@ -925,7 +976,7 @@ BOOL FPProc::OpenDocument(string pathname)
                 fgets(s,1024,fp);
                 sscanf(s,"%i    %i    %lf %i    %i\n",&segm.n0,&segm.n1,&segm.MaxSideLength,&t,&segm.Hidden);
                 segm.BoundaryMarker=t-1;
-                linelist.Add(segm);
+                linelist.push_back(segm);
             }
             q[0]=NULL;
         }
@@ -941,7 +992,7 @@ BOOL FPProc::OpenDocument(string pathname)
                 sscanf(s,"%i    %i    %lf    %lf %i    %i\n",&asegm.n0,&asegm.n1,
                        &asegm.ArcLength,&asegm.MaxSideLength,&t,&asegm.Hidden);
                 asegm.BoundaryMarker=t-1;
-                arclist.Add(asegm);
+                arclist.push_back(asegm);
             }
             q[0]=NULL;
         }
@@ -960,7 +1011,7 @@ BOOL FPProc::OpenDocument(string pathname)
                 {
                     fgets(s,1024,fp);
                     sscanf(s,"%lf    %lf\n",&blk.x,&blk.y);
-                    //    blocklist.Add(blk);
+                    //    blocklist.push_back(blk);
                     //  don't add holes to the list
                     //  of block labels because it messes up the
                     //  number of block labels.
@@ -1003,7 +1054,7 @@ BOOL FPProc::OpenDocument(string pathname)
                 else blk.MaxArea=PI*blk.MaxArea*blk.MaxArea/4.;
                 blk.BlockType-=1;
                 blk.InCircuit-=1;
-                blocklist.Add(blk);
+                blocklist.push_back(blk);
             }
             q[0]=NULL;
         }
@@ -1017,7 +1068,7 @@ BOOL FPProc::OpenDocument(string pathname)
 
     // read in meshnodes;
     fscanf(fp,"%i\n",&k);
-    meshnode.SetSize(k);
+    meshnode.resize(k);
     for(i=0; i<k; i++)
     {
         fgets(s,1024,fp);
@@ -1029,18 +1080,18 @@ BOOL FPProc::OpenDocument(string pathname)
             sscanf(s,"%lf    %lf    %lf",&mnode.x,&mnode.y,&mnode.A.re);
             mnode.A.im=0;
         }
-        meshnode.SetAt(i,mnode);
+        meshnode[i] = mnode;
     }
 
     // read in elements;
     fscanf(fp,"%i\n",&k);
-    meshelem.SetSize(k);
+    meshelem.resize(k);
     for(i=0; i<k; i++)
     {
         fgets(s,1024,fp);
         sscanf(s,"%i    %i    %i    %i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
         elm.blk=blocklist[elm.lbl].BlockType;
-        meshelem.SetAt(i,elm);
+        meshelem[i] = elm;
     }
 
     // read in circuit data;
@@ -1087,6 +1138,8 @@ BOOL FPProc::OpenDocument(string pathname)
     lua_baselibopen(LocalLua);
     lua_strlibopen(LocalLua);
     lua_mathlibopen(LocalLua);
+    // create the formatter object in case of a lua defined mag direction
+    boost::format fmatter("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s");
     for(i=0; i<meshelem.size(); i++)
     {
         if(blocklist[meshelem[i].lbl].MagDirFctn.length()==0)
@@ -1104,14 +1157,16 @@ BOOL FPProc::OpenDocument(string pathname)
             // Get the element centroid
             X = meshelem[i].ctr;
             // generate the string using boost::format
-            str << boost::format("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s")
-                                 % X.re
-                                 % X.im
-                                 % arg(X)*180/PI
-                                 % abs(X)
-                                 % blocklist[meshelem[i].lbl].MagDirFctn;
+            fmatter % (X.re)
+            % (X.im)
+            % (arg(X)*180/PI)
+            % (abs(X))
+            % (blocklist[meshelem[i].lbl].MagDirFctn);
+            // get the created string
+            str = fmatter.str();
+
             // Have the lua interpreter evaluate the string
-            lua_dostring(LocalLua,str);
+            lua_dostring(LocalLua,str.c_str());
             // Put the last number produced by lua into the element mag
             // direction
             meshelem[i].magdir = Re(lua_tonumber(LocalLua,-1));
@@ -1162,9 +1217,13 @@ BOOL FPProc::OpenDocument(string pathname)
 
                 if(blockproplist[k].Lam_d!=0)
                 {
-                    halflag=exp(-I*blockproplist[k].Theta_hx*PI/360.);
-                    ds=sqrt(2./(0.4*PI*w*blockproplist[k].Cduct*blockproplist[k].mu_x));
-                    K=halflag*deg45*blockproplist[k].Lam_d*0.001/(2.*ds);
+
+                    halflag = exp(-I*blockproplist[k].Theta_hx*PI/360.);
+
+                    ds = sqrt(2. / (0.4 * PI * w * blockproplist[k].Cduct * blockproplist[k].mu_x));
+
+                    K = halflag*deg45*blockproplist[k].Lam_d*0.001/(2.*ds);
+
                     if (blockproplist[k].Cduct!=0)
                     {
                         blockproplist[k].mu_fdx=(blockproplist[k].mu_fdx*tanh(K)/K)*
@@ -1287,28 +1346,28 @@ BOOL FPProc::OpenDocument(string pathname)
         double Hi_Low, Hi_High;
         CComplex h1,h2;
 
-        Br_Low=sqrt(sqr(meshelem[0].B1.re) + sqr(meshelem[0].B2.re));
-        Br_High=Br_Low;
-        Bi_Low=sqrt(sqr(meshelem[0].B1.im)+ sqr(meshelem[0].B2.im));
-        Bi_High=Bi_Low;
-        B_Low=sqrt(Br_Low*Br_Low + Bi_Low*Bi_Low);
-        B_High=B_Low;
+        Br_Low  = sqrt(sqr(meshelem[0].B1.re) + sqr(meshelem[0].B2.re));
+        Br_High = Br_Low;
+        Bi_Low  = sqrt(sqr(meshelem[0].B1.im)+ sqr(meshelem[0].B2.im));
+        Bi_High = Bi_Low;
+        B_Low   = sqrt(Br_Low*Br_Low + Bi_Low*Bi_Low);
+        B_High  = B_Low;
 
         if (Frequency!=0)
             GetH(meshelem[0].B1,meshelem[0].B2,h1,h2,0);
         else
         {
-            h1=0;
-            h2=0;
+            h1 = 0;
+            h2 = 0;
             GetH(meshelem[0].B1.re,meshelem[0].B2.re,h1.re,h2.re,0);
         }
 
-        Hr_Low=sqrt(sqr(h1.re) + sqr(h2.re));
-        Hr_High=Hr_Low;
-        Hi_Low=sqrt(sqr(h1.im)+ sqr(h2.im));
-        Hi_High=Hi_Low;
-        H_Low=sqrt(Hr_Low*Hr_Low + Hi_Low*Hi_Low);
-        H_High=H_Low;
+        Hr_Low  = sqrt(sqr(h1.re) + sqr(h2.re));
+        Hr_High = Hr_Low;
+        Hi_Low  = sqrt(sqr(h1.im)+ sqr(h2.im));
+        Hi_High = Hi_Low;
+        H_Low   = sqrt(Hr_Low*Hr_Low + Hi_Low*Hi_Low);
+        H_High  = H_Low;
 
         for(i=0; i<meshelem.size(); i++)
         {
@@ -1371,16 +1430,16 @@ BOOL FPProc::OpenDocument(string pathname)
         }
     }
 
-    // Choose bounds based on the type of contour plot
-    // currently in play
-    POSITION pos = GetFirstViewPosition();
-    CFemmviewView *theView=(CFemmviewView *)GetNextView(pos);
-
-    if(Frequency==0)
-    {
-        if (theView->DensityPlot==2) theView->DensityPlot=1;
-        if (theView->DensityPlot>1)  theView->DensityPlot=0;
-    }
+//    // Choose bounds based on the type of contour plot
+//    // currently in play
+//    POSITION pos = GetFirstViewPosition();
+//    CFemmviewView *theView=(CFemmviewView *)GetNextView(pos);
+//
+//    if(Frequency==0)
+//    {
+//        if (theView->DensityPlot==2) theView->DensityPlot=1;
+//        if (theView->DensityPlot>1)  theView->DensityPlot=0;
+//    }
 
     // compute total resulting current for circuits with an a priori defined
     // voltage gradient;  Need this to display circuit results & impedance.
@@ -1424,7 +1483,7 @@ BOOL FPProc::OpenDocument(string pathname)
                     msg += "by more than one block label.  These potentially\n";
                     msg += "problematic regions will appear as selected in\n";
                     msg += "the initial view.";
-                    AfxMessageBox(msg);
+                    AfxMessageBox(msg.c_str());
                     bMultiplyDefinedLabels=TRUE;
                 }
             }
@@ -1625,15 +1684,15 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
                         u.A.re+=meshnode[n[i]].A.re*(a[i]+b[i]*x+c[i]*y)/(da);
             */
         }
-        u.mu1.im=0;
-        u.mu2.im=0;
+        u.mu1.im = 0;
+        u.mu2.im = 0;
         GetMu(u.B1.re,u.B2.re,u.mu1.re,u.mu2.re,k);
         u.H1 = u.B1/(Re(u.mu1)*muo);
         u.H2 = u.B2/(Re(u.mu2)*muo);
-        u.Je=0;
-        u.Js=blockproplist[meshelem[k].blk].Jr;
-        lbl=meshelem[k].lbl;
-        j=blocklist[lbl].InCircuit;
+        u.Je = 0;
+        u.Js = blockproplist[meshelem[k].blk].Jr;
+        lbl  = meshelem[k].lbl;
+        j = blocklist[lbl].InCircuit;
         if(j>=0)
         {
             if(blocklist[lbl].Case==0)
@@ -1648,9 +1707,9 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
                     double R[3];
                     for(tn=0; tn<3; tn++)
                     {
-                        R[tn]=meshnode[n[tn]].x;
-                        if (R[tn]<1.e-6) R[tn]=ravg;
-                        else R[tn]*=LengthConv[LengthUnits];
+                        R[tn] = meshnode[n[tn]].x;
+                        if (R[tn]<1.e-6) R[tn] = ravg;
+                        else R[tn] *= LengthConv[LengthUnits];
                     }
                     for(ravg=0.,tn=0; tn<3; tn++)
                         ravg+=(1./R[tn])*(a[tn]+b[tn]*x+c[tn]*y)/(da);
@@ -1660,8 +1719,8 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
             }
             else u.Js+=blocklist[lbl].J;
         }
-        u.c=Re(blocklist[meshelem[k].lbl].o);
-        u.E=blockproplist[meshelem[k].blk].DoEnergy(u.B1.re,u.B2.re);
+        u.c = Re(blocklist[meshelem[k].lbl].o);
+        u.E = blockproplist[meshelem[k].blk].DoEnergy(u.B1.re,u.B2.re);
 
         // correct H and energy stored in magnet for second-quadrant
         // representation of a PM.
@@ -1670,8 +1729,8 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
             int bk=meshelem[k].blk;
 
             u.Hc = blockproplist[bk].H_c*exp(I*PI*meshelem[k].magdir/180.);
-            u.H1=u.H1-Re(u.Hc);
-            u.H2=u.H2-Im(u.Hc);
+            u.H1 = u.H1-Re(u.Hc);
+            u.H2 = u.H2-Im(u.Hc);
 
             // in the linear case:
             if (blockproplist[bk].BHpoints==0)
@@ -1685,9 +1744,9 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
             // If considering the magnet as an equivalent coil, add Hc to the demagnetizing field
             if (!d_ShiftH)
             {
-                u.H1=u.H1+Re(u.Hc);
-                u.H2=u.H2+Im(u.Hc);
-                u.Hc=0;
+                u.H1 = u.H1 + Re(u.Hc);
+                u.H2 = u.H2 + Im(u.Hc);
+                u.Hc = 0;
             }
         }
 
@@ -3682,30 +3741,43 @@ void FPProc::BendContour(double angle, double anglestep)
 
     // check to see if there are at least enough
     // points to have made one line;
-    k=contour.size()-1;
+    k = contour.size()-1;
     if (k<1) return;
 
     // restrict the angle of the contour to 180 degrees;
-    if ((angle<-180.) || (angle>180.)) return;
-    n=(int) ceil(fabs(angle/anglestep));
-    tta=angle*PI/180.;
-    dtta=tta/((double) n);
+    if ((angle<-180.) || (angle>180.))
+    {
+        return;
+    }
+    n = (int) ceil(fabs(angle/anglestep));
+    tta = angle*PI/180.;
+    dtta = tta/((double) n);
 
     // pop last point off of the contour;
-    a1=contour[k];
-    contour.RemoveAt(k);
-    a0=contour[k-1];
+    a1 = contour[k];
+    contour.erase(contour.begin()+k);
+    a0 = contour[k-1];
 
     // compute location of arc center;
     // and radius of the circle that the
     // arc lives on.
-    d=abs(a1-a0);
-    R=d/(2.*sin(fabs(tta/2.)));
-    if(tta>0) c=a0 + (R/d)*(a1-a0)*exp(I*(PI-tta)/2.);
-    else c=a0+(R/d)*(a1-a0)*exp(-I*(PI+tta)/2.);
+    d = abs(a1-a0);
+    R = d / ( 2. * sin(fabs(tta/2.)) );
+
+    if(tta>0)
+    {
+        c = a0 + (R/d) * (a1-a0) * exp(I*(PI-tta)/2.);
+    }
+    else
+    {
+        c = a0 + (R/d) * (a1-a0) * exp(-I*(PI+tta)/2.);
+    }
 
     // add the points on the contour
-    for(k=1; k<=n; k++) contour.Add(c+(a0-c)*exp(k*I*dtta));
+    for(k=1; k<=n; k++)
+    {
+        contour.push_back( c + (a0 - c) * exp(k * I * dtta) );
+    }
 }
 
 
@@ -4424,3 +4496,4 @@ void FPProc::FindBoundaryEdges()
     } // End of Main Loop
 
 }
+

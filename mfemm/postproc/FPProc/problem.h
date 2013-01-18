@@ -14,6 +14,8 @@
 #define FALSE 0
 #endif
 
+#ifndef PROBLEM_H
+#define PROBLEM_H
 namespace FPProcdata{
 /////////////////////////////////////////////////////////////////////////////
 // CNode -- structure that holds information about each control point.
@@ -267,5 +269,6 @@ class CPointVals
 };
 
 }
+#endif
 
 using namespace FPProcdata;
