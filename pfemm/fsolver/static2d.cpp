@@ -364,7 +364,7 @@ int FSolver::Static2D(CBigLinProb &L)
                 boost::format fmatter("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s");
                 if (labellist[El->lbl].MagDirFctn!=NULL) // functional magnetization direction
                 {
-                    string str;
+                    std::string str;
                     CComplex X;
                     int top1,top2,lua_error_code;
                     for (j = 0,X = 0; j<3; j++)
