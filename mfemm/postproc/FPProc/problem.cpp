@@ -1,8 +1,16 @@
+#include <cstdlib>
+#include <cmath>
 #include "problem.h"
 #include "fullmatrix.h"
+#include "complex.h"
+
+#ifndef muo
+#define muo 1.2566370614359173e-6
+#endif
 
 #define ElementsPerSkinDepth 10
 
+using namespace std;
 //////////////////////          CNode         /////////////////////////////
 
 // CNode construction
@@ -71,11 +79,11 @@ CSegment::CSegment()
 
 void CSegment::ToggleSelect()
 {
-    if (IsSelected==TRUE) 
+    if (IsSelected==TRUE)
     {
         IsSelected = FALSE;
     }
-    else 
+    else
     {
         IsSelected = TRUE;
     }
@@ -96,11 +104,11 @@ CArcSegment::CArcSegment()
 
 void CArcSegment::ToggleSelect()
 {
-    if (IsSelected==TRUE) 
+    if (IsSelected==TRUE)
     {
         IsSelected = FALSE;
     }
-    else 
+    else
     {
         IsSelected = TRUE;
     }
@@ -119,7 +127,7 @@ CBlockLabel::CBlockLabel()
     InCircuit=0;
     BlockType=-1;
     IsExternal=FALSE;
-    
+
     Case=0;
     dVolts=0.;
     J=0.;
@@ -130,11 +138,11 @@ CBlockLabel::CBlockLabel()
 
 void CBlockLabel::ToggleSelect()
 {
-    if (IsSelected==TRUE) 
+    if (IsSelected==TRUE)
     {
         IsSelected = FALSE;
     }
-    else 
+    else
     {
         IsSelected = TRUE;
     }
@@ -182,7 +190,7 @@ void CMaterialProp::GetSlopes(double omega)
 {
     if (BHpoints==0) return; // catch trivial case;
     if (slope!=NULL) return; // already have computed the slopes;
-    
+
     int i,k;
     BOOL CurveOK=FALSE;
     BOOL ProcessedLams=FALSE;
@@ -191,20 +199,20 @@ void CMaterialProp::GetSlopes(double omega)
     CComplex *hn;
     double *bn;
     CComplex mu;
-    
+
     L.Create(BHpoints);
     bn   =(double *)  calloc(BHpoints,sizeof(double));
     hn   =(CComplex *)calloc(BHpoints,sizeof(CComplex));
     slope=(CComplex *)calloc(BHpoints,sizeof(CComplex));
-    
-    
+
+
     // strip off some info that we can use during the first
     // nonlinear iteration;
-    mu_x = Bdata[1]/(muo*abs(Hdata[1]));
+    mu_x = Bdata[1] / (muo*abs(Hdata[1]));
     mu_y = mu_x;
-    Theta_hx=Theta_hn;
-    Theta_hy=Theta_hn;
-    
+    Theta_hx = Theta_hn;
+    Theta_hy = Theta_hn;
+
     // first, we need to doctor the curve if the problem is
     // being evaluated at a nonzero frequency.
     if(omega!=0)
@@ -227,7 +235,7 @@ void CMaterialProp::GetSlopes(double omega)
                         sin((Hdata[k]*PI)/Hdata[i]))))/ ((Hdata[k-1] - Hdata[k])*PI));
             }
         }
-        
+
         for(i=1;i<BHpoints;i++)
         {
             Bdata[i]=bn[i];
@@ -235,7 +243,7 @@ void CMaterialProp::GetSlopes(double omega)
             munow=Re(Bdata[i]/Hdata[i]);
             if (munow>mumax) mumax=munow;
         }
-        
+
         // apply complex permeability to approximate the
         // effects of hysteresis.  We will follow a kludge
         // suggested by O'Kelly where hysteresis angle
@@ -245,50 +253,50 @@ void CMaterialProp::GetSlopes(double omega)
         {
             Hdata[i]*=exp(I*Bdata[i]*Theta_hn*DEG/(Hdata[i]*mumax));
         }
-        
+
     }
-    
+
     while(CurveOK!=TRUE)
     {
         // make sure that the space for computing slopes is cleared out
         L.Wipe();
-        
+
         // impose natural BC on the `left'
         l1=Bdata[1]-Bdata[0];
         L.M[0][0]=4./l1;
         L.M[0][1]=2./l1;
         L.b[0]=6.*(Hdata[1]-Hdata[0])/(l1*l1);
-        
+
         // impose natural BC on the `right'
         int n=BHpoints;
         l1=Bdata[n-1]-Bdata[n-2];
         L.M[n-1][n-1]=4./l1;
         L.M[n-1][n-2]=2./l1;
         L.b[n-1]=6.*(Hdata[n-1]-Hdata[n-2])/(l1*l1);
-        
+
         for(i=1;i<BHpoints-1;i++)
         {
             l1=Bdata[i]-Bdata[i-1];
             l2=Bdata[i+1]-Bdata[i];
-            
+
             L.M[i][i-1]=2./l1;
             L.M[i][i]=4.*(l1+l2)/(l1*l2);
             L.M[i][i+1]=2./l2;
-            
+
             L.b[i]=6.*(Hdata[i]-Hdata[i-1])/(l1*l1) +
                     6.*(Hdata[i+1]-Hdata[i])/(l2*l2);
         }
-        
+
         L.GaussSolve();
         for(i=0;i<BHpoints;i++) slope[i]=L.b[i];
-        
+
         // now, test to see if there are any "bad" segments in there.
         // it is probably sufficient to do this test just on the
         // real part of the BH curve...
         for(i=1,CurveOK=TRUE;i<BHpoints;i++)
         {
             double L,c0,c1,c2,d0,d1,u0,u1,X0,X1;
-            
+
             // it is probably sufficient to do this test just on the
             // real part of the BH curve.  We do the test on just the
             // real part of the curve by taking the real parts of
@@ -298,13 +306,13 @@ void CMaterialProp::GetSlopes(double omega)
             u0=Hdata[i-1].re;
             u1=Hdata[i].re;
             L=Bdata[i]-Bdata[i-1];
-            
+
             c0=d0;
             c1= -(2.*(2.*d0*L + d1*L + 3.*u0 - 3.*u1))/(L*L);
             c2= (3.*(d0*L + d1*L + 2.*u0 - 2.*u1))/(L*L*L);
             X0=-1.;
             X1=-1.;
-            
+
             u0=c1*c1-4.*c0*c2;
             // check out degenerate cases
             if(c2==0)
@@ -317,12 +325,12 @@ void CMaterialProp::GetSlopes(double omega)
                 X0=-(c1 + u0)/(2.*c2);
                 X1=(-c1 + u0)/(2.*c2);
             }
-            
+
             //now, see if we've struck gold!
             if (((X0>=0.)&&(X0<=L))||((X1>=0.)&&(X1<=L)))
                 CurveOK=FALSE;
         }
-        
+
         if(CurveOK!=TRUE)  //remedial action
         {
             // Smooth out input points
@@ -333,14 +341,14 @@ void CMaterialProp::GetSlopes(double omega)
                 bn[i]=(Bdata[i-1]+Bdata[i]+Bdata[i+1])/3.;
                 hn[i]=(Hdata[i-1]+Hdata[i]+Hdata[i+1])/3.;
             }
-            
+
             for(i=1;i<BHpoints-1;i++){
                 Hdata[i]=hn[i];
                 Bdata[i]=bn[i];
             }
         }
-        
-        
+
+
         if((CurveOK==TRUE) && (ProcessedLams==FALSE))
         {
             // if the material is laminated and has a non-zero conductivity,
@@ -358,19 +366,19 @@ void CMaterialProp::GetSlopes(double omega)
                     bn[i]=abs(mu*Hdata[i]);
                     hn[i]=bn[i]/mu;
                 }
-                
+
                 // Replace the original BH points with the apparent ones
                 for(i=1;i<BHpoints;i++)
                 {
                     Bdata[i]=bn[i];
                     Hdata[i]=hn[i];
                 }
-                
+
                 // Make the program check the consistency and recompute the
                 // proper slopes of the new BH curve one more time;
                 CurveOK=FALSE;
             }
-            
+
             // take care of LamType=0 situation by changing the apparent B-H curve.
             if((LamType==0) && (LamFill!=1))
             {
@@ -387,12 +395,12 @@ void CMaterialProp::GetSlopes(double omega)
                 // proper slopes of the new BH curve one more time;
                 CurveOK=FALSE;
             }
-            
+
             ProcessedLams=TRUE;
         }
-        
+
     }
-    
+
     free(bn);
     free(hn);
     return;
@@ -409,7 +417,7 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
     CComplex mu,vo,vi,c,H;
     CComplex Md,Mo;
     BOOL Converged=FALSE;
-    
+
     // Base the required element spacing on the skin depth
     // at the surface of the material
     mu=Bdata[i]/Hdata[i];
@@ -418,12 +426,12 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
     ds=sqrt(2/(w*o*abs(mu)));
     n= ElementsPerSkinDepth * ((int) ceil(d/ds));
     L=d/((double) n);
-    
+
     x =(CComplex *)calloc(n+1,sizeof(CComplex));
     b =(CComplex *)calloc(n+1,sizeof(CComplex));
     m0=(CComplex *)calloc(n+1,sizeof(CComplex));
     m1=(CComplex *)calloc(n+1,sizeof(CComplex));
-    
+
     do{
         // make sure that the old stuff is wiped out;
         for(k=0;k<=n;k++)
@@ -432,7 +440,7 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
             m1[k]=0;
             b[k] =0;
         }
-        
+
         // build matrix
         for(k=0;k<n;k++)
         {
@@ -447,24 +455,24 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
                 vo=1./mu;
                 vi=1./mu;
             }
-            
+
             Md = ( (vi+vo)/(2.*L) + I*w*o*L/4.);
             Mo = (-(vi+vo)/(2.*L) + I*w*o*L/4.);
             m0[k]   += Md;
             m1[k]   += Mo;
             m0[k+1] += Md;
-            
+
             Md = ( (vi-vo)/(2.*L));
             Mo = (-(vi-vo)/(2.*L));
             b[k]    += (Md*x[k] + Mo*x[k+1]);
             b[k+1]  += (Mo*x[k] + Md*x[k+1]);
         }
-        
+
         // set boundary conditions
         m1[0] = 0;
         b[0]  = 0;
         b[n] += Hdata[i];
-        
+
         // solve tridiagonal equation
         // solution ends up in b;
         for(k = 0; k < n; k++)
@@ -476,14 +484,14 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
         b[n] = b[n]/m0[n];
         for(k = n-1; k >= 0; k--)
             b[k] = (b[k] - m1[k]*b[k + 1])/m0[k];
-        
+
         iter++;
-        
+
         lastres=res;
         res=abs(b[n]-x[n])/d;
-        
+
         if (res<1.e-8) Converged=TRUE;
-        
+
         // Do the same relaxation scheme as is implemented
         // in the solver to make sure that this effective
         // lamination permeability calculation converges
@@ -492,19 +500,19 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
             if ((res>lastres) && (Relax>0.1)) Relax/=2.;
             else Relax+= 0.1 * (1. - Relax);
         }
-        
+
         for(k=0;k<=n;k++) x[k]=Relax*b[k]+(1.0-Relax)*x[k];
-        
+
     }while(Converged!=TRUE);
-    
-    
+
+
     mu = x[n]/(Hdata[i]*d);
-    
+
     free(x );
     free(b );
     free(m0);
     free(m1);
-    
+
     return mu;
 }
 
@@ -513,14 +521,14 @@ CComplex CMaterialProp::GetdHdB(double B)
     double b,z,l;
     CComplex h;
     int i;
-    
+
     b=fabs(B);
-    
+
     if(BHpoints==0)    return CComplex(b/(mu_x*muo));
-    
+
     if(b>Bdata[BHpoints-1])
         return slope[BHpoints-1];
-    
+
     for(i=0;i<BHpoints-1;i++)
         if((b>=Bdata[i]) && (b<=Bdata[i+1])){
         l=(Bdata[i+1]-Bdata[i]);
@@ -531,7 +539,7 @@ CComplex CMaterialProp::GetdHdB(double B)
                 z*(3.*z-2.)*slope[i+1];
         return h;
         }
-    
+
     return CComplex(0);
 }
 
@@ -545,14 +553,14 @@ CComplex CMaterialProp::GetH(CComplex x)
     double b,z,z2,l;
     CComplex p,h;
     int i;
-    
+
     b=abs(x);
     if((BHpoints==0) || (b==0))    return 0;
     p=x/b;
-    
+
     if(b>Bdata[BHpoints-1])
         return p*(Hdata[BHpoints-1] + slope[BHpoints-1]*(b-Bdata[BHpoints-1]));
-    
+
     for(i=0;i<BHpoints-1;i++)
         if((b>=Bdata[i]) && (b<=Bdata[i+1])){
         l=Bdata[i+1]-Bdata[i];
@@ -564,22 +572,22 @@ CComplex CMaterialProp::GetH(CComplex x)
                 z2*(z-1.)*l*slope[i+1];
         return p*h;
         }
-    
+
     return 0;
 }
 
 double CMaterialProp::GetB(double hc)
 {
     if (BHpoints==0) return muo*mu_x*hc;
-    
+
     double b,bo;
-    
+
     b=0;
     do{
         bo = b;
         b  = bo + (hc-GetH(bo))/Re(GetdHdB(bo));
     }while (fabs(b-bo)>1.e-8);
-    
+
     return b;
 }
 
@@ -589,29 +597,29 @@ double CMaterialProp::GetEnergy(double x)
     double b,z,z2,l,nrg;
     double b0,b1,h0,h1,dh0,dh1;
     int i;
-    
+
     b=fabs(x);
     nrg=0.;
-    
+
     if(BHpoints==0)    return 0;
-    
+
     for(i=0;i<BHpoints-1;i++){
-        
+
         b0=Bdata[i];    h0=Re(Hdata[i]);
         b1=Bdata[i+1];    h1=Re(Hdata[i+1]);
         dh0=Re(slope[i]);
         dh1=Re(slope[i+1]);
-        
+
         if((b>=b0) && (b<=b1)){
             l=b1-b0;
             z=(b-b0)/l;
             z2=z*z;
-            
+
             nrg += (dh0*l*l*(6. + z*(-8. + 3.*z))*z2)/12. +
                     (h0*l*z*(2. + (-2. + z)*z2))/2. -
                     (h1*l*(-2. + z)*z2*z)/2. +
                     (dh1*l*l*(-4. + 3.*z)*z2*z)/12;
-            
+
             return nrg;
         }
         else{
@@ -625,15 +633,15 @@ double CMaterialProp::GetEnergy(double x)
                     6.*(h0 + h1)))/12.;
         }
     }
-    
+
     // if we've gotten to this point, the point is off the scale,
     // so we have to extrapolate the rest of the way...
     h0=Re(Hdata[BHpoints-1]);
     dh0=Re(slope[BHpoints-1]);
     b0=Bdata[BHpoints-1];
-    
+
     nrg += ((b - b0)*(b*dh0 - b0*dh0 + 2*h0))/2.;
-    
+
     return nrg;
 }
 
@@ -648,78 +656,78 @@ double CMaterialProp::DoEnergy(double b1, double b2)
     // but deals with the load of special cases that
     // arise because I insisted on trying to deal with
     // laminations on a continuum basis.
-    
+
     double nrg,biron,bair;
-    
+
     // easiest case: the material is linear!
     if (BHpoints==0)
     {
         double h1,h2;
-        
+
         if(LamType==0){        // laminated in-plane
             h1=b1/((1.+LamFill*(mu_x-1.))*muo);
             h2=b2/((1.+LamFill*(mu_y-1.))*muo);
         }
-        
+
         if(LamType==1){        // laminated parallel to x;
             h1=b1/((1.+LamFill*(mu_x-1.))*muo);
             h2=b1*(LamFill/(mu_y*muo) + (1. - LamFill)/muo);
         }
-        
+
         if(LamType==2){        // laminated parallel to x;
             h2=b1/((1.+LamFill*(mu_y-1.))*muo);
             h1=b1*(LamFill/(mu_x*muo) + (1. - LamFill)/muo);
         }
-        
+
         if(LamType>2){
             h1=b1/muo;
             h2=b2/muo;
         }
-        
+
         return ((h1*b1+h2*b2)/2.);
     }
-    
+
     // Rats! The material is nonlinear.  Now, we have to do
     // a bit of work to get the energy.
     if(LamType==0) nrg = GetEnergy(sqrt(b1*b1+b2*b2));
-    
+
     if(LamType==1){
         biron=sqrt((b1/LamFill)*(b1/LamFill) + b2*b2);
         bair=b2;
         nrg = LamFill*GetEnergy(biron)+(1-LamFill)*bair*bair/(2.*muo);
     }
-    
+
     if(LamType==2){
         biron=sqrt((b2/LamFill)*(b2/LamFill) + b1*b1);
         bair=b1;
         nrg = LamFill*GetEnergy(biron)+(1-LamFill)*bair*bair/(2.*muo);
     }
-    
+
     return nrg;
 }
 
 double CMaterialProp::DoCoEnergy(double b1, double b2)
 {
     double nrg,biron,bair;
-    
+
     // easiest case: the material is linear!
     // in this case, energy and coenergy are the same!
     if (BHpoints==0) return DoEnergy(b1,b2);
-    
+
     if(LamType==0) nrg = GetCoEnergy(sqrt(b1*b1+b2*b2));
-    
+
     if(LamType==1){
         biron=sqrt((b1/LamFill)*(b1/LamFill) + b2*b2);
         bair=b2;
         nrg = LamFill*GetCoEnergy(biron)+(1-LamFill)*bair*bair/(2.*muo);
     }
-    
+
     if(LamType==2){
         biron=sqrt((b2/LamFill)*(b2/LamFill) + b1*b1);
         bair=b1;
         nrg = LamFill*GetCoEnergy(biron)+(1-LamFill)*bair*bair/(2.*muo);
     }
-    
+
     return nrg;
 }
 
@@ -729,12 +737,12 @@ double CMaterialProp::DoEnergy(CComplex b1, CComplex b2)
     // This one is meant for the frequency!=0 case.
     // Fortunately, there's not so much effort in this case.
     CComplex mu1,mu2,h1,h2;
-    
+
     GetMu(b1,b2,mu1,mu2);
     h1=b1/(mu1*muo);
     h2=b2/(mu2*muo);
     return (Re(h1*conj(b1)+h2*conj(b2))/4.);
-    
+
 }
 
 double CMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
@@ -747,9 +755,9 @@ void CMaterialProp::GetMu(CComplex b1, CComplex b2,
 {
     // gets the permeability, given a flux density
     // version for frequency!=0
-    
+
     CComplex biron;
-    
+
     // easiest case: the material is linear!
     if (BHpoints==0)
     {
@@ -757,27 +765,27 @@ void CMaterialProp::GetMu(CComplex b1, CComplex b2,
         mu2=mu_fdy;
         return;
     }
-    
+
     // Rats! The material is nonlinear.
     else{
         CComplex muiron;
-        
+
         if(LamType==0){
             biron=sqrt(b1*conj(b1)+b2*conj(b2));
             if(abs(biron)<1.e-08) mu1=1./slope[0]; //catch degenerate case
             else mu1=biron/GetH(biron);
             mu2=mu1;
         }
-        
+
         if(LamType==1){
             biron=sqrt((b1/LamFill)*(b1/LamFill) + b2*b2);
             if(abs(biron)<1.e-08) muiron=1./slope[0];
             else muiron=biron/GetH(biron);
             mu1=muiron*LamFill;
             mu2=1./(LamFill/muiron + (1. - LamFill)/muo);
-            
+
         }
-        
+
         if(LamType==2){
             biron=sqrt((b2/LamFill)*(b2/LamFill) + b1*b1);
             if(abs(biron)<1.e-08) muiron=1./slope[0];
@@ -786,11 +794,11 @@ void CMaterialProp::GetMu(CComplex b1, CComplex b2,
             mu1=1./(LamFill/muiron + (1. - LamFill)/muo);
         }
     }
-    
+
     // convert to relative permeability
     mu1/=muo;
     mu2/=muo;
-    
+
     return;
 }
 
@@ -799,11 +807,11 @@ void CMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
 {
     // gets the permeability, given a flux density
     //
-    
+
     double biron;
-    
+
     mu1=mu2=muo;            // default
-    
+
     // easiest case: the material is linear!
     if (BHpoints==0)
     {
@@ -811,29 +819,29 @@ void CMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
             mu1=((1.+LamFill*(mu_x-1.))*muo);
             mu2=((1.+LamFill*(mu_y-1.))*muo);
         }
-        
+
         if(LamType==1){        // laminated parallel to x;
             mu1=((1.+LamFill*(mu_x-1.))*muo);
             mu2=1./(LamFill/(mu_y*muo) + (1. - LamFill)/muo);
         }
-        
+
         if(LamType==2){        // laminated parallel to x;
             mu2=((1.+LamFill*(mu_y-1.))*muo);
             mu1=1./(LamFill/(mu_x*muo) + (1. - LamFill)/muo);
         }
     }
-    
+
     // Rats! The material is nonlinear.
     else{
         double muiron;
-        
+
         if(LamType==0){
             biron=sqrt(b1*b1+b2*b2);
             if(biron<1.e-08) mu1=1./Re(slope[0]); //catch degenerate case
             else mu1=biron/GetH(biron);
             mu2=mu1;
         }
-        
+
         if(LamType==1){
             biron=sqrt((b1/LamFill)*(b1/LamFill) + b2*b2);
             if(biron<1.e-08) muiron=1./Re(slope[0]);
@@ -841,7 +849,7 @@ void CMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
             mu1=muiron*LamFill;
             mu2=1./(LamFill/muiron + (1. - LamFill)/muo);
         }
-        
+
         if(LamType==2){
             biron=sqrt((b2/LamFill)*(b2/LamFill) + b1*b1);
             if(biron<1.e-08) muiron=1./Re(slope[0]);
@@ -849,13 +857,13 @@ void CMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
             mu2=muiron*LamFill;
             mu1=1./(LamFill/muiron + (1. - LamFill)/muo);
         }
-        
+
     }
-    
+
     // convert to relative permeability
     mu1 /= muo;
     mu2 /= muo;
-    
+
     return;
 }
 
@@ -863,12 +871,12 @@ void CMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
 CBoundaryProp::CBoundaryProp()
 {
     BdryName = "New Boundary";
-    
+
     BdryFormat = 0;    // type of boundary condition we are applying
     // 0 = constant value of A
     // 1 = Small skin depth eddy current BC
     // 2 = Mixed BC
-    
+
     // set value of A for BdryFormat = 0;
     A0 = 0.;
     A1 = 0.;

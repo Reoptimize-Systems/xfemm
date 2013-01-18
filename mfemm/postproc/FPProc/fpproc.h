@@ -1,11 +1,30 @@
 // fpproc.h : interface of the FPProc class
 //
 /////////////////////////////////////////////////////////////////////////////
+#include <vector>
 #include "lua.h"
 #include "luadebug.h"
+#include "complex.h"
+#include "problem.h"
 //#include "luaconsoledlg.h"
 
 // extern CFemmApp theApp; //<DP>
+#ifndef muo
+#define muo 1.2566370614359173e-6
+#endif
+
+#ifndef Golden
+#define Golden 0.3819660112501051517954131656
+#endif
+
+#ifndef PLANAR
+#define PLANAR 0
+#endif
+
+#ifndef AXISYMMETRIC
+#define AXISYMMETRIC 1
+#endif
+
 
 #ifndef BOOL
 #define BOOL int
@@ -130,6 +149,10 @@ public:
     double AECF(int k);
     void GetFillFactor(int lbl);
 
+    // Replacements for MFC functions
+    void AfxMessageBox(const char* message);
+	void MsgBox(const char* message);
+
     CComplex GetStrandedVoltageDrop(int lbl);
     CComplex GetVoltageDrop(int circnum);
     CComplex GetFluxLinkage(int circnum);
@@ -142,23 +165,16 @@ public:
     void GetMagnetization(int n, CComplex &M1, CComplex &M2);
     void GetH(double b1, double b2, double &h1, double &h2, int k);
     void GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k);
-
-// Overrides
-    // ClassWizard generated virtual function overrides
-    //{{AFX_VIRTUAL(FPProc)
-public:
-    virtual BOOL ClearDocument();
-    virtual BOOL NewDocument();
+    BOOL ClearDocument();
+    BOOL NewDocument();
 //     virtual void Serialize(CArchive& ar);
-    virtual BOOL OpenDocument(std::string lpszPathName);
-    //virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
-    //}}AFX_VIRTUAL
+    BOOL OpenDocument(std::string lpszPathName);
 
 // Implementation
 public:
     // lua extensions
     bool luafired;
-    void initalise_lua();
+    //void initalise_lua();
     //PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp);
     //void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi,HBITMAP hBMP, HDC hDC) ;
 
