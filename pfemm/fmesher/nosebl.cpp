@@ -23,20 +23,25 @@
 //#include <afx.h>
 //#include <afxtempl.h>
 //#include "stdio.h"
+#include <cstdlib>
+#include <cstdio>
 #include <vector>
 #include <cmath>
+#include <string>
 #include <cstring>
 #include "nosebl.h"
 /////////////////////////////////////////////////////////////////////////////
 // CNode construction
 
+using namespace std;
+
 CNode::CNode()
 {
-	x=0.;
-	y=0.;
-	IsSelected=0;
-	InGroup=0;
-	BoundaryMarker="<None>";
+	x = 0.;
+	y = 0.;
+	IsSelected = 0;
+	InGroup = 0;
+	BoundaryMarker = "<None>";
 }
 
 double CNode::GetDistance(double xo, double yo)
@@ -66,13 +71,13 @@ void CNode::ToggleSelect()
 
 CSegment::CSegment()
 {
-	n0=0;
-	n1=0;
-	IsSelected=0;
-	Hidden=false;
-	MaxSideLength=-1;
-	BoundaryMarker="<None>";
-	InGroup=0;
+	n0 = 0;
+	n1 = 0;
+	IsSelected = 0;
+	Hidden = false;
+	MaxSideLength = -1;
+	BoundaryMarker = "<None>";
+	InGroup = 0;
 }
 
 void CSegment::ToggleSelect()
@@ -93,15 +98,15 @@ void CSegment::ToggleSelect()
 
 CArcSegment::CArcSegment()
 {
-	n0=0;
-	n1=0;
-	IsSelected=0;
-	Hidden=false;
-	ArcLength=90.;
-	MaxSideLength=10.;
-	BoundaryMarker="<None>";
-	InGroup=0;
-	NormalDirection=true;
+	n0 = 0;
+	n1 = 0;
+	IsSelected = 0;
+	Hidden = false;
+	ArcLength = 90.;
+	MaxSideLength = 10.;
+	BoundaryMarker = "<None>";
+	InGroup = 0;
+	NormalDirection = true;
 }
 
 void CArcSegment::ToggleSelect()
@@ -123,16 +128,16 @@ void CArcSegment::ToggleSelect()
 
 CBlockLabel::CBlockLabel()
 {
-	x=0.;
-	y=0.;
-	MaxArea=0.;
-	MagDir=0.;
-	Turns=1;
-	IsSelected=0;
-	BlockType="<None>";
-	InCircuit="<None>";
-	InGroup=0;
-	IsExternal=false;
+	x = 0.;
+	y = 0.;
+	MaxArea = 0.;
+	MagDir = 0.;
+	Turns = 1;
+	IsSelected = 0;
+	BlockType = "<None>";
+	InCircuit = "<None>";
+	InGroup = 0;
+	IsExternal = false;
 }
 
 void CBlockLabel::ToggleSelect()
@@ -154,7 +159,7 @@ double CBlockLabel::GetDistance(double xo, double yo)
 
 CMaterialProp::CMaterialProp()
 {
-		BlockName="New Material";
+		BlockName = "New Material";
 		mu_x=1.;
 		mu_y=1.;			// permeabilities, relative
 		H_c=0.;				// magnetization, A/m
@@ -181,7 +186,7 @@ CMaterialProp::~CMaterialProp()
  //       free(BHdata);
 }
 
-void CMaterialProp::StripBHData(CStdString &b, CStdString &h)
+void CMaterialProp::StripBHData(string &b, string &h)
 {
 	int i,k;
 	char *buff,*nptr,*endptr;
@@ -193,12 +198,12 @@ void CMaterialProp::StripBHData(CStdString &b, CStdString &h)
 	B.clear();
 	H.clear();
 
-	k=b.GetLength()+10;
-	buff=(char *)calloc(k,sizeof(char));
-	strcpy(buff,b);
-	nptr=buff;
+	k = b.length()+10;
+	buff = (char *)calloc(k,sizeof(char));
+	strcpy(buff,b.c_str());
+	nptr = buff;
 	while (sscanf(nptr,"%lf",&z)!=EOF){
-		z=strtod(nptr,&endptr );
+		z = strtod(nptr,&endptr );
 		if(nptr==endptr) nptr++; //catch special case
 		else nptr=endptr;
 		if(B.size()>0){ // enforce monotonicity
@@ -210,12 +215,12 @@ void CMaterialProp::StripBHData(CStdString &b, CStdString &h)
 	}
 	free(buff);
 
-	k=h.GetLength()+10;
-	buff=(char *)calloc(k,sizeof(char));
-	strcpy(buff,h);
-	nptr=buff;
+	k = h.length() + 10;
+	buff = (char *)calloc(k,sizeof(char));
+	strcpy(buff,h.c_str());
+	nptr = buff;
 	while (sscanf(nptr,"%lf",&z)!=EOF){
-		z=strtod(nptr,&endptr );
+		z = strtod(nptr,&endptr );
 		if(nptr==endptr) nptr++;
 		else nptr=endptr;
 		if(H.size()>0){
@@ -243,19 +248,19 @@ void CMaterialProp::StripBHData(CStdString &b, CStdString &h)
 	return;
 }
 
-void CMaterialProp::BHDataToCString(CStdString &b, CStdString &h)
+void CMaterialProp::BHDataToCString(string &b, string &h)
 {
 	int i;
 	char c[80];
 
-	b.Empty();
-	h.Empty();
+	b.clear();
+	h.clear();
 
 	for(i=0;i<BHpoints;i++){
 		sprintf(c,"%f%c%c",BHdata[i].re,0x0D,0x0A);
-		b+=c;
+		b += c;
 		sprintf(c,"%f%c%c",BHdata[i].im,0x0D,0x0A);
-		h+=c;
+		h += c;
 	}
 
 	//b.AnsiToOem();
@@ -264,8 +269,8 @@ void CMaterialProp::BHDataToCString(CStdString &b, CStdString &h)
 
 CBoundaryProp::CBoundaryProp()
 {
-		BdryName="New Boundary";
-		BdryFormat=0;				// type of boundary condition we are applying
+		BdryName = "New Boundary";
+		BdryFormat = 0;				// type of boundary condition we are applying
 									// 0 = constant value of A
 									// 1 = Small skin depth eddy current BC
 									// 2 = Mixed BC
@@ -282,14 +287,14 @@ CBoundaryProp::CBoundaryProp()
 
 CPointProp::CPointProp()
 {
-		PointName="New Point Property";
+		PointName = "New Point Property";
 		Jp=0;					// applied point current, A
 		Ap=0;					// prescribed nodal value;
 }
 
 CCircuit::CCircuit()
 {
-		CircName="New Circuit";
+		CircName = "New Circuit";
 		Amps=0;
 		CircType=1;
 };

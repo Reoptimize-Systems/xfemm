@@ -32,6 +32,16 @@
 					<Add option="-s" />
 				</Linker>
 			</Target>
+			<Target title="Library">
+				<Option output="libfmesher" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -41,7 +51,10 @@
 		<Unit filename="fmesher.h" />
 		<Unit filename="intpoint.cpp" />
 		<Unit filename="intpoint.h" />
-		<Unit filename="main.cpp" />
+		<Unit filename="main.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="nosebl.cpp" />
 		<Unit filename="nosebl.h" />
 		<Unit filename="stdstring.h" />

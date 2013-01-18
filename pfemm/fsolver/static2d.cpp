@@ -26,7 +26,8 @@
 #include "mesh.h"
 #include "spars.h"
 #include "fsolver.h"
-#include "stdstring.h"
+#include "boost/format.hpp"
+//#include "stdstring.h"
 
 #ifdef _MSC_VER
 #include "liblua/lua.h"
@@ -359,23 +360,23 @@ int FSolver::Static2D(CBigLinProb &L)
 
                 // contribution to be from magnetization in the block;
                 t = labellist[El->lbl].MagDir;
+                // create the formatter object in case of a lua defined mag direction
+                boost::format fmatter("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s");
                 if (labellist[El->lbl].MagDirFctn!=NULL) // functional magnetization direction
                 {
-                    CStdString str;
+                    string str;
                     CComplex X;
                     int top1,top2,lua_error_code;
                     for (j = 0,X = 0; j<3; j++)
                     {
                         X += (CComplex)(meshnode[n[j]].x + I * meshnode[n[j]].y);
                     }
-
                     X = X/units[LengthUnits]/3.;
-
-                    str.Format("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s",
-                               X.re,X.im,arg(X)*180/PI,abs(X),labellist[El->lbl].MagDirFctn);
-
+                    // generate the string using boost::format
+                    fmatter % (X.re) % (X.im) % (arg(X)*180/PI) % (abs(X)) % (labellist[El->lbl].MagDirFctn);
+                    // get the created string
+                    str = fmatter.str();
                     top1 = lua_gettop(lua);
-
                     if((lua_error_code = lua_dostring(lua,str.c_str())) != 0)
                     {
                         /*
@@ -401,7 +402,7 @@ int FSolver::Static2D(CBigLinProb &L)
                     {
                         str = lua_tostring(lua,-1);
 
-                        if (str.GetLength()==0)
+                        if (str.length()==0)
                         {
                             //MsgBox("\"%s\" does not evaluate to a numerical value",
                             //	labellist[El->lbl].MagDirFctn);

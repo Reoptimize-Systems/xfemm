@@ -26,8 +26,9 @@
 #include "stdio.h"
 #include <vector>
 #include <cmath>
-#include "stdstring.h"
+#include <string>
 #include <cstring>
+#include "parse.h"
 #include "fmesher.h"
 #include "intpoint.h"
 //#include "stdafx.h"
@@ -52,6 +53,7 @@
 
 extern void *triangulate;
 
+using namespace std;
 
 FMesher::FMesher()
 {
@@ -60,7 +62,7 @@ FMesher::FMesher()
     Initialize();
 }
 
-FMesher::FMesher(CStdString PathName)
+FMesher::FMesher(string PathName)
 {
     // initialize the problem data structures
     // and default behaviour etc.
@@ -649,157 +651,7 @@ bool FMesher::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
 //	return true;
 //}
 
-char* FMesher::StripKey(char *c)
-{
-    char *d;
-    int i,k;
-
-    k=strlen(c);
-
-    for(i=0; i<k; i++)
-    {
-        if (c[i] == '=')
-        {
-            d=c+i+1;
-            return d;
-        }
-    }
-
-    return c+k;
-}
-
-char* FMesher::ParseDbl(char *t, double *f)
-{
-    if (t==NULL) return NULL;
-
-    int i,j,k,u,ws;
-    static char w[]="\t, \n";
-    char *v;
-
-    k=strlen(t);
-    if(k==0) return NULL;
-
-    for(i=0,u=0,v=NULL; i<k; i++)
-    {
-        for(j=0,ws=0; j<4; j++)
-        {
-            if (t[i]==w[j])
-            {
-                ws=1;
-                if (u==1) u=2;
-            }
-        }
-        if ((ws==0) && (u==0)) u=1;
-        if ((ws==0) && (u==2))
-        {
-            v=t+i;
-            break;
-        }
-    }
-
-    if (u==0) return NULL;	//nothing left in the string;
-    if (v==NULL) v=t+k;
-
-    sscanf(t,"%lf",f);
-
-    return v;
-}
-
-char* FMesher::ParseInt(char *t, int *f)
-{
-    if (t==NULL) return NULL;
-
-    int i,j,k,u,ws;
-    static char w[]="\t, \n";
-    char *v;
-
-    k=strlen(t);
-    if(k==0) return NULL;
-
-    for(i=0,u=0,v=NULL; i<k; i++)
-    {
-        for(j=0,ws=0; j<4; j++)
-        {
-            if (t[i]==w[j])
-            {
-                ws=1;
-                if (u==1) u=2;
-            }
-        }
-        if ((ws==0) && (u==0)) u=1;
-        if ((ws==0) && (u==2))
-        {
-            v=t+i;
-            break;
-        }
-    }
-
-    if (u==0) return NULL;	//nothing left in the string;
-    if (v==NULL) v=t+k;
-
-    sscanf(t,"%i",f);
-
-    return v;
-}
-
-char* FMesher::ParseString(char *t, CStdString *s)
-{
-    if (t==NULL) return NULL;
-    if (strlen(t)==0) return t;
-
-    int n1,n2,k;
-
-    // find first quote in the source string
-    for(k=0,n1=-1; k< (int) strlen(t); k++)
-    {
-        if (t[k]=='\"')
-        {
-            n1=k;
-            break;
-        }
-    }
-
-    if (n1<0) return t;
-
-    // find second quote in the source string
-    for(k=n1+1,n2=-1; k< (int) strlen(t); k++)
-    {
-        if (t[k]=='\"')
-        {
-            n2=k;
-            break;
-        }
-    }
-
-    if (n2<0) return t;
-
-    *s=t;
-    *s=s->Mid(n1+1,n2-n1-1);
-
-    return (t+n2+1);
-}
-
-//void FMesher::downstr(char *s)
-//{
-//  char  *p;
-//
-//  for (p = s; *p != '\0'; p++)
-//    *p = (char) tolower(*p);
-//}
-//
-//int FMesher::_strnicmp( char *string1, char *string2, int count )
-//{
-//    int ret = 0;
-//
-//    downstr(string1);
-//    downstr(string2);
-//
-//    ret = strncmp(string1, string2, (size_t) count);
-//
-//    return ret;
-//}
-
-bool FMesher::LoadFEMFile(CStdString PathName)
+bool FMesher::LoadFEMFile(string PathName)
 {
 
     //if (!CDocument::OnOpenDocument(lpszPathName))
@@ -822,7 +674,7 @@ bool FMesher::LoadFEMFile(CStdString PathName)
     CArcSegment asegm;
     CBlockLabel blk;
 
-    if ((fp=fopen(PathName,"rt"))==NULL)
+    if ((fp=fopen(PathName.c_str(),"rt"))==NULL)
     {
         AfxMessageBox((std::string)"Couldn't read from specified .fem file");
         return false;
@@ -1557,7 +1409,7 @@ bool FMesher::LoadFEMFile(CStdString PathName)
                 t = 0;
                 blk.MaxArea = 0.;
                 blk.MagDir = 0.;
-                blk.MagDirFctn.Empty();
+                blk.MagDirFctn.clear();
                 blk.Turns = 1;
                 blk.InCircuit = "<None>";
                 blk.InGroup = 0;
@@ -1647,17 +1499,17 @@ bool FMesher::LoadFEMFile(CStdString PathName)
 }
 
 
-bool FMesher::SaveFEMFile(CStdString PathName)
+bool FMesher::SaveFEMFile(string PathName)
 {
     // TODO: Add your specialized code here and/or call the base class
     FILE *fp;
     unsigned int i, j;
     int k,t;
-    CStdString s;
+    string s;
 
     // check to see if we are ready to write a datafile;
 
-    if ((fp = fopen(PathName,"wt"))==NULL)
+    if ((fp = fopen(PathName.c_str(),"wt"))==NULL)
     {
         AfxMessageBox((std::string)"Couldn't write to specified file.\nPerhaps the file is write-protected?");
         return false;
@@ -1707,7 +1559,7 @@ bool FMesher::SaveFEMFile(CStdString PathName)
     else fprintf(fp,"[Coordinates] =  polar\n");
 
     s=ProblemNote;
-    for(i=0; i< (unsigned int)ProblemNote.GetLength(); i++)
+    for(i=0; i< (unsigned int)ProblemNote.length(); i++)
     {
         if (s[i]==13) s[i] = '\\';
         if (s[i]==10) s[i] = 'n';
@@ -1848,7 +1700,7 @@ bool FMesher::SaveFEMFile(CStdString PathName)
                 if(circproplist[j].CircName==blocklist[i].InCircuit) t=j+1;
             fprintf(fp,"%i	%.17g	%i	%i	%i",t,blocklist[i].MagDir,
                     blocklist[i].InGroup,blocklist[i].Turns,blocklist[i].IsExternal);
-            if (blocklist[i].MagDirFctn.GetLength()>0)
+            if (blocklist[i].MagDirFctn.length()>0)
                 fprintf(fp,"	\"%s\"",blocklist[i].MagDirFctn.c_str());
             fprintf(fp,"\n");
 
@@ -1859,10 +1711,10 @@ bool FMesher::SaveFEMFile(CStdString PathName)
     return true;
 }
 
-bool FMesher::LoadMesh(CStdString PathName)
+bool FMesher::LoadMesh(string PathName)
 {
     int i,j,k,q,nl;
-    CStdString pathname,rootname,infile;
+    string pathname,rootname,infile;
     FILE *fp;
     char s[1024];
 
@@ -1872,17 +1724,17 @@ bool FMesher::LoadMesh(CStdString PathName)
     greymeshline.clear();
 
     pathname = PathName;
-    if (pathname.GetLength()==0)
+    if (pathname.length()==0)
     {
         AfxMessageBox((std::string)"No mesh to display");
         return false;
     }
 
-    rootname=pathname.Left(pathname.ReverseFind('.'));
+    rootname = pathname.substr(0,pathname.find_last_of('.'));
 
     //read meshnodes;
-    infile=rootname+".node";
-    if((fp=fopen(infile,"rt"))==NULL)
+    infile = rootname + ".node";
+    if((fp=fopen(infile.c_str(),"rt"))==NULL)
     {
         AfxMessageBox((std::string)"No mesh to display");
         return false;
@@ -1900,8 +1752,8 @@ bool FMesher::LoadMesh(CStdString PathName)
     fclose(fp);
 
     //read meshlines;
-    infile=rootname+".edge";
-    if((fp=fopen(infile,"rt"))==NULL)
+    infile = rootname + ".edge";
+    if((fp=fopen(infile.c_str(),"rt"))==NULL)
     {
         AfxMessageBox((std::string)"No mesh to display");
         return false;
@@ -1911,8 +1763,8 @@ bool FMesher::LoadMesh(CStdString PathName)
     meshline.resize(k);
     fclose(fp);
 
-    infile=rootname+".ele";
-    if((fp=fopen(infile,"rt"))==NULL)
+    infile = rootname + ".ele";
+    if((fp=fopen(infile.c_str(),"rt"))==NULL)
     {
         AfxMessageBox((std::string)"No mesh to display");
         return false;
@@ -1950,15 +1802,15 @@ bool FMesher::LoadMesh(CStdString PathName)
     fclose(fp);
 
     // clear out temporary files
-    infile=rootname+".ele";
+    infile = rootname + ".ele";
     remove(infile.c_str());
-    infile=rootname+".node";
+    infile = rootname + ".node";
     remove(infile.c_str());
-    infile=rootname+".edge";
+    infile = rootname + ".edge";
     remove(infile.c_str());
-    infile=rootname+".pbc";
+    infile = rootname + ".pbc";
     remove(infile.c_str());
-    infile=rootname+".poly";
+    infile = rootname + ".poly";
     remove(infile.c_str());
 
     return true;
