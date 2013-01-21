@@ -28,12 +28,12 @@ function fmeshersetup(dodebug)
     % set some common compiler flags, we replace all calls to printf to
     % calls to mexPrintf
     if dodebug
-        common_compiler_flags = {'-g -D"printf=mexPrintf"'};
+        common_compiler_flags = {'-g -D"PRINTF=mexPrintf"'};
     else
-        common_compiler_flags = {'-D"printf=mexPrintf"'};
+        common_compiler_flags = {}; %common_compiler_flags = {'-D"PRINTF=mexPrintf"'};
     end
    
-    libcommands = {'pfemm/libfemm/libfemm.a', '-I"./pfemm/fmesher" -I"./pfemm/libfemm"'};
+    libcommands = {'pfemm/libfemm/libfemm.a', '-I"./pfemm/fmesher"', '-I"./pfemm/libfemm"'};
 
     % add an appropriate flag for the trilibrary C external depending on
     % computer architecture
