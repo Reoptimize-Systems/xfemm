@@ -21,9 +21,9 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <cstdlib>
 #include "complex.h"
 #include "spars.h"
-#include "stdstring.h"
 
 #define MAXITER 1000000
 #define KLUDGE

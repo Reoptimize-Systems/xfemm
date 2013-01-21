@@ -23,7 +23,7 @@
 // implementation of various incarnations of calls
 // to triangle from the FMesher class
 
-#include "stdio.h"
+#include <cstdio>
 //#include "stdstring.h"
 #include <cmath>
 #include <vector>
@@ -60,6 +60,12 @@ extern "C" {
 
 #ifndef DEFAULT_MINIMUM_ANGLE
 #define DEFAULT_MINIMUM_ANGLE 30.0
+#endif
+
+// for compiling as mex we replace PRINTF with mexPrintf
+// here we ensure it is actually printf otherwise
+#ifndef PRINTF
+#define PRINTF printf
 #endif
 
 using namespace std;
@@ -1050,7 +1056,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 
             in.segmentlist[i+1] = linelst[i/2].n1;
 
-            //printf("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
+            //PRINTF("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
     }
 
     // now build the segment marker list
@@ -2080,7 +2086,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 
             in.segmentlist[i+1] = linelst[i/2].n1;
 
-            //printf("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
+            //PRINTF("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
     }
 
     // now build the segment marker list
@@ -2118,7 +2124,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     in.numberofregions = NRegionalAttribs;
     in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
     if (in.regionlist == NULL) {
-        printf("Error: Memory unable to be allocated.\n");
+        PRINTF("Error: Memory unable to be allocated.\n");
         return false;
     }
 

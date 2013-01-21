@@ -23,7 +23,7 @@
 //
 
 #include <iostream>
-#include "stdio.h"
+#include <cstdio>
 #include <vector>
 #include <cmath>
 #include <string>
@@ -31,6 +31,13 @@
 #include "parse.h"
 #include "fmesher.h"
 #include "intpoint.h"
+
+// for compiling as mex we replace printf with mexPrintf
+// here we ensure it is printf otherwise
+#ifdef MATLAB_MEX_FILE
+#include "mex.h"
+#endif
+
 //#include "stdafx.h"
 //#include "femm.h"
 //#include "FemmeDoc.h"
@@ -50,6 +57,7 @@
 //extern lua_State *lua;
 //extern CLuaConsoleDlg *LuaConsole;
 //extern bool bLinehook;
+
 
 extern void *triangulate;
 
