@@ -32,7 +32,10 @@
 #include "spars.h"
 #include "parse.h"
 #include "fsolver.h"
-//#include "stdstring.h"
+/* for compiling as matlab mex */
+#ifdef MATLAB_MEX_FILE
+#include "mex.h"
+#endif
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp

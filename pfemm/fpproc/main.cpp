@@ -12,5 +12,7 @@ int main()
 
     getline (cin, mystr);
 
+    testFPProc.OpenDocument(mystr);
+
     return 0;
 }

@@ -19,8 +19,8 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#include<stdio.h>
-#include<math.h>
+#include <stdio.h>
+#include <math.h>
 #include <malloc.h>
 #include <string>
 #include <cstdio>
@@ -29,7 +29,6 @@
 #include "spars.h"
 #include "fsolver.h"
 //#include "boost/format.hpp"
-//#include "stdstring.h"
 
 #ifdef _MSC_VER
 #include "liblua/lua.h"

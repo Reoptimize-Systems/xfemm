@@ -268,7 +268,7 @@ BOOL FPProc::OpenDocument(string pathname)
     // attempt to open the file for reading
     if ((fp = fopen(pathname.c_str(),"rt")) == NULL)
     {
-        AfxMessageBox("Couldn't read from specified .poly file");
+        AfxMessageBox("Couldn't read from specified .ans file");
         return FALSE;
     }
 

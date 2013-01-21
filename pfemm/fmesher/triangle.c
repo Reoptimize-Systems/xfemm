@@ -359,6 +359,10 @@
 #ifdef TRILIBRARY
 #include "triangle.h"
 #endif /* TRILIBRARY */
+/* for compiling as matlab mex */
+#ifdef MATLAB_MEX_FILE
+#include "mex.h"
+#endif
 
 /* A few forward declarations.                                               */
 
