@@ -744,7 +744,7 @@ BOOL FPProc::OpenDocument(string pathname)
                 {
                     fgets(s,1024,fp);
                     MProp.Hdata[j]=0;
-                    sscanf(s,"%lf    %lf",&MProp.Bdata[j],&MProp.Hdata[j].re);
+                    sscanf(s,"%lf\t%lf",&MProp.Bdata[j],&MProp.Hdata[j].re);
                 }
             }
             q[0]=NULL;
