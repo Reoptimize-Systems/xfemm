@@ -131,6 +131,8 @@ class CMaterialProp
 
         CMaterialProp();
         ~CMaterialProp();
+        // copy constructor
+        CMaterialProp( const CMaterialProp& other );
 
         void GetSlopes(double omega);
         CComplex LaminatedBH(double w, int i);

@@ -186,6 +186,49 @@ CMaterialProp::~CMaterialProp()
     if (slope!=NULL)    free(slope);
 }
 
+CMaterialProp::CMaterialProp( const CMaterialProp& other )
+{
+    BlockName = other.BlockName;
+    mu_x = other.mu_x;
+    mu_y = other.mu_y;            // permeabilities, relative
+    BHpoints = other.BHpoints;
+
+    if (BHpoints == 0)
+    {
+        Bdata = NULL;
+        Hdata = NULL;
+        slope = NULL;
+    }
+    else
+    {
+        // we must do a deep copy of the data
+        Hdata=(CComplex *)calloc(other.BHpoints,sizeof(CComplex));
+        Bdata=(double *)calloc(other.BHpoints,sizeof(double));
+        slope=(CComplex *)calloc(other.BHpoints,sizeof(CComplex));
+
+        for(int i=0; i < BHpoints; i++)
+        {
+            Bdata[i] = other.Bdata[i];
+            Hdata[i] = other.Hdata[i];
+            slope[i] = other.slope[i];
+        }
+    }
+
+    H_c = other.H_c;                // magnetization, A/m
+    Nrg = other.Nrg;
+    Jr = other.Jr;
+    Ji = other.Ji;                // applied current density, MA/m^2
+    Cduct = other.Cduct;            // conductivity of the material, MS/m
+    Lam_d = other.Lam_d;            // lamination thickness, mm
+    Theta_hn = other.Theta_hn;        // hysteresis angle, degrees
+    Theta_hx = other.Theta_hx;        // hysteresis angle, degrees
+    Theta_hy = other.Theta_hy;        // hysteresis angle, degrees
+    NStrands = other.NStrands;            // number of strands per wire
+    WireD = other.WireD;
+    LamFill = other.LamFill;            // lamination fill factor;
+    LamType = other.LamType;            // type of lamination;
+}
+
 void CMaterialProp::GetSlopes(double omega)
 {
     if (BHpoints==0) return; // catch trivial case;
