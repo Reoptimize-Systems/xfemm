@@ -738,8 +738,10 @@ BOOL FPProc::OpenDocument(string pathname)
             sscanf(v,"%i",&MProp.BHpoints);
             if (MProp.BHpoints>0)
             {
-                MProp.Hdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
-                MProp.Bdata=(double *)calloc(MProp.BHpoints,sizeof(double));
+                //MProp.Hdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
+                //MProp.Bdata=(double *)calloc(MProp.BHpoints,sizeof(double));
+                MProp.Hdata=(CComplex *)realloc(MProp.Hdata,MProp.BHpoints*sizeof(CComplex));
+                MProp.Bdata=(double *)realloc(MProp.Bdata,MProp.BHpoints*sizeof(double));
                 for(j=0; j<MProp.BHpoints; j++)
                 {
                     fgets(s,1024,fp);
@@ -748,7 +750,6 @@ BOOL FPProc::OpenDocument(string pathname)
                 }
             }
             q[0]=NULL;
-
         }
 
         if( _strnicmp(q,"<endblock>",9)==0)
@@ -833,7 +834,7 @@ BOOL FPProc::OpenDocument(string pathname)
             for(i=0; i<k; i++)
             {
                 fgets(s,1024,fp);
-                sscanf(s,"%lf    %lf    %i\n",&node.x,&node.y,&t);
+                sscanf(s,"%lf\t%lf\t%i\n",&node.x,&node.y,&t);
                 node.BoundaryMarker=t-1;
                 nodelist.push_back(node);
             }
@@ -848,7 +849,7 @@ BOOL FPProc::OpenDocument(string pathname)
             for(i=0; i<k; i++)
             {
                 fgets(s,1024,fp);
-                sscanf(s,"%i    %i    %lf %i    %i\n",&segm.n0,&segm.n1,&segm.MaxSideLength,&t,&segm.Hidden);
+                sscanf(s,"%i\t%i\t%lf %i\t%i\n",&segm.n0,&segm.n1,&segm.MaxSideLength,&t,&segm.Hidden);
                 segm.BoundaryMarker=t-1;
                 linelist.push_back(segm);
             }
@@ -863,7 +864,7 @@ BOOL FPProc::OpenDocument(string pathname)
             for(i=0; i<k; i++)
             {
                 fgets(s,1024,fp);
-                sscanf(s,"%i    %i    %lf    %lf %i    %i\n",&asegm.n0,&asegm.n1,
+                sscanf(s,"%i\t%i\t%lf\t%lf %i\t%i\n",&asegm.n0,&asegm.n1,
                        &asegm.ArcLength,&asegm.MaxSideLength,&t,&asegm.Hidden);
                 asegm.BoundaryMarker=t-1;
                 arclist.push_back(asegm);
@@ -884,7 +885,7 @@ BOOL FPProc::OpenDocument(string pathname)
                 for(i=0; i<k; i++)
                 {
                     fgets(s,1024,fp);
-                    sscanf(s,"%lf    %lf\n",&blk.x,&blk.y);
+                    sscanf(s,"%lf\t%lf\n",&blk.x,&blk.y);
                     //    blocklist.push_back(blk);
                     //  don't add holes to the list
                     //  of block labels because it messes up the
@@ -947,11 +948,11 @@ BOOL FPProc::OpenDocument(string pathname)
     {
         fgets(s,1024,fp);
         if (Frequency!=0)
-            sscanf(s,"%lf    %lf    %lf    %lf",&mnode.x,&mnode.y,
+            sscanf(s,"%lf\t%lf\t%lf\t%lf",&mnode.x,&mnode.y,
                    &mnode.A.re,&mnode.A.im);
         else
         {
-            sscanf(s,"%lf    %lf    %lf",&mnode.x,&mnode.y,&mnode.A.re);
+            sscanf(s,"%lf\t%lf\t%lf",&mnode.x,&mnode.y,&mnode.A.re);
             mnode.A.im=0;
         }
         meshnode[i] = mnode;
@@ -963,7 +964,7 @@ BOOL FPProc::OpenDocument(string pathname)
     for(i=0; i<k; i++)
     {
         fgets(s,1024,fp);
-        sscanf(s,"%i    %i    %i    %i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
+        sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
         elm.blk=blocklist[elm.lbl].BlockType;
         meshelem[i] = elm;
     }
@@ -975,14 +976,14 @@ BOOL FPProc::OpenDocument(string pathname)
         fgets(s,1024,fp);
         if (Frequency==0)
         {
-            sscanf(s,"%i    %lf",&j,&zr);
+            sscanf(s,"%i\t%lf",&j,&zr);
             blocklist[i].Case=j;
             if (j==0) blocklist[i].dVolts=zr;
             else blocklist[i].J=zr;
         }
         else
         {
-            sscanf(s,"%i    %lf    %lf",&j,&zr,&zi);
+            sscanf(s,"%i\t%lf\t%lf",&j,&zr,&zi);
             blocklist[i].Case=j;
             if (j==0) blocklist[i].dVolts=zr + I*zi;
             else blocklist[i].J=zr + I*zi;
