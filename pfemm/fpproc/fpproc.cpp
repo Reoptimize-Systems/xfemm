@@ -44,7 +44,7 @@
 extern lua_State * lua;
 extern void *pFemmviewdoc;
 //extern CLuaConsoleDlg *LuaConsole;
-extern BOOL bLinehook;
+//extern BOOL bLinehook;
 
 extern void lua_baselibopen (lua_State *L);
 extern void lua_iolibopen (lua_State *L);
