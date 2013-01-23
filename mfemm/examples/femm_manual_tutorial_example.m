@@ -11,36 +11,36 @@
 %
 %                                     1 inch
 %                               <----------------->                              
-%                                        ¦ 
-%                                        ¦
+%                                        ï¿½ 
+%                                        ï¿½
 %                                        x    
-%                                  x     ¦     x                             
-%                              x         ¦         x                         
-%                           x           x¦x           x                        
-%                         x         x    ¦    x         x                       
-%                       x        x       ¦       x        x                      
-%                      x_______ x        ¦        x _______x                     
-%                      x       |         ¦         |       x     ^                
-%                      x       |x        ¦        x|       x     ¦                
-%                      |x      | x       ¦       x |      x|     ¦                
-%                      |  x    |    x    ¦    x    |    x  |     ¦                
-%                      |    x  |   .    x¦x   .    |  x    |     ¦                
-%                      |       x         ¦         x       |     ¦ 2 inch        
-%                      |    .  |   x    .¦.    x   |  .    |     ¦             
-%                      |  .    |    .    x    .    |    .  |     ¦              
-%                      |.      | .       ¦       . |      .|     ¦               
-%                      |       |.        ¦        .|       |     ¦                
-%                      |_______|         ¦         |_______|     v                   
-%                      x        .        ¦        .        x                      
-%                       x        .       ¦       .        x                       
-%                         x         .    ¦    .         x                         
-%                           x           .¦.           x                            ¦                                     
-%                              x         ¦         x                           
-%                                  x     ¦     x                               
+%                                  x     ï¿½     x                             
+%                              x         ï¿½         x                         
+%                           x           xï¿½x           x                        
+%                         x         x    ï¿½    x         x                       
+%                       x        x       ï¿½       x        x                      
+%                      x_______ x        ï¿½        x _______x                     
+%                      x       |         ï¿½         |       x     ^                
+%                      x       |x        ï¿½        x|       x     ï¿½                
+%                      |x      | x       ï¿½       x |      x|     ï¿½                
+%                      |  x    |    x    ï¿½    x    |    x  |     ï¿½                
+%                      |    x  |   .    xï¿½x   .    |  x    |     ï¿½                
+%                      |       x         ï¿½         x       |     ï¿½ 2 inch        
+%                      |    .  |   x    .ï¿½.    x   |  .    |     ï¿½             
+%                      |  .    |    .    x    .    |    .  |     ï¿½              
+%                      |.      | .       ï¿½       . |      .|     ï¿½               
+%                      |       |.        ï¿½        .|       |     ï¿½                
+%                      |_______|         ï¿½         |_______|     v                   
+%                      x        .        ï¿½        .        x                      
+%                       x        .       ï¿½       .        x                       
+%                         x         .    ï¿½    .         x                         
+%                           x           .ï¿½.           x                            ï¿½                                     
+%                              x         ï¿½         x                           
+%                                  x     ï¿½     x                               
 %                                        x                                     
-%                                        ¦                                  
-%                                        ¦                                  
-%                                        ¦                                  
+%                                        ï¿½                                  
+%                                        ï¿½                                  
+%                                        ï¿½                                  
 %                      <----------------------------------->
 %                                     3 inch
 %
@@ -94,8 +94,8 @@ disp(FemmProblem.ProbInfo)
 
 % first define the node locations, which are above and below the centerline
 % of the cylindrical coil.
-outernodes = [0,  4; 
-              0, -4 ];
+outernodes = [ 0,  4; 
+               0, -4 ];
           
 % Now add these nodes to the FemmProblem structure using the function
 % addnodes_mfemm. addnodes_mfemm is typical in that it can return up to
@@ -108,10 +108,52 @@ outernodes = [0,  4;
 [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, outernodes(:,1), outernodes(:,2));
 
 % Next we add a straght segment between the two nodes we just created
-[FemmProblem, nodeinds, nodeids] = addsegments_mfemm(FemmProblem, nodeids(1), nodeids(2));
+[FemmProblem] = addsegments_mfemm(FemmProblem, nodeids(1), nodeids(2));
 
 % And then the arc segment between the same two nodes
-[FemmProblem, nodeinds, nodeids] = (FemmProblem, outernodes(:,1), outernodes(:,2));
+[FemmProblem, rcseginds] = addarcsegments_mfemm(FemmProblem, nodeids(1), nodeids(2), 180, 'MaxSegDegrees', 2.5);
+
+% Next we will draw the coil, a rectangle in cross-section. The material
+% type from the materials library '18 AWG' will be used for this. So first
+% add this to the mfemm problem
+FemmProblem = addmaterials_mfemm(FemmProblem, '18 AWG');
+% we will also create a circuit and add it to the model. We will specify
+% the coil current using this circuit. We will apply a 1 Amp current in
+% this circit. 
+FemmProblem = addcircuit_mfemm(FemmProblem, 'Coil', 'TotalAmps_re', 1); 
+
+% Now we could draw the coil manually by adding the nodes, then the
+% segments, and then a block label with several commands, as follows:
+%
+% coilnodes = [ 0.5, -1; 
+%               1.5, -1; 
+%               1.5, 1; 
+%               0.5, 1 ];
+%  
+% [FemmProblem, nodeinds, nodeids] = addnodes_mfemm(FemmProblem, coilnodes(:,1), coilnodes(:,2));
+% 
+% [FemmProblem, seginds] = addsegments_mfemm(FemmProblem, nodeids(1:end), [nodeids(end), nodeids(1:end-1)]);
+% 
+% FemmProblem = addblocklabel_mfemm(FemmProblem, 0, 1.0, ...
+%                                   'BlockType', '18 AWG', ...
+%                                   'InCircuit', 'Coil', ...
+%                                   'Turns', 1000, ...
+%                                   'MaxArea', 0.1);
+
+% However, a more convenient method is to use the addrectregion_mfemm
+% function which combines these steps into a single call. In this case we
+% specify the block properties as the fields of a structure rather than the
+% parameter-value pairs we have been using up to this point (e.g. 'Turns',
+% 1000)
+CoilBlockProps.BlockType = '18 AWG';
+CoilBlockProps.InCircuit = 'Coil';
+CoilBlockProps.Turns = 1000;
+CoilBlockProps.MaxArea = 0.1;
+
+FemmProblem = addrectregion_mfemm(FemmProblem, 0.5, -1, 1, 2, CoilBlockProps);
+
+
+
 
 
 
