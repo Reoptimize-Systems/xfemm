@@ -45,6 +45,8 @@
 		<Unit filename="mesh.h" />
 		<Unit filename="parse.cpp" />
 		<Unit filename="parse.h" />
+		<Unit filename="spars.cpp" />
+		<Unit filename="spars.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
