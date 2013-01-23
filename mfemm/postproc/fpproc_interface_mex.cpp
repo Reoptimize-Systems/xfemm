@@ -12,7 +12,18 @@ using namespace std;
 // Value-Defintions of the different class methods available
 enum ClassMethods { evNotDefined,
                     opendocument,
-                    getpointvals };
+                    getpointvals,
+                    clearcontour,
+                    addcontour,
+                    selectblock,
+                    groupselectblock,
+                    clearblock,
+                    blockintegral,
+                    smoothon,
+                    smoothoff,
+                    getprobleminfo,
+                    getcircuitprops
+                  };
 
 // Map to associate the command strings with the class
 // method enum values
@@ -20,8 +31,18 @@ std::map<std::string, ClassMethods> s_mapClassMethodStrs;
 
 void Initialize()
 {
-  s_mapClassMethodStrs["opendocument"] = opendocument;
-  s_mapClassMethodStrs["getpointvals"] = getpointvals;
+    s_mapClassMethodStrs["opendocument"]     = opendocument;
+    s_mapClassMethodStrs["getpointvals"]     = getpointvals;
+    s_mapClassMethodStrs["clearcontour"]     = clearcontour;
+    s_mapClassMethodStrs["addcontour"]       = addcontour;
+    s_mapClassMethodStrs["selectblock"]      = selectblock;
+    s_mapClassMethodStrs["groupselectblock"] = groupselectblock;
+    s_mapClassMethodStrs["clearblock"]       = clearblock;
+    s_mapClassMethodStrs["blockintegral"]    = blockintegral;
+    s_mapClassMethodStrs["smoothon"]         = smoothon;
+    s_mapClassMethodStrs["smoothoff"]        = smoothoff;
+    s_mapClassMethodStrs["getprobleminfo"]   = getprobleminfo;
+    s_mapClassMethodStrs["getcircuitprops"]  = getcircuitprops;
 
 //  cout << "s_mapClassMethodStrs contains "
 //       << s_mapClassMethodStrs.size()
@@ -35,12 +56,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     Initialize();
 
-	if (nrhs < 1 || mxGetString(prhs[0], cmd, sizeof(cmd))){
-	    mexErrMsgTxt("First input should be a command string less than 128 characters long.");
-	}
+    if (nrhs < 1 || mxGetString(prhs[0], cmd, sizeof(cmd)))
+    {
+        mexErrMsgTxt("First input should be a command string less than 128 characters long.");
+    }
 
     // New
-    if (!strcmp("new", cmd)) {
+    if (!strcmp("new", cmd))
+    {
         // Check parameters
         if (nlhs != 1)
             mexErrMsgTxt("New: One output expected.");
@@ -51,10 +74,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     // Check there is a second input, which should be the class instance handle
     if (nrhs < 2)
-		mexErrMsgTxt("Second input should be a class instance handle.");
+        mexErrMsgTxt("Second input should be a class instance handle.");
 
     // Delete
-    if (!strcmp("delete", cmd)) {
+    if (!strcmp("delete", cmd))
+    {
         // Destroy the C++ object
         destroyObject<FPProc_interface>(prhs[1]);
         // Warn if other commands were ignored
@@ -70,13 +94,43 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // Switch on the value
     switch(s_mapClassMethodStrs[cmd])
     {
-      case opendocument:
+    case opendocument:
         FPProc_interface_instance->opendocument(nlhs, plhs, nrhs, prhs);
         return;
-      case getpointvals:
+    case getpointvals:
         FPProc_interface_instance->getpointvals(nlhs, plhs, nrhs, prhs);
         return;
-      default:
+    case clearcontour:
+        FPProc_interface_instance->clearcontour();
+        return;
+    case addcontour:
+        FPProc_interface_instance->addcontour(nlhs, plhs, nrhs, prhs);
+        return;
+    case selectblock:
+        FPProc_interface_instance->selectblock(nlhs, plhs, nrhs, prhs);
+        return;
+    case groupselectblock:
+        FPProc_interface_instance->groupselectblock(nlhs, plhs, nrhs, prhs);
+        return;
+    case clearblock:
+        FPProc_interface_instance->clearblock();
+        return;
+    case blockintegral:
+        FPProc_interface_instance->blockintegral(nlhs, plhs, nrhs, prhs);
+        return;
+    case smoothon:
+        FPProc_interface_instance->smoothon();
+        return;
+    case smoothoff:
+        FPProc_interface_instance->smoothoff();
+        return;
+    case getprobleminfo:
+        FPProc_interface_instance->getprobleminfo(nlhs, plhs, nrhs, prhs);
+        return;
+    case getcircuitprops:
+        FPProc_interface_instance->getcircuitprops(nlhs, plhs, nrhs, prhs);
+        return;
+    default:
         mexErrMsgTxt("Unrecognised class command string.");
         break;
     }
