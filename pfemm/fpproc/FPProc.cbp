@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin\Debug\FPProc" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug\" />
+				<Option output="bin/Debug/FPProc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -16,8 +16,8 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\FPProc" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="bin/Release/FPProc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -37,15 +37,15 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-fexceptions" />
-			<Add directory="..\liblua" />
-			<Add directory="..\libfemm" />
+			<Add option="-fexceptions -fPIC" />
+			<Add directory="../liblua" />
+			<Add directory="../libfemm" />
 		</Compiler>
 		<Linker>
-			<Add library="..\libfemm\libfemm.a" />
-			<Add library="..\liblua\liblua.a" />
-			<Add directory="..\liblua" />
-			<Add directory="..\libfemm" />
+			<Add library="../libfemm/libfemm.a" />
+			<Add library="../liblua/liblua.a" />
+			<Add directory="../liblua" />
+			<Add directory="../libfemm" />
 		</Linker>
 		<Unit filename="fpproc.cpp" />
 		<Unit filename="fpproc.h" />
@@ -53,6 +53,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="makemask.cpp" />
 		<Unit filename="problem.cpp" />
 		<Unit filename="problem.h" />
 		<Extensions>
