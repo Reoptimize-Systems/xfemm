@@ -6,6 +6,29 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
 % [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
 %
 %
+% Input
+%
+%  FemmProblem - an mfemm FemmProblem structure
+%
+%  Materials - either a single string, a cell array of strings or a
+%    structure or cell array of structures. If a string or cell array of
+%    strings, these are the names of materials from the materials library
+%    to be added to the model. If a structure or array of structures these
+%    are Materials structures in the same format as produced by the
+%    function matstr2matstruct_mfemm
+%
+%
+% Output
+%
+%  FemmProblem - the input FemmProblem structure with the desired materials
+%    added to the 'Materials' field
+%
+%  matinds - a vector of indices in the Materials array containing the
+%    newly added materials
+%
+% 
+% See also: matstr2matstruct_mfemm.m
+%
 
 % Copyright 2012 Richard Crozier
 % 
