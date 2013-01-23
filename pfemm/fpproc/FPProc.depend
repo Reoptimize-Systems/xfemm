@@ -1,0 +1,59 @@
+# depslib dependency file v1.0
+1358948020 source:/home/s0237326/src/mfemm/pfemm/fpproc/fpproc.cpp
+	<cstdlib>
+	<string>
+	<cstring>
+	<cstdio>
+	<cmath>
+	"problem.h"
+	"complex.h"
+	"parse.h"
+	"lua.h"
+	"lualib.h"
+	"fpproc.h"
+
+1358771960 /home/s0237326/src/mfemm/pfemm/fpproc/problem.h
+	<string>
+	"complex.h"
+
+1358518557 /home/s0237326/src/mfemm/pfemm/libfemm/complex.h
+
+1358528897 /home/s0237326/src/mfemm/pfemm/libfemm/parse.h
+	<string>
+
+1358518553 /home/s0237326/src/mfemm/pfemm/liblua/lua.h
+	"complex.h"
+	<stddef.h>
+
+1358518553 /home/s0237326/src/mfemm/pfemm/liblua/lualib.h
+	"lua.h"
+
+1358528897 /home/s0237326/src/mfemm/pfemm/fpproc/fpproc.h
+	<vector>
+	"lua.h"
+	"luadebug.h"
+	"complex.h"
+	"problem.h"
+
+1358518553 /home/s0237326/src/mfemm/pfemm/liblua/luadebug.h
+	"lua.h"
+
+1358772089 source:/home/s0237326/src/mfemm/pfemm/fpproc/problem.cpp
+	<cstdlib>
+	<cmath>
+	"problem.h"
+	"fullmatrix.h"
+	"complex.h"
+
+1358518557 /home/s0237326/src/mfemm/pfemm/libfemm/fullmatrix.h
+
+1358948046 source:/home/s0237326/src/mfemm/pfemm/fpproc/makemask.cpp
+	<cstdlib>
+	<string>
+	<cmath>
+	"fpproc.h"
+	"problem.h"
+	"spars.h"
+
+1358945465 /home/s0237326/src/mfemm/pfemm/libfemm/spars.h
+
