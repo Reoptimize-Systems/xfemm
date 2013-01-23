@@ -10,9 +10,11 @@ int main()
 
     cout << "FPProc Loaded!" << endl;
 
-    getline (cin, mystr);
+    //getline (cin, mystr);
 
-    testFPProc.OpenDocument(mystr);
+    //testFPProc.OpenDocument(mystr);
+
+    testFPProc.OpenDocument("/home/s0237326/src/mfemm/pfemm/fsolver/test/Temp.ans");
 
     return 0;
 }

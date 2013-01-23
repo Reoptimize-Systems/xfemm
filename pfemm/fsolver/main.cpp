@@ -48,11 +48,11 @@ int main(int argc, char** argv)
         // request the file name from the user
         printf("Enter fem file name without extension:\n");
 
-        char tempFilePath[512];
+        //char tempFilePath[512];
 
         //scanf("%s", tempFilePath);
 
-        gets(PathName);
+        fgets(PathName, 512, stdin);
 
         //PathName = tempFilePath;
 
