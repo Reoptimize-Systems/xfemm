@@ -21,6 +21,19 @@ public:
 
     int opendocument(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 	int getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+	int addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+	int clearcontour();
+	int lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+	int selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+	int groupselectblock(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+	int clearblock();
+	int blockintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+	int smoothon();
+	int smoothoff();
+	int getprobleminfo(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+	int getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+
+
 
 // To be created
 //	int addcontour(lua_State * L);

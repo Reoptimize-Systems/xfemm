@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 #include "mex.h"
 #include "fpproc.h"
 #include "problem.h"
@@ -52,21 +53,21 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-      mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
-              "One input required.");
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+                           "One input required.");
     else if(nlhs > 0)
-      mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
-              "Too many output arguments.");
+        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+                           "Too many output arguments.");
 
     /* 3rd input must be a string (first two are used for the class interface) */
     if ( mxIsChar(prhs[2]) != 1)
-      mexErrMsgIdAndTxt( "MATLAB:revord:inputNotString",
-              "Input must be a string containing the file name.");
+        mexErrMsgIdAndTxt( "MATLAB:revord:inputNotString",
+                           "Input must be a string containing the file name.");
 
     /* input must be a row vector */
     if (mxGetM(prhs[2])!=1)
-      mexErrMsgIdAndTxt( "MATLAB:revord:inputNotVector",
-              "Input must be a row vector.");
+        mexErrMsgIdAndTxt( "MATLAB:revord:inputNotVector",
+                           "Input must be a row vector.");
 
     /* copy the string data from prhs[2] into a C string input_ buf.    */
     input_buf = mxArrayToString(prhs[2]);
@@ -87,480 +88,583 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
 int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
 
-	double *px, *py, *outpointer;
-	size_t mrows;
+    double *px, *py, *outpointerRe, *outpointerIm;
+    size_t mxrows, myrows, nxcols, nycols;
 
-	/* check for proper number of arguments */
+    /* check for proper number of arguments */
     if(nrhs!=4)
-      mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
-              "One input required.");
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+                           "One input required.");
     else if(nlhs > 1)
-      mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
-              "Too many output arguments.");
+        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+                           "Too many output arguments.");
 
-    cout << "passed tests" << endl;
-	px = mxGetPr(prhs[2]);
-	py = mxGetPr(prhs[3]);
+    px = mxGetPr(prhs[2]);
+    py = mxGetPr(prhs[3]);
 
     /*  get the dimensions of the matrix input x */
-    mrows = mxGetM(prhs[2]);
-    cout << "get mrows: " << (int)(mrows) << endl;
-    /*  set the output pointer to the output matrix */
-    plhs[0] = mxCreateDoubleMatrix( (mwSize)(23), (mwSize)mrows, mxREAL);
-    // get a pointer to the start of the actual output data array
-    outpointer = mxGetPr(plhs[0]);
+    mxrows = mxGetM(prhs[2]);
+    myrows = mxGetM(prhs[3]);
 
-    for(int i=0; i<(int)mrows; i++)
+    nxcols = mxGetN(prhs[2]);
+    nycols = mxGetN(prhs[3]);
+    if((nxcols>1) | (nycols>1))
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+                           "x and y must both be column vectors.");
+    }
+
+    if(myrows != myrows)
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+                           "x and y must be column vectors of the same size.");
+    }
+
+    /*  set the output pointer to the output matrix */
+    plhs[0] = mxCreateDoubleMatrix( (mwSize)(14), (mwSize)mxrows, mxCOMPLEX);
+    // get a pointer to the start of the actual output data array
+    outpointerRe = mxGetPr(plhs[0]);
+    outpointerIm = mxGetPi(plhs[0]);
+
+    for(int i=0; i<(int)mxrows; i++)
     {
         CPointVals u;
 
         if(theFPProc.GetPointValues(px[i], py[i], u)==TRUE)
         {
-            outpointer[(i*14)] = u.A.Re();
-            outpointer[(i*14)+1] = u.A.Im();
-            outpointer[(i*14)+2] = u.B1.Re();
-            outpointer[(i*14)+3] = u.B1.Im();
-            outpointer[(i*14)+4] = u.B2.Re();
-            outpointer[(i*14)+5] = u.B2.Im();
-            outpointer[(i*14)+6] = u.c;
-            outpointer[(i*14)+7] = u.E;
-            outpointer[(i*14)+8] = u.H1.Re();
-            outpointer[(i*14)+9] = u.H1.Im();
-            outpointer[(i*14)+10] = u.H2.Re();
-            outpointer[(i*14)+11] = u.H2.Im();
-            outpointer[(i*14)+12] = u.Je.Re();
-            outpointer[(i*14)+13] = u.Je.Im();
-            outpointer[(i*14)+14] = u.Js.Re();
-            outpointer[(i*14)+15] = u.Js.Im();
-            outpointer[(i*14)+16] = u.mu1.Re();
-            outpointer[(i*14)+17] = u.mu1.Im();
-            outpointer[(i*14)+18] = u.mu2.Re();
-            outpointer[(i*14)+19] = u.mu2.Im();
-            outpointer[(i*14)+20] = u.Pe;
-            outpointer[(i*14)+21] = u.Ph;
-            outpointer[(i*14)+22] = u.ff;
+            outpointerRe[(i*23)] = u.A.Re();
+            outpointerIm[(i*14)] = u.A.Im();
+            outpointerRe[(i*14)+1] = u.B1.Re();
+            outpointerIm[(i*14)+1] = u.B1.Im();
+            outpointerRe[(i*14)+2] = u.B2.Re();
+            outpointerIm[(i*14)+2] = u.B2.Im();
+            outpointerRe[(i*14)+3] = u.c;
+            outpointerRe[(i*14)+4] = u.E;
+            outpointerRe[(i*14)+5] = u.H1.Re();
+            outpointerIm[(i*14)+5] = u.H1.Im();
+            outpointerRe[(i*14)+6] = u.H2.Re();
+            outpointerIm[(i*14)+6] = u.H2.Im();
+            outpointerRe[(i*14)+7] = u.Je.Re();
+            outpointerIm[(i*14)+7] = u.Je.Im();
+            outpointerRe[(i*14)+8] = u.Js.Re();
+            outpointerIm[(i*14)+8] = u.Js.Im();
+            outpointerRe[(i*14)+9] = u.mu1.Re();
+            outpointerIm[(i*14)+9] = u.mu1.Im();
+            outpointerRe[(i*14)+10] = u.mu2.Re();
+            outpointerIm[(i*14)+10] = u.mu2.Im();
+            outpointerRe[(i*14)+11] = u.Pe;
+            outpointerRe[(i*14)+12] = u.Ph;
+            outpointerRe[(i*14)+13] = u.ff;
         }
         else
         {
             return 0;
         }
-	}
+    }
 
-	return 23;
+    return 14;
 }
+
+
+int FPProc_interface::addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    CComplex z;
+    int nconpts;
+    double *px, *py, *outpointer;
+    size_t mxrows, myrows, nxcols, nycols;
+
+    /* check for proper number of arguments */
+    if(nrhs!=4)
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+                           "Two inputs required.");
+    else if(nlhs > 1)
+        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+                           "Too many output arguments.");
+
+    px = mxGetPr(prhs[2]);
+    py = mxGetPr(prhs[3]);
+
+    /*  get the no. of rows of the matrix input x and y */
+    mxrows = mxGetM(prhs[2]);
+    myrows = mxGetM(prhs[3]);
+    /*  get the no. of cols of the matrix input x and y */
+    nxcols = mxGetN(prhs[2]);
+    nycols = mxGetN(prhs[3]);
+    // check dimensions are allowed
+    if((nxcols>1) | (nycols>1))
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+                           "x and y must both be row vectors.");
+    }
+
+    if(mxrows != myrows)
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+                           "x and y must be row vectors of the same size.");
+    }
+
+    for (int ind=0; ind<mxrows; ind++)
+    {
+
+        z.Set(px[ind],py[ind]);
+
+        nconpts = theFPProc.contour.size();
+
+        if(nconpts>0)
+        {
+            if (z != theFPProc.contour[nconpts-1])
+            {
+                theFPProc.contour.push_back(z);
+            }
+        }
+        else
+        {
+            theFPProc.contour.push_back(z);
+        }
+
+    }
+
+    // now return the actual points in the current contour
+    plhs[0] = mxCreateDoubleMatrix( (mwSize)(theFPProc.contour.size()), (mwSize)(2), mxREAL);
+    // get a pointer to the start of the actual output data array
+    outpointer = mxGetPr(plhs[0]);
+    nconpts = theFPProc.contour.size();
+    for (int ind=0; ind<nconpts; ind++)
+    {
+        outpointer[ind] = theFPProc.contour[ind].re;
+        outpointer[ind+nconpts] = theFPProc.contour[ind].im;
+    }
+
+    return 0;
+}
+
+int FPProc_interface::clearcontour()
+{
+    theFPProc.contour.clear();
+
+    return 0;
+}
+
+int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    int type;
+    CComplex *z;
+    double *ptype, *outpointerRe, *outpointerIm;
+    size_t mrows, ncols;
+
+    /* check for proper number of arguments */
+    if(nrhs!=3)
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+                           "One input required.");
+    else if(nlhs > 1)
+        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+                           "Too many output arguments.");
+
+    /*  get the dimensions of the matrix input x */
+    mrows = mxGetM(prhs[2]);
+    ncols = mxGetN(prhs[2]);
+    // check dimensions are allowed
+    if((mrows!=1) | (ncols!=1))
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+                           "type must be a scalar.");
+    }
+
+    // get a pointer to the actual data
+    ptype = mxGetPr(prhs[2]);
+
+    // cast the value in the matlab matrix to an integer
+    type = (int) ptype[0];
+    // 0- B.n
+    // 1 - H.t
+    // 2 - Cont length
+    // 3 - Force from stress tensor
+    // 4 - Torque from stress tensor
+    // 5 - (B.n)^2
+
+    if (type<0 || type >5)
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidinttype",
+                           "Invalid line integral selected %d",type);
+        return 0;
+    }
+
+    // Create an array of CComplex to hold the results of the integral
+    z = (CComplex *)calloc(4,sizeof(CComplex));
+    theFPProc.LineIntegral(type,z);
+
+    switch(type)
+    {
+    case 2: // length result
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
+        // get a pointer to the start of the actual output data array
+        outpointerRe = mxGetPr(plhs[0]);
+        outpointerRe[0] = z[0].re; // contour length
+        outpointerRe[1] = z[0].im; // swept area
+        free(z);
+        return 2;
+
+    case 3: // force results
+        if (theFPProc.Frequency!=0)
+        {
+            // Stress Tensor Force
+            // 1: DC r/x force
+            // 2: DC y/z force
+            // 3: 2× r/x force
+            // 4: 2× y/z force
+
+            /*  set the output pointer to the output matrix */
+            plhs[0] = mxCreateDoubleMatrix( (mwSize)(4), (mwSize)(1), mxCOMPLEX );
+            // get a pointer to the start of the actual output data array
+            outpointerRe = mxGetPr(plhs[0]);
+            outpointerIm = mxGetPi(plhs[0]);
+            outpointerRe[0] = z[2].re; //outpointerIm[0] = 0.0;
+            outpointerRe[1] = z[3].re; //outpointerIm[1] = 0.0;
+            outpointerRe[2] = z[0].re;
+            outpointerIm[2] = z[0].im;
+            outpointerRe[3] = z[1].re;
+            outpointerIm[3] = z[1].im;
+
+            free(z);
+            return 4;
+        }
+        else
+        {
+            /*  set the output pointer to the output matrix */
+            plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
+            // get a pointer to the start of the actual output data array
+            outpointerRe = mxGetPr(plhs[0]);
+            outpointerRe[0] = z[0].re;
+            outpointerRe[1] = z[1].re;
+
+            free(z);
+            return 2;
+        }
+
+
+    case 4: // torque results
+        if(theFPProc.Frequency!=0)
+        {
+            /*  set the output pointer to the output matrix */
+            plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxCOMPLEX);
+            // get a pointer to the start of the actual output data array
+            outpointerRe = mxGetPr(plhs[0]);
+            outpointerIm = mxGetPi(plhs[0]);
+            outpointerRe[0] = z[1].re;
+            outpointerRe[1] = z[0].re;
+            outpointerIm[1] = z[0].im;
+
+            free(z);
+            return 2;
+        }
+        else
+        {
+            /*  set the output pointer to the output matrix */
+            plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
+            // get a pointer to the start of the actual output data array
+            outpointerRe = mxGetPr(plhs[0]);
+            outpointerRe[0] = z[0].re;
+
+            free(z);
+            return 2;
+        }
+
+    default:
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxCOMPLEX);
+        // get a pointer to the start of the actual output data array
+        outpointerRe = mxGetPr(plhs[0]);
+        outpointerIm = mxGetPi(plhs[0]);
+        outpointerRe[0] = z[0].re;
+        outpointerIm[0] = z[0].im;
+        outpointerRe[1] = z[1].re;
+        outpointerIm[1] = z[1].im;
+
+        free(z);
+        return 2;
+    }
+
+    free(z);
+    return 0;
+}
+
+int FPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    //CatchNullDocument();//
+    double *px, *py, *outpointer;
+    size_t mxrows, myrows, nxcols, nycols;
+
+    /* check for proper number of arguments */
+    if(nrhs!=4)
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+                           "One input required.");
+    else if(nlhs > 1)
+        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+                           "Too many output arguments.");
+
+    px = mxGetPr(prhs[2]);
+    py = mxGetPr(prhs[3]);
+
+    /*  get the dimensions of the matrix input x */
+    mxrows = mxGetM(prhs[2]);
+    myrows = mxGetM(prhs[3]);
+
+    nxcols = mxGetN(prhs[2]);
+    nycols = mxGetN(prhs[3]);
+    if((mxrows != 1) | (myrows != 1) | (nxcols != 1) | (nycols != 1))
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+                           "x and y must both be scalars.");
+    }
+
+    int k;
+
+    if (theFPProc.meshelem.size()>0)
+    {
+        k = theFPProc.InTriangle(px[0],py[0]);
+
+        if(k>=0)
+        {
+            theFPProc.bHasMask = FALSE;
+            theFPProc.blocklist[theFPProc.meshelem[k].lbl].ToggleSelect();
+        }
+    }
+
+    return 0;
+}
+
+int FPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    int j,k,n;
+    double *pgroup;
+    size_t mrows, ncols;
+
+    /* check for proper number of arguments */
+    if(nrhs!=3)
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+                           "One input required.");
+    else if(nlhs > 1)
+        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+                           "Too many output arguments.");
+
+    /*  get the dimensions of the matrix input x */
+    mrows = mxGetM(prhs[2]);
+    ncols = mxGetN(prhs[2]);
+    // check dimensions are allowed
+    if((mrows!=1) | (ncols!=1))
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+                           "group number must be a scalar.");
+    }
+
+    // get a pointer to the actual data
+    pgroup = mxGetPr(prhs[2]);
+
+    if (theFPProc.meshelem.size()>0)
+    {
+        k = 0;
+
+        if (pgroup[0] > 0)
+        {
+            k = (int)pgroup[0];
+        }
+
+        for(j=0; j<theFPProc.blocklist.size(); j++)
+        {
+            if ((theFPProc.blocklist[j].InGroup==k) || (pgroup[0]==0))
+            {
+                theFPProc.blocklist[j].ToggleSelect();
+            }
+
+            theFPProc.bHasMask = FALSE;
+        }
+    }
+
+    return 0;
+}
+
+int FPProc_interface::clearblock()
+{
+    theFPProc.bHasMask = FALSE;
+
+    for(int i=0; i<theFPProc.blocklist.size(); i++)
+    {
+        if (theFPProc.blocklist[i].IsSelected == TRUE)
+        {
+            theFPProc.blocklist[i].IsSelected = FALSE;
+        }
+    }
+
+    return 0;
+}
+
+
+int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    int type;
+
+    double *ptype, *outpointerRe, *outpointerIm;
+    size_t mrows, ncols;
+
+    /* check for proper number of arguments */
+    if(nrhs!=3)
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+                           "One input required.");
+    else if(nlhs > 1)
+        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+                           "Too many output arguments.");
+
+    /*  get the dimensions of the matrix input x */
+    mrows = mxGetM(prhs[2]);
+    ncols = mxGetN(prhs[2]);
+    // check dimensions are allowed
+    if((mrows!=1) | (ncols!=1))
+    {
+        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+                           "type must be a scalar.");
+    }
+
+    // get a pointer to the actual data
+    ptype = mxGetPr(prhs[2]);
+
+    // cast the value in the matlab matrix to an integer
+    type = (int) ptype[0];
+
+    CComplex z;
+
+    BOOL flg = FALSE;
+    for(unsigned int i=0; i<theFPProc.blocklist.size(); i++)
+    {
+        if (theFPProc.blocklist[i].IsSelected==TRUE)
+        {
+            flg = TRUE;
+        }
+    }
+
+    if(flg==FALSE)
+    {
+        mexErrMsgIdAndTxt("MATLAB:revord:noblockselected",
+                          "Block integral failed, no area has been selected");
+    }
+
+    if((type>=18) && (type<=23))
+    {
+        theFPProc.MakeMask();
+    }
+
+    z = theFPProc.BlockIntegral(type);
+
+    /*  set the output pointer to the output matrix */
+    plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxCOMPLEX);
+    // get a pointer to the start of the actual output data array
+    outpointerRe = mxGetPr(plhs[0]);
+    outpointerIm = mxGetPr(plhs[0]);
+    outpointerRe[0] = z.re;
+    outpointerIm[0] = z.im;
+
+    return 1;
+}
+
+
+int FPProc_interface::smoothon()
+{
+    theFPProc.Smooth = TRUE;
+    return 0;
+}
+
+int FPProc_interface::smoothoff()
+{
+    theFPProc.Smooth = FALSE;
+    return 0;
+}
+
+int FPProc_interface::getprobleminfo(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    double *outpointer;
+
+    /*  set the output pointer to the output matrix */
+    plhs[0] = mxCreateDoubleMatrix( (mwSize)(4), (mwSize)(1), mxREAL);
+    // get a pointer to the start of the actual output data array
+    outpointer = mxGetPr(plhs[0]);
+    outpointer[0] = theFPProc.ProblemType;
+    outpointer[1] = theFPProc.Frequency;
+    outpointer[2] = theFPProc.Depth;
+    outpointer[3] = theFPProc.LengthConv[theFPProc.LengthUnits];
+
+    return 4;
+}
+
+int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    int NumCircuits,k;
+    char circuitname[1024];
+    k=-1;
+
+    if (nrhs < 3 || mxGetString(prhs[2], circuitname, sizeof(circuitname)))
+    {
+        mexErrMsgTxt("Input should be a string containng a circuit name less than 1024 characters long.");
+    }
+
+    // ok we need to find the correct entry for the circuit name
+    NumCircuits = theFPProc.circproplist.size();
+
+    for(int i=0; i<NumCircuits; i++)
+    {
+        if(strcmp(theFPProc.circproplist[i].CircName.c_str(), circuitname))
+        {
+            k = i;
+            i = NumCircuits; // that will break it
+        }
+    }
+
+// trap errors
+
+    if(k==-1)
+    {
+        mexErrMsgTxt("Unknown circuit");
+    }
+
+    CComplex amps,volts,fluxlinkage;
+
+    amps = theFPProc.circproplist[k].Amps;
+    volts = theFPProc.GetVoltageDrop(k);
+    fluxlinkage = theFPProc.GetFluxLinkage(k);
+
+    if (theFPProc.Frequency != 0)
+    {
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(3), (mwSize)(1), mxCOMPLEX);
+        // get a pointer to the start of the actual output data array
+        double *outpointerRe = mxGetPr(plhs[0]);
+        double *outpointerIm = mxGetPi(plhs[0]);
+        outpointerRe[0] = amps.re;
+        outpointerIm[0] = amps.im;
+        outpointerRe[1] = volts.re;
+        outpointerIm[1] = volts.im;
+        outpointerRe[2] = fluxlinkage.re;
+        outpointerIm[2] = fluxlinkage.im;
+    }
+    else
+    {
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(3), (mwSize)(1), mxREAL);
+        // get a pointer to the start of the actual output data array
+        double *outpointerRe = mxGetPr(plhs[0]);
+        outpointerRe[0] = amps.re;
+        outpointerRe[1] = volts.re;
+        outpointerRe[2] = fluxlinkage.re;
+    }
+
+    return 3;
+}
+
 
 ///////////////////////////////////////////////////////////////
 /////////////      FUNCTIONS TO BE CONVERTED     //////////////
 ///////////////////////////////////////////////////////////////
 
-//int FPProc_interface::addcontour(lua_State * L)
-//{
-//	//CatchNullDocument();//
-//	CComplex z;
-//	int i;
-//	z.Set(lua_todouble(L,1),lua_todouble(L,2));
-//
-//	FPProc_interface * thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//
-//	i=thisDoc->contour.GetSize();
-//
-//	if(i>0){
-//		if (z!=thisDoc->contour[i-1])
-//				thisDoc->contour.Add(z);
-//	}
-//	else thisDoc->contour.Add(z);
-//	theView->DrawUserContour(FALSE);
-//
-//	return 0;
-//}
-//
-//int FPProc_interface::clearcontour(lua_State * L)
-//{
-//	//CatchNullDocument();//
-//	FPProc_interface * thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//
-//	theView->EraseUserContour(TRUE);
-//	thisDoc->contour.RemoveAll();
-//
-//	return 0;
-//}
-//
-//int FPProc_interface::lineintegral(lua_State * L)
-//{
-//	// for compatibility with 4.0 and 4.1 Lua implementation
-//	if (((CFemmApp*) AfxGetApp())->CompatibilityMode!=0)
-//		return ((FPProc_interface *)pFemmviewdoc)->old_lua_lineintegral(L);
-//
-//	//CatchNullDocument();//
-//	int type;
-//	CComplex *z;
-//	z=(CComplex *)calloc(4,sizeof(CComplex));
-//
-//	type=(int) lua_todouble(L,1);
-//	// 0- B.n
-//	// 1 - H.t
-//	// 2 - Cont length
-//	// 3 - Force from stress tensor
-//	// 4 - Torque from stress tensor
-//	// 5 - (B.n)^2
-//
-//	if (type<0 || type >5)
-//	{
-//		CString msg;
-//		msg.Format("Invalid line integral selected %d",type);
-//		lua_error(L,msg.GetBuffer(1));
-//		return 0;
-//	}
-//
-//	FPProc_interface * thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//
-//	thisDoc->LineIntegral(type,z);
-//
-//	switch(type)
-//	{
-//		case 2: // length result
-//			lua_pushnumber(lua,z[0].re); // contour length
-//			lua_pushnumber(lua,z[0].im); // swept area
-//			free(z);
-//			return 2;
-//
-//		case 3: // force results
-//			if (thisDoc->Frequency!=0){
-//				lua_pushnumber(lua,z[2].re);
-//				lua_pushnumber(lua,z[3].re);
-//				lua_pushnumber(lua,z[0]);
-//				lua_pushnumber(lua,z[1]);
-//
-//				free(z);
-//				return 4;
-//			}
-//			else{
-//				lua_pushnumber(lua,z[0].re);
-//				lua_pushnumber(lua,z[1].re);
-//
-//				free(z);
-//				return 2;
-//			}
-//
-//
-//		case 4: // torque results
-//			if(thisDoc->Frequency!=0){
-//				lua_pushnumber(lua,z[1].re);
-//				lua_pushnumber(lua,z[0]);
-//
-//				free(z);
-//				return 2;
-//			}
-//			else
-//			{
-//				lua_pushnumber(lua,z[0].re);
-//				lua_pushnumber(lua,0);
-//
-//				free(z);
-//				return 2;
-//			}
-//
-//		default:
-//			lua_pushnumber(lua,z[0]);
-//			lua_pushnumber(lua,z[1]);
-//
-//			free(z);
-//			return 2;
-//	}
-//
-//	free(z);
-//	return 0;
-//}
-//
-//int FPProc_interface::selectblock(lua_State * L)
-//{
-//	//CatchNullDocument();//
-//	double px,py;
-//
-//	px=lua_todouble(L,1);
-//	py=lua_todouble(L,2);
-//
-//	FPProc_interface * thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//	theView->EditAction=2;
-//	int k;
-//
-//	if (thisDoc->meshelem.GetSize()>0){
-//		k=thisDoc->InTriangle(px,py);
-//		if(k>=0){
-//			thisDoc->bHasMask=FALSE;
-//			thisDoc->blocklist[thisDoc->meshelem[k].lbl].ToggleSelect();
-//			//	RedrawView();
-//			theView->DrawSelected=thisDoc->meshelem[k].lbl;
-//			HDC myDCH=GetDC(theView->m_hWnd);
-//			CDC tempDC;
-//			CDC *pDC;
-//			pDC=tempDC.FromHandle(myDCH);
-//
-//			//CDC *pDC=GetDC(theView->m_hWnd);
-//			theView->OnDraw(pDC);
-//			theView->DrawSelected=-1;
-//			theView->ReleaseDC(pDC);
-//			thisDoc->UpdateAllViews(theView);
-//		}
-//	}
-//
-//	return 0;
-//}
-//
-//int FPProc_interface::groupselectblock(lua_State * L)
-//{
-//	//CatchNullDocument();//
-//	FPProc_interface * thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//	theView->EditAction=2;
-//	int j,k,n;
-//
-//	if (thisDoc->meshelem.GetSize()>0)
-//	{
-//		n=lua_gettop(L);
-//		k=0; if (n>0) k=(int)lua_todouble(L,1);
-//
-//		for(j=0;j<thisDoc->blocklist.GetSize();j++)
-//		{
-//			if ((thisDoc->blocklist[j].InGroup==k) || (n==0))
-//			thisDoc->blocklist[j].ToggleSelect();
-//			thisDoc->bHasMask=FALSE;
-//		}
-//
-//		HDC myDCH=GetDC(theView->m_hWnd);
-//		CDC tempDC;
-//		CDC *pDC;
-//		pDC=tempDC.FromHandle(myDCH);
-//
-//		//CDC *pDC=GetDC(theView->m_hWnd);
-//		theView->OnDraw(pDC);
-//		theView->DrawSelected=-1;
-//		theView->ReleaseDC(pDC);
-//		thisDoc->UpdateAllViews(theView);
-//	}
-//
-//	return 0;
-//}
-//
-//int FPProc_interface::clearblock(lua_State * L)
-//{
-//	//CatchNullDocument();//
-//	FPProc_interface * thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//
-//	thisDoc->bHasMask=FALSE;
-//	for(int i=0;i<thisDoc->blocklist.GetSize();i++)
-//	{
-//		if (thisDoc->blocklist[i].IsSelected==TRUE)
-//			thisDoc->blocklist[i].IsSelected=FALSE;
-//	}
-//
-//
-//	theView->EditAction=0;
-//
-//	theView->RedrawView();
-//
-//	//	HDC myDCH=GetDC(theView->m_hWnd);
-//	//	CDC tempDC;
-//	//		CDC *pDC;
-//	//	pDC=tempDC.FromHandle(myDCH);
-//
-//	//CDC *pDC=GetDC(theView->m_hWnd);
-//	//	theView->OnDraw(pDC);
-//	//	theView->DrawSelected=-1;
-//	//	theView->ReleaseDC(pDC);
-//	//	thisDoc->UpdateAllViews(theView);
-//
-//	return 0;
-//}
-//
-//
-//int FPProc_interface::blockintegral(lua_State * L)
-//{
-//	// for compatibility with 4.0 and 4.1 Lua implementation
-//	if (((CFemmApp*) AfxGetApp())->CompatibilityMode!=0)
-//		return ((FPProc_interface *)pFemmviewdoc)->old_lua_blockintegral(L);
-//
-//	//CatchNullDocument();//
-//	int type;
-//	type=(int) lua_todouble(L,1);
-//
-//	FPProc_interface *thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	//CatchNullDocument();//
-//
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//
-//	CComplex z;
-//
-//	int i;
-//	BOOL flg=FALSE;
-//	for(i=0;i<thisDoc->blocklist.GetSize();i++)
-//		if (thisDoc->blocklist[i].IsSelected==TRUE) flg=TRUE;
-//	if(flg==FALSE)
-//	{
-//		CString msg="Cannot integrate\nNo area has been selected";
-//		lua_error(L,msg.GetBuffer(1));
-//		return 0;
-//	}
-//	if((type>=18) && (type<=23)) thisDoc->MakeMask();
-//	z=thisDoc->BlockIntegral(type);
-//
-//	lua_pushnumber(L,z);
-//
-//	return 1;
-//}
-//
-//
-//int FPProc_interface::smoothing(lua_State * L)
-//{
-//	//CatchNullDocument();//
-//	FPProc_interface * thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//
-//	CString temp;
-//	temp.Format("%s",lua_tostring(L,1));
-//	temp.MakeLower();
-//
-//	CMainFrame *MFrm;
-//	MFrm=(CMainFrame *)theView->GetTopLevelFrame();
-//	CMenu* MMnu=MFrm->GetMenu();
-//
-//
-//	if (temp=="off")
-//	{
-//		thisDoc->Smooth=FALSE;
-//		MMnu->CheckMenuItem(ID_SMOOTH, MF_UNCHECKED);
-//
-//	}
-//	if (temp=="on")
-//	{
-//			thisDoc->Smooth=TRUE;
-//			MMnu->CheckMenuItem(ID_SMOOTH, MF_CHECKED);
-//	}
-//
-//
-//		if (temp !="on" && temp !="off")
-//	{
-//		CString msg="Unknown option for smoothing";
-//		lua_error(L,msg.GetBuffer(1));
-//		return 0;
-//
-//	}
-//
-//
-//
-//	theView->RedrawView();
-//
-//	return 0;
-//}
-//
-//
-//int FPProc_interface::getprobleminfo(lua_State * L)
-//{
-//	//CatchNullDocument();//
-//	FPProc_interface * thisDoc;
-//	CFemmviewView * theView;
-//	thisDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=thisDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
-//
-//	lua_pushnumber(L,thisDoc->ProblemType);
-//	lua_pushnumber(L,thisDoc->Frequency);
-//	lua_pushnumber(L,thisDoc->Depth);
-//	lua_pushnumber(L,thisDoc->LengthConv[thisDoc->LengthUnits]);
-//
-//	return 4;
-//}
-//
-//int FPProc_interface::getcircuitprops(lua_State *L)
-//{
-//	// for compatibility with 4.0 and 4.1 Lua implementation
-//	if (((CFemmApp*) AfxGetApp())->CompatibilityMode!=0)
-//		return ((FPProc_interface *)pFemmviewdoc)->old_lua_getcircuitprops(L);
-//
-//	//CatchNullDocument();//
-//	FPProc_interface * TheDoc; // note normally thisdoc
-//	CFemmviewView * theView;
-//	TheDoc=(FPProc_interface *)pFemmviewdoc;
-//	POSITION pos;
-//	pos=TheDoc->GetFirstViewPosition();
-//	theView=(CFemmviewView *)TheDoc->GetNextView(pos);
-//
-//
-//	int NumCircuits,k;
-//	CString circuitname;
-//	circuitname=lua_tostring(L,1);
-//	k=-1;
-//
-//	// ok we need to find the correct entry for the circuit name
-//	NumCircuits=TheDoc->circproplist.GetSize();
-//	for(int i=0;i<NumCircuits;i++)
-//		{
-//			if(TheDoc->circproplist[i].CircName==circuitname)
-//			{
-//				k=i;
-//				i=NumCircuits; // that will break it
-//			}
-//		}
-//
-//// trap errors
-//
-//	if(k==-1)
-//	{
-//		CString msg="Unknown circuit";
-//		lua_error(L,msg.GetBuffer(1));
-//		return 0;
-//	}
-//
-//	CComplex amps,volts,fluxlinkage;
-//
-//	amps =TheDoc->circproplist[k].Amps;
-//	volts=TheDoc->GetVoltageDrop(k);
-//	fluxlinkage=TheDoc->GetFluxLinkage(k);
-//
-//	lua_pushnumber(L,amps);
-//	lua_pushnumber(L,volts);
-//	lua_pushnumber(L,fluxlinkage);
-//
-//	return 3;
-//}
+
 //
 //
 //int FPProc_interface::selectline(lua_State *L)
@@ -1371,3 +1475,4 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 //	theView->LuaViewInfo();
 //	return 0;
 //}
+
