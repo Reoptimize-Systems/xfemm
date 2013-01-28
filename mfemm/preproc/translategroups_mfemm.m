@@ -37,6 +37,7 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
     end
     
     excludenodes = [];
+    includenodes = [];
     
     for i = 1:numel(groupnos)
         
@@ -44,17 +45,9 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
             
             for ii = 1:numel(FemmProblem.Segments)
                 
-                if FemmProblem.Segments(ii).InGroup == groupnos(i) && ...
-                        ~any(FemmProblem.Segments(ii).n0+1 == excludenodes) && ...
-                        ~any(FemmProblem.Segments(ii).n1+1 == excludenodes)
+                if FemmProblem.Segments(ii).InGroup == groupnos(i)
                     
-                    FemmProblem.Nodes(FemmProblem.Segments(ii).n0+1).Coords = ...
-                        FemmProblem.Nodes(FemmProblem.Segments(ii).n0+1).Coords + shift;
-                    
-                    FemmProblem.Nodes(FemmProblem.Segments(ii).n1+1).Coords = ...
-                        FemmProblem.Nodes(FemmProblem.Segments(ii).n1+1).Coords + shift;
-                    
-                    excludenodes = [excludenodes, FemmProblem.Segments(ii).n0+1, FemmProblem.Segments(ii).n1+1];
+                    includenodes = [includenodes, FemmProblem.Segments(ii).n0, FemmProblem.Segments(ii).n1];
                     
                 end
                 
@@ -65,17 +58,9 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
         if isfield(FemmProblem, 'ArcSegments')
             for ii = 1:numel(FemmProblem.ArcSegments)
                 
-                if FemmProblem.ArcSegments(ii).InGroup == groupnos(i) && ...
-                        ~any(FemmProblem.ArcSegments(ii).n0+1 == excludenodes) && ...
-                        ~any(FemmProblem.ArcSegments(ii).n1+1 == excludenodes)
+                if FemmProblem.ArcSegments(ii).InGroup == groupnos(i)
                     
-                    FemmProblem.Nodes(FemmProblem.ArcSegments(ii).n0+1).Coords = ...
-                        FemmProblem.Nodes(FemmProblem.ArcSegments(ii).n0+1).Coords + shift;
-                    
-                    FemmProblem.Nodes(FemmProblem.ArcSegments(ii).n1+1).Coords = ...
-                        FemmProblem.Nodes(FemmProblem.ArcSegments(ii).n1+1).Coords + shift;
-                    
-                    excludenodes = [excludenodes, FemmProblem.ArcSegments(ii).n0+1, FemmProblem.ArcSegments(ii).n1+1];
+                    includenodes = [includenodes, FemmProblem.Segments(ii).n0, FemmProblem.Segments(ii).n1];
                     
                 end
                 
@@ -94,8 +79,6 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
             
         end
     end
-
-    excludenodes = unique(excludenodes);
     
     if isfield(FemmProblem, 'Nodes')
         % now shift any nodes in the groups which have not already been moved
@@ -107,7 +90,7 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
                 if FemmProblem.Nodes(ii).InGroup == groupnos(i) && ...
                         ~any(excludenodes == ii)
 
-                    FemmProblem.Nodes(ii).Coords = FemmProblem.Nodes(ii).Coords + shift;
+                    includenodes = [includenodes, FemmProblem.Segments(ii).n0, FemmProblem.Segments(ii).n1];
 
                 end
                 
@@ -115,5 +98,9 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
 
         end    
     end
+    
+    includenodes = unique(includenodes);
+    
+    FemmProblem = translatenodes_mfemm(FemmProblem, shift(1), shift(2), includenodes);
     
 end
