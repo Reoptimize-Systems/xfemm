@@ -94,8 +94,8 @@ disp(FemmProblem.ProbInfo)
 
 % first define the node locations, which are above and below the centerline
 % of the cylindrical coil.
-outernodes = [ 0,  4; 
-               0, -4 ];
+outernodes = [ 0, -4; 
+               0,  4 ];
           
 % Now add these nodes to the FemmProblem structure using the function
 % addnodes_mfemm. addnodes_mfemm is typical in that it can return up to
@@ -152,7 +152,28 @@ CoilBlockProps.MaxArea = 0.1;
 
 FemmProblem = addrectregion_mfemm(FemmProblem, 0.5, -1, 1, 2, CoilBlockProps);
 
-
+% Next we must choose a boundary condition for the outer boundary of our
+% prolem to approximate the reality of the problem which is infinite in
+% extent.
+%
+% In this case we will use an "asymptotic boundary condition". This
+% condition approximates the impedance of an unbounded, open space. In this
+% way, we can model the field produced by the coil in an unbounded space
+% while still only modeling a finite region of that space. This boundary
+% condition is of the form:
+%
+% (1 / (mu_0*mu_r)) (dA / dn) + c_0 A + c_1 = 0
+%
+% where A is magnetic vector potential, mu_r is the relative magnetic
+% permeability of the region adjacent to the boundary, mu_0 is the
+% permeability of free space, and n represents the direction normal to the
+% boundary. For our asymptotic boundary condition, we need to specify:
+%
+% c_0 = 1 / ( mu_0 mu_r R )
+% 
+% c_ = 0
+% 
+% With mfemm this can be achieved with the addboundary_mfemm function.
 
 
 
