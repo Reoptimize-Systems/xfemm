@@ -1,4 +1,4 @@
-function fsolver(filename)
+function ansfile = fsolver(filename)
 % solves a finite element problem described by a .fem file and which has
 % already been meshed using fmesher
 %
@@ -31,4 +31,6 @@ function fsolver(filename)
 
     mexfsolver(filename)
 
+    ansfile = [filename(1:end-4), '.ans'];
+    
 end
