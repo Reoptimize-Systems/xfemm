@@ -287,7 +287,10 @@ manypvals = myfpproc.getpointvalues([0,0.1,0.2,0.3,0.4,0.5],[0,0,0,0,0,0])
 % selected, and the (optional) third argument determines whether any
 % existing selections should be cleared. If the third argument is not
 % supplied, it defaults to false, keeping existing selections.
-coilarea = myfpproc.selectblock(1, 0, true)
+myfpproc.selectblock(1, 0, true);
+% The area integral is selected by caling fpproc.blockintegral with the
+% number 5
+coilarea = myfpproc.blockintegral(5)
 
 
 
