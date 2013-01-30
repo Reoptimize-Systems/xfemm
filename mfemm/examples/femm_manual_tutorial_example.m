@@ -11,36 +11,36 @@
 %
 %                                     1 inch
 %                               <----------------->                              
-%                                        � 
-%                                        �
+%                                        | 
+%                                        |
 %                                        x    
-%                                  x     �     x                             
-%                              x         �         x                         
-%                           x           x�x           x                        
-%                         x         x    �    x         x                       
-%                       x        x       �       x        x                      
-%                      x_______ x        �        x _______x                     
-%                      x       |         �         |       x     ^                
-%                      x       |x        �        x|       x     �                
-%                      |x      | x       �       x |      x|     �                
-%                      |  x    |    x    �    x    |    x  |     �                
-%                      |    x  |   .    x�x   .    |  x    |     �                
-%                      |       x         �         x       |     � 2 inch        
-%                      |    .  |   x    .�.    x   |  .    |     �             
-%                      |  .    |    .    x    .    |    .  |     �              
-%                      |.      | .       �       . |      .|     �               
-%                      |       |.        �        .|       |     �                
-%                      |_______|         �         |_______|     v                   
-%                      x        .        �        .        x                      
-%                       x        .       �       .        x                       
-%                         x         .    �    .         x                         
-%                           x           .�.           x                            �                                     
-%                              x         �         x                           
-%                                  x     �     x                               
+%                                  x     |     x                             
+%                              x         |         x                         
+%                           x           x|x           x                        
+%                         x         x    |    x         x                       
+%                       x        x       |       x        x                      
+%                      x_______ x        |        x _______x                     
+%                      x       |         |         |       x     ^                
+%                      x       |x        |        x|       x     |                
+%                      |x      | x       |       x |      x|     |                
+%                      |  x    |    x    |    x    |    x  |     |                
+%                      |    x  |   .    x|x   .    |  x    |     |                
+%                      |       x         |         x       |     | 2 inch        
+%                      |    .  |   x    .|.    x   |  .    |     |             
+%                      |  .    |    .    x    .    |    .  |     |              
+%                      |.      | .       |       . |      .|     |               
+%                      |       |.        |        .|       |     |                
+%                      |_______|         |         |_______|     v                   
+%                      x        .        |        .        x                      
+%                       x        .       |       .        x                       
+%                         x         .    |    .         x                         
+%                           x           .|.           x                            |                                     
+%                              x         |         x                           
+%                                  x     |     x                               
 %                                        x                                     
-%                                        �                                  
-%                                        �                                  
-%                                        �                                  
+%                                        |                                  
+%                                        |                                  
+%                                        |                                  
 %                      <----------------------------------->
 %                                     3 inch
 %
@@ -111,7 +111,7 @@ outernodes = [ 0, -4;
 [FemmProblem] = addsegments_mfemm(FemmProblem, nodeids(1), nodeids(2));
 
 % And then the arc segment between the same two nodes
-[FemmProblem, rcseginds] = addarcsegments_mfemm(FemmProblem, nodeids(1), nodeids(2), 180, 'MaxSegDegrees', 2.5);
+[FemmProblem, rcsegind] = addarcsegments_mfemm(FemmProblem, nodeids(1), nodeids(2), 180, 'MaxSegDegrees', 2.5);
 
 % Next we will draw the coil, a rectangle in cross-section. The material
 % type from the materials library '18 AWG' will be used for this. So first
@@ -152,6 +152,15 @@ CoilBlockProps.MaxArea = 0.1;
 
 FemmProblem = addrectregion_mfemm(FemmProblem, 0.5, -1, 1, 2, CoilBlockProps);
 
+% We also need a material for the region surrounding the coil, in this case
+% Air. By default, when a new FemmProblem is created, Air is added as the
+% first material, so we don't need to add it again. We can just go ahead
+% and add a block label in an appropriate place.
+
+FemmProblem = addblocklabel_mfemm(FemmProblem, 0.5, 1.5, ...
+                                  'BlockType', 'Air', ...
+                                  'MaxArea', 0.1);
+
 % Next we must choose a boundary condition for the outer boundary of our
 % prolem to approximate the reality of the problem which is infinite in
 % extent.
@@ -174,6 +183,70 @@ FemmProblem = addrectregion_mfemm(FemmProblem, 0.5, -1, 1, 2, CoilBlockProps);
 % c_ = 0
 % 
 % With mfemm this can be achieved with the addboundary_mfemm function.
+inch = 0.0254;
+R = 4;
+mu_0 = 4 * pi *1e-7;
+[FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem, 'ABC', 2, ...
+                                    'c0', 1/(mu_0*R), ...
+                                    'c1', 0);
+
+% We then need to assign this boundary condition to the arc segment. This
+% is achieved by changing the 'BoundaryMarker' of the appropriate arc
+% segment to the same name as our new boundary.
+%
+FemmProblem.ArcSegments(rcsegind).BoundaryMarker = boundname;
+
+% Finally we can take a look at the problem using Matlab's plotting
+% commands
+plotfemmproblem(FemmProblem);
+
+% However, this isn't very well developend yet. If the original FEMM is
+% installed, and it's m-file interface present on the Matlab search path,
+% we can open the file in FEMM as well.
+if exist('openfemm.m', 'file')
+    openprobleminfemm_mfemm(FemmProblem);
+else
+    fprintf(1, 'Looks like femm isn''t installed, or at least its m-files aren''t on the path.\n');
+end
+
+%% Solve the Problem
+
+% Now that the problem is defined, we want to go ahead and solve it. The
+% first step in doing this is to create a mesh. To do this we call the
+% fmesher function. Doing this will require that you have set up (i.e.
+% compiled) the fmesher, fsolver and fpproc mexfunctions, otherwise they
+% won't work/exist.
+%
+
+% Create a .fem file describing the problem on disk
+filename = 'mag_tutorial.fem';
+writefemmfile(filename, FemmProblem);
+
+% mesh the problem using fmesher. We could have called fmesher with the
+% FemmProblem directly, i.e.
+%
+% filename = fmesher(filename, FemmProblem);
+%
+% Or even just 
+%
+% filename = fmesher(FemmProblem);
+%
+% Which puts the .fem file in a temporary file location, the path of which
+% is returned in filename, but then we would not have shown how to use
+% writefemmfile to generate the file.
+filename = fmesher(filename);
+
+% fmesher creates a number of mesh files based on the file name with
+% different extensions, e.g. .poly, .node etc. Armed with this, we can 
+%
+%
+
+
+
+
+
+
+
 
 
 
