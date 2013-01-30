@@ -55,7 +55,7 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
     if(nrhs!=3)
         mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
                            "One input required.");
-    else if(nlhs > 0)
+    else if(nlhs > 1)
         mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
                            "Too many output arguments.");
 
@@ -401,7 +401,7 @@ int FPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxA
                            "One input required.");
     else if(nlhs > 1)
         mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
-                           "Too many output arguments.");
+                           "Too many output arguments.", nlhs);
 
     px = mxGetPr(prhs[2]);
     py = mxGetPr(prhs[3]);
@@ -499,7 +499,6 @@ int FPProc_interface::clearblock()
     return 0;
 }
 
-
 int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     int type;
@@ -511,9 +510,9 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
     if(nrhs!=3)
         mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
                            "One input required.");
-    else if(nlhs > 1)
+    else if(nlhs != 1)
         mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
-                           "Too many output arguments.");
+                           "Wrong number of output arguments.");
 
     /*  get the dimensions of the matrix input x */
     mrows = mxGetM(prhs[2]);
@@ -555,13 +554,24 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 
     z = theFPProc.BlockIntegral(type);
 
-    /*  set the output pointer to the output matrix */
-    plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxCOMPLEX);
-    // get a pointer to the start of the actual output data array
-    outpointerRe = mxGetPr(plhs[0]);
-    outpointerIm = mxGetPr(plhs[0]);
-    outpointerRe[0] = z.re;
-    outpointerIm[0] = z.im;
+    if (z.Im() == 0.0)
+    {
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
+        // get a pointer to the start of the actual output data array
+        outpointerRe = mxGetPr(plhs[0]);
+        outpointerRe[0] = z.Re();
+    }
+    else
+    {
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxCOMPLEX);
+        // get a pointer to the start of the actual output data array
+        outpointerRe = mxGetPr(plhs[0]);
+        outpointerIm = mxGetPi(plhs[0]);
+        outpointerRe[0] = z.Re();
+        outpointerIm[0] = z.Im();
+    }
 
     return 1;
 }
