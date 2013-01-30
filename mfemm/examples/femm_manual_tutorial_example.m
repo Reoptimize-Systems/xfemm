@@ -237,9 +237,62 @@ writefemmfile(filename, FemmProblem);
 filename = fmesher(filename);
 
 % fmesher creates a number of mesh files based on the file name with
-% different extensions, e.g. .poly, .node etc. Armed with this, we can 
+% different extensions, e.g. .poly, .node etc. Armed with this, we can now
+% solve the finite-element problem. This is achieved by calling fsolver.
 %
+% The results are written to disk. The file name (.ans file) is returned by
+% fsolver (but is always just the name of the input file with the extesion
+% replaced with .ans
+ansfile = fsolver(filename);
+
+
+%% Extracting Results
+
+% Having solved te problem, it is generally desired that we do some
+% post-processing on the results. The file which is produced is perfectly
+% compatible with FEMM, and if it is installed, we can open the file and
+% use all the normal post-processing functions
+if exist('openfemm.m', 'file')
+    opendocument(ansfile);
+else
+    fprintf(1, 'Looks like femm isn''t installed, or at least its m-files aren''t on the path.\n');
+end
+
+% However, some post-processing methods are also provided with mfemm. The
+% main method is a class based method for loading and manipulating the
+% data. The class is called fpproc, and also requires some compilation
+% before use as it is an interface to more C++ code.
 %
+% So to manipulate the output, we first create an fpproc class
+myfpproc = fpproc();
+
+% and then load the results file using the opendocument method
+myfpproc.opendocument(ansfile);
+
+% once loaded fpproc provides a number of post-processing functions, which
+% are really calls to the C++ versions supplied in the original FEMM code.
+% You can view a list of all the avaialable methods using the methods
+% function
+methods(myfpproc);
+
+% for example, extract the values from the solution at the point (0,0)
+pvals = myfpproc.getpointvalues(0,0)
+
+% we can also get multiple points, the results of which are returned in a
+% matrix with each point's values in its own column
+manypvals = myfpproc.getpointvalues([0,0.1,0.2,0.3,0.4,0.5],[0,0,0,0,0,0])
+
+% alternatively, select the coil and integrate it's area. The first two
+% arguments are the location of a point inside the block area to be
+% selected, and the (optional) third argument determines whether any
+% existing selections should be cleared. If the third argument is not
+% supplied, it defaults to false, keeping existing selections.
+coilarea = myfpproc.selectblock(1, 0, true)
+
+
+
+
+
 
 
 
