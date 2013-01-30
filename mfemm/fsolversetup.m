@@ -19,18 +19,18 @@ function fsolversetup(dodebug)
         dodebug = false;
     end
     
-    if isoctave
-        cc.Name = 'gcc';
-    else
-        try
-            % First check a C++ compiler is present, and selected
-            cc = mex.getCompilerConfigurations('C++', 'Selected');
-        catch
-            % if the getCompilerConfigurations call fails, try with gcc,
-            % assuming that we are on windows and perhaps using gnumex
-            cc.Name = 'gcc';
-        end
-    end
+%     if isoctave
+%         cc.Name = 'gcc';
+%     else
+%         try
+%             % First check a C++ compiler is present, and selected
+%             cc = mex.getCompilerConfigurations('C++', 'Selected');
+%         catch
+%             % if the getCompilerConfigurations call fails, try with gcc,
+%             % assuming that we are on windows and perhaps using gnumex
+%             cc.Name = 'gcc';
+%         end
+%     end
 
     % store the current directory
     origdir = pwd;
