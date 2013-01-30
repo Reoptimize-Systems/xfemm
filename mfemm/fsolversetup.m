@@ -1,5 +1,5 @@
 function fsolversetup(dodebug)
-% compiles the fmesher mexfunction 
+% compiles the fsolver mexfunction 
 
 % Copyright 2012 Richard Crozier
 % 

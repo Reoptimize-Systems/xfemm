@@ -1,4 +1,5 @@
 function fpprocsetup(dodebug)
+% compiles the fpproc mexfunction
 
     if nargin < 1
         dodebug = false;
