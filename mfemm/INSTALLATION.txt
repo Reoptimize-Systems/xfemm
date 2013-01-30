@@ -1,0 +1,6 @@
+Instructions for installing mfemm can be found by running the 
+command:
+
+help mfemm_setup
+
+at the Octave or Matlab command prompt.
