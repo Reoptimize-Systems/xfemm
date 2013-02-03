@@ -1,16 +1,43 @@
 # depslib dependency file v1.0
-1358519845 source:/home/s0237326/src/mfemm/pfemm/fsolver/cspars.cpp
+1339768020 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\complex.cpp
+	"math.h"
+	"stdio.h"
+	"complex.h"
+
+1358499532 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\complex.h
+
+1358509119 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\cspars.cpp
 	<math.h>
 	<stdio.h>
-	<cstdlib>
 	"complex.h"
 	"spars.h"
+	"stdstring.h"
 
-1358518557 /home/s0237326/src/mfemm/pfemm/libfemm/complex.h
+1358506237 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\spars.h
 
-1358945465 /home/s0237326/src/mfemm/pfemm/libfemm/spars.h
+1358506236 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\stdstring.h
+	<TCHAR.H>
+	<WTYPES.H>
+	<assert.h>
+	<TCHAR.H>
+	<WTYPES.H>
+	<crtdbg.h>
+	<string>
+	<algorithm>
+	<functional>
+	<locale>
+	<comdef.h>
+	<wchar.h>
+	<stdio.h>
+	<stdarg.h>
+	<wctype.h>
+	<ctype.h>
+	<stdlib.h>
+	<varargs.h>
+	<malloc.h>
+	<afxconv.h>
 
-1358518552 source:/home/s0237326/src/mfemm/pfemm/fsolver/cuthill.cpp
+1358506237 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\cuthill.cpp
 	<stdio.h>
 	<math.h>
 	"malloc.h"
@@ -19,14 +46,14 @@
 	"spars.h"
 	"fsolver.h"
 
-1358518556 /home/s0237326/src/mfemm/pfemm/libfemm/mesh.h
+1358500952 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\mesh.h
 	"complex.h"
 
-1358518552 /home/s0237326/src/mfemm/pfemm/fsolver/fsolver.h
+1358506236 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\fsolver.h
 	"mesh.h"
 	"spars.h"
 
-1358533329 source:/home/s0237326/src/mfemm/pfemm/fsolver/fsolver.cpp
+1358515467 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\fsolver.cpp
 	<math.h>
 	<stdio.h>
 	<stdlib.h>
@@ -37,12 +64,17 @@
 	"spars.h"
 	"parse.h"
 	"fsolver.h"
-	"mex.h"
 
-1358528897 /home/s0237326/src/mfemm/pfemm/libfemm/parse.h
-	<string>
+1358499408 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\fullmatrix.cpp
+	<cstdlib>
+	<math.h>
+	"malloc.h"
+	"complex.h"
+	"fullmatrix.h"
 
-1358518552 source:/home/s0237326/src/mfemm/pfemm/fsolver/harmonic2d.cpp
+1358499428 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\fullmatrix.h
+
+1358506237 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\harmonic2d.cpp
 	<stdio.h>
 	<stdlib.h>
 	<math.h>
@@ -53,7 +85,7 @@
 	"spars.h"
 	"fsolver.h"
 
-1358518552 source:/home/s0237326/src/mfemm/pfemm/fsolver/harmonicaxi.cpp
+1358506237 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\harmonicaxi.cpp
 	<stdio.h>
 	<math.h>
 	<algorithm>
@@ -63,7 +95,34 @@
 	"spars.h"
 	"fsolver.h"
 
-1358528897 source:/home/s0237326/src/mfemm/pfemm/fsolver/static2d.cpp
+1358506237 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\main.cpp
+	<cstdlib>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	"complex.h"
+	"spars.h"
+	"mesh.h"
+	"fsolver.h"
+
+1358501905 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\matprop.cpp
+	<stdio.h>
+	<math.h>
+	"malloc.h"
+	"complex.h"
+	"mesh.h"
+	"spars.h"
+	"fullmatrix.h"
+	"fsolver.h"
+
+1358506237 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\spars.cpp
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	"complex.h"
+	"spars.h"
+
+1358524133 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\static2d.cpp
 	<stdio.h>
 	<math.h>
 	<malloc.h>
@@ -80,19 +139,21 @@
 	<lualib.h>
 	<lauxlib.h>
 
-1358518553 /home/s0237326/src/mfemm/pfemm/liblua/lua.h
+1358506259 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\liblua\lua.h
 	"complex.h"
 	<stddef.h>
 
-1358518553 /home/s0237326/src/mfemm/pfemm/liblua/lualib.h
+1358498546 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\liblua\complex.h
+
+1358506259 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\liblua\lualib.h
 	"lua.h"
 
-1358518552 /home/s0237326/src/mfemm/pfemm/liblua/lauxlib.h
+1358506258 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\liblua\lauxlib.h
 	<stddef.h>
 	<stdio.h>
 	"lua.h"
 
-1358528897 source:/home/s0237326/src/mfemm/pfemm/fsolver/staticaxi.cpp
+1358524279 source:c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\staticaxi.cpp
 	<string>
 	<cstdio>
 	<math.h>
@@ -102,4 +163,16 @@
 	"spars.h"
 	"fsolver.h"
 	"lua.h"
+
+1339768005 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\fsolver\lua.h
+	"complex.h"
+	<stddef.h>
+
+1358499532 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\libfemm\complex.h
+
+1358500952 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\libfemm\mesh.h
+	"complex.h"
+
+1358522341 c:\documents and settings\s0237326\my documents\xfemm\trunk\pfemm\libfemm\parse.h
+	<string>
 

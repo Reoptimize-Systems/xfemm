@@ -30,7 +30,7 @@
 #include "complex.h"
 #include "mesh.h"
 #include "spars.h"
-#include "parse.h"
+#include "fparse.h"
 #include "fsolver.h"
 /* for compiling as matlab mex */
 #ifdef MATLAB_MEX_FILE
