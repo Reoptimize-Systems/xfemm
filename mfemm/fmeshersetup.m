@@ -28,7 +28,7 @@ function fmeshersetup(dodebug)
     % set some common compiler flags, we replace all calls to printf to
     % calls to mexPrintf
     if dodebug
-        common_compiler_flags = {'-g -D"PRINTF=mexPrintf"'};
+        common_compiler_flags = {'-g'};
     else
         common_compiler_flags = {}; %common_compiler_flags = {'-D"PRINTF=mexPrintf"'};
     end

@@ -55,15 +55,15 @@ function mfemm_setup()
     else
 
         if ~exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'libfemm', 'libfemm.a'), 'file') 
-            fprintf(1, 'mfemm_setup can''t find the libfemm library (libfemm.a), have you built it?')
+            fprintf(1, 'mfemm_setup can''t find the libfemm library (libfemm.a), have you built it?\n')
         end
 
         if ~exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'liblua', 'liblua.a'), 'file') 
-            fprintf(1, 'mfemm_setup can''t find the liblua library (liblua.a), have you built it?')
+            fprintf(1, 'mfemm_setup can''t find the liblua library (liblua.a), have you built it?\n')
         end
 
         if ~exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'fpproc', 'libfpproc.a'), 'file')
-            fprintf(1, 'mfemm_setup can''t find the libfpproc library (libfpproc.a), have you built the fpproc project as a library?')
+            fprintf(1, 'mfemm_setup can''t find the libfpproc library (libfpproc.a), have you built the fpproc project as a library?\n')
         end
 
         error('mfemm setup failed. Type help mfemm_setup for help setting up mfemm.')
