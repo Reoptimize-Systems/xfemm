@@ -204,6 +204,7 @@ plotfemmproblem(FemmProblem);
 % installed, and it's m-file interface present on the Matlab search path,
 % we can open the file in FEMM as well.
 if exist('openfemm.m', 'file')
+    openfemm;
     openprobleminfemm_mfemm(FemmProblem);
 else
     fprintf(1, 'Looks like femm isn''t installed, or at least its m-files aren''t on the path.\n');
@@ -273,7 +274,9 @@ myfpproc.opendocument(ansfile);
 % are really calls to the C++ versions supplied in the original FEMM code.
 % You can view a list of all the avaialable methods using the methods
 % function
-methods(myfpproc);
+if ~isoctave
+    methods(myfpproc);
+end
 
 % for example, extract the values from the solution at the point (0,0)
 pvals = myfpproc.getpointvalues(0,0)

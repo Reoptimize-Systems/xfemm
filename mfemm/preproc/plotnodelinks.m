@@ -56,7 +56,7 @@ function plotnodelinks(nodes, links, varargin)
     hold on
     
     % plot all the nodes too
-    scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr');
+    scatter3(nodes(:,1), nodes(:,2), nodes(:,3), [], [], 'xr');
     
     if ~is2d
         view(3);
