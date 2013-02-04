@@ -4,12 +4,12 @@
 		<Project filename="liblua/liblua.cbp">
 			<Depends filename="libfemm/libfemm.cbp" />
 		</Project>
-		<Project filename="fpproc/FPProc.cbp" active="1">
+		<Project filename="fpproc/FPProc.cbp">
 			<Depends filename="liblua/liblua.cbp" />
 			<Depends filename="libfemm/libfemm.cbp" />
 		</Project>
 		<Project filename="libfemm/libfemm.cbp" />
-		<Project filename="fsolver/fsolver.cbp" />
+		<Project filename="fsolver/fsolver.cbp" active="1" />
 		<Project filename="fmesher/fmesher.cbp" />
 		<Project filename="../postproc/fpproc_interface.cbp" />
 	</Workspace>
