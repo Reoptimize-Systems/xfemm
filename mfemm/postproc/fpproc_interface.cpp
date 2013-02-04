@@ -120,45 +120,82 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
                            "x and y must be column vectors of the same size.");
     }
 
-    /*  set the output pointer to the output matrix */
-    plhs[0] = mxCreateDoubleMatrix( (mwSize)(14), (mwSize)mxrows, mxCOMPLEX);
-    // get a pointer to the start of the actual output data array
-    outpointerRe = mxGetPr(plhs[0]);
-    outpointerIm = mxGetPi(plhs[0]);
-
-    for(int i=0; i<(int)mxrows; i++)
+    if (theFPProc.Frequency!=0)
     {
-        CPointVals u;
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(14), (mwSize)mxrows, mxCOMPLEX);
+        // get a pointer to the start of the actual output data array
+        outpointerRe = mxGetPr(plhs[0]);
+        outpointerIm = mxGetPi(plhs[0]);
 
-        if(theFPProc.GetPointValues(px[i], py[i], u)==TRUE)
+        for(int i=0; i<(int)mxrows; i++)
         {
-            outpointerRe[(i*23)] = u.A.Re();
-            outpointerIm[(i*14)] = u.A.Im();
-            outpointerRe[(i*14)+1] = u.B1.Re();
-            outpointerIm[(i*14)+1] = u.B1.Im();
-            outpointerRe[(i*14)+2] = u.B2.Re();
-            outpointerIm[(i*14)+2] = u.B2.Im();
-            outpointerRe[(i*14)+3] = u.c;
-            outpointerRe[(i*14)+4] = u.E;
-            outpointerRe[(i*14)+5] = u.H1.Re();
-            outpointerIm[(i*14)+5] = u.H1.Im();
-            outpointerRe[(i*14)+6] = u.H2.Re();
-            outpointerIm[(i*14)+6] = u.H2.Im();
-            outpointerRe[(i*14)+7] = u.Je.Re();
-            outpointerIm[(i*14)+7] = u.Je.Im();
-            outpointerRe[(i*14)+8] = u.Js.Re();
-            outpointerIm[(i*14)+8] = u.Js.Im();
-            outpointerRe[(i*14)+9] = u.mu1.Re();
-            outpointerIm[(i*14)+9] = u.mu1.Im();
-            outpointerRe[(i*14)+10] = u.mu2.Re();
-            outpointerIm[(i*14)+10] = u.mu2.Im();
-            outpointerRe[(i*14)+11] = u.Pe;
-            outpointerRe[(i*14)+12] = u.Ph;
-            outpointerRe[(i*14)+13] = u.ff;
+            CPointVals u;
+
+            if(theFPProc.GetPointValues(px[i], py[i], u)==TRUE)
+            {
+                outpointerRe[(i*14)] = u.A.Re();
+                outpointerIm[(i*14)] = u.A.Im();
+                outpointerRe[(i*14)+1] = u.B1.Re();
+                outpointerIm[(i*14)+1] = u.B1.Im();
+                outpointerRe[(i*14)+2] = u.B2.Re();
+                outpointerIm[(i*14)+2] = u.B2.Im();
+                outpointerRe[(i*14)+3] = u.c;
+                outpointerRe[(i*14)+4] = u.E;
+                outpointerRe[(i*14)+5] = u.H1.Re();
+                outpointerIm[(i*14)+5] = u.H1.Im();
+                outpointerRe[(i*14)+6] = u.H2.Re();
+                outpointerIm[(i*14)+6] = u.H2.Im();
+                outpointerRe[(i*14)+7] = u.Je.Re();
+                outpointerIm[(i*14)+7] = u.Je.Im();
+                outpointerRe[(i*14)+8] = u.Js.Re();
+                outpointerIm[(i*14)+8] = u.Js.Im();
+                outpointerRe[(i*14)+9] = u.mu1.Re();
+                outpointerIm[(i*14)+9] = u.mu1.Im();
+                outpointerRe[(i*14)+10] = u.mu2.Re();
+                outpointerIm[(i*14)+10] = u.mu2.Im();
+                outpointerRe[(i*14)+11] = u.Pe;
+                outpointerRe[(i*14)+12] = u.Ph;
+                outpointerRe[(i*14)+13] = u.ff;
+            }
+            else
+            {
+                return 0;
+            }
         }
-        else
+    }
+    else
+    {
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(14), (mwSize)mxrows, mxREAL);
+        // get a pointer to the start of the actual output data array
+        outpointerRe = mxGetPr(plhs[0]);
+
+        for(int i=0; i<(int)mxrows; i++)
         {
-            return 0;
+            CPointVals u;
+
+            if(theFPProc.GetPointValues(px[i], py[i], u)==TRUE)
+            {
+                outpointerRe[(i*14)] = u.A.Re();
+                outpointerRe[(i*14)+1] = u.B1.Re();
+                outpointerRe[(i*14)+2] = u.B2.Re();
+                outpointerRe[(i*14)+3] = u.c;
+                outpointerRe[(i*14)+4] = u.E;
+                outpointerRe[(i*14)+5] = u.H1.Re();
+                outpointerRe[(i*14)+6] = u.H2.Re();
+                outpointerRe[(i*14)+7] = u.Je.Re();
+                outpointerRe[(i*14)+8] = u.Js.Re();
+                outpointerRe[(i*14)+9] = u.mu1.Re();
+                outpointerRe[(i*14)+10] = u.mu2.Re();
+                outpointerRe[(i*14)+11] = u.Pe;
+                outpointerRe[(i*14)+12] = u.Ph;
+                outpointerRe[(i*14)+13] = u.ff;
+            }
+            else
+            {
+                return 0;
+            }
         }
     }
 

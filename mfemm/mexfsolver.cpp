@@ -65,22 +65,22 @@ int nrhs, const mxArray *prhs[])
 //     FilePath
 
 
-    // Tell FSolver the location of the mesh and fem files this should be 
+    // Tell FSolver the location of the mesh and fem files this should be
     // an extension free base name
     SolveObj.PathName = buf;
-    
+
     /* When finished using the string, deallocate it. */
     //mxFree(buf);
-    
+
 	if (SolveObj.LoadFEMFile() != TRUE){
-		mexPrintf("problem loading .fem file");
+		mexPrintf("problem loading .fem file\n");
 		plhs[0] = mxCreateDoubleScalar(1.0);
         return;
 	}
 
 	// load mesh
 	if (SolveObj.LoadMesh() != TRUE){
-		mexPrintf("problem loading mesh");
+		mexPrintf("problem loading mesh\n");
 		plhs[0] = mxCreateDoubleScalar(2.0);
         return;
 		//return -1;
@@ -89,7 +89,7 @@ int nrhs, const mxArray *prhs[])
 	// renumber using Cuthill-McKee
     mexPrintf("renumbering nodes");
 	if (SolveObj.Cuthill() != TRUE){
-		mexPrintf("problem renumbering node points");
+		mexPrintf("problem renumbering node points\n");
 		plhs[0] = mxCreateDoubleScalar(3.0);
         return;
 	}
@@ -98,7 +98,7 @@ int nrhs, const mxArray *prhs[])
 
 	mexPrintf("Problem Statistics:\n%i nodes\n%i elements\nPrecision: %3.2e\n",
 			SolveObj.NumNodes,SolveObj.NumEls,SolveObj.Precision);
-// 
+//
 //     mexPrintf(outstr);
 
 	double mr = (8.*((double) SolveObj.NumNodes)*((double) SolveObj.BandWidth)) / 1.e06;
@@ -112,7 +112,7 @@ int nrhs, const mxArray *prhs[])
 		// initialize the problem, allocating the space required to solve it.
 		if (L.Create(SolveObj.NumNodes, SolveObj.BandWidth) == FALSE)
 		{
-            mexPrintf("couldn't allocate enough space for matrices");
+            mexPrintf("couldn't allocate enough space for matrices\n");
 			plhs[0] = mxCreateDoubleScalar(4.0);
             return;
 		}
@@ -122,30 +122,30 @@ int nrhs, const mxArray *prhs[])
 		{
 			if (SolveObj.Static2D(L) == FALSE)
 			{
-				mexPrintf("Couldn't solve the problem");
+				mexPrintf("Couldn't solve the problem\n");
 				plhs[0] = mxCreateDoubleScalar(5.0);
                 return;
 			}
-			mexPrintf("Static 2-D problem solved");
+			mexPrintf("Static 2-D problem solved\n");
 		}
 		else{
 
 			if (SolveObj.StaticAxisymmetric(L) == FALSE)
 			{
-				mexPrintf("Couldn't solve the problem");
+				mexPrintf("Couldn't solve the problem\n");
 				plhs[0] = mxCreateDoubleScalar(5.0);
                 return;
 			}
-            mexPrintf("Static axisymmetric problem solved");
+            mexPrintf("Static axisymmetric problem solved\n");
 		}
 
 		if (SolveObj.WriteStatic2D(L) == FALSE)
 		{
-			mexPrintf("couldn't write results to disk");
+			mexPrintf("couldn't write results to disk\n");
 			plhs[0] = mxCreateDoubleScalar(6.0);
             return;
 		}
-        mexPrintf("results written to disk");
+        mexPrintf("results written to disk\n");
 	}
 	else
 	{
@@ -157,7 +157,7 @@ int nrhs, const mxArray *prhs[])
 
 		if (L.Create(SolveObj.NumNodes+SolveObj.NumCircProps, SolveObj.BandWidth, SolveObj.NumNodes) == FALSE)
 		{
-            mexPrintf("couldn't allocate enough space for matrices");
+            mexPrintf("couldn't allocate enough space for matrices\n");
 			plhs[0] = mxCreateDoubleScalar(4.0);
             return;
 		}
@@ -167,31 +167,31 @@ int nrhs, const mxArray *prhs[])
 		{
 			if (SolveObj.Harmonic2D(L) == FALSE)
 			{
-				mexPrintf("Couldn't solve the problem");
+				mexPrintf("Couldn't solve the problem\n");
 				plhs[0] = mxCreateDoubleScalar(5.0);
                 return;
 			}
-			mexPrintf("Harmonic 2-D problem solved");
+			mexPrintf("Harmonic 2-D problem solved\n");
 		}
 		else
 		{
             if (SolveObj.HarmonicAxisymmetric(L) == FALSE)
             {
-                mexPrintf("Couldn't solve the problem");
+                mexPrintf("Couldn't solve the problem\n");
                 plhs[0] = mxCreateDoubleScalar(5.0);
                 return;
             }
-            mexPrintf("Harmonic axisymmetric problem solved");
+            mexPrintf("Harmonic axisymmetric problem solved\n");
 		}
 
 
 		if (SolveObj.WriteHarmonic2D(L)==FALSE)
 		{
-			mexPrintf("couldn't write results to disk");
+			mexPrintf("couldn't write results to disk\n");
 			plhs[0] = mxCreateDoubleScalar(6.0);
             return;
 		}
-        mexPrintf("results written to disk.");
+        mexPrintf("results written to disk.\n");
 	}
 
 	SolveObj.CleanUp();
