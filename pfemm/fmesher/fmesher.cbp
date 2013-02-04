@@ -15,7 +15,6 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="../libfemm/libfemm.a" />
 					<Add directory="../libfemm" />
 				</Linker>
 			</Target>
@@ -48,6 +47,7 @@
 			<Add directory="../libfemm" />
 		</Compiler>
 		<Linker>
+			<Add library="../libfemm/libfemm.a" />
 			<Add directory="../libfemm" />
 		</Linker>
 		<Unit filename="fmesher.cpp" />
