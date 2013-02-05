@@ -271,9 +271,9 @@ function writefemmfile(filename, FemmProblem)
         fprintf(fp,'  <BeginBdry>\n');
         fprintf(fp,'    <BdryName> = \"%s\"\n', FemmProblem.BoundaryProps(i).Name);
         fprintf(fp,'    <BdryType> = %i\n',FemmProblem.BoundaryProps(i).BdryType);
-        fprintf(fp,'    <A_0> = %.17g\n',FemmProblem.BoundaryProps(i).A_0);
-        fprintf(fp,'    <A_1> = %.17g\n',FemmProblem.BoundaryProps(i).A_1);
-        fprintf(fp,'    <A_2> = %.17g\n',FemmProblem.BoundaryProps(i).A_2);
+        fprintf(fp,'    <A_0> = %.17g\n',FemmProblem.BoundaryProps(i).A0);
+        fprintf(fp,'    <A_1> = %.17g\n',FemmProblem.BoundaryProps(i).A1);
+        fprintf(fp,'    <A_2> = %.17g\n',FemmProblem.BoundaryProps(i).A2);
         fprintf(fp,'    <Phi> = %.17g\n',FemmProblem.BoundaryProps(i).Phi);
         fprintf(fp,'    <c0> = %.17g\n',FemmProblem.BoundaryProps(i).c0);
         fprintf(fp,'    <c0i> = %.17g\n',FemmProblem.BoundaryProps(i).c0i);
