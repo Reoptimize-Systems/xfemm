@@ -293,6 +293,10 @@ struct triangulateio {
 
 #define ANSI_DECLARATORS
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef ANSI_DECLARATORS
 void triangulate(char *, struct triangulateio *, struct triangulateio *,
                  struct triangulateio *);
@@ -301,3 +305,7 @@ void trifree(VOID *memptr);
 void triangulate();
 void trifree();
 #endif /* not ANSI_DECLARATORS */
+
+#ifdef __cplusplus
+}
+#endif
