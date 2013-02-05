@@ -31,9 +31,9 @@
 #include <malloc.h>
 #include "fmesher.h"
 #include "intpoint.h"
-extern "C" {
+//extern "C" {
 #include "triangle.h"
-}
+//}
 
 #ifndef eo
 #define eo 8.85418781762e-12
