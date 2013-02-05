@@ -1,39 +1,125 @@
 function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, varargin)
-% newblocklabel_mfemm:  generates a boundary property structure for an
-% mfemm FemmProblem structure
+% generates a boundary property structure for an mfemm FemmProblem
+% structure
 % 
 % Syntax
 % 
 % Boundary = newboundaryprop_mfemm(Name, BdryType);
 % Boundary = newboundaryprop_mfemm(Name, BdryType, NBoundaryProps)
 % Boundary = newboundaryprop_mfemm(Name, BdryType, FemmProblem)
-% Boundary = newboundaryprop_mfemm(..., 'Parameter', 'Value')
+% Boundary = newboundaryprop_mfemm(..., 'Parameter', Value)
 %
 % Description
 %
 % newboundaryprop_mfemm() creates a new boundary structure for an mfemm
 % FemmProblem structure. newboundaryprop_mfemm(Name, BdryType) creates a
-% structure containing the following fields:
+% structure containing a number of fields with default values. These will
+% now be described with some explanation for each type of boundary
+% condition. For more details on the use of these boundary conditions see
+% the manual for the original FEMM program (obtainable from www.femm.info).
+% Optional arguments for each boundary condition are supplied as
+% parameter-value pairs consisting of a string and the value to be assigned
+% to that parameter. 
 %
-%   Name        - Replaced with contents of 'Name', a string supplied by
-%                 the user
-%   BdryType    - Scalar value determining the boundary type. This can have 
-%                 the values  
-%   A_0 = 0;
-%   A_1 = 0;
-%   A_2 = 0;
-%   Phi = 0;
-%   c0 = 0;
-%   c0i = 0;
-%   c1 = 0;
-%   c1i = 0;
-%   Mu_ssd      - Small skin depth relative permeability
-%   Sigma_ssd   - Small skin depth conductivity
+%   Name     - A string denoting the name of the new boundary. If
+%              'NBoundaryProps' or 'FemmProblem' is also supplied, this
+%              name will be modified to ensure it is unique by adding the
+%              string 'ID: X - ' in front of the supplied name string where
+%              X is replaced by an iteger value. If NBoundaryProps is
+%              supplied the value of this integer wil be NBoundaryProps +
+%              1. If a FemmProblem is supplied, the value will be one
+%              greater than the number of boundaries already present in the
+%              problem. The supplied boundayr name will not be changed if
+%              only Name, BdryType and parameter-value pairs are supplied.
 %
+%   BdryType - Scalar value determining the boundary type. This can have 
+%              the values:
+%               
+%              0 - Prescribed A type boundary condition
+%              1 - Small Skin Depth type boundary condtion
+%              2 - Mixed type boundary condition
+%              3 - Strategic dual image boundary condition
+%              4 - Periodic boundary condition
+%              5 - Anti-Perodicboundary condition
 %
-% For a Prescribed A type boundary condition, set the A0, A1, A2 and Phi
-% parameters as required. Set all other parameters to zero.
+%              Further discussion of these boundary conditions, and
+%              appropriate parameter-value pairs in each case now follows.
 %
+% Prescribed A Type Boundary Condition Variables
+%
+%  With this type of boundary condition, the vector potential, A, is
+%  prescribed along a given boundary. This boundary condition can be used
+%  to prescribe the flux passing normal to a boundary, since the normal
+%  flux is equal to the tangential derivative of A along the boundary. The
+%  form for A along the boundary is specified via the parameters A0, A1, A2
+%  and Phi in the Prescribed A parameters box. If the problem is planar,
+%  the parameters correspond to the formula:
+%
+%  A = (A0 + A1x + A2y)e^{j Phi}
+%
+%  If the problem type is axisymmetric, the parameters correspond to: 
+%
+%  A = (A0 + A1r + A2z)e^{j Phi}
+%  
+%  Relevant Parmater/Value Pairs:
+%
+%     'A0'  - A0 coeffictient
+%     'A1'  - A1 coefficient
+%     'A2'  - A2 coefficient
+%     'Phi' - Angle to segment at which the condition will be applied
+%
+%   For a Prescribed A type boundary condition, set the A0, A1, A2 and Phi
+%   parameters as required. Set all other parameters to zero.
+%
+% Mixed Type Boundary Condition Variables
+%
+%  This denotes a boundary condition of the form:
+%
+%  (1/ (mu_0 mu_r)) (dA / dn) + c_0 A + c_1 = 0
+%
+%  The parameters for this class of boundary condition are specified in the
+%  Mixed BC parameters box in the dialog. By the choice of coefficients,
+%  this boundary condition can either be a Robin or a Neumann boundary
+%  condition. 
+%  
+%  Relevant Parmater/Value Pairs:
+%
+%      'c0'  - asymtotic boundary condition c_0 coefficient (real part),
+%            defaults to zero.
+%      'c0i' - asymtotic boundary condition c_0 coefficient (imaginary 
+%            part), defaults to zero.
+%      'c1'  - asymtotic boundary condition c_1 coefficient (real part),
+%            defautls to zero.
+%      'c1i' - asymtotic boundary condition c_1 coefficient (imaginary
+%            part), defautls to zero.
+%
+% Small Skin Depth Type Boundary Condition Variables
+%
+%  This boundary condition denotes an interface with a material subject to
+%  eddy currents at high enough frequencies such that the skin depth in the
+%  material is very small. The result is a Robin boundary condition with
+%  complex coefficients of the form:
+%
+%  (dA / dn) ((1 + j)/delta) A = 0
+%
+%  where the n denotes the direction of the outward normal to the boundary
+%  and d denotes the skin depth of the material at the frequency of
+%  interest. The skin depth, D is defined as:
+%
+%  D = sqrt( 2 / (omega mu_0 mu_r sigma) )
+%
+%  where mu_r and sigma are the relative permeability and conductivity of
+%  the thin skin depth eddy current material. At zero frequency, this
+%  boundary condition degenerates to dA/dn = 0 (because skin depth goes to
+%  infinity).
+%  
+%  Relevant Parmater/Value Pairs:
+%
+%   'Mu_ssd'     - Small skin depth relative permeability
+%   'Sigma_ssd'  - Small skin depth conductivity
+%
+% Selecting a boundary
+% 
 % For a Small Skin Depth type boundary condtion, set Mu_ssd to the desired
 % relative permeability and Sigma_ssd to the desired conductivity in MS/m.
 % Set BdryFormat to 1 and all other parameters to zero.
@@ -53,6 +139,7 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, varargin)
 % parameters to zero, or supply no p-v pairs to have newboundaryprop_mfemm
 % do this for you.
 %
+% 
 % See also: addboundaryprop_mfemm.m, emptyboundaryprops_mfemm.m
 %
     
@@ -95,7 +182,7 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, varargin)
     end
     
     % Create a new boundary structure with default/empty fields
-    BoundaryProp = emptyboundaryprops_mfemm();
+    BoundaryProp = emptyboundaryprop_mfemm();
     
     switch BdryType
         
