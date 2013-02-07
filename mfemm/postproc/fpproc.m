@@ -69,10 +69,49 @@ classdef fpproc < handle
         end
 
         function pvals = getpointvalues(this, x, y)
+            % getpointvalues(X,Y) Get the values associated with the points
+            % at X,Y from the solution
+            %
+            % Syntax
+            %
+            % pvals = fpproc.getpointvalues(X, Y)
+            %
+            % Input
+            %
+            %   X,Y - X and Y are matrices of the same size containing
+            %     sets of x and y coordinates at which the point properties
+            %     are to be determined. Internally these will be reshaped
+            %     as X(:),Y(:), i.e. two column vectors.
+            %
+            % Output
+            %
+            % pvals is a matrix containing the values associated with each
+            % point defined by X,Y from the solution. Each column of pvals
+            % corresponds to a given x,y point, and the rows of pvals refer
+            % to the following values:
+            % 
+            % A     vector potential A or flux f
+            % B1    flux density Bx if planar, Br if axisymmetric
+            % B2    flux density By if planar, Bz if axisymmetric
+            % Sig   electrical conductivity s
+            % E     stored energy density
+            % H1    field intensity Hx if planar, Hr if axisymmetric
+            % H2    field intensity Hy if planar, Hz if axisymmetric
+            % Je    eddy current density
+            % Js    source current density
+            % Mu1   relative permeability ?x if planar, ?r if axisymmetric
+            % Mu2   relative permeability ?y if planar, ?z if axisymmetric
+            % Pe    Power density dissipated through ohmic losses
+            % Ph    Power density dissipated by hysteresis
+            % ff    Fill Factor
+            %
+
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
+            
             pvals = fpproc_interface_mex('getpointvals', this.objectHandle, x(:), y(:));
+            
         end
 
         function clearcontour(this)
@@ -136,7 +175,7 @@ classdef fpproc < handle
             % type in an integer flag determining the integral type to e
             % perfomed. The following options are available:
             %
-            %   0   AÂ·J
+            %   0   A.J
             %   1   A
             %   2   Magnetic field energy
             %   3   Hysteresis and/or lamination losses
@@ -149,15 +188,15 @@ classdef fpproc < handle
             %   10  Block volume
             %   11  x (or r) part of steady-state Lorentz force
             %   12  y (or z) part of steady-state Lorentz force
-            %   13  x (or r) part of 2Ã— Lorentz force
-            %   14  y (or z) part of 2Ã— Lorentz force
+            %   13  x (or r) part of 2x Lorentz force
+            %   14  y (or z) part of 2x Lorentz force
             %   15  Steady-state Lorentz torque
             %   16  2X component of Lorentz torque
             %   17  Magnetic field coenergy
             %   18  x (or r) part of steady-state weighted stress tensor force
             %   19  y (or z) part of steady-state weighted stress tensor force
-            %   20  x (or r) part of 2Ã— weighted stress tensor force
-            %   21  y (or z) part of 2Ã— weighted stress tensor force
+            %   20  x (or r) part of 2x weighted stress tensor force
+            %   21  y (or z) part of 2x weighted stress tensor force
             %   22  Steady-state weighted stress tensor torque
             %   23  2X component of weighted stress tensor torque
             %   24  R2 (i.e. moment of inertia / density)
@@ -177,19 +216,63 @@ classdef fpproc < handle
             [varargout{1:nargout}] = fpproc_interface_mex('getprobleminfo', this.objectHandle);
         end
         
-        function varargout = getcircuitprops(this, circuitname)
+        function circprops = getcircuitprops(this, circuitname)
+            % obtain information associated with a circuit in an mfemm
+            % magnetics solution.
+            %
+            % Syntax
+            %
+            % circprops = fpproc.getcircuitproperties(circuitname)
+            %
+            % Description
+            %
+            % Properties are returned for the circuit property named with
+            % the name 'circuitname'.
+            %
+            % circprops is a vector of three values. In order, these values
+            % are:
+            %
+            % – current:  Current carried by the circuit.
+            %
+            % – volts:    Voltage drop across the circuit in the circuit.
+            %
+            % – flux:     Circuit’s flux linkage
+            %
+            
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
-            [varargout{1:nargout}] = fpproc_interface_mex('getcircuitprops', this.objectHandle, circuitname);
+            
+            circprops = fpproc_interface_mex('getcircuitprops', this.objectHandle, circuitname);
+            
         end
 
         %%%%%%      Derived Methods        %%%%%%%
         
         function varargout = newcontour(this, x, y)
+            % Clears exusting contour points and creates a new contour from
+            % the supplied contour points
+            %
+            % Syntax
+            %
+            % newcontour(x, y)
+            %
+            % Description
+            %
+            % x and y are vectors of x and y positons making up the
+            % contour. Once created the contour can be used to generate
+            % line integrals etc.
+            %
+            %
+            
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
+            
+            if ~samesize(x,y) || ~isvector(x) || numel(x) < 2
+                error('x and y must be vectors of at least two values.')
+            end
+
             if numel(x) ~= numel(y)
                 error('FPPROC:wrongsizeinputs', ...
                       'x and y must be the same size.');
@@ -205,7 +288,34 @@ classdef fpproc < handle
             [varargout{1:nargout}] = this.addcontour(x(:), y(:));
             
         end
+        
+        function [R, L] = circuitRL(this, circuitname)
+            % gets the inductance and resistance of a circuit in the
+            % solution with name 'circuitname'
+            %
+            % Syntax
+            %
+            % [R, L] = fpproc.circuitRL(circuitname)
+            %
+            % Input
+            %
+            %   circuitname - the name of the circuit from which we wish to 
+            %     obtain the inductance and resistance for
+            % 
+            % Output
+            %
+            %  R - circuit resistance
+            %
+            %  L - circuit inductance (calculated from Phi / I)
+            %
 
+            temp = this.getcircuitprops(circuitname);
+
+            L = temp(3) / temp(1);
+
+            R = temp(2) / temp(1);
+
+        end
 
     end
 end
