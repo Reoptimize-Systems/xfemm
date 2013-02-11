@@ -93,7 +93,7 @@ function writefemmfile(filename, FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-	% check to see if we are ready to write a datafile;
+    % check to see if we are ready to write a datafile;
 
     [fp, message] = fopen(filename, 'wt');
     if fp == -1
@@ -106,12 +106,12 @@ function writefemmfile(filename, FemmProblem)
         error('MFEMM:writefemmfile:probinfonum', 'FemmProblem.ProbInfo must be a scalar structure.');
     end
     
-	fprintf(fp,'[Format]      =  4.0\n');
-	fprintf(fp,'[Frequency]   =  %.17g\n',FemmProblem.ProbInfo.Frequency);
-	fprintf(fp,'[Precision]   =  %.17g\n',FemmProblem.ProbInfo.Precision);
-	fprintf(fp,'[MinAngle]    =  %.17g\n',FemmProblem.ProbInfo.MinAngle);
-	fprintf(fp,'[Depth]       =  %.17g\n',FemmProblem.ProbInfo.Depth);
-	fprintf(fp,'[LengthUnits] =  ');
+    fprintf(fp,'[Format]      =  4.0\n');
+    fprintf(fp,'[Frequency]   =  %.17g\n',FemmProblem.ProbInfo.Frequency);
+    fprintf(fp,'[Precision]   =  %.17g\n',FemmProblem.ProbInfo.Precision);
+    fprintf(fp,'[MinAngle]    =  %.17g\n',FemmProblem.ProbInfo.MinAngle);
+    fprintf(fp,'[Depth]       =  %.17g\n',FemmProblem.ProbInfo.Depth);
+    fprintf(fp,'[LengthUnits] =  ');
     
     if isnumeric(FemmProblem.ProbInfo.LengthUnits)
 
@@ -232,7 +232,7 @@ function writefemmfile(filename, FemmProblem)
         end
     end
 
-	fprintf(fp, '[ACSolver]    =  %i\n', FemmProblem.ProbInfo.ACSolver);
+    fprintf(fp, '[ACSolver]    =  %i\n', FemmProblem.ProbInfo.ACSolver);
 
     if isfield(FemmProblem.ProbInfo, 'Comment')
         s = FemmProblem.ProbInfo.Comment;
@@ -240,14 +240,14 @@ function writefemmfile(filename, FemmProblem)
         s = '';
     end
     
-	fprintf(fp, '[Comment]     =  "%s"\n', s);
+    fprintf(fp, '[Comment]     =  "%s"\n', s);
 
-	% write out point properties 
+    % write out point properties 
     if ~isfield(FemmProblem, 'PointProps')
         FemmProblem.PointProps = [];
     end
     
-	fprintf(fp,'[PointProps]   = %i\n', numel(FemmProblem.PointProps));
+    fprintf(fp,'[PointProps]   = %i\n', numel(FemmProblem.PointProps));
     for i = 1:numel(FemmProblem.PointProps)
 
         fprintf(fp,'  <BeginPoint>\n');
@@ -265,7 +265,7 @@ function writefemmfile(filename, FemmProblem)
     end
     
     % write out the boundary properties
-	fprintf(fp,'[BdryProps]   = %i\n', numel(FemmProblem.BoundaryProps));
+    fprintf(fp,'[BdryProps]   = %i\n', numel(FemmProblem.BoundaryProps));
     for i = 1:numel(FemmProblem.BoundaryProps)
 
         fprintf(fp,'  <BeginBdry>\n');
@@ -290,7 +290,7 @@ function writefemmfile(filename, FemmProblem)
     end
     
     % write out the material properties
-	fprintf(fp,'[BlockProps]  = %i\n', numel(FemmProblem.Materials));
+    fprintf(fp,'[BlockProps]  = %i\n', numel(FemmProblem.Materials));
     for i = 1:numel(FemmProblem.Materials)
 
         fprintf(fp,'  <BeginBlock>\n');
@@ -317,7 +317,7 @@ function writefemmfile(filename, FemmProblem)
         % points
         for j = 1:size(FemmProblem.Materials(i).BHPoints, 1)
 
-            fprintf(fp,'      %.17g	%.17g\n', ...
+            fprintf(fp,'      %.17g\t%.17g\n', ...
                 FemmProblem.Materials(i).BHPoints(j,1), ...
                 FemmProblem.Materials(i).BHPoints(j,2));
 
@@ -371,7 +371,7 @@ function writefemmfile(filename, FemmProblem)
         FemmProblem.Nodes = [];
     end
     
-	% write out node list
+    % write out node list
     fprintf(fp,'[NumPoints] = %i\n',numel(FemmProblem.Nodes));
     for i = 1:numel(FemmProblem.Nodes)
 
@@ -384,7 +384,7 @@ function writefemmfile(filename, FemmProblem)
             end
         end
 
-        fprintf(fp,'%.17g	%.17g	%i	%i\n', ...
+        fprintf(fp,'%.17g\t%.17g\t%i\t%i\n', ...
             FemmProblem.Nodes(i).Coords(1), ...
             FemmProblem.Nodes(i).Coords(2), ...
             t, ...
@@ -396,7 +396,7 @@ function writefemmfile(filename, FemmProblem)
         FemmProblem.Segments = [];
     end
     
-	% write out the segments
+    % write out the segments
     fprintf(fp,'[NumSegments] = %i\n', numel(FemmProblem.Segments));
     for i = 1:numel(FemmProblem.Segments)
         
@@ -410,23 +410,23 @@ function writefemmfile(filename, FemmProblem)
             end
         end
         
-        fprintf(fp,'%i	%i	',FemmProblem.Segments(i).n0, FemmProblem.Segments(i).n1);
+        fprintf(fp,'%i\t%i\t',FemmProblem.Segments(i).n0, FemmProblem.Segments(i).n1);
 
         if FemmProblem.Segments(i).MaxSideLength < 0
-            fprintf(fp,'-1	');
+            fprintf(fp,'-1\t');
         else
-            fprintf(fp,'%.17g	', FemmProblem.Segments(i).MaxSideLength);
+            fprintf(fp,'%.17g\t', FemmProblem.Segments(i).MaxSideLength);
         end
 
-        fprintf(fp,'%i	%i	%i\n', t, FemmProblem.Segments(i).Hidden, FemmProblem.Segments(i).InGroup);
+        fprintf(fp,'%i\t%i\t%i\n', t, FemmProblem.Segments(i).Hidden, FemmProblem.Segments(i).InGroup);
     end
 
     if ~isfield(FemmProblem, 'ArcSegments')
         FemmProblem.ArcSegments = [];
     end
     
-	% write out arc segment list
-	fprintf(fp,'[NumArcSegments] = %i\n', numel(FemmProblem.ArcSegments));
+    % write out arc segment list
+    fprintf(fp,'[NumArcSegments] = %i\n', numel(FemmProblem.ArcSegments));
     for i = 1:numel(FemmProblem.ArcSegments)
 
         t = 0;
@@ -438,7 +438,7 @@ function writefemmfile(filename, FemmProblem)
             end
         end
         
-        fprintf(fp,'%i	%i	%.17g	%.17g	%i	%i	%i\n', ...
+        fprintf(fp,'%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i\n', ...
             FemmProblem.ArcSegments(i).n0, ...
             FemmProblem.ArcSegments(i).n1, ...
             FemmProblem.ArcSegments(i).ArcLength, ...
@@ -461,14 +461,14 @@ function writefemmfile(filename, FemmProblem)
         end
     end
     
-	fprintf(fp,'[NumHoles] = %i\n',nholes);
+    fprintf(fp,'[NumHoles] = %i\n',nholes);
     
     k = 0;
     for i = 1:numel(FemmProblem.BlockLabels)
 
         if isequal(FemmProblem.BlockLabels(i).BlockType, '<No Mesh>')
 
-            fprintf(fp,'%.17g	%.17g	%i\n', ...
+            fprintf(fp,'%.17g\t%.17g\t%i\n', ...
                 FemmProblem.BlockLabels(i).Coords(1), ...
                 FemmProblem.BlockLabels(i).Coords(2), ...
                 FemmProblem.BlockLabels(i).InGroup);
@@ -486,7 +486,7 @@ function writefemmfile(filename, FemmProblem)
 
         if ~isequal(FemmProblem.BlockLabels(i).BlockType, '<No Mesh>')
 
-            fprintf(fp,'%.17g	%.17g	', FemmProblem.BlockLabels(i).Coords(1), ...
+            fprintf(fp,'%.17g\t%.17g\t', FemmProblem.BlockLabels(i).Coords(1), ...
                 FemmProblem.BlockLabels(i).Coords(2));
 
             t = 0;
@@ -496,11 +496,11 @@ function writefemmfile(filename, FemmProblem)
                 end
             end
 
-            fprintf(fp,'%i	', t);
+            fprintf(fp,'%i\t', t);
             if FemmProblem.BlockLabels(i).MaxArea > 0
-                fprintf(fp,'%.17g	', FemmProblem.BlockLabels(i).MaxArea);
+                fprintf(fp,'%.17g\t', FemmProblem.BlockLabels(i).MaxArea);
             else
-                fprintf(fp,'-1	');
+                fprintf(fp,'-1\t');
             end
 
             t = 0;
@@ -510,7 +510,7 @@ function writefemmfile(filename, FemmProblem)
                 end
             end
 
-            fprintf(fp,'%i	%.17g	%i	%i	%i', ...
+            fprintf(fp,'%i\t%.17g\t%i\t%i\t%i', ...
                 t, ...
                 FemmProblem.BlockLabels(i).MagDir, ...
                 FemmProblem.BlockLabels(i).InGroup, ...
@@ -518,7 +518,7 @@ function writefemmfile(filename, FemmProblem)
                 FemmProblem.BlockLabels(i).IsExternal);
 
             if isfield(FemmProblem.BlockLabels, 'MagDirFctn') && ~isempty(FemmProblem.BlockLabels(i).MagDirFctn)
-                fprintf(fp,'	"%s"', FemmProblem.BlockLabels(i).MagDirFctn);
+                fprintf(fp,'\t"%s"', FemmProblem.BlockLabels(i).MagDirFctn);
             end
 
             fprintf(fp,'\n');
@@ -528,6 +528,6 @@ function writefemmfile(filename, FemmProblem)
 
     end    
         
-% 	fclose(fp);
+%    fclose(fp);
     
 end
