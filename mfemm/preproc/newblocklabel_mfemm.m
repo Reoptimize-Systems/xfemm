@@ -57,9 +57,15 @@ function BlockLabel = newblocklabel_mfemm(x, y, varargin)
     BlockLabel.InGroup = 0;
     BlockLabel.Turns = 1;
     BlockLabel.IsExternal = 0;
+    BlockLabel.MagDirFctn = '';
     
     BlockLabel = parseoptions(BlockLabel, varargin);
 
+    if ischar(BlockLabel.MagDir)
+        BlockLabel.MagDirFctn = BlockLabel.MagDir;
+        BlockLabel.MagDir = 0;
+    end
+    
     BlockLabel.Coords = [x, y];
     
 end
