@@ -18,7 +18,7 @@ function ansfilename = analyse_mfemm(femfilename)
 %   ansfilename - string containing the name of the solution file (the .fem
 %   file name with .fem replaced with .ans)
 %
-% See also: fmesher.m fsolver.m, fpproc.m
+% See also: fmesher.m, fsolver.m, fpproc.m
 % 
 
 % Copyright 2013 Richard Crozier
@@ -34,7 +34,13 @@ function ansfilename = analyse_mfemm(femfilename)
 %    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
- 
+
+    if strcmp(femfilename(end-3:end), '.fem')
+        ansfilename = [femfilename(1:end-4), '.ans'];
+    else
+        error('Supplied file name must have .fem extension');
+    end
+
     if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3)
         % using xfemm interface
         % mesh the problem using fmesher
@@ -47,7 +53,5 @@ function ansfilename = analyse_mfemm(femfilename)
         mi_analyse(1);
         mi_close();
     end
-    
-    ansfilename = [femfilename(1:end-4), '.ans'];
 
 end
