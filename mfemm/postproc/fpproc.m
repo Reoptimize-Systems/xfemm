@@ -4,6 +4,20 @@ classdef fpproc < handle
     % fpproc is a class wrapper for the FPProc_interface C++ class, which
     % offers access to the FPProc finite element post-processing functions
     %
+    % Syntax
+    %
+    % fpproc()
+    % fpproc(filename)
+    %
+    % Description
+    %
+    % fpproc() creates a new fpproc class without opening any solution file
+    % for processing.
+    %
+    % fpproc(filename) creates a new fpproc class and attempts to load the
+    % file in filename for processing.
+    %
+    %
     % fpproc Methods:
     %    opendocument - open a .ans solution document
     %    getpointvalues - get solution values at a point
@@ -19,7 +33,7 @@ classdef fpproc < handle
     %    newcontour - create a new contour, discarding old
     %
     
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2013 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -38,14 +52,26 @@ classdef fpproc < handle
         
         objectHandle; % Handle to the underlying C++ class instance
         
+    end
+    
+    properties (SetAccess = private, Hidden = false)
+
         isdocopen = false; % flag denoting whether a document has been opened yet
+        
+        openfilename = ''; % contains the path of any currently open files
         
     end
     
     methods  
         %% Constructor - Create a new C++ class instance
-        function this = fpproc(varargin)
-            this.objectHandle = fpproc_interface_mex('new', varargin{:});
+        function this = fpproc(filename)
+            
+            this.objectHandle = fpproc_interface_mex('new');
+            
+            if nargin == 1
+                this.opendocument(filename);
+            end
+            
         end
 
         %% Destructor - Destroy the C++ class instance
@@ -55,15 +81,35 @@ classdef fpproc < handle
 
         %%%%%%      The C++ Class Interface Methods       %%%%%%%
 
-        function varargout = opendocument(this, filename)
+        function result = opendocument(this, filename)
+            % loads a femm solution file for processing. Throws an error if
+            % the file could not be opened.
+            %
+            % Syntax
+            %
+            % result = fpproc.opendocument(filename)
+            %
+            % Input
+            % 
+            %  filename - the path to the file to be opened for processing.
+            %    If the file is successfully opened the isdocopen property
+            %    will be set to true, and the openfilename property set to
+            %    the full path to the file
+            %
+            % Output
+            %
+            %  result - is true if the file was successfully opened or
+            %    false otherwise.
             
             result = fpproc_interface_mex('opendocument', this.objectHandle, filename);
             
             if result == 0
                 this.isdocopen = false;
+                this.openfilename = '';
                 error('Document could not be opened')
             else
                 this.isdocopen = true;
+                this.openfilename = which(filename);
             end
             
         end
@@ -156,19 +202,23 @@ classdef fpproc < handle
         end
         
         function clearblock(this)
+            % clears any existing block selection so no blocks are selected
+            %
+            
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
             fpproc_interface_mex('clearblock', this.objectHandle);
         end
         
-        function int = blockintegral(this, type)
-            % blockintegral    calculate a block integral for the selected
-            %   blocks
+        function int = blockintegral(this, type, x, y)
+            % blockintegral calculate a block integral for the selected
+            % blocks
             %
             % Syntax
             %
-            % z = fpproc.blockintegral(type)
+            % int = fpproc.blockintegral(type)
+            % int = fpproc.blockintegral(type, x, y)
             %
             % Input
             %
@@ -200,11 +250,34 @@ classdef fpproc < handle
             %   22  Steady-state weighted stress tensor torque
             %   23  2X component of weighted stress tensor torque
             %   24  R2 (i.e. moment of inertia / density)
+            %
+            % fpproc.blockintegral(type) peforms the desired integral on
+            % the currently selected blocks.
+            %
+            % fpproc.blockintegral(type, x, y) clears any existing block
+            % selection, selects the 
             
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
             
+            if nargin > 2
+                if nargin == 3 || nargin > 4
+                    error('Wrong number of input arguments.')
+                else
+                    if samesize(x, y)
+                        % clear existing block selection
+                        this.clearblock();
+                        % select the specified blocks
+                        for i = 1:numel(x)
+                            this.selectblock(x(i), y(i), false)
+                        end
+                    else
+                       error('x and y must be matrices of the same size.') 
+                    end
+                end
+            end
+            % perform the block integral
             int = fpproc_interface_mex('blockintegral', this.objectHandle, type);
             
         end
