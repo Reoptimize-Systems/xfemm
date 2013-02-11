@@ -1,5 +1,5 @@
 function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, angle, varargin)
-% adds a segment to an mfemm FemmProblem structure
+% adds arc segments to an mfemm FemmProblem structure
 %
 % Syntax
 % 
@@ -11,9 +11,10 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
 %
 % addarcsegments_mfemm(FemmProblem, n0, n1, angle) adds an arc segment to
 % the FemmProblem structure between nodes with the pairs of ids in n0 and
-% n1, sweeping out angle. n0 and n1 can be matrices of node ids of the same
-% size, with arc segments being added between each corresponding n0 and n1
-% id. angle must be a matrix or vector of the same size and n1 and n0.
+% n1, sweeping out angle 'angle' in degrees. n0 and n1 can be matrices of
+% node ids of the same size, with arc segments being added between each
+% corresponding n0 and n1 id. angle must be a matrix or vector of the same
+% size and n1 and n0.
 %
 % addarcsegments_mfemm(FemmProblem, n0, n1, angle, 'Parameter', 'Value')
 % performs the same operation, but applies further optional parameters to
@@ -65,19 +66,19 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
 
     arcseginds = repmat(-1, 1, numel(n0));
     
-    if ~isfield(FemmProblem, 'ArcSegments') || isempty(FemmProblem.Segments)
+    if ~isfield(FemmProblem, 'ArcSegments') || isempty(FemmProblem.ArcSegments)
         arcseginds(1) = 1;
         FemmProblem.ArcSegments = newarcsegment_mfemm(n0(1), n1(1), angle(1), varargin{:});
     else
-        arcseginds(1) = numel(FemmProblem.Segments) + 1;
-        FemmProblem.Segments(arcseginds(1)) = newarcsegment_mfemm(n0(1), n1(1), angle(1), varargin{:});
+        arcseginds(1) = numel(FemmProblem.ArcSegments) + 1;
+        FemmProblem.ArcSegments(arcseginds(1)) = newarcsegment_mfemm(n0(1), n1(1), angle(1), varargin{:});
     end
     
     for i = 2:numel(n0)
         
         arcseginds(i) = arcseginds(i-1) + 1;
         
-        FemmProblem.Segments(arcseginds(i)) = newarcsegment_mfemm(n0(i), n1(i), angle(i), varargin{:});      
+        FemmProblem.ArcSegments(arcseginds(i)) = newarcsegment_mfemm(n0(i), n1(i), angle(i), varargin{:});      
         
     end
     
