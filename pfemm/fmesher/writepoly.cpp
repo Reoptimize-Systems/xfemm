@@ -621,13 +621,33 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
             in.regionlist[j+1] = blocklist[i].y;
             in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
 
-			if (blocklist[i].MaxArea>0 && (blocklist[i].MaxArea<DefaultMeshSize))
+//			if (blocklist[i].MaxArea>0 && (blocklist[i].MaxArea<DefaultMeshSize))
+//            {
+//                in.regionlist[j+3] = blocklist[i].MaxArea;  // Area constraint
+//            }
+//			else
+//            {
+//                in.regionlist[j+3] = DefaultMeshSize;
+//            }
+
+            // Area constraint
+            if (blocklist[i].MaxArea <= 0)
             {
-                in.regionlist[j+3] = blocklist[i].MaxArea;  // Area constraint
-            }
-			else
-            {
+                // if no mesh size has been specified use the default
                 in.regionlist[j+3] = DefaultMeshSize;
+            }
+			else if ((blocklist[i].MaxArea > DefaultMeshSize) && (DoForceMaxMeshArea))
+            {
+                // if the user has specied that FEMM should choose an
+                // upper mesh size limit, regardles of their choice,
+                // and their choice is less than that limit, change it
+                // to that limit
+                in.regionlist[j+3] = DefaultMeshSize;
+            }
+            else
+            {
+                // Use the user's choice of mesh size
+                in.regionlist[j+3] = blocklist[i].MaxArea;
             }
 
 			j = j + 4;
