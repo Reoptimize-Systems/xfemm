@@ -31,32 +31,37 @@ function writefemmfile(filename, FemmProblem)
 %   problem. It must have the following fields:
 %
 %       Frequency - a scalar value giving the AC frequecy of the problem
-%       e.g. 0
+%         e.g. 0
 %
 %       Precision - a scalar value giving the desired precesion of the
-%       solution, e.g. 1e-8
+%         solution, e.g. 1e-8
 %
 %       MinAngle - a scalar value setting the minimum allowed angle for the
-%       mesh triangles, e.g. 30
+%         mesh triangles, e.g. 30
 %
 %       Depth - For planar problems, the depth of the simulation, will be
-%       ignored for axisymmetric problems
+%         ignored for axisymmetric problems
 %
 %       LengthUnits - either a string containing the length units of the
-%       simulaton, or a scalar value coding for one of the strings. This
-%       can be one of: 'millimeters', 'centimeters', 'meters', 'mils',
-%       'microns', or 'inches'. The same values can be set by using the
-%       scalar values 1, 2, 3, 4, 5, or any other value to yield 'inches'
+%         simulaton, or a scalar value coding for one of the strings. This
+%         can be one of: 'millimeters', 'centimeters', 'meters', 'mils',
+%         'microns', or 'inches'. The same values can be set by using the
+%         scalar values 1, 2, 3, 4, 5, or any other value to yield 'inches'
 %
 %       ProblemType - a scalar value determining which type of problem is
-%       to be solved. If a sclar, 0 for planar, 1 for axisymmetric. If a
-%       string this can by any number of the characters from the strings
-%       'planar' and 'axisymmetric', in any case e.g. 'p', 'pl', 'PlA' etc.
-%       all choose a 'planar' symulation. If an axisymmetric problem is
-%       specified, external regions can also optionally be specified using
-%       the fields, extZo, extRo and extRi
+%         to be solved. If a sclar, 0 for planar, 1 for axisymmetric. If a
+%         string this can by any number of the characters from the strings
+%         'planar' and 'axisymmetric', in any case e.g. 'p', 'pl', 'PlA'
+%         etc. all choose a 'planar' symulation. If an axisymmetric problem
+%         is specified, external regions can also optionally be specified
+%         using the fields, extZo, extRo and extRi
 %
 %       ACSolver - Can be 0 or 1 (TODO, find out what each is!)
+%
+%       ForceMaxMesh - true or false, if evaluating to true, the user's
+%         choice of mesh can be overriden by the mesher and replaced with
+%         an upper default limit for a given area. If false the User's mesh
+%         size is always used. Defaults to false of not supplied.
 %
 %   PointProps is a structure array, each member of which contains
 %   information on point properties which can be applied to nodes in the
@@ -105,6 +110,11 @@ function writefemmfile(filename, FemmProblem)
     if numel(FemmProblem.ProbInfo) > 1
         error('MFEMM:writefemmfile:probinfonum', 'FemmProblem.ProbInfo must be a scalar structure.');
     end
+    
+    if ~isfield(FemmProblem.ProbInfo, 'ForceMaxMesh')
+        FemmProblem.ProbInfo.ForceMaxMesh = false;
+    end
+        
     
     fprintf(fp,'[Format]      =  4.0\n');
     fprintf(fp,'[Frequency]   =  %.17g\n',FemmProblem.ProbInfo.Frequency);
@@ -238,6 +248,12 @@ function writefemmfile(filename, FemmProblem)
         s = FemmProblem.ProbInfo.Comment;
     else
         s = '';
+    end
+    
+    if FemmProblem.ProbInfo.ForceMaxMesh
+        fprintf(fp, '[forcemaxmesh] =  1\n');
+    else
+        fprintf(fp, '[forcemaxmesh] =  0\n');
     end
     
     fprintf(fp, '[Comment]     =  "%s"\n', s);
