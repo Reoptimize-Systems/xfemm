@@ -273,9 +273,8 @@ BOOL FPProc::OpenDocument(string pathname)
     }
 
     // parse the file
-    while (flag==FALSE)
+    while ((flag==FALSE) & (fgets(s,1024,fp) != NULL))
     {
-        fgets(s,1024,fp);
         sscanf(s,"%s",q);
 
         // Deal with flag for file format version
@@ -936,9 +935,23 @@ BOOL FPProc::OpenDocument(string pathname)
 
         if(_strnicmp(q,"[solution]",10)==0)
         {
-            flag=TRUE;
-            q[0]=NULL;
+            flag = TRUE;
+            q[0] = NULL;
         }
+    }
+
+    if (flag == FALSE)
+    {
+        if(feof(fp))
+        {
+            AfxMessageBox("No solution found in file.\n"); /* EOF */
+        }
+        else if(ferror(fp))
+        {
+            AfxMessageBox("Error occured while readding file.\n"); /* Errror */
+        }
+        fclose(fp);
+        return FALSE;
     }
 
     // read in meshnodes;
