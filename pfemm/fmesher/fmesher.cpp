@@ -86,6 +86,7 @@ bool FMesher::Initialize()
     // things properly
     FirstDraw=false;
     NoDraw=false;
+    DoForceMaxMeshArea = false;
 
     // set up some default behaviors
     d_prec=1.e-08;
@@ -793,6 +794,26 @@ bool FMesher::LoadFEMFile(string PathName)
             if ( _strnicmp(q,"cartesian",4)==0) Coords=0;
             if ( _strnicmp(q,"polar",5)==0) Coords=1;
             q[0] = NULL;
+        }
+
+        // Option to force use of default max mesh, overriding
+        // user choice
+        if( _strnicmp(q,"[forcemaxmesh]",14)==0)
+        {
+            int temp = 0;
+            v = StripKey(s);
+            sscanf(v,"%i",&temp);
+            q[0] = NULL;
+            // 0 == do not override user mesh choice
+            // not 0 == do override user mesh choice
+            if (temp == 0)
+            {
+                DoForceMaxMeshArea = false;
+            }
+            else
+            {
+                DoForceMaxMeshArea = true;
+            }
         }
 
         // Comments
@@ -1574,6 +1595,15 @@ bool FMesher::SaveFEMFile(string PathName)
     }
 
     fprintf(fp, "[ACSolver]    =  %i\n", ACSolver);
+
+    if (DoForceMaxMeshArea)
+    {
+        fprintf(fp, "[forcemaxmesh] = %i\n", 1);
+    }
+    else
+    {
+        fprintf(fp, "[forcemaxmesh] = %i\n", 0);
+    }
 
     fprintf(fp, "[Comment]     =  \"%s\"\n", s.c_str());
 

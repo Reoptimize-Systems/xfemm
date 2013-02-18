@@ -81,6 +81,7 @@ public:
 	string  ProblemNote;
 	bool	FirstDraw;
 	bool	NoDraw;
+	bool    DoForceMaxMeshArea;
 
 	// default behaviors
 	double	d_prec;
