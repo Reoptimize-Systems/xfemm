@@ -54,6 +54,7 @@ FSolver::FSolver()
     Relax=NULL;
     LengthUnits=NULL;
     ProblemType=NULL;
+    DoForceMaxMeshArea = false;
     Coords=NULL;
     BandWidth=NULL;
     NumNodes=NULL;
@@ -156,6 +157,7 @@ int FSolver::LoadFEMFile()
     NumBlockProps=0;
     NumCircProps=0;
     ACSolver=0;
+    DoForceMaxMeshArea = false;
 
     // parse the file
 
@@ -185,6 +187,26 @@ int FSolver::LoadFEMFile()
             v=StripKey(s);
             sscanf(v,"%i",&ACSolver);
             q[0]=NULL;
+        }
+
+        // Option to force use of default max mesh, overriding
+        // user choice
+        if( _strnicmp(q,"[forcemaxmesh]",13)==0)
+        {
+            int temp = 0;
+            v = StripKey(s);
+            sscanf(v,"%i",&temp);
+            q[0] = NULL;
+            // 0 == do not override user mesh choice
+            // not 0 == do override user mesh choice
+            if (temp == 0)
+            {
+                DoForceMaxMeshArea = false;
+            }
+            else
+            {
+                DoForceMaxMeshArea = true;
+            }
         }
 
         // Units of length used by the problem

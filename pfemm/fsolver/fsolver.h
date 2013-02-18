@@ -68,6 +68,7 @@ public:
     int		ACSolver;
     int     ProblemType;
     int	    Coords;
+    bool    DoForceMaxMeshArea;
 
     // axisymmetric external region parameters
     double  extRo,extRi,extZo;
