@@ -273,7 +273,7 @@ BOOL FPProc::OpenDocument(string pathname)
     }
 
     // parse the file
-    while ((flag==FALSE) & (fgets(s,1024,fp) != NULL))
+    while ((flag==FALSE) && (fgets(s,1024,fp) != NULL))
     {
         sscanf(s,"%s",q);
 
