@@ -1,4 +1,4 @@
-function ansfilename = analyse_mfemm(femfilename)
+function ansfilename = analyse_mfemm(femfilename, usefemm)
 % analyses a .fem file using the mfemm mex interface if present, or the
 % original femm interface if not.
 %
@@ -35,13 +35,18 @@ function ansfilename = analyse_mfemm(femfilename)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
+    if nargin < 2
+        usefemm = false;
+    end
+    
     if strcmp(femfilename(end-3:end), '.fem')
         ansfilename = [femfilename(1:end-4), '.ans'];
     else
         error('Supplied file name must have .fem extension');
     end
 
-    if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3)
+    if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
+            && ~usefemm
         % using xfemm interface
         % mesh the problem using fmesher
         fmesher(femfilename);
