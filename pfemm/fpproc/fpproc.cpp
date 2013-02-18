@@ -942,13 +942,19 @@ BOOL FPProc::OpenDocument(string pathname)
 
     if (flag == FALSE)
     {
+        // The flag was never set to true during the while loop.
+        // This means the "[solution]" string was never
+        // encountered
         if(feof(fp))
         {
+            // We read in the whole file but never found the start of
+            // a solution section
             AfxMessageBox("No solution found in file.\n"); /* EOF */
         }
         else if(ferror(fp))
         {
-            AfxMessageBox("Error occured while readding file.\n"); /* Errror */
+            // There was some read error while trying to read the file
+            AfxMessageBox("An error occured while reading file.\n"); /* Error */
         }
         fclose(fp);
         return FALSE;
