@@ -62,20 +62,41 @@ function [FemmProblem, seginds] = addsegments_mfemm(FemmProblem, n0, n1, varargi
 
     seginds = repmat(-1, 1, numel(n0));
     
-    if ~isfield(FemmProblem, 'Segments') || isempty(FemmProblem.Segments)
-        seginds(1) = 1;
-        FemmProblem.Segments = newsegment_mfemm(n0(1), n1(1), varargin{:});
+    if (numel(varargin) == 1) && isstruct(varargin{1}) && (numel(varargin{1}) == numel(n0))
+        
+        if ~isfield(FemmProblem, 'Segments') || isempty(FemmProblem.Segments)
+            seginds(1) = 1;
+            FemmProblem.Segments = newsegment_mfemm(n0(1), n1(1), varargin{1}(1));
+        else
+            seginds(1) = numel(FemmProblem.Segments) + 1;
+            FemmProblem.Segments(seginds(1)) = newsegment_mfemm(n0(1), n1(1), varargin{1}(1));
+        end
+
+        for i = 2:numel(n0)
+
+            seginds(i) = seginds(i-1) + 1;
+
+            FemmProblem.Segments(seginds(i)) = newsegment_mfemm(n0(i), n1(i), varargin{1}(i));      
+
+        end
+        
     else
-        seginds(1) = numel(FemmProblem.Segments) + 1;
-        FemmProblem.Segments(seginds(1)) = newsegment_mfemm(n0(1), n1(1), varargin{:});
+        
+        if ~isfield(FemmProblem, 'Segments') || isempty(FemmProblem.Segments)
+            seginds(1) = 1;
+            FemmProblem.Segments = newsegment_mfemm(n0(1), n1(1), varargin{:});
+        else
+            seginds(1) = numel(FemmProblem.Segments) + 1;
+            FemmProblem.Segments(seginds(1)) = newsegment_mfemm(n0(1), n1(1), varargin{:});
+        end
+
+        for i = 2:numel(n0)
+
+            seginds(i) = seginds(i-1) + 1;
+
+            FemmProblem.Segments(seginds(i)) = newsegment_mfemm(n0(i), n1(i), varargin{:});      
+
+        end
+        
     end
-    
-    for i = 2:numel(n0)
-        
-        seginds(i) = seginds(i-1) + 1;
-        
-        FemmProblem.Segments(seginds(i)) = newsegment_mfemm(n0(i), n1(i), varargin{:});      
-        
-    end
-    
 end
