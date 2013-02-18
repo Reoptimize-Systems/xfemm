@@ -1,6 +1,12 @@
-function links = getnodelinks_mfemm(FemmProblem)
-% getnodelinks_femm: gets all the segments from an mfemm problem
-% structure
+function [links, nodes] = getnodelinks_mfemm(FemmProblem)
+% getnodelinks_femm: gets all the nodes from an mfemm FemmProblem structure
+% and the lins between them
+%
+% Syntax
+% 
+% [links, nodes] = getnodelinks_mfemm(FemmProblem)
+%
+% 
 
 % Copyright 2012 Richard Crozier
 % 
@@ -16,11 +22,8 @@ function links = getnodelinks_mfemm(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    if isfield(FemmProblem, 'Segments')
-        links = [cell2mat({FemmProblem.Segments(:).n0}'), ...
-                 cell2mat({FemmProblem.Segments(:).n1}')];
-    else
-        links = [];
-    end
+    links = getseglinks_mfemm(FemmProblem);
+    
+    nodes = getnodecoords_mfemm(FemmProblem);
 
 end
