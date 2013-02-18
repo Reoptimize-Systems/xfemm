@@ -132,8 +132,8 @@ CBlockLabel::CBlockLabel()
     dVolts=0.;
     J=0.;
     FillFactor=1;
-    o=0;
-    mu=0;
+    o=0.;
+    mu=0.;
 }
 
 void CBlockLabel::ToggleSelect()
