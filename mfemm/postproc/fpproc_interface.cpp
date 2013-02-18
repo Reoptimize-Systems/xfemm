@@ -658,7 +658,7 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 
     for(int i=0; i<NumCircuits; i++)
     {
-        if(strcmp(theFPProc.circproplist[i].CircName.c_str(), circuitname))
+        if(strcmp(theFPProc.circproplist[i].CircName.c_str(), circuitname) == 0)
         {
             k = i;
             i = NumCircuits; // that will break it
