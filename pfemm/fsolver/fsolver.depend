@@ -87,3 +87,117 @@
 	"fsolver.h"
 	"lua.h"
 
+1361228774 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/cspars.cpp
+	<math.h>
+	<stdio.h>
+	<cstdlib>
+	"complex.h"
+	"spars.h"
+
+1361228783 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/complex.h
+
+1361228783 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/spars.h
+
+1361228774 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/cuthill.cpp
+	<stdio.h>
+	<math.h>
+	"malloc.h"
+	"complex.h"
+	"mesh.h"
+	"spars.h"
+	"fsolver.h"
+
+1361228783 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/mesh.h
+	"complex.h"
+
+1361228774 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/fsolver.h
+	"mesh.h"
+	"spars.h"
+
+1361228773 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/fsolver.cpp
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	<cstring>
+	<malloc.h>
+	"complex.h"
+	"mesh.h"
+	"spars.h"
+	"fparse.h"
+	"fsolver.h"
+	"mex.h"
+
+1361228783 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/fparse.h
+	<string>
+
+1361228774 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/harmonic2d.cpp
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<algorithm>
+	<malloc.h>
+	"complex.h"
+	"mesh.h"
+	"spars.h"
+	"fsolver.h"
+
+1361228774 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/harmonicaxi.cpp
+	<stdio.h>
+	<math.h>
+	<algorithm>
+	<malloc.h>
+	"complex.h"
+	"mesh.h"
+	"spars.h"
+	"fsolver.h"
+
+1361261051 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/main.cpp
+	<cstdlib>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	"complex.h"
+	"spars.h"
+	"mesh.h"
+	"fsolver.h"
+
+1361228774 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/static2d.cpp
+	<stdio.h>
+	<math.h>
+	<malloc.h>
+	<string>
+	<cstdio>
+	"complex.h"
+	"mesh.h"
+	"spars.h"
+	"fsolver.h"
+	"liblua/lua.h"
+	"liblua/lualib.h"
+	"liblua/lauxlib.h"
+	<lua.h>
+	<lualib.h>
+	<lauxlib.h>
+
+1361228781 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/liblua/lua.h
+	"complex.h"
+	<stddef.h>
+
+1361228779 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/liblua/lualib.h
+	"lua.h"
+
+1361228778 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/liblua/lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+
+1361228774 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/fsolver/staticaxi.cpp
+	<string>
+	<cstdio>
+	<math.h>
+	<malloc.h>
+	"complex.h"
+	"mesh.h"
+	"spars.h"
+	"fsolver.h"
+	"lua.h"
+
