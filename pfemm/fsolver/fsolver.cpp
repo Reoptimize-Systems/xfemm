@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <cstring>
 #include <malloc.h>
+#include "lua.h"
 #include "complex.h"
 #include "mesh.h"
 #include "spars.h"
@@ -40,6 +41,19 @@
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
 #endif
+
+extern void lua_baselibopen (lua_State *L);
+extern void lua_iolibopen (lua_State *L);
+extern void lua_strlibopen (lua_State *L);
+extern void lua_mathlibopen (lua_State *L);
+extern void lua_dblibopen (lua_State *L);
+extern lua_State *lua; // the main lua object
+extern int bLinehook;
+extern int lua_byebye;
+
+lua_State *lua;
+int bLinehook;
+int lua_byebye;
 
 using namespace std;
 
@@ -78,6 +92,14 @@ FSolver::FSolver()
     PathName=NULL;
 
     extRo=extRi=extZo=NULL;
+
+    // Initialize Lua
+	bLinehook=FALSE;
+    lua=lua_open(4096);
+	lua_baselibopen(lua);
+	lua_strlibopen(lua);
+	lua_mathlibopen(lua);
+	lua_iolibopen(lua);
 }
 
 FSolver::~FSolver()

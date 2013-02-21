@@ -35,15 +35,13 @@
 #include "liblua/lualib.h"
 #include "liblua/lauxlib.h"
 #else
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 #endif
 
-
-//extern "C" {
-lua_State *lua;
-//}
+// declare the lua_state type *lua is declared globally in fsolver.cpp
+extern lua_State *lua;
 
 int FSolver::Static2D(CBigLinProb &L)
 {

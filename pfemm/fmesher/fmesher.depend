@@ -1,1 +1,52 @@
 # depslib dependency file v1.0
+1359232529 source:c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fmesher\intpoint.cpp
+	"intpoint.h"
+
+1359232529 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fmesher\intpoint.h
+
+1359232529 source:c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fmesher\nosebl.cpp
+	<cstdlib>
+	<cstdio>
+	<vector>
+	<cmath>
+	<string>
+	<cstring>
+	"nosebl.h"
+
+1359232529 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fmesher\nosebl.h
+	<vector>
+	<string>
+	"complex.h"
+
+1359232530 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\libfemm\complex.h
+
+1359232529 source:c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fmesher\triangle.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+	<sys/time.h>
+	<float.h>
+	<fpu_control.h>
+	"triangle.h"
+	"mex.h"
+
+1360084837 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fmesher\triangle.h
+
+1361211084 source:c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fmesher\writepoly.cpp
+	<cstdio>
+	<cmath>
+	<vector>
+	<string>
+	<malloc.h>
+	"fmesher.h"
+	"intpoint.h"
+	"triangle.h"
+
+1361211479 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fmesher\fmesher.h
+	<vector>
+	<string>
+	"nosebl.h"
+	"complex.h"
+	"intpoint.h"
+

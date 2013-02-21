@@ -1,1 +1,59 @@
 # depslib dependency file v1.0
+1360081632 source:c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fpproc\makemask.cpp
+	<cstdlib>
+	<string>
+	<cmath>
+	"fpproc.h"
+	"problem.h"
+	"spars.h"
+
+1359232529 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fpproc\fpproc.h
+	<vector>
+	"lua.h"
+	"luadebug.h"
+	"complex.h"
+	"problem.h"
+
+1359232528 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\liblua\lua.h
+	"complex.h"
+	<stddef.h>
+
+1359232530 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\libfemm\complex.h
+
+1359232528 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\liblua\luadebug.h
+	"lua.h"
+
+1359232529 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fpproc\problem.h
+	<string>
+	"complex.h"
+
+1359232530 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\libfemm\spars.h
+
+1359232529 source:c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fpproc\problem.cpp
+	<cstdlib>
+	<cmath>
+	"problem.h"
+	"fullmatrix.h"
+	"complex.h"
+
+1359232530 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\libfemm\fullmatrix.h
+
+1361208678 source:c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\fpproc\fpproc.cpp
+	<cstdlib>
+	<string>
+	<cstring>
+	<cstdio>
+	<cmath>
+	"problem.h"
+	"complex.h"
+	"fparse.h"
+	"lua.h"
+	"lualib.h"
+	"fpproc.h"
+
+1360081632 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\libfemm\fparse.h
+	<string>
+
+1359232528 c:\documents and settings\s0237326\my documents\matlab\matlab\useful_functions\mfemm\pfemm\liblua\lualib.h
+	"lua.h"
+
