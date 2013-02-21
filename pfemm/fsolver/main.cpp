@@ -53,6 +53,9 @@ int main(int argc, char** argv)
         //scanf("%s", tempFilePath);
 
         fgets(PathName, 512, stdin);
+        char *pos;
+        if ((pos=strchr(PathName, '\n')) != NULL)
+            *pos = '\0';
 
         //PathName = tempFilePath;
 

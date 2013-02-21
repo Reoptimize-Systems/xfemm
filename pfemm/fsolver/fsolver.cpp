@@ -142,7 +142,7 @@ int FSolver::LoadFEMFile()
     sprintf(s,"%s.fem",PathName);
     if ((fp=fopen(s,"rt"))==NULL)
     {
-        MsgBox("Couldn't read from specified .fem file");
+        printf("Couldn't read from specified .fem file");
         return FALSE;
     }
 
