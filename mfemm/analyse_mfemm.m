@@ -1,4 +1,4 @@
-function ansfilename = analyse_mfemm(femfilename, usefemm)
+function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
 % analyses a .fem file using the mfemm mex interface if present, or the
 % original femm interface if not.
 %
@@ -39,6 +39,10 @@ function ansfilename = analyse_mfemm(femfilename, usefemm)
         usefemm = false;
     end
     
+    if nargin < 3
+        quiet = true;
+    end
+    
     if strcmp(femfilename(end-3:end), '.fem')
         ansfilename = [femfilename(1:end-4), '.ans'];
     else
@@ -47,11 +51,29 @@ function ansfilename = analyse_mfemm(femfilename, usefemm)
 
     if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
             && ~usefemm
-        % using xfemm interface
-        % mesh the problem using fmesher
-        fmesher(femfilename);
-        % solve the fea problem using fsolver
-        fsolver(femfilename(1:end-4));
+        
+        if quiet
+            % using xfemm interface
+            % mesh the problem using fmesher
+            fprintf(1, 'Meshing mfemm problem ...\n');
+            evalc('fmesher(femfilename)');
+            fprintf(1, 'mfemm problem meshed ...\n');
+            % solve the fea problem using fsolver
+            fprintf(1, 'Solving mfemm problem ...\n');
+            evalc('fsolver(femfilename(1:end-4))');
+            fprintf(1, 'mfemm problem solved ...\n');
+        else
+            % using xfemm interface
+            % mesh the problem using fmesher
+            fprintf(1, 'Meshing mfemm problem ...\n');
+            fmesher(femfilename);
+            fprintf(1, 'mfemm problem meshed ...\n');
+            % solve the fea problem using fsolver
+            fprintf(1, 'Solving mfemm problem ...\n');
+            fsolver(femfilename(1:end-4));
+            fprintf(1, 'mfemm problem solved ...\n');
+        end
+        
     else
         % using original femm interface
         opendocument(femfilename);
