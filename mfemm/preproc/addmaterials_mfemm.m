@@ -10,12 +10,12 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
 %
 %  FemmProblem - an mfemm FemmProblem structure
 %
-%  Materials - either a single string, a cell array of strings or a
-%    structure or cell array of structures. If a string or cell array of
-%    strings, these are the names of materials from the materials library
-%    to be added to the model. If a structure or array of structures these
-%    are Materials structures in the same format as produced by the
-%    function matstr2matstruct_mfemm
+%  Materials - either a single string, a cell array of strings a
+%    structure or array of structure. If a string or cell array of strings,
+%    these are the names of materials from the materials library to be
+%    added to the model. If a structure or array of structures these must
+%    be Materials structures in the same format as produced by the function
+%    matstr2matstruct_mfemm, or newmaterial_mfemm.m.
 %
 %
 % Output

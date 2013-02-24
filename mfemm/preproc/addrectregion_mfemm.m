@@ -7,6 +7,34 @@ function [FemmProblem, seginds, nodeinds, blockind, nodeids, labelloc] = addrect
 % [FemmProblem, seginds, nodeinds, blockind, nodeids, labelloc] = ...
 %         addrectregion_mfemm(FemmProblem, x, y, w, h, BlockProps, SegProps)
 %
+% Description
+%
+% addrectregion_mfemm add a rectangular region with a block label in its
+% centre with the specified properties to an existing mfemm FemmProblem
+% Structure. 
+%
+% BlockProps is a structure, containing the properties of the material in
+% the region. It can contain the following fields:
+% 
+%   BlockType      Name of material property associated with block
+%   MaxArea        Maximum desired triangle area throughout block
+%   InCircuit      Name of circuit properties associated with block
+%   MagDir         Magnetization direction
+%   InGroup        Group number of the block
+%   Turns          Number of turns associated with block when in circuit
+%   IsExternal     Specifies if block label lies in an external region
+%
+% Those fields not supplied the fields will have the following default
+% values.
+%
+%    BlockType = ''     No material (default wil be used)
+%    MaxArea = -1       Mesh size chosen automatically
+%    InCircuit = ''     Empty string (no cicuits)
+%    MagDir = 0         magnet direction pointing to right
+%    InGroup = 0        block group number
+%    Turns = 1          one turn
+%    IsExternal = 0     Block not in external region
+%
 
 % Copyright 2012 Richard Crozier
 % 
