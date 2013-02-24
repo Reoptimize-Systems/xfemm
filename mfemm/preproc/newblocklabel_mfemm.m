@@ -35,8 +35,11 @@ function BlockLabel = newblocklabel_mfemm(x, y, varargin)
 %    Turns = 1          one turn
 %    IsExternal = 0     Block not in external region
 %
+%
+% See also: addblocklabel_mfemm.m, addrectregion_mfemm.m
+%
     
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2013 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
