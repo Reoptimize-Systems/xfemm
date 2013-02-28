@@ -13,6 +13,13 @@ function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
 %   femfilename - string containing the full name of the .fem file to be
 %     analysed
 %
+%   quiet - (optional) if true the output from fmesher and fsolver is not
+%     displayed, if false, it is printed to the command line. Defaults to
+%     true if not supplied.
+%
+%   usefemm - (optional) if true, forces the use of the original femm
+%     interface to analyse the problem. If not supplied defaults to false.
+%
 % Output
 %
 %   ansfilename - string containing the name of the solution file (the .fem
