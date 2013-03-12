@@ -2,9 +2,9 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="pfemm/liblua/liblua.cbp" />
-		<Project filename="pfemm/fsolver/fsolver.cbp" active="1" />
+		<Project filename="pfemm/fsolver/fsolver.cbp" />
 		<Project filename="pfemm/fmesher/fmesher.cbp" />
-		<Project filename="pfemm/fpproc/FPProc.cbp" />
+		<Project filename="pfemm/fpproc/FPProc.cbp" active="1" />
 		<Project filename="pfemm/libfemm/libfemm.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
