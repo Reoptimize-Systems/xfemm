@@ -1,5 +1,11 @@
 function [id, xycoords] = findsegment_mfemm(FemmProblem, loc)
-% findblocklabel_mfemm: finds the block label nearest a given location
+% finds the segment with mid point nearest a given location
+%
+% Syntax
+%
+% [id, xycoords] = findsegment_mfemm(FemmProblem, loc)
+%
+% 
 
 % Copyright 2012 Richard Crozier
 % 

@@ -253,11 +253,11 @@ ansfile = fsolver(filename);
 % post-processing on the results. The file which is produced is perfectly
 % compatible with FEMM, and if it is installed, we can open the file and
 % use all the normal post-processing functions
-if exist('openfemm.m', 'file')
-    opendocument(ansfile);
-else
-    fprintf(1, 'Looks like femm isn''t installed, or at least its m-files aren''t on the path.\n');
-end
+% if exist('openfemm.m', 'file')
+%     opendocument(ansfile);
+% else
+%     fprintf(1, 'Looks like femm isn''t installed, or at least its m-files aren''t on the path.\n');
+% end
 
 % However, some post-processing methods are also provided with mfemm. The
 % main method is a class based method for loading and manipulating the

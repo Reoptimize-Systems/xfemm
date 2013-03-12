@@ -26,7 +26,7 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
 %                   problems, defaults to 1e-8.
 %
 %   'MinAngle'    - Minimum angle triangles in the mesh can have in 
-%                   degrees, defaults to 3.
+%                   degrees, defaults to 30.
 %
 %   'Depth'       - For planar problems the depth of the solution, for
 %                   axisymmetric problems this is set to zero.

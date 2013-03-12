@@ -3,11 +3,92 @@ function [FemmProblem, newseginds] = mirrorsegments_mfemm(FemmProblem, seginds, 
 %
 % Syntax
 %
-% FemmProblem = mirrorsegments(FemmProblem, seginds, disttol, varargin)
+% FemmProblem = mirrorsegments_mfemm(FemmProblem, seginds, disttol, 'Parameter', Value)
 %
-% 
+% Description
+%
+% mirrorsegments_mfemm mirrors the segments specified in 'seginds' along a
+% line. disttol is a tolerance value if the distance of a segments nodes
+% from the line of reflection are less than this tolerance then they are
+% not reflected. The exact behaviour depends on whether one or both
+% segments lie on the line.
+%
+% The line and method of reflection are then specified through a parameter
+% value pair. The options and expected input are as follows:
+%
+%   LineEq       In this case the line of reflection is specified using a
+%                line equation of the form y = mx + c. The value supplied
+%                in this case must be a vector of two values, the first of
+%                which is 'm', the gradient of the line, and the second of
+%                which is 'c', the intercept with the y-axis.
+%
+%                              line of reflection
+%                                  .                                        
+%                                 .                                         
+%                      |         .
+%                      |        .
+%                      |       . ¦
+%                      |      .  ¦dy     m = dy / dx             
+%                      |     .----                                              
+%                      |    .   dx
+%                 _____|___._____________________                           
+%                    ¦ |  .                                                 
+%                  c ¦ | .                                                  
+%                    ¦ |.                                                   
+%                    v x                                                    
+%                     .    
+%
+% 	TwoPoints    The line of reflection is specified as a line passing
+% 	             through two coordinates. In this case the value is
+% 	             expected to be a vector of four values, the first two
+% 	             values are the x and y coordinate of the first point, and
+% 	             the second two values the x and y coordinate of the secod
+% 	             point.
+%
+%                                 line of reflection
+%                                  .                                        
+%                                 .                                         
+%                      |         x  point 2                                       
+%                      |        .                                      
+%                      |       .                                         
+%               ..............x.......................                      
+%                      |     . point 1                                            
+%                      |    .                                             
+%                 _____|___._____________________                           
+%                      |  .                                                 
+%                      | .                                                  
+%                      |.                                                   
+%                      .                                                    
+%                     .   
+%
+%   AnglePoint   The line of reflection is specified as a single point and
+%                an angle from a line parallel to the x-axis (i.e.
+%                horizontal) passing through the point at which the line of
+%                relflection passes through the point. In this case a 
+%                vector containing three values is expected as input, the 
+%                first value is the angle in radians, and the next two
+%                values are the x and y coordinates of the point through
+%                which the line passes.
+%
+%                              line of reflection
+%                                  .                                        
+%                                 .                                         
+%                      |         ._                                         
+%                      |        .   \  angle                                     
+%                      |       .     \                                     
+%               ..............x......|.................                      
+%                      |     . point                                             
+%                      |    .                                              
+%                 _____|___._____________________                           
+%                      |  .                                                 
+%                      | .                                                  
+%                      |.                                                   
+%                      .                                                    
+%                     .                                                     
+%                               
 
-% Copyright 2012 Richard Crozier
+
+% Copyright 2012-2013 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.

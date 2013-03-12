@@ -16,11 +16,13 @@ function segcoords = getsegmidpointcoords_mfemm(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    segn0coords = cell2mat({FemmProblem.Nodes(cell2mat({FemmProblem.Segments(:).n0})).Coords});
+    segn0coords = {FemmProblem.Nodes( cell2mat({FemmProblem.Segments(:).n0})+1 ).Coords};
+    segn0coords = cell2mat(segn0coords(:));
     
-    segn1coords = cell2mat({FemmProblem.Nodes(cell2mat({FemmProblem.Segments(:).n1})).Coords});
+    segn1coords = {FemmProblem.Nodes( cell2mat({FemmProblem.Segments(:).n1})+1 ).Coords};
+    segn1coords = cell2mat(segn1coords(:));
     
     % mid-point is mean value of x and y points
-    segcoords = [mean([segn0coords(:,1), segn1coords(:,1)], 1), mean([segn0coords(:,2), segn1coords(:,2)], 1)];
+    segcoords = [mean([segn0coords(:,1), segn1coords(:,1)], 2), mean([segn0coords(:,2), segn1coords(:,2)], 2)];
 
 end

@@ -25,7 +25,4 @@ function meshsize = choosemesharea_mfemm(w, h, fraction)
     % divided by the desired number of triangles
     meshsize = min([5*w*fraction, 5*h*fraction, sqrt(w^2 + h^2)*fraction]);
     
-    % convert to area constraint on triangles
-    meshsize = 0.5 * meshsize^2;
-
 end
