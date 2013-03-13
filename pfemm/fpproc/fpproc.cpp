@@ -44,7 +44,7 @@
 extern lua_State * lua;
 extern void *pFemmviewdoc;
 //extern CLuaConsoleDlg *LuaConsole;
-//extern BOOL bLinehook;
+extern BOOL bLinehook;
 
 extern void lua_baselibopen (lua_State *L);
 extern void lua_iolibopen (lua_State *L);
@@ -62,7 +62,7 @@ extern void lua_dblibopen (lua_State *L);
 static char THIS_FILE[] = __FILE__;
 #endif
 
-using namespace std;
+//using namespace std;
 
 // FPProc construction/destruction
 
@@ -197,6 +197,7 @@ BOOL FPProc::NewDocument()
     // set problem attributes to generic ones;
     Frequency = 0.;
     LengthUnits = 0;
+    Precision = 1e-8;
     ProblemType = FALSE;
     ProblemNote = "Add comments here.";
     bHasMask = FALSE;
@@ -309,6 +310,13 @@ BOOL FPProc::OpenDocument(string pathname)
             q[0]=NULL;
         }
 
+        // Precision
+        if( _strnicmp(q,"[precision]",11)==0)
+        {
+            v=StripKey(s);
+            sscanf(v,"%lf",&Precision);
+            q[0]=NULL;
+        }
 
         // Units of length used by the problem
         if( _strnicmp(q,"[lengthunits]",13)==0)
@@ -2697,7 +2705,10 @@ CComplex FPProc::HenrotteVector(int k)
     double b[3],c[3],da;
     CComplex v;
 
-    for(i=0; i<3; i++) n[i]=meshelem[k].p[i];
+    for(i=0; i<3; i++)
+    {
+        n[i] = meshelem[k].p[i];
+    }
 
     b[0]=meshnode[n[1]].y - meshnode[n[2]].y;
     b[1]=meshnode[n[2]].y - meshnode[n[0]].y;
@@ -2705,10 +2716,13 @@ CComplex FPProc::HenrotteVector(int k)
     c[0]=meshnode[n[2]].x - meshnode[n[1]].x;
     c[1]=meshnode[n[0]].x - meshnode[n[2]].x;
     c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
-    da=(b[0]*c[1]-b[1]*c[0]);
+
+    da = (b[0] * c[1] - b[1] * c[0]);
 
     for(i=0,v=0; i<3; i++)
-        v-=meshnode[n[i]].msk*(b[i]+I*c[i])/(da*LengthConv[LengthUnits]);  // grad
+    {
+        v -= meshnode[n[i]].msk * (b[i] + I * c[i]) / (da * LengthConv[LengthUnits]);  // grad
+    }
 
     return v;
 }
@@ -2718,8 +2732,8 @@ CComplex FPProc::BlockIntegral(int inttype)
     int i,k;
     CComplex c,y,z,J,mu1,mu2,B1,B2,H1,H2,F1,F2;
     CComplex A[3],Jn[3],U[3],V[3];
-    double a,sig,R;
-    double r[3];
+    double a,sig,R = 0;
+    double r[3] = {0, 0, 0};
 
     z=0;
     for(i=0; i<3; i++) U[i]=1.;
@@ -3024,6 +3038,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                 }
             }
 
+CComplex temp;
             // integrals that need to be evaluated over all elements,
             // regardless of which elements are actually selected.
             if((inttype>=18) || (inttype<=23))
@@ -3044,11 +3059,18 @@ CComplex FPProc::BlockIntegral(int inttype)
                 case 18: // x (or r) direction Henrotte force, SS part.
                     if(ProblemType!=0) break;
 
-                    B1=meshelem[i].B1;
-                    B2=meshelem[i].B2;
-                    c=HenrotteVector(i);
-                    y=(((B1*conj(B1)) - (B2*conj(B2)))*Re(c) + 2.*Re(B1*conj(B2))*Im(c))/(2.*muo);
-                    if(Frequency!=0) y/=2.;
+                    B1 = meshelem[i].B1;
+
+                    B2 = meshelem[i].B2;
+
+                    c = HenrotteVector(i);
+
+                    y = (((B1*conj(B1)) - (B2*conj(B2)))*Re(c) + 2.*Re(B1*conj(B2))*Im(c))/(2.*muo);
+
+                    if(Frequency!=0)
+                    {
+                        y/=2.;
+                    }
 
                     y*=AECF(i); // correction for axisymmetric external region;
 

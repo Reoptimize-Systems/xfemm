@@ -55,6 +55,7 @@ public:
     // General problem attributes
     double  Frequency;
     double  Depth;
+    double  Precision;
     int     LengthUnits;
     double *LengthConv;
     BOOL    ProblemType;

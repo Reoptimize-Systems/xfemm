@@ -342,6 +342,8 @@ BOOL FPProc::MakeMask()
 
 	// solve the problem;
 	//bLinehook=BuildMask;
+	L.Precision = Precision;
+
 	if (L.PCGSolve(FALSE)==FALSE) return FALSE;
 	//bLinehook=FALSE;
 	for(i=0;i<NumNodes;i++)
@@ -349,8 +351,15 @@ BOOL FPProc::MakeMask()
 		switch(WeightingScheme)
 		{
 			case 4:
-				if(L.V[i]>0.5) meshnode[i].msk=1;
-				else meshnode[i].msk=0;
+				if(L.V[i]>0.5)
+				{
+				    meshnode[i].msk=1;
+				}
+				else
+				{
+				    meshnode[i].msk=0;
+				}
+
 				break;
 
 			case 5:
