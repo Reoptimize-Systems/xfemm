@@ -59,7 +59,7 @@ function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
     if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
             && ~usefemm
         
-        if quiet
+        if quiet && ~isoctave
             % using xfemm interface
             % mesh the problem using fmesher
             fprintf(1, 'Meshing mfemm problem ...\n');
