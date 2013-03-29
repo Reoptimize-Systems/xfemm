@@ -18,7 +18,7 @@ CNode::CNode()
 {
     x=0.;
     y=0.;
-    IsSelected=FALSE;
+    IsSelected=false;
     BoundaryMarker=-1;
 }
 
@@ -34,13 +34,13 @@ double CNode::GetDistance(double xo, double yo)
 
 void CNode::ToggleSelect()
 {
-    if (IsSelected==TRUE)
+    if (IsSelected==true)
     {
-        IsSelected = FALSE;
+        IsSelected = false;
     }
     else
     {
-        IsSelected = TRUE;
+        IsSelected = true;
     }
 }
 
@@ -73,19 +73,19 @@ CSegment::CSegment()
 {
     n0 = 0;
     n1 = 0;
-    IsSelected = FALSE;
+    IsSelected = false;
     BoundaryMarker = -1;
 }
 
 void CSegment::ToggleSelect()
 {
-    if (IsSelected==TRUE)
+    if (IsSelected==true)
     {
-        IsSelected = FALSE;
+        IsSelected = false;
     }
     else
     {
-        IsSelected = TRUE;
+        IsSelected = true;
     }
 }
 
@@ -96,7 +96,7 @@ CArcSegment::CArcSegment()
 {
     n0=0;
     n1=0;
-    IsSelected=FALSE;
+    IsSelected=false;
     MaxSideLength=-1;
     ArcLength=90.;
     BoundaryMarker=-1;
@@ -104,13 +104,13 @@ CArcSegment::CArcSegment()
 
 void CArcSegment::ToggleSelect()
 {
-    if (IsSelected==TRUE)
+    if (IsSelected==true)
     {
-        IsSelected = FALSE;
+        IsSelected = false;
     }
     else
     {
-        IsSelected = TRUE;
+        IsSelected = true;
     }
 }
 
@@ -122,11 +122,11 @@ CBlockLabel::CBlockLabel()
     x=0.;
     y=0.;
     MaxArea=0.;
-    IsSelected=FALSE;
+    IsSelected=false;
     InGroup=0;
     InCircuit=0;
     BlockType=-1;
-    IsExternal=FALSE;
+    IsExternal=false;
 
     Case=0;
     dVolts=0.;
@@ -138,13 +138,13 @@ CBlockLabel::CBlockLabel()
 
 void CBlockLabel::ToggleSelect()
 {
-    if (IsSelected==TRUE)
+    if (IsSelected==true)
     {
-        IsSelected = FALSE;
+        IsSelected = false;
     }
     else
     {
-        IsSelected = TRUE;
+        IsSelected = true;
     }
 }
 
@@ -235,8 +235,8 @@ void CMaterialProp::GetSlopes(double omega)
     if (slope!=NULL) return; // already have computed the slopes;
 
     int i,k;
-    BOOL CurveOK=FALSE;
-    BOOL ProcessedLams=FALSE;
+    bool CurveOK=false;
+    bool ProcessedLams=false;
     CComplexFullMatrix L;
     double l1,l2;
     CComplex *hn;
@@ -299,7 +299,7 @@ void CMaterialProp::GetSlopes(double omega)
 
     }
 
-    while(CurveOK!=TRUE)
+    while(CurveOK!=true)
     {
         // make sure that the space for computing slopes is cleared out
         L.Wipe();
@@ -336,7 +336,7 @@ void CMaterialProp::GetSlopes(double omega)
         // now, test to see if there are any "bad" segments in there.
         // it is probably sufficient to do this test just on the
         // real part of the BH curve...
-        for(i=1,CurveOK=TRUE;i<BHpoints;i++)
+        for(i=1,CurveOK=true;i<BHpoints;i++)
         {
             double L,c0,c1,c2,d0,d1,u0,u1,X0,X1;
 
@@ -371,10 +371,10 @@ void CMaterialProp::GetSlopes(double omega)
 
             //now, see if we've struck gold!
             if (((X0>=0.)&&(X0<=L))||((X1>=0.)&&(X1<=L)))
-                CurveOK=FALSE;
+                CurveOK=false;
         }
 
-        if(CurveOK!=TRUE)  //remedial action
+        if(CurveOK!=true)  //remedial action
         {
             // Smooth out input points
             // to get rid of rapid transitions;
@@ -392,7 +392,7 @@ void CMaterialProp::GetSlopes(double omega)
         }
 
 
-        if((CurveOK==TRUE) && (ProcessedLams==FALSE))
+        if((CurveOK==true) && (ProcessedLams==false))
         {
             // if the material is laminated and has a non-zero conductivity,
             // we have to do some work to find the "right" apparent BH
@@ -419,7 +419,7 @@ void CMaterialProp::GetSlopes(double omega)
 
                 // Make the program check the consistency and recompute the
                 // proper slopes of the new BH curve one more time;
-                CurveOK=FALSE;
+                CurveOK=false;
             }
 
             // take care of LamType=0 situation by changing the apparent B-H curve.
@@ -436,10 +436,10 @@ void CMaterialProp::GetSlopes(double omega)
                 }
                 // Make the program check the consistency and recompute the
                 // proper slopes of the new BH curve one more time;
-                CurveOK=FALSE;
+                CurveOK=false;
             }
 
-            ProcessedLams=TRUE;
+            ProcessedLams=true;
         }
 
     }
@@ -459,7 +459,7 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
     double Relax=1;
     CComplex mu,vo,vi,c,H;
     CComplex Md,Mo;
-    BOOL Converged=FALSE;
+    bool Converged=false;
 
     // Base the required element spacing on the skin depth
     // at the surface of the material
@@ -533,7 +533,7 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
         lastres=res;
         res=abs(b[n]-x[n])/d;
 
-        if (res<1.e-8) Converged=TRUE;
+        if (res<1.e-8) Converged=true;
 
         // Do the same relaxation scheme as is implemented
         // in the solver to make sure that this effective
@@ -546,7 +546,7 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
 
         for(k=0;k<=n;k++) x[k]=Relax*b[k]+(1.0-Relax)*x[k];
 
-    }while(Converged!=TRUE);
+    }while(Converged!=true);
 
 
     mu = x[n]/(Hdata[i]*d);

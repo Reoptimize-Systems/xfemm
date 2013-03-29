@@ -17,14 +17,13 @@
 #define Golden 0.3819660112501051517954131656
 #endif
 
-#ifndef PLANAR
-#define PLANAR 0
-#endif
-
-#ifndef AXISYMMETRIC
-#define AXISYMMETRIC 1
-#endif
-
+//#ifndef PLANAR
+//#define PLANAR 0
+//#endif
+//
+//#ifndef AXISYMMETRIC
+//#define AXISYMMETRIC 1
+//#endif
 
 #ifndef BOOL
 #define BOOL int
@@ -58,12 +57,12 @@ public:
     double  Precision;
     int     LengthUnits;
     double *LengthConv;
-    BOOL    ProblemType;
-    BOOL    Coords;
+    int    ProblemType;
+    int    Coords;
     string  ProblemNote;
-    BOOL    FirstDraw;
-    BOOL    Smooth;
-    BOOL    bMultiplyDefinedLabels;
+    bool    FirstDraw;
+    bool    Smooth;
+    bool    bMultiplyDefinedLabels;
     double  extRo,extRi,extZo;
 
     double  A_High, A_Low;
@@ -82,8 +81,8 @@ public:
 
     // Some default behaviors
     int  d_LineIntegralPoints;
-    BOOL d_ShiftH;
-    BOOL bHasMask;
+    bool d_ShiftH;
+    bool bHasMask;
 
     // lists of nodes, segments, and block labels
     std::vector< CNode >       nodelist;
@@ -120,9 +119,9 @@ public:
 
     // member functions
     int InTriangle(double x, double y);
-    BOOL InTriangleTest(double x, double y, int i);
-    BOOL GetPointValues(double x, double y, CPointVals &u);
-    BOOL GetPointValues(double x, double y, int k, CPointVals &u);
+    bool InTriangleTest(double x, double y, int i);
+    bool GetPointValues(double x, double y, CPointVals &u);
+    bool GetPointValues(double x, double y, int k, CPointVals &u);
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
     void GetElementB(CElement &elm);
     void OnReload();
@@ -142,11 +141,11 @@ public:
     CComplex GetJA(int k,CComplex *J,CComplex *A);
     CComplex PlnInt(double a, CComplex *u, CComplex *v);
     CComplex AxiInt(double a, CComplex *u, CComplex *v,double *r);
-    BOOL ScanPreferences();
+    bool ScanPreferences();
     void BendContour(double angle, double anglestep);
-    BOOL MakeMask();
+    bool MakeMask();
     CComplex HenrotteVector(int k);
-    BOOL IsKosher(int k);
+    bool IsKosher(int k);
     double AECF(int k);
     void GetFillFactor(int lbl);
 
@@ -167,9 +166,9 @@ public:
     void GetH(double b1, double b2, double &h1, double &h2, int k);
     void GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k);
     void ClearDocument();
-    BOOL NewDocument();
+    bool NewDocument();
 //     virtual void Serialize(CArchive& ar);
-    BOOL OpenDocument(std::string lpszPathName);
+    bool OpenDocument(std::string lpszPathName);
 
 // Implementation
 public:

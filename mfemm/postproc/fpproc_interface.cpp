@@ -48,25 +48,25 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
 {
     char *input_buf;
     double *outpointer;
-    int result;
+    int wasopened;
     string filename;
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
                            "Too many output arguments.");
 
     /* 3rd input must be a string (first two are used for the class interface) */
     if ( mxIsChar(prhs[2]) != 1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:inputNotString",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:inputNotString",
                            "Input must be a string containing the file name.");
 
     /* input must be a row vector */
     if (mxGetM(prhs[2])!=1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:inputNotVector",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:inputNotVector",
                            "Input must be a row vector.");
 
     /* copy the string data from prhs[2] into a C string input_ buf.    */
@@ -75,14 +75,18 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
     filename = input_buf;
 
     // call the OpenDocument method with the input
-    result = theFPProc.OpenDocument(filename);
+    wasopened = theFPProc.OpenDocument(filename);
+
+    if (!wasopened)
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:inputNotVector",
+                           "File could not be opened.");
 
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    outpointer[0] = (double)(result);
+    outpointer[0] = (double)(wasopened);
 
-    return result;
+    return wasopened;
 }
 
 int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -93,10 +97,10 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     /* check for proper number of arguments */
     if(nrhs!=4)
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
                            "Too many output arguments.");
 
     px = mxGetPr(prhs[2]);
@@ -110,13 +114,13 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
     nycols = mxGetN(prhs[3]);
     if((nxcols>1) | (nycols>1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "x and y must both be column vectors.");
     }
 
     if(myrows != myrows)
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "x and y must be column vectors of the same size.");
     }
 
@@ -132,7 +136,7 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
         {
             CPointVals u;
 
-            if(theFPProc.GetPointValues(px[i], py[i], u)==TRUE)
+            if(theFPProc.GetPointValues(px[i], py[i], u)==true)
             {
                 outpointerRe[(i*14)] = u.A.Re();
                 outpointerIm[(i*14)] = u.A.Im();
@@ -175,7 +179,7 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
         {
             CPointVals u;
 
-            if(theFPProc.GetPointValues(px[i], py[i], u)==TRUE)
+            if(theFPProc.GetPointValues(px[i], py[i], u)==true)
             {
                 outpointerRe[(i*14)] = u.A.Re();
                 outpointerRe[(i*14)+1] = u.B1.Re();
@@ -212,10 +216,10 @@ int FPProc_interface::addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxAr
 
     /* check for proper number of arguments */
     if(nrhs!=4)
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
                            "Two inputs required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
                            "Too many output arguments.");
 
     px = mxGetPr(prhs[2]);
@@ -230,13 +234,13 @@ int FPProc_interface::addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxAr
     // check dimensions are allowed
     if((nxcols>1) | (nycols>1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "x and y must both be row vectors.");
     }
 
     if(mxrows != myrows)
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "x and y must be row vectors of the same size.");
     }
 
@@ -291,10 +295,10 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
                            "Too many output arguments.");
 
     /*  get the dimensions of the matrix input x */
@@ -303,7 +307,7 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
     // check dimensions are allowed
     if((mrows!=1) | (ncols!=1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "type must be a scalar.");
     }
 
@@ -321,7 +325,7 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     if (type<0 || type >5)
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidinttype",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidinttype",
                            "Invalid line integral selected %d",type);
         return 0;
     }
@@ -434,10 +438,10 @@ int FPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxA
 
     /* check for proper number of arguments */
     if(nrhs!=4)
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
                            "Too many output arguments.", nlhs);
 
     px = mxGetPr(prhs[2]);
@@ -451,7 +455,7 @@ int FPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxA
     nycols = mxGetN(prhs[3]);
     if((mxrows != 1) | (myrows != 1) | (nxcols != 1) | (nycols != 1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "x and y must both be scalars.");
     }
 
@@ -463,7 +467,7 @@ int FPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxA
 
         if(k>=0)
         {
-            theFPProc.bHasMask = FALSE;
+            theFPProc.bHasMask = false;
             theFPProc.blocklist[theFPProc.meshelem[k].lbl].ToggleSelect();
         }
     }
@@ -479,10 +483,10 @@ int FPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
                            "Too many output arguments.");
 
     /*  get the dimensions of the matrix input x */
@@ -491,7 +495,7 @@ int FPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
     // check dimensions are allowed
     if((mrows!=1) | (ncols!=1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "group number must be a scalar.");
     }
 
@@ -514,7 +518,7 @@ int FPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
                 theFPProc.blocklist[j].ToggleSelect();
             }
 
-            theFPProc.bHasMask = FALSE;
+            theFPProc.bHasMask = false;
         }
     }
 
@@ -523,13 +527,13 @@ int FPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
 
 int FPProc_interface::clearblock()
 {
-    theFPProc.bHasMask = FALSE;
+    theFPProc.bHasMask = false;
 
     for(int i=0; i<theFPProc.blocklist.size(); i++)
     {
-        if (theFPProc.blocklist[i].IsSelected == TRUE)
+        if (theFPProc.blocklist[i].IsSelected == true)
         {
-            theFPProc.blocklist[i].IsSelected = FALSE;
+            theFPProc.blocklist[i].IsSelected = false;
         }
     }
 
@@ -545,10 +549,10 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs != 1)
-        mexErrMsgIdAndTxt( "MATLAB:revord:maxlhs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
                            "Wrong number of output arguments.");
 
     /*  get the dimensions of the matrix input x */
@@ -557,7 +561,7 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
     // check dimensions are allowed
     if((mrows!=1) | (ncols!=1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:revord:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "type must be a scalar.");
     }
 
@@ -569,18 +573,18 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 
     CComplex z;
 
-    BOOL flg = FALSE;
+    bool flg = false;
     for(unsigned int i=0; i<theFPProc.blocklist.size(); i++)
     {
-        if (theFPProc.blocklist[i].IsSelected==TRUE)
+        if (theFPProc.blocklist[i].IsSelected==true)
         {
-            flg = TRUE;
+            flg = true;
         }
     }
 
-    if(flg==FALSE)
+    if(flg==false)
     {
-        mexErrMsgIdAndTxt("MATLAB:revord:noblockselected",
+        mexErrMsgIdAndTxt("MATLAB:fpproc:noblockselected",
                           "Block integral failed, no area has been selected");
     }
 
@@ -616,13 +620,13 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 
 int FPProc_interface::smoothon()
 {
-    theFPProc.Smooth = TRUE;
+    theFPProc.Smooth = true;
     return 0;
 }
 
 int FPProc_interface::smoothoff()
 {
-    theFPProc.Smooth = FALSE;
+    theFPProc.Smooth = false;
     return 0;
 }
 
@@ -789,7 +793,7 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 //                                                        if(d2<d1){
 //                                                                arcno=k;
 //                                                                lineno=-1;
-//                                                                flag=TRUE;
+//                                                                flag=true;
 //                                                                d1=d2;
 //                                                        }
 //                                                }
@@ -800,7 +804,7 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 //                                                        if(d2<d1){
 //                                                                arcno=k;
 //                                                                lineno=-1;
-//                                                                flag=FALSE;
+//                                                                flag=false;
 //                                                                d1=d2;
 //                                                        }
 //                                                }
@@ -810,7 +814,7 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 //                        }
 //                        else{
 //                                pDoc->contour.Add(z);
-//                                theView->DrawUserContour(FALSE);
+//                                theView->DrawUserContour(false);
 //                                return 0;
 //                        }
 //
@@ -834,7 +838,7 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 //                                k=arcno;
 //                                pDoc->GetCircle(pDoc->arclist[k],x,R);
 //                                j=(int) ceil(pDoc->arclist[k].ArcLength/pDoc->arclist[k].MaxSideLength);
-//                                if(flag==TRUE)
+//                                if(flag==true)
 //                                        z=exp(I*pDoc->arclist[k].ArcLength*PI/(180.*((double) j)) );
 //                                else
 //                                        z=exp(-I*pDoc->arclist[k].ArcLength*PI/(180.*((double) j)) );
@@ -882,17 +886,17 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 //			}
 //			if (theView->EditAction==2){
 //				int i;
-//				BOOL flg=FALSE;
+//				bool flg=FALSE;
 //				thisDoc->bHasMask=FALSE;
 //				for(i=0;i<thisDoc->blocklist.GetSize();i++)
 //				{
-//					if (thisDoc->blocklist[i].IsSelected==TRUE)
+//					if (thisDoc->blocklist[i].IsSelected==true)
 //					{
 //						thisDoc->blocklist[i].IsSelected=FALSE;
-//						flg=TRUE;
+//						flg=true;
 //					}
 //				}
-//				if(flg==TRUE) theView->RedrawView();
+//				if(flg==true) theView->RedrawView();
 //			}
 //			theView->EditAction=0;
 //	}
@@ -900,24 +904,24 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 //	{
 //		if(theView->EditAction==2){
 //			int i;
-//			BOOL flg=FALSE;
+//			bool flg=FALSE;
 //			thisDoc->bHasMask=FALSE;
 //			for(i=0;i<thisDoc->blocklist.GetSize();i++){
-//				if (thisDoc->blocklist[i].IsSelected==TRUE)
+//				if (thisDoc->blocklist[i].IsSelected==true)
 //				{
 //					thisDoc->blocklist[i].IsSelected=FALSE;
-//					flg=TRUE;
+//					flg=true;
 //				}
 //			}
 //
-//			if(flg==TRUE) theView->RedrawView();
+//			if(flg==true) theView->RedrawView();
 //		}
 //		theView->EditAction=1;
 //	}
 //    if (EditAction=="area")
 //	{
 //		if(theView->EditAction==1){
-//			theView->EraseUserContour(TRUE);
+//			theView->EraseUserContour(true);
 //			thisDoc->contour.RemoveAll();
 //		}
 //		theView->EditAction=2;
@@ -1189,7 +1193,7 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 //	CPointVals u;
 //	CComplex Jtot;
 //
-//	if(thisDoc->GetPointValues(px, py, u)==TRUE)
+//	if(thisDoc->GetPointValues(px, py, u)==true)
 //	{
 //		lua_pushnumber(L,u.A.re);
 //		lua_pushnumber(L,u.A.im);
@@ -1238,9 +1242,9 @@ int FPProc_interface::getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const
 //	CComplex z;
 //
 //	int i;
-//	BOOL flg=FALSE;
+//	bool flg=FALSE;
 //	for(i=0;i<thisDoc->blocklist.GetSize();i++)
-//		if (thisDoc->blocklist[i].IsSelected==TRUE) flg=TRUE;
+//		if (thisDoc->blocklist[i].IsSelected==true) flg=TRUE;
 //	if(flg==FALSE)
 //	{
 //		CString msg="Cannot integrate\nNo area has been selected";

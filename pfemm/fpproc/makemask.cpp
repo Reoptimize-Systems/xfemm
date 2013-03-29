@@ -11,8 +11,9 @@
 //#include "maskprogress.h"
 //#include "lua.h"
 #include "spars.h"
+#include "fparse.h"
 
-//extern BOOL bLinehook;
+//extern bool bLinehook;
 //extern CLuaConsoleDlg *LuaConsole;
 
 #define WeightingScheme 4
@@ -23,7 +24,7 @@
 
 #ifdef SIMPLE
 
-BOOL FPProc::MakeMask()
+bool FPProc::MakeMask()
 {
 	// Good placeholder mask generator
 	// This gives a valid mask that butts right up against the
@@ -47,7 +48,7 @@ BOOL FPProc::MakeMask()
 
 #else
 
-BOOL FPProc::MakeMask()
+bool FPProc::MakeMask()
 {
 	if(bHasMask) return TRUE;
 
@@ -64,13 +65,13 @@ BOOL FPProc::MakeMask()
 
 	int NumNodes=meshnode.size();
 	int NumEls=meshelem.size();
-	BOOL bOnAxis=FALSE;
+	bool bOnAxis=false;
 
 	static int plus1mod3[3] = {1, 2, 0};
 	static int minus1mod3[3] = {2, 0, 1};
 
 	//Display progress dialog
-//	if (bLinehook==FALSE){
+//	if (bLinehook==false){
 //		dlg.Create(IDD_MASKPROGRESS);
 //		dlg.ShowWindow(SW_SHOW);
 //		L.bar=&dlg.m_mask_progress_status;
@@ -94,7 +95,7 @@ BOOL FPProc::MakeMask()
 	L.Create(NumNodes,bw);
 
 	 // if the problem is axisymmetric, does the selection lie along r=0?
-	if(ProblemType==1)
+	if(ProblemType==AXISYMMETRIC)
 		for(i=0;i<NumEls;i++)
 			if(blocklist[meshelem[i].lbl].IsSelected)
 			{
@@ -110,7 +111,7 @@ BOOL FPProc::MakeMask()
 	// Sort through materials to see if they denote air;
 	matflag=(int*)calloc(blockproplist.size(),sizeof(int));
 	lblflag=(int*)calloc(blocklist.size(),sizeof(int));
-	for(i=0;i<blockproplist.size();i++)
+	for(i=0;i<(int)blockproplist.size();i++)
 	{
 		// k==0 for air, k==1 for other than air
 		k=0;
@@ -127,7 +128,7 @@ BOOL FPProc::MakeMask()
 	}
 
 	// Now, sort through the labels to see which ones correspond to air blocks.
-	for(i=0;i<blocklist.size();i++)
+	for(i=0;i<(int)blocklist.size();i++)
 	{
 		lblflag[i]=matflag[blocklist[i].BlockType];
 		if(blocklist[i].InCircuit>=0) lblflag[i]=1;
@@ -176,7 +177,7 @@ BOOL FPProc::MakeMask()
 		int npts;
 
 		p=(CComplex *)calloc(nodelist.size(),sizeof(CComplex));
-		for(i=0,npts=0;i<nodelist.size();i++)
+		for(i=0,npts=0;i<(int)nodelist.size();i++)
 			if(nodelist[i].BoundaryMarker>=0)
 			{
 				p[npts]=nodelist[i].CC();
@@ -238,7 +239,7 @@ BOOL FPProc::MakeMask()
 			if(k<3){
 				string outmsg;
 
-//				if (bLinehook!=FALSE){
+//				if (bLinehook!=false){
 //					outmsg+="*** The selected region is invalid. A valid selection\r\n";
 //					outmsg+="*** cannot abut a region which is not free space.\r\n";
 //					MessageBeep(MB_ICONEXCLAMATION);
@@ -251,7 +252,7 @@ BOOL FPProc::MakeMask()
 //				}
 				free(matflag);
 				free(lblflag);
-				return FALSE;
+				return false;
 			}
 		}
 
@@ -344,8 +345,12 @@ BOOL FPProc::MakeMask()
 	//bLinehook=BuildMask;
 	L.Precision = Precision;
 
-	if (L.PCGSolve(FALSE)==FALSE) return FALSE;
-	//bLinehook=FALSE;
+	if (L.PCGSolve(0)==false)
+	{
+	    return false;
+	}
+
+	//bLinehook=false;
 	for(i=0;i<NumNodes;i++)
 	{
 		switch(WeightingScheme)
@@ -382,7 +387,7 @@ BOOL FPProc::MakeMask()
 
 #endif
 
-BOOL FPProc::IsKosher(int k)
+bool FPProc::IsKosher(int k)
 {
     // If:
     //    1) this is an axisymmetric problem;
@@ -394,7 +399,7 @@ BOOL FPProc::IsKosher(int k)
 	//
 	// Returns TRUE if it is OK to define the node as zero;
 
-	if((ProblemType==0) || (meshnode[k].x>1.e-6)) return TRUE;
+	if((ProblemType==PLANAR) || (meshnode[k].x>1.e-6)) return TRUE;
 
     int i,j,n;
     int score=0;
@@ -407,7 +412,7 @@ BOOL FPProc::IsKosher(int k)
             if((n!=k) && (meshnode[n].x<1.e-6))
             {
                 score++;
-                if(score>1) return FALSE;
+                if(score>1) return false;
             }
         }
     }

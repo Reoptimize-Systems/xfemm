@@ -61,7 +61,7 @@ public:
     void Put(double v, int p, int q);
     // use to create/set entries in the matrix
     double Get(int p, int q);
-    int PCGSolve(int flag);		 // flag==true if guess for V present;
+    bool PCGSolve(int flag);	// flag==true if guess for V present;
     void MultPC(double *X, double *Y);
     void MultA(double *X, double *Y);
     void SetValue(int i, double x);

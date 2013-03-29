@@ -39,7 +39,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
     double l[3],p[3],q[3];		// element shape parameters;
     int n[3];					// numbers of nodes for a particular element;
     double a,r,t,x,y,B,w,res,lastres,ds,Cduct;
-    CComplex K,mu,dv,B1,B2,v[3],u[3],mu1,mu2,lag,halflag,deg45,Jv;
+    CComplex K,mu,dv,B1,B2,v[3],mu1,mu2,lag,halflag,deg45,Jv; //u[3],
     CComplex **Mu,*V_sdi,*V_old;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
