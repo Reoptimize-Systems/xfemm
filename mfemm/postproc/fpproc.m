@@ -101,7 +101,19 @@ classdef fpproc < handle
             %  result - is true if the file was successfully opened or
             %    false otherwise.
             
-            result = fpproc_interface_mex('opendocument', this.objectHandle, filename);
+            if ~exist(filename, 'file')
+                error('File could not be found.');
+            end
+            
+            if ispc
+                % escape the slashes, as the string is passed verbatim to
+                % fpproc, and the slashes mangle it
+                checkedfilename = strrep(filename, '\', '\\');
+            else
+                checkedfilename = filename;
+            end
+            
+            result = fpproc_interface_mex('opendocument', this.objectHandle, checkedfilename);
             
             if result == 0
                 this.isdocopen = false;
@@ -109,7 +121,7 @@ classdef fpproc < handle
                 error('Document could not be opened')
             else
                 this.isdocopen = true;
-                this.openfilename = which(filename);
+                this.openfilename = filename;
             end
             
         end

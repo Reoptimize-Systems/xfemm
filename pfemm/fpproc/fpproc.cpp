@@ -29,13 +29,13 @@
 #define Golden 0.3819660112501051517954131656
 #endif
 
-#ifndef PLANAR
-#define PLANAR 0
-#endif
-
-#ifndef AXISYMMETRIC
-#define AXISYMMETRIC 1
-#endif
+//#ifndef PLANAR
+//#define PLANAR 0
+//#endif
+//
+//#ifndef AXISYMMETRIC
+//#define AXISYMMETRIC 1
+//#endif
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -44,7 +44,7 @@
 extern lua_State * lua;
 extern void *pFemmviewdoc;
 //extern CLuaConsoleDlg *LuaConsole;
-extern BOOL bLinehook;
+extern bool bLinehook;
 
 extern void lua_baselibopen (lua_State *L);
 extern void lua_iolibopen (lua_State *L);
@@ -89,11 +89,11 @@ FPProc::FPProc()
 {
     // set some default values for problem definition
     d_LineIntegralPoints = 400;
-    d_ShiftH = TRUE;
+    d_ShiftH = true;
     Frequency = 0.;
     Depth = 1/0.0254;
     LengthUnits = 0;
-    ProblemType = FALSE;
+    ProblemType = PLANAR;
     ProblemNote = "Add comments here.";
     FirstDraw = -1;
     A_High = 0.;
@@ -101,10 +101,10 @@ FPProc::FPProc()
     A_lb = 0.;
     A_ub = 0.;
     extRo = extRi = extZo = 0;
-    Smooth = TRUE;
+    Smooth = true;
     NumList = NULL;
     ConList = NULL;
-    bHasMask = FALSE;
+    bHasMask = false;
     LengthConv = (double *)calloc(6,sizeof(double));
     LengthConv[0] = 0.0254;   //inches
     LengthConv[1] = 0.001;    //millimeters
@@ -112,7 +112,7 @@ FPProc::FPProc()
     LengthConv[3] = 1.;       //meters
     LengthConv[4] = 2.54e-05; //mils
     LengthConv[5] = 1.e-06;   //micrometers
-    Coords = FALSE;
+    Coords = CART;
 
     for(int i=0; i<9; i++)
     {
@@ -186,7 +186,7 @@ void FPProc::ClearDocument()
  * loaded, including clearing out all existing data and
  * resetting various values to their defaults.
  */
-BOOL FPProc::NewDocument()
+bool FPProc::NewDocument()
 {
     // TODO: add reinitialization code here
     // (SDI documents will reuse this document)
@@ -198,13 +198,13 @@ BOOL FPProc::NewDocument()
     Frequency = 0.;
     LengthUnits = 0;
     Precision = 1e-8;
-    ProblemType = FALSE;
+    ProblemType = PLANAR;
     ProblemNote = "Add comments here.";
-    bHasMask = FALSE;
+    bHasMask = false;
     extRo = extRi = extZo = 0;
     Depth = -1;
 
-    return TRUE;
+    return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -241,7 +241,7 @@ void FPProc::Dump(CDumpContext& dc) const
 // FPProc commands
 
 
-BOOL FPProc::OpenDocument(string pathname)
+bool FPProc::OpenDocument(string pathname)
 {
 
     FILE *fp;
@@ -250,7 +250,7 @@ BOOL FPProc::OpenDocument(string pathname)
     char *v;
     double b,bi,br;
     double zr,zi;
-    BOOL flag = FALSE;
+    bool flag = false;
     CPointProp    PProp;
     CBoundaryProp BProp;
     CMaterialProp MProp;
@@ -270,11 +270,11 @@ BOOL FPProc::OpenDocument(string pathname)
     if ((fp = fopen(pathname.c_str(),"rt")) == NULL)
     {
         AfxMessageBox("Couldn't read from specified .ans file");
-        return FALSE;
+        return false;
     }
 
     // parse the file
-    while ((flag==FALSE) && (fgets(s,1024,fp) != NULL))
+    while ((flag==false) && (fgets(s,1024,fp) != NULL))
     {
         sscanf(s,"%s",q);
 
@@ -289,7 +289,7 @@ BOOL FPProc::OpenDocument(string pathname)
             {
                 AfxMessageBox("This file is from a different version of FEMM\nRe-analyze the problem using the current version.");
                 fclose(fp);
-                return FALSE;
+                return false;
             }
             q[0]=NULL;
         }
@@ -337,8 +337,8 @@ BOOL FPProc::OpenDocument(string pathname)
         {
             v=StripKey(s);
             sscanf(v,"%s",q);
-            if( _strnicmp(q,"planar",6)==0) ProblemType=0;
-            if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=1;
+            if( _strnicmp(q,"planar",6)==0) ProblemType=PLANAR;
+            if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=AXISYMMETRIC;
             q[0]=NULL;
         }
 
@@ -347,8 +347,8 @@ BOOL FPProc::OpenDocument(string pathname)
         {
             v=StripKey(s);
             sscanf(v,"%s",q);
-            if ( _strnicmp(q,"cartesian",4)==0) Coords=0;
-            if ( _strnicmp(q,"polar",5)==0) Coords=1;
+            if ( _strnicmp(q,"cartesian",4)==0) Coords=CART;
+            if ( _strnicmp(q,"polar",5)==0) Coords=POLAR;
             q[0]=NULL;
         }
 
@@ -855,9 +855,18 @@ BOOL FPProc::OpenDocument(string pathname)
             sscanf(v,"%i",&k);
             for(i=0; i<k; i++)
             {
+                int hidden = 0;
                 fgets(s,1024,fp);
-                sscanf(s,"%i\t%i\t%lf %i\t%i\n",&segm.n0,&segm.n1,&segm.MaxSideLength,&t,&segm.Hidden);
-                segm.BoundaryMarker=t-1;
+                sscanf(s,"%i\t%i\t%lf %i\t%i\n",&segm.n0,&segm.n1,&segm.MaxSideLength,&t,&hidden);
+                segm.BoundaryMarker = t-1;
+                if (hidden == 0)
+                {
+                    segm.Hidden = false;
+                }
+                else
+                {
+                    segm.Hidden = true;
+                }
                 linelist.push_back(segm);
             }
             q[0]=NULL;
@@ -870,10 +879,19 @@ BOOL FPProc::OpenDocument(string pathname)
             sscanf(v,"%i",&k);
             for(i=0; i<k; i++)
             {
+                int hidden = 0;
                 fgets(s,1024,fp);
                 sscanf(s,"%i\t%i\t%lf\t%lf %i\t%i\n",&asegm.n0,&asegm.n1,
-                       &asegm.ArcLength,&asegm.MaxSideLength,&t,&asegm.Hidden);
+                       &asegm.ArcLength,&asegm.MaxSideLength,&t,&hidden);
                 asegm.BoundaryMarker=t-1;
+                if (hidden == 0)
+                {
+                    asegm.Hidden = false;
+                }
+                else
+                {
+                    asegm.Hidden = true;
+                }
                 arclist.push_back(asegm);
             }
             q[0]=NULL;
@@ -918,7 +936,8 @@ BOOL FPProc::OpenDocument(string pathname)
                 blk.Turns=1;
                 blk.InCircuit=0;
                 blk.InGroup=0;
-                blk.IsExternal=0;
+                int isexternal = 0;
+                blk.IsExternal=false;
 
                 // scan in data
                 v=ParseDbl(s,&blk.x);
@@ -929,7 +948,17 @@ BOOL FPProc::OpenDocument(string pathname)
                 v=ParseDbl(v,&blk.MagDir);
                 v=ParseInt(v,&blk.InGroup);
                 v=ParseInt(v,&blk.Turns);
-                v=ParseInt(v,&blk.IsExternal);
+                v=ParseInt(v,&isexternal);
+
+                if (isexternal == 0)
+                {
+                    blk.IsExternal = false;
+                }
+                else
+                {
+                    blk.IsExternal = true;
+                }
+
                 v=ParseString(v,&blk.MagDirFctn);
 
                 if (blk.MaxArea<0) blk.MaxArea=0;
@@ -943,12 +972,12 @@ BOOL FPProc::OpenDocument(string pathname)
 
         if(_strnicmp(q,"[solution]",10)==0)
         {
-            flag = TRUE;
+            flag = true;
             q[0] = NULL;
         }
     }
 
-    if (flag == FALSE)
+    if (flag == false)
     {
         // The flag was never set to true during the while loop.
         // This means the "[solution]" string was never
@@ -965,7 +994,7 @@ BOOL FPProc::OpenDocument(string pathname)
             AfxMessageBox("An error occured while reading file.\n"); /* Error */
         }
         fclose(fp);
-        return FALSE;
+        return false;
     }
 
     // read in meshnodes;
@@ -1024,7 +1053,7 @@ BOOL FPProc::OpenDocument(string pathname)
     else Depth*=LengthConv[LengthUnits];
 
     // element centroids and radii;
-    for(i=0; i<meshelem.size(); i++)
+    for(i=0; i<(int)meshelem.size(); i++)
     {
         meshelem[i].ctr=Ctr(i);
         for(j=0,meshelem[i].rsqr=0; j<3; j++)
@@ -1043,7 +1072,7 @@ BOOL FPProc::OpenDocument(string pathname)
     char magbuff[4096];
     // create the formatter object in case of a lua defined mag direction
     //boost::format fmatter("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s");
-    for(i=0; i<meshelem.size(); i++)
+    for(i=0; i<(int)meshelem.size(); i++)
     {
         if(blocklist[meshelem[i].lbl].MagDirFctn.length()==0)
         {
@@ -1085,12 +1114,12 @@ BOOL FPProc::OpenDocument(string pathname)
     lua_close(LocalLua);
 
     // Find flux density in each element;
-    for(i=0; i<meshelem.size(); i++) GetElementB(meshelem[i]);
+    for(i=0; i<(int)meshelem.size(); i++) GetElementB(meshelem[i]);
 
     // Find extreme values of A;
     A_Low = meshnode[0].A.re;
     A_High = meshnode[0].A.re;
-    for(i=1; i<meshnode.size(); i++)
+    for(i=1; i<(int)meshnode.size(); i++)
     {
         if (meshnode[i].A.re>A_High) A_High=meshnode[i].A.re;
         if (meshnode[i].A.re<A_Low)  A_Low =meshnode[i].A.re;
@@ -1114,7 +1143,7 @@ BOOL FPProc::OpenDocument(string pathname)
         double ds;
         double w=2.*PI*Frequency;
 
-        for(k=0; k<blockproplist.size(); k++)
+        for(k=0; k<(int)blockproplist.size(); k++)
         {
             if (blockproplist[k].LamType==0)
             {
@@ -1163,7 +1192,7 @@ BOOL FPProc::OpenDocument(string pathname)
     }
 
     // compute fill factor associated with each block label
-    for(k=0; k<blocklist.size(); k++)
+    for(k=0; k<(int)blocklist.size(); k++)
     {
         GetFillFactor(k);
     }
@@ -1173,15 +1202,15 @@ BOOL FPProc::OpenDocument(string pathname)
     NumList=(int *)calloc(meshnode.size(),sizeof(int));
     ConList=(int **)calloc(meshnode.size(),sizeof(int *));
     // find out number of connections to each node;
-    for(i=0; i<meshelem.size(); i++)
+    for(i=0; i<(int)meshelem.size(); i++)
         for(j=0; j<3; j++)
             NumList[meshelem[i].p[j]]++;
     // allocate space for connections lists;
-    for(i=0; i<meshnode.size(); i++)
+    for(i=0; i<(int)meshnode.size(); i++)
         ConList[i]=(int *)calloc(NumList[i],sizeof(int));
     // build list;
-    for(i=0; i<meshnode.size(); i++) NumList[i]=0;
-    for(i=0; i<meshelem.size(); i++)
+    for(i=0; i<(int)meshnode.size(); i++) NumList[i]=0;
+    for(i=0; i<(int)meshelem.size(); i++)
         for(j=0; j<3; j++)
         {
             k=meshelem[i].p[j];
@@ -1204,7 +1233,7 @@ BOOL FPProc::OpenDocument(string pathname)
         Ji_High=Ji_Low;
         J_Low=abs(Jelm[0]);
         J_High=J_Low;
-        for(i=0; i<meshelem.size(); i++)
+        for(i=0; i<(int)meshelem.size(); i++)
         {
             GetJA(i,Jelm,Aelm);
             for(j=0; j<3; j++)
@@ -1277,7 +1306,7 @@ BOOL FPProc::OpenDocument(string pathname)
         H_Low   = sqrt(Hr_Low*Hr_Low + Hi_Low*Hi_Low);
         H_High  = H_Low;
 
-        for(i=0; i<meshelem.size(); i++)
+        for(i=0; i<(int)meshelem.size(); i++)
         {
             GetNodalB(meshelem[i].b1,meshelem[i].b2,meshelem[i]);
             for(j=0; j<3; j++)
@@ -1351,13 +1380,13 @@ BOOL FPProc::OpenDocument(string pathname)
 
     // compute total resulting current for circuits with an a priori defined
     // voltage gradient;  Need this to display circuit results & impedance.
-    for(i=0; i<circproplist.size(); i++)
+    for(i=0; i<(int)circproplist.size(); i++)
     {
         CComplex Jelm[3],Aelm[3];
         double a;
 
         if(circproplist[i].CircType>1)
-            for(j=0,circproplist[i].Amps=0.; j<meshelem.size(); j++)
+            for(j=0,circproplist[i].Amps=0.; j<(int)meshelem.size(); j++)
             {
                 if(blocklist[meshelem[j].lbl].InCircuit==i)
                 {
@@ -1377,7 +1406,7 @@ BOOL FPProc::OpenDocument(string pathname)
     // Check to see if any regions are multiply defined
     // (i.e. tagged by more than one block label). If so,
     // display an error message and mark the problem blocks.
-    for(k=0,bMultiplyDefinedLabels=FALSE; k<blocklist.size(); k++)
+    for(k=0,bMultiplyDefinedLabels=false; k<(int)blocklist.size(); k++)
     {
         if((i=InTriangle(blocklist[k].x,blocklist[k].y))>=0)
         {
@@ -1392,7 +1421,7 @@ BOOL FPProc::OpenDocument(string pathname)
                     msg += "problematic regions will appear as selected in\n";
                     msg += "the initial view.";
                     AfxMessageBox(msg.c_str());
-                    bMultiplyDefinedLabels=TRUE;
+                    bMultiplyDefinedLabels=true;
                 }
             }
         }
@@ -1403,7 +1432,7 @@ BOOL FPProc::OpenDocument(string pathname)
     // permanent magnets with a nonlinear demagnetization curve
     if (Frequency==0)
     {
-        for(k=0; k<blockproplist.size(); k++)
+        for(k=0; k<(int)blockproplist.size(); k++)
         {
             if ((blockproplist[k].H_c>0) && (blockproplist[k].BHpoints>0))
             {
@@ -1412,8 +1441,8 @@ BOOL FPProc::OpenDocument(string pathname)
         }
     }
 
-    FirstDraw=TRUE;
-    return TRUE;
+    FirstDraw=true;
+    return true;
 }
 
 
@@ -1469,16 +1498,16 @@ int FPProc::InTriangle(double x, double y)
     return (-1);
 }
 
-BOOL FPProc::GetPointValues(double x, double y, CPointVals &u)
+bool FPProc::GetPointValues(double x, double y, CPointVals &u)
 {
     int k;
     k=InTriangle(x,y);
-    if (k<0) return FALSE;
+    if (k<0) return false;
     GetPointValues(x,y,k,u);
-    return TRUE;
+    return true;
 }
 
-BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
+bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
 {
     int i,j,n[3],lbl;
     double a[3],b[3],c[3],da,ravg;
@@ -1507,7 +1536,7 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
     if (Frequency==0)
     {
         u.A = 0;
-        if(ProblemType==0)
+        if(ProblemType==PLANAR)
         {
             for(i=0; i<3; i++)
                 u.A.re += meshnode[n[i]].A.re * (a[i] + b[i] * x + c[i] * y) / (da);
@@ -1605,7 +1634,7 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
         {
             if(blocklist[lbl].Case==0)
             {
-                if (ProblemType==0)
+                if (ProblemType==PLANAR)
                     u.Js-=Re(blocklist[meshelem[k].lbl].o)*
                           blocklist[lbl].dVolts;
                 else
@@ -1670,13 +1699,13 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
 
         u.Ph=0;
         u.Pe=0;
-        return TRUE;
+        return true;
     }
 
     if(Frequency!=0)
     {
         u.A=0;
-        if(ProblemType==0)
+        if(ProblemType==PLANAR)
         {
             for(i=0; i<3; i++)
                 u.A+=meshnode[n[i]].A*(a[i]+b[i]*x+c[i]*y)/(da);
@@ -1743,7 +1772,7 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
         {
             if(blocklist[lbl].Case==0)
             {
-                if (ProblemType==0)
+                if (ProblemType==PLANAR)
                     u.Js-=blocklist[meshelem[k].lbl].o*blocklist[lbl].dVolts;
                 else
                 {
@@ -1808,10 +1837,10 @@ BOOL FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
             u.Pe=1.e06*(z.re*z.re + z.im*z.im)/(u.c*2.);
         }
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void FPProc::GetPointB(double x, double y, CComplex &B1, CComplex &B2,
@@ -1821,7 +1850,7 @@ void FPProc::GetPointB(double x, double y, CComplex &B1, CComplex &B2,
     int i,n[3];
     double da,a[3],b[3],c[3];
 
-    if(Smooth==FALSE)
+    if(Smooth==false)
     {
         B1=elm.B1;
         B2=elm.B2;
@@ -1950,7 +1979,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
                     r=(meshnode[pt].x+meshnode[k].x)*LengthConv[LengthUnits]/2.;
                     bn=(meshnode[pt].A-meshnode[k].A)/
                        (abs(tn)*LengthConv[LengthUnits]);
-                    if(ProblemType==1)
+                    if(ProblemType==AXISYMMETRIC)
                     {
                         bn/=(-2.*PI*r);
                     }
@@ -2013,7 +2042,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
                         r=(meshnode[pt].x+meshnode[k].x)*LengthConv[LengthUnits]/2.;
                         bn=(meshnode[pt].A-meshnode[k].A)/
                            (abs(tn)*LengthConv[LengthUnits]);
-                        if(ProblemType==1)
+                        if(ProblemType==AXISYMMETRIC)
                         {
                             bn/=(-2.*PI*r);
                         }
@@ -2039,14 +2068,14 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
 
             // check to see if angle of corner is too sharp to apply
             // this rule; really only does right if the interface is flat;
-            flag=FALSE;
+            flag=false;
             // if there is only one edge, approx is ok;
-            if ((abs(v1)<0.9) || (abs(v2)<0.9)) flag=TRUE;
+            if ((abs(v1)<0.9) || (abs(v2)<0.9)) flag=true;
             // if the interfaces make less than a 10 degree angle, things are ok;
-            if ( (-v1.re*v2.re-v1.im*v2.im) > 0.985) flag=TRUE;
+            if ( (-v1.re*v2.re-v1.im*v2.im) > 0.985) flag=true;
 
             // Otherwise, punt...
-            if(flag==FALSE)
+            if(flag==false)
             {
                 bn=0;
                 k=elm.p[i];
@@ -2093,7 +2122,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
         // check to see if the point has a point current; if so, just
         // use element average values;
         if (nodeproplist.size()!=0)
-            for(j=0; j<nodelist.size(); j++)
+            for(j=0; j<(int)nodelist.size(); j++)
             {
                 if (abs(p-(nodelist[j].x+nodelist[j].y*I))<1.e-08)
                     if(nodelist[j].BoundaryMarker>=0)
@@ -2109,7 +2138,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
 
 
         //check for special case of node on r=0 axisymmetric; set Br=0;
-        if ((fabs(p.re)<1.e-06) && (ProblemType==1)) b1[i].Set(0.,0);
+        if ((fabs(p.re)<1.e-06) && (ProblemType==AXISYMMETRIC)) b1[i].Set(0.,0);
     }
 }
 
@@ -2128,7 +2157,7 @@ void FPProc::GetElementB(CElement &elm)
     c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
     da=(b[0]*c[1]-b[1]*c[0]);
 
-    if (ProblemType==0)
+    if (ProblemType==PLANAR)
     {
         elm.B1=0;
         elm.B2=0;
@@ -2190,7 +2219,7 @@ void FPProc::GetElementB(CElement &elm)
 //     if(pname.GetLength()>0)
 //     {
 //         NewDocument();
-//         SetPathName(pname,FALSE);
+//         SetPathName(pname,false);
 //         OpenDocument(pname);
 //     }
 // }
@@ -2204,7 +2233,7 @@ int FPProc::ClosestNode(double x, double y)
 
     j=0;
     d0=nodelist[0].GetDistance(x,y);
-    for(i=0; i<nodelist.size(); i++)
+    for(i=0; i<(int)nodelist.size(); i++)
     {
         d1=nodelist[i].GetDistance(x,y);
         if(d1<d0)
@@ -2223,7 +2252,7 @@ int FPProc::ClosestNode(double x, double y)
 //    CComplex pt,n,t;
 //    int i,j,k,m,elm;
 //    CPointVals v;
-//    BOOL flag;
+//    bool flag;
 //
 //    q=(double *)calloc(contour.size(),sizeof(double));
 //    for(i=1,z=0.; i<contour.size(); i++)
@@ -2250,7 +2279,7 @@ int FPProc::ClosestNode(double x, double y)
 //        {
 //        case 0:
 //            p.Create(NumPlotPoints,2);
-//            if (ProblemType==0) strcpy(p.lbls[1],"Potential, Wb/m");
+//            if (ProblemType==PLANAR) strcpy(p.lbls[1],"Potential, Wb/m");
 //            else strcpy(p.lbls[1],"Flux, Wb");
 //            break;
 //        case 1:
@@ -2288,7 +2317,7 @@ int FPProc::ClosestNode(double x, double y)
 //        {
 //        case 0:
 //            p.Create(NumPlotPoints,4);
-//            if(ProblemType==0)
+//            if(ProblemType==PLANAR)
 //            {
 //                strcpy(p.lbls[1],"|A|, Wb/m");
 //                strcpy(p.lbls[2],"Re[A], Wb/m");
@@ -2323,7 +2352,7 @@ int FPProc::ClosestNode(double x, double y)
 //            break;
 //        case 5:
 //            p.Create(NumPlotPoints,4);
-//            if(ProblemType==0)
+//            if(ProblemType==PLANAR)
 //            {
 //                strcpy(p.lbls[1],"|H.n|, Amp/m");
 //                strcpy(p.lbls[2],"Re[H.n], Amp/m");
@@ -2387,28 +2416,28 @@ int FPProc::ClosestNode(double x, double y)
 //        pt+=(n*1.e-06);
 //
 //        if (elm<0) elm=InTriangle(pt.re,pt.im);
-//        else if (InTriangleTest(pt.re,pt.im,elm)==FALSE)
+//        else if (InTriangleTest(pt.re,pt.im,elm)==false)
 //        {
-//            flag=FALSE;
+//            flag=false;
 //            for(j=0; j<3; j++)
 //                for(m=0; m<NumList[meshelem[elm].p[j]]; m++)
 //                {
 //                    elm=ConList[meshelem[elm].p[j]][m];
-//                    if (InTriangleTest(pt.re,pt.im,elm)==TRUE)
+//                    if (InTriangleTest(pt.re,pt.im,elm)==true)
 //                    {
-//                        flag=TRUE;
+//                        flag=true;
 //                        m=100;
 //                        j=3;
 //                    }
 //                }
-//            if (flag==FALSE) elm=InTriangle(pt.re,pt.im);
+//            if (flag==false) elm=InTriangle(pt.re,pt.im);
 //        }
 //        if(elm>=0)
 //            flag=GetPointValues(pt.re,pt.im,elm,v);
-//        else flag=FALSE;
+//        else flag=false;
 //
 //        p.M[i][0]=z;
-//        if ((Frequency==0) && (flag!=FALSE))
+//        if ((Frequency==0) && (flag!=false))
 //        {
 //            switch (PlotType)
 //            {
@@ -2438,7 +2467,7 @@ int FPProc::ClosestNode(double x, double y)
 //                break;
 //            }
 //        }
-//        else if (flag!=FALSE)
+//        else if (flag!=false)
 //        {
 //            switch (PlotType)
 //            {
@@ -2497,15 +2526,15 @@ int FPProc::ClosestNode(double x, double y)
 //    free(q);
 //}
 
-BOOL FPProc::InTriangleTest(double x, double y, int i)
+bool FPProc::InTriangleTest(double x, double y, int i)
 {
     int j,k;
     double z;
-    BOOL InFlag;
+    bool InFlag;
 
-    if(i<0) return FALSE;
+    if(i<0) return false;
 
-    for(j=0,InFlag=TRUE; ((j<3) && (InFlag==TRUE)); j++)
+    for(j=0,InFlag=true; ((j<3) && (InFlag==true)); j++)
     {
         k=j+1;
         if(k==3) k=0;
@@ -2513,7 +2542,7 @@ BOOL FPProc::InTriangleTest(double x, double y, int i)
           (y-meshnode[meshelem[i].p[j]].y) -
           (meshnode[meshelem[i].p[k]].y-meshnode[meshelem[i].p[j]].y)*
           (x-meshnode[meshelem[i].p[j]].x);
-        if(z<0) InFlag=FALSE;
+        if(z<0) InFlag=false;
     }
 
     return InFlag;
@@ -2597,7 +2626,7 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
     // first, get A
     for(i=0; i<3; i++)
     {
-        if(ProblemType==0) A[i]=(meshnode[meshelem[k].p[i]].A);
+        if(ProblemType==PLANAR) A[i]=(meshnode[meshelem[k].p[i]].A);
         else
         {
             rn=meshnode[meshelem[k].p[i]].x*LengthConv[LengthUnits];
@@ -2606,7 +2635,7 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
         }
     }
 
-    if(ProblemType==1) r = Re(Ctr(k))*LengthConv[LengthUnits];
+    if(ProblemType==AXISYMMETRIC) r = Re(Ctr(k))*LengthConv[LengthUnits];
 
     // contribution from explicitly specified J
     for(i=0; i<3; i++) J[i]=blockproplist[blk].Jr+I*blockproplist[blk].Ji;
@@ -2631,7 +2660,7 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
     {
         if(blocklist[lbl].Case==0)  // specified voltage
         {
-            if(ProblemType==0)
+            if(ProblemType==PLANAR)
             {
                 for(i=0; i<3; i++)
                     J[i]-=c*blocklist[lbl].dVolts;
@@ -2739,15 +2768,15 @@ CComplex FPProc::BlockIntegral(int inttype)
     for(i=0; i<3; i++) U[i]=1.;
 
     if(inttype==6) z= BlockIntegral(3) + BlockIntegral(4); //total losses
-    else for(i=0; i<meshelem.size(); i++)
+    else for(i=0; i<(int)meshelem.size(); i++)
         {
-            if(blocklist[meshelem[i].lbl].IsSelected==TRUE)
+            if(blocklist[meshelem[i].lbl].IsSelected==true)
             {
 
                 // compute some useful quantities employed by most integrals...
                 J=GetJA(i,Jn,A);
                 a=ElmArea(i)*pow(LengthConv[LengthUnits],2.);
-                if(ProblemType==1)
+                if(ProblemType==AXISYMMETRIC)
                 {
                     for(k=0; k<3; k++)
                         r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
@@ -2759,7 +2788,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                 {
                 case 0: //  A.J
                     for(k=0; k<3; k++) V[k]=Jn[k].Conj();
-                    if(ProblemType==0)
+                    if(ProblemType==PLANAR)
                         y=PlnInt(a,A,V)*Depth;
                     else
                         y=AxiInt(a,A,V,r);
@@ -2770,7 +2799,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                 case 11: // x (or r) direction Lorentz force, SS part.
                     B2=meshelem[i].B2;
                     y= -(B2.re*J.re + B2.im*J.im);
-                    if (ProblemType==1) y=0;
+                    if (ProblemType==AXISYMMETRIC) y=0;
                     else y*=Depth;
                     if(Frequency!=0) y*=0.5;
                     z+=(a*y);
@@ -2778,7 +2807,7 @@ CComplex FPProc::BlockIntegral(int inttype)
 
                 case 12: // y (or z) direction Lorentz force, SS part.
                     for(k=0; k<3; k++) V[k]=Re(meshelem[i].B1*Jn[k].Conj());
-                    if(ProblemType==0)
+                    if(ProblemType==PLANAR)
                         y=PlnInt(a,U,V)*Depth;
                     else
                         y=AxiInt(-a,U,V,r);
@@ -2788,7 +2817,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 13: // x (or r) direction Lorentz force, 2x part.
-                    if((Frequency!=0) && (ProblemType==0))
+                    if((Frequency!=0) && (ProblemType==PLANAR))
                     {
                         B2=meshelem[i].B2;
                         y= -(B2.re*J.re - B2.im*J.im) - I*(B2.re*J.im+B2.im*J.re);
@@ -2802,14 +2831,14 @@ CComplex FPProc::BlockIntegral(int inttype)
                         B1=meshelem[i].B1;
                         B2=meshelem[i].B2;
                         y= (B1.re*J.re - B1.im*J.im) + I*(B1.re*J.im+B1.im*J.re);
-                        if(ProblemType==1) y=(-y*2.*PI*R);
+                        if(ProblemType==AXISYMMETRIC) y=(-y*2.*PI*R);
                         else y*=Depth;
                         z+=(a*y)/2.;
                     }
                     break;
 
                 case 16: // Lorentz Torque, 2x
-                    if ((Frequency!=0) && (ProblemType==0))
+                    if ((Frequency!=0) && (ProblemType==PLANAR))
                     {
                         B1=meshelem[i].B1;
                         B2=meshelem[i].B2;
@@ -2821,7 +2850,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 15: // Lorentz Torque, SS part.
-                    if(ProblemType==0)
+                    if(ProblemType==PLANAR)
                     {
                         B1=meshelem[i].B1;
                         B2=meshelem[i].B2;
@@ -2833,7 +2862,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 1: // integrate A over the element;
-                    if(ProblemType==1)
+                    if(ProblemType==AXISYMMETRIC)
                         y=AxiInt(a,U,A,r);
                     else
                         for(k=0,y=0; k<3; k++) y+=a*Depth*A[k]/3.;
@@ -2842,7 +2871,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 2: // stored energy
-                    if(ProblemType==1) a*=(2.*PI*R);
+                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
@@ -2907,7 +2936,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                 case 3:  // Hysteresis & Laminated eddy current losses
                     if(Frequency!=0)
                     {
-                        if(ProblemType==1) a*=(2.*PI*R);
+                        if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
                         else a*=Depth;
                         B1=meshelem[i].B1;
                         B2=meshelem[i].B2;
@@ -2927,13 +2956,13 @@ CComplex FPProc::BlockIntegral(int inttype)
                     if(sig!=0)
                     {
 
-                        if (ProblemType==0)
+                        if (ProblemType==PLANAR)
                         {
                             for(k=0; k<3; k++) V[k]=Jn[k].Conj()/sig;
                             y=PlnInt(a,Jn,V)*Depth;
                         }
 
-                        if(ProblemType==1)
+                        if(ProblemType==AXISYMMETRIC)
                             y=2.*PI*R*a*J*conj(J)/sig;
 
                         if(Frequency!=0) y/=2.;
@@ -2946,7 +2975,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 10: // volume
-                    if(ProblemType==1) a*=(2.*PI*R);
+                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     z+=a;
                     break;
@@ -2957,19 +2986,19 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 8: // integrate x or r part of b over the block
-                    if(ProblemType==1) a*=(2.*PI*R);
+                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     z+=(a*meshelem[i].B1);
                     break;
 
                 case 9: // integrate y or z part of b over the block
-                    if(ProblemType==1) a*=(2.*PI*R);
+                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     z+=(a*meshelem[i].B2);
                     break;
 
                 case 17: // Coenergy
-                    if(ProblemType==1) a*=(2.*PI*R);
+                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
@@ -3008,7 +3037,7 @@ CComplex FPProc::BlockIntegral(int inttype)
 
                     // For axisymmetric problems, compute the moment
                     // of inertia about the r=0 axis.
-                    if(ProblemType==1)
+                    if(ProblemType==AXISYMMETRIC)
                     {
                         for(k=0; k<3; k++) V[k]=r[k];
                         y=AxiInt(a,V,V,r);
@@ -3044,7 +3073,7 @@ CComplex temp;
             if((inttype>=18) || (inttype<=23))
             {
                 a=ElmArea(i)*pow(LengthConv[LengthUnits],2.);
-                if(ProblemType==1)
+                if(ProblemType==AXISYMMETRIC)
                 {
                     for(k=0; k<3; k++)
                         r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
@@ -3180,7 +3209,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
         a0=u.A;
         GetPointValues(contour[k-1].re,contour[k-1].im,u);
         a1=u.A;
-        if(ProblemType==0)
+        if(ProblemType==PLANAR)
         {
             for(i=0,l=0; i<k-1; i++)
                 l+=abs(contour[i+1]-contour[i]);
@@ -3207,10 +3236,10 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
         double dz,u,l;
         int i,j,k,m,elm;
         int NumPlotPoints=d_LineIntegralPoints;
-        BOOL flag;
+        bool flag;
 
         z[0]=0;
-        for(k=1; k<contour.size(); k++)
+        for(k=1; k<(int)contour.size(); k++)
         {
             dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
             for(i=0,elm=-1; i<NumPlotPoints; i++)
@@ -3223,27 +3252,27 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                 pt+=n*1.e-06;
 
                 if (elm<0) elm=InTriangle(pt.re,pt.im);
-                else if (InTriangleTest(pt.re,pt.im,elm)==FALSE)
+                else if (InTriangleTest(pt.re,pt.im,elm)==false)
                 {
-                    flag=FALSE;
+                    flag=false;
                     for(j=0; j<3; j++)
                         for(m=0; m<NumList[meshelem[elm].p[j]]; m++)
                         {
                             elm=ConList[meshelem[elm].p[j]][m];
-                            if (InTriangleTest(pt.re,pt.im,elm)==TRUE)
+                            if (InTriangleTest(pt.re,pt.im,elm)==true)
                             {
-                                flag=TRUE;
+                                flag=true;
                                 m=100;
                                 j=3;
                             }
                         }
-                    if (flag==FALSE) elm=InTriangle(pt.re,pt.im);
+                    if (flag==false) elm=InTriangle(pt.re,pt.im);
                 }
                 if(elm>=0)
                     flag=GetPointValues(pt.re,pt.im,elm,v);
-                else flag=FALSE;
+                else flag=false;
 
-                if(flag==TRUE)
+                if(flag==true)
                 {
                     Ht = t.re*v.H1 + t.im*v.H2;
                     z[0]+=(Ht*dz*LengthConv[LengthUnits]);
@@ -3251,7 +3280,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
             }
 
 
-            for(i=0,l=0; i<contour.size()-1; i++)
+            for(i=0,l=0; i<(int)contour.size()-1; i++)
                 l+=abs(contour[i+1]-contour[i]);
             l*=LengthConv[LengthUnits];
             if(l!=0) z[1]=z[0]/l;
@@ -3267,7 +3296,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
             z[0].re+=abs(contour[i+1]-contour[i]);
         z[0].re*=LengthConv[LengthUnits];
 
-        if(ProblemType==1)
+        if(ProblemType==AXISYMMETRIC)
         {
             for(i=0,z[0].im=0; i<k-1; i++)
                 z[0].im+=(PI*(contour[i].re+contour[i+1].re)*
@@ -3288,11 +3317,11 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
         double dz,dza,u;
         int i,j,k,m,elm;
         int NumPlotPoints=d_LineIntegralPoints;
-        BOOL flag;
+        bool flag;
 
         for(i=0; i<4; i++) z[i]=0;
 
-        for(k=1; k<contour.size(); k++)
+        for(k=1; k<(int)contour.size(); k++)
         {
             dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
             for(i=0,elm=-1; i<NumPlotPoints; i++)
@@ -3305,27 +3334,28 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                 pt+=n*1.e-06;
 
                 if (elm<0) elm=InTriangle(pt.re,pt.im);
-                else if (InTriangleTest(pt.re,pt.im,elm)==FALSE)
+                else if (InTriangleTest(pt.re,pt.im,elm)==false)
                 {
-                    flag=FALSE;
+                    flag=false;
                     for(j=0; j<3; j++)
                         for(m=0; m<NumList[meshelem[elm].p[j]]; m++)
                         {
                             elm=ConList[meshelem[elm].p[j]][m];
-                            if (InTriangleTest(pt.re,pt.im,elm)==TRUE)
+                            if (InTriangleTest(pt.re,pt.im,elm)==true)
                             {
-                                flag=TRUE;
+                                flag=true;
                                 m=100;
                                 j=3;
                             }
                         }
-                    if (flag==FALSE) elm=InTriangle(pt.re,pt.im);
+                    if (flag==false) elm=InTriangle(pt.re,pt.im);
                 }
                 if(elm>=0)
                     flag=GetPointValues(pt.re,pt.im,elm,v);
-                else flag=FALSE;
+                else flag=false;
 
-                if(flag==TRUE)
+                if(flag==true)
+                {
                     if(Frequency==0)
                     {
                         Hn= n.re*v.H1 + n.im*v.H2;
@@ -3335,7 +3365,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                         dF2=v.H2*Bn + v.B2*Hn - n.im*BH;
 
                         dza=dz*LengthConv[LengthUnits];
-                        if(ProblemType==1)
+                        if(ProblemType==AXISYMMETRIC)
                         {
                             dza*=2.*PI*pt.re*LengthConv[LengthUnits];
                             dF1=0;
@@ -3354,7 +3384,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                         dF2 = v.H2*Bn + v.B2*Hn - n.im*BH;
 
                         dza=dz*LengthConv[LengthUnits];
-                        if(ProblemType==1)
+                        if(ProblemType==AXISYMMETRIC)
                         {
                             dza*=2.*PI*pt.re*LengthConv[LengthUnits];
                             dF1=0;
@@ -3366,7 +3396,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 
                         BH  = v.B1*v.H1.Conj() +v.B2*v.H2.Conj();
 
-                        if (ProblemType!=1)
+                        if (ProblemType!=AXISYMMETRIC)
                             dF1 = v.H1*Bn.Conj() + v.B1*Hn.Conj() - n.re*BH;
                         dF2=  v.H2*Bn.Conj() + v.B2*Hn.Conj() - n.im*BH;
 
@@ -3374,6 +3404,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                         z[2]+=(dF1*dza/4.);
                         z[3]+=(dF2*dza/4.);
                     }
+                }
             }
 
         }
@@ -3387,11 +3418,11 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
         double dz,dza,u;
         int i,j,k,m,elm;
         int NumPlotPoints=d_LineIntegralPoints;
-        BOOL flag;
+        bool flag;
 
         for(i=0; i<2; i++) z[i].Set(0,0);
 
-        for(k=1; k<contour.size(); k++)
+        for(k=1; k<(int)contour.size(); k++)
         {
             dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
             for(i=0,elm=-1; i<NumPlotPoints; i++)
@@ -3404,27 +3435,34 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                 pt+=n*1.e-6;
 
                 if (elm<0) elm=InTriangle(pt.re,pt.im);
-                else if (InTriangleTest(pt.re,pt.im,elm)==FALSE)
+                else if (InTriangleTest(pt.re,pt.im,elm)==false)
                 {
-                    flag=FALSE;
+                    flag=false;
                     for(j=0; j<3; j++)
                         for(m=0; m<NumList[meshelem[elm].p[j]]; m++)
                         {
                             elm=ConList[meshelem[elm].p[j]][m];
-                            if (InTriangleTest(pt.re,pt.im,elm)==TRUE)
+                            if (InTriangleTest(pt.re,pt.im,elm)==true)
                             {
-                                flag=TRUE;
+                                flag=true;
                                 m=100;
                                 j=3;
                             }
                         }
-                    if (flag==FALSE) elm=InTriangle(pt.re,pt.im);
+                    if (flag==false) elm=InTriangle(pt.re,pt.im);
                 }
-                if(elm>=0)
-                    flag=GetPointValues(pt.re,pt.im,elm,v);
-                else flag=FALSE;
 
-                if(flag==TRUE)
+                if(elm>=0)
+                {
+                    flag=GetPointValues(pt.re,pt.im,elm,v);
+                }
+                else
+                {
+                    flag=false;
+                }
+
+                if(flag==true)
+                {
                     if(Frequency==0)
                     {
                         Hn= n.re*v.H1 + n.im*v.H2;
@@ -3457,6 +3495,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                         z[1]+=(dT*dza*Depth/4.);
 
                     }
+                }
             }
         }
 
@@ -3470,10 +3509,10 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
         double dz,u,l;
         int i,j,k,m,elm;
         int NumPlotPoints=d_LineIntegralPoints;
-        BOOL flag;
+        bool flag;
 
         z[0]=0;
-        for(k=1; k<contour.size(); k++)
+        for(k=1; k<(int)contour.size(); k++)
         {
             dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
             for(i=0,elm=-1; i<NumPlotPoints; i++)
@@ -3486,27 +3525,27 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                 pt+=n*1.e-06;
 
                 if (elm<0) elm=InTriangle(pt.re,pt.im);
-                else if (InTriangleTest(pt.re,pt.im,elm)==FALSE)
+                else if (InTriangleTest(pt.re,pt.im,elm)==false)
                 {
-                    flag=FALSE;
+                    flag=false;
                     for(j=0; j<3; j++)
                         for(m=0; m<NumList[meshelem[elm].p[j]]; m++)
                         {
                             elm=ConList[meshelem[elm].p[j]][m];
-                            if (InTriangleTest(pt.re,pt.im,elm)==TRUE)
+                            if (InTriangleTest(pt.re,pt.im,elm)==true)
                             {
-                                flag=TRUE;
+                                flag=true;
                                 m=100;
                                 j=3;
                             }
                         }
-                    if (flag==FALSE) elm=InTriangle(pt.re,pt.im);
+                    if (flag==false) elm=InTriangle(pt.re,pt.im);
                 }
                 if(elm>=0)
                     flag=GetPointValues(pt.re,pt.im,elm,v);
-                else flag=FALSE;
+                else flag=false;
 
-                if(flag==TRUE)
+                if(flag==true)
                 {
                     Ht = n.re*v.B1 + n.im*v.B2;
                     z[0]+=(Ht*Ht.Conj()*dz*LengthConv[LengthUnits]);
@@ -3514,7 +3553,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
             }
 
 
-            for(i=0,l=0; i<contour.size()-1; i++)
+            for(i=0,l=0; i<(int)contour.size()-1; i++)
                 l+=abs(contour[i+1]-contour[i]);
             l*=LengthConv[LengthUnits];
             if(l!=0) z[1]=z[0]/l;
@@ -3535,7 +3574,7 @@ int FPProc::ClosestArcSegment(double x, double y)
 
     j=0;
     d0=ShortestDistanceFromArc(CComplex(x,y),arclist[0]);
-    for(i=0; i<arclist.size(); i++)
+    for(i=0; i<(int)arclist.size(); i++)
     {
         d1=ShortestDistanceFromArc(CComplex(x,y),arclist[i]);
         if(d1<d0)
@@ -3608,7 +3647,7 @@ double FPProc::ShortestDistanceFromSegment(double p, double q, int segm)
     return sqrt((p-x[2])*(p-x[2]) + (q-y[2])*(q-y[2]));
 }
 
-// BOOL FPProc::ScanPreferences()
+// bool FPProc::ScanPreferences()
 // {
 //     FILE *fp;
 //     string fname;
@@ -3621,7 +3660,7 @@ double FPProc::ShortestDistanceFromSegment(double p, double q, int segm)
 //     fp=fopen(fname,"rt");
 //     if (fp!=NULL)
 //     {
-//         BOOL flag=FALSE;
+//         bool flag=false;
 //         char s[1024];
 //         char q[1024];
 //         char *v;
@@ -3647,9 +3686,9 @@ double FPProc::ShortestDistanceFromSegment(double p, double q, int segm)
 //         }
 //         fclose(fp);
 //     }
-//     else return FALSE;
+//     else return false;
 //
-//     return TRUE;
+//     return true;
 // }
 
 void FPProc::BendContour(double angle, double anglestep)
@@ -3703,10 +3742,10 @@ void FPProc::BendContour(double angle, double anglestep)
 }
 
 
-//BOOL FPProc::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+//bool FPProc::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
 //{
 //    // TODO: Add your specialized code here and/or call the base class
-//    if (bLinehook!=FALSE) return TRUE;
+//    if (bLinehook!=false) return true;
 //    return CDocument::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 //}
 
@@ -3725,7 +3764,7 @@ CComplex FPProc::GetStrandedVoltageDrop(int lbl)
     U[1]=1;
     U[2]=1;
 
-    for(i=0,dVolts=0,atot=0; i<meshelem.size(); i++)
+    for(i=0,dVolts=0,atot=0; i<(int)meshelem.size(); i++)
     {
         if(meshelem[i].lbl==lbl)
         {
@@ -3779,7 +3818,7 @@ void FPProc::GetFillFactor(int lbl)
     if (blockproplist[blocklist[lbl].BlockType].LamType<3) return;
 
     // compute total area of associated block
-    for(i=0,atot=0; i<meshelem.size(); i++)
+    for(i=0,atot=0; i<(int)meshelem.size(); i++)
         if(meshelem[i].lbl==lbl) atot+=ElmArea(i)*lc;
     if (atot==0) return;
 
@@ -3904,7 +3943,7 @@ CComplex FPProc::GetStrandedLinkage(int lbl)
     // when the conductor is carrying zero current.
     int i,k;
     CComplex FluxLinkage;
-    CComplex A[3],J[3],U[3],V[3];
+    CComplex A[3],J[3],U[3];//,V[3];
     double a,atot;
     double r[3];
 
@@ -3912,7 +3951,7 @@ CComplex FPProc::GetStrandedLinkage(int lbl)
     U[1]=1;
     U[2]=1;
 
-    for(i=0,FluxLinkage=0,atot=0; i<meshelem.size(); i++)
+    for(i=0,FluxLinkage=0,atot=0; i<(int)meshelem.size(); i++)
     {
         if(meshelem[i].lbl==lbl)
         {
@@ -3949,7 +3988,7 @@ CComplex FPProc::GetSolidAxisymmetricLinkage(int lbl)
 
     int i,k;
     CComplex FluxLinkage;
-    CComplex Aa,A[3],J[3],U[3],V[3];
+    CComplex Aa,A[3],J[3],U[3];//,V[3];
     double a,atot,R;
     double r[3];
 
@@ -3957,7 +3996,7 @@ CComplex FPProc::GetSolidAxisymmetricLinkage(int lbl)
     U[1]=1;
     U[2]=1;
 
-    for(i=0,FluxLinkage=0,atot=0; i<meshelem.size(); i++)
+    for(i=0,FluxLinkage=0,atot=0; i<(int)meshelem.size(); i++)
     {
         if(meshelem[i].lbl==lbl)
         {
@@ -3988,7 +4027,7 @@ CComplex FPProc::GetParallelLinkage(int numcirc)
 
     int i,k;
     CComplex FluxLinkage;
-    CComplex Aa,A[3],J[3],U[3],V[3];
+    CComplex Aa,A[3],J[3],U[3];//,V[3];
     double a,atot,R,c;
     double r[3];
 
@@ -3996,7 +4035,7 @@ CComplex FPProc::GetParallelLinkage(int numcirc)
     U[1]=1;
     U[2]=1;
 
-    for(i=0,FluxLinkage=0,atot=0; i<meshelem.size(); i++)
+    for(i=0,FluxLinkage=0,atot=0; i<(int)meshelem.size(); i++)
     {
         if(blocklist[meshelem[i].lbl].InCircuit==numcirc)
         {
@@ -4041,7 +4080,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
 
     int i,k;
     CComplex FluxLinkage;
-    CComplex Aa,A[3],J[3],U[3],V[3];
+    CComplex Aa,A[3],J[3],U[3];//,V[3];
     double a,atot,R,c;
     double r[3];
 
@@ -4049,7 +4088,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
     U[1]=1;
     U[2]=1;
 
-    for(i=0,FluxLinkage=0,atot=0; i<meshelem.size(); i++)
+    for(i=0,FluxLinkage=0,atot=0; i<(int)meshelem.size(); i++)
     {
         if(blocklist[meshelem[i].lbl].InCircuit==numcirc)
         {
@@ -4085,7 +4124,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
     // if the circuit is a "series" circuit...
     if(circproplist[circnum].CircType==1)
     {
-        for(i=0; i<blocklist.size(); i++)
+        for(i=0; i<(int)blocklist.size(); i++)
         {
             if (blocklist[i].InCircuit==circnum)
             {
@@ -4108,8 +4147,8 @@ CComplex FPProc::GetVoltageDrop(int circnum)
     {
         // root through the block labels until
         // we find one that gives us the voltage drop.
-        BOOL flag=FALSE;
-        for(i=0; i<blocklist.size(); i++)
+        bool flag=false;
+        for(i=0; i<(int)blocklist.size(); i++)
         {
             if ((blocklist[i].InCircuit==circnum) && (blocklist[i].Case==0))
             {
@@ -4117,7 +4156,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
                     Volts -= (2.*PI*blocklist[i].dVolts);
                 else
                     Volts -= (Depth*blocklist[i].dVolts);
-                flag=TRUE;
+                flag=true;
                 i=blocklist.size();
             }
         }
@@ -4126,7 +4165,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
         // in which the conductivity in every block in the circuit is equal
         // to zero.  We can still have flux linkage and voltage drop here.
         // have to root through things in a brute force way to get the voltage drop.
-        if(flag==FALSE)
+        if(flag==false)
         {
             int k;
             CComplex FluxLinkage;
@@ -4138,7 +4177,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
             U[1]=1;
             U[2]=1;
 
-            for(i=0,FluxLinkage=0,atot=0; i<meshelem.size(); i++)
+            for(i=0,FluxLinkage=0,atot=0; i<(int)meshelem.size(); i++)
             {
                 if(blocklist[meshelem[i].lbl].InCircuit==circnum)
                 {
@@ -4174,7 +4213,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
     // and divide through by i.conj to get the flux linkage.
     if((circproplist[circnum].Amps.re!=0) || (circproplist[circnum].Amps.im!=0))
     {
-        for(i=0,FluxLinkage=0; i<meshelem.size(); i++)
+        for(i=0,FluxLinkage=0; i<(int)meshelem.size(); i++)
         {
             if(blocklist[meshelem[i].lbl].InCircuit==circnum)
             {
@@ -4226,7 +4265,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
             // First, deal with "series" circuits...
             if(circproplist[circnum].CircType==1)
             {
-                for(i=0,FluxLinkage=0; i<blocklist.size(); i++)
+                for(i=0,FluxLinkage=0; i<(int)blocklist.size(); i++)
                 {
                     if(blocklist[i].InCircuit==circnum)
                     {
@@ -4241,14 +4280,14 @@ CComplex FPProc::GetFluxLinkage(int circnum)
             }
             else
             {
-                BOOL flag;
+                bool flag;
 
                 // first, see whether some of the blocks have nonzero conductivity;
-                // flag=TRUE means that at least one of the blocks has a
+                // flag=true means that at least one of the blocks has a
                 // nonzero conductivity.
-                for(i=0,flag=FALSE; i<blocklist.size(); i++)
+                for(i=0,flag=false; i<(int)blocklist.size(); i++)
                     if((blocklist[i].Case==0) &&
-                            (blocklist[i].InCircuit==circnum)) flag=TRUE;
+                            (blocklist[i].InCircuit==circnum)) flag=true;
 
                 // if there is at least one nonzero conductivity block, we can use
                 // the GetParallelLinkage routine, which is more or less driving
@@ -4300,8 +4339,13 @@ double FPProc::AECF(int k)
     // designed to have a permeability that varies with position in a
     // continuous way.
 
-    if (!ProblemType) return 1.; // no correction for planar problems
-    if (!blocklist[meshelem[k].lbl].IsExternal) return 1; // only need to correct for external regions
+    if (ProblemType!=AXISYMMETRIC) {
+        return 1.; // no correction for planar problems
+    }
+
+    if (!blocklist[meshelem[k].lbl].IsExternal) {
+        return 1; // only need to correct for external regions
+    }
 
     double r=abs(meshelem[k].ctr-I*extZo);
     return (r*r*extRi)/(extRo*extRo*extRo); // permeability gets divided by this factor;
@@ -4364,7 +4408,7 @@ void FPProc::FindBoundaryEdges()
     static int minus1mod3[3] = {2, 0, 1};
 
     // Init all elements' neigh to be unfinished.
-    for(i = 0; i < meshelem.size(); i ++)
+    for(i = 0; i < (int)meshelem.size(); i ++)
     {
         for(j = 0; j < 3; j ++)
             meshelem[i].n[j] = 0;
@@ -4372,10 +4416,10 @@ void FPProc::FindBoundaryEdges()
 
     int orgi, desti;
     int ei, ni;
-    BOOL done;
+    bool done;
 
     // Loop all elements, to find and set there neighs.
-    for(i = 0; i < meshelem.size(); i ++)
+    for(i = 0; i < (int)meshelem.size(); i ++)
     {
         for(j = 0; j < 3; j ++)
         {
@@ -4384,7 +4428,7 @@ void FPProc::FindBoundaryEdges()
                 // Get this edge's org and dest node index,
                 orgi = meshelem[i].p[plus1mod3[j]];
                 desti = meshelem[i].p[minus1mod3[j]];
-                done = FALSE;
+                done = false;
                 // Find this edge's neigh from the org node's list
                 for(ni = 0; ni < NumList[orgi]; ni ++)
                 {
@@ -4394,17 +4438,17 @@ void FPProc::FindBoundaryEdges()
                     // Check this Element's 3 vert to see if there exist dest node.
                     if(meshelem[ei].p[0] == desti)
                     {
-                        done = TRUE;
+                        done = true;
                         break;
                     }
                     else if(meshelem[ei].p[1] == desti)
                     {
-                        done = TRUE;
+                        done = true;
                         break;
                     }
                     else if(meshelem[ei].p[2] == desti)
                     {
-                        done = TRUE;
+                        done = true;
                         break;
                     }
                 }

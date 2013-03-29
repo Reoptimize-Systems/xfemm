@@ -242,7 +242,7 @@ void CBigLinProb::MultPC(double *X, double *Y)
     }
 }
 
-int CBigLinProb::PCGSolve(int flag)
+bool CBigLinProb::PCGSolve(int flag)
 {
     int i;
     double res,res_o,res_new;
@@ -318,7 +318,7 @@ int CBigLinProb::PCGSolve(int flag)
     }
     while(er>Precision);
 
-    return 1;
+    return true;
 }
 
 void CBigLinProb::SetValue(int i, double x)

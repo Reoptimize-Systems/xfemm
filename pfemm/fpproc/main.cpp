@@ -2,6 +2,14 @@
 #include "fpproc.h"
 #include "complex.h"
 
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
 using namespace std;
 
 int main()
@@ -15,11 +23,11 @@ int main()
     //getline (cin, mystr);
 
     //testFPProc.OpenDocument(mystr);
+    int test = testFPProc.OpenDocument("C:\\Documents and Settings\\s0237326\\My Documents\\Temp\\force_test.ans");
 
-    if (testFPProc.OpenDocument("/home/s0237326/FEAerror.ans")==TRUE);
+    if (test==TRUE)
     {
-
-        for(int i=0; i<testFPProc.blocklist.size(); i++)
+        for(int i=0; i<(int)(testFPProc.blocklist.size()); i++)
         {
             if (testFPProc.blocklist[i].IsSelected == TRUE)
             {
@@ -27,7 +35,7 @@ int main()
             }
         }
 
-        for(int j=0; j<testFPProc.blocklist.size(); j++)
+        for(int j=0; j<(int)(testFPProc.blocklist.size()); j++)
         {
             if (testFPProc.blocklist[j].InGroup==3)
             {

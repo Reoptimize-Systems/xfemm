@@ -785,7 +785,7 @@ int FSolver::Static2D(CBigLinProb &L)
                 }
             }
 
-            if (L.PCGSolve(Iter+sdi_iter)==FALSE)
+            if (L.PCGSolve(Iter+sdi_iter)==false)
             {
                 return FALSE;
             }

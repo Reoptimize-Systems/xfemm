@@ -689,7 +689,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                     }
             }
 
-            if (L.PCGSolve(Iter+sdi_iter)==FALSE) return FALSE;
+            if (L.PCGSolve(Iter+sdi_iter)==false) return FALSE;
 
             if(sdi_iter==1)
                 for(j=0; j<NumNodes; j++) L.V[j]=(V_sdi[j]+L.V[j])/2.;

@@ -29,7 +29,7 @@ class CNode
 
         double x,y;
         int xs,ys;
-        BOOL IsSelected;
+        bool IsSelected;
         int BoundaryMarker;
 
         double GetDistance(double xo, double yo);
@@ -66,8 +66,8 @@ class CSegment
 
         int n0,n1;
         double MaxSideLength;
-        BOOL IsSelected;
-        BOOL Hidden;
+        bool IsSelected;
+        bool Hidden;
         int BoundaryMarker;
 
         void ToggleSelect();
@@ -82,8 +82,8 @@ class CArcSegment
         CArcSegment();
 
         int n0,n1;
-        BOOL IsSelected;
-        BOOL Hidden;
+        bool IsSelected;
+        bool Hidden;
         double MaxSideLength,ArcLength;
         int BoundaryMarker;
 
@@ -105,11 +105,11 @@ class CBlockLabel
         double MagDir;
         string MagDirFctn;
         int    Turns;
-        BOOL IsSelected;
+        bool IsSelected;
         int InCircuit;
         int BlockType;
         int InGroup;
-        BOOL IsExternal;
+        bool IsExternal;
 
         int Case;
         CComplex  J,dVolts;
