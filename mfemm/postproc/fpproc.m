@@ -171,8 +171,43 @@ classdef fpproc < handle
             pvals = fpproc_interface_mex('getpointvals', this.objectHandle, x(:), y(:));
             
         end
+        
+        function smoothon(this)
+            % turns on interpolation of point values in elements
+            %
+            % Syntax
+            %
+            % fpproc.smoothon()
+            %
+            
+            if ~this.isdocopen
+                error('No solution document has been opened.')
+            end
+            fpproc_interface_mex('smoothon', this.objectHandle);
+        end
+        
+        function smoothoff(this)
+            % turns off interpolation of point values in elements
+            %
+            % Syntax
+            %
+            % fpproc.smoothoff()
+            %
+            
+            if ~this.isdocopen
+                error('No solution document has been opened.')
+            end
+            fpproc_interface_mex('smoothoff', this.objectHandle);
+        end
 
         function clearcontour(this)
+            % clears all currently entered contour points
+            %
+            % Syntax
+            %
+            % fpproc.clearcontour()
+            %
+            
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
@@ -207,6 +242,18 @@ classdef fpproc < handle
         end
         
         function groupselectblock(this, groupno)
+            % select blocks based on group membership
+            %
+            % Syntax
+            %
+            % fpproc.groupselectblock(groupno)
+            %
+            % Description
+            %
+            % Selects all blocks which are members of the supplied group
+            % number. 
+            %
+            
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
@@ -268,6 +315,11 @@ classdef fpproc < handle
             %
             % fpproc.blockintegral(type, x, y) clears any existing block
             % selection, selects the 
+            %
+            % NB: For planar simulations, many of the integrals will be
+            % scaled by the problem depth, e.g. the 'A' integral, actually
+            % reports int A x depth.
+            %
             
             if ~this.isdocopen
                 error('No solution document has been opened.')
@@ -400,6 +452,38 @@ classdef fpproc < handle
 
             R = temp(2) / temp(1);
 
+        end
+        
+        function smooth(this, flag)
+            % sets interpolation of point values to 'on' or 'off' dependent
+            % on input flag
+            %
+            % Syntax
+            %
+            % fpproc.smooth(flag)
+            %
+            % Input
+            %
+            %   flag - string, either 'on' or 'off'
+            %
+            
+            if ~ischar(flag)
+                error('flag must be a string');
+            end
+            
+            switch flag
+                
+                case 'on'
+                    this.smoothon();
+                    
+                case 'off'
+                    this.smoothoff()
+                    
+                otherwise
+                    error('flag must be the string ''on'' or ''off''.')
+                    
+            end
+            
         end
 
     end
