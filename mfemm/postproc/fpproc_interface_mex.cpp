@@ -31,6 +31,7 @@ std::map<std::string, ClassMethods> s_mapClassMethodStrs;
 
 void Initialize()
 {
+    // Set up the class methods map
     s_mapClassMethodStrs["opendocument"]     = opendocument;
     s_mapClassMethodStrs["getpointvals"]     = getpointvals;
     s_mapClassMethodStrs["clearcontour"]     = clearcontour;
@@ -43,10 +44,6 @@ void Initialize()
     s_mapClassMethodStrs["smoothoff"]        = smoothoff;
     s_mapClassMethodStrs["getprobleminfo"]   = getprobleminfo;
     s_mapClassMethodStrs["getcircuitprops"]  = getcircuitprops;
-
-//  cout << "s_mapClassMethodStrs contains "
-//       << s_mapClassMethodStrs.size()
-//       << " entries." << endl;
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -135,26 +132,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         break;
     }
 
-
-    // Train
-//    if (!strcmp("train", cmd)) {
-//        // Check parameters
-//        if (nlhs < 0 || nrhs < 2)
-//            mexErrMsgTxt("Train: Unexpected arguments.");
-//        // Call the method
-//        FPProc_interface_instance->train();
-//        return;
-//    }
-//    // Test
-//    if (!strcmp("test", cmd)) {
-//        // Check parameters
-//        if (nlhs < 0 || nrhs < 2)
-//            mexErrMsgTxt("Test: Unexpected arguments.");
-//        // Call the method
-//        FPProc_interface_instance->test();
-//        return;
-//    }
-
     // Got here, so command not recognized
-    mexErrMsgTxt("Command not recognized.");
+    //mexErrMsgTxt("Command not recognized.");
 }
