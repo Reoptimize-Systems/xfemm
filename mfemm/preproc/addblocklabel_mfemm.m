@@ -3,7 +3,8 @@ function [FemmProblem, blockind] = addblocklabel_mfemm(FemmProblem, x, y, vararg
 %
 % Syntax
 %
-% [FemmProblem, blockind] = addblocklabel_mfemm(FemmProblem, x, y, 'Parameter', 'Value')
+% [FemmProblem, blockind] = ...
+%              addblocklabel_mfemm(FemmProblem, x, y, 'Parameter', 'Value')
 % 
 % Description
 %
