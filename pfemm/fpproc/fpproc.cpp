@@ -1501,9 +1501,20 @@ int FPProc::InTriangle(double x, double y)
 bool FPProc::GetPointValues(double x, double y, CPointVals &u)
 {
     int k;
-    k=InTriangle(x,y);
-    if (k<0) return false;
+
+    // find the mesh triangle in which x,y resides, if any
+    k = InTriangle(x,y);
+
+    if (k<0)
+    {
+        // we are not in a triangle so return false
+        return false;
+    }
+
+    // we are in a triangle 'k', we can interpolate the point
+    // values in the triangle
     GetPointValues(x,y,k,u);
+
     return true;
 }
 
@@ -1512,20 +1523,28 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
     int i,j,n[3],lbl;
     double a[3],b[3],c[3],da,ravg;
 
-    for(i=0; i<3; i++) n[i]=meshelem[k].p[i];
-    a[0]=meshnode[n[1]].x * meshnode[n[2]].y - meshnode[n[2]].x * meshnode[n[1]].y;
-    a[1]=meshnode[n[2]].x * meshnode[n[0]].y - meshnode[n[0]].x * meshnode[n[2]].y;
-    a[2]=meshnode[n[0]].x * meshnode[n[1]].y - meshnode[n[1]].x * meshnode[n[0]].y;
-    b[0]=meshnode[n[1]].y - meshnode[n[2]].y;
-    b[1]=meshnode[n[2]].y - meshnode[n[0]].y;
-    b[2]=meshnode[n[0]].y - meshnode[n[1]].y;
-    c[0]=meshnode[n[2]].x - meshnode[n[1]].x;
-    c[1]=meshnode[n[0]].x - meshnode[n[2]].x;
-    c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
-    da=(b[0]*c[1]-b[1]*c[0]);
-    ravg=LengthConv[LengthUnits]*
-         (meshnode[n[0]].x + meshnode[n[1]].x + meshnode[n[2]].x)/3.;
+    for(i=0; i<3; i++)
+    {
+        // get the nodes of the mesh element 'k'
+        n[i] = meshelem[k].p[i];
+    }
 
+    a[0] = meshnode[n[1]].x * meshnode[n[2]].y - meshnode[n[2]].x * meshnode[n[1]].y;
+    a[1] = meshnode[n[2]].x * meshnode[n[0]].y - meshnode[n[0]].x * meshnode[n[2]].y;
+    a[2] = meshnode[n[0]].x * meshnode[n[1]].y - meshnode[n[1]].x * meshnode[n[0]].y;
+    b[0] = meshnode[n[1]].y - meshnode[n[2]].y;
+    b[1] = meshnode[n[2]].y - meshnode[n[0]].y;
+    b[2] = meshnode[n[0]].y - meshnode[n[1]].y;
+    c[0] = meshnode[n[2]].x - meshnode[n[1]].x;
+    c[1] = meshnode[n[0]].x - meshnode[n[2]].x;
+    c[2] = meshnode[n[1]].x - meshnode[n[0]].x;
+
+    da = ( b[0]*c[1] - b[1]*c[0] );
+
+    ravg = LengthConv[LengthUnits]*
+           (meshnode[n[0]].x + meshnode[n[1]].x + meshnode[n[2]].x)/3.;
+
+    // interpolate the flux density B at the given point in the element
     GetPointB(x,y,u.B1,u.B2,meshelem[k]);
 
     u.Hc=0;
