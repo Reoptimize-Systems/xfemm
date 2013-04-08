@@ -7,6 +7,7 @@
 //#include "mycommandlineinfo.h"
 //#include "promptbox.h"
 //#include "ChildFrm.h"
+//#include "femm.h"
 
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -28,7 +29,7 @@
 #include "fpproc.h"
 #include "problem.h"
 #include "fpproc_interface.h"
-//#include "femm.h"
+
 
 using namespace std;
 
@@ -126,6 +127,9 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     if (theFPProc.Frequency!=0)
     {
+#ifdef _MEX_DEBUG
+        mexPrintf("Frequency was not equal to zero.\n");
+#endif
         /*  set the output pointer to the output matrix */
         plhs[0] = mxCreateDoubleMatrix( (mwSize)(14), (mwSize)mxrows, mxCOMPLEX);
         // get a pointer to the start of the actual output data array
@@ -140,36 +144,97 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
             {
                 outpointerRe[(i*14)] = u.A.Re();
                 outpointerIm[(i*14)] = u.A.Im();
+
                 outpointerRe[(i*14)+1] = u.B1.Re();
                 outpointerIm[(i*14)+1] = u.B1.Im();
+
                 outpointerRe[(i*14)+2] = u.B2.Re();
                 outpointerIm[(i*14)+2] = u.B2.Im();
+
                 outpointerRe[(i*14)+3] = u.c;
+                outpointerIm[(i*14)+3] = 0.0;
+
                 outpointerRe[(i*14)+4] = u.E;
+                outpointerIm[(i*14)+4] = 0.0;
+
                 outpointerRe[(i*14)+5] = u.H1.Re();
                 outpointerIm[(i*14)+5] = u.H1.Im();
+
                 outpointerRe[(i*14)+6] = u.H2.Re();
                 outpointerIm[(i*14)+6] = u.H2.Im();
+
                 outpointerRe[(i*14)+7] = u.Je.Re();
                 outpointerIm[(i*14)+7] = u.Je.Im();
+
                 outpointerRe[(i*14)+8] = u.Js.Re();
                 outpointerIm[(i*14)+8] = u.Js.Im();
+
                 outpointerRe[(i*14)+9] = u.mu1.Re();
                 outpointerIm[(i*14)+9] = u.mu1.Im();
+
                 outpointerRe[(i*14)+10] = u.mu2.Re();
                 outpointerIm[(i*14)+10] = u.mu2.Im();
+
                 outpointerRe[(i*14)+11] = u.Pe;
+                outpointerIm[(i*14)+11] = 0.0;
+
                 outpointerRe[(i*14)+12] = u.Ph;
+                outpointerIm[(i*14)+12] = 0.0;
+
                 outpointerRe[(i*14)+13] = u.ff;
+                outpointerIm[(i*14)+13] = 0.0;
             }
             else
             {
-                return 0;
+                outpointerRe[(i*14)] = mxGetNaN();
+                outpointerIm[(i*14)] = mxGetNaN();
+
+                outpointerRe[(i*14)+1] = mxGetNaN();
+                outpointerIm[(i*14)+1] = mxGetNaN();
+
+                outpointerRe[(i*14)+2] = mxGetNaN();
+                outpointerIm[(i*14)+2] = mxGetNaN();
+
+                outpointerRe[(i*14)+3] = mxGetNaN();
+                outpointerIm[(i*14)+3] = mxGetNaN();
+
+                outpointerRe[(i*14)+4] = mxGetNaN();
+                outpointerIm[(i*14)+4] = mxGetNaN();
+
+                outpointerRe[(i*14)+5] = mxGetNaN();
+                outpointerIm[(i*14)+5] = mxGetNaN();
+
+                outpointerRe[(i*14)+6] = mxGetNaN();
+                outpointerIm[(i*14)+6] = mxGetNaN();
+
+                outpointerRe[(i*14)+7] = mxGetNaN();
+                outpointerIm[(i*14)+7] = mxGetNaN();
+
+                outpointerRe[(i*14)+8] = mxGetNaN();
+                outpointerIm[(i*14)+8] = mxGetNaN();
+
+                outpointerRe[(i*14)+9] = mxGetNaN();
+                outpointerIm[(i*14)+9] = mxGetNaN();
+
+                outpointerRe[(i*14)+10] = mxGetNaN();
+                outpointerIm[(i*14)+10] = mxGetNaN();
+
+                outpointerRe[(i*14)+11] = mxGetNaN();
+                outpointerIm[(i*14)+11] = mxGetNaN();
+
+                outpointerRe[(i*14)+12] = mxGetNaN();
+                outpointerIm[(i*14)+12] = mxGetNaN();
+
+                outpointerRe[(i*14)+13] = mxGetNaN();
+                outpointerIm[(i*14)+13] = mxGetNaN();
             }
         }
     }
     else
     {
+#ifdef _MEX_DEBUG
+        mexPrintf("Frequency was zero.\n");
+#endif
         /*  set the output pointer to the output matrix */
         plhs[0] = mxCreateDoubleMatrix( (mwSize)(14), (mwSize)mxrows, mxREAL);
         // get a pointer to the start of the actual output data array
@@ -181,6 +246,9 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
             if(theFPProc.GetPointValues(px[i], py[i], u)==true)
             {
+#ifdef _MEX_DEBUG
+                mexPrintf("row %i, theFPProc.GetPointValues was true.\n", i);
+#endif
                 outpointerRe[(i*14)] = u.A.Re();
                 outpointerRe[(i*14)+1] = u.B1.Re();
                 outpointerRe[(i*14)+2] = u.B2.Re();
@@ -198,7 +266,23 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
             }
             else
             {
-                return 0;
+#ifdef _MEX_DEBUG
+                mexPrintf("row %i, theFPProc.GetPointValues was false.\n", i);
+#endif
+                outpointerRe[(i*14)] = mxGetNaN();
+                outpointerRe[(i*14)+1] = mxGetNaN();
+                outpointerRe[(i*14)+2] = mxGetNaN();
+                outpointerRe[(i*14)+3] = mxGetNaN();
+                outpointerRe[(i*14)+4] = mxGetNaN();
+                outpointerRe[(i*14)+5] = mxGetNaN();
+                outpointerRe[(i*14)+6] = mxGetNaN();
+                outpointerRe[(i*14)+7] = mxGetNaN();
+                outpointerRe[(i*14)+8] = mxGetNaN();
+                outpointerRe[(i*14)+9] = mxGetNaN();
+                outpointerRe[(i*14)+10] = mxGetNaN();
+                outpointerRe[(i*14)+11] = mxGetNaN();
+                outpointerRe[(i*14)+12] = mxGetNaN();
+                outpointerRe[(i*14)+13] = mxGetNaN();
             }
         }
     }
