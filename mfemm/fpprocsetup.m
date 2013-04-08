@@ -27,7 +27,7 @@ function fpprocsetup(dodebug)
     % set some common compiler flags, we replace all calls to printf to
     % calls to mexPrintf
     if dodebug
-        common_compiler_flags = {'-g'};
+        common_compiler_flags = {'-g', '-D"_MEX_DEBUG"'};
     else
         common_compiler_flags={};% common_compiler_flags = '-D"printf=mexPrintf"';
     end
