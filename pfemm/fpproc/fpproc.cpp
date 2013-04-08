@@ -3524,58 +3524,103 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
     if(inttype==5)
     {
         CComplex n,t,pt,Ht;
-        CPointVals v;
+        CPointVals pvals;
         double dz,u,l;
         int i,j,k,m,elm;
-        int NumPlotPoints=d_LineIntegralPoints;
+        int NumPlotPoints = d_LineIntegralPoints;
         bool flag;
 
-        z[0]=0;
+        z[0] = 0;
+        // loop through each segment in the contour intgrating over each in turn
         for(k=1; k<(int)contour.size(); k++)
         {
-            dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
+            // break the segment up into differential subsegments for the integral
+            dz = abs(contour[k]-contour[k-1]) / ((double) NumPlotPoints);
+
+            // loop through each subsegment performing the integral
             for(i=0,elm=-1; i<NumPlotPoints; i++)
             {
-                u=(((double) i)+0.5)/((double) NumPlotPoints);
-                pt=contour[k-1] + u*(contour[k] - contour[k-1]);
-                t=contour[k]-contour[k-1];
-                t/=abs(t);
-                n=I*t;
-                pt+=n*1.e-06;
+                // get a point location in the middle of the subsegment
+                u = (((double) i) + 0.5) / ((double) NumPlotPoints);
+                pt = contour[k-1] + u*(contour[k] - contour[k-1]);
+                // get a unit vector tangential to the segment at the sample point
+                t = contour[k]-contour[k-1];
+                t /= abs(t);
+                // get a unit vector normal to the segment at the sample point
+                n = I * t;
+                // shift the sample point a little in the normal direction
+                pt += n * 1.e-06;
 
-                if (elm<0) elm=InTriangle(pt.re,pt.im);
-                else if (InTriangleTest(pt.re,pt.im,elm)==false)
+                if (elm < 0)
                 {
-                    flag=false;
+                    // This is the first run and we must find which mesh element we are in
+                    elm = InTriangle(pt.re,pt.im);
+                }
+                else if (InTriangleTest(pt.re,pt.im,elm) == false)
+                {
+                    // This is not the first run, but we are no longer in the same element
+                    // and must rediscover what element we are in
+                    flag = false;
+                    // first check neighbouring elements to the last element as it will
+                    // save time over checking the whole mesh
                     for(j=0; j<3; j++)
-                        for(m=0; m<NumList[meshelem[elm].p[j]]; m++)
+                    {
+                        for(m=0; m < NumList[meshelem[elm].p[j]]; m++)
                         {
-                            elm=ConList[meshelem[elm].p[j]][m];
-                            if (InTriangleTest(pt.re,pt.im,elm)==true)
+                            elm = ConList[meshelem[elm].p[j]][m];
+
+                            if (InTriangleTest(pt.re,pt.im,elm) == true)
                             {
-                                flag=true;
-                                m=100;
-                                j=3;
+                                // the current element was a neighbour of the previous element
+                                flag = true;
+                                m = 100;
+                                j = 3;
                             }
                         }
-                    if (flag==false) elm=InTriangle(pt.re,pt.im);
-                }
-                if(elm>=0)
-                    flag=GetPointValues(pt.re,pt.im,elm,v);
-                else flag=false;
+                    }
 
-                if(flag==true)
+                    if (flag == false)
+                    {
+                        // new element was not a neighbour of the old element, so we must
+                        // search the whole mesh
+                        elm = InTriangle(pt.re,pt.im);
+                    }
+                } // if (elm < 0)
+
+                if (elm >= 0)
                 {
-                    Ht = n.re*v.B1 + n.im*v.B2;
-                    z[0]+=(Ht*Ht.Conj()*dz*LengthConv[LengthUnits]);
+                    // Get the point values at the sample location
+                    flag = GetPointValues(pt.re,pt.im,elm,pvals);
                 }
-            }
+                else
+                {
+                    flag = false;
+                }
 
+                if(flag == true)
+                {
+                    // get the dot product of the normal and the B field at the sample point
+                    Ht = n.re * pvals.B1 + n.im * pvals.B2;
+                    // add the square of the field times the
+                    z[0] += (Ht * Ht.Conj() * dz * LengthConv[LengthUnits]);
+                }
 
+            } // for(i=0,elm=-1; i<NumPlotPoints; i++)
+
+            // now we will also calculate the average over the contour
             for(i=0,l=0; i<(int)contour.size()-1; i++)
-                l+=abs(contour[i+1]-contour[i]);
-            l*=LengthConv[LengthUnits];
-            if(l!=0) z[1]=z[0]/l;
+            {
+                // add up the contour segment lengths
+                l += abs(contour[i+1]-contour[i]);
+            }
+            // convert the length units
+            l *= LengthConv[LengthUnits];
+
+            if(l!=0)
+            {
+                // divide the integral by the contour length
+                z[1] = z[0] / l;
+            }
 
         }
     }
