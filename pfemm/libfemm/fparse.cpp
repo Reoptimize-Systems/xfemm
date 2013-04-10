@@ -4,6 +4,9 @@
 
 using namespace std;
 
+namespace femm
+{
+
 char* StripKey(char *c)
 {
     char *d;
@@ -132,4 +135,12 @@ char *ParseString(char *t, string *s)
     *s=s->substr(n1+1,n2-n1-1);
 
     return (t+n2+1);
+}
+
+// default function for displaying warning messages
+void PrintWarningMsg(const char* message)
+{
+    printf(message);
+}
+
 }

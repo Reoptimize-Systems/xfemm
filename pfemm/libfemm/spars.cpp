@@ -258,7 +258,7 @@ bool CBigLinProb::PCGSolve(int flag)
     // initialize progress bar;
 //	TheView->SetDlgItemText(IDC_FRAME1,"Conjugate Gradient Solver");
 //	TheView->m_prog1.SetPos(0);
-    printf("Conjugate Gradient Solver");
+    printf("Conjugate Gradient Solver\n");
     int prg1=0;
     int prg2;
 
