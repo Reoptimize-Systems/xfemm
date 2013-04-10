@@ -149,9 +149,9 @@ public:
     double AECF(int k);
     void GetFillFactor(int lbl);
 
-    // Replacements for MFC functions
-    void AfxMessageBox(const char* message);
-	void MsgBox(const char* message);
+    // pointer to function to call when issuing warning messages
+    void (*WarnMessage)(const char*);
+//	void MsgBox(const char* message);
 
     CComplex GetStrandedVoltageDrop(int lbl);
     CComplex GetVoltageDrop(int circnum);
