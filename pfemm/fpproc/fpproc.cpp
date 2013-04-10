@@ -63,6 +63,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 //using namespace std;
+using namespace femm;
 
 // FPProc construction/destruction
 
@@ -72,15 +73,10 @@ double sqr(double x)
 }
 
 // Replacement function for windows MFC function AfxMessageBox
-void FPProc::AfxMessageBox(const char* message)
-{
-    printf(message);
-}
-
-void FPProc::MsgBox(const char* message)
-{
-    printf(message);
-}
+//void FPProc::MsgBox(const char* message)
+//{
+//    printf(message);
+//}
 
 /**
  * Constuctor for the FPProc class.
@@ -119,6 +115,10 @@ FPProc::FPProc()
         d_PlotBounds[i][0] = d_PlotBounds[i][1] =
                                  PlotBounds[i][0] = PlotBounds[i][1] = 0;
     }
+
+    // initialise the warning message function pointer to
+    // point to the PrintWarningMsg function
+    WarnMessage = &PrintWarningMsg;
 
     // determine path to bin directory
 //     BinDir=((CFemmApp *)AfxGetApp())->GetExecutablePath();
@@ -1408,20 +1408,33 @@ bool FPProc::OpenDocument(string pathname)
     // display an error message and mark the problem blocks.
     for(k=0,bMultiplyDefinedLabels=false; k<(int)blocklist.size(); k++)
     {
-        if((i=InTriangle(blocklist[k].x,blocklist[k].y))>=0)
+        // test if the label is inside the meshed region, by attempting to find
+        // which triangle it is in, if it's outside the problem region it will
+        // be ignored anyway
+        if( (i = InTriangle(blocklist[k].x,blocklist[k].y)) >= 0 )
         {
-            if(meshelem[i].lbl!=k)
+            // the label is in the problem domain, test if the label assigned
+            // to the element which the label is in has the same value as the
+            // label number
+            if(meshelem[i].lbl != k)
             {
+                // if the label number assigned to the element is not the same as
+                // the block label numer, there must be multiply defined labels for
+                // the region
+
+                // select the offending region
                 blocklist[meshelem[i].lbl].IsSelected=TRUE;
+
+                // if it the first multiply defined label we have found, issue a warning
+                // and set the appropriate flag to true
                 if (!bMultiplyDefinedLabels)
                 {
-
                     string msg = "Some regions in the problem have been defined\n";
                     msg += "by more than one block label.  These potentially\n";
                     msg += "problematic regions will appear as selected in\n";
                     msg += "the initial view.";
                     AfxMessageBox(msg.c_str());
-                    bMultiplyDefinedLabels=true;
+                    bMultiplyDefinedLabels = true;
                 }
             }
         }
