@@ -1,1 +1,42 @@
 # depslib dependency file v1.0
+1361228783 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/complex.cpp
+	"math.h"
+	"stdio.h"
+	"complex.h"
+
+1361228783 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/complex.h
+
+1361228783 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/fparse.cpp
+	<string>
+	<cstring>
+	<cstdio>
+
+1361228783 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/fullmatrix.cpp
+	<cstdlib>
+	<math.h>
+	"malloc.h"
+	"complex.h"
+	"fullmatrix.h"
+
+1361228783 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/fullmatrix.h
+
+1361228783 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/matprop.cpp
+	<stdio.h>
+	<math.h>
+	"malloc.h"
+	"complex.h"
+	"mesh.h"
+	"fullmatrix.h"
+
+1361228783 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/mesh.h
+	"complex.h"
+
+1361228783 source:/home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/spars.cpp
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	"complex.h"
+	"spars.h"
+
+1361228783 /home/s0237326/Postgrad_Research/MATLAB_Scripts/subversion/matlab/Useful_Functions/mfemm/pfemm/libfemm/spars.h
+

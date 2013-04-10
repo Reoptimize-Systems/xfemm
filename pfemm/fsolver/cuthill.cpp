@@ -90,13 +90,7 @@ int FSolver::Cuthill()
     CNode swap;
     char infile[256];
 
-    // allocate storage
-    nxtnum=(int *)calloc(NumNodes,sizeof(int));
-    newnum=(int *)calloc(NumNodes,sizeof(int));
-    numcon=(int *)calloc(NumNodes,sizeof(int));
-    ocon=(int **)calloc(NumNodes,sizeof(int *));
-    // initialize node array;
-    for(i=0; i<NumNodes; i++)	newnum[i]= -1;
+
 
     // read in connectivity from nodefile
     sprintf(infile,"%s.edge",PathName);
@@ -108,6 +102,18 @@ int FSolver::Cuthill()
     }
     fscanf(fp,"%i",&k);	// read in number of lines
     fscanf(fp,"%i",&j);	// read in boundarymarker flag;
+
+    // allocate storage for numbering
+    nxtnum=(int *)calloc(NumNodes,sizeof(int));
+    newnum=(int *)calloc(NumNodes,sizeof(int));
+    numcon=(int *)calloc(NumNodes,sizeof(int));
+    ocon=(int **)calloc(NumNodes,sizeof(int *));
+
+    // initialize node array;
+    for(i=0; i<NumNodes; i++)
+    {
+        newnum[i] = -1;
+    }
 
     // allocate space for connections;
     ocon[0]=(int *)calloc(2*k,sizeof(int));

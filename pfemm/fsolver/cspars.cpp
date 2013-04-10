@@ -1010,9 +1010,21 @@ int CBigComplexLinProb::KludgeSolve(int flag)
 
     // form starting residual
     MultA(V,r,-1);
-    for(i=0; i<n; i++) r[i]=b[i]-r[i];
-    er=nrm(r)/normb;
-    if (er<Precision) return 1;
+
+    for(i=0; i<n; i++)
+    {
+        r[i] = b[i] - r[i];
+    }
+
+    er = nrm(r) / normb;
+
+    if (er<Precision)
+    {
+        free(borig);
+        free(v);
+        free(r);
+        return 1;
+    }
 
     for(k=0; k<10; k++)
     {

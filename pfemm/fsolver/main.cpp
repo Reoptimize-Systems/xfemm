@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 
     printf(outstr);
 
-    double mr = (8.*((double) Doc.NumNodes)*((double) Doc.BandWidth)) / 1.e06;
+//    double mr = (8.*((double) Doc.NumNodes)*((double) Doc.BandWidth)) / 1.e06;
 
     if(Doc.Frequency == 0)
     {

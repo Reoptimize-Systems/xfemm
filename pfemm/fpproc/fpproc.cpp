@@ -1587,13 +1587,13 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
             // been computed is ignored.
             double v[6];
             double R[3];
-            double Z[3];
+//            double Z[3];
             double p,q;
 
             for(i=0; i<3; i++)
             {
                 R[i]=meshnode[n[i]].x;
-                Z[i]=meshnode[n[i]].y;
+//                Z[i]=meshnode[n[i]].y;
             }
 
             // corner nodes
@@ -1733,13 +1733,13 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
         {
             CComplex v[6];
             double R[3];
-            double Z[3];
+//            double Z[3];
             double p,q;
 
             for(i=0; i<3; i++)
             {
                 R[i]=meshnode[n[i]].x;
-                Z[i]=meshnode[n[i]].y;
+//                Z[i]=meshnode[n[i]].y;
             }
 
             // corner nodes
@@ -2195,7 +2195,7 @@ void FPProc::GetElementB(CElement &elm)
         for(i=0,r=0; i<3; i++)
         {
             R[i]=meshnode[n[i]].x;
-            Z[i]=meshnode[n[i]].y;
+//            Z[i]=meshnode[n[i]].y;
             r+=R[i]/3.;
         }
 
@@ -4145,7 +4145,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
     int i,k;
     CComplex FluxLinkage;
     CComplex Aa,A[3],J[3],U[3];//,V[3];
-    double a,atot,R,c;
+    double a,atot; //c,R;
     double r[3];
 
     U[0]=1;
@@ -4156,7 +4156,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
     {
         if(blocklist[meshelem[i].lbl].InCircuit==numcirc)
         {
-            c=blockproplist[meshelem[i].blk].Cduct;
+//            c=blockproplist[meshelem[i].blk].Cduct;
             GetJA(i,J,A);
             a=ElmArea(i)*LengthConv[LengthUnits]*LengthConv[LengthUnits];
             atot+=a;
@@ -4165,7 +4165,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
             {
                 for(k=0; k<3; k++)
                     r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
-                R=(r[0]+r[1]+r[2])/3.;
+//                R=(r[0]+r[1]+r[2])/3.;
                 Aa=(A[0]+A[1]+A[2])/3.;
             }
 

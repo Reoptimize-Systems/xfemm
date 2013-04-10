@@ -68,6 +68,7 @@ FSolver::FSolver()
     Relax=NULL;
     LengthUnits=NULL;
     ProblemType=NULL;
+    ACSolver=NULL;
     DoForceMaxMeshArea = false;
     Coords=NULL;
     BandWidth=NULL;

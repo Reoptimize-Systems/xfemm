@@ -347,6 +347,8 @@ bool FPProc::MakeMask()
 
 	if (L.PCGSolve(0)==false)
 	{
+	    free(matflag);
+        free(lblflag);
 	    return false;
 	}
 

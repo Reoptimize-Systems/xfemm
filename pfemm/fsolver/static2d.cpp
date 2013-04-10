@@ -904,7 +904,8 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
 
     // first, echo input .fem file to the .ans file;
     sprintf(c,"%s.fem",PathName);
-    if((fz = fopen(c,"rt"))==NULL)
+    fz = fopen(c,"rt");
+    if(fz==NULL)
     {
         //MsgBox("Couldn't open %s.fem\n", PathName);
         printf("Couldn't open %s.fem\n", PathName);
@@ -912,8 +913,10 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
     }
 
     sprintf(c,"%s.ans",PathName);
-    if((fp = fopen(c,"wt"))==NULL)
+    fp = fopen(c,"wt");
+    if(fp==NULL)
     {
+        if (fz != NULL) fclose(fz);
         //MsgBox("Couldn't write to %s.ans\n",PathName);
         printf("Couldn't write to %s.ans\n",PathName);
         return FALSE;
