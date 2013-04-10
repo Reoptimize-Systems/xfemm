@@ -122,27 +122,11 @@ public:
 // Operations
 public:
 
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CFemmeDoc)
-public:
-
-	virtual bool Initialize();
-	//virtual void Serialize(CArchive& ar);
-
-	//virtual bool OnSaveDocument(LPCTSTR lpszPathName);
-	//virtual bool OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
-	//}}AFX_VIRTUAL
-
-// Implementation
-public:
-
     bool LoadFEMFile(string PathName);
     bool SaveFEMFile(string PathName);
     bool WriteTriangulationFiles(const struct triangulateio &out, string Pathname);
-    //char* StripKey(char *c);
+
     //void downstr(char *s);
-	//int _strnicmp( char *string1, char *string2, int count );
 
 	//virtual ~CFemmeDoc();
 
@@ -187,10 +171,8 @@ public:
 	int GetArcArcIntersection(CArcSegment &arc1, CArcSegment &arc2, CComplex *p);
 	double ShortestDistanceFromArc(CComplex p, CArcSegment &arc);
 
-
 	double LineLength(int i);
 //	bool ScanPreferences();
-
 
     // Core functions
 	bool LoadMesh(string PathName);
@@ -208,9 +190,12 @@ public:
 	void EnforcePSLG(double tol);
 	void FancyEnforcePSLG(double tol);
 
-    // replacement for MFC AfxMessageBox
-    void AfxMessageBox(char* msg);
-    void AfxMessageBox(std::string msg);
+    // pointer to function to call when issuing warning messages
+    void (*WarnMessage)(const char*);
+
+private:
+
+	virtual bool Initialize();
 
 };
 

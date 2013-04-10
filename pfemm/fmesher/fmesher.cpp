@@ -62,6 +62,7 @@
 extern void *triangulate;
 
 using namespace std;
+using namespace femm;
 
 FMesher::FMesher()
 {
@@ -81,7 +82,6 @@ FMesher::FMesher(string PathName)
 
 bool FMesher::Initialize()
 {
-
     // set some default values for starting up rendering
     // things properly
     FirstDraw=false;
@@ -138,6 +138,10 @@ bool FMesher::Initialize()
     ProblemNote="Add comments here.";
     extRo=extRi=extZo=0;
 
+    // initialise the warning message function pointer to
+    // point to the PrintWarningMsg function
+    WarnMessage = &PrintWarningMsg;
+
     return true;
 }
 
@@ -179,25 +183,23 @@ bool FMesher::Initialize()
 //}
 
 
+//void FMesher::AfxMessageBox(char* msg)
+//{
+//    // AfxMessageBox, replacement for MFC function which pops up
+//    // a message to the user. Here we instead print the message
+//    // to stdout
+//
+//    printf(msg);
+//}
 
-
-void FMesher::AfxMessageBox(char* msg)
-{
-    // AfxMessageBox, replacement for MFC function which pops up
-    // a message to the user. Here we instead print the message
-    // to stdout
-
-    printf(msg);
-}
-
-void FMesher::AfxMessageBox(std::string msg)
-{
-    // AfxMessageBox, replacement for MFC function which pops up
-    // a message to the user. Here we instead print the message
-    // to stdout
-
-    printf(msg.c_str());
-}
+//void FMesher::AfxMessageBox(std::string msg)
+//{
+//    // AfxMessageBox, replacement for MFC function which pops up
+//    // a message to the user. Here we instead print the message
+//    // to stdout
+//
+//    printf(msg.c_str());
+//}
 
 
 void FMesher::UnselectAll()
@@ -521,7 +523,7 @@ bool FMesher::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
 //	CBlockLabel blk;
 //
 //	if ((fp=fopen(lpszPathName,"rt"))==NULL){
-//		AfxMessageBox("Couldn't read from specified .fem file");
+//		WarnMessage("Couldn't read from specified .fem file");
 //		return false;
 //	}
 //
@@ -685,7 +687,7 @@ bool FMesher::LoadFEMFile(string PathName)
 
     if ((fp=fopen(PathName.c_str(),"rt"))==NULL)
     {
-        AfxMessageBox((std::string)"Couldn't read from specified .fem file");
+        WarnMessage("Couldn't read from specified .fem file");
         return false;
     }
 
@@ -715,7 +717,9 @@ bool FMesher::LoadFEMFile(string PathName)
             vers = (int) (10.*dblvers + 0.5);
             if(vers>40)
             {
-                AfxMessageBox((std::string)"This file is from a newer version of FEMM\nThis file may contain attributes not\nsupported by this version of FEMM");
+                WarnMessage("This file is from a newer version of FEMM\n"
+                            "This file may contain attributes not\n"
+                            "supported by this version of FEMM");
             }
             q[0] = NULL;
         }
@@ -1540,7 +1544,7 @@ bool FMesher::SaveFEMFile(string PathName)
 
     if ((fp = fopen(PathName.c_str(),"wt"))==NULL)
     {
-        AfxMessageBox((std::string)"Couldn't write to specified file.\nPerhaps the file is write-protected?");
+        WarnMessage("Couldn't write to specified file.\nPerhaps the file is write-protected?");
         return false;
     }
 
@@ -1764,7 +1768,7 @@ bool FMesher::LoadMesh(string PathName)
     pathname = PathName;
     if (pathname.length()==0)
     {
-        AfxMessageBox((std::string)"No mesh to display");
+        WarnMessage("No mesh to display");
         return false;
     }
 
@@ -1774,7 +1778,7 @@ bool FMesher::LoadMesh(string PathName)
     infile = rootname + ".node";
     if((fp=fopen(infile.c_str(),"rt"))==NULL)
     {
-        AfxMessageBox((std::string)"No mesh to display");
+        WarnMessage("No mesh to display");
         return false;
     }
     fgets(s,1024,fp);
@@ -1793,7 +1797,7 @@ bool FMesher::LoadMesh(string PathName)
     infile = rootname + ".edge";
     if((fp=fopen(infile.c_str(),"rt"))==NULL)
     {
-        AfxMessageBox((std::string)"No mesh to display");
+        WarnMessage("No mesh to display");
         return false;
     }
     fgets(s,1024,fp);
@@ -1804,7 +1808,7 @@ bool FMesher::LoadMesh(string PathName)
     infile = rootname + ".ele";
     if((fp=fopen(infile.c_str(),"rt"))==NULL)
     {
-        AfxMessageBox((std::string)"No mesh to display");
+        WarnMessage("No mesh to display");
         return false;
     }
     fgets(s,1024,fp);

@@ -30,6 +30,7 @@
 #include <string>
 #include <malloc.h>
 #include "fmesher.h"
+#include "fparse.h"
 #include "intpoint.h"
 //extern "C" {
 #include "triangle.h"
@@ -69,6 +70,7 @@
 #endif
 
 using namespace std;
+using namespace femm;
 
 double FMesher::LineLength(int i)
 {
@@ -167,7 +169,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
 
         if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
             msg = "Couldn't write to specified .edge file";
-            AfxMessageBox(msg);
+            WarnMessage(msg.c_str());
             return false;
         }
 
@@ -195,7 +197,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
         // thr triangle elements
 
         if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            AfxMessageBox((std::string)"Couldn't write to specified .ele file");
+            WarnMessage("Couldn't write to specified .ele file");
             return false;
         }
 
@@ -246,7 +248,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
         // the nodes
 
         if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            AfxMessageBox((std::string)"Couldn't write to specified .node file");
+            WarnMessage("Couldn't write to specified .node file");
             return false;
         }
 
@@ -436,7 +438,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
 //	// check to see if we are ready to write a datafile;
 //
 //	if ((fp=fopen(plyname,"wt"))==NULL){
-//		AfxMessageBox("Couldn't write to specified .poly file");
+//		WarnMessage("Couldn't write to specified .poly file");
 //		return false;
 //	}
 //
@@ -513,7 +515,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
 	// write out a trivial pbc file
 	plyname = pn.substr(0,pn.find_last_of('.')) + ".pbc";
 	if ((fp=fopen(plyname.c_str(),"wt"))==NULL){
-		AfxMessageBox((std::string)"Couldn't write to specified .pbc file");
+		WarnMessage("Couldn't write to specified .pbc file");
 		return false;
 	}
 	fprintf(fp,"0\n");
@@ -946,7 +948,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 //	// check to see if we are ready to write a datafile;
 //
 //	if ((fp=fopen(plyname,"wt"))==NULL){
-//		AfxMessageBox("Couldn't write to specified .poly file");
+//		WarnMessage("Couldn't write to specified .poly file");
 //		Undo();  UnselectAll();
 //		return false;
 //	}
@@ -1249,7 +1251,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 	// read meshlines;
 	plyname = pn.substr(0,pn.find_last_of('.')) + ".edge";
 	if((fp=fopen(plyname.c_str(),"rt"))==NULL){
-		AfxMessageBox((std::string)"Call to triangle was unsuccessful");
+		WarnMessage("Call to triangle was unsuccessful");
 		Undo();  UnselectAll();
 		return false;
 	}
@@ -1344,7 +1346,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 	// one element.  Otherwise, it appears in two.
 	plyname = pn.substr(0,pn.find_last_of('.')) + ".ele";
 	if((fp=fopen(plyname.c_str(),"rt"))==NULL){
-		AfxMessageBox((std::string)"Call to triangle was unsuccessful");
+		WarnMessage("Call to triangle was unsuccessful");
 		Undo();  UnselectAll();
 		return false;
 	}
@@ -1442,7 +1444,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 				// at the same time, flag it and kick it out.
 				if (pbclst[j].nseg==2)
 				{
-					AfxMessageBox((std::string)"An (anti)periodic BC is assigned to more than two segments");
+					WarnMessage("An (anti)periodic BC is assigned to more than two segments");
 					Undo();  UnselectAll();
 					return false;
 				}
@@ -1463,7 +1465,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 				// at the same time, flag it and kick it out.
 				if (pbclst[j].narc==2)
 				{
-					AfxMessageBox((std::string)"An (anti)periodic BC is assigned to more than two arcs");
+					WarnMessage("An (anti)periodic BC is assigned to more than two arcs");
 					Undo();  UnselectAll();
 					return false;
 				}
@@ -1480,7 +1482,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 		// this is an error, and it should get flagged.
 		if ((pbclst[j].nseg>0) && (pbclst[j].narc>0))
 		{
-			AfxMessageBox((std::string)"Can't mix arcs and segments for (anti)periodic BCs");
+			WarnMessage("Can't mix arcs and segments for (anti)periodic BCs");
 			Undo();  UnselectAll();
 			return false;
 		}
@@ -1504,7 +1506,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 			if(fabs(LineLength(pbclst[j].seg[0])
 		           -LineLength(pbclst[j].seg[1]))>1.e-06)
 			{
-				AfxMessageBox((std::string)"(anti)periodic BCs applied to dissimilar segments");
+				WarnMessage("(anti)periodic BCs applied to dissimilar segments");
 				Undo();  UnselectAll();
 				return false;
 			}
@@ -1530,7 +1532,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 			if(fabs(arclist[pbclst[j].seg[0]].ArcLength
 		           -arclist[pbclst[j].seg[1]].ArcLength)>1.e-06)
 			{
-				AfxMessageBox((std::string)"(anti)periodic BCs applied to dissimilar arc segments");
+				WarnMessage("(anti)periodic BCs applied to dissimilar arc segments");
 				Undo();  UnselectAll();
 				return false;
 			}
@@ -1939,7 +1941,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 //	// check to see if we are ready to write a datafile;
 //
 //	if ((fp=fopen(plyname,"wt"))==NULL){
-//		AfxMessageBox("Couldn't write to specified .poly file");
+//		WarnMessage("Couldn't write to specified .poly file");
 //		Undo();  UnselectAll();
 //		return false;
 //	}
@@ -2032,7 +2034,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 		}
 	}
 	if (n==true){
-		AfxMessageBox("Nonphysical (anti)periodic boundary assignments");
+		WarnMessage("Nonphysical (anti)periodic boundary assignments");
 		Undo();  UnselectAll();
 		return false;
 	}
@@ -2040,7 +2042,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 	// write out a pbc file containing a list of linked nodes
 	plyname = pn.substr(0,pn.find_last_of('.')) + ".pbc";
 	if ((fp=fopen(plyname.c_str(),"wt"))==NULL){
-		AfxMessageBox((std::string)"Couldn't write to specified .pbc file");
+		WarnMessage("Couldn't write to specified .pbc file");
 		Undo();  UnselectAll();
 		return false;
 	}
