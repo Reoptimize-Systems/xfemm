@@ -385,13 +385,13 @@ int FSolver::Static2D(CBigLinProb &L)
                     {
                         /*
                         		if (lua_error_code==LUA_ERRRUN)
-                        			AfxMessageBox("Run Error");
+                        			WarnMessage("Run Error");
                         		if (lua_error_code==LUA_ERRMEM)
-                        			AfxMessageBox("Lua memory Error");
+                        			WarnMessage("Lua memory Error");
                         		if (lua_error_code==LUA_ERRERR)
-                        			AfxMessageBox("User error error");
+                        			WarnMessage("User error error");
                         		if (lua_error_code==LUA_ERRFILE)
-                        			AfxMessageBox("File Error");
+                        			WarnMessage("File Error");
                         */
 
                         //MsgBox("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn);

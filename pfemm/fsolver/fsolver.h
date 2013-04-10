@@ -52,8 +52,6 @@
 class FSolver
 {
 
-
-
 // Attributes
 public:
 
@@ -69,6 +67,7 @@ public:
     int     ProblemType;
     int	    Coords;
     bool    DoForceMaxMeshArea;
+    bool    bMultiplyDefinedLabels;
 
     // axisymmetric external region parameters
     double  extRo,extRi,extZo;
@@ -98,6 +97,7 @@ public:
     CCircuit		*circproplist;
     CBlockLabel		*labellist;
     CCommonPoint	*pbclist;
+
     // stuff usually kept track of by CDocument
     char *PathName;
 
@@ -118,13 +118,15 @@ public:
     void GetFillFactor(int lbl);
     double ElmArea(int i);
     void CleanUp();
-    void AfxMessageBox(const char* message);
     void MsgBox(const char* message);
+    // pointer to function to call when issuing warning messages
+    void (*WarnMessage)(const char*);
 
 };
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 
 double GetNewMu(double mu,int BHpoints, CComplex *BHdata,double muc,double B);
 double Power(double x, int n);
+
+#endif

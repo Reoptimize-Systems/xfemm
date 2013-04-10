@@ -210,7 +210,7 @@ int FSolver::Cuthill()
         // connected and still renumber right.
         if(nxtnum[newnum[n0]+1]<0)
         {
-            //	AfxMessageBox("Multiply Connected!");
+            //	WarnMessage("Multiply Connected!");
             //	exit(0);
 
             // first, get a node that hasn't been visited yet;

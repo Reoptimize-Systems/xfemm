@@ -38,10 +38,10 @@
 
 int main(int argc, char** argv)
 {
-    FSolver Doc;
+    FSolver theFSolver;
     char PathName[512];
     char outstr[1024];
-    int i;
+//    int i;
 
     if (argc < 2)
     {
@@ -69,59 +69,59 @@ int main(int argc, char** argv)
         strcpy(PathName, argv[1]);
     }
 
-    Doc.PathName = PathName;
+    theFSolver.PathName = PathName;
 
-    if (Doc.LoadFEMFile() != TRUE)
+    if (theFSolver.LoadFEMFile() != TRUE)
     {
-        printf("problem loading .fem file");
+        theFSolver.WarnMessage("problem loading .fem file");
         exit(1);
     }
 
     // load mesh
-    if (Doc.LoadMesh() != TRUE)
+    if (theFSolver.LoadMesh() != TRUE)
     {
-        printf("problem loading mesh");
+        theFSolver.WarnMessage("problem loading mesh");
         exit(2);
         //return -1;
     }
 
     // renumber using Cuthill-McKee
     printf("renumbering nodes");
-    if (Doc.Cuthill() != TRUE)
+    if (theFSolver.Cuthill() != TRUE)
     {
-        printf("problem renumbering node points");
+        theFSolver.WarnMessage("problem renumbering node points");
         exit(3);
     }
 
     printf("solving...");
 
     sprintf(outstr,"Problem Statistics:\n%i nodes\n%i elements\nPrecision: %3.2e\n",
-            Doc.NumNodes,Doc.NumEls,Doc.Precision);
+            theFSolver.NumNodes,theFSolver.NumEls,theFSolver.Precision);
 
     printf(outstr);
 
 //    double mr = (8.*((double) Doc.NumNodes)*((double) Doc.BandWidth)) / 1.e06;
 
-    if(Doc.Frequency == 0)
+    if(theFSolver.Frequency == 0)
     {
 
         CBigLinProb L;
 
-        L.Precision = Doc.Precision;
+        L.Precision = theFSolver.Precision;
 
         // initialize the problem, allocating the space required to solve it.
-        if (L.Create(Doc.NumNodes, Doc.BandWidth) == FALSE)
+        if (L.Create(theFSolver.NumNodes, theFSolver.BandWidth) == FALSE)
         {
-            printf("couldn't allocate enough space for matrices");
+            theFSolver.WarnMessage("couldn't allocate enough space for matrices");
             exit(4);
         }
 
         // Create element matrices and solve the problem;
-        if (Doc.ProblemType == FALSE)
+        if (theFSolver.ProblemType == FALSE)
         {
-            if (Doc.Static2D(L) == FALSE)
+            if (theFSolver.Static2D(L) == FALSE)
             {
-                Doc.AfxMessageBox("Couldn't solve the problem");
+                theFSolver.WarnMessage("Couldn't solve the problem");
                 exit(5);
             }
             printf("Static 2-D problem solved");
@@ -129,65 +129,65 @@ int main(int argc, char** argv)
         else
         {
 
-            if (Doc.StaticAxisymmetric(L) == FALSE)
+            if (theFSolver.StaticAxisymmetric(L) == FALSE)
             {
-                Doc.AfxMessageBox("Couldn't solve the problem");
+                theFSolver.WarnMessage("Couldn't solve the problem");
                 exit(5);
             }
-            printf("Static axisymmetric problem solved");
+            printf("Static axisymmetric problem solved\n");
         }
 
-        if (Doc.WriteStatic2D(L) == FALSE)
+        if (theFSolver.WriteStatic2D(L) == FALSE)
         {
-            Doc.AfxMessageBox("couldn't write results to disk");
+            theFSolver.WarnMessage("couldn't write results to disk");
             exit(6);
         }
-        printf("results written to disk");
+        printf("results written to disk\n");
     }
     else
     {
         CBigComplexLinProb L;
 
-        L.Precision = Doc.Precision;
+        L.Precision = theFSolver.Precision;
 
         // initialize the problem, allocating the space required to solve it.
 
-        if (L.Create(Doc.NumNodes+Doc.NumCircProps, Doc.BandWidth, Doc.NumNodes) == FALSE)
+        if (L.Create(theFSolver.NumNodes+theFSolver.NumCircProps, theFSolver.BandWidth, theFSolver.NumNodes) == FALSE)
         {
-            Doc.AfxMessageBox("couldn't allocate enough space for matrices");
+            theFSolver.WarnMessage("couldn't allocate enough space for matrices");
             exit(4);
         }
 
         // Create element matrices and solve the problem;
-        if (Doc.ProblemType == FALSE)
+        if (theFSolver.ProblemType == FALSE)
         {
-            if (Doc.Harmonic2D(L) == FALSE)
+            if (theFSolver.Harmonic2D(L) == FALSE)
             {
-                Doc.AfxMessageBox("Couldn't solve the problem");
+                theFSolver.WarnMessage("Couldn't solve the problem");
                 exit(5);
             }
             printf("Harmonic 2-D problem solved");
         }
         else
         {
-            if (Doc.HarmonicAxisymmetric(L) == FALSE)
+            if (theFSolver.HarmonicAxisymmetric(L) == FALSE)
             {
-                Doc.AfxMessageBox("Couldn't solve the problem");
+                theFSolver.WarnMessage("Couldn't solve the problem");
                 exit(5);
             }
             printf("Harmonic axisymmetric problem solved");
         }
 
 
-        if (Doc.WriteHarmonic2D(L)==FALSE)
+        if (theFSolver.WriteHarmonic2D(L)==FALSE)
         {
-            Doc.AfxMessageBox("couldn't write results to disk");
+            theFSolver.WarnMessage("couldn't write results to disk");
             exit(6);
         }
         printf("results written to disk.");
     }
 
-    Doc.CleanUp();
+    theFSolver.CleanUp();
 
     exit(0);
 }
