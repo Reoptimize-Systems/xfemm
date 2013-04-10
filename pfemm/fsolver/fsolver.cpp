@@ -56,6 +56,7 @@ int bLinehook;
 int lua_byebye;
 
 using namespace std;
+using namespace femm;
 
 /////////////////////////////////////////////////////////////////////////////
 // FSolver construction/destruction
@@ -63,40 +64,45 @@ using namespace std;
 FSolver::FSolver()
 {
 //	TheView=NULL;
-    Frequency=NULL;
-    Precision=NULL;
-    Relax=NULL;
-    LengthUnits=NULL;
-    ProblemType=NULL;
+    Frequency = NULL;
+    Precision = NULL;
+    Relax = NULL;
+    LengthUnits = NULL;
+    ProblemType = NULL;
     ACSolver=NULL;
     DoForceMaxMeshArea = false;
-    Coords=NULL;
-    BandWidth=NULL;
-    NumNodes=NULL;
-    NumEls=NULL;
-    NumBlockProps=NULL;
-    NumPBCs=NULL;
-    NumLineProps=NULL;
-    NumPointProps=NULL;
-    NumCircProps=NULL;
-    NumBlockLabels=NULL;
-    NumCircPropsOrig=NULL;
+    Coords = NULL;
+    BandWidth = NULL;
+    NumNodes = NULL;
+    NumEls = NULL;
+    NumBlockProps = NULL;
+    NumPBCs = NULL;
+    NumLineProps = NULL;
+    NumPointProps = NULL;
+    NumCircProps = NULL;
+    NumBlockLabels = NULL;
+    NumCircPropsOrig = NULL;
 
-    meshnode=NULL;
-    meshele=NULL;
-    blockproplist=NULL;
-    lineproplist=NULL;
-    nodeproplist=NULL;
-    circproplist=NULL;
-    labellist=NULL;
-    pbclist=NULL;
-    PathName=NULL;
+    meshnode = NULL;
+    meshele = NULL;
+    blockproplist = NULL;
+    lineproplist = NULL;
+    nodeproplist = NULL;
+    circproplist = NULL;
+    labellist = NULL;
+    pbclist = NULL;
+    PathName = NULL;
 
-    extRo=extRi=extZo=NULL;
+    extRo = extRi = extZo = NULL;
+
+    // initialise the warning message box function pointer to
+    // point to the PrintWarningMsg function
+    WarnMessage = &PrintWarningMsg;
 
     // Initialize Lua
-	bLinehook=FALSE;
-    lua=lua_open(4096);
+	bLinehook = FALSE;
+	bMultiplyDefinedLabels = false;
+    lua = lua_open(4096);
 	lua_baselibopen(lua);
 	lua_strlibopen(lua);
 	lua_mathlibopen(lua);
@@ -112,8 +118,16 @@ void FSolver::CleanUp()
 {
     int k;
 
-    if (meshnode!=NULL)		free(meshnode);
-    if (meshele!=NULL)		free(meshele);
+    if (meshnode!=NULL)
+    {
+        free(meshnode);
+    }
+
+    if (meshele!=NULL)
+    {
+        free(meshele);
+    }
+
     if (blockproplist!=NULL)
     {
         for(k=0; k<NumBlockProps; k++)
@@ -133,17 +147,14 @@ void FSolver::CleanUp()
             if(labellist[k].MagDirFctn!=NULL) free(labellist[k].MagDirFctn);
         free(labellist);
     }
-    if (pbclist!=NULL)		 free(pbclist);
+    if (pbclist!=NULL)
+    {
+        free(pbclist);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // FSolver commands
-
-// Replacement function for windows MFC function AfxMessageBox
-void FSolver::AfxMessageBox(const char* message)
-{
-    printf(message);
-}
 
 void FSolver::MsgBox(const char* message)
 {
@@ -165,7 +176,7 @@ int FSolver::LoadFEMFile()
     sprintf(s,"%s.fem",PathName);
     if ((fp=fopen(s,"rt"))==NULL)
     {
-        printf("Couldn't read from specified .fem file");
+        printf("Couldn't read from specified .fem file\n");
         return FALSE;
     }
 
@@ -784,6 +795,34 @@ int FSolver::LoadFEMFile()
     for(k=0; k<NumCircProps; k++)
         if(circproplist[k].CircType==1) circproplist[k].CircType=0;
 
+//    // Check to see if any regions are multiply defined
+//    // (i.e. tagged by more than one block label). If so,
+//    // display a warnign and mark bMultiplyDefinedLabels true.
+//    for(k=0,bMultiplyDefinedLabels=false; k<NumBlockLabels; k++)
+//    {
+//        // test if the label is inside the meshed region, by attempting to find
+//        // which triangle it is in, if it's outside the problem region it will
+//        // be ignored anyway
+//        if((i = InTriangle(labellist[k].x,labellist[k].y)) >= 0)
+//        {
+//            // it's in the problem region,
+//            if(meshele[i].lbl != k)
+//            {
+//                labellist[meshelem[i].lbl].IsSelected = TRUE;
+//                if (!bMultiplyDefinedLabels)
+//                {
+//
+//                    string msg = "Some regions in the problem have been defined\n";
+//                    msg += "by more than one block label.  These potentially\n";
+//                    msg += "problematic regions will appear as selected in\n";
+//                    msg += "the initial view.";
+//                    WarnMessage(msg.c_str());
+//                    bMultiplyDefinedLabels=true;
+//                }
+//            }
+//        }
+//    }
+
     return TRUE;
 }
 
@@ -810,7 +849,7 @@ int FSolver::LoadMesh()
     if (NumNodes>999)
     {
         fclose(fp);
-        AfxMessageBox("This demo version only allows meshes with less than 1000 nodes");
+        WarnMessage("This demo version only allows meshes with less than 1000 nodes");
         return FALSE;
     }
 #endif
@@ -888,7 +927,7 @@ int FSolver::LoadMesh()
             string msg = "Material properties have not been defined for\n";
             msg += "all regions. Press the \"Run Mesh Generator\"\n";
             msg += "button to highlight the problem regions.";
-            AfxMessageBox(msg.c_str());
+            WarnMessage(msg.c_str());
             fclose(fp);
             sprintf(infile,"%s.ele",PathName);
             remove(infile);
@@ -1168,7 +1207,7 @@ void FSolver::GetFillFactor(int lbl)
 		CStdString mymsg;
 		mymsg.Format("Block label at (%g,%g) has a fill factor",bl->x,bl->y);
 		mymsg +=     "greater than the theoretical maximum.  Couldn't solve the problem.";
-		AfxMessageBox(mymsg.c_str());
+		WarnMessage(mymsg.c_str());
 		exit(5);
 	}
 

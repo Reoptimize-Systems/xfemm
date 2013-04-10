@@ -74,7 +74,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
         if( (blockproplist[meshele[i].blk].LamType==1) ||
                 (blockproplist[meshele[i].blk].LamType==2) )
         {
-            AfxMessageBox("On-edge lamination not supported in AC analyses");
+            WarnMessage("On-edge lamination not supported in AC analyses");
             return FALSE;
         }
     }
