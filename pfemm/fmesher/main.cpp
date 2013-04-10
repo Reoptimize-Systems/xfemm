@@ -82,7 +82,7 @@ int main(int argc, char ** argv)
     //
     //    //if(bLinehook==false)
     //    //{
-    //    //    AfxMessageBox(s,MB_ICONINFORMATION);
+    //    //    WarnMessage(s,MB_ICONINFORMATION);
     //    //}
     //    //else
     //    //{
