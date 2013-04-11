@@ -111,8 +111,8 @@ FSolver::FSolver()
 
 FSolver::~FSolver()
 {
-    lua_close(lua);
-    CleanUp();
+//    lua_close(lua);
+//    CleanUp();
 }
 
 void FSolver::CleanUp()
