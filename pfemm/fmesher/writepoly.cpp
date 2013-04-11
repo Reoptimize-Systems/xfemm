@@ -1197,6 +1197,21 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
         free(in.regionlist);
     }
 
+    if (in.holelist != NULL)
+    {
+        free(in.holelist);
+    }
+
+    if (in.segmentlist != NULL)
+    {
+        free(in.segmentlist);
+    }
+
+    if (in.segmentmarkerlist != NULL)
+    {
+        free(in.segmentmarkerlist);
+    }
+
     if (out.pointlist != NULL) {
         free(out.pointlist);
     }
@@ -2086,7 +2101,6 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
         in.pointmarkerlist[i] = t;
 	}
 
-
     in.numberofsegments = linelst.size();
 
     // Initialise the segmentlist
@@ -2219,6 +2233,21 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 
     if (in.regionlist != NULL) {
         free(in.regionlist);
+    }
+
+    if (in.holelist != NULL)
+    {
+        free(in.holelist);
+    }
+
+    if (in.segmentlist != NULL)
+    {
+        free(in.segmentlist);
+    }
+
+    if (in.segmentmarkerlist != NULL)
+    {
+        free(in.segmentmarkerlist);
     }
 
     if (out.pointlist != NULL) {
