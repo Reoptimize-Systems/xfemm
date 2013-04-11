@@ -20,7 +20,7 @@
 
 // #define SIMPLE
 
-
+using namespace femm;
 
 #ifdef SIMPLE
 
@@ -248,7 +248,7 @@ bool FPProc::MakeMask()
 //				else{
 					outmsg =  "The selected region is invalid. A valid selection\n";
 					outmsg += "cannot abut a region which is not free space.";
-					AfxMessageBox(outmsg.c_str());
+					WarnMessage(outmsg.c_str());
 //				}
 				free(matflag);
 				free(lblflag);
