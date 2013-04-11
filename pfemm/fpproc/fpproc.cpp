@@ -291,7 +291,7 @@ bool FPProc::OpenDocument(string pathname)
                 fclose(fp);
                 return false;
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Frequency of the problem
@@ -299,7 +299,7 @@ bool FPProc::OpenDocument(string pathname)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&Frequency);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Frequency of the problem
@@ -307,7 +307,7 @@ bool FPProc::OpenDocument(string pathname)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&Depth);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Precision
@@ -315,7 +315,7 @@ bool FPProc::OpenDocument(string pathname)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&Precision);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Units of length used by the problem
@@ -329,7 +329,7 @@ bool FPProc::OpenDocument(string pathname)
             else if( _strnicmp(q,"mils",4)==0) LengthUnits=4;
             else if( _strnicmp(q,"microns",6)==0) LengthUnits=5;
             else if( _strnicmp(q,"meters",6)==0) LengthUnits=3;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Problem Type (planar or axisymmetric)
@@ -339,7 +339,7 @@ bool FPProc::OpenDocument(string pathname)
             sscanf(v,"%s",q);
             if( _strnicmp(q,"planar",6)==0) ProblemType=PLANAR;
             if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=AXISYMMETRIC;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Coordinates (cartesian or polar)
@@ -349,7 +349,7 @@ bool FPProc::OpenDocument(string pathname)
             sscanf(v,"%s",q);
             if ( _strnicmp(q,"cartesian",4)==0) Coords=CART;
             if ( _strnicmp(q,"polar",5)==0) Coords=POLAR;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Comments
@@ -381,7 +381,7 @@ bool FPProc::OpenDocument(string pathname)
                     }
                 }
             ProblemNote=v;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // properties for axisymmetric external region
@@ -389,21 +389,21 @@ bool FPProc::OpenDocument(string pathname)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&extZo);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"[extro]",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&extRo);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"[extri]",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&extRi);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Point Properties
@@ -414,7 +414,7 @@ bool FPProc::OpenDocument(string pathname)
             PProp.Ji=0.;
             PProp.Ar=0.;
             PProp.Ai=0.;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<pointname>",11)==0)
@@ -437,41 +437,41 @@ bool FPProc::OpenDocument(string pathname)
                     }
                 }
             PProp.PointName=v;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_re>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&PProp.Ar);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_im>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&PProp.Ai);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_re>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&PProp.Jr);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_im>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&PProp.Ji);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endpoint>",9)==0)
         {
             nodeproplist.push_back(PProp);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Boundary Properties;
@@ -510,89 +510,89 @@ bool FPProc::OpenDocument(string pathname)
                     }
                 }
             BProp.BdryName = v;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<bdrytype>",10)==0)
         {
             v=StripKey(s);
             sscanf(v,"%i",&BProp.BdryFormat);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_ssd>",8)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.Mu);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<sigma_ssd>",11)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.Sig);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_0>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.A0);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_1>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.A1);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_2>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.A2);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.phi);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c0>",4)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.c0.re);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c1>",4)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.c1.re);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c0i>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.c0.im);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c1i>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.c1.im);
-            q[0]=NULL;
+            q[0] = '\0';
         }
         if( _strnicmp(q,"<endbdry>",9)==0)
         {
             lineproplist.push_back(BProp);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
 
@@ -615,7 +615,7 @@ bool FPProc::OpenDocument(string pathname)
             MProp.LamFill=1.;            // lamination fill factor;
             MProp.LamType=0;            // type of lamination;
             MProp.BHpoints=0;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<blockname>",10)==0)
@@ -638,105 +638,105 @@ bool FPProc::OpenDocument(string pathname)
                     }
                 }
             MProp.BlockName=v;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_x>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.mu_x);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_y>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.mu_y);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<H_c>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.H_c);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<J_re>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Jr);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<J_im>",6)==0)
         {
             v=StripKey(s);
             if (Frequency!=0) sscanf(v,"%lf",&MProp.Ji);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<sigma>",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Cduct);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi_h>",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_hn);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi_hx>",8)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_hx);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi_hy>",8)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_hy);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<d_lam>",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Lam_d);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<LamFill>",8)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.LamFill);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<LamType>",9)==0)
         {
             v=StripKey(s);
             sscanf(v,"%i",&MProp.LamType);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<NStrands>",10)==0)
         {
             v=StripKey(s);
             sscanf(v,"%i",&MProp.NStrands);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<WireD>",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.WireD);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<BHPoints>",10)==0)
@@ -756,18 +756,27 @@ bool FPProc::OpenDocument(string pathname)
                     sscanf(s,"%lf\t%lf",&MProp.Bdata[j],&MProp.Hdata[j].re);
                 }
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endblock>",9)==0)
         {
-            if (MProp.BHpoints>0) MProp.GetSlopes(Frequency*2.*PI);
+            if (MProp.BHpoints>0)
+            {
+                MProp.GetSlopes(Frequency*2.*PI);
+            }
+
             blockproplist.push_back(MProp);
+
+            // reinitialise the material property, and free allocated memory
             MProp.BHpoints=0;
-            MProp.Bdata=NULL;
-            MProp.Hdata=NULL;
-            MProp.slope=NULL;
-            q[0]=NULL;
+            if (MProp.Bdata != NULL) free(MProp.Bdata);
+            MProp.Bdata = NULL;
+            if (MProp.Hdata != NULL) free(MProp.Hdata);
+            MProp.Hdata = NULL;
+            if (MProp.slope != NULL) free(MProp.slope);
+            MProp.slope = NULL;
+            q[0] = '\0';
         }
 
         // Circuit Properties
@@ -776,7 +785,7 @@ bool FPProc::OpenDocument(string pathname)
             CProp.CircName="New Circuit";
             CProp.CircType=0;
             CProp.Amps=0;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<circuitname>",13)==0)
@@ -799,7 +808,7 @@ bool FPProc::OpenDocument(string pathname)
                     }
                 }
             CProp.CircName=v;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<totalamps_re>",14)==0)
@@ -808,7 +817,7 @@ bool FPProc::OpenDocument(string pathname)
             v=StripKey(s);
             sscanf(v,"%lf",&inval);
             CProp.Amps+=inval;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<totalamps_im>",14)==0)
@@ -817,20 +826,20 @@ bool FPProc::OpenDocument(string pathname)
             v=StripKey(s);
             sscanf(v,"%lf",&inval);
             if (Frequency!=0) CProp.Amps+=(I*inval);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<circuittype>",13)==0)
         {
             v=StripKey(s);
             sscanf(v,"%i",&CProp.CircType);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endcircuit>",12)==0)
         {
             circproplist.push_back(CProp);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Points list;
@@ -845,7 +854,7 @@ bool FPProc::OpenDocument(string pathname)
                 node.BoundaryMarker=t-1;
                 nodelist.push_back(node);
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // read in segment list
@@ -869,7 +878,7 @@ bool FPProc::OpenDocument(string pathname)
                 }
                 linelist.push_back(segm);
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // read in arc segment list
@@ -894,7 +903,7 @@ bool FPProc::OpenDocument(string pathname)
                 }
                 arclist.push_back(asegm);
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
 
@@ -917,7 +926,7 @@ bool FPProc::OpenDocument(string pathname)
                     //  number of block labels.
                 }
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // read in regional attributes
@@ -967,7 +976,7 @@ bool FPProc::OpenDocument(string pathname)
                 blk.InCircuit-=1;
                 blocklist.push_back(blk);
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if(_strnicmp(q,"[solution]",10)==0)
@@ -976,6 +985,11 @@ bool FPProc::OpenDocument(string pathname)
             q[0] = NULL;
         }
     }
+
+    // ensure memory is freed
+    if (MProp.Bdata != NULL) free(MProp.Bdata);
+    if (MProp.Hdata != NULL) free(MProp.Hdata);
+    if (MProp.slope != NULL) free(MProp.slope);
 
     if (flag == false)
     {
@@ -2203,7 +2217,7 @@ void FPProc::GetElementB(CElement &elm)
     else
     {
         CComplex v[6],dp,dq;
-        double R[3],Z[3],r;
+        double R[3],r; //Z[3]
 
         for(i=0,r=0; i<3; i++)
         {
@@ -3751,14 +3765,14 @@ double FPProc::ShortestDistanceFromSegment(double p, double q, int segm)
 //             {
 //               v=StripKey(s);
 //               sscanf(v,"%i",&d_LineIntegralPoints);
-//               q[0]=NULL;
+//               q[0] = '\0';
 //             }
 //
 //             if( _strnicmp(q,"<ShiftH>",8)==0)
 //             {
 //               v=StripKey(s);
 //               sscanf(v,"%i",&d_ShiftH);
-//               q[0]=NULL;
+//               q[0] = '\0';
 //             }
 //         }
 //         fclose(fp);
