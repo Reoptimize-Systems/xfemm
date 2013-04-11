@@ -269,7 +269,7 @@ bool FPProc::OpenDocument(string pathname)
     // attempt to open the file for reading
     if ((fp = fopen(pathname.c_str(),"rt")) == NULL)
     {
-        AfxMessageBox("Couldn't read from specified .ans file");
+        WarnMessage("Couldn't read from specified .ans file");
         return false;
     }
 
@@ -287,7 +287,7 @@ bool FPProc::OpenDocument(string pathname)
             vers = 10.*vers + 0.5;
             if( ((int) vers)!=40 )
             {
-                AfxMessageBox("This file is from a different version of FEMM\nRe-analyze the problem using the current version.");
+                WarnMessage("This file is from a different version of FEMM\nRe-analyze the problem using the current version.");
                 fclose(fp);
                 return false;
             }
@@ -986,12 +986,12 @@ bool FPProc::OpenDocument(string pathname)
         {
             // We read in the whole file but never found the start of
             // a solution section
-            AfxMessageBox("No solution found in file.\n"); /* EOF */
+            WarnMessage("No solution found in file.\n"); /* EOF */
         }
         else if(ferror(fp))
         {
             // There was some read error while trying to read the file
-            AfxMessageBox("An error occured while reading file.\n"); /* Error */
+            WarnMessage("An error occured while reading file.\n"); /* Error */
         }
         fclose(fp);
         return false;
@@ -1433,7 +1433,7 @@ bool FPProc::OpenDocument(string pathname)
                     msg += "by more than one block label.  These potentially\n";
                     msg += "problematic regions will appear as selected in\n";
                     msg += "the initial view.";
-                    AfxMessageBox(msg.c_str());
+                    WarnMessage(msg.c_str());
                     bMultiplyDefinedLabels = true;
                 }
             }
