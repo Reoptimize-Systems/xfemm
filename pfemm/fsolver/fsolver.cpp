@@ -111,7 +111,8 @@ FSolver::FSolver()
 
 FSolver::~FSolver()
 {
-    // This space for rent.
+    lua_close(lua);
+    CleanUp();
 }
 
 void FSolver::CleanUp()
