@@ -23,7 +23,7 @@ int main()
     //getline (cin, mystr);
 
     //testFPProc.OpenDocument(mystr);
-    int test = testFPProc.OpenDocument("C:\\Documents and Settings\\s0237326\\My Documents\\Temp\\force_test.ans");
+    int test = testFPProc.OpenDocument("./test/Temp.ans");
 
     if (test==TRUE)
     {
