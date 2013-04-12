@@ -111,8 +111,8 @@ FSolver::FSolver()
 
 FSolver::~FSolver()
 {
-//    lua_close(lua);
-//    CleanUp();
+    lua_close(lua);
+    CleanUp();
 }
 
 void FSolver::CleanUp()
@@ -142,12 +142,20 @@ void FSolver::CleanUp()
     if (lineproplist!=NULL)	 free(lineproplist);
     if (nodeproplist!=NULL)	 free(nodeproplist);
     if (circproplist!=NULL)	 free(circproplist);
+
     if (labellist!=NULL)
     {
         for(k=0; k<NumBlockLabels; k++)
-            if(labellist[k].MagDirFctn!=NULL) free(labellist[k].MagDirFctn);
+        {
+            if(labellist[k].MagDirFctn!=NULL)
+            {
+                free(labellist[k].MagDirFctn);
+            }
+        }
+
         free(labellist);
     }
+
     if (pbclist!=NULL)
     {
         free(pbclist);
