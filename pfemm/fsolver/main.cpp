@@ -74,14 +74,14 @@ int main(int argc, char** argv)
     if (theFSolver.LoadFEMFile() != TRUE)
     {
         theFSolver.WarnMessage("problem loading .fem file");
-        exit(1);
+        return 1;
     }
 
     // load mesh
     if (theFSolver.LoadMesh() != TRUE)
     {
         theFSolver.WarnMessage("problem loading mesh");
-        exit(2);
+        return 2;
         //return -1;
     }
 
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
     if (theFSolver.Cuthill() != TRUE)
     {
         theFSolver.WarnMessage("problem renumbering node points");
-        exit(3);
+        return 3;
     }
 
     printf("solving...");
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
         if (L.Create(theFSolver.NumNodes, theFSolver.BandWidth) == FALSE)
         {
             theFSolver.WarnMessage("couldn't allocate enough space for matrices");
-            exit(4);
+            return 4;
         }
 
         // Create element matrices and solve the problem;
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
             if (theFSolver.Static2D(L) == FALSE)
             {
                 theFSolver.WarnMessage("Couldn't solve the problem");
-                exit(5);
+                return 5;
             }
             printf("Static 2-D problem solved");
         }
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
             if (theFSolver.StaticAxisymmetric(L) == FALSE)
             {
                 theFSolver.WarnMessage("Couldn't solve the problem");
-                exit(5);
+                return 5;
             }
             printf("Static axisymmetric problem solved\n");
         }
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
         if (theFSolver.WriteStatic2D(L) == FALSE)
         {
             theFSolver.WarnMessage("couldn't write results to disk");
-            exit(6);
+            return 6;
         }
         printf("results written to disk\n");
     }
@@ -155,7 +155,7 @@ int main(int argc, char** argv)
         if (L.Create(theFSolver.NumNodes+theFSolver.NumCircProps, theFSolver.BandWidth, theFSolver.NumNodes) == FALSE)
         {
             theFSolver.WarnMessage("couldn't allocate enough space for matrices");
-            exit(4);
+            return 4;
         }
 
         // Create element matrices and solve the problem;
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
             if (theFSolver.Harmonic2D(L) == FALSE)
             {
                 theFSolver.WarnMessage("Couldn't solve the problem");
-                exit(5);
+                return 5;
             }
             printf("Harmonic 2-D problem solved");
         }
@@ -173,7 +173,7 @@ int main(int argc, char** argv)
             if (theFSolver.HarmonicAxisymmetric(L) == FALSE)
             {
                 theFSolver.WarnMessage("Couldn't solve the problem");
-                exit(5);
+                return 5;
             }
             printf("Harmonic axisymmetric problem solved");
         }
@@ -182,12 +182,12 @@ int main(int argc, char** argv)
         if (theFSolver.WriteHarmonic2D(L)==FALSE)
         {
             theFSolver.WarnMessage("couldn't write results to disk");
-            exit(6);
+            return 6;
         }
         printf("results written to disk.");
     }
 
-    theFSolver.CleanUp();
+    //theFSolver.CleanUp();
 
-    exit(0);
+    return 0;
 }
