@@ -1,0 +1,36 @@
+[Format]      =  4.0
+[Frequency]   =  0
+[Precision]   =  1e-008
+[MinAngle]    =  30
+[Depth]       =  1
+[LengthUnits] =  inches
+[ProblemType] =  planar
+[Coordinates] =  cartesian
+[ACSolver]    =  0
+[Comment]     =  "Add comments here."
+[PointProps]   = 0
+[BdryProps]   = 0
+[BlockProps]  = 0
+[CircuitProps]  = 0
+[NumPoints] = 7
+0.75	3.75	0	0
+3	3.75	0	0
+4.75	3.75	0	0
+4.75	2	0	0
+3	2	0	0
+0.75	2	0	0
+2.98	3.73	0	0
+[NumSegments] = 10
+5	0	-1	0	0	0
+1	0	-1	0	0	0
+1	4	-1	0	0	0
+1	2	-1	0	0	0
+2	3	-1	0	0	0
+3	4	-1	0	0	0
+4	5	-1	0	0	0
+4	5	0	0	0	0
+6	4	-1	0	0	0
+6	1	-1	0	0	0
+[NumArcSegments] = 0
+[NumHoles] = 0
+[NumBlockLabels] = 0
