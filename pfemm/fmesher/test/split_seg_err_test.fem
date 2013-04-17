@@ -32,4 +32,5 @@
 6	1	-1	0	0	0
 [NumArcSegments] = 0
 [NumHoles] = 0
-[NumBlockLabels] = 0
+[NumBlockLabels] = 1
+2.9990000000000001	3.726	0	9.9999999999999998e-020	0	0	0	1	2
