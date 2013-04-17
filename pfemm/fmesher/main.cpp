@@ -35,23 +35,20 @@ int main(int argc, char ** argv)
 
     if (MeshObj.LoadFEMFile(FilePath) == false)
     {
-        //EndWaitCursor();
         return -1;
     }
 
     if (MeshObj.HasPeriodicBC() == true)
     {
-        if (MeshObj.DoPeriodicBCTriangulation(FilePath) == false)
+        if (MeshObj.DoPeriodicBCTriangulation(FilePath) != 0)
         {
-            //EndWaitCursor();
             return -2;
         }
     }
     else
     {
-        if (MeshObj.DoNonPeriodicBCTriangulation(FilePath) == false)
+        if (MeshObj.DoNonPeriodicBCTriangulation(FilePath) != 0)
         {
-            //EndWaitCursor();
             return -3;
         }
     }
