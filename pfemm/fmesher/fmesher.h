@@ -176,8 +176,8 @@ public:
 
     // Core functions
 	bool LoadMesh(string PathName);
-	bool DoNonPeriodicBCTriangulation(string PathName);
-	bool DoPeriodicBCTriangulation(string PathName);
+	int DoNonPeriodicBCTriangulation(string PathName);
+	int DoPeriodicBCTriangulation(string PathName);
 	void UpdateUndo();
 	void Undo();
 	//bool OldOnOpenDocument(LPCTSTR lpszPathName);
