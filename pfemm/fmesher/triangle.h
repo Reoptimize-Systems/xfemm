@@ -248,6 +248,13 @@
 /*                                                                           */
 /*****************************************************************************/
 
+#ifndef __TRIANGLE_H__
+#define __TRIANGLE_H__
+
+#ifdef TRILIBRARY
+int trilibrary_exit_code = 0;
+#endif
+
 #ifndef REAL
     #ifdef SINGLE
         #define REAL float
@@ -258,6 +265,116 @@
 
 #ifndef VOID
 #define VOID void
+#endif
+
+// define the various possible exit statuses for trilibrary
+#ifndef TRIERR_OUT_OF_MEM
+#define TRIERR_OUT_OF_MEM 1
+#endif
+#ifndef TRIERR_INTERNAL_ERR
+#define TRIERR_INTERNAL_ERR 2
+#endif
+#ifndef TRIERR_ZERO_MAX_AREA
+#define TRIERR_ZERO_MAX_AREA 3
+#endif
+#ifndef TRIERR_I_SWITCH_WITH_REFINE
+#define TRIERR_I_SWITCH_WITH_REFINE 4
+#endif
+#ifndef TRIERR_INPUT_VERTICES_IDENTICAL
+#define TRIERR_INPUT_VERTICES_IDENTICAL 5
+#endif
+#ifndef TRIERR_NOT_ENOUGH_VERTICES
+#define TRIERR_NOT_ENOUGH_VERTICES 6
+#endif
+#ifndef TRIERR_CANNOT_ACCESS_ELEFILE
+#define TRIERR_CANNOT_ACCESS_ELEFILE 7
+#endif
+#ifndef TRIERR_CANNOT_ACCESS_AREAFILE
+#define TRIERR_CANNOT_ACCESS_AREAFILE 8
+#endif
+#ifndef TRIERR_ELEFILE_AND_AREAFILE_DIFF_N_TRIANGLES
+#define TRIERR_ELEFILE_AND_AREAFILE_DIFF_N_TRIANGLES 9
+#endif
+#ifndef TRIERR_TRI_INVALID_VERTEX_INDEX
+#define TRIERR_TRI_INVALID_VERTEX_INDEX 10
+#endif
+#ifndef TRIERR_MISSING_VERTEX_INDEX
+#define TRIERR_MISSING_VERTEX_INDEX 11
+#endif
+#ifndef TRIERR_SEGMENT_NO_END_POINTS
+#define TRIERR_SEGMENT_NO_END_POINTS 12
+#endif
+#ifndef TRIERR_SEGMENT_NO_SECOND_END_POINT
+#define TRIERR_SEGMENT_NO_SECOND_END_POINT 13
+#endif
+#ifndef TRIERR_SEG_INVALID_VERTEX_INDEX
+#define TRIERR_SEG_INVALID_VERTEX_INDEX 14
+#endif
+#ifndef TRIERR_SPLIT_SEG_TOO_SMALL
+#define TRIERR_SPLIT_SEG_TOO_SMALL 15
+#endif
+#ifndef TRIERR_UNEXPECTED_EOF
+#define TRIERR_UNEXPECTED_EOF 16
+#endif
+#ifndef TRIERR_CANNOT_ACCESS_POLYFILE
+#define TRIERR_CANNOT_ACCESS_POLYFILE 17
+#endif
+#ifndef TRIERR_CANNOT_ACCESS_NODEFILE
+#define TRIERR_CANNOT_ACCESS_NODEFILE 18
+#endif
+#ifndef TRIERR_MUST_HAVE_THREE_VERTICES
+#define TRIERR_MUST_HAVE_THREE_VERTICES 19
+#endif
+#ifndef TRIERR_TOO_MANY_MESH_DIMENSIONS
+#define TRIERR_TOO_MANY_MESH_DIMENSIONS 20
+#endif
+#ifndef TRIERR_VERTEX_NO_X
+#define TRIERR_VERTEX_NO_X 21
+#endif
+#ifndef TRIERR_VERTEX_NO_Y
+#define TRIERR_VERTEX_NO_Y 22
+#endif
+#ifndef TRIERR_HOLE_NO_X
+#define TRIERR_HOLE_NO_X 23
+#endif
+#ifndef TRIERR_HOLE_NO_Y
+#define TRIERR_HOLE_NO_Y 24
+#endif
+#ifndef TRIERR_REGION_NO_X
+#define TRIERR_REGION_NO_Y 25
+#endif
+#ifndef TRIERR_REGION_NO_Y
+#define TRIERR_REGION_NO_Y 26
+#endif
+#ifndef TRIERR_REGION_NO_ATTRIBUTE_OR_AREA_CON
+#define TRIERR_REGION_NO_ATTRIBUTE_OR_AREA_CON 27
+#endif
+#ifndef TRIERR_CANNOT_CREATE_NODEFILE
+#define TRIERR_CANNOT_CREATE_NODEFILE 28
+#endif
+#ifndef TRIERR_CANNOT_CREATE_ELEFILE
+#define TRIERR_CANNOT_CREATE_ELEFILE 29
+#endif
+#ifndef TRIERR_CANNOT_CREATE_POLYFILE
+#define TRIERR_CANNOT_CREATE_POLYFILE 30
+#endif
+#ifndef TRIERR_CANNOT_CREATE_EDGEFILE
+#define TRIERR_CANNOT_CREATE_EDGEFILE 31
+#endif
+#ifndef TRIERR_CANNOT_CREATE_VNODEFILE
+#define TRIERR_CANNOT_CREATE_VNODEFILE 32
+#endif
+#ifndef TRIERR_CANNOT_CREATE_VEDGEFILE
+#define TRIERR_CANNOT_CREATE_VEDGEFILE 33
+#endif
+#ifndef TRIERR_CANNOT_CREATE_NEIGHBOURFILE
+#define TRIERR_CANNOT_CREATE_NEIGHBOURFILE 34
+#endif
+#ifndef TRIERR_CANNOT_CREATE_OFFFILE
+#define TRIERR_CANNOT_CREATE_OFFFILE 35
+#endif
+#ifndef TRIERR_TEST
+#define TRIERR_TEST 36
 #endif
 
 struct triangulateio {
@@ -298,14 +415,17 @@ extern "C" {
 #endif
 
 #ifdef ANSI_DECLARATORS
-void triangulate(char *, struct triangulateio *, struct triangulateio *,
+int triangulate(char *, struct triangulateio *, struct triangulateio *,
                  struct triangulateio *);
 void trifree(VOID *memptr);
 #else /* not ANSI_DECLARATORS */
-void triangulate();
+int triangulate();
 void trifree();
 #endif /* not ANSI_DECLARATORS */
 
 #ifdef __cplusplus
 }
 #endif
+
+
+#endif // __TRIANGLE_H__
