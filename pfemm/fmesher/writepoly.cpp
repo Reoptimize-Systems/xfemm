@@ -271,11 +271,11 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
 }
 
 // What we do in the normal case is DoNonPeriodicBCTriangulation
-bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
+int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 {
 	FILE *fp;
 	unsigned int i,j,k;
-	int l,t,NRegionalAttribs,Nholes;
+	int l,t,NRegionalAttribs,Nholes,tristatus;
 	double z,R,dL;
 	CComplex a0,a1,a2,c;
 	//CStdString s;
@@ -516,7 +516,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
 	plyname = pn.substr(0,pn.find_last_of('.')) + ".pbc";
 	if ((fp=fopen(plyname.c_str(),"wt"))==NULL){
 		WarnMessage("Couldn't write to specified .pbc file");
-		return false;
+		return -1;
 	}
 	fprintf(fp,"0\n");
 	fclose(fp);
@@ -527,7 +527,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
     if (in.pointlist == NULL) {
-        return false;
+        return -1;
     }
 
     for(i=0; i < (unsigned int)(2 * in.numberofpoints - 1); i = i + 2)
@@ -561,12 +561,12 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // Initialise the segmentlist
     in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
     if (in.segmentlist == NULL) {
-        return false;
+        return -1;
     }
     // Initialise the segmentmarkerlist
     in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
     if (in.segmentmarkerlist == NULL) {
-        return false;
+        return -1;
     }
 
     // build the segmentlist
@@ -593,7 +593,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
     in.numberofholes = Nholes;
     in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
     if (in.holelist == NULL) {
-        return false;
+        return -1;
     }
 
     // Construct the holes array
@@ -612,7 +612,7 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
     in.numberofregions = NRegionalAttribs;
     in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
     if (in.regionlist == NULL) {
-        return false;
+        return -1;
     }
 
     for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
@@ -684,82 +684,69 @@ bool FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
 	sprintf(CommandLine, "-pPq%feAazQI", MinAngle);
 
-    triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    // copy the exit status status of the triangle library from the global variable, eueghh.
+    //trilibrary_exit_code;
+    if (tristatus != 0)
+    {
+        // free allocated memory
+        if (in.pointlist != NULL) { free(in.pointlist); }
+        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
+        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
+        if (in.regionlist != NULL) { free(in.regionlist); }
+        if (in.segmentlist != NULL) { free(in.segmentlist); }
+        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
+        if (in.holelist != NULL) { free(in.holelist); }
+
+        if (out.pointlist != NULL) { free(out.pointlist); }
+        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
+        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
+        if (out.trianglelist != NULL) { free(out.trianglelist); }
+        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
+        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
+        if (out.neighborlist != NULL) { free(out.neighborlist); }
+        if (out.segmentlist != NULL) { free(out.segmentlist); }
+        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
+        if (out.edgelist != NULL) { free(out.edgelist); }
+        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
+
+        return tristatus;
+    }
 
     WriteTriangulationFiles(out, PathName);
 
+    // free allocated memory
+    if (in.pointlist != NULL) { free(in.pointlist); }
+    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
+    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
+    if (in.regionlist != NULL) { free(in.regionlist); }
+    if (in.segmentlist != NULL) { free(in.segmentlist); }
+    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
+    if (in.holelist != NULL) { free(in.holelist); }
 
-    if (in.pointlist != NULL) {
-        free(in.pointlist);
-    }
+    if (out.pointlist != NULL) { free(out.pointlist); }
+    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
+    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
+    if (out.trianglelist != NULL) { free(out.trianglelist); }
+    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
+    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
+    if (out.neighborlist != NULL) { free(out.neighborlist); }
+    if (out.segmentlist != NULL) { free(out.segmentlist); }
+    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
+    if (out.edgelist != NULL) { free(out.edgelist); }
+    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
-    if (in.pointattributelist != NULL) {
-        free(in.pointattributelist);
-    }
-
-    if (in.pointmarkerlist != NULL) {
-        free(in.pointmarkerlist);
-    }
-
-    if (in.regionlist != NULL) {
-        free(in.regionlist);
-    }
-
-    if (out.pointlist != NULL) {
-        free(out.pointlist);
-    }
-
-    if (out.pointattributelist != NULL) {
-        free(out.pointattributelist);
-    }
-
-    if (out.pointmarkerlist != NULL) {
-        free(out.pointmarkerlist);
-    }
-
-    if (out.trianglelist != NULL) {
-        free(out.trianglelist);
-    }
-
-    if (out.triangleattributelist != NULL) {
-        free(out.triangleattributelist);
-    }
-
-    if (out.trianglearealist != NULL) {
-        free(out.trianglearealist);
-    }
-
-    if (out.neighborlist != NULL) {
-        free(out.neighborlist);
-    }
-
-    if (out.segmentlist != NULL) {
-        free(out.segmentlist);
-    }
-
-    if (out.segmentmarkerlist != NULL) {
-        free(out.segmentmarkerlist);
-    }
-
-    if (out.edgelist != NULL) {
-        free(out.edgelist);
-    }
-
-    if (out.edgemarkerlist != NULL) {
-        free(out.edgemarkerlist);
-    }
-
-	return true;
+	return 0;
 }
 
 
 // Call triangle twice to order segments on the boundary properly
 // for periodic or antiperiodic boundary conditions
-bool FMesher::DoPeriodicBCTriangulation(string PathName)
+int FMesher::DoPeriodicBCTriangulation(string PathName)
 {
 	FILE *fp;
 	unsigned int i, j, k, n;
-	int l,t,n0,n1,n2,NRegionalAttribs,Nholes;
+	int l,t,n0,n1,n2,NRegionalAttribs,Nholes,tristatus;
 	double z,R,dL;
 	CComplex a0,a1,a2,c;
 	CComplex b0,b1,b2;
@@ -1033,7 +1020,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 
     in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
     if (in.pointlist == NULL) {
-        return false;
+        return -1;
     }
 
     for(i=0; i < (unsigned int)(2 * in.numberofpoints-1); i = i + 2)
@@ -1049,7 +1036,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     // Initialise the pointmarkerlist
     in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
     if (in.pointmarkerlist == NULL) {
-        return false;
+        return -1;
     }
 
     // write out node marker list
@@ -1063,12 +1050,12 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     // Initialise the segmentlist
     in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
     if (in.segmentlist == NULL) {
-        return false;
+        return -1;
     }
     // Initialise the segmentmarkerlist
     in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
     if (in.segmentmarkerlist == NULL) {
-        return false;
+        return -1;
     }
 
     // build the segmentlist
@@ -1097,7 +1084,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
         if (in.holelist == NULL) {
-            return false;
+            return -1;
         }
 
         // Construct the holes array
@@ -1122,7 +1109,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     in.numberofregions = NRegionalAttribs;
     in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
     if (in.regionlist == NULL) {
-        return false;
+        return -1;
     }
 
     for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
@@ -1176,85 +1163,57 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 	sprintf(CommandLine, "-pPq%feAazI", MinAngle);
 
 //    triangulate(CommandLine, &in, &out, &vorout);
-    triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    // copy the exit status status of the triangle library from the global variable, eueghh.
+    //trilibrary_exit_code;
+    if (tristatus != 0)
+    {
+        // free allocated memory
+        if (in.pointlist != NULL) { free(in.pointlist); }
+        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
+        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
+        if (in.regionlist != NULL) { free(in.regionlist); }
+        if (in.segmentlist != NULL) { free(in.segmentlist); }
+        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
+        if (in.holelist != NULL) { free(in.holelist); }
+
+        if (out.pointlist != NULL) { free(out.pointlist); }
+        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
+        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
+        if (out.trianglelist != NULL) { free(out.trianglelist); }
+        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
+        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
+        if (out.neighborlist != NULL) { free(out.neighborlist); }
+        if (out.segmentlist != NULL) { free(out.segmentlist); }
+        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
+        if (out.edgelist != NULL) { free(out.edgelist); }
+        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
+
+        return tristatus;
+    }
 
     WriteTriangulationFiles(out, PathName);
 
     // free allocated memory
-    if (in.pointlist != NULL) {
-        free(in.pointlist);
-    }
+    if (in.pointlist != NULL) { free(in.pointlist); }
+    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
+    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
+    if (in.regionlist != NULL) { free(in.regionlist); }
+    if (in.segmentlist != NULL) { free(in.segmentlist); }
+    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
+    if (in.holelist != NULL) { free(in.holelist); }
 
-    if (in.pointattributelist != NULL) {
-        free(in.pointattributelist);
-    }
-
-    if (in.pointmarkerlist != NULL) {
-        free(in.pointmarkerlist);
-    }
-
-    if (in.regionlist != NULL) {
-        free(in.regionlist);
-    }
-
-    if (in.holelist != NULL)
-    {
-        free(in.holelist);
-    }
-
-    if (in.segmentlist != NULL)
-    {
-        free(in.segmentlist);
-    }
-
-    if (in.segmentmarkerlist != NULL)
-    {
-        free(in.segmentmarkerlist);
-    }
-
-    if (out.pointlist != NULL) {
-        free(out.pointlist);
-    }
-
-    if (out.pointattributelist != NULL) {
-        free(out.pointattributelist);
-    }
-
-    if (out.pointmarkerlist != NULL) {
-        free(out.pointmarkerlist);
-    }
-
-    if (out.trianglelist != NULL) {
-        free(out.trianglelist);
-    }
-
-    if (out.triangleattributelist != NULL) {
-        free(out.triangleattributelist);
-    }
-
-    if (out.trianglearealist != NULL) {
-        free(out.trianglearealist);
-    }
-
-    if (out.neighborlist != NULL) {
-        free(out.neighborlist);
-    }
-
-    if (out.segmentlist != NULL) {
-        free(out.segmentlist);
-    }
-
-    if (out.segmentmarkerlist != NULL) {
-        free(out.segmentmarkerlist);
-    }
-
-    if (out.edgelist != NULL) {
-        free(out.edgelist);
-    }
-
-    if (out.edgemarkerlist != NULL) {
-        free(out.edgemarkerlist);
-    }
+    if (out.pointlist != NULL) { free(out.pointlist); }
+    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
+    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
+    if (out.trianglelist != NULL) { free(out.trianglelist); }
+    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
+    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
+    if (out.neighborlist != NULL) { free(out.neighborlist); }
+    if (out.segmentlist != NULL) { free(out.segmentlist); }
+    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
+    if (out.edgelist != NULL) { free(out.edgelist); }
+    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
 
 	// So far, so good.  Now, read back in the .edge file
@@ -1268,7 +1227,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 	if((fp=fopen(plyname.c_str(),"rt"))==NULL){
 		WarnMessage("Call to triangle was unsuccessful");
 		Undo();  UnselectAll();
-		return false;
+		return -1;
 	}
 	fgets(instring,1024,fp);
 	sscanf(instring,"%i",&k);
@@ -1363,7 +1322,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 	if((fp=fopen(plyname.c_str(),"rt"))==NULL){
 		WarnMessage("Call to triangle was unsuccessful");
 		Undo();  UnselectAll();
-		return false;
+		return -1;
 	}
 	fgets(instring,1024,fp);
 	sscanf(instring,"%i",&k);
@@ -1461,7 +1420,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 				{
 					WarnMessage("An (anti)periodic BC is assigned to more than two segments");
 					Undo();  UnselectAll();
-					return false;
+					return -1;
 				}
 				pbclst[j].seg[pbclst[j].nseg]=i;
 				pbclst[j].nseg++;
@@ -1482,7 +1441,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 				{
 					WarnMessage("An (anti)periodic BC is assigned to more than two arcs");
 					Undo();  UnselectAll();
-					return false;
+					return -1;
 				}
 				pbclst[j].seg[pbclst[j].narc]=i;
 				pbclst[j].narc++;
@@ -1499,7 +1458,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 		{
 			WarnMessage("Can't mix arcs and segments for (anti)periodic BCs");
 			Undo();  UnselectAll();
-			return false;
+			return -1;
 		}
 
 
@@ -1523,7 +1482,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 			{
 				WarnMessage("(anti)periodic BCs applied to dissimilar segments");
 				Undo();  UnselectAll();
-				return false;
+				return -1;
 			}
 
 			// make sure that both lines have the same spacing
@@ -1549,7 +1508,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 			{
 				WarnMessage("(anti)periodic BCs applied to dissimilar arc segments");
 				Undo();  UnselectAll();
-				return false;
+				return -1;
 			}
 
 			// make sure that both lines have the same spacing
@@ -2059,7 +2018,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 	if ((fp=fopen(plyname.c_str(),"wt"))==NULL){
 		WarnMessage("Couldn't write to specified .pbc file");
 		Undo();  UnselectAll();
-		return false;
+		return -1;
 	}
 	fprintf(fp,"%i\n", (int) ptlst.size());
 	for(k=0;k<ptlst.size();k++)
@@ -2072,7 +2031,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 
     in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
     if (in.pointlist == NULL) {
-        return false;
+        return -1;
     }
 
     for(i=0; i < (unsigned int)(2 * in.numberofpoints-1); i = i + 2)
@@ -2088,7 +2047,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     // Initialise the pointmarkerlist
     in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
     if (in.pointmarkerlist == NULL) {
-        return false;
+        return -1;
     }
 
     t = 0;
@@ -2106,13 +2065,13 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     // Initialise the segmentlist
     in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
     if (in.segmentlist == NULL) {
-        return false;
+        return -1;
     }
 
     // Initialise the segmentmarkerlist
     in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
     if (in.segmentmarkerlist == NULL) {
-        return false;
+        return -1;
     }
 
     // build the segmentlist
@@ -2140,7 +2099,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     in.numberofholes = Nholes;
     in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
     if (in.holelist == NULL) {
-        return false;
+        return -1;
     }
 
     // Construct the holes array
@@ -2161,7 +2120,7 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
     in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
     if (in.regionlist == NULL) {
         PRINTF("Error: Memory unable to be allocated.\n");
-        return false;
+        return -1;
     }
 
     for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
@@ -2214,85 +2173,56 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 
 	sprintf(CommandLine,"-pPq%feAazIY", MinAngle);
 
-    triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    // copy the exit status status of the triangle library from the global variable, eueghh.
+    //trilibrary_exit_code;
+    if (tristatus != 0)
+    {
+        if (in.pointlist != NULL) { free(in.pointlist); }
+        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
+        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
+        if (in.regionlist != NULL) { free(in.regionlist); }
+        if (in.segmentlist != NULL) { free(in.segmentlist); }
+        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
+        if (in.holelist != NULL) { free(in.holelist); }
+
+        if (out.pointlist != NULL) { free(out.pointlist); }
+        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
+        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
+        if (out.trianglelist != NULL) { free(out.trianglelist); }
+        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
+        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
+        if (out.neighborlist != NULL) { free(out.neighborlist); }
+        if (out.segmentlist != NULL) { free(out.segmentlist); }
+        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
+        if (out.edgelist != NULL) { free(out.edgelist); }
+        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
+
+        return tristatus;
+    }
 
     WriteTriangulationFiles(out, PathName);
 
     // now deallocate memory where necessary
-    if (in.pointlist != NULL) {
-        free(in.pointlist);
-    }
+    if (in.pointlist != NULL) { free(in.pointlist); }
+    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
+    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
+    if (in.regionlist != NULL) { free(in.regionlist); }
+    if (in.segmentlist != NULL) { free(in.segmentlist); }
+    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
+    if (in.holelist != NULL) { free(in.holelist); }
 
-    if (in.pointattributelist != NULL) {
-        free(in.pointattributelist);
-    }
-
-    if (in.pointmarkerlist != NULL) {
-        free(in.pointmarkerlist);
-    }
-
-    if (in.regionlist != NULL) {
-        free(in.regionlist);
-    }
-
-    if (in.holelist != NULL)
-    {
-        free(in.holelist);
-    }
-
-    if (in.segmentlist != NULL)
-    {
-        free(in.segmentlist);
-    }
-
-    if (in.segmentmarkerlist != NULL)
-    {
-        free(in.segmentmarkerlist);
-    }
-
-    if (out.pointlist != NULL) {
-        free(out.pointlist);
-    }
-
-    if (out.pointattributelist != NULL) {
-        free(out.pointattributelist);
-    }
-
-    if (out.pointmarkerlist != NULL) {
-        free(out.pointmarkerlist);
-    }
-
-    if (out.trianglelist != NULL) {
-        free(out.trianglelist);
-    }
-
-    if (out.triangleattributelist != NULL) {
-        free(out.triangleattributelist);
-    }
-
-    if (out.trianglearealist != NULL) {
-        free(out.trianglearealist);
-    }
-
-    if (out.neighborlist != NULL) {
-        free(out.neighborlist);
-    }
-
-    if (out.segmentlist != NULL) {
-        free(out.segmentlist);
-    }
-
-    if (out.segmentmarkerlist != NULL) {
-        free(out.segmentmarkerlist);
-    }
-
-    if (out.edgelist != NULL) {
-        free(out.edgelist);
-    }
-
-    if (out.edgemarkerlist != NULL) {
-        free(out.edgemarkerlist);
-    }
+    if (out.pointlist != NULL) { free(out.pointlist); }
+    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
+    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
+    if (out.trianglelist != NULL) { free(out.trianglelist); }
+    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
+    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
+    if (out.neighborlist != NULL) { free(out.neighborlist); }
+    if (out.segmentlist != NULL) { free(out.segmentlist); }
+    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
+    if (out.edgelist != NULL) { free(out.edgelist); }
+    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
 	UnselectAll();
 
@@ -2306,5 +2236,5 @@ bool FMesher::DoPeriodicBCTriangulation(string PathName)
 	// the solution description....
 	SaveFEMFile(pn);
 
-	return true;
+	return 0;
 }

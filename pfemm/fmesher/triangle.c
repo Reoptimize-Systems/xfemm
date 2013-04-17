@@ -357,6 +357,7 @@
 #include <fpu_control.h>
 #endif /* LINUX */
 #ifdef TRILIBRARY
+#include <setjmp.h>
 #include "triangle.h"
 #endif /* TRILIBRARY */
 /* for compiling as matlab mex */
@@ -1414,15 +1415,25 @@ REAL area;                                      /* The area of the triangle. */
 /**                                                                         **/
 /**                                                                         **/
 
+#ifdef TRILIBRARY
+static jmp_buf buf;
+#endif
+
 #ifdef ANSI_DECLARATORS
 void triexit(int status)
 #else /* not ANSI_DECLARATORS */
 void triexit(status)
 int status;
 #endif /* not ANSI_DECLARATORS */
-
 {
-  exit(status);
+#ifndef TRILIBRARY
+    /* exit with the supplied exit code */
+    exit(status);
+#else
+    /* copy the exit status to the global variable */
+    trilibrary_exit_code = status;
+    longjmp(buf,1);
+#endif
 }
 
 #ifdef ANSI_DECLARATORS
@@ -1438,7 +1449,7 @@ int size;
   memptr = (VOID *) malloc((unsigned int) size);
   if (memptr == (VOID *) NULL) {
     printf("Error:  Out of memory.\n");
-    triexit(1);
+    triexit(TRIERR_OUT_OF_MEM);
   }
   return(memptr);
 }
@@ -3278,7 +3289,7 @@ void internalerror()
   printf("  Please report this bug to jrs@cs.berkeley.edu\n");
   printf("  Include the message above, your input data set, and the exact\n");
   printf("    command line you used to run Triangle.\n");
-  triexit(1);
+  triexit(TRIERR_INTERNAL_ERR);
 }
 
 /*****************************************************************************/
@@ -3289,9 +3300,9 @@ void internalerror()
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-void parsecommandline(int argc, char **argv, struct behavior *b)
+int parsecommandline(int argc, char **argv, struct behavior *b)
 #else /* not ANSI_DECLARATORS */
-void parsecommandline(argc, argv, b)
+int parsecommandline(argc, argv, b)
 int argc;
 char **argv;
 struct behavior *b;
@@ -3376,7 +3387,7 @@ struct behavior *b;
             b->maxarea = (REAL) strtod(workstring, (char **) NULL);
             if (b->maxarea <= 0.0) {
               printf("Error:  Maximum area must be greater than zero.\n");
-              triexit(1);
+              triexit(TRIERR_ZERO_MAX_AREA);
 	    }
 	  } else {
             b->vararea = 1;
@@ -3538,7 +3549,7 @@ struct behavior *b;
   if (b->refine && b->noiterationnum) {
     printf(
       "Error:  You cannot use the -I switch when refining a triangulation.\n");
-    triexit(1);
+    triexit(TRIERR_I_SWITCH_WITH_REFINE);
   }
   /* Be careful not to allocate space for element area constraints that */
   /*   will never be assigned any value (other than the default -1.0).  */
@@ -3649,6 +3660,8 @@ struct behavior *b;
   strcat(b->inelefilename, ".ele");
   strcat(b->areafilename, ".area");
 #endif /* not TRILIBRARY */
+
+  return 0;
 }
 
 /**                                                                         **/
@@ -6661,6 +6674,11 @@ struct mesh *m;
   m->incirclecount = m->counterclockcount = m->orient3dcount = 0;
   m->hyperbolacount = m->circletopcount = m->circumcentercount = 0;
   randomseed = 1;
+
+  m->dummytri = (triangle *) NULL;
+  m->dummytribase = (triangle *) NULL;
+  m->dummysub = (subseg *) NULL;
+  m->dummysubbase = (subseg *) NULL;
 
   exactinit();                     /* Initialize exact arithmetic constants. */
 }
@@ -10852,7 +10870,7 @@ struct behavior *b;
   do {
     if (heapsize == 0) {
       printf("Error:  Input vertices are all identical.\n");
-      triexit(1);
+      triexit(TRIERR_INPUT_VERTICES_IDENTICAL);
     }
     secondvertex = (vertex) eventheap[0]->eventptr;
     eventheap[0]->eventptr = (VOID *) freeevents;
@@ -11181,7 +11199,7 @@ FILE *polyfile;
   incorners = corners;
   if (incorners < 3) {
     printf("Error:  Triangles must have at least 3 vertices.\n");
-    triexit(1);
+    triexit(TRIERR_NOT_ENOUGH_VERTICES);
   }
   m->eextras = attribs;
 #else /* not TRILIBRARY */
@@ -11192,7 +11210,7 @@ FILE *polyfile;
   elefile = fopen(elefilename, "r");
   if (elefile == (FILE *) NULL) {
     printf("  Error:  Cannot access file %s.\n", elefilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_ACCESS_ELEFILE);
   }
   /* Read number of triangles, number of vertices per triangle, and */
   /*   number of triangle attributes from .ele file.                */
@@ -11206,7 +11224,7 @@ FILE *polyfile;
     if (incorners < 3) {
       printf("Error:  Triangles in %s must have at least 3 vertices.\n",
              elefilename);
-      triexit(1);
+      triexit(TRIERR_NOT_ENOUGH_VERTICES);
     }
   }
   stringptr = findfield(stringptr);
@@ -11262,14 +11280,14 @@ FILE *polyfile;
     areafile = fopen(areafilename, "r");
     if (areafile == (FILE *) NULL) {
       printf("  Error:  Cannot access file %s.\n", areafilename);
-      triexit(1);
+      triexit(TRIERR_CANNOT_ACCESS_AREAFILE);
     }
     stringptr = readline(inputline, areafile, areafilename);
     areaelements = (int) strtol(stringptr, &stringptr, 0);
     if (areaelements != m->inelements) {
       printf("Error:  %s and %s disagree on number of triangles.\n",
              elefilename, areafilename);
-      triexit(1);
+      triexit(TRIERR_ELEFILE_AND_AREAFILE_DIFF_N_TRIANGLES);
     }
   }
 #endif /* not TRILIBRARY */
@@ -11304,7 +11322,9 @@ FILE *polyfile;
           (corner[j] >= b->firstnumber + m->invertices)) {
         printf("Error:  Triangle %ld has an invalid vertex index.\n",
                elementnumber);
-        triexit(1);
+        /* free the memory allocated to vertexarray */
+        trifree(vertexarray);
+        triexit(TRIERR_TRI_INVALID_VERTEX_INDEX);
       }
     }
 #else /* not TRILIBRARY */
@@ -11315,14 +11335,14 @@ FILE *polyfile;
       if (*stringptr == '\0') {
         printf("Error:  Triangle %ld is missing vertex %d in %s.\n",
                elementnumber, j + 1, elefilename);
-        triexit(1);
+        triexit(TRIERR_MISSING_VERTEX_INDEX);
       } else {
         corner[j] = (int) strtol(stringptr, &stringptr, 0);
         if ((corner[j] < b->firstnumber) ||
             (corner[j] >= b->firstnumber + m->invertices)) {
           printf("Error:  Triangle %ld has an invalid vertex index.\n",
                  elementnumber);
-          triexit(1);
+          triexit(TRIERR_TRI_INVALID_VERTEX_INDEX);
         }
       }
     }
@@ -11460,7 +11480,7 @@ FILE *polyfile;
       if (*stringptr == '\0') {
         printf("Error:  Segment %ld has no endpoints in %s.\n", segmentnumber,
                polyfilename);
-        triexit(1);
+        triexit(TRIERR_SEGMENT_NO_END_POINTS);
       } else {
         end[0] = (int) strtol(stringptr, &stringptr, 0);
       }
@@ -11468,7 +11488,7 @@ FILE *polyfile;
       if (*stringptr == '\0') {
         printf("Error:  Segment %ld is missing its second endpoint in %s.\n",
                segmentnumber, polyfilename);
-        triexit(1);
+        triexit(TRIERR_SEGMENT_NO_SECOND_END_POINT);
       } else {
         end[1] = (int) strtol(stringptr, &stringptr, 0);
       }
@@ -11486,7 +11506,7 @@ FILE *polyfile;
             (end[j] >= b->firstnumber + m->invertices)) {
           printf("Error:  Segment %ld has an invalid vertex index.\n",
                  segmentnumber);
-          triexit(1);
+          triexit(TRIERR_SEG_INVALID_VERTEX_INDEX);
         }
       }
 
@@ -12506,7 +12526,7 @@ char *polyfilename;
       if (*stringptr == '\0') {
         printf("Error:  Segment %d has no endpoints in %s.\n",
                b->firstnumber + i, polyfilename);
-        triexit(1);
+        triexit(TRIERR_SEGMENT_NO_END_POINTS);
       } else {
         end1 = (int) strtol(stringptr, &stringptr, 0);
       }
@@ -12514,7 +12534,7 @@ char *polyfilename;
       if (*stringptr == '\0') {
         printf("Error:  Segment %d is missing its second endpoint in %s.\n",
                b->firstnumber + i, polyfilename);
-        triexit(1);
+        triexit(TRIERR_SEGMENT_NO_SECOND_END_POINT);
       } else {
         end2 = (int) strtol(stringptr, &stringptr, 0);
       }
@@ -13418,7 +13438,7 @@ int triflaws;
           printf("  can be accommodated by the finite precision of\n");
           printf("  floating point arithmetic.\n");
           precisionerror();
-          triexit(1);
+          triexit(TRIERR_SPLIT_SEG_TOO_SMALL);
         }
         /* Insert the splitting vertex.  This should always succeed. */
         success = insertvertex(m, b, newvertex, &enctri, &currentenc,
@@ -13825,7 +13845,7 @@ char *infilename;
     result = fgets(string, INPUTLINESIZE, infile);
     if (result == (char *) NULL) {
       printf("  Error:  Unexpected end of file in %s.\n", infilename);
-      triexit(1);
+      triexit(TRIERR_UNEXPECTED_EOF);
     }
     /* Skip anything that doesn't look like a number, a comment, */
     /*   or the end of a line.                                   */
@@ -13925,7 +13945,7 @@ FILE **polyfile;
     *polyfile = fopen(polyfilename, "r");
     if (*polyfile == (FILE *) NULL) {
       printf("  Error:  Cannot access file %s.\n", polyfilename);
-      triexit(1);
+      triexit(TRIERR_CANNOT_ACCESS_POLYFILE);
     }
     /* Read number of vertices, number of dimensions, number of vertex */
     /*   attributes, and number of boundary markers.                   */
@@ -13973,7 +13993,7 @@ FILE **polyfile;
     infile = fopen(nodefilename, "r");
     if (infile == (FILE *) NULL) {
       printf("  Error:  Cannot access file %s.\n", nodefilename);
-      triexit(1);
+      triexit(TRIERR_CANNOT_ACCESS_NODEFILE);
     }
     /* Read number of vertices, number of dimensions, number of vertex */
     /*   attributes, and number of boundary markers.                   */
@@ -14001,11 +14021,11 @@ FILE **polyfile;
 
   if (m->invertices < 3) {
     printf("Error:  Input must have at least three input vertices.\n");
-    triexit(1);
+    triexit(TRIERR_MUST_HAVE_THREE_VERTICES);
   }
   if (m->mesh_dim != 2) {
     printf("Error:  Triangle only works with two-dimensional meshes.\n");
-    triexit(1);
+    triexit(TRIERR_TOO_MANY_MESH_DIMENSIONS);
   }
   if (m->nextras == 0) {
     b->weighted = 0;
@@ -14026,13 +14046,13 @@ FILE **polyfile;
     stringptr = findfield(stringptr);
     if (*stringptr == '\0') {
       printf("Error:  Vertex %d has no x coordinate.\n", b->firstnumber + i);
-      triexit(1);
+      triexit(TRIERR_VERTEX_NO_X);
     }
     x = (REAL) strtod(stringptr, &stringptr);
     stringptr = findfield(stringptr);
     if (*stringptr == '\0') {
       printf("Error:  Vertex %d has no y coordinate.\n", b->firstnumber + i);
-      triexit(1);
+      triexit(TRIERR_VERTEX_NO_Y);
     }
     y = (REAL) strtod(stringptr, &stringptr);
     vertexloop[0] = x;
@@ -14119,7 +14139,7 @@ int numberofpointattribs;
   m->readnodefile = 0;
   if (m->invertices < 3) {
     printf("Error:  Input must have at least three input vertices.\n");
-    triexit(1);
+    triexit(TRIERR_MUST_HAVE_THREE_VERTICES);
   }
   if (m->nextras == 0) {
     b->weighted = 0;
@@ -14211,7 +14231,7 @@ int *regions;
       if (*stringptr == '\0') {
         printf("Error:  Hole %d has no x coordinate.\n",
                b->firstnumber + (i >> 1));
-        triexit(1);
+        triexit(TRIERR_HOLE_NO_X);
       } else {
         holelist[i] = (REAL) strtod(stringptr, &stringptr);
       }
@@ -14219,7 +14239,7 @@ int *regions;
       if (*stringptr == '\0') {
         printf("Error:  Hole %d has no y coordinate.\n",
                b->firstnumber + (i >> 1));
-        triexit(1);
+        triexit(TRIERR_HOLE_NO_Y);
       } else {
         holelist[i + 1] = (REAL) strtod(stringptr, &stringptr);
       }
@@ -14243,7 +14263,7 @@ int *regions;
         if (*stringptr == '\0') {
           printf("Error:  Region %d has no x coordinate.\n",
                  b->firstnumber + i);
-          triexit(1);
+          triexit(TRIERR_REGION_NO_X);
         } else {
           regionlist[index++] = (REAL) strtod(stringptr, &stringptr);
         }
@@ -14251,7 +14271,7 @@ int *regions;
         if (*stringptr == '\0') {
           printf("Error:  Region %d has no y coordinate.\n",
                  b->firstnumber + i);
-          triexit(1);
+          triexit(TRIERR_REGION_NO_Y);
         } else {
           regionlist[index++] = (REAL) strtod(stringptr, &stringptr);
         }
@@ -14260,7 +14280,7 @@ int *regions;
           printf(
             "Error:  Region %d has no region attribute or area constraint.\n",
                  b->firstnumber + i);
-          triexit(1);
+          triexit(TRIERR_REGION_NO_ATTRIBUTE_OR_AREA_CON);
         } else {
           regionlist[index++] = (REAL) strtod(stringptr, &stringptr);
         }
@@ -14406,7 +14426,7 @@ char **argv;
   outfile = fopen(nodefilename, "w");
   if (outfile == (FILE *) NULL) {
     printf("  Error:  Cannot create file %s.\n", nodefilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_CREATE_NODEFILE);
   }
   /* Number of vertices, number of dimensions, number of vertex attributes, */
   /*   and number of boundary markers (zero or one).                        */
@@ -14569,7 +14589,7 @@ char **argv;
   outfile = fopen(elefilename, "w");
   if (outfile == (FILE *) NULL) {
     printf("  Error:  Cannot create file %s.\n", elefilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_CREATE_ELEFILE);
   }
   /* Number of triangles, vertices per triangle, attributes per triangle. */
   fprintf(outfile, "%ld  %d  %d\n", m->triangles.items,
@@ -14711,7 +14731,7 @@ char **argv;
   outfile = fopen(polyfilename, "w");
   if (outfile == (FILE *) NULL) {
     printf("  Error:  Cannot create file %s.\n", polyfilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_CREATE_POLYFILE);
   }
   /* The zero indicates that the vertices are in a separate .node file. */
   /*   Followed by number of dimensions, number of vertex attributes,   */
@@ -14851,7 +14871,7 @@ char **argv;
   outfile = fopen(edgefilename, "w");
   if (outfile == (FILE *) NULL) {
     printf("  Error:  Cannot create file %s.\n", edgefilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_CREATE_EDGEFILE);
   }
   /* Number of edges, number of boundary markers (zero or one). */
   fprintf(outfile, "%ld  %d\n", m->edges, 1 - b->nobound);
@@ -15021,7 +15041,7 @@ char **argv;
   outfile = fopen(vnodefilename, "w");
   if (outfile == (FILE *) NULL) {
     printf("  Error:  Cannot create file %s.\n", vnodefilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_CREATE_VNODEFILE);
   }
   /* Number of triangles, two dimensions, number of vertex attributes, */
   /*   no markers.                                                     */
@@ -15090,7 +15110,7 @@ char **argv;
   outfile = fopen(vedgefilename, "w");
   if (outfile == (FILE *) NULL) {
     printf("  Error:  Cannot create file %s.\n", vedgefilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_CREATE_VEDGEFILE);
   }
   /* Number of edges, zero boundary markers. */
   fprintf(outfile, "%ld  %d\n", m->edges, 0);
@@ -15209,7 +15229,7 @@ char **argv;
   outfile = fopen(neighborfilename, "w");
   if (outfile == (FILE *) NULL) {
     printf("  Error:  Cannot create file %s.\n", neighborfilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_CREATE_NEIGHBOURFILE);
   }
   /* Number of triangles, three neighbors per triangle. */
   fprintf(outfile, "%ld  %d\n", m->triangles.items, 3);
@@ -15301,7 +15321,7 @@ char **argv;
   outfile = fopen(offfilename, "w");
   if (outfile == (FILE *) NULL) {
     printf("  Error:  Cannot create file %s.\n", offfilename);
-    triexit(1);
+    triexit(TRIERR_CANNOT_CREATE_OFFFILE);
   }
   /* Number of vertices, triangles, and edges. */
   fprintf(outfile, "OFF\n%ld  %ld  %ld\n", outvertices, m->triangles.items,
@@ -15675,10 +15695,10 @@ struct behavior *b;
 #ifdef TRILIBRARY
 
 #ifdef ANSI_DECLARATORS
-void triangulate(char *triswitches, struct triangulateio *in,
+int triangulate(char *triswitches, struct triangulateio *in,
                  struct triangulateio *out, struct triangulateio *vorout)
 #else /* not ANSI_DECLARATORS */
-void triangulate(triswitches, in, out, vorout)
+int triangulate(triswitches, in, out, vorout)
 char *triswitches;
 struct triangulateio *in;
 struct triangulateio *out;
@@ -15700,6 +15720,7 @@ char **argv;
 {
   struct mesh m;
   struct behavior b;
+  int status = 0;
   REAL *holearray;                                        /* Array of holes. */
   REAL *regionarray;   /* Array of regional attributes and area constraints. */
 #ifndef TRILIBRARY
@@ -15712,16 +15733,41 @@ char **argv;
   struct timezone tz;
 #endif /* not NO_TIMER */
 
+  /* ensure the global exit code variable is set to zero */
+  trilibrary_exit_code = 0;
+
 #ifndef NO_TIMER
   gettimeofday(&tv0, &tz);
 #endif /* not NO_TIMER */
 
   triangleinit(&m);
+  holearray = (REAL *) NULL;
+  regionarray = (REAL *) NULL;
+
 #ifdef TRILIBRARY
-  parsecommandline(1, &triswitches, &b);
+  /* this is used to exit gracefully when an error occurs
+     instead of simply calling exit, which is useless when
+     triangle is used as a library. We jump to here when
+     triexit() is called, triexit() sets the trilibrary_exit_code
+     global variable to the exit code. */
+  if( setjmp(buf) )
+  {
+    /* An error occured, clean up and return */
+    triangledeinit(&m, &b);
+    return trilibrary_exit_code;
+  }
+#endif
+
+#ifdef TRILIBRARY
+  status = parsecommandline(1, &triswitches, &b);
 #else /* not TRILIBRARY */
-  parsecommandline(argc, argv, &b);
+  status = parsecommandline(argc, argv, &b);
 #endif /* not TRILIBRARY */
+  if (status != 0)
+  {
+      return status;
+  }
+
   m.steinerleft = b.steiner;
 
 #ifdef TRILIBRARY
@@ -16009,7 +16055,7 @@ char **argv;
 #endif /* not REDUCED */
 
   triangledeinit(&m, &b);
-#ifndef TRILIBRARY
+/* #ifndef TRILIBRARY */
   return 0;
-#endif /* not TRILIBRARY */
+/* #endif /* not TRILIBRARY */
 }
