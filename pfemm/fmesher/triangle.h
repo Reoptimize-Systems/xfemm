@@ -341,7 +341,7 @@ int trilibrary_exit_code = 0;
 #define TRIERR_HOLE_NO_Y 24
 #endif
 #ifndef TRIERR_REGION_NO_X
-#define TRIERR_REGION_NO_Y 25
+#define TRIERR_REGION_NO_X 25
 #endif
 #ifndef TRIERR_REGION_NO_Y
 #define TRIERR_REGION_NO_Y 26

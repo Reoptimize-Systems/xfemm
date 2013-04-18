@@ -4648,9 +4648,11 @@ struct behavior *b;
 {
   pooldeinit(&m->triangles);
   trifree((VOID *) m->dummytribase);
+  trifree((VOID *) m->dummytri); /* Added by RC */
   if (b->usesegments) {
     pooldeinit(&m->subsegs);
     trifree((VOID *) m->dummysubbase);
+    trifree((VOID *) m->dummysub); /* Added by RC */
   }
   pooldeinit(&m->vertices);
 #ifndef CDT_ONLY
@@ -6660,11 +6662,11 @@ struct mesh *m;
   poolzero(&m->vertices);
   poolzero(&m->triangles);
   poolzero(&m->subsegs);
-  poolzero(&m->viri);
+  poolzero(&m->viri); /**/
   poolzero(&m->badsubsegs);
   poolzero(&m->badtriangles);
   poolzero(&m->flipstackers);
-  poolzero(&m->splaynodes);
+  poolzero(&m->splaynodes); /**/
 
   m->recenttri.tri = (triangle *) NULL; /* No triangle has been visited yet. */
   m->undeads = 0;                       /* No eliminated input vertices yet. */
