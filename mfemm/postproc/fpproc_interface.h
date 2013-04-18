@@ -1,4 +1,4 @@
-// femmviewDoc.h : interface of the FPProc class
+// FPProc_interface.h : interface of the FPProc class
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +75,9 @@ private:
     FPProc theFPProc;
 
 };
+
+// function to display warnings
+void FPProcInterfaceWarning(const char*);
 
 #endif
 

@@ -33,11 +33,16 @@
 
 using namespace std;
 
+void FPProcInterfaceWarning(const char* warningmsg)
+{
+    mexWarnMsgIdAndTxt("MATLAB:fpproc", warningmsg);
+}
+
 //////////////////      MEX Interface        //////////////////////
 
 FPProc_interface::FPProc_interface()
 {
-
+    theFPProc.WarnMessage = &FPProcInterfaceWarning;
 }
 
 //FPProc_interface::FPProc_interface(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -50,7 +55,6 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
     char *input_buf;
     double *outpointer;
     int wasopened;
-    string filename;
 
     /* check for proper number of arguments */
     if(nrhs!=3)
@@ -73,7 +77,9 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
     /* copy the string data from prhs[2] into a C string input_ buf.    */
     input_buf = mxArrayToString(prhs[2]);
     // create a std::string from the input C string
-    filename = input_buf;
+    string filename(input_buf);
+    // free the char array as we are done with it
+    mxFree(input_buf);
 
     // call the OpenDocument method with the input
     wasopened = theFPProc.OpenDocument(filename);
@@ -86,6 +92,12 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
     outpointer[0] = (double)(wasopened);
+
+    // Generate error if any regions are multiply defined
+    // (i.e. tagged by more than one block label)
+    if (theFPProc.bMultiplyDefinedLabels)
+        mexErrMsgIdAndTxt( "MATLAB:fpproc:regionsmultiplydefined",
+                           "Some regions in the problem have been defined by more than one block label.");
 
     return wasopened;
 }
@@ -142,6 +154,8 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
             if(theFPProc.GetPointValues(px[i], py[i], u)==true)
             {
+                // copy the point values to the matlab array at the
+                // appropriate locations
                 outpointerRe[(i*14)] = u.A.Re();
                 outpointerIm[(i*14)] = u.A.Im();
 
@@ -186,6 +200,7 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
             }
             else
             {
+                // we return nan values to alert the user
                 outpointerRe[(i*14)] = mxGetNaN();
                 outpointerIm[(i*14)] = mxGetNaN();
 
@@ -246,6 +261,8 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
             if(theFPProc.GetPointValues(px[i], py[i], u)==true)
             {
+                // copy the point values to the matlab array at the
+                // appropriate locations
 #ifdef _MEX_DEBUG
                 mexPrintf("row %i, theFPProc.GetPointValues was true.\n", i);
 #endif
@@ -266,6 +283,7 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
             }
             else
             {
+                // we return nan values to alert the user
 #ifdef _MEX_DEBUG
                 mexPrintf("row %i, theFPProc.GetPointValues was false.\n", i);
 #endif
