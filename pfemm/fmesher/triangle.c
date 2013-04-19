@@ -4648,11 +4648,11 @@ struct behavior *b;
 {
   pooldeinit(&m->triangles);
   trifree((VOID *) m->dummytribase);
-  trifree((VOID *) m->dummytri); /* Added by RC */
+  /* trifree((VOID *) m->dummytri); */ /* Added by RC */
   if (b->usesegments) {
     pooldeinit(&m->subsegs);
     trifree((VOID *) m->dummysubbase);
-    trifree((VOID *) m->dummysub); /* Added by RC */
+    /* trifree((VOID *) m->dummysub); */ /* Added by RC */
   }
   pooldeinit(&m->vertices);
 #ifndef CDT_ONLY
@@ -16059,5 +16059,6 @@ char **argv;
   triangledeinit(&m, &b);
 /* #ifndef TRILIBRARY */
   return 0;
-/* #endif /* not TRILIBRARY */
+/* #endif */
+/* not TRILIBRARY */
 }
