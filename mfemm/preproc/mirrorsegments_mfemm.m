@@ -27,14 +27,14 @@ function [FemmProblem, newseginds] = mirrorsegments_mfemm(FemmProblem, seginds, 
 %                                 .                                         
 %                      |         .
 %                      |        .
-%                      |       . ¦
-%                      |      .  ¦dy     m = dy / dx             
+%                      |       . ï¿½
+%                      |      .  ï¿½dy     m = dy / dx             
 %                      |     .----                                              
 %                      |    .   dx
 %                 _____|___._____________________                           
-%                    ¦ |  .                                                 
-%                  c ¦ | .                                                  
-%                    ¦ |.                                                   
+%                    ï¿½ |  .                                                 
+%                  c ï¿½ | .                                                  
+%                    ï¿½ |.                                                   
 %                    v x                                                    
 %                     .    
 %
@@ -104,7 +104,7 @@ function [FemmProblem, newseginds] = mirrorsegments_mfemm(FemmProblem, seginds, 
 
     if isempty(disttol)
         disttol = 1e-5;
-    end
+    end 
     
     newseginds = [];
     mirrorednodeids = [-1, -1];

@@ -29,6 +29,7 @@ function plotnodelinks(nodes, links, varargin)
 %    limitations under the License.
 
     Inputs.ZeroBased = true;
+    Inputs.ShowDirection = false;
     
     Inputs = parse_pv_pairs(Inputs, varargin);
     
@@ -44,29 +45,51 @@ function plotnodelinks(nodes, links, varargin)
     else
         error('Nodes matrix must be a (n x 2) or (n x 3) set of coordinates.')
     end
-    
-    hold all
-    
-    for i = 1:size(links, 1)
-        line([nodes(links(i,1),1), nodes(links(i,2),1)], [nodes(links(i,1),2), nodes(links(i,2),2)], [nodes(links(i,1),3), nodes(links(i,2),3)]);
-    end
-    
-    hold off
-    
+
     hold on
     
-    % plot all the nodes too
+    % plot all the nodes
     if isoctave
         scatter3(nodes(:,1), nodes(:,2), nodes(:,3), [], [], 'xr');
     else
         scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr');
     end
     
+    hold off
+
+    hold all
+    
+    for i = 1:size(links, 1)
+        if Inputs.ShowDirection
+%             axis(axis) ;
+            arrow([nodes(links(i,1),1), nodes(links(i,1),2), nodes(links(i,1),3)], ...
+                  [nodes(links(i,2),1), nodes(links(i,2),2), nodes(links(i,2),3)], ...
+                  'Width', 2);
+        else
+            line([nodes(links(i,1),1), nodes(links(i,2),1)], ...
+                 [nodes(links(i,1),2), nodes(links(i,2),2)], ...
+                 [nodes(links(i,1),3), nodes(links(i,2),3)]);
+        end
+    end
+    
+    hold off
+    
+%     hold on
+%     
+%     % plot all the nodes too
+%     if isoctave
+%         scatter3(nodes(:,1), nodes(:,2), nodes(:,3), [], [], 'xr');
+%     else
+%         scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr');
+%     end
+%     
+%     hold off
+    
     if ~is2d
         view(3);
     end
     
-    hold off
+    
     
     Xlim = get(gca, 'Xlim');
     Ylim = get(gca, 'Ylim');
