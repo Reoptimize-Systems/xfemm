@@ -428,4 +428,4 @@ void trifree();
 #endif
 
 
-#endif // __TRIANGLE_H__
+#endif /* __TRIANGLE_H__ */
