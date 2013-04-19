@@ -267,7 +267,7 @@ int trilibrary_exit_code = 0;
 #define VOID void
 #endif
 
-// define the various possible exit statuses for trilibrary
+/* define the various possible exit statuses for trilibrary */
 #ifndef TRIERR_OUT_OF_MEM
 #define TRIERR_OUT_OF_MEM 1
 #endif
