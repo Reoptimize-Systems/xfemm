@@ -487,7 +487,7 @@ bool FPProc::OpenDocument(string pathname)
             BProp.Sig = 0.;
             BProp.c0  = 0.;
             BProp.c1  = 0.;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<bdryname>",10)==0)
@@ -982,7 +982,7 @@ bool FPProc::OpenDocument(string pathname)
         if(_strnicmp(q,"[solution]",10)==0)
         {
             flag = true;
-            q[0] = NULL;
+            q[0] = '\0';
         }
     }
 
