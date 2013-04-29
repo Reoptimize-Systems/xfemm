@@ -721,7 +721,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
             else sprintf(outstr,"Successive Approx(%i) Relax=%.4g",Iter,Relax);
 // #endif
 //        TheView->SetDlgItemText(IDC_FRAME2,outstr);
-            printf(outstr);
+            printf("%s\n", outstr);
             j=(int)  (100.*log10(res)/(log10(Precision)+2.));
             if (j>100) j=100;
 //        TheView->m_prog2.SetPos(j);

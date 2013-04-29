@@ -239,7 +239,7 @@ int FSolver::LoadFEMFile()
             int temp = 0;
             v = StripKey(s);
             sscanf(v,"%i",&temp);
-            q[0] = NULL;
+            q[0] = '\0';
             // 0 == do not override user mesh choice
             // not 0 == do override user mesh choice
             if (temp == 0)
