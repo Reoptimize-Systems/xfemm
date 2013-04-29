@@ -91,7 +91,7 @@ FSolver::FSolver()
     circproplist = NULL;
     labellist = NULL;
     pbclist = NULL;
-    PathName = NULL;
+    //PathName = NULL;
 
     extRo = extRi = extZo = NULL;
 
@@ -182,7 +182,7 @@ int FSolver::LoadFEMFile()
     CCircuit	  CProp;
     CBlockLabel   blk;
 
-    sprintf(s,"%s.fem",PathName);
+    sprintf(s,"%s.fem", PathName.c_str() );
     if ((fp=fopen(s,"rt"))==NULL)
     {
         printf("Couldn't read from specified .fem file\n");
@@ -845,7 +845,7 @@ int FSolver::LoadMesh()
 
 
     //read meshnodes;
-    sprintf(infile,"%s.node",PathName);
+    sprintf(infile,"%s.node",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
         return FALSE;
@@ -884,7 +884,7 @@ int FSolver::LoadMesh()
     fclose(fp);
 
     //read in periodic boundary conditions;
-    sprintf(infile,"%s.pbc",PathName);
+    sprintf(infile,"%s.pbc",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
         return FALSE;
@@ -906,7 +906,7 @@ int FSolver::LoadMesh()
     fclose(fp);
 
     // read in elements;
-    sprintf(infile,"%s.ele",PathName);
+    sprintf(infile,"%s.ele",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
         return FALSE;
@@ -938,15 +938,15 @@ int FSolver::LoadMesh()
             msg += "button to highlight the problem regions.";
             WarnMessage(msg.c_str());
             fclose(fp);
-            sprintf(infile,"%s.ele",PathName);
+            sprintf(infile,"%s.ele",PathName.c_str());
             remove(infile);
-            sprintf(infile,"%s.node",PathName);
+            sprintf(infile,"%s.node",PathName.c_str());
             remove(infile);
-            sprintf(infile,"%s.pbc",PathName);
+            sprintf(infile,"%s.pbc",PathName.c_str());
             remove(infile);
-            sprintf(infile,"%s.poly",PathName);
+            sprintf(infile,"%s.poly",PathName.c_str());
             remove(infile);
-            sprintf(infile,"%s.edge",PathName);
+            sprintf(infile,"%s.edge",PathName.c_str());
             remove(infile);
             exit(1);
         }
@@ -999,7 +999,7 @@ int FSolver::LoadMesh()
             nmbr[k]++;
         }
 
-    sprintf(infile,"%s.edge",PathName);
+    sprintf(infile,"%s.edge",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
         return FALSE;
@@ -1045,13 +1045,13 @@ int FSolver::LoadMesh()
     free(mbr);
 
     // clear out temporary files
-    sprintf(infile,"%s.ele",PathName);
+    sprintf(infile,"%s.ele",PathName.c_str());
     remove(infile);
-    sprintf(infile,"%s.node",PathName);
+    sprintf(infile,"%s.node",PathName.c_str());
     remove(infile);
-    sprintf(infile,"%s.pbc",PathName);
+    sprintf(infile,"%s.pbc",PathName.c_str());
     remove(infile);
-    sprintf(infile,"%s.poly",PathName);
+    sprintf(infile,"%s.poly",PathName.c_str());
     remove(infile);
 
     return TRUE;
