@@ -100,7 +100,7 @@ int CFullMatrix::GaussSolve()
     /* solves the linear system m x = b for x.  The result is returned
        in b, m is destroyed in the process */
 
-    int i,j,k,q;
+    int i,j,k,q = 0;
     double *z;
     double max,f;
 
@@ -198,7 +198,7 @@ int CComplexFullMatrix::GaussSolve()
     /* solves the linear system m x = b for x.  The result is returned
        in b, m is destroyed in the process */
 
-    int i,j,k,q;
+    int i,j,k,q = 0;
     CComplex *z;
     CComplex max,f;
 
