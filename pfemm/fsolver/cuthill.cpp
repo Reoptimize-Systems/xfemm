@@ -84,7 +84,8 @@ int FSolver::Cuthill()
 {
 
     FILE *fp;
-    int i,j,k,n0,n1,n;
+    int i,n0,n1,n;
+    long int j,k;
     int newwide,*newnum,**ocon;
     int  *numcon,*nxtnum;
     CNode swap;
@@ -100,8 +101,8 @@ int FSolver::Cuthill()
         printf("Couldn't open %s",infile);
         return FALSE;
     }
-    fscanf(fp,"%i",&k);	// read in number of lines
-    fscanf(fp,"%i",&j);	// read in boundarymarker flag;
+    fscanf(fp,"%li",&k);	// read in number of lines
+    fscanf(fp,"%li",&j);	// read in boundarymarker flag;
 
     // allocate storage for numbering
     nxtnum=(int *)calloc(NumNodes,sizeof(int));
@@ -122,10 +123,10 @@ int FSolver::Cuthill()
     // there are for each node;
     for(i=0; i<k; i++)
     {
-        fscanf(fp,"%i",&j);
+        fscanf(fp,"%li",&j);
         fscanf(fp,"%i",&n0);
         fscanf(fp,"%i",&n1);
-        fscanf(fp,"%i",&j);
+        fscanf(fp,"%li",&j);
 
         numcon[n0]++;
         numcon[n1]++;
@@ -144,10 +145,10 @@ int FSolver::Cuthill()
     fscanf(fp,"%li",&j);	// read in boundarymarker flag;
     for(i=0; i<k; i++)
     {
-        fscanf(fp,"%i",&j);
+        fscanf(fp,"%li",&j);
         fscanf(fp,"%i",&n0);
         fscanf(fp,"%i",&n1);
-        fscanf(fp,"%i",&j);
+        fscanf(fp,"%li",&j);
 
         ocon[n0][nxtnum[n0]]=n1;
         nxtnum[n0]++;
