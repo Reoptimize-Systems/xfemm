@@ -27,7 +27,7 @@ int nrhs, const mxArray *prhs[])
 {
     FSolver SolveObj;
     std::string FilePath;
-    char *buf;
+    char *inputbuf;
     mwSize buflen;
     int status;
 
@@ -54,23 +54,18 @@ int nrhs, const mxArray *prhs[])
        is allocated to hold the string */
 
     buflen = mxGetN(prhs[0])*sizeof(mxChar)+1;
-    buf = (char *) mxMalloc(buflen);
+    inputbuf = (char *) mxMalloc(buflen);
 
     /* Copy the string data into buf. */
-    status = mxGetString(prhs[0], buf, buflen);
-    mexPrintf("Solving file: %s\n", buf);
-
-    /* NOTE: You could add your own code here to manipulate
-       the string */
-//     FilePath
-
+    status = mxGetString(prhs[0], inputbuf, buflen);
+    mexPrintf("Solving file: %s\n",inputbuf);
 
     // Tell FSolver the location of the mesh and fem files this should be
     // an extension free base name
-    SolveObj.PathName = buf;
+    strncpy ( SolveObj.PathName, inputbuf, buflen);
 
-    /* When finished using the string, deallocate it. */
-    //mxFree(buf);
+    // free the input buffer
+    mxFree(inputbuf);
 
 	if (SolveObj.LoadFEMFile() != TRUE){
 		mexPrintf("problem loading .fem file\n");
@@ -193,8 +188,6 @@ int nrhs, const mxArray *prhs[])
 		}
         mexPrintf("results written to disk.\n");
 	}
-
-	SolveObj.CleanUp();
 
 	plhs[0] = mxCreateDoubleScalar(0.0);
 
