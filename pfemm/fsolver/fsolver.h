@@ -22,6 +22,8 @@
 // fsolver.h : interface of the FSolver class
 //
 /////////////////////////////////////////////////////////////////////////////
+#include <string>
+
 #ifndef muo
 #define muo 1.2566370614359173e-6
 #endif
@@ -98,8 +100,8 @@ public:
     CBlockLabel		*labellist;
     CCommonPoint	*pbclist;
 
-    // stuff usually kept track of by CDocument
-    char *PathName;
+    // string to hold the location of the files
+    std::string PathName;
 
 
 // Operations

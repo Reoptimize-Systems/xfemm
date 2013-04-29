@@ -94,7 +94,7 @@ int FSolver::Cuthill()
 
 
     // read in connectivity from nodefile
-    sprintf(infile,"%s.edge",PathName);
+    sprintf(infile,"%s.edge",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
         //MsgBox("Couldn't open %s",infile);

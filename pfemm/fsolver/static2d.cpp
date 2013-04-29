@@ -903,22 +903,22 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
     double unitconv[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
 
     // first, echo input .fem file to the .ans file;
-    sprintf(c,"%s.fem",PathName);
+    sprintf(c,"%s.fem",PathName.c_str());
     fz = fopen(c,"rt");
     if(fz==NULL)
     {
-        //MsgBox("Couldn't open %s.fem\n", PathName);
-        printf("Couldn't open %s.fem\n", PathName);
+        //MsgBox("Couldn't open %s.fem\n", PathName.c_str());
+        printf("Couldn't open %s.fem\n", PathName.c_str());
         return FALSE;
     }
 
-    sprintf(c,"%s.ans",PathName);
+    sprintf(c,"%s.ans",PathName.c_str());
     fp = fopen(c,"wt");
     if(fp==NULL)
     {
         if (fz != NULL) fclose(fz);
-        //MsgBox("Couldn't write to %s.ans\n",PathName);
-        printf("Couldn't write to %s.ans\n",PathName);
+        //MsgBox("Couldn't write to %s.ans\n",PathName.c_str());
+        printf("Couldn't write to %s.ans\n",PathName.c_str());
         return FALSE;
     }
 
