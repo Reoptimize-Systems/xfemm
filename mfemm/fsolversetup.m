@@ -1,4 +1,4 @@
-function fsolversetup(dodebug)
+function fsolversetup(dodebug, verbose)
 % compiles the fsolver mexfunction 
 
 % Copyright 2012 Richard Crozier
@@ -18,6 +18,10 @@ function fsolversetup(dodebug)
     if nargin < 1
         dodebug = false;
     end
+    
+    if nargin < 2
+        verbose = false;
+    end 
     
 %     if isoctave
 %         cc.Name = 'gcc';
@@ -45,6 +49,10 @@ function fsolversetup(dodebug)
     else
         common_compiler_flags={'-DMATLAB_MEX_FILE'};% common_compiler_flags = '-D"printf=mexPrintf"';
     end
+    
+    if verbose
+        common_compiler_flags = [common_compiler_flags, {'-v'}];
+    end
 
     % TODO: build the lua library??
     
@@ -62,7 +70,7 @@ function fsolversetup(dodebug)
     
     % put all the compiler commands in a cell array
     mexcommands = [ common_compiler_flags, ...
-                    { '-v', ...                      
+                    { ...                      
                       'mexfsolver.cpp', ...
                       'pfemm/fsolver/fsolver.cpp', ...
                       'pfemm/fsolver/cspars.cpp', ...
