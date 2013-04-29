@@ -844,7 +844,7 @@ int FSolver::Static2D(CBigLinProb &L)
             // report some results
             char outstr[256];
             sprintf(outstr,"Newton Iteration(%i) Relax=%.4g\n",Iter,Relax);
-            printf(outstr);
+            printf("%s", outstr);
 //        TheView->SetDlgItemText(IDC_FRAME2,outstr);
             j = (int)  (100.*log10(res)/(log10(Precision)+2.));
             if (j>100)
