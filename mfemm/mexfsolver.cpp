@@ -62,7 +62,7 @@ int nrhs, const mxArray *prhs[])
 
     // Tell FSolver the location of the mesh and fem files this should be
     // an extension free base name
-    strncpy ( SolveObj.PathName, inputbuf, buflen);
+    SolveObj.PathName = inputbuf;
 
     // free the input buffer
     mxFree(inputbuf);
@@ -96,7 +96,7 @@ int nrhs, const mxArray *prhs[])
 //
 //     mexPrintf(outstr);
 
-	double mr = (8.*((double) SolveObj.NumNodes)*((double) SolveObj.BandWidth)) / 1.e06;
+	//double mr = (8.*((double) SolveObj.NumNodes)*((double) SolveObj.BandWidth)) / 1.e06;
 
 	if(SolveObj.Frequency == 0){
 
