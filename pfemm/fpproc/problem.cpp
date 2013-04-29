@@ -701,11 +701,13 @@ double CMaterialProp::DoEnergy(double b1, double b2)
     // laminations on a continuum basis.
 
     double nrg,biron,bair;
+    nrg=biron=bair = 0;
 
     // easiest case: the material is linear!
     if (BHpoints==0)
     {
-        double h1,h2;
+        double h1 = 0;
+        double h2 = 0;
 
         if(LamType==0){        // laminated in-plane
             h1=b1/((1.+LamFill*(mu_x-1.))*muo);
@@ -752,6 +754,7 @@ double CMaterialProp::DoEnergy(double b1, double b2)
 double CMaterialProp::DoCoEnergy(double b1, double b2)
 {
     double nrg,biron,bair;
+    nrg=biron=bair = 0;
 
     // easiest case: the material is linear!
     // in this case, energy and coenergy are the same!
