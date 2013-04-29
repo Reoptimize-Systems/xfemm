@@ -705,7 +705,7 @@ bool FMesher::LoadFEMFile(string PathName)
     // parse the file
     while (fgets(s,1024,fp)!=NULL)
     {
-        if (sscanf(s,"%s",q)==EOF) q[0] = NULL;
+        if (sscanf(s,"%s",q)==EOF) q[0] = '\0';
         //	int _strnicmp( const char *string1, const char *string2, size_t count );
 
         // Deal with flag for file format version
@@ -721,7 +721,7 @@ bool FMesher::LoadFEMFile(string PathName)
                             "This file may contain attributes not\n"
                             "supported by this version of FEMM");
             }
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Frequency of the problem
@@ -729,7 +729,7 @@ bool FMesher::LoadFEMFile(string PathName)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&Frequency);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Depth in the into-the-page direction
@@ -737,7 +737,7 @@ bool FMesher::LoadFEMFile(string PathName)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&Depth);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Required solver precision
@@ -745,7 +745,7 @@ bool FMesher::LoadFEMFile(string PathName)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&Precision);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Solver to use for AC problems
@@ -753,7 +753,7 @@ bool FMesher::LoadFEMFile(string PathName)
         {
             v = StripKey(s);
             sscanf(v,"%i",&ACSolver);
-            q[0] = NULL;
+            q[0] = '\0';
             // 0 == successive approx
             // 1 == newton
         }
@@ -763,7 +763,7 @@ bool FMesher::LoadFEMFile(string PathName)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MinAngle);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Units of length used by the problem
@@ -777,7 +777,7 @@ bool FMesher::LoadFEMFile(string PathName)
             else if( _strnicmp(q,"mils",4)==0) LengthUnits = 4;
             else if( _strnicmp(q,"microns",6)==0) LengthUnits = 5;
             else if( _strnicmp(q,"meters",6)==0) LengthUnits = 3;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Problem Type (planar or axisymmetric)
@@ -787,7 +787,7 @@ bool FMesher::LoadFEMFile(string PathName)
             sscanf(v,"%s",q);
             if( _strnicmp(q,"planar",6)==0) ProblemType=0;
             if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=1;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Coordinates (cartesian or polar)
@@ -797,7 +797,7 @@ bool FMesher::LoadFEMFile(string PathName)
             sscanf(v,"%s",q);
             if ( _strnicmp(q,"cartesian",4)==0) Coords=0;
             if ( _strnicmp(q,"polar",5)==0) Coords=1;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Option to force use of default max mesh, overriding
@@ -807,7 +807,7 @@ bool FMesher::LoadFEMFile(string PathName)
             int temp = 0;
             v = StripKey(s);
             sscanf(v,"%i",&temp);
-            q[0] = NULL;
+            q[0] = '\0';
             // 0 == do not override user mesh choice
             // not 0 == do override user mesh choice
             if (temp == 0)
@@ -849,7 +849,7 @@ bool FMesher::LoadFEMFile(string PathName)
                     }
                 }
             ProblemNote = v;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // properties for axisymmetric external region
@@ -857,21 +857,21 @@ bool FMesher::LoadFEMFile(string PathName)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&extZo);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"[extro]",7)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&extRo);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"[extri]",7)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&extRi);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Point Properties
@@ -880,7 +880,7 @@ bool FMesher::LoadFEMFile(string PathName)
             PProp.PointName="New Point Property";
             PProp.Jp=0;
             PProp.Ap=0;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<pointname>",11)==0)
@@ -903,41 +903,41 @@ bool FMesher::LoadFEMFile(string PathName)
                     }
                 }
             PProp.PointName=v;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_re>",6)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&PProp.Ap.re);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_im>",6)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&PProp.Ap.im);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_re>",6)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&PProp.Jp.re);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_im>",6)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&PProp.Jp.im);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endpoint>",9)==0)
         {
             nodeproplist.push_back(PProp);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Boundary Properties;
@@ -953,7 +953,7 @@ bool FMesher::LoadFEMFile(string PathName)
             BProp.Sig=0.;
             BProp.c0=0.;
             BProp.c1=0.;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<bdryname>",10)==0)
@@ -976,90 +976,90 @@ bool FMesher::LoadFEMFile(string PathName)
                     }
                 }
             BProp.BdryName=v;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<bdrytype>",10)==0)
         {
             v = StripKey(s);
             sscanf(v,"%i",&BProp.BdryFormat);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_ssd>",8)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.Mu);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<sigma_ssd>",11)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.Sig);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_0>",5)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.A0);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_1>",5)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.A1);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_2>",5)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.A2);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi>",5)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.phi);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c0>",4)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.c0.re);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c1>",4)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.c1.re);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c0i>",5)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.c0.im);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c1i>",5)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&BProp.c1.im);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endbdry>",9)==0)
         {
             lineproplist.push_back(BProp);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
 
@@ -1082,7 +1082,7 @@ bool FMesher::LoadFEMFile(string PathName)
             MProp.WireD=0;
             MProp.BHpoints=0;
             MProp.BHdata.clear();
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<blockname>",10)==0)
@@ -1105,49 +1105,49 @@ bool FMesher::LoadFEMFile(string PathName)
                     }
                 }
             MProp.BlockName=v;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_x>",6)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.mu_x);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_y>",6)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.mu_y);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<H_c>",5)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.H_c);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<J_re>",6)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.Jsrc.re);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<J_im>",6)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.Jsrc.im);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<sigma>",7)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.Cduct);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi_h>",7)==0)
@@ -1159,56 +1159,56 @@ bool FMesher::LoadFEMFile(string PathName)
                 MProp.Theta_hx = MProp.Theta_hn;
                 MProp.Theta_hy = MProp.Theta_hn;
             }
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi_hx>",8)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_hx);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi_hy>",8)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_hy);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<d_lam>",7)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.Lam_d);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<LamFill>",8)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.LamFill);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<LamType>",9)==0)
         {
             v = StripKey(s);
             sscanf(v,"%i",&MProp.LamType);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<NStrands>",10)==0)
         {
             v = StripKey(s);
             sscanf(v,"%i",&MProp.NStrands);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<WireD>",7)==0)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MProp.WireD);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<BHPoints>",10)==0)
@@ -1230,14 +1230,14 @@ bool FMesher::LoadFEMFile(string PathName)
                     MProp.BHdata.push_back(tempComplex);
                 }
             }
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endblock>",9)==0)
         {
             blockproplist.push_back(MProp);
             MProp.BHpoints=0;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Circuit Properties
@@ -1246,7 +1246,7 @@ bool FMesher::LoadFEMFile(string PathName)
             CProp.CircName="New Circuit";
             CProp.Amps=0.;
             CProp.CircType=0;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<circuitname>",13)==0)
@@ -1269,7 +1269,7 @@ bool FMesher::LoadFEMFile(string PathName)
                     }
                 }
             CProp.CircName=v;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<totalamps_re>",14)==0)
@@ -1278,7 +1278,7 @@ bool FMesher::LoadFEMFile(string PathName)
             v = StripKey(s);
             sscanf(v,"%lf",&inval);
             CProp.Amps+=inval;
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<totalamps_im>",14)==0)
@@ -1287,20 +1287,20 @@ bool FMesher::LoadFEMFile(string PathName)
             v = StripKey(s);
             sscanf(v,"%lf",&inval);
             CProp.Amps+=(I*inval);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<circuittype>",13)==0)
         {
             v = StripKey(s);
             sscanf(v,"%i",&CProp.CircType);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endcircuit>",12)==0)
         {
             circproplist.push_back(CProp);
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // Points list;
@@ -1321,7 +1321,7 @@ bool FMesher::LoadFEMFile(string PathName)
                     node.BoundaryMarker=nodeproplist[t-1].PointName;
                 nodelist.push_back(node);
             }
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // read in segment list
@@ -1361,7 +1361,7 @@ bool FMesher::LoadFEMFile(string PathName)
 
                 linelist.push_back(segm);
             }
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // read in arc segment list
@@ -1402,7 +1402,7 @@ bool FMesher::LoadFEMFile(string PathName)
 
                 arclist.push_back(asegm);
             }
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
 
@@ -1426,7 +1426,7 @@ bool FMesher::LoadFEMFile(string PathName)
                     blocklist.push_back(blk);
                 }
             }
-            q[0] = NULL;
+            q[0] = '\0';
         }
 
         // read in regional attributes
@@ -1493,7 +1493,7 @@ bool FMesher::LoadFEMFile(string PathName)
 
                 blocklist.push_back(blk);
             }
-            q[0] = NULL;
+            q[0] = '\0';
         }
     }
 
@@ -1940,56 +1940,56 @@ void FMesher::Undo()
 //			{
 //			  v = StripKey(s);
 //			  sscanf(v,"%lf",&d_prec);
-//			  q[0] = NULL;
+//			  q[0] = '\0';
 //			}
 //
 //			if( _strnicmp(q,"<MinAngle>",10)==0)
 //			{
 //			  v = StripKey(s);
 //			  sscanf(v,"%lf",&d_minangle);
-//			  q[0] = NULL;
+//			  q[0] = '\0';
 //			}
 //
 //			if( _strnicmp(q,"<Frequency>",11)==0)
 //			{
 //			  v = StripKey(s);
 //			  sscanf(v,"%lf",&d_freq);
-//			  q[0] = NULL;
+//			  q[0] = '\0';
 //			}
 //
 //			if( _strnicmp(q,"<Depth>",7)==0)
 //			{
 //			  v = StripKey(s);
 //			  sscanf(v,"%lf",&d_depth);
-//			  q[0] = NULL;
+//			  q[0] = '\0';
 //			}
 //
 //			if( _strnicmp(q,"<Coordinates>",13)==0)
 //			{
 //			  v = StripKey(s);
 //			  sscanf(v,"%i",&d_coord);
-//			  q[0] = NULL;
+//			  q[0] = '\0';
 //			}
 //
 //			if( _strnicmp(q,"<LengthUnits>",13)==0)
 //			{
 //			  v = StripKey(s);
 //			  sscanf(v,"%i",&d_length);
-//			  q[0] = NULL;
+//			  q[0] = '\0';
 //			}
 //
 //			if( _strnicmp(q,"<ProblemType>",13)==0)
 //			{
 //			  v = StripKey(s);
 //			  sscanf(v,"%i",&d_type);
-//			  q[0] = NULL;
+//			  q[0] = '\0';
 //			}
 //
 //			if( _strnicmp(q,"<ACSolver>",8)==0)
 //			{
 //			  v = StripKey(s);
 //			  sscanf(v,"%i",&d_solver);
-//			  q[0] = NULL;
+//			  q[0] = '\0';
 //			}
 //		}
 //		fclose(fp);
