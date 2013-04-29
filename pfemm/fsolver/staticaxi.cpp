@@ -726,7 +726,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
             char outstr[256];
             sprintf(outstr,"Newton Iteration(%i) Relax=%.4g\n",Iter,Relax);
 //        TheView->SetDlgItemText(IDC_FRAME2,outstr);
-            printf(outstr);
+            printf("%s", outstr);
             j=(int)  (100.*log10(res)/(log10(Precision)+2.));
             if (j>100) j=100;
 //        TheView->m_prog2.SetPos(j);
