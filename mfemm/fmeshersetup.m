@@ -1,4 +1,4 @@
-function fmeshersetup(dodebug)
+function fmeshersetup(dodebug, verbose)
 % compiles the fmesher mexfunction 
 
 % Copyright 2012 Richard Crozier
@@ -18,6 +18,10 @@ function fmeshersetup(dodebug)
     if nargin < 1
         dodebug = false;
     end
+    
+    if nargin < 2
+        verbose = false;
+    end    
 
     % store the current directory
     origdir = pwd;
@@ -42,6 +46,10 @@ function fmeshersetup(dodebug)
     else
         trilibraryflag = {'-DLINUX'};
     end
+    
+    if verbose
+        common_compiler_flags = [common_compiler_flags, {'-v'}];
+    end
 
     % construnct the command string 
     mexcommands = [ common_compiler_flags, ...
@@ -51,7 +59,7 @@ function fmeshersetup(dodebug)
                       'pfemm/fmesher/triangle.c', ...
                       'pfemm/fmesher/intpoint.cpp', ...
                       'pfemm/fmesher/nosebl.cpp', ...
-                      'pfemm/fmesher/writepoly.cpp', '-v'} ...
+                      'pfemm/fmesher/writepoly.cpp'} ...
                     libcommands ...
                   ];
 

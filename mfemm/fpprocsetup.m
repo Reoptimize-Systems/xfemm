@@ -1,9 +1,13 @@
-function fpprocsetup(dodebug)
+function fpprocsetup(dodebug, verbose)
 % compiles the fpproc mexfunction
 
     if nargin < 1
         dodebug = false;
     end
+    
+    if nargin < 2
+        verbose = false;
+    end 
 
     if isoctave
         cc.Name = 'gcc';
@@ -31,6 +35,10 @@ function fpprocsetup(dodebug)
     else
         common_compiler_flags={};% common_compiler_flags = '-D"printf=mexPrintf"';
     end
+    
+    if verbose
+        common_compiler_flags = [common_compiler_flags, {'-v'}];
+    end
 
     % TODO: build the libries?
     libcommands = {'./pfemm/fpproc/libfpproc.a', ...
@@ -41,7 +49,6 @@ function fpprocsetup(dodebug)
     % put all the compiler commands in a cell array
     mexcommands = [ common_compiler_flags, ...
                     { ...
-                      '-v', ...
                       './postproc/fpproc_interface_mex.cpp', ...
                       './postproc/fpproc_interface.cpp', ...
                     }, ...
