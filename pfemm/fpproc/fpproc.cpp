@@ -1930,7 +1930,9 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
     CComplex p;
     CComplex tn,bn,bt,btu,btv,u1,u2,v1,v2;
     int i,j,k,l,q,m,pt,nxt;
+    i=j=k=l=q=m=pt=nxt = 0;
     double r,R,z;
+    r=R=z = 0;
     CElement *e;
     int flag;
 
@@ -2663,6 +2665,7 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
 
     int i,blk,lbl,crc;
     double r,c,rn;
+    r=c=rn = 0;
     CComplex Javg;
 
     blk=meshelem[k].blk;
@@ -3895,6 +3898,7 @@ void FPProc::GetFillFactor(int lbl)
     CBlockLabel* bl= &blocklist[lbl];
     double lc=LengthConv[LengthUnits]*LengthConv[LengthUnits];
     double atot,awire,w,d,o,fill,dd,W,R,c1,c2,c3,c4;
+    atot=awire=w=d=o=fill=dd=W=R=c1=c2=c3=c4=0;
     int i,wiretype;
     CComplex ufd,ueff,ofd;
 
@@ -4120,6 +4124,7 @@ CComplex FPProc::GetParallelLinkage(int numcirc)
     CComplex FluxLinkage;
     CComplex Aa,A[3],J[3],U[3];//,V[3];
     double a,atot,R,c;
+    a=atot=R=c = 0;
     double r[3];
 
     U[0]=1;
