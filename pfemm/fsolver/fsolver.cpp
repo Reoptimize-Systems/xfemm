@@ -167,7 +167,7 @@ void FSolver::CleanUp()
 
 void FSolver::MsgBox(const char* message)
 {
-    printf(message);
+    printf("%s\n", message);
 }
 
 int FSolver::LoadFEMFile()
@@ -213,7 +213,7 @@ int FSolver::LoadFEMFile()
         {
             v=StripKey(s);
             sscanf(v,"%lf",&Frequency);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Precision
@@ -221,7 +221,7 @@ int FSolver::LoadFEMFile()
         {
             v=StripKey(s);
             sscanf(v,"%lf",&Precision);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // AC Solver Type
@@ -229,7 +229,7 @@ int FSolver::LoadFEMFile()
         {
             v=StripKey(s);
             sscanf(v,"%i",&ACSolver);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Option to force use of default max mesh, overriding
@@ -263,7 +263,7 @@ int FSolver::LoadFEMFile()
             else if( _strnicmp(q,"mils",4)==0) LengthUnits=4;
             else if( _strnicmp(q,"microns",6)==0) LengthUnits=5;
             else if( _strnicmp(q,"meters",6)==0) LengthUnits=3;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Problem Type (planar or axisymmetric)
@@ -273,7 +273,7 @@ int FSolver::LoadFEMFile()
             sscanf(v,"%s",q);
             if( _strnicmp(q,"planar",6)==0) ProblemType=0;
             if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=1;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Coordinates (cartesian or polar)
@@ -283,7 +283,7 @@ int FSolver::LoadFEMFile()
             sscanf(v,"%s",q);
             if ( _strnicmp(q,"cartesian",4)==0) Coords=0;
             if ( _strnicmp(q,"polar",5)==0) Coords=1;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // properties for axisymmetric external region
@@ -291,21 +291,21 @@ int FSolver::LoadFEMFile()
         {
             v=StripKey(s);
             sscanf(v,"%lf",&extZo);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"[extro]",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&extRo);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"[extri]",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&extRi);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Point Properties
@@ -314,7 +314,7 @@ int FSolver::LoadFEMFile()
             v=StripKey(s);
             sscanf(v,"%i",&k);
             if (k>0) nodeproplist=(CPointProp *)calloc(k,sizeof(CPointProp));
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<beginpoint>",11)==0)
@@ -323,42 +323,42 @@ int FSolver::LoadFEMFile()
             PProp.Ji=0.;
             PProp.Ar=0.;
             PProp.Ai=0.;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_re>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&PProp.Ar);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_im>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&PProp.Ai);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_re>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&PProp.Jr);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_im>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&PProp.Ji);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endpoint>",9)==0)
         {
             nodeproplist[NumPointProps]=PProp;
             NumPointProps++;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Boundary Properties;
@@ -367,7 +367,7 @@ int FSolver::LoadFEMFile()
             v=StripKey(s);
             sscanf(v,"%i",&k);
             if (k>0) lineproplist=(CBoundaryProp *)calloc(k,sizeof(CBoundaryProp));
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<beginbdry>",11)==0)
@@ -381,91 +381,91 @@ int FSolver::LoadFEMFile()
             BProp.Sig=0.;
             BProp.c0=0.;
             BProp.c1=0.;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<bdrytype>",10)==0)
         {
             v=StripKey(s);
             sscanf(v,"%i",&BProp.BdryFormat);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_ssd>",8)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.Mu);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<sigma_ssd>",11)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.Sig);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_0>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.A0);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_1>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.A1);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_2>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.A2);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.phi);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c0>",4)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.c0.re);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c1>",4)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.c1.re);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c0i>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.c0.im);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<c1i>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&BProp.c1.im);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endbdry>",9)==0)
         {
             lineproplist[NumLineProps]=BProp;
             NumLineProps++;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Block Properties;
@@ -474,7 +474,7 @@ int FSolver::LoadFEMFile()
             v=StripKey(s);
             sscanf(v,"%i",&k);
             if (k>0) blockproplist=(CMaterialProp *)calloc(k,sizeof(CMaterialProp));
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<beginblock>",12)==0)
@@ -497,63 +497,63 @@ int FSolver::LoadFEMFile()
             MProp.BHpoints=0;
             MProp.Bdata=NULL;
             MProp.Hdata=NULL;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_x>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.mu_x);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<mu_y>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.mu_y);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<H_c>",5)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.H_c);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<H_cAngle>",10)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_m);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<J_re>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Jr);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<J_im>",6)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Ji);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<sigma>",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Cduct);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi_h>",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_hn);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
 
@@ -561,49 +561,49 @@ int FSolver::LoadFEMFile()
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_hx);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<phi_hy>",8)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Theta_hy);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<d_lam>",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.Lam_d);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<LamFill>",8)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.LamFill);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<WireD>",7)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&MProp.WireD);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<LamType>",9)==0)
         {
             v=StripKey(s);
             sscanf(v,"%i",&MProp.LamType);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<NStrands>",10)==0)
         {
             v=StripKey(s);
             sscanf(v,"%i",&MProp.NStrands);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<BHPoints>",10)==0)
@@ -621,7 +621,7 @@ int FSolver::LoadFEMFile()
                     MProp.Hdata[j].im=0;
                 }
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endblock>",9)==0)
@@ -632,7 +632,7 @@ int FSolver::LoadFEMFile()
             MProp.BHpoints=0;
             MProp.Bdata=NULL;
             MProp.Hdata=NULL;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         // Circuit Properties
@@ -641,7 +641,7 @@ int FSolver::LoadFEMFile()
             v=StripKey(s);
             sscanf(v,"%i",&k);
             if(k>0) circproplist=(CCircuit *)calloc(k,sizeof(CCircuit));
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<begincircuit>",14)==0)
@@ -651,49 +651,49 @@ int FSolver::LoadFEMFile()
             CProp.Amps_re=0.;
             CProp.Amps_im=0.;
             CProp.CircType=0;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<voltgradient_re>",17)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&CProp.dVolts_re);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<voltgradient_im>",17)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&CProp.dVolts_im);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<totalamps_re>",14)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&CProp.Amps_re);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<totalamps_im>",14)==0)
         {
             v=StripKey(s);
             sscanf(v,"%lf",&CProp.Amps_im);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<circuittype>",13)==0)
         {
             v=StripKey(s);
             sscanf(v,"%i",&CProp.CircType);
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
         if( _strnicmp(q,"<endcircuit>",12)==0)
         {
             circproplist[NumCircProps]=CProp;
             NumCircProps++;
-            q[0]=NULL;
+            q[0] = '\0';
         }
 
 
@@ -749,7 +749,7 @@ int FSolver::LoadFEMFile()
                 blk.InCircuit--;
                 labellist[i]=blk;
             }
-            q[0]=NULL;
+            q[0] = '\0';
         }
     }
 
