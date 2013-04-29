@@ -168,7 +168,7 @@ char* CComplex::ToString(char *s)
 		if (re!=0) sprintf(s,"%.16g+I*%.16g",re,im);
 		else sprintf(s,"I*%.16g",im);
 	}
-	else s[0]=NULL;
+	else s[0]='\0';
 
 	return s;
 }
@@ -196,7 +196,7 @@ char* CComplex::ToStringAlt(char *s)
 		if (re!=0) sprintf(s,"%g+I*%g",re,im);
 		else sprintf(s,"I*%g",im);
 	}
-	else s[0]=NULL;
+	else s[0]='\0';
 
 	return s;
 }
