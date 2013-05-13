@@ -255,19 +255,19 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
         if( strncmpi(q,'<A_0>',5))
             v = StripKey(q);
-            FemmProblem.BoundaryProps(boundind).A_0 = str2double(v);
+            FemmProblem.BoundaryProps(boundind).A0 = str2double(v);
             continue;
         end
 
         if( strncmpi(q,'<A_1>',5))
             v = StripKey(q);
-            FemmProblem.BoundaryProps(boundind).A_1 = str2double(v);
+            FemmProblem.BoundaryProps(boundind).A1 = str2double(v);
             continue;
         end
 
         if( strncmpi(q,'<A_2>',5))
             v = StripKey(q);
-            FemmProblem.BoundaryProps(boundind).A_2 = str2double(v);
+            FemmProblem.BoundaryProps(boundind).A2 = str2double(v);
             continue;
         end
 
