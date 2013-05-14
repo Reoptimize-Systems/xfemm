@@ -745,10 +745,13 @@ bool FPProc::OpenDocument(string pathname)
             sscanf(v,"%i",&MProp.BHpoints);
             if (MProp.BHpoints>0)
             {
-                //MProp.Hdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
-                //MProp.Bdata=(double *)calloc(MProp.BHpoints,sizeof(double));
-                MProp.Hdata=(CComplex *)realloc(MProp.Hdata,MProp.BHpoints*sizeof(CComplex));
-                MProp.Bdata=(double *)realloc(MProp.Bdata,MProp.BHpoints*sizeof(double));
+                //MProp.Hdata = (CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
+                //MProp.Bdata =   (double *)calloc(MProp.BHpoints,sizeof(double));
+                MProp.Hdata = (CComplex *)realloc(MProp.Hdata,MProp.BHpoints*sizeof(CComplex));
+                MProp.Bdata = (double *)realloc(MProp.Bdata,MProp.BHpoints*sizeof(double));
+                // reset the contents of the B and H data arrays to all zeros
+                memset(MProp.Hdata, 0, MProp.BHpoints * sizeof(CComplex));
+                memset(MProp.Bdata, 0, MProp.BHpoints * sizeof(double));
                 for(j=0; j<MProp.BHpoints; j++)
                 {
                     fgets(s,1024,fp);
