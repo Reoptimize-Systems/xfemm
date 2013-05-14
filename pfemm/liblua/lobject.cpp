@@ -84,7 +84,7 @@ CComplex lua_str2number(const char *s, char **endptr)
     x.re=strtod(s, &q);
 
     // if string _only_ contains a real, return;
-    if (q[0]==NULL)
+    if (q[0]=='\0')
     {
         *endptr=q;
         return x;
