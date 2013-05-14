@@ -129,7 +129,7 @@ class CMaterialProp
 		double mu_x,mu_y;		// permeabilities, relative
 
 		int    BHpoints;		// number of B-H datapoints;
-		std::vector<CComplex> BHdata;		// array of B-H pairs;
+		std::vector<CComplex> BHdata; // array of B-H pairs;
 
 		int    LamType;			// flag that tells how block is laminated;
 								//	0 = not laminated or laminated in plane;
