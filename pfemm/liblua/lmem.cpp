@@ -147,7 +147,9 @@ void *luaM_realloc (lua_State *L, void *block, lint32 size)
         return NULL;
     }
     else if (size >= MAX_SIZET)
+    {
         lua_error(L, "memory allocation error: block too big");
+    }
     block = realloc(block, size);
     if (block == NULL)
     {
