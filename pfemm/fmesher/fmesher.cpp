@@ -213,20 +213,34 @@ void FMesher::UnselectAll()
 }
 
 
-void FMesher::GetCircle(CArcSegment &arc,CComplex &c, double &R)
+void FMesher::GetCircle(CArcSegment &arc, CComplex &c, double &R)
 {
     CComplex a0,a1,t;
     double d,tta;
 
+    // construct the coordinates of the two points on the circle
     a0.Set(nodelist[arc.n0].x,nodelist[arc.n0].y);
     a1.Set(nodelist[arc.n1].x,nodelist[arc.n1].y);
-    d=abs(a1-a0);			// distance between arc endpoints
+
+    // calculate distance between arc endpoints
+    d = abs(a1 - a0);
 
     // figure out what the radius of the circle is...
-    t=(a1-a0)/d;
-    tta=arc.ArcLength*PI/180.;
-    R=d/(2.*sin(tta/2.));
-    c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
+
+    // get unit vector pointing from a0 to a1
+    t = (a1 - a0) / d;
+
+    // convert swept angle from degrees to radians
+    tta = arc.ArcLength * PI / 180.;
+
+    // the radius is half the chord length divided by sin of
+    // half the swept angle (finding the side length of a
+    // triangle formed by the two points and the centre)
+    R = d / (2.*sin(tta/2.));
+
+    // center of the arc segment's circle
+    c = a0 + (d/2. + I * sqrt(R*R - d*d / 4.)) * t;
+
 }
 
 
