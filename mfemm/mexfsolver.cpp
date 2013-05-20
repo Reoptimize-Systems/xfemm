@@ -20,6 +20,7 @@
  */
 
 // extern void _main();
+void voidmexPrintF(const char *message);
 
 /* the gateway function */
 void mexFunction( int nlhs, mxArray *plhs[],
@@ -67,16 +68,55 @@ int nrhs, const mxArray *prhs[])
     // free the input buffer
     mxFree(inputbuf);
 
-	if (SolveObj.LoadFEMFile() != TRUE){
+    // make the warning message function point to mexPrintf
+    SolveObj.WarnMessage = &voidmexPrintF;
+
+    status = SolveObj.LoadFEMFile();
+	if (status != TRUE){
 		mexPrintf("problem loading .fem file\n");
 		plhs[0] = mxCreateDoubleScalar(1.0);
         return;
 	}
 
 	// load mesh
-	if (SolveObj.LoadMesh() != TRUE){
-		mexPrintf("problem loading mesh\n");
-		plhs[0] = mxCreateDoubleScalar(2.0);
+	status = SolveObj.LoadMesh();
+	if (status != 0){
+
+	    mexPrintf("problem loading mesh\n");
+	    plhs[0] = mxCreateDoubleScalar(status);
+
+	    switch (status)
+	    {
+	        case ( BADEDGEFILE ):
+
+                mexErrMsgTxt("Could not open .edge file.\n");
+                break;
+
+	        case ( BADELEMENTFILE ):
+                mexErrMsgTxt("Could not open .ele file.\n");
+                break;
+
+	        case( BADFEMFILE ):
+                mexErrMsgTxt("Could not open .fem file.\n");
+                break;
+
+	        case( BADNODEFILE ):
+                mexErrMsgTxt("Could not open .node file.\n");
+                break;
+
+	        case( BADPBCFILE ):
+                mexErrMsgTxt("Could not open .pbc file.\n");
+                break;
+
+	        case( MISSINGMATPROPS ):
+                mexErrMsgTxt("Material properties have not been defined for all regions.\n");
+                break;
+
+	        default:
+                mexErrMsgTxt("AN unknown error occured.\n");
+                break;
+	    }
+
         return;
 		//return -1;
 	}
@@ -191,4 +231,10 @@ int nrhs, const mxArray *prhs[])
 
 	plhs[0] = mxCreateDoubleScalar(0.0);
 
+}
+
+
+void voidmexPrintF(const char *message)
+{
+    mexPrintf(message);
 }

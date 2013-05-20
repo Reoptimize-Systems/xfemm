@@ -78,9 +78,42 @@ int main(int argc, char** argv)
     }
 
     // load mesh
-    if (theFSolver.LoadMesh() != TRUE)
+    int err = theFSolver.LoadMesh();
+    if (err != 0)
     {
-        theFSolver.WarnMessage("problem loading mesh");
+        theFSolver.WarnMessage("problem loading mesh:\n");
+
+        switch (err)
+	    {
+	        case ( BADEDGEFILE ):
+                theFSolver.WarnMessage("Could not open .edge file.\n");
+                break;
+
+	        case ( BADELEMENTFILE ):
+                theFSolver.WarnMessage("Could not open .ele file.\n");
+                break;
+
+	        case( BADFEMFILE ):
+                theFSolver.WarnMessage("Could not open .fem file.\n");
+                break;
+
+	        case( BADNODEFILE ):
+                theFSolver.WarnMessage("Could not open .node file.\n");
+                break;
+
+	        case( BADPBCFILE ):
+                theFSolver.WarnMessage("Could not open .pbc file.\n");
+                break;
+
+	        case( MISSINGMATPROPS ):
+                theFSolver.WarnMessage("Material properties have not been defined for all regions.\n");
+                break;
+
+	        default:
+                theFSolver.WarnMessage("AN unknown error occured.\n");
+                break;
+	    }
+
         return 2;
         //return -1;
     }
