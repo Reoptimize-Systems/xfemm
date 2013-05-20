@@ -50,7 +50,7 @@ function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
         quiet = true;
     end
     
-    if strcmp(femfilename(end-3:end), '.fem')
+    if strcmpi(femfilename(end-3:end), '.fem')
         ansfilename = [femfilename(1:end-4), '.ans'];
     else
         error('Supplied file name must have .fem extension');
