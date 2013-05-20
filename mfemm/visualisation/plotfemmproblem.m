@@ -28,7 +28,9 @@ function plotfemmproblem(FemmProblem)
     arclinks = getarclinks_mfemm(FemmProblem);
 
     % plot the arc segments as lines 
-    plotarclinks(nodes, arclinks);
+    hold all
+    plotarclinks(nodes, arclinks(:,1:2), arclinks(:,3), arclinks(:,4));
+    hold off
     
     % get the extent of the problem region
     [x,y,w,h] = extent_mfemm(FemmProblem);

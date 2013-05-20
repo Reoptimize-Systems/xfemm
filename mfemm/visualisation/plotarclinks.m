@@ -1,5 +1,5 @@
-function plotarclinks(nodes, links, varargin)
-% plots a set of nodes and links between them
+function plotarclinks(nodes, links, angles, maxdeg, varargin)
+% plots a set of nodes and arc links between them
 %
 % Syntax
 %
@@ -28,15 +28,15 @@ function plotarclinks(nodes, links, varargin)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    warning('Plotting arc segments not yet supported, they will be ignored');
+%     warning('Plotting arc segments not yet supported, they will be ignored');
     
-%     Inputs.ZeroBased = true;
-%     
-%     Inputs = parse_pv_pairs(Inputs, varargin);
-%     
-%     if Inputs.ZeroBased
-%         links = links + 1;
-%     end
+    Inputs.ZeroBased = true;
+    
+    Inputs = parse_pv_pairs(Inputs, varargin);
+    
+    if Inputs.ZeroBased
+        links = links + 1;
+    end
 %     
 %     if size(nodes, 2) == 2
 %         is2d = true;
@@ -47,25 +47,30 @@ function plotarclinks(nodes, links, varargin)
 %         error('Nodes matrix must be a (n x 2) or (n x 3) set of coordinates.')
 %     end
 %     
-%     hold all
-%     
-%     for i = 1:size(links, 1)
-%         
-%         line([nodes(links(i,1),1), nodes(links(i,2),1)], [nodes(links(i,1),2), nodes(links(i,2),2)], [nodes(links(i,1),3), nodes(links(i,2),3)]);
-%     end
-%     
-%     hold off
-%     
-%     hold on
-%     
-%     % plot all the nodes too
-%     scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr');
+    hold all
+    
+    for i = 1:size(links, 1)
+        
+        [x, y] = arcpoints(nodes(links(i,1),:), nodes(links(i,2),:), angles(i), maxdeg(i));
+        
+        line(x, y);
+        
+    end
+    
+    hold off
+    
+    hold on
+    
+    % plot all the nodes too
+    scatter(nodes(:,1), nodes(:,2), 'xr');
 %     
 %     if ~is2d
 %         view(3);
 %     end
 %     
-%     hold off
+    hold off
+    
+    axis equal
 %     
 %     Xlim = get(gca, 'Xlim');
 %     Ylim = get(gca, 'Ylim');
@@ -75,3 +80,68 @@ function plotarclinks(nodes, links, varargin)
 %     set(gca, 'Ylim', Ylim + [-0.1, 0.1]*(max(nodes(:,2)) - min(nodes(:,2))) )
 
 end
+
+function [x, y] = arcpoints(A, B, angle, maxdeg)
+% get the points on an arc for plotting
+
+    % convert the angles to radians
+    angle = deg2rad(angle);
+    maxdeg = deg2rad(maxdeg);
+
+    % get centre and radius of circles
+    [centre, r] = circcentre(A, B, angle);
+    
+    % get starting angle of arcs
+    tempA = A - centre;
+    
+    [starttheta, rho] = cart2pol(tempA(:,1), tempA(:,2));
+    
+    % get arc points
+    npnts = ceil(angle ./ maxdeg);
+    
+    pnts = linspace(starttheta, starttheta + angle, npnts);
+    
+    [x, y] = pol2cart(pnts, repmat(rho, size(pnts)));
+    
+    x = x + centre(:,1);
+    y = y + centre(:,2);
+    
+    
+end
+
+
+function [centre, r] = circcentre(A, B, angle)
+% calculates the centre and radius of a circle given two points and an arc
+% angle between them. The position of the circle is determined by the
+% order of the supplied points.
+%
+% Syntax
+%
+% [centre, r] = circcentre(A, B, angle)
+%
+%
+    
+    % get vector pointing from A to B
+    AB = B - A;
+    
+    % find perpendicular vector to AB
+    V = [ -AB(:,2), AB(:,1) ];
+    
+    % find mid point of AB
+    M = A + AB .* 0.5;
+    
+    % find length of AB and divide by two to get triangle base
+    b = 0.5 * magn(AB);
+    
+    % find triangle height
+    h = b ./ tan(angle ./ 2);
+    
+    % find circle centre
+    centre = M + h * unit(V);
+    
+    % find radius
+    r = sqrt(h.^2 + b.^2);
+    
+end
+
+
