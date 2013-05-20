@@ -51,11 +51,24 @@
 
 #ifndef FSOLVER_H
 #define FSOLVER_H
+
+enum LoadMeshErr
+{
+  BADFEMFILE,
+  BADNODEFILE,
+  BADPBCFILE,
+  BADELEMENTFILE,
+  BADEDGEFILE,
+  MISSINGMATPROPS
+};
+
 class FSolver
 {
 
 // Attributes
 public:
+
+
 
     FSolver();
     ~FSolver();

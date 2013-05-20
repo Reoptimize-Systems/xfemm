@@ -728,18 +728,18 @@ int FSolver::LoadFEMFile()
                 str.clear();
 
                 // scan in data
-                v=ParseDbl(s,&blk.x);
-                v=ParseDbl(v,&blk.y);
-                v=ParseInt(v,&blk.BlockType);
-                v=ParseDbl(v,&blk.MaxArea);
-                v=ParseInt(v,&blk.InCircuit);
-                v=ParseDbl(v,&blk.MagDir);
-                v=ParseInt(v,&blk.InGroup);
-                v=ParseInt(v,&blk.Turns);
-                v=ParseInt(v,&blk.IsExternal);
+                v = ParseDbl(s,&blk.x);
+                v = ParseDbl(v,&blk.y);
+                v = ParseInt(v,&blk.BlockType);
+                v = ParseDbl(v,&blk.MaxArea);
+                v = ParseInt(v,&blk.InCircuit);
+                v = ParseDbl(v,&blk.MagDir);
+                v = ParseInt(v,&blk.InGroup);
+                v = ParseInt(v,&blk.Turns);
+                v = ParseInt(v,&blk.IsExternal);
                 blk.IsDefault  = blk.IsExternal & 2;
                 blk.IsExternal = blk.IsExternal & 1;
-                v=ParseString(v,&str);
+                v = ParseString(v,&str);
                 if (str.length()>0)
                 {
                     blk.MagDirFctn=(char *)calloc(str.length()+1,sizeof(char));
@@ -755,9 +755,9 @@ int FSolver::LoadFEMFile()
 
     // need to set these so that valid BH data doesn't get wiped
     // by the destructor of MProp
-    MProp.BHpoints=0;
-    MProp.Bdata=NULL;
-    MProp.Hdata=NULL;
+    MProp.BHpoints = 0;
+    MProp.Bdata = NULL;
+    MProp.Hdata = NULL;
 
     fclose(fp);
 
@@ -848,22 +848,22 @@ int FSolver::LoadMesh()
     sprintf(infile,"%s.node",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
-        return FALSE;
+        return BADELEMENTFILE;
     }
     fgets(s,1024,fp);
     sscanf(s,"%i",&k);
-    NumNodes=k;
+    NumNodes = k;
 
 #ifdef CRIPPLEWARE
     if (NumNodes>999)
     {
         fclose(fp);
         WarnMessage("This demo version only allows meshes with less than 1000 nodes");
-        return FALSE;
+        return BADNODEFILE;
     }
 #endif
 
-    meshnode=(CNode *)calloc(k,sizeof(CNode));
+    meshnode = (CNode *)calloc(k,sizeof(CNode));
     CNode node;
     for(i=0; i<k; i++)
     {
@@ -876,10 +876,10 @@ int FSolver::LoadMesh()
         node.bc=j;
 
         // convert all lengths to centimeters (better conditioning this way...)
-        node.x*=c[LengthUnits];
-        node.y*=c[LengthUnits];
+        node.x *= c[LengthUnits];
+        node.y *= c[LengthUnits];
 
-        meshnode[i]=node;
+        meshnode[i] = node;
     }
     fclose(fp);
 
@@ -887,13 +887,13 @@ int FSolver::LoadMesh()
     sprintf(infile,"%s.pbc",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
-        return FALSE;
+        return BADPBCFILE;
     }
     fgets(s,1024,fp);
     sscanf(s,"%i",&k);
-    NumPBCs=k;
+    NumPBCs = k;
 
-    if (k!=0) pbclist=(CCommonPoint *)calloc(k,sizeof(CCommonPoint));
+    if (k!=0) pbclist = (CCommonPoint *)calloc(k,sizeof(CCommonPoint));
     CCommonPoint pbc;
     for(i=0; i<k; i++)
     {
@@ -901,7 +901,7 @@ int FSolver::LoadMesh()
         fscanf(fp,"%i",&pbc.x);
         fscanf(fp,"%i",&pbc.y);
         fscanf(fp,"%i",&pbc.t);
-        pbclist[i]=pbc;
+        pbclist[i] = pbc;
     }
     fclose(fp);
 
@@ -909,18 +909,24 @@ int FSolver::LoadMesh()
     sprintf(infile,"%s.ele",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
-        return FALSE;
+        return BADELEMENTFILE;
     }
     fgets(s,1024,fp);
     sscanf(s,"%i",&k);
-    NumEls=k;
+    NumEls = k;
 
-    meshele=(CElement *)calloc(k,sizeof(CElement));
+    meshele = (CElement *)calloc(k,sizeof(CElement));
     CElement elm;
 
+    // get the default label for unlabelled blocks
     int defaultLabel;
     for(i=0,defaultLabel=-1; i<NumBlockLabels; i++)
-        if (labellist[i].IsDefault) defaultLabel=i;
+    {
+        if (labellist[i].IsDefault)
+        {
+            defaultLabel = i;
+        }
+    }
 
     for(i=0; i<k; i++)
     {
@@ -930,7 +936,12 @@ int FSolver::LoadMesh()
         fscanf(fp,"%i",&elm.p[2]);
         fscanf(fp,"%i",&elm.lbl);
         elm.lbl--;
-        if(elm.lbl<0) elm.lbl=defaultLabel;
+
+        if(elm.lbl<0)
+        {
+            elm.lbl = defaultLabel;
+        }
+
         if(elm.lbl<0)
         {
             string msg = "Material properties have not been defined for\n";
@@ -948,12 +959,12 @@ int FSolver::LoadMesh()
             remove(infile);
             sprintf(infile,"%s.edge",PathName.c_str());
             remove(infile);
-            exit(1);
+            return MISSINGMATPROPS;
         }
         // look up block type out of the list of block labels
-        elm.blk=labellist[elm.lbl].BlockType;
+        elm.blk = labellist[elm.lbl].BlockType;
 
-        meshele[i]=elm;
+        meshele[i] = elm;
     }
     fclose(fp);
 
@@ -973,7 +984,7 @@ int FSolver::LoadMesh()
     int *nmbr;
     int **mbr;
 
-    nmbr=(int *)calloc(NumNodes,sizeof(int));
+    nmbr = (int *)calloc(NumNodes,sizeof(int));
 
     // Make a list of how many elements that tells how
     // many elements to which each node belongs.
@@ -983,26 +994,26 @@ int FSolver::LoadMesh()
 
     // mete out some memory to build a list of the
     // connectivity...
-    mbr=(int **)calloc(NumNodes,sizeof(int *));
+    mbr = (int **)calloc(NumNodes,sizeof(int *));
     for(i=0; i<NumNodes; i++)
     {
-        mbr[i]=(int *)calloc(nmbr[i],sizeof(int));
-        nmbr[i]=0;
+        mbr[i] = (int *)calloc(nmbr[i],sizeof(int));
+        nmbr[i] = 0;
     }
 
     // fill up the connectivity information;
     for(i=0; i<NumEls; i++)
         for(j=0; j<3; j++)
         {
-            k=meshele[i].p[j];
-            mbr[k][nmbr[k]]=i;
+            k = meshele[i].p[j];
+            mbr[k][nmbr[k]] = i;
             nmbr[k]++;
         }
 
     sprintf(infile,"%s.edge",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
-        return FALSE;
+        return BADEDGEFILE;
     }
     fscanf(fp,"%i",&k);	// read in number of lines
 
@@ -1054,7 +1065,7 @@ int FSolver::LoadMesh()
     sprintf(infile,"%s.poly",PathName.c_str());
     remove(infile);
 
-    return TRUE;
+    return 0;
 }
 
 void FSolver::GetFillFactor(int lbl)
