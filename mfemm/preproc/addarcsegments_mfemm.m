@@ -64,6 +64,39 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
+% set up default segment properties
+    options.MaxSegDegrees = ones(size(n0));
+    options.Hidden = zeros(size(n0));
+    options.InGroup = zeros(size(n0));
+    options.BoundaryMarker = '';
+    
+    % parse any options for the segment supplied by the user
+    options = parseoptions(options, varargin);
+    
+    if ischar(options.BoundaryMarker)
+    	options.BoundaryMarker = {options.BoundaryMarker};
+    end
+       
+    if numel(n0) > 1
+        
+       if isscalar(options.MaxSegDegrees)
+           options.MaxSegDegrees = repmat(options.MaxSegDegrees, size(n0));
+       end
+       
+       if isscalar(options.Hidden)
+           options.Hidden = repmat(options.Hidden, size(n0));
+       end
+       
+       if isscalar(options.InGroup)
+           options.InGroup = repmat(options.InGroup, size(n0));
+       end
+       
+       if iscellstr(options.BoundaryMarker)
+           options.BoundaryMarker = repmat(options.BoundaryMarker, size(n0));
+       end
+       
+    end
+    
     arcseginds = repmat(-1, 1, numel(n0));
     
     if ~isfield(FemmProblem, 'ArcSegments') || isempty(FemmProblem.ArcSegments)
@@ -71,14 +104,22 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
         FemmProblem.ArcSegments = newarcsegment_mfemm(n0(1), n1(1), angle(1), varargin{:});
     else
         arcseginds(1) = numel(FemmProblem.ArcSegments) + 1;
-        FemmProblem.ArcSegments(arcseginds(1)) = newarcsegment_mfemm(n0(1), n1(1), angle(1), varargin{:});
+        FemmProblem.ArcSegments(arcseginds(1)) = newarcsegment_mfemm(n0(1), n1(1), angle(1), ...
+                                                    'MaxSegDegrees', options.MaxSegDegrees(1), ...
+                                                    'Hidden', options.Hidden(1), ...
+                                                    'InGroup', options.InGroup(1), ...
+                                                    'BoundaryMarker', options.BoundaryMarker{1});
     end
     
     for i = 2:numel(n0)
         
         arcseginds(i) = arcseginds(i-1) + 1;
         
-        FemmProblem.ArcSegments(arcseginds(i)) = newarcsegment_mfemm(n0(i), n1(i), angle(i), varargin{:});      
+        FemmProblem.ArcSegments(arcseginds(i)) = newarcsegment_mfemm(n0(i), n1(i), angle(i), ...
+                                                    'MaxSegDegrees', options.MaxSegDegrees(i), ...
+                                                    'Hidden', options.Hidden(i), ...
+                                                    'InGroup', options.InGroup(i), ...
+                                                    'BoundaryMarker', options.BoundaryMarker{i}); 
         
     end
     
