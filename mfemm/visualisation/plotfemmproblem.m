@@ -1,4 +1,4 @@
-function plotfemmproblem(FemmProblem)
+function hfig = plotfemmproblem(FemmProblem)
 % plotfemmproblem: plots a simple visualisation of an mfemm problem
 % structure NB: Arc Segments not yet supported
 
@@ -16,7 +16,7 @@ function plotfemmproblem(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    figure;
+    hfig = figure;
     
     nodes = getnodecoords_mfemm(FemmProblem);
     
@@ -101,6 +101,9 @@ function plotfemmproblem(FemmProblem)
 %     hold off
     
     axis equal
+    
+%     addlistener(cah, 'YLim', 'PreSet', @mfemm_plot_chngylim);
+%     addlistener(cah, 'YLim', 'PreSet', @mfemm_plot_chngxlim);
 
 end
 
