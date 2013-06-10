@@ -1,6 +1,19 @@
 function hfig = plotfemmproblem(FemmProblem)
 % plotfemmproblem: plots a simple visualisation of an mfemm problem
-% structure NB: Arc Segments not yet supported
+% structure
+% 
+% Syntax
+%
+% hfig = plotfemmproblem(FemmProblem)
+%
+% Input
+%
+%  FemmProblem - mfemm problem structure
+%
+% Output
+%
+%  hfig - hadle to the created figure
+%
 
 % Copyright 2012 Richard Crozier
 % 
