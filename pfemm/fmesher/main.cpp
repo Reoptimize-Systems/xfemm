@@ -11,7 +11,7 @@ int main(int argc, char ** argv)
     FMesher MeshObj;
 //    bool MeshUpToDate;
     string FilePath;
-    //char tempFilePath[1024];
+    // char tempFilePath[1024];
 
     if (argc < 2)
     {
