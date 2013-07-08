@@ -229,6 +229,21 @@ classdef fpproc < handle
         end
         
         function selectblock(this, x, y, clearselected)
+            % select blocks based on position
+            %
+            % Syntax
+            %
+            % fpproc.selectblock(x, y)
+            % fpproc.selectblock(x, y, clearselected)
+            %
+            % Input
+            %
+            %   x, y - x and y positions inside the blocks to be selected
+            %
+            %   clearselected - (optional) boolean flag determining whether
+            %     any previous selection is cleared
+            %
+            
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
