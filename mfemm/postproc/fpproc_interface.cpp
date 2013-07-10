@@ -595,32 +595,50 @@ int FPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
     mrows = mxGetM(prhs[2]);
     ncols = mxGetN(prhs[2]);
     // check dimensions are allowed
-    if((mrows!=1) | (ncols!=1))
+    if((mrows>1) | (ncols>1))
     {
         mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
                            "group number must be a scalar.");
     }
 
-    // get a pointer to the actual data
-    pgroup = mxGetPr(prhs[2]);
-
-    if (theFPProc.meshelem.size()>0)
+    if ((mrows==0) | (ncols==0))
     {
-        k = 0;
+        // select all the blocks
+        theFPProc.bHasMask = false;
 
-        if (pgroup[0] > 0)
+        for(int i=0; i<theFPProc.blocklist.size(); i++)
         {
-            k = (int)pgroup[0];
-        }
-
-        for(j=0; j<theFPProc.blocklist.size(); j++)
-        {
-            if ((theFPProc.blocklist[j].InGroup==k) || (pgroup[0]==0))
+            if (theFPProc.blocklist[i].IsSelected == false)
             {
-                theFPProc.blocklist[j].ToggleSelect();
+                theFPProc.blocklist[i].IsSelected = true;
+            }
+        }
+    }
+    else
+    {
+        // select blocks in the specified group
+
+        // get a pointer to the actual data
+        pgroup = mxGetPr(prhs[2]);
+
+        if (theFPProc.meshelem.size()>0)
+        {
+            k = 0;
+
+            if (pgroup[0] > 0)
+            {
+                k = (int)pgroup[0];
             }
 
-            theFPProc.bHasMask = false;
+            for(j=0; j<theFPProc.blocklist.size(); j++)
+            {
+                if ((theFPProc.blocklist[j].InGroup==k) || (pgroup[0]==0))
+                {
+                    theFPProc.blocklist[j].ToggleSelect();
+                }
+
+                theFPProc.bHasMask = false;
+            }
         }
     }
 

@@ -27,11 +27,14 @@ classdef fpproc < handle
     %    lineintegral - perform a line integral along a contour
     %    selectblock - select a block
     %    groupselectblock - select blocks by group number
+    %    selectallblocks - selects every block
     %    clearblock - clear all block selections
     %    blockintegral - perfom integrals over selected blocks
     %    getprobleminfo - get information about the problem
     %    getcircuitprops - get properties of a circuit
     %    newcontour - create a new contour, discarding old
+    %    totalfieldenergy - calculates total field energy
+    %    totalfieldcoenergy - calculates total field coenergy
     %
     
 % Copyright 2012-2013 Richard Crozier
@@ -304,13 +307,26 @@ classdef fpproc < handle
             % Description
             %
             % Selects all blocks which are members of the supplied group
-            % number. 
+            % number. If groupno is empty, all blocks are selected.
             %
             
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
             fpproc_interface_mex('groupselectblock', this.objectHandle, groupno);
+        end
+        
+        function selectallblocks(this)
+            % selects every block in the solution
+            %
+            % Syntax
+            %
+            % fpproc.selectallblocks()
+            %
+            %
+            
+            this.groupselectblock([]);
+            
         end
         
         function clearblock(this)
@@ -536,6 +552,28 @@ classdef fpproc < handle
                     error('flag must be the string ''on'' or ''off''.')
                     
             end
+            
+        end
+        
+        function energy = totalfieldenergy(this)
+            % calculates the total field energy in the solution domain
+            
+            % Select all blocks
+            this.selectallblocks();
+
+            % Extract the integral of the magnetic field energy
+            energy = this.blockintegral(2);
+            
+        end
+        
+        function coenergy = totalfieldcoenergy(this)
+            % calculates the total field coenergy in the solution domain
+            
+            % Select all blocks
+            this.selectallblocks();
+
+            % Extract the integral of the magnetic field coenergy
+            coenergy = this.blockintegral(17);
             
         end
 
