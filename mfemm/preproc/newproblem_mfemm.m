@@ -149,5 +149,13 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
                                    'WireD', 0.000000, ...
                                    'BHPoints', [], ...
                                    'Density', 1.225);
+                               
+    FemmProblem.Segments = [];
+    FemmProblem.ArcSegments = [];
+    FemmProblem.Nodes = [];
+    FemmProblem.BoundaryProps = [];
+    FemmProblem.Circuits = [];
+    FemmProblem.BlockLabels = [];
+    FemmProblem.PointProps = [];
 
 end
