@@ -1,5 +1,5 @@
 function tf = hasxfemm()
-% determines if all xfemm mexfuntions are available
+% determines if all xfemm mex interface functions are available
 %
 
     tf = (exist('mexfmesher', 'file') == 3) ...
