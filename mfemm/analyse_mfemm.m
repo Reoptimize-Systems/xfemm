@@ -84,6 +84,7 @@ function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
     else
         % using original femm interface
         opendocument(femfilename);
+        % writes the analysis file to disk when done
         mi_analyse(1);
         mi_close();
     end
