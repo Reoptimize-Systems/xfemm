@@ -14,41 +14,28 @@ function FemmProblem = deletegroup_mfemm(FemmProblem, groupno)
 
     % Delete all nodes in the group
     rminds = [];
-    for indi = 1:numel(FemmProblem.Nodes)
+    for ind = 1:numel(FemmProblem.Nodes)
         
-        if FemmProblem.Nodes(ind).GroupNo == groupno
+        if FemmProblem.Nodes(ind).InGroup == groupno
             
-            rminds = [ rminds, indii ];
+            rminds = [ rminds, ind ];
             
         end
         
     end
     
     for ind = 1:numel(rminds)
-        FemmProblem = deletenode_mfemm(FemmProblem, rmind(ind));
+        FemmProblem = deletenode_mfemm(FemmProblem, rminds(ind));
+        rminds(rminds > rminds(ind)) = rminds(rminds > rminds(ind)) - 1;
     end
     
     % delete segments in the group
     rminds = [];
-    for indi = 1:numel(FemmProblem.Segments)
+    for ind = 1:numel(FemmProblem.Segments)
         
-        if FemmProblem.Segments(ind).GroupNo == groupno
+        if FemmProblem.Segments(ind).InGroup == groupno
             
-            rminds = [ rminds, indii ];
-            
-        end
-        
-    end
-    
-    FemmProblem.Segments(rminds) = [];
-    
-    % delete segments in the group
-    rminds = [];
-    for indi = 1:numel(FemmProblem.Segments)
-        
-        if FemmProblem.Segments(ind).GroupNo == groupno
-            
-            rminds = [ rminds, indii ];
+            rminds = [ rminds, ind ];
             
         end
         
@@ -58,11 +45,11 @@ function FemmProblem = deletegroup_mfemm(FemmProblem, groupno)
     
     % delete arc segments in the group
     rminds = [];
-    for indi = 1:numel(FemmProblem.ArcSegments)
+    for ind = 1:numel(FemmProblem.ArcSegments)
         
-        if FemmProblem.ArcSegments(ind).GroupNo == groupno
+        if FemmProblem.ArcSegments(ind).InGroup == groupno
             
-            rminds = [ rminds, indii ];
+            rminds = [ rminds, ind ];
             
         end
         
@@ -72,11 +59,11 @@ function FemmProblem = deletegroup_mfemm(FemmProblem, groupno)
     
     % delete labels in the group
     rminds = [];
-    for indi = 1:numel(FemmProblem.BlockLabels)
+    for ind = 1:numel(FemmProblem.BlockLabels)
         
-        if FemmProblem.BlockLabels(ind).GroupNo == groupno
+        if FemmProblem.BlockLabels(ind).InGroup == groupno
             
-            rminds = [ rminds, indii ];
+            rminds = [ rminds, ind ];
             
         end
         
