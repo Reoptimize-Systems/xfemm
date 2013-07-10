@@ -1,6 +1,12 @@
 function FemmProblem = deletenode_mfemm(FemmProblem, index)
 % deletes a node from an mfemm FemmProblem structure, also deleting any
 % connected segments and arc segments
+%
+% Syntax
+%
+% FemmProblem = deletenode_mfemm(FemmProblem, index)
+%
+%
 
     % First delete all segments connected to the deleted node
 
@@ -8,8 +14,8 @@ function FemmProblem = deletenode_mfemm(FemmProblem, index)
 
     for indi = 1:numel(FemmProblem.Segments)
 
-        if FemmProblem.Segments(indi).n0 == indi-1 ...
-                || FemmProblem.Segments(indi).n1 == indi-1
+        if FemmProblem.Segments(indi).n0 == index-1 ...
+                || FemmProblem.Segments(indi).n1 == index-1
 
             rminds = [ rminds, indi ];
 
@@ -24,8 +30,8 @@ function FemmProblem = deletenode_mfemm(FemmProblem, index)
     
     for indi = 1:numel(FemmProblem.ArcSegments)
         
-        if FemmProblem.ArcSegments(indi).n0 == indi-1 ...
-                || FemmProblem.ArcSegments(indi).n1 == indi-1
+        if FemmProblem.ArcSegments(indi).n0 == index-1 ...
+                || FemmProblem.ArcSegments(indi).n1 == index-1
             
             rminds = [ rminds, indi ];
             
@@ -41,13 +47,13 @@ function FemmProblem = deletenode_mfemm(FemmProblem, index)
     % and renumber any remaining segments and arc segments if necessary
     for indi = 1:numel(FemmProblem.Segments)
         
-        if FemmProblem.Segments(indi).n0 > index
+        if FemmProblem.Segments(indi).n0 > index-1
             
             FemmProblem.Segments(indi).n0 = FemmProblem.Segments(indi).n0 - 1;
             
         end
         
-        if FemmProblem.Segments(indi).n1 > index
+        if FemmProblem.Segments(indi).n1 > index-1
             
             FemmProblem.Segments(indi).n1 = FemmProblem.Segments(indi).n1 - 1;
             
@@ -57,13 +63,13 @@ function FemmProblem = deletenode_mfemm(FemmProblem, index)
     
     for indi = 1:numel(FemmProblem.ArcSegments)
         
-        if FemmProblem.ArcSegments(indi).n0 > index
+        if FemmProblem.ArcSegments(indi).n0 > index-1
             
             FemmProblem.ArcSegments(indi).n0 = FemmProblem.ArcSegments(indi).n0 - 1;
             
         end
         
-        if FemmProblem.ArcSegments(indi).n1 > index
+        if FemmProblem.ArcSegments(indi).n1 > index-1
             
             FemmProblem.ArcSegments(indi).n1 = FemmProblem.ArcSegments(indi).n1 - 1;
             
