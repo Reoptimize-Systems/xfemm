@@ -42,7 +42,9 @@ function hfig = plotfemmproblem(FemmProblem)
 
     % plot the arc segments as lines 
     hold all
-    plotarclinks(nodes, arclinks(:,1:2), arclinks(:,3), arclinks(:,4));
+    if ~isempty(arclinks)
+        plotarclinks(nodes, arclinks(:,1:2), arclinks(:,3), arclinks(:,4));
+    end
     hold off
     
     % get the extent of the problem region
