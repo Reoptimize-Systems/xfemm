@@ -20,7 +20,8 @@ classdef fpproc < handle
     %
     % fpproc Methods:
     %    opendocument - open a .ans solution document
-    %    getpointvalues - get solution values at a point
+    %    getpointvalues - get all solution outputs at points
+    %    getb - get flux density values only at points
     %    clearcontour - clear a contour
     %    addcontour - add one or more points to a contour
     %    lineintegral - perform a line integral along a contour
@@ -169,6 +170,43 @@ classdef fpproc < handle
             end
             
             pvals = fpproc_interface_mex('getpointvals', this.objectHandle, x(:), y(:));
+            
+        end
+        
+        function B = getb(this, x, y)
+            % Get the flux density values associated with the points at X,Y
+            % from the solution
+            %
+            % Syntax
+            %
+            % pvals = fpproc.getb(X, Y)
+            %
+            % Input
+            %
+            %   X,Y - X and Y are matrices of the same size containing
+            %     sets of x and y coordinates at which the point properties
+            %     are to be determined. Internally these will be reshaped
+            %     as X(:),Y(:), i.e. two column vectors.
+            %
+            % Output
+            %
+            %   B - the flux density at the requested coordinates
+            %
+            %
+            
+            if (nargin==3)
+                
+                B = this.getpointvalues(x,y);
+                
+                B = B(2:3,:);
+                
+            elseif (nargin==2)
+                
+                B = this.getpointvalues(x);
+                
+                B = B(2:3,:);
+                
+            end
             
         end
         
