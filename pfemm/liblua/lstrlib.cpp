@@ -509,8 +509,8 @@ static int str_find (lua_State *L)
             cap.level = 0;
             if ((res=match(L, s1, p, &cap)) != NULL)
             {
-                lua_pushnumber(L, s1-s+1);  /* start */
-                lua_pushnumber(L, res-s);   /* end */
+                lua_pushnumber(L, CComplex(int(s1-s+1)));  /* start */
+                lua_pushnumber(L, CComplex(int(res-s)));   /* end */
                 return push_captures(L, &cap) + 2;
             }
         }
