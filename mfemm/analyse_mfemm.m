@@ -1,4 +1,4 @@
-function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
+function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
 % analyses a .fem file using the mfemm mex interface if present, or the
 % original femm interface if not.
 %
@@ -6,12 +6,13 @@ function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
 %
 % Syntax
 %
-% ansfilename = analyse_mfemm(femfilename)
+% [ansfilename, femfilename] = analyse_mfemm(femprob)
 %
 % Input
 %
-%   femfilename - string containing the full name of the .fem file to be
-%     analysed
+%   femprob - either a string containing the full name of the .fem file to
+%     be analysed, or an mfemm FemmProblem structure. If a structure the
+%     problem will be written to a temporary file before evaluation.
 %
 %   quiet - (optional) if true the output from fmesher and fsolver is not
 %     displayed, if false, it is printed to the command line. Defaults to
@@ -23,7 +24,12 @@ function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
 % Output
 %
 %   ansfilename - string containing the name of the solution file (the .fem
-%   file name with .fem replaced with .ans)
+%     file name with .fem replaced with .ans)
+%
+%   femfilename - string containing the location of the .fem file used. If
+%     a .fem file was supplied as input, this is the same file name. If a
+%     FemmProblem structure was supplied, it is the location of the
+%     generated .fem file for the problem.
 %
 % See also: fmesher.m, fsolver.m, fpproc.m
 % 
@@ -50,6 +56,19 @@ function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
         quiet = true;
     end
     
+    if isstruct(femprob)
+        % assume it is a FemmProblem structure, create the .fem file
+        femfilename = [ tempname(), '.fem' ];
+        writefemmfile(femfilename, femprob);
+        
+    elseif ischar(femprob)
+        % assume it is the file name of the .fem file
+        femfilename = femprob;
+        
+    else
+        error('First input should be a string or an mfemm FemmProblem structure.');
+    end
+    
     if strcmpi(femfilename(end-3:end), '.fem')
         ansfilename = [femfilename(1:end-4), '.ans'];
     else
@@ -73,11 +92,11 @@ function ansfilename = analyse_mfemm(femfilename, usefemm, quiet)
             % using xfemm interface
             % mesh the problem using fmesher
             fprintf(1, 'Meshing mfemm problem ...\n');
-            fmesher(femfilename);
+            fmesher(femprob);
             fprintf(1, 'mfemm problem meshed ...\n');
             % solve the fea problem using fsolver
             fprintf(1, 'Solving mfemm problem ...\n');
-            fsolver(femfilename(1:end-4));
+            fsolver(femprob(1:end-4));
             fprintf(1, 'mfemm problem solved ...\n');
         end
         
