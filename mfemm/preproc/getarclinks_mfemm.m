@@ -1,6 +1,21 @@
 function links = getarclinks_mfemm(FemmProblem)
-% getnodelinks_femm: gets all the arc segments from an mfemm problem
-% structure
+% gets all the arc segments from an mfemm problem structure
+%
+% Syntax
+%
+% links = getarclinks_mfemm(FemmProblem)
+%
+% Description
+%
+% Obtains all the arc segment links from a FemmProblem structure in a
+% compact array form. getarclinks_mfemm returns an array of the form
+%
+%  links = [ n0, n1, arc length, max segment degrees; 
+%            n0, n1, arc length, max segment degrees; 
+%            n0, n1, arc length, max segment degrees; ]
+%
+% See also: getnodelinks_mfemm
+%
 
 % Copyright 2012 Richard Crozier
 % 
