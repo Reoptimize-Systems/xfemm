@@ -2,10 +2,18 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="pfemm/liblua/liblua.cbp" />
-		<Project filename="pfemm/fmesher/fmesher.cbp" />
-		<Project filename="pfemm/fpproc/FPProc.cbp" active="1" />
+		<Project filename="pfemm/fmesher/fmesher.cbp">
+			<Depends filename="pfemm/libfemm/libfemm.cbp" />
+		</Project>
+		<Project filename="pfemm/fpproc/FPProc.cbp">
+			<Depends filename="pfemm/liblua/liblua.cbp" />
+			<Depends filename="pfemm/libfemm/libfemm.cbp" />
+		</Project>
 		<Project filename="pfemm/libfemm/libfemm.cbp" />
-		<Project filename="pfemm/fsolver/fsolver.cbp" />
+		<Project filename="pfemm/fsolver/fsolver.cbp">
+			<Depends filename="pfemm/liblua/liblua.cbp" />
+			<Depends filename="pfemm/libfemm/libfemm.cbp" />
+		</Project>
 		<Project filename="postproc/fpproc_interface.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
