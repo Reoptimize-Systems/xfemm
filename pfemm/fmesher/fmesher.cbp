@@ -31,7 +31,7 @@
 				</Linker>
 			</Target>
 			<Target title="Library">
-				<Option output="libfmesher" prefix_auto="1" extension_auto="1" />
+				<Option output="fmesher" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option type="2" />
 				<Option compiler="gcc" />
