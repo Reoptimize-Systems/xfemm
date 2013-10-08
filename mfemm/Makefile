@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 
 
-WRKDIR = $(shell pwd)
+WRKDIR = $(CURDIR)
 MAKE = make
 
 all: pfemm_pfemm_libs
