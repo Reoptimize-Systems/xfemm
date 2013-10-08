@@ -69,10 +69,12 @@ project was licenced under the same terms.
 
 4. Using the Package
 
-Unfortunately at this time (Aug 2012) not many examples of the 
-use of mfemm are yet provided and the documentation is sparse and 
-often incomplete. A look at the contents or help provided by the 
-file writefemmfile.m will provide some insight into system however.
+The documentation for mfemm is a work-in-progress, but there is a
+detailed tutorial in the examples directory in the form of a heavily 
+commented m-file. This gives a good overview of the system.
+
+Installation instructions can be found in INSTALL.txt in the same
+directory as this readme file.
 
 If you improve the m-files in any way, please do send your
 improvements to the author for inclusion in the package. 
