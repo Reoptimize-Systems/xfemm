@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------#
 
 
-WRKDIR = $(shell pwd)
+WRKDIR = $(CURDIR)
 MAKE = make
 
 all: libfemm_libfemm fsolver_fsolver fmesher_fmesher liblua_liblua fpproc_fpproc
