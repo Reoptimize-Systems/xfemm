@@ -1,6 +1,25 @@
 function [x,y,w,h] = extent_mfemm(FemmProblem)
 % extent_mfemm: gets the extent of a problem described in an mfemm
 % structure
+%
+% Syntax
+%
+% [x,y,w,h] = extent_mfemm(FemmProblem)
+%
+% Input
+%
+% FemmProblem - an mfemm problem structure
+%
+% Output
+%
+% x - x coordinate of lower left corner of simulation region
+% 
+% y - y coordinate of lower left corner of simulation region
+% 
+% w - width of problem region
+% 
+% h - height of problem region
+%
 
 % Copyright 2012 Richard Crozier
 % 
