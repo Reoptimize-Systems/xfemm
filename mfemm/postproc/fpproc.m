@@ -576,6 +576,43 @@ classdef fpproc < handle
             coenergy = this.blockintegral(17);
             
         end
+        
+        
+        function plotBfield(this, method, x, y, w, h, points, FemmProblem)
+            
+            if nargin > 7
+                [hfig, hax] = plotfemmproblem(FemmProblem);
+                hold all;
+            end
+            
+            xgv = linspace(x, x + w, points);
+            ygv = linspace(y, y + h, points);
+            [Xsample,Ysample] = meshgrid(xgv, ygv);
+            
+            B = this.getb(Xsample,Ysample);
+            
+            switch method
+                
+                case 0
+                    % plot a vector field using colored arrows
+                    cquiver( cat(3, reshape(B(1,:), size(Xsample)), reshape(B(2,:), size(Xsample))), ...
+                             'sx', xgv(2)-xgv(1), ...
+                             'sy', ygv(2)-ygv(1), ...
+                             'xshift', x, ...
+                             'yshift', y, ...
+                             'hax', hax );
+                case 1
+                    % contour plot
+                    
+                otherwise
+                        
+            end
+            
+            if nargin > 7
+                hold off;
+            end
+            
+        end
 
     end
 end

@@ -12,8 +12,6 @@ function hax = cquiver(varargin)
 %
 %   hax = cquiver(vfield)   % flow complex or MxNx2
 %   hax = cquiver(U, V)  % separate flow components
-%   hax = cquiver(..., s)
-%   hax = cquiver(..., sx, sy)
 %   hax = cquiver(..., 'Parameter', 'Value')   
 % 
 % Description
@@ -32,14 +30,29 @@ function hax = cquiver(varargin)
 %
 % Without any additional arguments, the vectors will be plotted at equally
 % spaced intervals corresponding to their position in the input matrices.
-% To alter the spacing between points, you can specify a further scalar
-% value which is the spacing in both the x and y direction.
+% To alter the spacing between points, you can specify parameter-value
+% pairs.
+%
+% To use the same spacing for both x and y directions use the 's'
+% parameter, e.g.
+%
+% hax = cquiver(vfield, 's', 0.1)
 %
 % Separate spacings for the x and y directions can by specified by
-% supplying two arguments, sx and sy.
+% supplying two p-v pairs, sx and sy. e.g.
+%
+% hax = cquiver(vfield, 'sx', 0.1, 'sy', 0.2)
 %
 % In addition some further arguments can also be supplied as parameter
 % value pairs:
+%
+% 'hax' - a handle to an existing axes object in which to do the plot
+% 'maxd' - maximum vector magnitude for use in the colormap
+% 'cmap' - colormap to use for the plot
+% 'Color' - background color for the plot
+% 'AxesProps' - additional properties to be set on the axes
+% 'xshift' - shifts the plot by this value in the x direction
+% 'yshift' - shifts the plot by this value in the x direction
 %
 %
 % Portions based on ncquiverref by Andrew Roberts
@@ -50,7 +63,7 @@ function hax = cquiver(varargin)
 % See also QUIVER, VFCOLOR
 
     % parse the inputs
-    [u,v,sx,sy,maxd,cmap,bgcolor,axprops] = parse_inputs(varargin);
+    [u,v,sx,sy,maxd,cmap,bgcolor,axprops,xshift,yshift,hax] = parse_inputs(varargin);
 
     % convert u and v cartesian to polar coordinates
     [th,fieldmag] = cart2pol(u,v);
@@ -87,7 +100,9 @@ function hax = cquiver(varargin)
     
     arrow = 0.40;
     
-    hax = axes;
+    if isempty(hax)
+        hax = axes;
+    end
     
     % Draw the arrows
     for i = 1:length(cont)
@@ -134,6 +149,9 @@ function hax = cquiver(varargin)
                ystart + (1 - arrow / 3) * (yend - ystart); ...
                nan(size(ystart)) 
              ];
+         
+        lx = lx + xshift;
+        ly = ly + yshift;
 
         % Plot the vectors
         line(lx, ly, 'Color', cmap(i,:));
@@ -156,7 +174,7 @@ function hax = cquiver(varargin)
 end
 
 
-function [u,v,sx,sy,maxd,cmap,bgcolor,axprops] = parse_inputs(var)
+function [u,v,sx,sy,maxd,cmap,bgcolor,axprops,xshift,yshift,hax] = parse_inputs(var)
 %PARSE_INPUTS
 %   [u,v,maxd,cmap] = parse_inputs(var)
 
@@ -165,12 +183,19 @@ function [u,v,sx,sy,maxd,cmap,bgcolor,axprops] = parse_inputs(var)
     Inputs.maxd = [];
     Inputs.Color = 'white';
     Inputs.AxesProps = {};
+    Inputs.xshift = 0;
+    Inputs.yshift = 0;
+    Inputs.hax = [];
+    Inputs.sx = [];
+    Inputs.sy = [];
+    Inputs.s = [];
     
     % paw through variable inputs to find first string of p-v pairs
     fstparamstr = 0;
     for i = 1:numel(var)
         if ischar(var{i})
             fstparamstr = i;
+            break;
         end
     end
     
@@ -187,6 +212,36 @@ function [u,v,sx,sy,maxd,cmap,bgcolor,axprops] = parse_inputs(var)
     cmap = Inputs.cmap;
     bgcolor = Inputs.Color;
     axprops = Inputs.AxesProps;
+    xshift = Inputs.xshift;
+    yshift = Inputs.yshift;
+    hax = Inputs.hax;
+    
+    if ~isempty(Inputs.s) && isempty(Inputs.sx) && isempty(Inputs.sy)
+        
+        if isscalar(Inputs.s)
+            sx = Inputs.s;
+            sy = Inputs.s;
+        else
+            error('Non-scalar spacings not currently supported')
+        end
+        
+    elseif isempty(Inputs.s) && ~isempty(Inputs.sx) && ~isempty(Inputs.sy)
+        
+        if isscalar(Inputs.sx) && isscalar(Inputs.sy)
+            % two scalar spacings supplied use second as y spacing
+            sx = Inputs.sx;
+            sy = Inputs.sy;
+        else
+            error('Non-scalar spacings not currently supported');
+        end
+        
+    elseif ~isempty(Inputs.s) && (~isempty(Inputs.sx) || ~isempty(Inputs.sy))
+        error('Incorrect spacing spec');
+    else
+        sx = 1;
+        sy = 1;
+    end
+    
     
     if (size(var{1},3) == 2)
 
@@ -195,16 +250,12 @@ function [u,v,sx,sy,maxd,cmap,bgcolor,axprops] = parse_inputs(var)
 
         v = var{1}(:,:,2);
         
-        nextvar = 2;
-        
     elseif ~every(isreal(var{1}))
         
         % complex flow
         u = full(real(var{1}));
 
         v = full(imag(var{1}));
-
-        nextvar = 2;
 
     elseif numel(var) > 1 
         
@@ -216,8 +267,6 @@ function [u,v,sx,sy,maxd,cmap,bgcolor,axprops] = parse_inputs(var)
 
                 u = var{1};
                 v = var{2};
-
-                nextvar = 3;
             
             end
 
@@ -228,8 +277,6 @@ function [u,v,sx,sy,maxd,cmap,bgcolor,axprops] = parse_inputs(var)
 
             v = full(imag(var{1}));
             
-            nextvar = 2;
-            
         else
             error('Incorrect vector field specification.')
         end
@@ -238,36 +285,6 @@ function [u,v,sx,sy,maxd,cmap,bgcolor,axprops] = parse_inputs(var)
         error('Incorrect vector field specification.')
     end
 
-    if nextvar <= numel(var)
-       
-        if numel(var) - nextvar > 1
 
-            error('Too many arguments supplied')
-
-        else
-            
-            if isscalar(var{nextvar})
-                sx = var{nextvar};
-            else
-                error('Non-scalar spacings not currently supported')
-            end
-
-            if numel(var) - nextvar == 0
-                % only one scalar spacing supplied, so use for both x and y
-                % spacing
-                sy = sx;
-            elseif isscalar(var{nextvar+1})
-                % two scalar spacings supplied use second as y spacing
-                sy = var{2};
-            else
-                error('Non-scalar spacings not currently supported');
-            end
-            
-        end
-        
-    else
-        sx = 1;
-        sy = 1;
-    end
     
 end
