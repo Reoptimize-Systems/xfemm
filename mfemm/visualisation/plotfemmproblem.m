@@ -15,7 +15,7 @@ function hfig = plotfemmproblem(FemmProblem)
 %  hfig - hadle to the created figure
 %
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2013 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -31,13 +31,62 @@ function hfig = plotfemmproblem(FemmProblem)
 
     hfig = figure;
     
+    hZoom = zoom(gcf);
+    
+    hax = axes;
+    
+    axis equal
+    
+    % store the FemmProblem in the  axes user data
+    set(hax, 'UserData', FemmProblem);
+    
+    set(hZoom, 'ActionPostCallback', {@zoomfemmplot,hax});
+    
+    makefemmplot(hax);
+   
+end
+
+function zoomfemmplot(fig,evd,hax)
+% makes a plot after a zoom operation, used to keep block labels the same
+% size at all zoom levels
+
+    xlim = get(hax, 'XLim');
+
+    ylim = get(hax, 'YLim');
+    
+    x = xlim(1);
+    y = ylim(1);
+    w = xlim(2) - xlim(1);
+    h = ylim(2) - ylim(1);
+
+    cla(hax);
+    
+    makefemmplot(hax,w,h)
+    
+    set(hax, 'XLim', xlim);
+    
+    set(hax, 'YLim', ylim);
+
+end
+
+
+function makefemmplot(hax,w,h)
+% creates the entire problem plot
+
+    FemmProblem = get(hax, 'UserData');  
+        
+    if nargin == 1
+        % get the extent of the problem region
+        [~,~,w,h] = extent_mfemm(FemmProblem);
+    end
+
     nodes = getnodecoords_mfemm(FemmProblem);
-    
+
     links = getnodelinks_mfemm(FemmProblem);
-    
+
     % plot the segments as lines
     plotnodelinks(nodes, links);
-    
+
     arclinks = getarclinks_mfemm(FemmProblem);
 
     % plot the arc segments as lines 
@@ -46,65 +95,18 @@ function hfig = plotfemmproblem(FemmProblem)
         plotarclinks(nodes, arclinks(:,1:2), arclinks(:,3), arclinks(:,4));
     end
     hold off
+
+    maxtriarea = max(cell2mat({FemmProblem.BlockLabels(:).MaxArea}'));
     
-    % get the extent of the problem region
-    [x,y,w,h] = extent_mfemm(FemmProblem);
-    
-    minlabelrad = 0.025 * magn([w,h]);
-    
-    maxlabelrad = 4 * minlabelrad;
-    
-    labelradrange = maxlabelrad - minlabelrad;
-    
-    if isfield(FemmProblem, 'BlockLabels')
-        
-        hold on
-        
-        maxtriarea = max(cell2mat({FemmProblem.BlockLabels(:).MaxArea}'));
-    
-        for i = 1:numel(FemmProblem.BlockLabels)
+    for i = 1:numel(FemmProblem.BlockLabels)
 
-            if FemmProblem.BlockLabels(i).MaxArea == -1
+        plotblocklabel(w,h,maxtriarea,FemmProblem.BlockLabels(i));
 
-                labeld = minlabelrad;
-
-                labelcolour = 'm';
-
-            else
-
-                labeld = minlabelrad + labelradrange * (FemmProblem.BlockLabels(i).MaxArea / maxtriarea);
-
-                labelcolour = 'k';
-
-            end
-
-            rectpos = [FemmProblem.BlockLabels(i).Coords(1) - labeld/2, ...
-                       FemmProblem.BlockLabels(i).Coords(2) - labeld/2, ...
-                       labeld, ...
-                       labeld];
-
-            rectangle('Position', rectpos, 'Curvature', [1,1], 'EdgeColor', labelcolour);
-
-            plotcross(FemmProblem.BlockLabels(i).Coords(1), ...
-                      FemmProblem.BlockLabels(i).Coords(2), ...
-                      labeld,labeld, 'Color', labelcolour)
-
-            % Draw the label a little to the right and above the 
-            text(FemmProblem.BlockLabels(i).Coords(1) + 1.025*labeld, ...
-                 FemmProblem.BlockLabels(i).Coords(2) + 1.025*labeld, ...
-                 FemmProblem.BlockLabels(i).BlockType, ...
-                 'Color', [0 0 0.5]);
-
-        end
-
-        hold off
-        
     end
-    
-%     hold all
     
     % plot the mesh if it's present, would be nice to cycle through colours
     % for regions here
+    hold all
     if isfield(FemmProblem, 'Mesh')
 
         triplot(FemmProblem.Mesh.Triangles(:,1:3) + 1, ...
@@ -112,13 +114,54 @@ function hfig = plotfemmproblem(FemmProblem)
             FemmProblem.Mesh.Vertices(:,2));
 
     end
+    hold off
+
+end
+
+
+function plotblocklabel(w,h,maxtriarea,BlockLabel)
+% adds a single block label to the problem plot
+%
+
+    minlabelrad = 0.005 * magn([w,h]);
     
-%     hold off
+    maxlabelrad = 2 * minlabelrad;
     
-    axis equal
+    labelradrange = maxlabelrad - minlabelrad;
     
-%     addlistener(cah, 'YLim', 'PreSet', @mfemm_plot_chngylim);
-%     addlistener(cah, 'YLim', 'PreSet', @mfemm_plot_chngxlim);
+    if BlockLabel.MaxArea == -1
+
+        labeld = minlabelrad;
+
+        labelcolour = 'm';
+
+    else
+
+        labeld = minlabelrad + labelradrange * (BlockLabel.MaxArea / maxtriarea);
+
+        labelcolour = 'k';
+
+    end
+
+    rectpos = [ BlockLabel.Coords(1) - labeld/2, ...
+                BlockLabel.Coords(2) - labeld/2, ...
+                labeld, ...
+                labeld ];
+    
+    hold all
+    rectangle('Position', rectpos, 'Curvature', [1,1], 'EdgeColor', labelcolour);
+
+    plotcross( BlockLabel.Coords(1), ...
+               BlockLabel.Coords(2), ...
+               labeld,labeld, 'Color', labelcolour)
+
+    hold off
+    
+    % Draw the label a little to the right and above the block marker
+    text( BlockLabel.Coords(1) + 1.025*(labeld/2), ...
+          BlockLabel.Coords(2) + 1.025*(labeld/2), ...
+          BlockLabel.BlockType, ...
+          'Color', [0 0 0.5] );
 
 end
 
@@ -137,6 +180,10 @@ function plotcross(x,y,w,h,varargin)
           y + h/2], varargin{:});
 
 end
+
+
+
+
 
     
     
