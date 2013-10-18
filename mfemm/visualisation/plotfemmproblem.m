@@ -1,4 +1,4 @@
-function hfig = plotfemmproblem(FemmProblem)
+function [hfig, hax] = plotfemmproblem(FemmProblem)
 % plotfemmproblem: plots a simple visualisation of an mfemm problem
 % structure
 % 
