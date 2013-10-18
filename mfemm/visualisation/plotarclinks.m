@@ -97,7 +97,7 @@ function [x, y] = arcpoints(A, B, angle, maxdeg)
     [starttheta, rho] = cart2pol(tempA(:,1), tempA(:,2));
     
     % get arc points
-    npnts = ceil(angle ./ maxdeg);
+    npnts = max(3, ceil(angle ./ maxdeg));
     
     pnts = linspace(starttheta, starttheta + angle, npnts);
     
