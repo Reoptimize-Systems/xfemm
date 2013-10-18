@@ -35,6 +35,7 @@ classdef fpproc < handle
     %    newcontour - create a new contour, discarding old
     %    totalfieldenergy - calculates total field energy
     %    totalfieldcoenergy - calculates total field coenergy
+    %    plotBfield - creates a plot of the flux density vector field
     %
     
 % Copyright 2012-2013 Richard Crozier
@@ -578,15 +579,55 @@ classdef fpproc < handle
         end
         
         
-        function plotBfield(this, method, x, y, w, h, points, FemmProblem)
+        function hfig = plotBfield(this, method, x, y, w, h, points, FemmProblem)
+            % creates a plot of the flux density vector field
+            %
+            % Syntax
+            %
+            % fpproc.plotBfield(this, method, x, y, w, h, points, FemmProblem)
+            %
+            % Input
+            %
+            %   method - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the flux density.
+            %
+            %   x - x (or r) coordinate lower left corner of region to be
+            %     plotted
+            % 
+            %   y - y (or x) coordinate of  lower left corner of region to 
+            %     be plotted
+            %
+            %   w - width of region to be plotted
+            % 
+            %   h - height of region to be plotted
+            % 
+            %   points - determines the number of points that will be
+            %     plotted using method 0. If points is a scalar, a grid of
+            %     this number of points on both sides will be created. If
+            %     points is a two element vector it will be the number of
+            %     points in the x and y direction respectively.
+            % 
+            %   FemmProblem - optional FemmProblem structure which will
+            %     also be plotted with the field if supplied.
+            %
+            %
+            
             
             if nargin > 7
                 [hfig, hax] = plotfemmproblem(FemmProblem);
                 hold all;
+            else
+                hfig = figure;
+                hax = axes;
             end
             
-            xgv = linspace(x, x + w, points);
-            ygv = linspace(y, y + h, points);
+            if isscalar(points)
+                points = [points, points];
+            end
+            
+            xgv = linspace(x, x + w, points(1));
+            ygv = linspace(y, y + h, points(2));
             [Xsample,Ysample] = meshgrid(xgv, ygv);
             
             B = this.getb(Xsample,Ysample);
@@ -603,7 +644,7 @@ classdef fpproc < handle
                              'hax', hax );
                 case 1
                     % contour plot
-                    
+                    contour( Xsample, Ysample, reshape(magn(B), size(Xsample)) );
                 otherwise
                         
             end
