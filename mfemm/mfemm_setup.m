@@ -63,6 +63,10 @@ function mfemm_setup(forceallcompile)
 %
 %
 
+    if nargin < 1
+        forceallcompile = false;
+    end
+
     % add the required directories to the path
     fprintf('Adding mfemm directories to the path.\n');
     
