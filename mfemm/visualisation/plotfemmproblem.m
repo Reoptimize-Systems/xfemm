@@ -31,8 +31,6 @@ function [hfig, hax] = plotfemmproblem(FemmProblem)
 
     hfig = figure;
     
-    hZoom = zoom(gcf);
-    
     hax = axes;
     
     axis equal
@@ -40,7 +38,10 @@ function [hfig, hax] = plotfemmproblem(FemmProblem)
     % store the FemmProblem in the  axes user data
     set(hax, 'UserData', FemmProblem);
     
-    set(hZoom, 'ActionPostCallback', {@zoomfemmplot,hax});
+    if ~isoctave
+        hZoom = zoom(gcf);
+        set(hZoom, 'ActionPostCallback', {@zoomfemmplot,hax});
+    end
     
     makefemmplot(hax);
    
