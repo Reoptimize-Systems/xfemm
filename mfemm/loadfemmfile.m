@@ -36,12 +36,12 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
     matind = 0;
     boundind = 0;
 
-    q = '';
+    q = fgetl(fid);
 
     while ischar(q)
 
-        % get the first line from the file
-        q = strtrim(fgetl(fid));
+        % trim whitespace from the string at start and end
+        q = strtrim(q);
 
         % Deal with flag for file format version
         if strncmpi(q,'[format]',8)
@@ -52,6 +52,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
                 error('This file is from a different version of FEMM\nRe-analyze the problem using the current version.');
             end
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -60,6 +62,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
         if strncmpi(q,'[frequency]',11)
             v = StripKey(q);
             FemmProblem.ProbInfo.Frequency = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -67,6 +71,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
         if strncmpi(q,'[depth]',7)
             v = StripKey(q);
             FemmProblem.ProbInfo.Depth = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -74,6 +80,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
         if strncmpi(q,'[MinAngle]',7)
             v = StripKey(q);
             FemmProblem.ProbInfo.MinAngle = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
         
@@ -96,6 +104,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
                 FemmProblem.ProbInfo.LengthUnits  = 3;
             end
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -106,6 +116,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
             
             FemmProblem.ProbInfo.Precision = str2double(v);
             
+            % get the next line of input
+            q = fgetl(fid);
             continue;
             
         end
@@ -123,6 +135,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
                 FemmProblem.ProbInfo.ProblemType = 1;
             end
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -140,6 +154,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
                 FemmProblem.ProbInfo.Coords = 1;
             end
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -151,6 +167,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             FemmProblem.ProbInfo.Comments = removequotes(v);
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -159,18 +177,24 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
         if( strncmpi(q,'[extzo]',7))
             v = StripKey(q);
             FemmProblem.ProbInfo.extZo = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'[extro]',7))
             v = StripKey(q);
             FemmProblem.ProbInfo.extRo = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'[extri]',7))
             v = StripKey(q);
             FemmProblem.ProbInfo.extRi = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -180,6 +204,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
             % Make a new empty point property
             [FemmProblem, ppropind] = addpointprop(FemmProblem, 'New Point Property');
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -189,34 +215,46 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             FemmProblem.PointProps(ppropind).Name = removequotes(v);
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<A_re>',6))
             v = StripKey(q);
             FemmProblem.PointProps(ppropind).A_re = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<A_im>',6))
             v = StripKey(q);
             FemmProblem.PointProps(ppropind).A_im = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<I_re>',6))
             v = StripKey(q);
             FemmProblem.PointProps(ppropind).I_re = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<I_im>',6))
             v = StripKey(q);
             FemmProblem.PointProps(ppropind).I_im = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<endpoint>',9))
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -224,6 +262,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
         if( strncmpi(q,'<beginbdry>',11))
 
             [FemmProblem, boundind] = addboundaryprop_mfemm(FemmProblem, 'New Boundary', 0);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -232,76 +272,102 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
             v = StripKey(q);
 
             FemmProblem.BoundaryProps(boundind).Name = removequotes(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<bdrytype>',10))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).BdryType = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<mu_ssd>',8))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).Mu_ssd = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<sigma_ssd>',11))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).Sigma_ssd = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<A_0>',5))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).A0 = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<A_1>',5))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).A1 = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<A_2>',5))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).A2 = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<phi>',5))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).Phi = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<c0>',4))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).c0 = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<c1>',4))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).c1 = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<c0i>',5))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).c0i = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<c1i>',5))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).c1i = str2double(v);
-            continue;
+            % get the next line of input
+            q = fgetl(fid);
+            continue;;
         end
 
         if( strncmpi(q,'<endbdry>',9))
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -311,6 +377,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             [FemmProblem, matind] = addmaterials_mfemm(FemmProblem, emptymatstruct_mfemm());
             
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -318,30 +386,40 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
             v = StripKey(q);
 
             FemmProblem.Materials(matind).Name = removequotes(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<mu_x>',6))
             v = StripKey(q);
             FemmProblem.Materials(matind).Mu_x = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<mu_y>',6))
             v = StripKey(q);
             FemmProblem.Materials(matind).Mu_y = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<H_c>',5))
             v = StripKey(q);
             FemmProblem.Materials(matind).H_c = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
         if( strncmpi(q,'<J_re>',6))
             v = StripKey(q);
             FemmProblem.Materials(matind).J_re = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -352,6 +430,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
             if (FemmProblem.ProbInfo.Frequency ~= 0)
                 FemmProblem.Materials(matind).J_im = str2double(v);
             end
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -359,6 +439,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).Sigma = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -366,6 +448,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).Phi_h = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -373,6 +457,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).Phi_hx = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -380,6 +466,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).Phi_hy = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -387,6 +475,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).d_lam = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -394,6 +484,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).LamFill = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -401,6 +493,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).LamType = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -408,6 +502,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).NStrands = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -415,6 +511,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             v = StripKey(q);
             FemmProblem.Materials(matind).WireD = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
             continue;
         end
 
@@ -436,12 +534,16 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             end
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
 
         if( strncmpi(q,'<endblock>',9))
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -451,6 +553,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             [FemmProblem, circind] = addcircuit_mfemm(FemmProblem, '');
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -461,6 +565,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             FemmProblem.Circuits(circind).Name = removequotes(v);
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -471,6 +577,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             FemmProblem.Circuits(circind).TotalAmps_re = str2double(v);
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -483,6 +591,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
                 FemmProblem.Circuits(circind).TotalAmps_im = str2double(v);
             end
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -493,12 +603,16 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             FemmProblem.Circuits(circind).CircType = str2double(v);
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
 
         if( strncmpi(q,'<endcircuit>',12))
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -541,7 +655,7 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
                 s = fgetl(fid);
 
-                C = textscan(s, '%f\t%f\t%d\t%d');
+                C = textscan(s, '%f\t%f\t%f\t%f');
 
                 nodeprops.InGroup = C{4};
 
@@ -556,6 +670,10 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
                 clear nodeprops;
 
             end
+            
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
 
         end
 
@@ -570,11 +688,17 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
                 s = fgetl(fid);
 
-                C = textscan(s, '%d\t%d\t%f\t%d\t%d\t%f');
+                C = textscan(s, '%f\t%f\t%f\t%f\t%f\t%f');
 
                 segprops.MaxSideLength = C{3};
 
                 segprops.BoundaryMarker = C{4};
+                
+                if segprops.BoundaryMarker == 0
+                    segprops.BoundaryMarker = '';
+                else
+                    segprops.BoundaryMarker = FemmProblem.BoundaryProps(segprops.BoundaryMarker).Name;
+                end
                 
                 segprops.Hidden = C{5};
                 
@@ -585,6 +709,10 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
                 clear segprops;
 
             end
+            
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
 
         end
 
@@ -598,11 +726,18 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
                 s = fgetl(fid);
 
-                C = textscan(s,'%d\t%d\t%f\t%f\t%d\t%d\t%d');
+                C = textscan(s,'%f\t%f\t%f\t%f\t%f\t%f\t%f');
 
                 arcsegprops.MaxSegDegrees = C{4};
 
                 arcsegprops.BoundaryMarker = C{5};
+                
+                % zero boundary marker corresponds to no boundary marker
+                if arcsegprops.BoundaryMarker == 0
+                    arcsegprops.BoundaryMarker = '';
+                else
+                    arcsegprops.BoundaryMarker = FemmProblem.BoundaryProps(arcsegprops.BoundaryMarker).Name;
+                end
 
                 arcsegprops.Hidden = C{6};
                 
@@ -614,6 +749,9 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             end
 
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
         end
 
 
@@ -644,6 +782,10 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
                     %  number of block labels.
                 end
             end
+            
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
 
         end
 
@@ -658,7 +800,7 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
                 s = fgetl(fid);
 
-                C = textscan(s,'%f\t%f\t%d\t%f\t%d\t%f\t%d\t%d\t%d\t%s');
+                C = textscan(s,'%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%s');
 
                 %some defaults
                 FemmProblem.BlockLabels(i).Coords = [C{1}, C{2}];
@@ -680,6 +822,8 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             end
 
+            % get the next line of input
+            q = fgetl(fid);
             continue;
 
         end
@@ -689,37 +833,42 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
             break;
         else
             hassolution = false;
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
         end
+        
+
 
     end
     
-    if isfield(FemmProblem, 'Segments')
-        % convert the boudary marker number in the segment list to names
-        for i = 1:numel(FemmProblem.Segments)
-            
-            if FemmProblem.Segments(i).BoundaryMarker == 0
-                FemmProblem.Segments(i).BoundaryMarker = '';
-            else
-                FemmProblem.Segments(i).BoundaryMarker = ...
-                    FemmProblem.BoundaryProps(FemmProblem.Segments(i).BoundaryMarker).Name;
-            end
-            
-        end
-    end
-    
-    if isfield(FemmProblem, 'ArcSegments')
-        % convert the boudary marker number in the arc segment list to names
-        for i = 1:numel(FemmProblem.ArcSegments)
-            
-            if FemmProblem.ArcSegments(i).BoundaryMarker == 0
-                FemmProblem.ArcSegments(i).BoundaryMarker = '';
-            else
-                FemmProblem.ArcSegments(i).BoundaryMarker = ...
-                    FemmProblem.BoundaryProps(FemmProblem.ArcSegments(i).BoundaryMarker).Name;
-            end
-            
-        end
-    end
+%     if isfield(FemmProblem, 'Segments')
+%         % convert the boudary marker number in the segment list to names
+%         for i = 1:numel(FemmProblem.Segments)
+%             
+%             if FemmProblem.Segments(i).BoundaryMarker == 0
+%                 FemmProblem.Segments(i).BoundaryMarker = '';
+%             else
+%                 FemmProblem.Segments(i).BoundaryMarker = ...
+%                     FemmProblem.BoundaryProps(FemmProblem.Segments(i).BoundaryMarker).Name;
+%             end
+%             
+%         end
+%     end
+%     
+%     if isfield(FemmProblem, 'ArcSegments')
+%         % convert the boudary marker number in the arc segment list to names
+%         for i = 1:numel(FemmProblem.ArcSegments)
+%             
+%             if FemmProblem.ArcSegments(i).BoundaryMarker == 0
+%                 FemmProblem.ArcSegments(i).BoundaryMarker = '';
+%             else
+%                 FemmProblem.ArcSegments(i).BoundaryMarker = ...
+%                     FemmProblem.BoundaryProps(FemmProblem.ArcSegments(i).BoundaryMarker).Name;
+%             end
+%             
+%         end
+%     end
     
     if isfield(FemmProblem, 'BlockLabels')
        for i = 1:numel(FemmProblem.BlockLabels)
@@ -734,7 +883,7 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
         % get the number of nodes to read in
         s = fgetl(fid);
         
-        nnodes = cell2mat(textscan(s,'%d\n'));
+        nnodes = cell2mat(textscan(s,'%f\n'));
         
         for i = 1:nnodes
 
@@ -759,13 +908,13 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
         % get the number of elements to read in
         s = fgetl(fid);
-        nelms = cell2mat(textscan(s,'%d\n'));
+        nelms = cell2mat(textscan(s,'%f\n'));
 
         for i = 1:nelms
 
             s = fgetl(fid);
 
-            vals = sscanf(s,'%d\t%d\t%d\t%d');
+            vals = sscanf(s,'%f\t%f\t%f\t%f');
 
             Solution.Vertices(i,:) = vals(1:3);
             Solution.LabelNum(i,1) = vals(4);
@@ -775,7 +924,7 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
         % get the number of circuits to read in
         s = fgetl(fid);
-        ncircs = cell2mat(textscan(s,'%d'));
+        ncircs = cell2mat(textscan(s,'%f'));
 
         for i = 1:ncircs
             
@@ -787,7 +936,7 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             if FemmProblem.ProbInfo.Frequency == 0
 
-                cvals = sscanf(s,'%d\t%f');
+                cvals = sscanf(s,'%f\t%f');
 
                 Solution.Circuits(i).Case = cvals(1);
 
@@ -799,7 +948,7 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
             else
 
-                cvals = sscanf(s,'%d\t%f\t%f');
+                cvals = sscanf(s,'%f\t%f\t%f');
 
                 Solution.Circuits(i).Case = cvals(1);
 
@@ -813,13 +962,13 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
         end
 
+        Solution = postprocsolution(FemmProblem, Solution);
+        
     else
         Solution = [];
     end
     
     fclose(fid);
-    
-    Solution = postprocsolution(FemmProblem, Solution);
 
 end
 
