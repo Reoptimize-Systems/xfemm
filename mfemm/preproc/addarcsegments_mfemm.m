@@ -33,9 +33,13 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
 %   'InGroup'        - Scalar value containing the group number of segment. 
 %                      Defaults to zero.
 %
-%   'BoundaryMarker' - String containing the name of a boundary assigned to
-%                      segment. Defaults to an empty string, i.e. no
-%                      boundary property.
+%   'BoundaryMarker' - Either a string containing the name of a boundary
+%                      assigned to segment, or an integer boundary number.
+%                      If an integer, this must be the (1-base) index of an
+%                      existing boundary condition in the FemmProblem
+%                      Structure to be applied. If zero, no boundary
+%                      property is applied. Defaults to an empty string,
+%                      i.e. no boundary property.
 % 
 % The values are applied to all segments created.
 %
@@ -75,6 +79,8 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
     
     if ischar(options.BoundaryMarker)
     	options.BoundaryMarker = {options.BoundaryMarker};
+    elseif isscalar(options.BoundaryMarker)
+        options.BoundaryMarker = {FemmProblem.BoundaryProps(options.BoundaryMarker).Name};
     end
        
     if numel(n0) > 1
@@ -91,8 +97,16 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
            options.InGroup = repmat(options.InGroup, size(n0));
        end
        
-       if iscellstr(options.BoundaryMarker)
+       if iscellstr(options.BoundaryMarker) && (numel(options.BoundaryMarker) == 1)
            options.BoundaryMarker = repmat(options.BoundaryMarker, size(n0));
+       elseif isnumeric(options.BoundaryMarker) && samesize(options.BoundaryMarker, n0)
+           strbounds = {};
+           for ind = 1:numel(options.BoundaryMarker)
+               strbounds = [strbounds, {FemmProblem.BoundaryProps(options.BoundaryMarker(ind)+1).Name}];
+           end
+           options.BoundaryMarker = strbounds;
+       elseif ~samesize(options.BoundaryMarker, n0)
+           error('MFEMM:InvalidBoundary', 'Invalid boundary specification.')
        end
        
     end
