@@ -159,6 +159,19 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
             continue;
 
         end
+        
+        % Choice of solver
+        if strncmpi(q,'[ACSolver]',10)
+
+            v = StripKey(q);
+
+            FemmProblem.ProbInfo.ACSolver = str2double(v);
+
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
+
+        end
 
         % Comments
         if (strncmpi(q,'[comment]',9))
