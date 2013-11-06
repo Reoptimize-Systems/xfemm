@@ -9,26 +9,35 @@ function mfemm_setup(forceallcompile)
 % to force recompilation). 
 %
 % If you do need/want to create the mex files, before running this script
-% you must first compile some library files for use by the mex compiler.
-% There are two ways to do this. On linux type systems it is probably
-% easiest to use the provided Makefile in the mfemm directory. On windows,
-% it is probably easiest to use the Code::Blocks C++ IDE. Several project
-% and workspace files for the free Code::Blocks IDE are provided to ease
-% this process. Instructions are provided below for creating the required
-% libraries using Code::Blocks or using the Makefile.
+% you must first compile some library files for use by the mex compiler. 
 %
-% mfemm_setup requires requires that you ave a C++ compiler set up for use
-% by Matlab or Octave (of course Octave will not have a problem thanks to
-% its seamless integration with gcc). In Matlab you must have run 
+% Linux: On linux type systems the process is automated, and mfemm_setup.m
+% will build the libraries using the system 'make' program, you will not
+% need to do anything. If there are problems, you can try invoking the make
+% command yourself, see the instructions for building the libraries using a
+% makefile below. 
+%
+% Windows: Unfortunately Windows lacks somewhat the development environment
+% of Linux systems. On windows, it is probably easiest to use the
+% Code::Blocks C++ IDE. Several project and workspace files for the free
+% Code::Blocks IDE are provided to ease this process. Instructions are
+% provided below for creating the required libraries using Code::Blocks.
+%
+% In both cases mfemm_setup requires requires that you ave a C++ compiler
+% set up for use by Matlab or Octave (Octave will not have a problem thanks
+% to its seamless integration with gcc). In Matlab you must have run
 %
 % mex -setup
 %
 % And selected a valid C++ compiler before attempting to run this
-% mfemm_setup function. For linux the system gcc compiler will be perfect.
-% The free windows compilers supported by Matlab vary over time, but often
-% there is a free version of Microsoft Visual C++ which will work. The
-% gnumex project provides a way to use gcc on Windows with Matlab if
-% desired.
+% mfemm_setup function. For linux the system gcc compiler will be ideal.
+% The free windows compilers supported by Matlab vary over time. However,
+% you will need to build the mex files using the same compiler with which
+% you created the libraries earlier. Often there is a free version of
+% Microsoft Visual C++ which will work, but no project files are provided
+% for this. The gnumex project provides a way to use gcc on Windows with
+% Matlab if desired (this will work with the compiler which comes with
+% code::blocks, mingw).
 %
 % 
 % ===   Instructions for building required libraries using Makefile     ===
@@ -82,6 +91,12 @@ function mfemm_setup(forceallcompile)
             || forceallcompile
 
         fprintf('Compiling mex functions for mfemm.\n');
+        
+        if isunix
+            % if we are on a unixy computer we can make the necessary
+            % libraries using make
+            system(sprintf('make -f %s', fullfile(thisfilepath, 'Makefile')));
+        end
         
         if exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'libfemm', 'libfemm.a'), 'file') ...
             && exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'liblua', 'liblua.a'), 'file') ...
