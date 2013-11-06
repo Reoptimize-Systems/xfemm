@@ -26,7 +26,7 @@ function conv = length2metres_mfemm(length, units)
 %
 %   conv - the supplied lengths converted to units of metres
 %
-% See also: loadfemmfile.m
+% See also: loadfemmfile.m, metres2length_mfemm.m
 %
 
 % Copyright 2012 Richard Crozier
