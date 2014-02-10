@@ -60,9 +60,13 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
     hold off
     
     hold on
-    
-    % plot all the nodes too
-    scatter(nodes(:,1), nodes(:,2), 'xr');
+
+    % plot all the nodes
+    if isoctave
+        scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), [], [], 'xr');
+    else
+        scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), 'xr');
+    end
 %     
 %     if ~is2d
 %         view(3);
