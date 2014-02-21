@@ -22,6 +22,7 @@ classdef fpproc < handle
     %    opendocument - open a .ans solution document
     %    getpointvalues - get all solution outputs at points
     %    getb - get flux density values only at points
+    %    geth - get magnetic filed intensity values only at points
     %    clearcontour - clear a contour
     %    addcontour - add one or more points to a contour
     %    lineintegral - perform a line integral along a contour
@@ -64,6 +65,8 @@ classdef fpproc < handle
         isdocopen = false; % flag denoting whether a document has been opened yet
         
         openfilename = ''; % contains the path of any currently open files
+        
+        FemmProblem = struct (); % The femmproblem structure representing the problem
         
     end
     
@@ -127,6 +130,13 @@ classdef fpproc < handle
             else
                 this.isdocopen = true;
                 this.openfilename = filename;
+                % try and load the femmproblem structure from the file
+                try
+                    this.FemmProblem = loadfemmfile (filename);
+                catch
+                    warning ('Couldn''t load FemmProblem from solution file.')
+                end
+                    
             end
             
         end
@@ -209,6 +219,82 @@ classdef fpproc < handle
                 B = this.getpointvalues(x);
                 
                 B = B(2:3,:);
+                
+            end
+            
+        end
+        
+        
+        function H = geth(this, x, y)
+            % Get the flux density values associated with the points at X,Y
+            % from the solution
+            %
+            % Syntax
+            %
+            % pvals = fpproc.geth(X, Y)
+            %
+            % Input
+            %
+            %   X,Y - X and Y are matrices of the same size containing
+            %     sets of x and y coordinates at which the point properties
+            %     are to be determined. Internally these will be reshaped
+            %     as X(:),Y(:), i.e. two column vectors.
+            %
+            % Output
+            %
+            %   H - the magnetic field intensity at the requested
+            %     coordinates
+            %
+            %
+            
+            if (nargin==3)
+                
+                H = this.getpointvalues(x,y);
+                
+                H = H(6:7,:);
+                
+            elseif (nargin==2)
+                
+                H = this.getpointvalues(x);
+                
+                H = H(6:7,:);
+                
+            end
+            
+        end
+        
+        function A = geta(this, x, y)
+            % Get the vector potential values associated with the points at
+            % X,Y from the solution
+            %
+            % Syntax
+            %
+            % pvals = fpproc.geta(X, Y)
+            %
+            % Input
+            %
+            %   X,Y - X and Y are matrices of the same size containing
+            %     sets of x and y coordinates at which the point properties
+            %     are to be determined. Internally these will be reshaped
+            %     as X(:),Y(:), i.e. two column vectors.
+            %
+            % Output
+            %
+            %   A - the vector potential at the requested coordinates
+            %
+            %
+            
+            if (nargin==3)
+                
+                A = this.getpointvalues(x,y);
+                
+                A = A(1,:);
+                
+            elseif (nargin==2)
+                
+                A = this.getpointvalues(x);
+                
+                A = A(1,:);
                 
             end
             
@@ -579,12 +665,12 @@ classdef fpproc < handle
         end
         
         
-        function hfig = plotBfield(this, method, x, y, w, h, points, FemmProblem)
+        function hfig = plotBfield(this, method, x, y, w, h, points)
             % creates a plot of the flux density vector field
             %
             % Syntax
             %
-            % fpproc.plotBfield(this, method, x, y, w, h, points, FemmProblem)
+            % fpproc.plotBfield(this, method, x, y, w, h, points)
             %
             % Input
             %
@@ -608,18 +694,134 @@ classdef fpproc < handle
             %     points is a two element vector it will be the number of
             %     points in the x and y direction respectively.
             % 
-            %   FemmProblem - optional FemmProblem structure which will
-            %     also be plotted with the field if supplied.
-            %
             %
             
+            datafcn = @this.getb;
             
-            if nargin > 7
-                [hfig, hax] = plotfemmproblem(FemmProblem);
-                hold all;
+            hfig = this.plotvectorfield(method, x, y, w, h, points, datafcn);
+            
+            title ('Magnetic Flux Density, B');
+            
+        end
+
+        
+        function hfig = plotHfield(this, method, x, y, w, h, points)
+            % creates a plot of the magnetic intensity vector field
+            %
+            % Syntax
+            %
+            % fpproc.plotHfield(method, x, y, w, h, points)
+            %
+            % Input
+            %
+            %   method - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the magnetic field.
+            %
+            %   x - x (or r) coordinate lower left corner of region to be
+            %     plotted
+            % 
+            %   y - y (or x) coordinate of  lower left corner of region to 
+            %     be plotted
+            %
+            %   w - width of region to be plotted
+            % 
+            %   h - height of region to be plotted
+            % 
+            %   points - determines the number of points that will be
+            %     plotted using method 0. If points is a scalar, a grid of
+            %     this number of points on both sides will be created. If
+            %     points is a two element vector it will be the number of
+            %     points in the x and y direction respectively.
+            % 
+            %
+            
+            datafcn = @this.geth;
+            
+            hfig = this.plotvectorfield(method, x, y, w, h, points, datafcn);
+            
+            title ('Magnetic Intensity Field, H');
+            
+        end
+        
+        
+        function hfig = plotAfield(this, method, x, y, w, h, points)
+            % creates a plot of the magneticvector potential scalar field
+            %
+            % Syntax
+            %
+            % fpproc.plotAfield(method, x, y, w, h, points)
+            %
+            % Input
+            %
+            %   method - plot method use 0 for a filled contour plot using.
+            %     Use 1 for a contour plot with lines only.
+            %
+            %   x - x (or r) coordinate lower left corner of region to be
+            %     plotted
+            % 
+            %   y - y (or x) coordinate of  lower left corner of region to 
+            %     be plotted
+            %
+            %   w - width of region to be plotted
+            % 
+            %   h - height of region to be plotted
+            % 
+            %   points - determines the number of points that will be
+            %     plotted using method 0. If points is a scalar, a grid of
+            %     this number of points on both sides will be created. If
+            %     points is a two element vector it will be the number of
+            %     points in the x and y direction respectively.
+            % 
+            %
+            
+            datafcn = @(x,y) reshape (this.geta (x,y), size (x));
+            
+            hfig = this.plotscalarfield (method, x, y, w, h, points, datafcn);
+            
+            title ('Vector Potential');
+            
+        end
+         
+    end
+    
+    methods (Access = private)
+        
+        function hfig = plotvectorfield(this, method, x, y, w, h, points, datafcn)
+            % creates a plot of a vector field on the FemmProblem
+            %
+            % Syntax
+            %
+            % fpproc.plotvectorfield(method, x, y, w, h, points, datafcn)
+            %
+            % Input
+            %
+            %   method - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the magnetic field.
+            %
+            %   x - x (or r) coordinate lower left corner of region to be
+            %     plotted
+            % 
+            %   y - y (or x) coordinate of  lower left corner of region to 
+            %     be plotted
+            %
+            %   w - width of region to be plotted
+            % 
+            %   h - height of region to be plotted
+            % 
+            %   points - determines the number of points that will be
+            %     plotted using method 0. If points is a scalar, a grid of
+            %     this number of points on both sides will be created. If
+            %     points is a two element vector it will be the number of
+            %     points in the x and y direction respectively.
+            % 
+            %
+            
+            if ~isempty (this.FemmProblem)
+                [hfig, hax] = plotfemmproblem(this.FemmProblem);
             else
                 hfig = figure;
-                hax = axes;
             end
             
             if isscalar(points)
@@ -630,30 +832,110 @@ classdef fpproc < handle
             ygv = linspace(y, y + h, points(2));
             [Xsample,Ysample] = meshgrid(xgv, ygv);
             
-            B = this.getb(Xsample,Ysample);
+            data = feval(datafcn, Xsample, Ysample);
             
             switch method
                 
                 case 0
                     % plot a vector field using colored arrows
-                    cquiver( cat(3, reshape(B(1,:), size(Xsample)), reshape(B(2,:), size(Xsample))), ...
+                    cquiver( cat(3, reshape(data(1,:), size(Xsample)), reshape(data(2,:), size(Xsample))), ...
                              'sx', xgv(2)-xgv(1), ...
                              'sy', ygv(2)-ygv(1), ...
                              'xshift', x, ...
                              'yshift', y, ...
                              'hax', hax );
+                         
+                     colorbar;
                 case 1
                     % contour plot
-                    contour( Xsample, Ysample, reshape(magn(B), size(Xsample)) );
+                    contour( Xsample, Ysample, reshape(magn(data), size(Xsample)) );
+                    
                 otherwise
                         
             end
             
-            if nargin > 7
-                hold off;
-            end
+            hold off;
+            
+            set (hax, 'XLim', [x, x + w], 'YLim', [y, y + h]);
             
         end
+        
+        function hfig = plotscalarfield(this, method, x, y, w, h, points, datafcn)
+            % creates a plot of a scalar field on the FemmProblem
+            %
+            % Syntax
+            %
+            % fpproc.plotscalarfield(method, x, y, w, h, points, datafcn)
+            %
+            % Input
+            %
+            %   method - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the magnetic field.
+            %
+            %   x - x (or r) coordinate lower left corner of region to be
+            %     plotted
+            % 
+            %   y - y (or x) coordinate of  lower left corner of region to 
+            %     be plotted
+            %
+            %   w - width of region to be plotted
+            % 
+            %   h - height of region to be plotted
+            % 
+            %   points - determines the number of points that will be
+            %     plotted using method 0. If points is a scalar, a grid of
+            %     this number of points on both sides will be created. If
+            %     points is a two element vector it will be the number of
+            %     points in the x and y direction respectively.
+            % 
+            %
+            
+            if ~isempty (this.FemmProblem)
+                [hfig, hax] = plotfemmproblem(this.FemmProblem);
+            else
+                hfig = figure;
+            end
+            
+            if isscalar(points)
+                points = [points, points];
+            end
+            
+            xgv = linspace(x, x + w, points(1));
+            ygv = linspace(y, y + h, points(2));
+            [Xsample,Ysample] = meshgrid(xgv, ygv);
+            
+            data = feval(datafcn, Xsample, Ysample);
+            
+            switch method
+                
+                case 0
+                    % plot a scalar field using filled contour
+                    contour(Xsample,Ysample,data);
 
+                    pcolor(Xsample,Ysample,data);
+
+                    shading interp;
+                    
+                    colorbar;
+                     
+                case 1
+                    % contour plot
+                    contour ( Xsample, Ysample, data );
+                    
+                    colorbar;
+                    
+                otherwise
+                        
+            end
+            
+            hold off;
+            
+            axis equal
+            set (hax, 'XLim', [x, x + w], 'YLim', [y, y + h]);
+            
+        end
+        
+        
     end
 end
