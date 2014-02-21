@@ -1,4 +1,4 @@
-function openprobleminfemm_mfemm(FemmProblem, filename)
+function filename = openprobleminfemm_mfemm(FemmProblem, filename)
 
     if nargin < 2
         filename = [tempname, '.fem'];
