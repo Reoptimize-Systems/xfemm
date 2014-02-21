@@ -22,7 +22,8 @@ classdef fpproc < handle
     %    opendocument - open a .ans solution document
     %    getpointvalues - get all solution outputs at points
     %    getb - get flux density values only at points
-    %    geth - get magnetic filed intensity values only at points
+    %    geth - get magnetic field intensity values only at points
+    %    geta - get magnetic vector potential values only at points
     %    clearcontour - clear a contour
     %    addcontour - add one or more points to a contour
     %    lineintegral - perform a line integral along a contour
