@@ -1,17 +1,56 @@
-function [FemmProblem, Solution] = loadfemmfile(filename)
+function [FemmProblem, Solution] = loadfemmfile(filename, problemonly)
 % loads a femm solution from a file and stores it in a FemmProblem and
 % FemmProblem solution structure
 %
 % Syntax
 %
 % [FemmProblem, Solution] = loadsolution_mfemm(filename)
+% [FemmProblem, Solution] = loadsolution_mfemm(filename, problemonly)
 %
 % Input
 %
 %   filename - string containing the location of the femm solution file to
 %     be loaded
 %
+%   problemonly - flag to determine whether the solution is actually
+%     loaded, or only the FemmProblem description. Defaults to false,
+%     meaning everything is loaded. If true, Solution will be empty.
+%
 % Output
+%
+%   FemmProblem - a structure describing the finite element problem, see
+%     writefemmfile.m for details.
+%
+%   Solution - sturucture containing the following fields:
+%
+%       Info - Structure containing information about the solution. It
+%         contains three fields: NNodes, NElements and NCircuits, which are
+%         the number of nodes, triangle elements and circuits in the
+%         solution respectively.
+%
+%       MeshNodes - Matrix of node information, where each row represents a
+%         node. If the problem frequency is zero, it is an (n x 3) matrix
+%         where the first column is the x (or r) coordinate of each node,
+%         and the second the y (or z) coordinate. The thrd column in this
+%         case is the value of the vector potential (A) calculated at this
+%         node. For axisymmetric problems, this is actually 2 x pi x r x A,
+%         as the vector potential is calculated on a contour at the radius
+%         of the node.
+%
+%         If the problem frequency is not zero, this will be an (n x 4)
+%         matrix where the final two columns are the real and imaginary
+%         components of the vector potential.
+%
+%       Vertices - (n x 3) matrix of mesh vertices. Each row list the
+%         indices of nodes at the three vertices of the mesh triangle
+%         element.
+%
+%       LabelNum - (n x 1) vector of label numbers associated with each
+%         element.
+%
+%       Circuits - array of structures containing information on each
+%         circuit found in the solution. Each structure has the following
+%         fields: Type, Volts, CurrentDensity
 %
 %
 
@@ -29,6 +68,10 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
+    if nargin < 2
+        problemonly = false;
+    end
+    
     fid = fopen(filename);
 
 %     cleanupObj = onCleanup(@(x) fclose(x));
@@ -889,16 +932,16 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
        end
     end
 
-    if hassolution
+    if hassolution && ~problemonly
 
         % read in mesh node locations and nodal values
 
         % get the number of nodes to read in
         s = fgetl(fid);
         
-        nnodes = cell2mat(textscan(s,'%f\n'));
+        Solution.Info.NNodes = cell2mat(textscan(s,'%f\n'));
         
-        for i = 1:nnodes
+        for i = 1:Solution.Info.NNodes
 
             % get the string containing the node info
             s = fgetl(fid);
@@ -921,9 +964,9 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
         % get the number of elements to read in
         s = fgetl(fid);
-        nelms = cell2mat(textscan(s,'%f\n'));
+        Solution.Info.NElements = cell2mat(textscan(s,'%f\n'));
 
-        for i = 1:nelms
+        for i = 1:Solution.Info.NElements
 
             s = fgetl(fid);
 
@@ -937,12 +980,12 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
         % get the number of circuits to read in
         s = fgetl(fid);
-        ncircs = cell2mat(textscan(s,'%f'));
+        Solution.Info.NCircuits = cell2mat(textscan(s,'%f'));
 
-        for i = 1:ncircs
+        for i = 1:Solution.Info.NCircuits
             
             if i == 1
-                Solution.Circuits = struct();
+                Solution.Circuits = struct('Type', [], 'Volts', [], 'CurrentDensity', []);
             end
 
             s = fgetl(fid);
@@ -951,31 +994,31 @@ function [FemmProblem, Solution] = loadfemmfile(filename)
 
                 cvals = sscanf(s,'%f\t%f');
 
-                Solution.Circuits(i).Case = cvals(1);
+                Solution.Circuits(i).Type = cvals(1);
 
-                if Solution.Circuits(i).Case == 0
-                    Solution.Circuits(i).dVolts = cvals(2);
+                if Solution.Circuits(i).Type == 0
+                    Solution.Circuits(i).Volts = cvals(2);
                 else
-                    Solution.Circuits(i).J = cvals(2);
+                    Solution.Circuits(i).CurrentDensity = cvals(2);
                 end
 
             else
 
                 cvals = sscanf(s,'%f\t%f\t%f');
 
-                Solution.Circuits(i).Case = cvals(1);
+                Solution.Circuits(i).Type = cvals(1);
 
-                if Solution.Circuits(i).Case == 0
-                    Solution.Circuits(i).dVolts = cvals(2) + 1j*cvals(3);
+                if Solution.Circuits(i).Type == 0
+                    Solution.Circuits(i).Volts = cvals(2) + 1j*cvals(3);
                 else
-                    Solution.Circuits(i).J = cvals(2) + 1j*cvals(3);
+                    Solution.Circuits(i).CurrentDensity = cvals(2) + 1j*cvals(3);
                 end
 
             end
 
         end
 
-        Solution = postprocsolution(FemmProblem, Solution);
+%         Solution = postprocsolution(FemmProblem, Solution);
         
     else
         Solution = [];
@@ -1004,131 +1047,131 @@ function str = removequotes(v)
 end
 
 
-function [Solution] = postprocsolution(FemmProblem, Solution)
-
-    % convert depth from whatever the supplied problem units were to meters 
-    % for internal computations
-    if (FemmProblem.ProbInfo.Depth == -1)
-        FemmProblem.ProbInfo.Depth = 1; 
-    else
-        FemmProblem.ProbInfo.Depth = length2metres_mfemm(FemmProblem.ProbInfo.Depth, FemmProblem.ProbInfo.LengthUnits);
-    end
-
-	% Calculate triangle element centroids 
-    % triangle centroid given by = (1/3 (x1+x2+x3), 1/3 (y1+y2+y3))  
-    % see wikipedia page for further info:
-    % http://en.wikipedia.org/wiki/Centroid#Of_triangle_and_tetrahedron
-    for i = 1:size(Solution.Vertices,1)
-        Solution.TriCentroids(i,1:2) = [sum(Solution.MeshNodes(Solution.Vertices(i,:)+1,1)),  ...
-                                        sum(Solution.MeshNodes(Solution.Vertices(i,:)+1,2))];
-    end
-    Solution.TriCentroids = Solution.TriCentroids ./ 3;
-    
-    % Compute the element radii
-    rsqrx = realpow(  reshape(Solution.MeshNodes(Solution.Vertices(:)+1,1), size(Solution.Vertices)) ...
-                    - reshape(Solution.TriCentroids(Solution.Vertices(:)+1,1), size(Solution.Vertices)), ...
-                    2);
-                    
-    rsqry = realpow(  reshape(Solution.MeshNodes(Solution.Vertices(:)+1,2), size(Solution.Vertices)) ...
-                    - reshape(Solution.TriCentroids(Solution.Vertices(:)+1,2), size(Solution.Vertices)), ...
-                    2);                    
-    
-    Solution.TriRadii =  max(rsqrx + rsqry, [], 2);
-
-    % calculate the magnetization direction for each element 
-    Solution = calcelementmagdir(FemmProblem, Solution);
-   
-    
-% 	% Find flux density in each element;
-% 	for(i=0;i<meshelem.GetSize();i++) GetElementB(meshelem[i]);
+% function [Solution] = postprocsolution(FemmProblem, Solution)
 % 
-% 	% Find extreme values of A;
-% 	A_Low=meshnode[0].A.re; A_High=meshnode[0].A.re;
-% 	for(i=1;i<meshnode.GetSize();i++)
-% 	{
-% 		if (meshnode[i].A.re>A_High) A_High=meshnode[i].A.re;
-% 		if (meshnode[i].A.re<A_Low)  A_Low =meshnode[i].A.re;
+%     % convert depth from whatever the supplied problem units were to meters 
+%     % for internal computations
+%     if (FemmProblem.ProbInfo.Depth == -1)
+%         FemmProblem.ProbInfo.Depth = 1; 
+%     else
+%         FemmProblem.ProbInfo.Depth = length2metres_mfemm(FemmProblem.ProbInfo.Depth, FemmProblem.ProbInfo.LengthUnits);
+%     end
 % 
-% 		if(Frequency!=0)
-% 		{
-% 			if (meshnode[i].A.im<A_Low)  A_Low =meshnode[i].A.im;
-% 			if (meshnode[i].A.im>A_High) A_High=meshnode[i].A.im;
-% 		}
-% 	}
-% 	% save default values for extremes of A
-% 	A_lb=A_Low;
-% 	A_ub=A_High;
-
-% 	if(Frequency!=0){ % compute frequency-dependent permeabilities for linear blocks;
+% 	% Calculate triangle element centroids 
+%     % triangle centroid given by = (1/3 (x1+x2+x3), 1/3 (y1+y2+y3))  
+%     % see wikipedia page for further info:
+%     % http://en.wikipedia.org/wiki/Centroid#Of_triangle_and_tetrahedron
+%     for i = 1:size(Solution.Vertices,1)
+%         Solution.TriCentroids(i,1:2) = [sum(Solution.MeshNodes(Solution.Vertices(i,:)+1,1)),  ...
+%                                         sum(Solution.MeshNodes(Solution.Vertices(i,:)+1,2))];
+%     end
+%     Solution.TriCentroids = Solution.TriCentroids ./ 3;
+%     
+%     % Compute the element radii
+%     rsqrx = realpow(  reshape(Solution.MeshNodes(Solution.Vertices(:)+1,1), size(Solution.Vertices)) ...
+%                     - reshape(Solution.TriCentroids(Solution.Vertices(:)+1,1), size(Solution.Vertices)), ...
+%                     2);
+%                     
+%     rsqry = realpow(  reshape(Solution.MeshNodes(Solution.Vertices(:)+1,2), size(Solution.Vertices)) ...
+%                     - reshape(Solution.TriCentroids(Solution.Vertices(:)+1,2), size(Solution.Vertices)), ...
+%                     2);                    
+%     
+%     Solution.TriRadii =  max(rsqrx + rsqry, [], 2);
 % 
-% 		CComplex deg45; deg45=1+I;
-% 		CComplex K,halflag;
-% 		double ds;
-% 		double w=2.*PI*Frequency;
+%     % calculate the magnetization direction for each element 
+%     Solution = calcelementmagdir(FemmProblem, Solution);
+%    
+%     
+% % 	% Find flux density in each element;
+% % 	for(i=0;i<meshelem.GetSize();i++) GetElementB(meshelem[i]);
+% % 
+% % 	% Find extreme values of A;
+% % 	A_Low=meshnode[0].A.re; A_High=meshnode[0].A.re;
+% % 	for(i=1;i<meshnode.GetSize();i++)
+% % 	{
+% % 		if (meshnode[i].A.re>A_High) A_High=meshnode[i].A.re;
+% % 		if (meshnode[i].A.re<A_Low)  A_Low =meshnode[i].A.re;
+% % 
+% % 		if(Frequency!=0)
+% % 		{
+% % 			if (meshnode[i].A.im<A_Low)  A_Low =meshnode[i].A.im;
+% % 			if (meshnode[i].A.im>A_High) A_High=meshnode[i].A.im;
+% % 		}
+% % 	}
+% % 	% save default values for extremes of A
+% % 	A_lb=A_Low;
+% % 	A_ub=A_High;
 % 
-% 		for(k=0;k<blockproplist.GetSize();k++){
-% 		if (blockproplist[k].LamType==0){
-% 			blockproplist[k].mu_fdx = blockproplist[k].mu_x*
-% 									  exp(-I*blockproplist[k].Theta_hx*PI/180.);
-% 			blockproplist[k].mu_fdy = blockproplist[k].mu_y*
-% 									  exp(-I*blockproplist[k].Theta_hy*PI/180.);
+% % 	if(Frequency!=0){ % compute frequency-dependent permeabilities for linear blocks;
+% % 
+% % 		CComplex deg45; deg45=1+I;
+% % 		CComplex K,halflag;
+% % 		double ds;
+% % 		double w=2.*PI*Frequency;
+% % 
+% % 		for(k=0;k<blockproplist.GetSize();k++){
+% % 		if (blockproplist[k].LamType==0){
+% % 			blockproplist[k].mu_fdx = blockproplist[k].mu_x*
+% % 									  exp(-I*blockproplist[k].Theta_hx*PI/180.);
+% % 			blockproplist[k].mu_fdy = blockproplist[k].mu_y*
+% % 									  exp(-I*blockproplist[k].Theta_hy*PI/180.);
+% % 
+% % 			if(blockproplist[k].Lam_d!=0){
+% % 				halflag=exp(-I*blockproplist[k].Theta_hx*PI/360.);
+% % 				ds=sqrt(2./(0.4*PI*w*blockproplist[k].Cduct*blockproplist[k].mu_x));
+% % 				K=halflag*deg45*blockproplist[k].Lam_d*0.001/(2.*ds);
+% % 				if (blockproplist[k].Cduct!=0)
+% % 				{
+% % 					blockproplist[k].mu_fdx=(blockproplist[k].mu_fdx*tanh(K)/K)*
+% % 					blockproplist[k].LamFill+(1.-blockproplist[k].LamFill);
+% % 				}
+% % 				else{
+% % 					blockproplist[k].mu_fdx=(blockproplist[k].mu_fdx)*
+% % 					blockproplist[k].LamFill+(1.-blockproplist[k].LamFill);
+% % 				}
+% % 
+% % 				halflag=exp(-I*blockproplist[k].Theta_hy*PI/360.);
+% % 				ds=sqrt(2./(0.4*PI*w*blockproplist[k].Cduct*blockproplist[k].mu_y));
+% % 				K=halflag*deg45*blockproplist[k].Lam_d*0.001/(2.*ds);
+% % 				if (blockproplist[k].Cduct!=0)
+% % 				{
+% % 					blockproplist[k].mu_fdy=(blockproplist[k].mu_fdy*tanh(K)/K)*
+% % 					blockproplist[k].LamFill+(1.-blockproplist[k].LamFill);
+% % 				}
+% % 				else{
+% % 					blockproplist[k].mu_fdy=(blockproplist[k].mu_fdy)*
+% % 					blockproplist[k].LamFill+(1.-blockproplist[k].LamFill);
+% % 				}
+% % 			}
+% % 		}
+%         
 % 
-% 			if(blockproplist[k].Lam_d!=0){
-% 				halflag=exp(-I*blockproplist[k].Theta_hx*PI/360.);
-% 				ds=sqrt(2./(0.4*PI*w*blockproplist[k].Cduct*blockproplist[k].mu_x));
-% 				K=halflag*deg45*blockproplist[k].Lam_d*0.001/(2.*ds);
-% 				if (blockproplist[k].Cduct!=0)
-% 				{
-% 					blockproplist[k].mu_fdx=(blockproplist[k].mu_fdx*tanh(K)/K)*
-% 					blockproplist[k].LamFill+(1.-blockproplist[k].LamFill);
-% 				}
-% 				else{
-% 					blockproplist[k].mu_fdx=(blockproplist[k].mu_fdx)*
-% 					blockproplist[k].LamFill+(1.-blockproplist[k].LamFill);
-% 				}
+% end
 % 
-% 				halflag=exp(-I*blockproplist[k].Theta_hy*PI/360.);
-% 				ds=sqrt(2./(0.4*PI*w*blockproplist[k].Cduct*blockproplist[k].mu_y));
-% 				K=halflag*deg45*blockproplist[k].Lam_d*0.001/(2.*ds);
-% 				if (blockproplist[k].Cduct!=0)
-% 				{
-% 					blockproplist[k].mu_fdy=(blockproplist[k].mu_fdy*tanh(K)/K)*
-% 					blockproplist[k].LamFill+(1.-blockproplist[k].LamFill);
-% 				}
-% 				else{
-% 					blockproplist[k].mu_fdy=(blockproplist[k].mu_fdy)*
-% 					blockproplist[k].LamFill+(1.-blockproplist[k].LamFill);
-% 				}
-% 			}
-% 		}
-        
-
-end
-
-                
-function Solution = calcelementmagdir(FemmProblem, Solution)
-% calculate the magnetisation direction in each element
-    
-    Solution.MagDir = zeros(size(Solution.TriRadii, 1), 1);
-    
-    for i = 1:numel(FemmProblem.BlockLabels)
-        if isempty(FemmProblem.BlockLabels(i).MagDirFctn)
-            Solution.MagDir(Solution.LabelNum == i,1) = FemmProblem.BlockLabels(i).MagDir;
-        else
-            x = Solution.TriCentroids(Solution.LabelNum == i,1);
-            y = Solution.TriCentroids(Solution.LabelNum == i,2);
-            % calculate theta in degrees
-            theta = atan2(y,x) .* 180./pi;
-            % calculate the distance from the 
-            R = magn([x,y],2);
-            % convert the string containing the magnetization direction
-            % function to an inline matlab function
-            magdirfcn = inline(FemmProblem.BlockLabels(i).MagDirFctn, 'x', 'y', 'theta', 'R');
-            % vectorise the mag direction function
-            magdirfcn = vectorize(magdirfcn);
-            % evaluate the inline function
-            Solution.MagDir(Solution.LabelNum == i,1) = magdirfcn(x, y, theta, R);
-        end
-    end
-    
-end
+%                 
+% function Solution = calcelementmagdir(FemmProblem, Solution)
+% % calculate the magnetisation direction in each element
+%     
+%     Solution.MagDir = zeros(size(Solution.TriRadii, 1), 1);
+%     
+%     for i = 1:numel(FemmProblem.BlockLabels)
+%         if isempty(FemmProblem.BlockLabels(i).MagDirFctn)
+%             Solution.MagDir(Solution.LabelNum == i,1) = FemmProblem.BlockLabels(i).MagDir;
+%         else
+%             x = Solution.TriCentroids(Solution.LabelNum == i,1);
+%             y = Solution.TriCentroids(Solution.LabelNum == i,2);
+%             % calculate theta in degrees
+%             theta = atan2(y,x) .* 180./pi;
+%             % calculate the distance from the 
+%             R = magn([x,y],2);
+%             % convert the string containing the magnetization direction
+%             % function to an inline matlab function
+%             magdirfcn = inline(FemmProblem.BlockLabels(i).MagDirFctn, 'x', 'y', 'theta', 'R');
+%             % vectorise the mag direction function
+%             magdirfcn = vectorize(magdirfcn);
+%             % evaluate the inline function
+%             Solution.MagDir(Solution.LabelNum == i,1) = magdirfcn(x, y, theta, R);
+%         end
+%     end
+%     
+% end
