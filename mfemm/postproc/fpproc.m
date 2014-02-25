@@ -24,6 +24,8 @@ classdef fpproc < handle
     %    getb - get flux density values only at points
     %    geth - get magnetic field intensity values only at points
     %    geta - get magnetic vector potential values only at points
+    %    smoothon - turn on B and H smoothing over mesh elemnts
+    %    smoothff - turn off B and H smoothing over mesh elemnts
     %    clearcontour - clear a contour
     %    addcontour - add one or more points to a contour
     %    lineintegral - perform a line integral along a contour
@@ -308,6 +310,15 @@ classdef fpproc < handle
             %
             % fpproc.smoothon()
             %
+            % Description
+            %
+            % Controls whether or not smoothing is applied to the B and H
+            % fields in each element when reporting point properties.
+            %
+            % The fields are naturally piece-wise constant over each mesh
+            % element. Calling smoothon turns on smoothing. It can be
+            % turned off using smoothoff.
+            %
             
             if ~this.isdocopen
                 error('No solution document has been opened.')
@@ -321,6 +332,15 @@ classdef fpproc < handle
             % Syntax
             %
             % fpproc.smoothoff()
+            %
+            % Description
+            %
+            % Controls whether or not smoothing is applied to the B and H
+            % fields in each element when reporting point properties.
+            %
+            % The fields are naturally piece-wise constant over each mesh
+            % element. Calling smoothon turns off smoothing. It can be
+            % turned on using smoothon.
             %
             
             if ~this.isdocopen
