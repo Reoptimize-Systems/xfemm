@@ -40,6 +40,8 @@ classdef fpproc < handle
     %    totalfieldenergy - calculates total field energy
     %    totalfieldcoenergy - calculates total field coenergy
     %    plotBfield - creates a plot of the flux density vector field
+    %    nummeshnodes - returns the number of nodes in the mesh
+    %    numeleemnts - returns the number of elements in the mesh
     %    getvertices - gets coordinates of mesh vertices
     %    getelements - gets information about mesh elements
     %    getcentroids - gets the centroids of mesh elements
@@ -822,14 +824,15 @@ classdef fpproc < handle
             %
             % Syntax
             %
-            % vert = getelements ()
-            % vert = getelements (n)
+            % vert = getvertices ()
+            % vert = getvertices (n)
             %
             % Input
             %
             % n - optional matrix of element numbers for which to obtain
             %   the vertices. Element numbers start from 1 (rather than
-            %   zero). The vertices of every mesh element are returned.
+            %   zero). The vertices of every mesh element are returned if n
+            %   is not supplied.
             %
             % Output
             % 
@@ -884,27 +887,28 @@ classdef fpproc < handle
         
         end
         
-        function vert = getcentroids (this, n)
+        function centr = getcentroids (this, n)
             % returns information about elements
             %
             % Syntax
             %
-            % vert = getelements ()
-            % vert = getelements (n)
+            % centr = getcentroids ()
+            % centr = getcentroids (n)
             %
             % Input
             %
             % n - optional matrix of element numbers for which to obtain
-            %   the vertices. Element numbers start from 1 (rather than
-            %   zero). The vertices of every mesh element are returned.
+            %   the centroids. Element numbers start from 1 (rather than
+            %   zero). The centroids of every mesh element are returned if
+            %   n is not supplied.
             %
             % Output
             % 
-            % vert - matrix of (n x 6) values. Each row containing the  
+            % centr - matrix of (n x 2) values. Each row containing the  
             %   coordinates for the vertices of each element number in 'n'
             %   such that a row conatins:
             %
-            %       [ x1, y1, x2, y2, x3, y3 ]
+            %       [ x, y ]
             %         
             %
             
@@ -912,7 +916,7 @@ classdef fpproc < handle
                 n = 1:this.numelements ();
             end
             
-            vert = fpproc_interface_mex('getcentroids', this.objectHandle, n(:));
+            centr = fpproc_interface_mex('getcentroids', this.objectHandle, n(:));
         
         end
         
