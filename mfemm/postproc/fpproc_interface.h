@@ -32,8 +32,11 @@ public:
 	int smoothoff();
 	int getprobleminfo(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 	int getcircuitprops(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-
-
+    int numnodes (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int numelements (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getelements (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getvertices (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getcentroids (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 
 // To be created
 //	int addcontour(lua_State * L);
