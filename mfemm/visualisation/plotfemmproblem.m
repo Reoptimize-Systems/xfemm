@@ -97,7 +97,9 @@ function makefemmplot(hax,w,h)
     end
     hold off
 
-    maxtriarea = max(cell2mat({FemmProblem.BlockLabels(:).MaxArea}'));
+    if ~isempty(FemmProblem.BlockLabels)
+        maxtriarea = max(cell2mat({FemmProblem.BlockLabels(:).MaxArea}'));
+    end
     
     for i = 1:numel(FemmProblem.BlockLabels)
 
