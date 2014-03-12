@@ -41,7 +41,7 @@ classdef fpproc < handle
     %    totalfieldcoenergy - calculates total field coenergy
     %    plotBfield - creates a plot of the flux density vector field
     %    nummeshnodes - returns the number of nodes in the mesh
-    %    numeleemnts - returns the number of elements in the mesh
+    %    numelements - returns the number of elements in the mesh
     %    getvertices - gets coordinates of mesh vertices
     %    getelements - gets information about mesh elements
     %    getcentroids - gets the centroids of mesh elements
