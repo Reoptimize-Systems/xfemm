@@ -40,6 +40,9 @@ classdef fpproc < handle
     %    totalfieldenergy - calculates total field energy
     %    totalfieldcoenergy - calculates total field coenergy
     %    plotBfield - creates a plot of the flux density vector field
+    %    getvertices - gets coordinates of mesh vertices
+    %    getelements - gets information about mesh elements
+    %    getcentroids - gets the centroids of mesh elements
     %
     
 % Copyright 2012-2013 Richard Crozier
@@ -803,7 +806,116 @@ classdef fpproc < handle
             title ('Vector Potential');
             
         end
+        
+        function n = nummeshnodes (this)
+            % return the number of elements in the mesh
+            n = fpproc_interface_mex('numnodes', this.objectHandle);
+        end
+        
+        function n = numelements (this)
+            % return the number of elements in the mesh
+            n = fpproc_interface_mex('numelements', this.objectHandle);
+        end
+        
+        function vert = getvertices (this, n)
+            % returns information about elements
+            %
+            % Syntax
+            %
+            % vert = getelements ()
+            % vert = getelements (n)
+            %
+            % Input
+            %
+            % n - optional matrix of element numbers for which to obtain
+            %   the vertices. Element numbers start from 1 (rather than
+            %   zero). The vertices of every mesh element are returned.
+            %
+            % Output
+            % 
+            % vert - matrix of (n x 6) values. Each row containing the  
+            %   coordinates for the vertices of each element number in 'n'
+            %   such that a row conatins:
+            %
+            %       [ x1, y1, x2, y2, x3, y3 ]
+            %         
+            %
+            
+            if nargin < 2
+                n = 1:this.numelements ();
+            end
+            
+            vert = fpproc_interface_mex('getvertices', this.objectHandle, n(:));
+        
+        end
          
+        function elm = getelements (this, n)
+            % returns information about elements
+            %
+            % Syntax
+            %
+            % elm = getelements ()
+            % elm = getelements (n)
+            %
+            % Input
+            %
+            % n - optional matrix of element numbers for which to obtain information. 
+            %   Element numbers start from 1 (rather than zero). If omitted
+            %   information on every mesh element is returned.
+            %
+            % Output
+            % 
+            % elm - matrix of (n x 7) values. Each row containing the following 
+            %   information for each element number in 'n':
+            %         1. One-based Index of first element node
+            %         2. One-based Index of second element node
+            %         3. One-based Index of third element node
+            %         4. x (or r) coordinate of the element centroid
+            %         5. y (or z) coordinate of the element centroid
+            %         6. element area using the length unit defined for the problem
+            %         7. group number associated with the element
+            %
+            
+            if nargin < 2
+                n = 1:this.numelements ();
+            end
+            
+            elm = fpproc_interface_mex('getelements', this.objectHandle, n(:));
+        
+        end
+        
+        function vert = getcentroids (this, n)
+            % returns information about elements
+            %
+            % Syntax
+            %
+            % vert = getelements ()
+            % vert = getelements (n)
+            %
+            % Input
+            %
+            % n - optional matrix of element numbers for which to obtain
+            %   the vertices. Element numbers start from 1 (rather than
+            %   zero). The vertices of every mesh element are returned.
+            %
+            % Output
+            % 
+            % vert - matrix of (n x 6) values. Each row containing the  
+            %   coordinates for the vertices of each element number in 'n'
+            %   such that a row conatins:
+            %
+            %       [ x1, y1, x2, y2, x3, y3 ]
+            %         
+            %
+            
+            if nargin < 2
+                n = 1:this.numelements ();
+            end
+            
+            vert = fpproc_interface_mex('getcentroids', this.objectHandle, n(:));
+        
+        end
+        
     end
     
     methods (Access = private)

@@ -22,7 +22,12 @@ enum ClassMethods { evNotDefined,
                     smoothon,
                     smoothoff,
                     getprobleminfo,
-                    getcircuitprops
+                    getcircuitprops,
+                    numnodes,
+                    numelements,
+                    getelements,
+                    getvertices,
+                    getcentroids
                   };
 
 // Map to associate the command strings with the class
@@ -44,6 +49,11 @@ void Initialize()
     s_mapClassMethodStrs["smoothoff"]        = smoothoff;
     s_mapClassMethodStrs["getprobleminfo"]   = getprobleminfo;
     s_mapClassMethodStrs["getcircuitprops"]  = getcircuitprops;
+    s_mapClassMethodStrs["numnodes"]         = numnodes;
+    s_mapClassMethodStrs["numelements"]      = numelements;
+    s_mapClassMethodStrs["getelements"]      = getelements;
+    s_mapClassMethodStrs["getvertices"]      = getvertices;
+    s_mapClassMethodStrs["getcentroids"]     = getcentroids;
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -126,6 +136,21 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     case getcircuitprops:
         FPProc_interface_instance->getcircuitprops(nlhs, plhs, nrhs, prhs);
+        return;
+    case numnodes:
+        FPProc_interface_instance->numnodes(nlhs, plhs, nrhs, prhs);
+        return;
+    case numelements:
+        FPProc_interface_instance->numelements(nlhs, plhs, nrhs, prhs);
+        return;
+    case getelements:
+        FPProc_interface_instance->getelements(nlhs, plhs, nrhs, prhs);
+        return;
+    case getvertices:
+        FPProc_interface_instance->getvertices(nlhs, plhs, nrhs, prhs);
+        return;
+    case getcentroids:
+        FPProc_interface_instance->getcentroids(nlhs, plhs, nrhs, prhs);
         return;
     default:
         mexErrMsgTxt("Unrecognised class command string.");
