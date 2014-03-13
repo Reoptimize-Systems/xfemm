@@ -27,7 +27,13 @@ enum ClassMethods { evNotDefined,
                     numelements,
                     getelements,
                     getvertices,
-                    getcentroids
+                    getcentroids,
+                    numgroupelements,
+                    getareas,
+                    getgroupelements,
+                    getgroupvertices,
+                    getgroupcentroids,
+                    getgroupareas
                   };
 
 // Map to associate the command strings with the class
@@ -37,23 +43,29 @@ std::map<std::string, ClassMethods> s_mapClassMethodStrs;
 void Initialize()
 {
     // Set up the class methods map
-    s_mapClassMethodStrs["opendocument"]     = opendocument;
-    s_mapClassMethodStrs["getpointvals"]     = getpointvals;
-    s_mapClassMethodStrs["clearcontour"]     = clearcontour;
-    s_mapClassMethodStrs["addcontour"]       = addcontour;
-    s_mapClassMethodStrs["selectblock"]      = selectblock;
-    s_mapClassMethodStrs["groupselectblock"] = groupselectblock;
-    s_mapClassMethodStrs["clearblock"]       = clearblock;
-    s_mapClassMethodStrs["blockintegral"]    = blockintegral;
-    s_mapClassMethodStrs["smoothon"]         = smoothon;
-    s_mapClassMethodStrs["smoothoff"]        = smoothoff;
-    s_mapClassMethodStrs["getprobleminfo"]   = getprobleminfo;
-    s_mapClassMethodStrs["getcircuitprops"]  = getcircuitprops;
-    s_mapClassMethodStrs["numnodes"]         = numnodes;
-    s_mapClassMethodStrs["numelements"]      = numelements;
-    s_mapClassMethodStrs["getelements"]      = getelements;
-    s_mapClassMethodStrs["getvertices"]      = getvertices;
-    s_mapClassMethodStrs["getcentroids"]     = getcentroids;
+    s_mapClassMethodStrs["opendocument"]      = opendocument;
+    s_mapClassMethodStrs["getpointvals"]      = getpointvals;
+    s_mapClassMethodStrs["clearcontour"]      = clearcontour;
+    s_mapClassMethodStrs["addcontour"]        = addcontour;
+    s_mapClassMethodStrs["selectblock"]       = selectblock;
+    s_mapClassMethodStrs["groupselectblock"]  = groupselectblock;
+    s_mapClassMethodStrs["clearblock"]        = clearblock;
+    s_mapClassMethodStrs["blockintegral"]     = blockintegral;
+    s_mapClassMethodStrs["smoothon"]          = smoothon;
+    s_mapClassMethodStrs["smoothoff"]         = smoothoff;
+    s_mapClassMethodStrs["getprobleminfo"]    = getprobleminfo;
+    s_mapClassMethodStrs["getcircuitprops"]   = getcircuitprops;
+    s_mapClassMethodStrs["numnodes"]          = numnodes;
+    s_mapClassMethodStrs["numelements"]       = numelements;
+    s_mapClassMethodStrs["getelements"]       = getelements;
+    s_mapClassMethodStrs["getvertices"]       = getvertices;
+    s_mapClassMethodStrs["getcentroids"]      = getcentroids;
+    s_mapClassMethodStrs["getareas"]          = getareas;
+    s_mapClassMethodStrs["numgroupelements"]  = numgroupelements;
+    s_mapClassMethodStrs["getgroupelements"]  = getgroupelements;
+    s_mapClassMethodStrs["getgroupvertices"]  = getgroupvertices;
+    s_mapClassMethodStrs["getgroupcentroids"] = getgroupcentroids;
+    s_mapClassMethodStrs["getgroupareas"]     = getgroupareas;
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -151,6 +163,24 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     case getcentroids:
         FPProc_interface_instance->getcentroids(nlhs, plhs, nrhs, prhs);
+        return;
+	case getareas:
+        FPProc_interface_instance->getareas(nlhs, plhs, nrhs, prhs);
+        return;
+    case numgroupelements:
+        FPProc_interface_instance->numgroupelements(nlhs, plhs, nrhs, prhs);
+        return;    
+    case getgroupelements:
+        FPProc_interface_instance->getgroupelements(nlhs, plhs, nrhs, prhs);
+        return;
+    case getgroupvertices:
+        FPProc_interface_instance->getgroupvertices(nlhs, plhs, nrhs, prhs);
+        return;
+    case getgroupcentroids:
+        FPProc_interface_instance->getgroupcentroids(nlhs, plhs, nrhs, prhs);
+        return;
+    case getgroupareas:
+        FPProc_interface_instance->getgroupareas(nlhs, plhs, nrhs, prhs);
         return;
     default:
         mexErrMsgTxt("Unrecognised class command string.");

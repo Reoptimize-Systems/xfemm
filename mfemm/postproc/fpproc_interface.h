@@ -37,7 +37,13 @@ public:
     int getelements (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     int getvertices (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     int getcentroids (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-
+    int getareas (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int numgroupelements (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getgroupelements (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getgroupvertices (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getgroupcentroids (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getgroupareas (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    
 // To be created
 //	int addcontour(lua_State * L);
 //	int clearcontour(lua_State * L);
@@ -76,6 +82,8 @@ private:
 
     // The one and only FPProc object to which we are interfacing
     FPProc theFPProc;
+    
+    int countGroupElements (int);
 
 };
 
