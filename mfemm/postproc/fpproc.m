@@ -45,6 +45,12 @@ classdef fpproc < handle
     %    getvertices - gets coordinates of mesh vertices
     %    getelements - gets information about mesh elements
     %    getcentroids - gets the centroids of mesh elements
+    %    getareas - gets the areas of mesh elements
+    %    numgroupelements - gets the number of elements in groups
+    %    getgroupvertices - gets coordinates of mesh vertices in groups
+    %    getgroupelements - gets information about mesh elements in groups
+    %    getgroupcentroids - gets the centroids of mesh elements in groups
+    %    getgroupareas - gets the areas of mesh elements in groups
     %
     
 % Copyright 2012-2013 Richard Crozier
@@ -810,7 +816,7 @@ classdef fpproc < handle
         end
         
         function n = nummeshnodes (this)
-            % return the number of elements in the mesh
+            % return the number of nodes in the mesh
             n = fpproc_interface_mex('numnodes', this.objectHandle);
         end
         
@@ -820,7 +826,7 @@ classdef fpproc < handle
         end
         
         function vert = getvertices (this, n)
-            % returns information about elements
+            % returns vertex locations for elements
             %
             % Syntax
             %
@@ -888,7 +894,7 @@ classdef fpproc < handle
         end
         
         function centr = getcentroids (this, n)
-            % returns information about elements
+            % returns centroid locations for elements
             %
             % Syntax
             %
@@ -917,6 +923,207 @@ classdef fpproc < handle
             end
             
             centr = fpproc_interface_mex('getcentroids', this.objectHandle, n(:));
+        
+        end
+        
+        function areas = getareas (this, n)
+            % returns area information about elements
+            %
+            % Syntax
+            %
+            % areas = getareas ()
+            % areas = getareas (n)
+            %
+            % Input
+            %
+            % n - optional matrix of element numbers for which to obtain
+            %   the areas. Element numbers start from 1 (rather than
+            %   zero). The areas of every mesh element are returned if
+            %   n is not supplied.
+            %
+            % Output
+            % 
+            % centr - matrix of (n x 1) values. Each row containing the  
+            %   area for the element number in 'n'.
+            %
+            
+            if nargin < 2
+                n = 1:this.numelements ();
+            end
+            
+            areas = fpproc_interface_mex('getareas', this.objectHandle, n(:));
+        
+        end
+        
+        function n = numgroupelements (this, groupno)
+            % returns number of elements in groups
+            %
+            % Syntax
+            %
+            % n = numgroupelements (groupno)
+            %
+            % Input
+            %
+            % groupno - matrix of group numbers for which to obtain
+            %   the number of element.
+            %
+            % Output
+            % 
+            % n - matrix of numbers of elements, one for each number in
+            %   groupno.
+            %         
+            %
+            
+            if nargin ~= 2
+                error ('You must supply a group number.')
+            end
+            
+            n = zeros (size(groupno));
+            
+            for ind = 1:numel(groupno) 
+                n(ind) = fpproc_interface_mex('numgroupelements', this.objectHandle, groupno(ind));
+            end
+            
+        end
+        
+        function vert = getgroupvertices (this, groupno)
+            % returns vertex locations for elements in groups
+            %
+            % Syntax
+            %
+            % vert = getgroupvertices (groupno)
+            %
+            % Input
+            %
+            % groupno - matrix of group numbers for which to obtain
+            %   the element vertices.
+            %
+            % Output
+            % 
+            % vert - matrix of (n x 6) values. Each row containing the  
+            %   coordinates for the vertices of each element such that a
+            %   row conatins:
+            %
+            %       [ x1, y1, x2, y2, x3, y3 ]
+            %         
+            %
+            
+            if nargin ~= 2
+                error ('You must supply a group number.')
+            end
+            
+            vert = [];
+            
+            for ind = 1:numel(groupno)
+                
+                vert = [vert; fpproc_interface_mex('getgroupvertices', this.objectHandle, groupno(ind))];
+            
+            end
+        
+        end
+         
+        function elm = getgroupelements (this, groupno)
+            % returns information about elements in groups
+            %
+            % Syntax
+            %
+            % elm = getelements (groupno)
+            %
+            % Input
+            %
+            % groupno - matrix of group numbers for which to obtain
+            %   information about mesh elements.
+            %
+            % Output
+            % 
+            % elm - matrix of (n x 7) values. Each row containing the following 
+            %   information for each element:
+            %         1. One-based Index of first element node
+            %         2. One-based Index of second element node
+            %         3. One-based Index of third element node
+            %         4. x (or r) coordinate of the element centroid
+            %         5. y (or z) coordinate of the element centroid
+            %         6. element area using the length unit defined for the problem
+            %         7. group number associated with the element
+            %
+            
+            if nargin ~= 2
+                error ('You must supply a group number.')
+            end
+            
+            elm = [];
+            
+            for ind = 1:numel(groupno)
+                
+                elm = [elm; fpproc_interface_mex('getgroupelements', this.objectHandle, groupno(ind))];
+                
+            end
+        
+        end
+        
+        function centr = getgroupcentroids (this, groupno)
+            % returns centroid locations for elements in groups
+            %
+            % Syntax
+            %
+            % centr = getcentroids (groupno)
+            %
+            % Input
+            %
+            % groupno - optional matrix of group numbers for which to obtain
+            %   the element centroids.
+            %
+            % Output
+            % 
+            % centr - matrix of (n x 2) values. Each row containing the  
+            %   coordinates for the vertices of each element such that a
+            %   row contains:
+            %
+            %       [ x, y ]
+            %         
+            %
+            
+            if nargin ~= 2
+                error ('You must supply a group number.')
+            end
+            
+            centr = [];
+            
+            for ind = 1:numel(groupno)
+                
+                centr = [centr; fpproc_interface_mex('getgroupcentroids', this.objectHandle, groupno(ind))];
+            end
+        
+        end
+        
+        function areas = getgroupareas (this, groupno)
+            % returns area information about elements in groups
+            %
+            % Syntax
+            %
+            % areas = getgroupareas (groupno)
+            %
+            % Input
+            %
+            % groupno - optional matrix of group numbers for which to obtain
+            %   the element areas. 
+            %
+            % Output
+            % 
+            % areas - matrix of of areas.
+            %
+            
+            if nargin ~= 2
+                error ('You must supply a group number.')
+            end
+            
+            areas = [];
+            
+            for ind = 1:numel(groupno)
+            
+                areas = [areas; fpproc_interface_mex('getgroupareas', this.objectHandle, groupno(ind))];
+            
+            end
         
         end
         
