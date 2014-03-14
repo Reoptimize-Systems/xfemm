@@ -1,4 +1,4 @@
-function [hfig, hax] = plotfemmproblem(FemmProblem)
+function [hfig, hax] = plotfemmproblem(FemmProblem, hfig)
 % plotfemmproblem: plots a simple visualisation of an mfemm problem
 % structure
 % 
@@ -29,7 +29,9 @@ function [hfig, hax] = plotfemmproblem(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    hfig = figure;
+    if nargin < 2
+        hfig = figure;
+    end
     
     hax = axes;
     
