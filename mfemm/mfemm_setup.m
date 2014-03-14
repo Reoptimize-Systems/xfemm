@@ -83,16 +83,20 @@ function mfemm_setup(forceallcompile)
         thisfilepath = canonicalize_file_name(thisfilepath);
     end
     
-    addpath(genpath(fileparts(thisfilepath)));
+    thisfilepath = fileparts (thisfilepath);
     
-    if ~exist('mexfsolver', 'file') ...
-            || ~exist('mexfmesher', 'file') ...
-            || ~exist('fpproc_interface_mex', 'file') ...
+    addpath(genpath(thisfilepath));
+    
+    if ~(exist('mexfsolver', 'file') == 3) ...
+            || ~(exist('mexfmesher', 'file') == 3) ...
+            || ~(exist('fpproc_interface_mex', 'file') == 3) ...
             || forceallcompile
 
         fprintf('Compiling mex functions for mfemm.\n');
         
         if isunix
+            CC = onCleanup(@() cd(pwd));
+            cd (thisfilepath);
             % if we are on a unixy computer we can make the necessary
             % libraries using make
             system(sprintf('make -f %s', fullfile(thisfilepath, 'Makefile')));
