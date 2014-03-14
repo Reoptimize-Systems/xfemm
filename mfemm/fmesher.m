@@ -58,7 +58,11 @@ function filename = fmesher(varargin)
             
         elseif ischar(varargin{1})
             
-            filename = varargin{1};
+            filename = strtrim (varargin{1});
+            
+            if isunix && (filename(1) == '~')
+                warning ('MFEMM:fmesher:notildeexp', 'fmesher will not expand  ''~'' into your home directory, you must supply the absolute path.');
+            end
             
             if exist(filename, 'file') ~= 2
                error('The supplied filename location cannot be found.') 
