@@ -72,7 +72,7 @@ int nrhs, const mxArray *prhs[])
     /*  call the FMesher subroutines */
     if (MeshObj.LoadFEMFile(FilePath) == false)
     {
-        plhs[0] = mxCreateDoubleScalar(-1.0);
+        mexErrMsgIdAndTxt("MFEMM:fmesher:badfile", "File %s could not be loaded.", FilePath.c_str());
         return;
     }
 
@@ -221,7 +221,7 @@ int nrhs, const mxArray *prhs[])
             mexErrMsgTxt("Unexpected error code");
             break;
     }
-    
+
     plhs[0] = mxCreateDoubleScalar((double)tristatus);
 
 }
