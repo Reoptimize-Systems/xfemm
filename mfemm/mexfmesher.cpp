@@ -21,6 +21,11 @@
  *
  */
 
+void FmesherInterfaceWarning(const char* warningmsg)
+{
+    mexWarnMsgIdAndTxt("MFEMM:fmesher", warningmsg);
+}
+
 // extern void _main();
 
 /* the gateway function */
@@ -32,23 +37,56 @@ int nrhs, const mxArray *prhs[])
     mwSize buflen;
     int status,tristatus;
     bool hasperiodic;
+    double verbose = 0.0;
 
     //(void) plhs;    /* unused parameters */
 
     /* Check for proper number of input and output arguments */
-    if (nrhs != 1) {
-        mexErrMsgTxt("One input argument required.");
+    if ((nrhs > 2) | (nrhs < 1)) {
+        mexErrMsgIdAndTxt("MFEMM:fmesher:numargs", 
+                          "One or two input arguments required.");
     }
 
     if (nlhs > 1) {
-        mexErrMsgTxt("Too many output arguments.");
+        mexErrMsgIdAndTxt("MFEMM:fmesher:numargs",
+                          "Too many output arguments.");
     }
 
     /* Check for proper input type */
-    if (!mxIsChar(prhs[0]) || (mxGetM(prhs[0]) != 1 ) )  {
-        mexErrMsgTxt("Input argument must be a string.");
+    if (!mxIsChar(prhs[0]) || (mxGetM(prhs[0]) != 1 ) )  
+    {
+        mexErrMsgIdAndTxt("MFEMM:fmesher:badfirstarg", 
+                          "Input argument must be a string.");
     }
-
+    
+    if (nrhs == 2)
+    {
+        /*  get the dimensions of the matrix input x */
+        size_t rows = mxGetM(prhs[1]);
+        size_t cols = mxGetN(prhs[1]);
+        
+        if ((!mxIsNumeric(prhs[1])) || (rows != 1) || (cols != 1))
+        {
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:inputnotscalar",
+                               "Second input must be a scalar.");
+        }
+        
+        verbose = mxGetScalar(prhs[1]);
+    }
+    else
+    {
+       verbose = 0.0;
+    }
+    
+    if (verbose == 0.0)
+    {
+        MeshObj.Verbose = false;
+    }
+    else
+    {
+        MeshObj.Verbose = true;
+    }
+    
     /* Find out how long the input string is.  Allocate enough memory
        to hold the converted string.  NOTE: MATLAB stores characters
        as 2 byte unicode ( 16 bit ASCII) on machines with multi-byte
@@ -68,6 +106,10 @@ int nrhs, const mxArray *prhs[])
 
     /* When finished using the char array, deallocate it. */
     mxFree(buf);
+    
+    MeshObj.WarnMessage = &FmesherInterfaceWarning;
+
+    MeshObj.TriMessage = &mexPrintf;
 
     /*  call the FMesher subroutines */
     if (MeshObj.LoadFEMFile(FilePath) == false)
@@ -85,11 +127,6 @@ int nrhs, const mxArray *prhs[])
         {
             tristatus = -2;
         }
-//        if (MeshObj.DoPeriodicBCTriangulation(FilePath) != 0)
-//        {
-//            plhs[0] = mxCreateDoubleScalar(-2.0);
-//            return;
-//        }
     }
     else
     {
@@ -99,11 +136,6 @@ int nrhs, const mxArray *prhs[])
         {
             tristatus = -3;
         }
-//        if (MeshObj.DoNonPeriodicBCTriangulation(FilePath) != 0)
-//        {
-//            plhs[0] = mxCreateDoubleScalar(-3.0);
-//            return;
-//        }
     }
 
     switch (tristatus)

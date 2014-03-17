@@ -1,7 +1,5 @@
 #include <string>
 
-using namespace std;
-
 #ifndef FPARSE_H
 #define FPARSE_H
 
@@ -18,7 +16,7 @@ enum CoordsType { CART, POLAR };
 char* StripKey(char *c);
 char *ParseDbl(char *t, double *f);
 char *ParseInt(char *t, int *f);
-char *ParseString(char *t, string *s);
+char *ParseString(char *t, std::string *s);
 std::string string_format(const std::string &fmt, ...);
 
 // declare a default warning message function

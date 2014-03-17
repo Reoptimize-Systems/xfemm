@@ -63,12 +63,6 @@
 #define DEFAULT_MINIMUM_ANGLE 30.0
 #endif
 
-// for compiling as mex we replace PRINTF with mexPrintf
-// here we ensure it is actually printf otherwise
-#ifndef PRINTF
-#define PRINTF printf
-#endif
-
 using namespace std;
 using namespace femm;
 
@@ -682,9 +676,17 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     string rootname = pn.substr(0,pn.find_last_of('.'));
 
-	sprintf(CommandLine, "-pPq%feAazQI", MinAngle);
+    if (Verbose)
+    {
+        sprintf(CommandLine, "-pPq%feAazI", MinAngle);
+    }
+    else
+    {
+        sprintf(CommandLine, "-pPq%feAazQI", MinAngle);
+    }
 
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
+
     // copy the exit status status of the triangle library from the global variable, eueghh.
     //trilibrary_exit_code;
     if (tristatus != 0)
@@ -1160,10 +1162,17 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     string rootname = pn.substr(0,pn.find_last_of('.'));
 
-	sprintf(CommandLine, "-pPq%feAazI", MinAngle);
+    if (Verbose)
+    {
+        sprintf(CommandLine, "-pPq%feAazI", MinAngle);
+    }
+    else
+    {
+        sprintf(CommandLine, "-pPq%feAazQI", MinAngle);
+    }
 
 //    triangulate(CommandLine, &in, &out, &vorout);
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
     // copy the exit status status of the triangle library from the global variable, eueghh.
     //trilibrary_exit_code;
     if (tristatus != 0)
@@ -2119,7 +2128,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     in.numberofregions = NRegionalAttribs;
     in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
     if (in.regionlist == NULL) {
-        PRINTF("Error: Memory unable to be allocated.\n");
+        WarnMessage("Error: Memory unable to be allocated.\n");
         return -1;
     }
 
@@ -2171,9 +2180,17 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     rootname = pn.substr(0,pn.find_last_of('.'));
 
-	sprintf(CommandLine,"-pPq%feAazIY", MinAngle);
+    if (Verbose)
+    {
+        sprintf(CommandLine,"-pPq%feAazIY", MinAngle);
+    }
+    else
+    {
+        sprintf(CommandLine,"-pPq%feAazQIY", MinAngle);
+    }
 
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL);
+    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
+
     // copy the exit status status of the triangle library from the global variable, eueghh.
     //trilibrary_exit_code;
     if (tristatus != 0)

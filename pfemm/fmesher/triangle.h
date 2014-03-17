@@ -416,7 +416,7 @@ extern "C" {
 
 #ifdef ANSI_DECLARATORS
 int triangulate(char *, struct triangulateio *, struct triangulateio *,
-                 struct triangulateio *);
+                 struct triangulateio *, int (*TriMessage)(const char * format, ...));
 void trifree(VOID *memptr);
 #else /* not ANSI_DECLARATORS */
 int triangulate();
