@@ -93,7 +93,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     // Check there is a second input, which should be the class instance handle
     if (nrhs < 2)
+    {
         mexErrMsgTxt("Second input should be a class instance handle.");
+    }
 
     // Delete
     if (!strcmp("delete", cmd))
