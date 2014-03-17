@@ -92,6 +92,7 @@ public:
 	int		d_length;
 	int		d_type;
 	int		d_solver;
+	bool    Verbose;
 
 	string BinDir;
 
@@ -192,6 +193,9 @@ public:
 
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
+
+    // pointer to function to use for triangle to issue warning messages
+    int (*TriMessage)(const char * format, ...);
 
 private:
 

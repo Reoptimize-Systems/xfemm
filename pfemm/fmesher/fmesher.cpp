@@ -32,12 +32,6 @@
 #include "fmesher.h"
 #include "intpoint.h"
 
-// for compiling as mex we replace printf with mexPrintf
-// here we ensure it is printf otherwise
-#ifdef MATLAB_MEX_FILE
-#include "mex.h"
-#endif
-
 //#include "stdafx.h"
 //#include "femm.h"
 //#include "FemmeDoc.h"
@@ -66,13 +60,30 @@ using namespace femm;
 
 FMesher::FMesher()
 {
+    // initialise the warning message function pointer to
+    // point to the PrintWarningMsg function
+    WarnMessage = &PrintWarningMsg;
+
+    TriMessage = NULL;
+
+    Verbose = true;
+
     // initialize the problem data structures
     // and default behaviour etc.
     Initialize();
+
 }
 
 FMesher::FMesher(string PathName)
 {
+    // initialise the warning message function pointer to
+    // point to the PrintWarningMsg function
+    WarnMessage = &PrintWarningMsg;
+
+    TriMessage = NULL;
+
+    Verbose = true;
+
     // initialize the problem data structures
     // and default behaviour etc.
     Initialize();
@@ -138,68 +149,8 @@ bool FMesher::Initialize()
     ProblemNote="Add comments here.";
     extRo=extRi=extZo=0;
 
-    // initialise the warning message function pointer to
-    // point to the PrintWarningMsg function
-    WarnMessage = &PrintWarningMsg;
-
     return true;
 }
-
-//FMesher::~FMesher()
-//{
-//	//pFemmeDoc=NULL;
-//}
-
-/////////////////////////////////////////////////////////////////////////////
-// FMesher commands
-
-//void FMesher::OnDefineProblem()
-//{
-//	probdlg pDlg;
-//
-//	// Send present parameter values to the dialog
-//	// pDlg.m_rji=TheDoc->vi[0];
-//	pDlg.probtype       = ProblemType;
-//	pDlg.m_problem_note = ProblemNote;
-//	pDlg.m_frequency    = Frequency;
-//	pDlg.m_precision	= Precision;
-//	pDlg.m_minangle		= MinAngle;
-//	pDlg.m_depth		= Depth;
-//	pDlg.lengthunits	= LengthUnits;
-//	pDlg.solver			= ACSolver;
-//
-//	// Display dialog and collect data
-//	if(pDlg.DoModal()==IDOK)
-//	{
-//		Frequency   = pDlg.m_frequency;
-//		Precision	= pDlg.m_precision;
-//		MinAngle	= pDlg.m_minangle;
-//		ProblemNote = pDlg.m_problem_note;
-//		ProblemType = pDlg.probtype;
-//		LengthUnits = pDlg.lengthunits;
-//		Depth		= pDlg.m_depth;
-//		ACSolver	= pDlg.solver;
-//	}
-//}
-
-
-//void FMesher::AfxMessageBox(char* msg)
-//{
-//    // AfxMessageBox, replacement for MFC function which pops up
-//    // a message to the user. Here we instead print the message
-//    // to stdout
-//
-//    printf(msg);
-//}
-
-//void FMesher::AfxMessageBox(std::string msg)
-//{
-//    // AfxMessageBox, replacement for MFC function which pops up
-//    // a message to the user. Here we instead print the message
-//    // to stdout
-//
-//    printf(msg.c_str());
-//}
 
 
 void FMesher::UnselectAll()
@@ -1541,6 +1492,8 @@ bool FMesher::LoadFEMFile(string PathName)
     }
 
     FirstDraw = true;
+
+    WarnMessage(".fem file read");
 
     return true;
 }

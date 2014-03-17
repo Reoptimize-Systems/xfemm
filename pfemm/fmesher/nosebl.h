@@ -21,7 +21,6 @@
 
 #include <vector>
 #include <string>
-//#include "stdstring.h"
 #include "complex.h"
 
 using namespace std;

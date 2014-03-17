@@ -19,10 +19,6 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-//#include "stdafx.h"
-//#include <afx.h>
-//#include <afxtempl.h>
-//#include "stdio.h"
 #include <cstdlib>
 #include <cstdio>
 #include <vector>

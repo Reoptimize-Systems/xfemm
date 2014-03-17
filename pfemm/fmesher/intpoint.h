@@ -19,8 +19,6 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-//#include<iostream>
-
 // myPoint, replacement for the MFC CPoint class
 #ifndef MYPOINT
 #define MYPOINT
