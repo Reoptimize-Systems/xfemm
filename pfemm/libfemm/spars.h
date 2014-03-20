@@ -34,7 +34,6 @@ public:
 private:
 };
 
-#define LAMBDA 1.5
 
 class CBigLinProb
 {
@@ -52,12 +51,15 @@ public:
     int n;					// dimensions of the matrix;
     int bdw;				// Optional matrix bandwidth parameter;
     double Precision;		// error tolerance for solution
+    double Lambda;			// relaxation factor;
 
     // member functions
 
-    CBigLinProb();				// constructor
-    ~CBigLinProb();				// destructor
-    int Create(int d, int bw);			// initialize the problem
+    // constructor
+    CBigLinProb();
+    // destructor
+    ~CBigLinProb();
+    virtual int Create(int d, int bw);	// initialize the problem
     void Put(double v, int p, int q);
     // use to create/set entries in the matrix
     double Get(int p, int q);
