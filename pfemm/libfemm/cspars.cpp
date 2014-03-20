@@ -29,12 +29,6 @@
 #define KLUDGE
 #define nrm(X) sqrt(Re(ConjDot(X,X)))
 
-// replace original windows BOOL type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
-
 #ifndef FALSE
 #define FALSE 0
 #endif
@@ -53,6 +47,8 @@ CComplexEntry::CComplexEntry()
 CBigComplexLinProb::CBigComplexLinProb()
 {
     n=0;
+    // Best guess for relaxation parameter
+    Lambda = 1.5;
 }
 
 CBigComplexLinProb::~CBigComplexLinProb()
@@ -157,7 +153,7 @@ int CBigComplexLinProb::Create(int d, int bw, int nodes)
 
 void CBigComplexLinProb::Put(CComplex v, int p, int q, int k)
 {
-    CComplexEntry *e,*l;
+    CComplexEntry *e,*l = NULL;
     int i;
 
     if(q<p)
@@ -454,7 +450,7 @@ void CBigComplexLinProb::MultPC(CComplex *X, CComplex *Y)
     CComplex c;
     CComplexEntry *e;
 
-    c= LAMBDA*(2.-LAMBDA);
+    c= Lambda*(2.-Lambda);
     for(i=0; i<n; i++) Y[i]=X[i]*c;
 
     // invert Lower Triangle;
@@ -464,7 +460,7 @@ void CBigComplexLinProb::MultPC(CComplex *X, CComplex *Y)
         e=M[i]->next;
         while(e!=NULL)
         {
-            Y[e->c] -= e->x * Y[i] * LAMBDA;
+            Y[e->c] -= e->x * Y[i] * Lambda;
             e=e->next;
         }
     }
@@ -477,7 +473,7 @@ void CBigComplexLinProb::MultPC(CComplex *X, CComplex *Y)
         e=M[i]->next;
         while(e!=NULL)
         {
-            Y[i] -= e->x * Y[e->c] * LAMBDA;
+            Y[i] -= e->x * Y[e->c] * Lambda;
             e=e->next;
         }
         Y[i]/= M[i]->x;

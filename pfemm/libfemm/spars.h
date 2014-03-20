@@ -119,6 +119,7 @@ public:
     int bNewton;				// Flag which denotes whether or not there are entries in Mh or Ms;
     int NumNodes;
     double Precision;
+    double Lambda;			// relaxation factor;
 
     // member functions
 

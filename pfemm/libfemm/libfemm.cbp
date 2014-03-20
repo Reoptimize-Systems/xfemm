@@ -7,9 +7,9 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Release">
-				<Option output="femm" prefix_auto="1" extension_auto="1" />
+				<Option output="libfemm" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/Release/" />
+				<Option object_output="obj\Release\" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -21,9 +21,9 @@
 				</Linker>
 			</Target>
 			<Target title="Debug">
-				<Option output="femm" prefix_auto="1" extension_auto="1" />
+				<Option output="libfemm" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="obj/Debug/" />
+				<Option object_output="obj\Debug\" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -39,6 +39,7 @@
 		</Compiler>
 		<Unit filename="complex.cpp" />
 		<Unit filename="complex.h" />
+		<Unit filename="cspars.cpp" />
 		<Unit filename="fparse.cpp" />
 		<Unit filename="fparse.h" />
 		<Unit filename="fullmatrix.cpp" />
