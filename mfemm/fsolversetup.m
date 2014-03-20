@@ -1,14 +1,14 @@
 function fsolversetup(dodebug, verbose)
-% compiles the fsolver mexfunction 
+% compiles the fsolver mexfunction
 
 % Copyright 2012 Richard Crozier
-% 
+%
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
 %    You may obtain a copy of the License at
-% 
+%
 %        http://www.apache.org/licenses/LICENSE-2.0
-% 
+%
 %    Unless required by applicable law or agreed to in writing, software
 %    distributed under the License is distributed on an "AS IS" BASIS,
 %    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,11 +18,11 @@ function fsolversetup(dodebug, verbose)
     if nargin < 1
         dodebug = false;
     end
-    
+
     if nargin < 2
         verbose = false;
-    end 
-    
+    end
+
 %     if isoctave
 %         cc.Name = 'gcc';
 %     else
@@ -38,7 +38,7 @@ function fsolversetup(dodebug, verbose)
 
     % store the current directory
     origdir = pwd;
-    
+
     % change to the mfemm directory (the directory this file is in)
     cd(fileparts(which('fsolversetup.m')));
 
@@ -49,13 +49,13 @@ function fsolversetup(dodebug, verbose)
     else
         common_compiler_flags={'-DMATLAB_MEX_FILE'};% common_compiler_flags = '-D"printf=mexPrintf"';
     end
-    
+
     if verbose
         common_compiler_flags = [common_compiler_flags, {'-v'}];
     end
 
     % TODO: build the lua library??
-    
+
     % test for the pernickity Visual C++ compiler, when oh when will The
     % Mathworks support mingw by default?
     %if strcmp('Microsoft Visual C++', cc.Name)
@@ -67,13 +67,12 @@ function fsolversetup(dodebug, verbose)
                        'pfemm/libfemm/libfemm.a', ...
                        '-I"./pfemm/fsolver"', '-I"./pfemm/liblua"', '-I"./pfemm/libfemm"'};
     %end
-    
+
     % put all the compiler commands in a cell array
     mexcommands = [ common_compiler_flags, ...
-                    { ...                      
+                    { ...
                       'mexfsolver.cpp', ...
                       'pfemm/fsolver/fsolver.cpp', ...
-                      'pfemm/fsolver/cspars.cpp', ...
                       'pfemm/fsolver/cuthill.cpp', ...
                       'pfemm/fsolver/harmonic2d.cpp', ...
                       'pfemm/fsolver/static2d.cpp', ...
@@ -82,14 +81,14 @@ function fsolversetup(dodebug, verbose)
                     }, ...
                     libcommands ...
                   ];
-    
+
     if isoctave
         mkoctfile('--mex', mexcommands{:});
     else
         % call mex with the appropriately constructed commands
-        mex(mexcommands{:}); 
+        mex(mexcommands{:});
     end
-     
+
     % return to original directory
     cd(origdir);
 
