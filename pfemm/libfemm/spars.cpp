@@ -51,6 +51,8 @@ CEntry::CEntry()
 CBigLinProb::CBigLinProb()
 {
     n=0;
+    // Best guess for relaxation parameter
+    Lambda = 1.5;
 }
 
 CBigLinProb::~CBigLinProb()
@@ -108,33 +110,33 @@ int CBigLinProb::Create(int d, int bw)
 
 void CBigLinProb::Put(double v, int p, int q)
 {
-    CEntry *e,*l;
+    CEntry *e,*l = NULL;
     int i;
 
-    if(q<p)
+    if (q<p)
     {
-        i=p;
-        p=q;
-        q=i;
+        i = p;
+        p = q;
+        q = i;
     }
 
-    e=M[p];
+    e = M[p];
 
-    while((e->c < q) && (e->next != NULL))
+    while ((e->c < q) && (e->next != NULL))
     {
-        l=e;
-        e=e->next;
+        l = e;
+        e = e->next;
     }
 
-    if(e->c == q)
+    if (e->c == q)
     {
-        e->x=v;
+        e->x = v;
         return;
     }
 
     CEntry *m = new CEntry;
 
-    if((e->next == NULL) && (q > e->c))
+    if ((e->next == NULL) && (q > e->c))
     {
         e->next = m;
         m->c = q;
@@ -142,10 +144,10 @@ void CBigLinProb::Put(double v, int p, int q)
     }
     else
     {
-        l->next=m;
-        m->next=e;
-        m->c=q;
-        m->x=v;
+        l->next = m;
+        m->next = e;
+        m->c = q;
+        m->x = v;
     }
     return;
 }
@@ -154,19 +156,22 @@ double CBigLinProb::Get(int p, int q)
 {
     CEntry *e;
 
-    if(q<p)
+    if (q < p)
     {
         int i;
-        i=p;
-        p=q;
-        q=i;
+        i = p;
+        p = q;
+        q = i;
     }
 
-    e=M[p];
+    e = M[p];
 
-    while((e->c < q) && (e->next != NULL)) e=e->next;
+    while ((e->c < q) && (e->next != NULL))
+    {
+        e = e->next;
+    }
 
-    if(e->c == q) return e->x;
+    if (e->c == q) return e->x;
 
     return 0;
 }
@@ -212,7 +217,7 @@ void CBigLinProb::MultPC(double *X, double *Y)
     double c;
     CEntry *e;
 
-    c= LAMBDA*(2.-LAMBDA);
+    c= Lambda*(2.-Lambda);
     for(i=0; i<n; i++) Y[i]=X[i]*c;
 
     // invert Lower Triangle;
@@ -222,7 +227,7 @@ void CBigLinProb::MultPC(double *X, double *Y)
         e=M[i]->next;
         while(e!=NULL)
         {
-            Y[e->c] -= e->x * Y[i] * LAMBDA;
+            Y[e->c] -= e->x * Y[i] * Lambda;
             e=e->next;
         }
     }
@@ -235,7 +240,7 @@ void CBigLinProb::MultPC(double *X, double *Y)
         e=M[i]->next;
         while(e!=NULL)
         {
-            Y[i] -= e->x * Y[e->c] * LAMBDA;
+            Y[i] -= e->x * Y[e->c] * Lambda;
             e=e->next;
         }
         Y[i]/= M[i]->x;
