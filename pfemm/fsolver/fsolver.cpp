@@ -980,7 +980,7 @@ int FSolver::LoadMesh()
     // read in edges to which boundary conditions are applied;
 
     // first, do a little bookkeeping so that element
-    // associated with a give edge can be identified fast
+    // associated with a given edge can be identified fast
     int *nmbr;
     int **mbr;
 
