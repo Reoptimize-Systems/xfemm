@@ -13,10 +13,10 @@ WINDRES = windres
 
 INC = -I../libfemm -I../liblua
 CFLAGS = -Wall -fexceptions
-RESINC = 
+RESINC =
 LIBDIR = -L../liblua -L../libfemm
 LIB = ../liblua/liblua.a ../libfemm/libfemm.a
-LDFLAGS = 
+LDFLAGS =
 
 INC_DEBUG = $(INC)
 CFLAGS_DEBUG = $(CFLAGS) -g
@@ -26,7 +26,7 @@ LIBDIR_DEBUG = $(LIBDIR)
 LIB_DEBUG = $(LIB)
 LDFLAGS_DEBUG = $(LDFLAGS)
 OBJDIR_DEBUG = $(WRKDIR)/obj/Debug
-DEP_DEBUG = 
+DEP_DEBUG =
 BINDIR_DEBUG = $(WRKDIR)/bin/Debug
 OUT_DEBUG = $(BINDIR_DEBUG)/fsolver
 
@@ -50,33 +50,31 @@ LIBDIR_LIBRARY = $(LIBDIR)
 LIB_LIBRARY = $(LIB)
 LDFLAGS_LIBRARY = $(LDFLAGS)
 OBJDIR_LIBRARY = .objs
-DEP_LIBRARY = 
+DEP_LIBRARY =
 BINDIR_LIBRARY = $(WRKDIR)
 OUT_LIBRARY = $(BINDIR_LIBRARY)/libfsolver.a
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/cspars.o $(OBJDIR_DEBUG)/cuthill.o $(OBJDIR_DEBUG)/fsolver.o $(OBJDIR_DEBUG)/harmonic2d.o $(OBJDIR_DEBUG)/harmonicaxi.o $(OBJDIR_DEBUG)/main.o $(OBJDIR_DEBUG)/static2d.o $(OBJDIR_DEBUG)/staticaxi.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/cuthill.o $(OBJDIR_DEBUG)/fsolver.o $(OBJDIR_DEBUG)/harmonic2d.o $(OBJDIR_DEBUG)/harmonicaxi.o $(OBJDIR_DEBUG)/main.o $(OBJDIR_DEBUG)/static2d.o $(OBJDIR_DEBUG)/staticaxi.o
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/cspars.o $(OBJDIR_RELEASE)/cuthill.o $(OBJDIR_RELEASE)/fsolver.o $(OBJDIR_RELEASE)/harmonic2d.o $(OBJDIR_RELEASE)/harmonicaxi.o $(OBJDIR_RELEASE)/main.o $(OBJDIR_RELEASE)/static2d.o $(OBJDIR_RELEASE)/staticaxi.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/cuthill.o $(OBJDIR_RELEASE)/fsolver.o $(OBJDIR_RELEASE)/harmonic2d.o $(OBJDIR_RELEASE)/harmonicaxi.o $(OBJDIR_RELEASE)/main.o $(OBJDIR_RELEASE)/static2d.o $(OBJDIR_RELEASE)/staticaxi.o
 
-OBJ_LIBRARY = $(OBJDIR_LIBRARY)/cspars.o $(OBJDIR_LIBRARY)/cuthill.o $(OBJDIR_LIBRARY)/fsolver.o $(OBJDIR_LIBRARY)/harmonic2d.o $(OBJDIR_LIBRARY)/harmonicaxi.o $(OBJDIR_LIBRARY)/static2d.o $(OBJDIR_LIBRARY)/staticaxi.o
+OBJ_LIBRARY = $(OBJDIR_LIBRARY)/cuthill.o $(OBJDIR_LIBRARY)/fsolver.o $(OBJDIR_LIBRARY)/harmonic2d.o $(OBJDIR_LIBRARY)/harmonicaxi.o $(OBJDIR_LIBRARY)/static2d.o $(OBJDIR_LIBRARY)/staticaxi.o
 
 all: release library
 
 clean: clean_debug clean_release clean_library
 
-before_debug: 
+before_debug:
 	test -d $(BINDIR_DEBUG) || mkdir -p $(BINDIR_DEBUG)
 	test -d $(OBJDIR_DEBUG) || mkdir -p $(OBJDIR_DEBUG)
 
-after_debug: 
+after_debug:
 
 debug: before_debug out_debug after_debug
 
 out_debug: before_debug $(OBJ_DEBUG) $(DEP_DEBUG)
 	$(LD) $(LIBDIR_DEBUG) -o $(OUT_DEBUG) $(OBJ_DEBUG)  $(LDFLAGS_DEBUG) $(LIB_DEBUG)
 
-$(OBJDIR_DEBUG)/cspars.o: cspars.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c cspars.cpp -o $(OBJDIR_DEBUG)/cspars.o
 
 $(OBJDIR_DEBUG)/cuthill.o: cuthill.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c cuthill.cpp -o $(OBJDIR_DEBUG)/cuthill.o
@@ -99,24 +97,22 @@ $(OBJDIR_DEBUG)/static2d.o: static2d.cpp
 $(OBJDIR_DEBUG)/staticaxi.o: staticaxi.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c staticaxi.cpp -o $(OBJDIR_DEBUG)/staticaxi.o
 
-clean_debug: 
+clean_debug:
 	rm -f $(OBJ_DEBUG) $(OUT_DEBUG)
 	rm -rf $(BINDIR_DEBUG)
 	rm -rf $(OBJDIR_DEBUG)
 
-before_release: 
+before_release:
 	test -d $(BINDIR_RELEASE) || mkdir -p $(BINDIR_RELEASE)
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
 
-after_release: 
+after_release:
 
 release: before_release out_release after_release
 
 out_release: before_release $(OBJ_RELEASE) $(DEP_RELEASE)
 	$(LD) $(LIBDIR_RELEASE) -o $(OUT_RELEASE) $(OBJ_RELEASE)  $(LDFLAGS_RELEASE) $(LIB_RELEASE)
 
-$(OBJDIR_RELEASE)/cspars.o: cspars.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c cspars.cpp -o $(OBJDIR_RELEASE)/cspars.o
 
 $(OBJDIR_RELEASE)/cuthill.o: cuthill.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c cuthill.cpp -o $(OBJDIR_RELEASE)/cuthill.o
@@ -139,23 +135,21 @@ $(OBJDIR_RELEASE)/static2d.o: static2d.cpp
 $(OBJDIR_RELEASE)/staticaxi.o: staticaxi.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c staticaxi.cpp -o $(OBJDIR_RELEASE)/staticaxi.o
 
-clean_release: 
+clean_release:
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
 	rm -rf $(BINDIR_RELEASE)
 	rm -rf $(OBJDIR_RELEASE)
 
-before_library: 
+before_library:
 	test -d $(OBJDIR_LIBRARY) || mkdir -p $(OBJDIR_LIBRARY)
 
-after_library: 
+after_library:
 
 library: before_library out_library after_library
 
 out_library: before_library $(OBJ_LIBRARY) $(DEP_LIBRARY)
 	$(AR) rcs $(OUT_LIBRARY) $(OBJ_LIBRARY)
 
-$(OBJDIR_LIBRARY)/cspars.o: cspars.cpp
-	$(CXX) $(CFLAGS_LIBRARY) $(INC_LIBRARY) -c cspars.cpp -o $(OBJDIR_LIBRARY)/cspars.o
 
 $(OBJDIR_LIBRARY)/cuthill.o: cuthill.cpp
 	$(CXX) $(CFLAGS_LIBRARY) $(INC_LIBRARY) -c cuthill.cpp -o $(OBJDIR_LIBRARY)/cuthill.o
@@ -175,7 +169,7 @@ $(OBJDIR_LIBRARY)/static2d.o: static2d.cpp
 $(OBJDIR_LIBRARY)/staticaxi.o: staticaxi.cpp
 	$(CXX) $(CFLAGS_LIBRARY) $(INC_LIBRARY) -c staticaxi.cpp -o $(OBJDIR_LIBRARY)/staticaxi.o
 
-clean_library: 
+clean_library:
 	rm -f $(OBJ_LIBRARY) $(OUT_LIBRARY)
 	rm -rf $(OBJDIR_LIBRARY)
 
