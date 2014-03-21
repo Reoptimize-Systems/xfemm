@@ -1,20 +1,3 @@
-//#include "xyplot.h"
-//#include "femmviewDoc.h"
-//#include "femmviewview.h"
-//#include "MainFrm.h"
-//#include "windows.h" //necessary for bitmap saving
-//#include "lua.h"
-//#include "mycommandlineinfo.h"
-//#include "promptbox.h"
-//#include "ChildFrm.h"
-//#include "femm.h"
-
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#undef THIS_FILE
-//static char THIS_FILE[] = __FILE__;
-//#endif
-
 //extern lua_State *lua;
 //extern BOOL bLinehook;
 //extern void *pFemmviewdoc;
@@ -36,7 +19,7 @@ using namespace std;
 
 void FPProcInterfaceWarning(const char* warningmsg)
 {
-    mexWarnMsgIdAndTxt("MATLAB:fpproc", warningmsg);
+    mexWarnMsgIdAndTxt("MFEMM:fpproc", warningmsg);
 }
 
 //////////////////      MEX Interface        //////////////////////
@@ -59,20 +42,20 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     /* 3rd input must be a string (first two are used for the class interface) */
     if ( mxIsChar(prhs[2]) != 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:inputNotString",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:inputNotString",
                            "Input must be a string containing the file name.");
 
     /* input must be a row vector */
     if (mxGetM(prhs[2])!=1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:inputNotVector",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:inputNotVector",
                            "Input must be a row vector.");
 
     /* copy the string data from prhs[2] into a C string input_ buf.    */
@@ -86,7 +69,7 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
     wasopened = theFPProc.OpenDocument(filename);
 
     if (!wasopened)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:inputNotVector",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:inputNotVector",
                            "File could not be opened.");
 
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
@@ -97,7 +80,7 @@ int FPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
     // Generate error if any regions are multiply defined
     // (i.e. tagged by more than one block label)
     if (theFPProc.bMultiplyDefinedLabels)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:regionsmultiplydefined",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:regionsmultiplydefined",
                            "Some regions in the problem have been defined by more than one block label.");
 
     return wasopened;
@@ -111,10 +94,10 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     /* check for proper number of arguments */
     if(nrhs!=4)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "Two inputs required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     px = mxGetPr(prhs[2]);
@@ -128,13 +111,13 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
     nycols = mxGetN(prhs[3]);
     if((nxcols>1) | (nycols>1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "x and y must both be column vectors.");
     }
 
     if(myrows != myrows)
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "x and y must be column vectors of the same size.");
     }
 
@@ -319,10 +302,10 @@ int FPProc_interface::addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxAr
 
     /* check for proper number of arguments */
     if(nrhs!=4)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "Two inputs required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     px = mxGetPr(prhs[2]);
@@ -337,13 +320,13 @@ int FPProc_interface::addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxAr
     // check dimensions are allowed
     if((nxcols>1) | (nycols>1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "x and y must both be row vectors.");
     }
 
     if(mxrows != myrows)
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "x and y must be row vectors of the same size.");
     }
 
@@ -398,10 +381,10 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     /*  get the dimensions of the matrix input x */
@@ -410,7 +393,7 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
     // check dimensions are allowed
     if((mrows!=1) | (ncols!=1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "type must be a scalar.");
     }
 
@@ -428,7 +411,7 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     if (type<0 || type >5)
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidinttype",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidinttype",
                            "Invalid line integral selected %d",type);
         return 0;
     }
@@ -541,10 +524,10 @@ int FPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxA
 
     /* check for proper number of arguments */
     if(nrhs!=4)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.", nlhs);
 
     px = mxGetPr(prhs[2]);
@@ -558,7 +541,7 @@ int FPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxA
     nycols = mxGetN(prhs[3]);
     if((mxrows != 1) | (myrows != 1) | (nxcols != 1) | (nycols != 1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "x and y must both be scalars.");
     }
 
@@ -586,10 +569,10 @@ int FPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     /*  get the dimensions of the matrix input x */
@@ -598,7 +581,7 @@ int FPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
     // check dimensions are allowed
     if((mrows>1) | (ncols>1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "group number must be a scalar.");
     }
 
@@ -670,10 +653,10 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs != 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Wrong number of output arguments.");
 
     /*  get the dimensions of the matrix input x */
@@ -682,7 +665,7 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
     // check dimensions are allowed
     if((mrows!=1) | (ncols!=1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "type must be a scalar.");
     }
 
@@ -705,7 +688,7 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 
     if(flg==false)
     {
-        mexErrMsgIdAndTxt("MATLAB:fpproc:noblockselected",
+        mexErrMsgIdAndTxt("MFEMM:fpproc:noblockselected",
                           "Block integral failed, no area has been selected");
     }
 
@@ -838,17 +821,17 @@ int FPProc_interface::numnodes(int nlhs, mxArray *plhs[], int nrhs, const mxArra
 
     /* check for proper number of arguments */
     if(nrhs!=2)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "No input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     /*  set the output pointer to the output matrix */
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    
+
 	outpointer[0] = (double)theFPProc.meshnode.size();
 
 	return 1;
@@ -860,17 +843,17 @@ int FPProc_interface::numelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
 
     /* check for proper number of arguments */
     if(nrhs!=2)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "No input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     /*  set the output pointer to the output matrix */
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    
+
 	outpointer[0] = (double)theFPProc.meshelem.size();
 
 	return 1;
@@ -885,10 +868,10 @@ int FPProc_interface::getelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_elmnos = mxGetPr(prhs[2]);
@@ -896,33 +879,33 @@ int FPProc_interface::getelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if (nxcols>1)
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "element nos, must be a column vector.");
     }
-    
+
     /*  set the output pointer to the output matrix */
     plhs[0] = mxCreateDoubleMatrix( (mwSize)mxrows, (mwSize)(7), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    
+
     int numelms = theFPProc.meshelem.size();
     int i = 0;
-    
+
     // check no invalid element numbers have been requested
     for (i = 0; i < (int)mxrows; i++)
     {
         if (std::floor(p_elmnos[i]) < 1.0)
         {
-            mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidelmno",
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
                                "Element numbers start from 1.");
         }
-        
-        if (std::floor(p_elmnos[i]) > numelms) 
+
+        if (std::floor(p_elmnos[i]) > numelms)
         {
-            mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidelmno",
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
                                "Invalid element number (bigger than number of elements).");
         }
     }
@@ -938,7 +921,7 @@ int FPProc_interface::getelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
         outpointer[i+3*(int)mxrows] = Re(theFPProc.meshelem[n].ctr);
         outpointer[i+4*(int)mxrows] = Im(theFPProc.meshelem[n].ctr);
         outpointer[i+5*(int)mxrows] = theFPProc.ElmArea(n);
-        outpointer[i+6*(int)mxrows] = theFPProc.blocklist[theFPProc.meshelem[n].lbl].InGroup;   
+        outpointer[i+6*(int)mxrows] = theFPProc.blocklist[theFPProc.meshelem[n].lbl].InGroup;
     }
 
 	return 7;
@@ -952,10 +935,10 @@ int FPProc_interface::getcentroids(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_elmnos = mxGetPr(prhs[2]);
@@ -963,33 +946,33 @@ int FPProc_interface::getcentroids(int nlhs, mxArray *plhs[], int nrhs, const mx
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if (nxcols>1)
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "element nos, must be a column vector.");
     }
-    
+
     /*  set the output pointer to the output matrix */
     plhs[0] = mxCreateDoubleMatrix( (mwSize)mxrows, (mwSize)(2), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    
+
     int numelms = theFPProc.meshelem.size();
     int i = 0;
-    
+
     // check no invalid element numbers have been requested
     for (i = 0; i < (int)mxrows; i++)
     {
         if (std::floor(p_elmnos[i]) < 1.0)
         {
-            mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidelmno",
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
                                "Element numbers start from 1.");
         }
-        
-        if (std::floor(p_elmnos[i]) > numelms) 
+
+        if (std::floor(p_elmnos[i]) > numelms)
         {
-            mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidelmno",
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
                                "Invalid element number (bigger than number of elements).");
         }
     }
@@ -1000,7 +983,7 @@ int FPProc_interface::getcentroids(int nlhs, mxArray *plhs[], int nrhs, const mx
         // appropriate locations
         int n = (int)std::floor(p_elmnos[i]) - 1;
         outpointer[i] = Re(theFPProc.meshelem[n].ctr);
-        outpointer[i+(int)mxrows] = Im(theFPProc.meshelem[n].ctr); 
+        outpointer[i+(int)mxrows] = Im(theFPProc.meshelem[n].ctr);
     }
 
 	return 0;
@@ -1014,10 +997,10 @@ int FPProc_interface::getareas(int nlhs, mxArray *plhs[], int nrhs, const mxArra
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_elmnos = mxGetPr(prhs[2]);
@@ -1025,33 +1008,33 @@ int FPProc_interface::getareas(int nlhs, mxArray *plhs[], int nrhs, const mxArra
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if (nxcols>1)
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "element nos, must be a column vector.");
     }
-    
+
     /*  set the output pointer to the output matrix */
     plhs[0] = mxCreateDoubleMatrix( (mwSize)mxrows, (mwSize)(1), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    
+
     int numelms = theFPProc.meshelem.size();
     int i = 0;
-    
+
     // check no invalid element numbers have been requested
     for (i = 0; i < (int)mxrows; i++)
     {
         if (std::floor(p_elmnos[i]) < 1.0)
         {
-            mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidelmno",
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
                                "Element numbers start from 1.");
         }
-        
-        if (std::floor(p_elmnos[i]) > numelms) 
+
+        if (std::floor(p_elmnos[i]) > numelms)
         {
-            mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidelmno",
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
                                "Invalid element number (bigger than number of elements).");
         }
     }
@@ -1076,10 +1059,10 @@ int FPProc_interface::getvertices(int nlhs, mxArray *plhs[], int nrhs, const mxA
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_elmnos = mxGetPr(prhs[2]);
@@ -1087,33 +1070,33 @@ int FPProc_interface::getvertices(int nlhs, mxArray *plhs[], int nrhs, const mxA
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if (nxcols>1)
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "element nos, must be a column vector.");
     }
-    
+
     /*  set the output pointer to the output matrix */
     plhs[0] = mxCreateDoubleMatrix( (mwSize)mxrows, (mwSize)(6), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    
+
     int numelms = theFPProc.meshelem.size();
     int i = 0;
-    
+
     // check no invalid element numbers have been requested
     for (i = 0; i < (int)mxrows; i++)
     {
         if (std::floor(p_elmnos[i]) < 1.0)
         {
-            mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidelmno",
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
                                "Element numbers start from 1.");
         }
-        
-        if (std::floor(p_elmnos[i]) > numelms) 
+
+        if (std::floor(p_elmnos[i]) > numelms)
         {
-            mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidelmno",
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
                                "Invalid element number (bigger than number of elements).");
         }
     }
@@ -1143,10 +1126,10 @@ int FPProc_interface::numgroupelements (int nlhs, mxArray *plhs[], int nrhs, con
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_gpno = mxGetPr(prhs[2]);
@@ -1154,20 +1137,20 @@ int FPProc_interface::numgroupelements (int nlhs, mxArray *plhs[], int nrhs, con
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if ((nxcols != 1) | (nxcols != 1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "group no, must be a scalar.");
     }
-    
+
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
-    
+
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
     outpointer = mxGetPr(plhs[0]);
     outpointer[0] = (double)numingroup;
-    
+
     return 1;
 }
 
@@ -1176,7 +1159,7 @@ int FPProc_interface::numgroupelements (int nlhs, mxArray *plhs[], int nrhs, con
 int FPProc_interface::countGroupElements (int groupno)
 {
     int numingroup = 0;
-    
+
     // count group elements
     for (int i = 0; i < theFPProc.meshelem.size (); i++)
     {
@@ -1185,7 +1168,7 @@ int FPProc_interface::countGroupElements (int groupno)
             numingroup++;
         }
     }
-    
+
     return numingroup;
 }
 
@@ -1198,10 +1181,10 @@ int FPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_gpno = mxGetPr(prhs[2]);
@@ -1209,13 +1192,13 @@ int FPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if ((nxcols != 1) | (nxcols != 1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "group no, must be a scalar.");
     }
-    
+
     int numelms = theFPProc.meshelem.size();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
@@ -1228,7 +1211,7 @@ int FPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
         // get a pointer to the start of the actual output data array
         outpointer = mxGetPr(plhs[0]);
         int n = 0;
-        
+
         for(i=0; i < numelms; i++)
         {
             if (theFPProc.blocklist[theFPProc.meshelem[i].lbl].InGroup == groupno)
@@ -1241,7 +1224,7 @@ int FPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
                 outpointer[n+3*numingroup] = Re(theFPProc.meshelem[i].ctr);
                 outpointer[n+4*numingroup] = Im(theFPProc.meshelem[i].ctr);
                 outpointer[n+5*numingroup] = theFPProc.ElmArea(i);
-                outpointer[n+6*numingroup] = theFPProc.blocklist[theFPProc.meshelem[i].lbl].InGroup; 
+                outpointer[n+6*numingroup] = theFPProc.blocklist[theFPProc.meshelem[i].lbl].InGroup;
 
                 n++;
             }
@@ -1264,10 +1247,10 @@ int FPProc_interface::getgroupcentroids(int nlhs, mxArray *plhs[], int nrhs, con
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_gpno = mxGetPr(prhs[2]);
@@ -1275,13 +1258,13 @@ int FPProc_interface::getgroupcentroids(int nlhs, mxArray *plhs[], int nrhs, con
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if ((nxcols != 1) | (mxrows != 1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "group no, must be a scalar.");
     }
-    
+
     int numelms = theFPProc.meshelem.size();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
@@ -1293,10 +1276,10 @@ int FPProc_interface::getgroupcentroids(int nlhs, mxArray *plhs[], int nrhs, con
         plhs[0] = mxCreateDoubleMatrix( (mwSize)numingroup, (mwSize)(2), mxREAL);
         // get a pointer to the start of the actual output data array
         outpointer = mxGetPr(plhs[0]);
-        
+
         int n = 0;
 
-        
+
         for(i = 0; i < numelms; i++)
         {
             if (theFPProc.blocklist[theFPProc.meshelem[i].lbl].InGroup == groupno)
@@ -1304,8 +1287,8 @@ int FPProc_interface::getgroupcentroids(int nlhs, mxArray *plhs[], int nrhs, con
                 // copy the element info to the matlab array at the
                 // appropriate locations
                 outpointer[n] = Re(theFPProc.meshelem[i].ctr);
-                outpointer[n+numingroup] = Im(theFPProc.meshelem[i].ctr); 
-                
+                outpointer[n+numingroup] = Im(theFPProc.meshelem[i].ctr);
+
                 n++;
             }
         }
@@ -1327,10 +1310,10 @@ int FPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_gpno = mxGetPr(prhs[2]);
@@ -1338,13 +1321,13 @@ int FPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if ((nxcols != 1) | (mxrows != 1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "group no, must be a scalar.");
     }
-    
+
     int numelms = theFPProc.meshelem.size();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
@@ -1356,10 +1339,10 @@ int FPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
         plhs[0] = mxCreateDoubleMatrix( (mwSize)numingroup, (mwSize)(1), mxREAL);
         // get a pointer to the start of the actual output data array
         outpointer = mxGetPr(plhs[0]);
-        
+
         int n = 0;
 
-        
+
         for(i = 0; i < numelms; i++)
         {
             if (theFPProc.blocklist[theFPProc.meshelem[i].lbl].InGroup == groupno)
@@ -1367,7 +1350,7 @@ int FPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
                 // copy the element info to the matlab array at the
                 // appropriate locations
                 outpointer[n] = theFPProc.ElmArea(i);
-                
+
                 n++;
             }
         }
@@ -1389,10 +1372,10 @@ int FPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
 
     /* check for proper number of arguments */
     if(nrhs!=3)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidNumInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
                            "One input required.");
     else if(nlhs > 1)
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:maxlhs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
                            "Too many output arguments.");
 
     p_gpno = mxGetPr(prhs[2]);
@@ -1400,13 +1383,13 @@ int FPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
     /*  get the dimensions of the matrix input x */
     mxrows = mxGetM(prhs[2]);
     nxcols = mxGetN(prhs[2]);
-    
+
     if ((nxcols != 1) | (mxrows != 1))
     {
-        mexErrMsgIdAndTxt( "MATLAB:fpproc:invalidSizeInputs",
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
                            "group no, must be a scalar.");
     }
-    
+
     int numelms = theFPProc.meshelem.size();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
@@ -1418,7 +1401,7 @@ int FPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
         plhs[0] = mxCreateDoubleMatrix( (mwSize)numingroup, (mwSize)(6), mxREAL);
         // get a pointer to the start of the actual output data array
         outpointer = mxGetPr(plhs[0]);
-        
+
         int n = 0;
 
         for(i = 0; i < numelms; i++)
@@ -1432,7 +1415,7 @@ int FPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
                 outpointer[n+3*numingroup] = theFPProc.meshnode[theFPProc.meshelem[i].p[1]].y;
                 outpointer[n+4*numingroup] = theFPProc.meshnode[theFPProc.meshelem[i].p[2]].x;
                 outpointer[n+5*numingroup] = theFPProc.meshnode[theFPProc.meshelem[i].p[2]].y;
-                
+
                 n++;
             }
         }
