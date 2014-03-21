@@ -24,7 +24,6 @@
 // to triangle from the FMesher class
 
 #include <cstdio>
-//#include "stdstring.h"
 #include <cmath>
 #include <vector>
 #include <string>
@@ -65,6 +64,7 @@
 
 using namespace std;
 using namespace femm;
+
 
 double FMesher::LineLength(int i)
 {
@@ -427,37 +427,12 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
 	// create correct output filename;
 	string pn = PathName;
-//	CStdString plyname=pn.Left(pn.ReverseFind('.')) + ".poly";
-//
-//	// check to see if we are ready to write a datafile;
-//
-//	if ((fp=fopen(plyname,"wt"))==NULL){
-//		WarnMessage("Couldn't write to specified .poly file");
-//		return false;
-//	}
-//
-//	// write out node list
-//	fprintf(fp,"%i	2	0	1\n",nodelst.size());
-//	for(i=0;i<nodelst.size();i++)
-//	{
-//		for(j=0,t=0;j<nodeproplist.size();j++)
-//				if(nodeproplist[j].PointName==nodelst[i].BoundaryMarker) t=j+2;
-//		fprintf(fp,"%i	%.17g	%.17g	%i\n",i,nodelst[i].x,nodelst[i].y,t);
-//	}
-//
-//	// write out segment list
-//	fprintf(fp,"%i	1\n", linelst.size());
-//	for(i=0;i<linelst.size();i++)
-//	{
-//		for(j=0,t=0;j<lineproplist.size();j++)
-//				if(lineproplist[j].BdryName==linelst[i].BoundaryMarker) t=-(j+2);
-//		fprintf(fp,"%i	%i	%i	%i\n",i,linelst[i].n0,linelst[i].n1,t);
-//	}
 
 	// write out list of holes;
 	for(i=0,j=0;i<blocklist.size();i++)
+	{
 		if(blocklist[i].BlockType=="<No Mesh>") j++;
-//	fprintf(fp,"%i\n",j);
+	}
 
     // store the number of holes
     Nholes = j;
@@ -577,12 +552,28 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // construct the segment list
 	for(i=0;i<linelst.size();i++)
 	{
-		for(j=0,t=0;j<lineproplist.size();j++)
-				if(lineproplist[j].BdryName==linelst[i].BoundaryMarker) t=-(j+2);
+		for(j=0,t=0; j < lineproplist.size (); j++)
+		{
+				if (lineproplist[j].BdryName==linelst[i].BoundaryMarker)
+				{
+				    t =- (j+2);
+                }
+		}
+
+        if (filetype == F_TYPE_HEATFLOW)
+        {
+            // include conductor number;
+            for (j=0; j < circproplist.size (); j++)
+            {
+				if (circproplist[j].CircName==linelst[i].InConductor)
+				{
+				    t -= ((j+1)*0x10000);
+				}
+            }
+        }
 
         in.segmentmarkerlist[i] = t;
 	}
-
 
     in.numberofholes = Nholes;
     in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
@@ -1162,19 +1153,31 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     string rootname = pn.substr(0,pn.find_last_of('.'));
 
+    // An explaination of the input parameters used for Triangle
+    //
+    // -p Triangulates a Planar Straight Line Graph, i.e. list of segments.
+    // -P Suppresses the output .poly file.
+    // -q Quality mesh generation with no angles smaller than specified in the following number
+    // -e Outputs a list of edges of the triangulation.
+    // -A Assigns a regional attribute to each triangle that identifies what segment-bounded region it belongs to.
+    // -a Imposes a maximum triangle area constraint.
+    // -z Numbers all items starting from zero (rather than one)
+    // -I Suppresses mesh iteration numbers
+    //
+    // See http://www.cs.cmu.edu/~quake/triangle.switch.html for more info
     if (Verbose)
     {
         sprintf(CommandLine, "-pPq%feAazI", MinAngle);
     }
     else
     {
+        // -Q silences output
         sprintf(CommandLine, "-pPq%feAazQI", MinAngle);
     }
 
-//    triangulate(CommandLine, &in, &out, &vorout);
+    // call triangulate (Triangle as library) to perform the meshing
     tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
-    // copy the exit status status of the triangle library from the global variable, eueghh.
-    //trilibrary_exit_code;
+
     if (tristatus != 0)
     {
         // free allocated memory

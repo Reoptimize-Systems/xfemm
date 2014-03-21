@@ -1,31 +1,24 @@
 #include <iostream>
 #include <string.h>
-//#include "stdio.h"
 #include "fmesher.h"
 
-using std::string;
+using namespace femm;
 
 int main(int argc, char ** argv)
 {
 
     FMesher MeshObj;
-//    bool MeshUpToDate;
-    string FilePath;
-    // char tempFilePath[1024];
+    std::string FilePath;
 
     if (argc < 2)
     {
         // request the file name from the user
-        cout << "Enter fem file name:" << endl;
-        getline(cin,FilePath);
-
-        //scanf("%s", tempFilePath);
-        // gets(tempFilePath);
-        // FilePath = tempFilePath;
+        std::cout << "Enter file name:" << std::endl;
+        getline(std::cin,FilePath);
     }
     else if(argc > 2)
     {
-        cout << "Too many input arguments" << endl;
+        std::cout << "Too many input arguments" << std::endl;
         return -4;
     }
     else
@@ -33,9 +26,14 @@ int main(int argc, char ** argv)
         FilePath = argv[1];
     }
 
-    if (MeshObj.LoadFEMFile(FilePath) == false)
+    // attempt to discover the file type from the file name
+    MeshObj.filetype = FMesher::GetFileType (FilePath);
+
+    int status = MeshObj.LoadFEMFile(FilePath);
+
+    if (status != FMesher::F_FILE_OK)
     {
-        return -1;
+        return status;
     }
 
     if (MeshObj.HasPeriodicBC() == true)
@@ -53,42 +51,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    //bool LoadMesh = MeshObj.LoadMesh(FilePath);
-
-    //EndWaitCursor();
-
-    //if(LoadMesh == true){
-
-    //    //MeshUpToDate = true;
-
-    //    //if(MeshFlag == false)
-    //    //{
-    //    //    OnShowMesh();
-    //    //}
-    //    //else
-    //    //{
-    //    //    InvalidateRect(NULL);
-    //    //}
-
-    //    //CStdString s;
-
-    //    //s.Format("Created mesh with %i nodes", MeshObj.meshnode.size());
-
-    //    //if (TheDoc->greymeshline.size() != 0)
-    //    //    s += "\nGrey mesh lines denote regions\nthat have no block label.";
-    //
-    //    //if(bLinehook==false)
-    //    //{
-    //    //    WarnMessage(s,MB_ICONINFORMATION);
-    //    //}
-    //    //else
-    //    //{
-    //    //    lua_pushnumber(lua,TheDoc->meshnode.size());
-    //    //}
-
-    //}
-
-    cout << "No errors" << endl;
+    std::cout << "No errors" << std::endl;
     return 0;
 
 }

@@ -31,29 +31,14 @@
 #include "fparse.h"
 #include "fmesher.h"
 #include "intpoint.h"
-
-//#include "stdafx.h"
-//#include "femm.h"
-//#include "FemmeDoc.h"
-//#include "FemmeView.h"
-
-//#include "probdlg.h"
-//#include "PtProp.h"
-//#include "OpBlkDlg.h"
-//#include "OpNodeDlg.h"
-//#include "OpSegDlg.h"
-//#include "OpArcSegDlg.h"
-//#include "OpGrp.h"
-//#include "ArcDlg.h"
-//#include "ExteriorProps.h"
+#include "triangle.h"
 
 //extern void *pFemmeDoc;
 //extern lua_State *lua;
 //extern CLuaConsoleDlg *LuaConsole;
 //extern bool bLinehook;
 
-
-extern void *triangulate;
+//extern void *triangulate;
 
 using namespace std;
 using namespace femm;
@@ -67,6 +52,9 @@ FMesher::FMesher()
     TriMessage = NULL;
 
     Verbose = true;
+
+    filetype = F_TYPE_UNKNOWN;
+
 
     // initialize the problem data structures
     // and default behaviour etc.
@@ -84,6 +72,9 @@ FMesher::FMesher(string PathName)
 
     Verbose = true;
 
+    filetype = F_TYPE_UNKNOWN;
+
+
     // initialize the problem data structures
     // and default behaviour etc.
     Initialize();
@@ -93,61 +84,34 @@ FMesher::FMesher(string PathName)
 
 bool FMesher::Initialize()
 {
-    // set some default values for starting up rendering
-    // things properly
-    FirstDraw=false;
-    NoDraw=false;
     DoForceMaxMeshArea = false;
 
     // set up some default behaviors
-    d_prec=1.e-08;
     d_minangle=30.;
-    d_freq=0;
-    d_depth=1;
-    d_coord=0;
-    d_length=0;
-    d_type=0;
-    d_solver=0;
-
-    // Figure out what directory the executables
-    // are in, so we can call `triangle' if we need to.
-    // BinDir=((CFemmApp *)AfxGetApp())->GetExecutablePath();
-    BinDir = "";
-
-    // read default behaviors from disk
-    // ScanPreferences();
 
     // fire up lua
     //initalise_lua();
 
     // clear out all current lines, nodes, and block labels
-    nodelist.clear();
-    linelist.clear();
-    arclist.clear();
-    blocklist.clear();
-    undonodelist.clear();
-    undolinelist.clear();
-    undoarclist.clear();
-    undoblocklist.clear();
-    nodeproplist.clear();
-    lineproplist.clear();
-    blockproplist.clear();
-    circproplist.clear();
-    meshnode.clear();
-    meshline.clear();
-    greymeshline.clear();
+    nodelist.clear ();
+    linelist.clear ();
+    arclist.clear ();
+    blocklist.clear ();
+    undonodelist.clear ();
+    undolinelist.clear ();
+    undoarclist.clear ();
+    undoblocklist.clear ();
+    nodeproplist.clear ();
+    lineproplist.clear ();
+//    blockproplist.clear ();
+    circproplist.clear ();
+    meshnode.clear ();
+    meshline.clear ();
+    greymeshline.clear ();
+    probdescstrings.clear ();
 
     // set problem attributes to generic ones;
-    Frequency=d_freq;
-    Precision=d_prec;
-    MinAngle=d_minangle;
-    Depth=d_depth;
-    LengthUnits=d_length;
-    ProblemType=d_type;
-    ACSolver=d_solver;
-    Coords=d_coord;
-    ProblemNote="Add comments here.";
-    extRo=extRi=extZo=0;
+    MinAngle = d_minangle;
 
     return true;
 }
@@ -296,7 +260,10 @@ int FMesher::ClosestNode(double x, double y)
     unsigned int i,j;
     double d0,d1;
 
-    if(nodelist.size()==0) return -1;
+    if(nodelist.size()==0)
+    {
+        return -1;
+    }
 
     j=0;
     d0=nodelist[0].GetDistance(x,y);
@@ -318,7 +285,10 @@ int FMesher::ClosestBlockLabel(double x, double y)
     unsigned int i,j;
     double d0,d1;
 
-    if(blocklist.size()==0) return -1;
+    if(blocklist.size()==0)
+    {
+        return -1;
+    }
 
     j=0;
     d0=blocklist[0].GetDistance(x,y);
@@ -385,7 +355,10 @@ int FMesher::ClosestSegment(double x, double y)
     double d0,d1;
     unsigned int i,j;
 
-    if(linelist.size()==0) return -1;
+    if(linelist.size()==0)
+    {
+        return -1;
+    }
 
     j=0;
     d0=ShortestDistance(x,y,0);
@@ -407,7 +380,10 @@ int FMesher::ClosestArcSegment(double x, double y)
     double d0,d1;
     unsigned int i,j;
 
-    if(arclist.size()==0) return -1;
+    if(arclist.size()==0)
+    {
+        return -1;
+    }
 
     j=0;
     d0=ShortestDistanceFromArc(CComplex(x,y),arclist[0]);
@@ -474,164 +450,52 @@ bool FMesher::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
 }
 
 
-//bool FMesher::OldOnOpenDocument(LPCTSTR lpszPathName)
-//{
-//	FILE *fp;
-//	int i,j,k,t,len;
-//	char s[1024];
-//	CPointProp	  PProp;
-//	CBoundaryProp BProp;
-//	CMaterialProp MProp;
-//	CNode		node;
-//	CSegment	segm;
-//	CArcSegment asegm;
-//	CBlockLabel blk;
-//
-//	if ((fp=fopen(lpszPathName,"rt"))==NULL){
-//		WarnMessage("Couldn't read from specified .fem file");
-//		return false;
-//	}
-//
-//	fscanf(fp,"Frequency   =  %lf\n",&Frequency);
-//	fscanf(fp,"LengthUnits =  %i\n",&LengthUnits);
-//	fscanf(fp,"ProblemType =  %i\n",&ProblemType);
-//	fscanf(fp,"Coords      =  %i\n",&Coords);
-//	fgets(s,1024,fp);
-//		len=strlen(s);
-//	len--;
-//	s[len]=NULL;
-//	for(i=0;i<len;i++){
-//		if(s[i]=='{') s[i]=13;
-//		if(s[i]=='}') s[i]=10;
-//	}
-//	ProblemNote=s;
-//
-//	// Read in materials library...
-//
-//	fscanf(fp,"%i\n",&k);
-//	for(i=0;i<k;i++)
-//	{
-//
-//		fgets(s,1024,fp);
-//		len=strlen(s); for(j=0;j<len;j++) if (s[j]<26) s[j]=NULL;
-//		PProp.PointName=s;
-//		fscanf(fp,"%lf	%lf	%lf	%lf\n",&PProp.Jp.re,&PProp.Jp.im,&PProp.Ap.re,&PProp.Ap.im);
-//		nodeproplist.push_back(PProp);
-//	}
-//
-//	fscanf(fp,"%i\n",&k);
-//	for(i=0;i<k;i++)
-//	{
-//		fgets(s,1024,fp);
-//		len=strlen(s); for(j=0;j<len;j++) if (s[j]<26) s[j]=NULL;
-//		BProp.BdryName=s;
-//		fscanf(fp,"%i	%lf	%lf	%lf	%lf	%lf	%lf	%lf	%lf\n",&BProp.BdryFormat,
-//			&BProp.A0,&BProp.A1,&BProp.A2,&BProp.phi,&BProp.Mu,
-//			&BProp.Sig,&BProp.c0,&BProp.c1);
-//		lineproplist.push_back(BProp);
-//	}
-//
-//	fscanf(fp,"%i\n",&k);
-//	for(i=0;i<k;i++)
-//	{
-//		fgets(s,1024,fp);
-//		len=strlen(s); for(j=0;j<len;j++) if (s[j]<26) s[j]=NULL;
-//		MProp.BlockName=s;
-//		fscanf(fp,"%lf	%lf	%lf	%lf	%lf	%lf	%lf	%lf	%lf	%i	%lf\n",
-//			&MProp.mu_x,&MProp.mu_y,&MProp.H_c,
-//			&MProp.Theta_m,&MProp.Jsrc.re,&MProp.Jsrc.im,&MProp.Cduct,
-//			&MProp.Lam_d,&MProp.Theta_hn,&MProp.LamType,&MProp.LamFill);
-//		MProp.Theta_hx=MProp.Theta_hn;
-//		MProp.Theta_hy=MProp.Theta_hn;
-//		fgets(s,1024,fp);
-//		sscanf(s,"%i",&MProp.BHpoints);
-// //		if (MProp.BHpoints>0)
-// //			MProp.BHdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
-//      CComplex tempComplex;
-//		for(j=0;j<MProp.BHpoints;j++){
-//			fgets(s,1024,fp);
-//			sscanf(s,"%lf	%lf", &tempComplex.re, &tempComplex.im);
-//          MProp.BHdata.push_back(tempComplex);
-//		}
-//		blockproplist.push_back(MProp);
-//	}
-//	MProp.BHpoints=0;
-//
-//	// read in node list
-//	fgets(s,1024,fp);
-//	sscanf(s,"%i",&k);
-//	for(i=0;i<k;i++)
-//	{
-//		fscanf(fp,"%lf	%lf	%i\n",&node.x,&node.y,&t);
-//		t=t-2;
-//		if(t<0) node.BoundaryMarker="";
-//		else node.BoundaryMarker=nodeproplist[t].PointName;
-//		nodelist.push_back(node);
-//	}
-//
-//	// read in segment list
-//	fgets(s,1024,fp);
-//	sscanf(s,"%i",&k);
-//	for(i=0;i<k;i++)
-//	{
-//		fscanf(fp,"%i	%i	%lf %i\n",&segm.n0,&segm.n1,&segm.MaxSideLength,&t);
-//		t=-(t+2);
-//		if(t<0) segm.BoundaryMarker="";
-//		else segm.BoundaryMarker=lineproplist[t].BdryName;
-//		linelist.push_back(segm);
-//	}
-//
-//	// read in arc segment list
-//	fgets(s,1024,fp);
-//	sscanf(s,"%i",&k);
-//	for(i=0;i<k;i++)
-//	{
-//		fscanf(fp,"%i	%i	%lf	%lf %i\n",&asegm.n0,&asegm.n1,
-//			&asegm.ArcLength,&asegm.MaxSideLength,&t);
-//		t=-(t+2);
-//		if(t<0) asegm.BoundaryMarker="";
-//		else asegm.BoundaryMarker=lineproplist[t].BdryName;
-//		arclist.push_back(asegm);
-//	}
-//
-//	// read in list of holes;
-//	fscanf(fp,"%i\n",&k);
-//	blk.BlockType="<No Mesh>";
-//	blk.MaxArea=0;
-//	for(i=0;i<k;i++)
-//	{
-//		fscanf(fp,"%lf	%lf\n",&blk.x,&blk.y);
-//		blocklist.push_back(blk);
-//	}
-//
-//	// read in regional attributes
-//	fscanf(fp,"%i\n",&k);
-//	for(i=0;i<k;i++)
-//	{
-//		fscanf(fp,"%lf	%lf	%i	%lf\n",&blk.x,&blk.y,&t,&blk.MaxArea);
-//		blk.MagDir=0.;
-//		blk.MagDirFctn.Empty();
-//		blk.Turns=1;
-//		if (blk.MaxArea<0) blk.MaxArea=0;
-//		if (t<0) blk.BlockType="<None>";
-//		else{
-//			blk.BlockType=blockproplist[t].BlockName;
-//			blk.MagDir   =blockproplist[t].Theta_m;
-//		}
-//		blocklist.push_back(blk);
-//	}
-//	fclose(fp);
-//
-//	FirstDraw=true;
-//
-//	return true;
-//}
-
-bool FMesher::LoadFEMFile(string PathName)
+int FMesher::GetFileType (string PathName)
 {
+    // find the position of the last '.' in the string
+    size_t dotpos = PathName.rfind ('.');
 
-    //if (!CDocument::OnOpenDocument(lpszPathName))
-    //	return false;
+    if (dotpos == string::npos)
+    {
+        // no '.' found
+        return F_TYPE_UNKNOWN;
+    }
+
+    // compare different file extensions and return the appropriate string
+    if ( PathName.compare (dotpos, string::npos, ".fem") == 0 )
+    {
+        return F_TYPE_MAGNETICS;
+    }
+    else if ( PathName.compare (dotpos, string::npos, ".feh") == 0 )
+    {
+        return F_TYPE_HEATFLOW;
+    }
+    else
+    {
+        return F_TYPE_UNKNOWN;
+    }
+
+}
+
+int FMesher::LoadFEMFile (string PathName, int ftype)
+{
+    filetype = ftype;
+    return LoadFEMFile(PathName);
+}
+
+int FMesher::LoadFEMFile (string PathName)
+{
+    switch (filetype)
+    {
+        case F_TYPE_UNKNOWN:
+            return F_FILE_UNKNOWN_TYPE;
+        case F_TYPE_MAGNETICS:
+            break;
+        case F_TYPE_HEATFLOW:
+            break;
+        default:
+            return F_FILE_UNKNOWN_TYPE;
+    }
 
     // make sure old data is cleared out...
     Initialize();
@@ -643,7 +507,6 @@ bool FMesher::LoadFEMFile(string PathName)
     char *v;
     CPointProp	  PProp;
     CBoundaryProp BProp;
-    CMaterialProp MProp;
     CCircuit	  CProp;
     CNode		node;
     CSegment	segm;
@@ -653,19 +516,8 @@ bool FMesher::LoadFEMFile(string PathName)
     if ((fp=fopen(PathName.c_str(),"rt"))==NULL)
     {
         WarnMessage("Couldn't read from specified .fem file");
-        return false;
+        return F_FILE_NOT_OPENED;
     }
-
-    //// Check to see if this is an old-version femm datafile
-    //fgets(s,1024,fp);
-    //if (strncmp(s,"Frequency",8)==0){
-    //	fclose(fp);
-    //	return OldOnOpenDocument(lpszPathName);
-    //}
-    //else rewind(fp); // Go back to beginning of the file;
-
-    // hook to catch old files where depth wasn't defined:
-    Depth = -1;
 
     // parse the file
     while (fgets(s,1024,fp)!=NULL)
@@ -686,41 +538,10 @@ bool FMesher::LoadFEMFile(string PathName)
                             "This file may contain attributes not\n"
                             "supported by this version of FEMM");
             }
-            q[0] = '\0';
-        }
 
-        // Frequency of the problem
-        if( _strnicmp(q,"[frequency]",11)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&Frequency);
+            addFileStr (q);
             q[0] = '\0';
-        }
-
-        // Depth in the into-the-page direction
-        if( _strnicmp(q,"[depth]",7)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&Depth);
-            q[0] = '\0';
-        }
-
-        // Required solver precision
-        if( _strnicmp(q,"[precision]",11)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&Precision);
-            q[0] = '\0';
-        }
-
-        // Solver to use for AC problems
-        if( _strnicmp(q,"[acsolver]",8)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%i",&ACSolver);
-            q[0] = '\0';
-            // 0 == successive approx
-            // 1 == newton
+            continue;
         }
 
         // Minimum Angle Constraint for finite element mesh
@@ -728,41 +549,9 @@ bool FMesher::LoadFEMFile(string PathName)
         {
             v = StripKey(s);
             sscanf(v,"%lf",&MinAngle);
+            addFileStr (q);
             q[0] = '\0';
-        }
-
-        // Units of length used by the problem
-        if( _strnicmp(q,"[lengthunits]",13)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%s",q);
-            if( _strnicmp(q,"inches",6)==0) LengthUnits = 0;
-            else if( _strnicmp(q,"millimeters",11)==0) LengthUnits = 1;
-            else if( _strnicmp(q,"centimeters",1)==0) LengthUnits = 2;
-            else if( _strnicmp(q,"mils",4)==0) LengthUnits = 4;
-            else if( _strnicmp(q,"microns",6)==0) LengthUnits = 5;
-            else if( _strnicmp(q,"meters",6)==0) LengthUnits = 3;
-            q[0] = '\0';
-        }
-
-        // Problem Type (planar or axisymmetric)
-        if( _strnicmp(q,"[problemtype]",13)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%s",q);
-            if( _strnicmp(q,"planar",6)==0) ProblemType=0;
-            if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=1;
-            q[0] = '\0';
-        }
-
-        // Coordinates (cartesian or polar)
-        if( _strnicmp(q,"[coordinates]",13)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%s",q);
-            if ( _strnicmp(q,"cartesian",4)==0) Coords=0;
-            if ( _strnicmp(q,"polar",5)==0) Coords=1;
-            q[0] = '\0';
+            continue;
         }
 
         // Option to force use of default max mesh, overriding
@@ -785,436 +574,181 @@ bool FMesher::LoadFEMFile(string PathName)
             }
         }
 
-        // Comments
-        if (_strnicmp(q,"[comment]",9)==0)
-        {
-            v = StripKey(s);
-            // put in carriage returns;
-            k = strlen(v);
-            for(i=0; i<k; i++)
-                if((v[i]=='\\') && (v[i+1]=='n'))
-                {
-                    v[i] = 13;
-                    v[i+1] = 10;
-                }
-
-            for(i=0; i<k; i++)
-                if(v[i]=='\"')
-                {
-                    v = v + i + 1;
-                    i = k;
-                }
-            k = strlen(v);
-            if(k>0) for(i=k-1; i>=0; i--)
-                {
-                    if(v[i]=='\"')
-                    {
-                        v[i] = 0;
-                        i = -1;
-                    }
-                }
-            ProblemNote = v;
-            q[0] = '\0';
-        }
-
-        // properties for axisymmetric external region
-        if( _strnicmp(q,"[extzo]",7)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&extZo);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"[extro]",7)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&extRo);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"[extri]",7)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&extRi);
-            q[0] = '\0';
-        }
-
         // Point Properties
         if( _strnicmp(q,"<beginpoint>",11)==0)
         {
+            string ppropstring (q);
+
             PProp.PointName="New Point Property";
-            PProp.Jp=0;
-            PProp.Ap=0;
-            q[0] = '\0';
-        }
 
-        if( _strnicmp(q,"<pointname>",11)==0)
-        {
-            v = StripKey(s);
-            k=strlen(v);
-            for(i=0; i<k; i++)
-                if(v[i]=='\"')
+            while (_strnicmp(q,"<endpoint>",9) != 0)
+            {
+                q[0] = '\0';
+                fgets(s,1024,fp);
+
+                // if we've reached the end of file return an error as
+                // it must be malformed
+                if (sscanf(s,"%s",q)==EOF)
                 {
-                    v=v+i+1;
-                    i=k;
+                    return F_FILE_MALFORMED;
                 }
-            k=strlen(v);
-            if(k>0) for(i=k-1; i>=0; i--)
+
+                if( _strnicmp(q,"<pointname>",11)==0)
                 {
-                    if(v[i]=='\"')
-                    {
-                        v[i]=0;
-                        i=-1;
-                    }
+                    v = StripKey(s);
+                    k=strlen(v);
+                    for(i=0; i<k; i++)
+                        if(v[i]=='\"')
+                        {
+                            v=v+i+1;
+                            i=k;
+                        }
+                    k=strlen(v);
+                    if(k>0) for(i=k-1; i>=0; i--)
+                        {
+                            if(v[i]=='\"')
+                            {
+                                v[i]=0;
+                                i=-1;
+                            }
+                        }
+                    PProp.PointName = v;
                 }
-            PProp.PointName=v;
-            q[0] = '\0';
-        }
 
-        if( _strnicmp(q,"<A_re>",6)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&PProp.Ap.re);
-            q[0] = '\0';
-        }
+                if( _strnicmp(q,"<bdrytype>",10)==0)
+                {
+                    v = StripKey(s);
+                    sscanf(v,"%i",&BProp.BdryFormat);
+                }
 
-        if( _strnicmp(q,"<A_im>",6)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&PProp.Ap.im);
-            q[0] = '\0';
-        }
+                // append the line to the boundary string
+                ppropstring += '\n';
+                ppropstring += q;
 
-        if( _strnicmp(q,"<I_re>",6)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&PProp.Jp.re);
-            q[0] = '\0';
-        }
+            }
 
-        if( _strnicmp(q,"<I_im>",6)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&PProp.Jp.im);
-            q[0] = '\0';
-        }
+            // add the point property string to the list of strings
+            probdescstrings.push_back (ppropstring);
 
-        if( _strnicmp(q,"<endpoint>",9)==0)
-        {
-            nodeproplist.push_back(PProp);
             q[0] = '\0';
+
+            continue;
         }
 
         // Boundary Properties;
         if( _strnicmp(q,"<beginbdry>",11)==0)
         {
+            // string to hold a copy of the boundary string
+            string boundstring (q);
+
             BProp.BdryName="New Boundary";
             BProp.BdryFormat=0;
-            BProp.A0=0.;
-            BProp.A1=0.;
-            BProp.A2=0.;
-            BProp.phi=0.;
-            BProp.Mu=0.;
-            BProp.Sig=0.;
-            BProp.c0=0.;
-            BProp.c1=0.;
-            q[0] = '\0';
-        }
 
-        if( _strnicmp(q,"<bdryname>",10)==0)
-        {
-            v = StripKey(s);
-            k=strlen(v);
-            for(i=0; i<k; i++)
-                if(v[i]=='\"')
+            while (_strnicmp(q,"<endbdry>",9) != 0)
+            {
+                q[0] = '\0';
+
+                fgets(s,1024,fp);
+
+                // if we've reached the end of file return an error as
+                // it must be malformed
+                if (sscanf(s,"%s",q)==EOF)
                 {
-                    v=v+i+1;
-                    i=k;
+                    return F_FILE_MALFORMED;
                 }
-            k=strlen(v);
-            if(k>0) for(i=k-1; i>=0; i--)
+
+                if( _strnicmp(q,"<bdryname>",10)==0)
                 {
-                    if(v[i]=='\"')
+                    v = StripKey(s);
+                    k = strlen(v);
+                    for(i=0; i<k; i++)
                     {
-                        v[i]=0;
-                        i=-1;
+                        if(v[i]=='\"')
+                        {
+                            v=v+i+1;
+                            i=k;
+                        }
                     }
+
+                    k = strlen(v);
+
+                    if(k>0) for(i=k-1; i>=0; i--)
+                    {
+                        if(v[i]=='\"')
+                        {
+                            v[i]=0;
+                            i=-1;
+                        }
+                    }
+
+                    BProp.BdryName = v;
                 }
-            BProp.BdryName=v;
-            q[0] = '\0';
-        }
 
-        if( _strnicmp(q,"<bdrytype>",10)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%i",&BProp.BdryFormat);
-            q[0] = '\0';
-        }
+                if( _strnicmp(q,"<bdrytype>",10)==0)
+                {
+                    v = StripKey(s);
+                    sscanf(v,"%i",&BProp.BdryFormat);
+                }
 
-        if( _strnicmp(q,"<mu_ssd>",8)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.Mu);
-            q[0] = '\0';
-        }
+                // append the line to the boundary string
+                boundstring += '\n';
+                boundstring += q;
 
-        if( _strnicmp(q,"<sigma_ssd>",11)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.Sig);
-            q[0] = '\0';
-        }
+            }
 
-        if( _strnicmp(q,"<A_0>",5)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.A0);
             q[0] = '\0';
-        }
 
-        if( _strnicmp(q,"<A_1>",5)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.A1);
-            q[0] = '\0';
-        }
+            // add the boundary string to the list of strings
+            probdescstrings.push_back (boundstring);
 
-        if( _strnicmp(q,"<A_2>",5)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.A2);
-            q[0] = '\0';
+            continue;
         }
-
-        if( _strnicmp(q,"<phi>",5)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.phi);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<c0>",4)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.c0.re);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<c1>",4)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.c1.re);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<c0i>",5)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.c0.im);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<c1i>",5)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&BProp.c1.im);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<endbdry>",9)==0)
-        {
-            lineproplist.push_back(BProp);
-            q[0] = '\0';
-        }
-
 
         // Block Properties;
-        if( _strnicmp(q,"<beginblock>",12)==0)
+        if( _strnicmp(q,"<beginblock>",12) == 0)
         {
-            MProp.BlockName="New Material";
-            MProp.mu_x=1.;
-            MProp.mu_y=1.;			// permeabilities, relative
-            MProp.H_c=0.;			// magnetization, A/m
-            MProp.Jsrc=0;			// applied current density, MA/m^2
-            MProp.Cduct=0.;		    // conductivity of the material, MS/m
-            MProp.Lam_d=0.;			// lamination thickness, mm
-            MProp.Theta_hn=0.;		// hysteresis angle, degrees
-            MProp.Theta_hx=0.;
-            MProp.Theta_hy=0.;
-            MProp.LamFill=1.;		// lamination fill factor;
-            MProp.LamType=0;		// type of lamination;
-            MProp.NStrands=0;
-            MProp.WireD=0;
-            MProp.BHpoints=0;
-            MProp.BHdata.clear();
-            q[0] = '\0';
-        }
+            string mpropstring (q);
 
-        if( _strnicmp(q,"<blockname>",10)==0)
-        {
-            v = StripKey(s);
-            k=strlen(v);
-            for(i=0; i<k; i++)
-                if(v[i]=='\"')
-                {
-                    v=v+i+1;
-                    i=k;
-                }
-            k=strlen(v);
-            if(k>0) for(i=k-1; i>=0; i--)
-                {
-                    if(v[i]=='\"')
-                    {
-                        v[i]=0;
-                        i=-1;
-                    }
-                }
-            MProp.BlockName=v;
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<mu_x>",6)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.mu_x);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<mu_y>",6)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.mu_y);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<H_c>",5)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.H_c);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<J_re>",6)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.Jsrc.re);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<J_im>",6)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.Jsrc.im);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<sigma>",7)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.Cduct);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<phi_h>",7)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.Theta_hn);
-            if(vers==30)
+            while ( _strnicmp(q,"<endblock>",9) != 0)
             {
-                MProp.Theta_hx = MProp.Theta_hn;
-                MProp.Theta_hy = MProp.Theta_hn;
-            }
-            q[0] = '\0';
-        }
+                q[0] = '\0';
+                fgets(s,1024,fp);
 
-        if( _strnicmp(q,"<phi_hx>",8)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.Theta_hx);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<phi_hy>",8)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.Theta_hy);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<d_lam>",7)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.Lam_d);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<LamFill>",8)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.LamFill);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<LamType>",9)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%i",&MProp.LamType);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<NStrands>",10)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%i",&MProp.NStrands);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<WireD>",7)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%lf",&MProp.WireD);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<BHPoints>",10)==0)
-        {
-            v = StripKey(s);
-            sscanf(v,"%i",&MProp.BHpoints);
-            if (MProp.BHpoints>0)
-            {
-                //MProp.BHdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
-                CComplex tempComplex;
-
-                for(j=0; j<MProp.BHpoints; j++)
+                // if we've reached the end of file return an error as
+                // it must be malformed
+                if (sscanf(s,"%s",q)==EOF)
                 {
-
-                    fgets(s,1024,fp);
-
-                    sscanf(s,"%lf	%lf", &tempComplex.re, &tempComplex.im);
-
-                    MProp.BHdata.push_back(tempComplex);
+                    return F_FILE_MALFORMED;
                 }
+
+                // append the line to the boundary string
+                mpropstring += '\n';
+                mpropstring += q;
             }
+
             q[0] = '\0';
+
+            // add the material property string to the list of strings
+            probdescstrings.push_back (mpropstring);
+
         }
 
-        if( _strnicmp(q,"<endblock>",9)==0)
+
+        // Conductor/Circuit Properties
+        if ( ( _strnicmp(q,"<begincircuit>",14)==0)
+             || ( _strnicmp(q,"<beginconductor>",16)==0) )
         {
-            blockproplist.push_back(MProp);
-            MProp.BHpoints=0;
+            CProp.CircName = "No Name";
+            CProp.CircType = 0;
+
+            // add the string to the list of strings to be echoed later
+            addFileStr (q);
             q[0] = '\0';
+            continue;
         }
 
-        // Circuit Properties
-        if( _strnicmp(q,"<begincircuit>",14)==0)
-        {
-            CProp.CircName="New Circuit";
-            CProp.Amps=0.;
-            CProp.CircType=0;
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<circuitname>",13)==0)
+        if ( ( _strnicmp(q,"<circuitname>",13)==0)
+             || ( _strnicmp(q,"<conductorname>",15)==0) )
         {
             v = StripKey(s);
             k=strlen(v);
@@ -1234,43 +768,38 @@ bool FMesher::LoadFEMFile(string PathName)
                     }
                 }
             CProp.CircName=v;
+            // add the string to the list of strings to be echoed later
+            addFileStr (q);
             q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<totalamps_re>",14)==0)
-        {
-            double inval;
-            v = StripKey(s);
-            sscanf(v,"%lf",&inval);
-            CProp.Amps+=inval;
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<totalamps_im>",14)==0)
-        {
-            double inval;
-            v = StripKey(s);
-            sscanf(v,"%lf",&inval);
-            CProp.Amps+=(I*inval);
-            q[0] = '\0';
-        }
-
-        if( _strnicmp(q,"<circuittype>",13)==0)
+        if ( ( _strnicmp(q,"<circuittype>",13)==0)
+             || ( _strnicmp(q,"<conductortype>",15)==0) )
         {
             v = StripKey(s);
             sscanf(v,"%i",&CProp.CircType);
+            // add the string to the list of strings to be echoed later
+            addFileStr (q);
             q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<endcircuit>",12)==0)
+        if ( ( _strnicmp(q,"<endcircuit>",12)==0)
+             || ( _strnicmp(q,"<endconductor>",14)==0) )
         {
             circproplist.push_back(CProp);
+            // add the string to the list of strings to be echoed later
+            addFileStr (q);
             q[0] = '\0';
+            continue;
         }
 
         // Points list;
         if(_strnicmp(q,"[numpoints]",11)==0)
         {
+            // note we don't save the points to be echoed later, we just
+            // write them out again from the node list
             v = StripKey(s);
             sscanf(v,"%i",&k);
             for(i=0; i<k; i++)
@@ -1287,6 +816,7 @@ bool FMesher::LoadFEMFile(string PathName)
                 nodelist.push_back(node);
             }
             q[0] = '\0';
+            continue;
         }
 
         // read in segment list
@@ -1303,17 +833,13 @@ bool FMesher::LoadFEMFile(string PathName)
                 t = 0;
                 segm.Hidden = 0;
                 segm.InGroup = 0;
+                segm.InConductor="<None>";
 
                 // scan in data
                 v = ParseInt(s,&segm.n0);
                 v = ParseInt(v,&segm.n1);
                 v = ParseDbl(v,&segm.MaxSideLength);
                 v = ParseInt(v,&t);
-                int Hidden = 0;
-                v = ParseInt(v,&Hidden);
-                //v=ParseInt(v,&segm.Hidden);
-                segm.Hidden = Hidden;
-                v = ParseInt(v,&segm.InGroup);
 
                 if(t==0)
                 {
@@ -1323,10 +849,36 @@ bool FMesher::LoadFEMFile(string PathName)
                 {
                     segm.BoundaryMarker=lineproplist[t-1].BdryName;
                 }
+                t = 0;
+
+                int Hidden = 0;
+                v = ParseInt(v,&Hidden);
+                segm.Hidden = Hidden;
+
+                v = ParseInt(v,&segm.InGroup);
+
+                if (v != NULL)
+                {
+                    v = ParseInt(v,&t);
+                }
+                else
+                {
+                    t = 0;
+                }
+
+				if(t==0)
+				{
+				    segm.InConductor="<None>";
+                }
+				else if (t<=(int) circproplist.size ())
+				{
+					segm.InConductor = circproplist[t-1].CircName;
+				}
 
                 linelist.push_back(segm);
             }
             q[0] = '\0';
+            continue;
         }
 
         // read in arc segment list
@@ -1350,26 +902,46 @@ bool FMesher::LoadFEMFile(string PathName)
                 v = ParseDbl(v,&asegm.ArcLength);
                 v = ParseDbl(v,&asegm.MaxSideLength);
                 v = ParseInt(v,&t);
-                int Hidden = 0;
-                //v=ParseInt(v,&asegm.Hidden);
-                v = ParseInt(v,&Hidden);
-                asegm.Hidden = Hidden;
-                v = ParseInt(v,&asegm.InGroup);
 
                 if(t==0)
                 {
                     asegm.BoundaryMarker = "";
                 }
-                else if (t<= (int) lineproplist.size())
+                else if (t <= (int)lineproplist.size())
                 {
                     asegm.BoundaryMarker = lineproplist[t-1].BdryName;
+                }
+                t = 0;
+
+                int Hidden = 0;
+                v = ParseInt(v,&Hidden);
+                asegm.Hidden = Hidden;
+
+                v = ParseInt(v,&asegm.InGroup);
+
+                if (v != NULL)
+                {
+                    v = ParseInt(v,&t);
+                }
+                else
+                {
+                    t = 0;
+                }
+
+                if (t == 0)
+                {
+                    segm.InConductor="<None>";
+                }
+                else if(t<=(int) circproplist.size ())
+				{
+				    asegm.InConductor = circproplist[t-1].CircName;
                 }
 
                 arclist.push_back(asegm);
             }
             q[0] = '\0';
+            continue;
         }
-
 
         // read in list of holes;
         if(_strnicmp(q,"[numholes]",13)==0)
@@ -1392,43 +964,38 @@ bool FMesher::LoadFEMFile(string PathName)
                 }
             }
             q[0] = '\0';
+            continue;
         }
 
         // read in regional attributes
-        if(_strnicmp(q,"[numblocklabels]",13)==0)
+        if (_strnicmp(q,"[numblocklabels]",13) == 0)
         {
-            v = StripKey(s);
-            sscanf(v,"%i",&k);
-            for(i=0; i<k; i++)
+            addFileStr (q);
+            v = StripKey (s);
+            sscanf (v,"%i",&k);
+
+            for (i = 0; i < k; i++)
             {
-                fgets(s,1024,fp);
+                fgets (s,1024,fp);
+                addFileStr (s);
 
                 //some defaults
                 t = 0;
                 blk.MaxArea = 0.;
-                blk.MagDir = 0.;
-                blk.MagDirFctn.clear();
-                blk.Turns = 1;
                 blk.InCircuit = "<None>";
                 blk.InGroup = 0;
-                blk.IsExternal = 0;
 
                 // scan in data
-                v = ParseDbl(s,&blk.x);
-                v = ParseDbl(v,&blk.y);
+                v = ParseDbl (s,&blk.x);
+                v = ParseDbl (v,&blk.y);
 
-                v = ParseInt(v,&t);
-                if (t==0)
-                {
-                    blk.BlockType = "<None>";
-                }
-                else if(t <= (int)blockproplist.size())
-                {
-                    blk.BlockType = blockproplist[t-1].BlockName;
-                }
+                // block type, not used in meshing
+                v = ParseInt (v,&t);
 
-                v = ParseDbl(v,&blk.MaxArea);
-                if (blk.MaxArea<0)
+                // max area constraint for triangles in this region
+                v = ParseDbl (v,&blk.MaxArea);
+
+                if (blk.MaxArea < 0)
                 {
                     blk.MaxArea = 0;
                 }
@@ -1437,215 +1004,71 @@ bool FMesher::LoadFEMFile(string PathName)
                     blk.MaxArea = PI * blk.MaxArea * blk.MaxArea / 4.0;
                 }
 
-                v = ParseInt(v,&t);
-                if (t==0)
-                {
-                    blk.InCircuit = "<None>";
-                }
-                else if(t <= (int)circproplist.size())
-                {
-                    blk.InCircuit = circproplist[t-1].CircName;
-                }
+                int ignoreint = 0;
+                double ignoredbl = 0.0;
 
-                v = ParseDbl(v,&blk.MagDir);
-                v = ParseInt(v,&blk.InGroup);
-                v = ParseInt(v,&blk.Turns);
-                int tIsExternal = 0;
-                //v=ParseInt(v,&blk.IsExternal);
-                v = ParseInt(v, &tIsExternal);
-                blk.IsExternal = tIsExternal;
-                v = ParseString(v,&blk.MagDirFctn);
+                switch (filetype)
+                {
+                    case F_TYPE_MAGNETICS:
+                        // an int and a double come before the InGroup value
+                        v = ParseInt (v,&ignoreint);
+
+                        v = ParseDbl (v,&ignoredbl );
+
+                        v = ParseInt (v,&blk.InGroup);
+
+                        break;
+
+                    case F_TYPE_HEATFLOW:
+                        // The InGroup value is next
+                        v = ParseInt (v,&blk.InGroup);
+
+                        break;
+
+                    default:
+                        return F_FILE_UNKNOWN_TYPE;
+                }
 
                 blocklist.push_back(blk);
             }
             q[0] = '\0';
+            continue;
         }
+
+        // add the string to the list of strings to be echoed later
+        // if it was not parsd by any of the preceeding statements
+        addFileStr (q);
+
     }
 
     fclose(fp);
 
-    if(Depth==-1)
-    {
-        // if this is a v3.2 file we are importing, make the length
-        // equal to 1 meter, because 3.2 was all per-meter calculations
-        switch(LengthUnits)
-        {
-        case 1:
-            Depth = 1000.;		//mm
-            break;
-        case 2:
-            Depth = 100.;			//cm
-            break;
-        case 3:
-            Depth = 1.;			//m
-            break;
-        case 4:
-            Depth = 1000./0.0254; // mils
-            break;
-        case 5:
-            Depth = 1.e6;			// microns
-            break;
-        default:
-            Depth = 1./0.0254;	// inches
-            break;
-        }
-    }
-
-    FirstDraw = true;
-
-    WarnMessage(".fem file read");
-
-    return true;
+    return F_FILE_OK;
 }
 
+void FMesher::addFileStr (char *q)
+{
+    probdescstrings.push_back (string (q));
+}
 
 bool FMesher::SaveFEMFile(string PathName)
 {
-    // TODO: Add your specialized code here and/or call the base class
     FILE *fp;
     unsigned int i, j;
     int k,t;
     string s;
 
     // check to see if we are ready to write a datafile;
-
     if ((fp = fopen(PathName.c_str(),"wt"))==NULL)
     {
         WarnMessage("Couldn't write to specified file.\nPerhaps the file is write-protected?");
         return false;
     }
 
-    fprintf(fp,"[Format]      =  4.0\n");
-    fprintf(fp,"[Frequency]   =  %.17g\n",Frequency);
-    fprintf(fp,"[Precision]   =  %.17g\n",Precision);
-    fprintf(fp,"[MinAngle]    =  %.17g\n",MinAngle);
-    fprintf(fp,"[Depth]       =  %.17g\n",Depth);
-    fprintf(fp,"[LengthUnits] =  ");
-    switch(LengthUnits)
+    // echo the start of the input file
+    for (i = 0; i < probdescstrings.size (); i++)
     {
-    case 1:
-        fprintf(fp,"millimeters\n");
-        break;
-    case 2:
-        fprintf(fp,"centimeters\n");
-        break;
-    case 3:
-        fprintf(fp,"meters\n");
-        break;
-    case 4:
-        fprintf(fp,"mils\n");
-        break;
-    case 5:
-        fprintf(fp,"microns\n");
-        break;
-    default:
-        fprintf(fp,"inches\n");
-        break;
-    }
-
-    if (ProblemType==0) fprintf(fp,"[ProblemType] =  planar\n");
-    else
-    {
-        fprintf(fp,"[ProblemType] =  axisymmetric\n");
-        if ((extRo!=0) && (extRi!=0))
-        {
-            fprintf(fp,"[extZo] = %.17g\n",extZo);
-            fprintf(fp,"[extRo] = %.17g\n",extRo);
-            fprintf(fp,"[extRi] = %.17g\n",extRi);
-        }
-    }
-
-    if (Coords==0) fprintf(fp,"[Coordinates] =  cartesian\n");
-    else fprintf(fp,"[Coordinates] =  polar\n");
-
-    s=ProblemNote;
-    for(i=0; i< (unsigned int)ProblemNote.length(); i++)
-    {
-        if (s[i]==13) s[i] = '\\';
-        if (s[i]==10) s[i] = 'n';
-    }
-
-    fprintf(fp, "[ACSolver]    =  %i\n", ACSolver);
-
-    if (DoForceMaxMeshArea)
-    {
-        fprintf(fp, "[forcemaxmesh] = %i\n", 1);
-    }
-    else
-    {
-        fprintf(fp, "[forcemaxmesh] = %i\n", 0);
-    }
-
-    fprintf(fp, "[Comment]     =  \"%s\"\n", s.c_str());
-
-    // write out materials properties stuff...
-    fprintf(fp,"[PointProps]   = %i\n", (int) nodeproplist.size());
-    for(i=0; i<nodeproplist.size(); i++)
-    {
-        fprintf(fp,"  <BeginPoint>\n");
-        fprintf(fp,"    <PointName> = \"%s\"\n",nodeproplist[i].PointName.c_str());
-        fprintf(fp,"    <I_re> = %.17g\n",nodeproplist[i].Jp.re);
-        fprintf(fp,"    <I_im> = %.17g\n",nodeproplist[i].Jp.im);
-        fprintf(fp,"    <A_re> = %.17g\n",nodeproplist[i].Ap.re);
-        fprintf(fp,"    <A_im> = %.17g\n",nodeproplist[i].Ap.im);
-        fprintf(fp,"  <EndPoint>\n");
-    }
-
-    fprintf(fp,"[BdryProps]   = %i\n", (int) lineproplist.size());
-    for(i=0; i<lineproplist.size(); i++)
-    {
-        fprintf(fp,"  <BeginBdry>\n");
-        fprintf(fp,"    <BdryName> = \"%s\"\n", lineproplist[i].BdryName.c_str());
-        fprintf(fp,"    <BdryType> = %i\n",lineproplist[i].BdryFormat);
-        fprintf(fp,"    <A_0> = %.17g\n",lineproplist[i].A0);
-        fprintf(fp,"    <A_1> = %.17g\n",lineproplist[i].A1);
-        fprintf(fp,"    <A_2> = %.17g\n",lineproplist[i].A2);
-        fprintf(fp,"    <Phi> = %.17g\n",lineproplist[i].phi);
-        fprintf(fp,"    <c0> = %.17g\n",lineproplist[i].c0.re);
-        fprintf(fp,"    <c0i> = %.17g\n",lineproplist[i].c0.im);
-        fprintf(fp,"    <c1> = %.17g\n",lineproplist[i].c1.re);
-        fprintf(fp,"    <c1i> = %.17g\n",lineproplist[i].c1.im);
-        fprintf(fp,"    <Mu_ssd> = %.17g\n",lineproplist[i].Mu);
-        fprintf(fp,"    <Sigma_ssd> = %.17g\n",lineproplist[i].Sig);
-        fprintf(fp,"  <EndBdry>\n");
-    }
-
-    fprintf(fp,"[BlockProps]  = %i\n", (int) blockproplist.size());
-    for(i=0; i<blockproplist.size(); i++)
-    {
-        fprintf(fp,"  <BeginBlock>\n");
-        fprintf(fp,"    <BlockName> = \"%s\"\n",blockproplist[i].BlockName.c_str());
-        fprintf(fp,"    <Mu_x> = %.17g\n",blockproplist[i].mu_x);
-        fprintf(fp,"    <Mu_y> = %.17g\n",blockproplist[i].mu_y);
-        fprintf(fp,"    <H_c> = %.17g\n",blockproplist[i].H_c);
-        fprintf(fp,"    <H_cAngle> = %.17g\n",blockproplist[i].Theta_m);
-        fprintf(fp,"    <J_re> = %.17g\n",blockproplist[i].Jsrc.re);
-        fprintf(fp,"    <J_im> = %.17g\n",blockproplist[i].Jsrc.im);
-        fprintf(fp,"    <Sigma> = %.17g\n",blockproplist[i].Cduct);
-        fprintf(fp,"    <d_lam> = %.17g\n",blockproplist[i].Lam_d);
-        fprintf(fp,"    <Phi_h> = %.17g\n",blockproplist[i].Theta_hn);
-        fprintf(fp,"    <Phi_hx> = %.17g\n",blockproplist[i].Theta_hx);
-        fprintf(fp,"    <Phi_hy> = %.17g\n",blockproplist[i].Theta_hy);
-        fprintf(fp,"    <LamType> = %i\n",blockproplist[i].LamType);
-        fprintf(fp,"    <LamFill> = %.17g\n",blockproplist[i].LamFill);
-        fprintf(fp,"    <NStrands> = %i\n",blockproplist[i].NStrands);
-        fprintf(fp,"    <WireD> = %.17g\n",blockproplist[i].WireD);
-        fprintf(fp,"    <BHPoints> = %i\n",blockproplist[i].BHpoints);
-        for(j=0; j<(unsigned int)blockproplist[i].BHpoints; j++)
-            fprintf(fp,"      %.17g	%.17g\n",blockproplist[i].BHdata[j].re,
-                    blockproplist[i].BHdata[j].im);
-        fprintf(fp,"  <EndBlock>\n");
-    }
-
-    fprintf(fp,"[CircuitProps]  = %i\n", (int) circproplist.size());
-    for(i=0; i<circproplist.size(); i++)
-    {
-        fprintf(fp,"  <BeginCircuit>\n");
-        fprintf(fp,"    <CircuitName> = \"%s\"\n",circproplist[i].CircName.c_str());
-        fprintf(fp,"    <TotalAmps_re> = %.17g\n",circproplist[i].Amps.Re());
-        fprintf(fp,"    <TotalAmps_im> = %.17g\n",circproplist[i].Amps.Im());
-        fprintf(fp,"    <CircuitType> = %i\n",circproplist[i].CircType);
-        fprintf(fp,"  <EndCircuit>\n");
+        fprintf(fp,"%s\n", probdescstrings[i].c_str () );
     }
 
     // write out node list
@@ -1654,8 +1077,18 @@ bool FMesher::SaveFEMFile(string PathName)
     {
         for(j=0,t=0; j<nodeproplist.size(); j++)
             if(nodeproplist[j].PointName==nodelist[i].BoundaryMarker) t=j+1;
-        fprintf(fp,"%.17g	%.17g	%i	%i\n",nodelist[i].x,nodelist[i].y,t,
+        fprintf(fp,"%.17g\t%.17g\t%i\t%i",nodelist[i].x,nodelist[i].y,t,
                 nodelist[i].InGroup);
+
+        if (filetype == F_TYPE_HEATFLOW)
+        {
+            for (j=0,t=0; j<circproplist.size (); j++)
+                if (circproplist[j].CircName==nodelist[i].InConductor) t=j+1;
+
+            fprintf(fp,"\t%i",t);
+        }
+
+        fprintf(fp,"\n");
     }
 
     // write out segment list
@@ -1664,10 +1097,30 @@ bool FMesher::SaveFEMFile(string PathName)
     {
         for(j=0,t=0; j<lineproplist.size(); j++)
             if(lineproplist[j].BdryName==linelist[i].BoundaryMarker) t=j+1;
-        fprintf(fp,"%i	%i	",linelist[i].n0,linelist[i].n1);
-        if(linelist[i].MaxSideLength<0) fprintf(fp,"-1	");
-        else fprintf(fp,"%.17g	",linelist[i].MaxSideLength);
-        fprintf(fp,"%i	%i	%i\n",t,linelist[i].Hidden,linelist[i].InGroup);
+
+        fprintf(fp,"%i\t%i\t",linelist[i].n0,linelist[i].n1);
+
+        if(linelist[i].MaxSideLength<0)
+        {
+            fprintf(fp,"-1\t");
+        }
+        else
+        {
+            fprintf(fp,"%.17g\t",linelist[i].MaxSideLength);
+        }
+
+        fprintf(fp,"%i\t%i\t%i",t,linelist[i].Hidden,linelist[i].InGroup);
+
+        if (filetype == F_TYPE_HEATFLOW)
+        {
+            for(j=0,t=0;j<circproplist.size ();j++)
+            {
+                if(circproplist[j].CircName==linelist[i].InConductor) t = j + 1;
+            }
+            fprintf(fp,"\t%i",t);
+        }
+
+        fprintf(fp,"\n");
     }
 
     // write out arc segment list
@@ -1676,9 +1129,17 @@ bool FMesher::SaveFEMFile(string PathName)
     {
         for(j=0,t=0; j<lineproplist.size(); j++)
             if(lineproplist[j].BdryName==arclist[i].BoundaryMarker) t=j+1;
-        fprintf(fp,"%i	%i	%.17g	%.17g	%i	%i	%i\n",arclist[i].n0,arclist[i].n1,
+        fprintf(fp,"%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i",arclist[i].n0,arclist[i].n1,
                 arclist[i].ArcLength,arclist[i].MaxSideLength,t,
                 arclist[i].Hidden,arclist[i].InGroup);
+
+        if (filetype == F_TYPE_HEATFLOW)
+        {
+            for(j=0,t=0;j<circproplist.size ();j++)
+				if(circproplist[j].CircName==arclist[i].InConductor) t=j+1;
+            fprintf(fp,"\t%i",t);
+        }
+        fprintf(fp,"\n");
     }
 
     // write out list of holes;
@@ -1688,33 +1149,11 @@ bool FMesher::SaveFEMFile(string PathName)
     for(i=0,k=0; i<blocklist.size(); i++)
         if(blocklist[i].BlockType=="<No Mesh>")
         {
-            fprintf(fp,"%.17g	%.17g	%i\n",blocklist[i].x,blocklist[i].y,
+            fprintf(fp,"%.17g\t%.17g\t%i\n",blocklist[i].x,blocklist[i].y,
                     blocklist[i].InGroup);
             k++;
         }
 
-    // write out regional attributes
-    fprintf(fp,"[NumBlockLabels] = %i\n", (int) blocklist.size()-j);
-    for(i=0,k=0; i<blocklist.size(); i++)
-        if(blocklist[i].BlockType!="<No Mesh>")
-        {
-            fprintf(fp,"%.17g	%.17g	",blocklist[i].x,blocklist[i].y);
-            for(j=0,t=0; j<blockproplist.size(); j++)
-                if(blockproplist[j].BlockName==blocklist[i].BlockType) t=j+1;
-            fprintf(fp,"%i	",t);
-            if (blocklist[i].MaxArea>0)
-                fprintf(fp,"%.17g	",sqrt(4.*blocklist[i].MaxArea/PI));
-            else fprintf(fp,"-1	");
-            for(j=0,t=0; j<circproplist.size(); j++)
-                if(circproplist[j].CircName==blocklist[i].InCircuit) t=j+1;
-            fprintf(fp,"%i	%.17g	%i	%i	%i",t,blocklist[i].MagDir,
-                    blocklist[i].InGroup,blocklist[i].Turns,blocklist[i].IsExternal);
-            if (blocklist[i].MagDirFctn.length()>0)
-                fprintf(fp,"	\"%s\"",blocklist[i].MagDirFctn.c_str());
-            fprintf(fp,"\n");
-
-            k++;
-        }
     fclose(fp);
 
     return true;

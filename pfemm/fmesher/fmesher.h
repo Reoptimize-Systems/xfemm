@@ -19,15 +19,16 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
+#ifndef FMESHER_H
+#define FMESHER_H
+
 #include <vector>
 
 #include <string>
 #include "nosebl.h"
 #include "complex.h"
 #include "intpoint.h"
-//#include "lua.h"
-//#include "luaconsoledlg.h"
-//#include "luadebug.h"
+#include "triangle.h"
 
 #ifndef LineFraction
 #define LineFraction 500.0
@@ -53,7 +54,8 @@
 #define _strnicmp(s1, s2, n) strncasecmp(s1, s2, (n))
 #endif
 
-using namespace std;
+namespace femm
+{
 
 // FMesher Class
 
@@ -66,119 +68,76 @@ protected:
 // Attributes
 public:
 
+    enum filetypes { F_TYPE_UNKNOWN, F_TYPE_MAGNETICS, F_TYPE_HEATFLOW };
+
+    enum loaderrors { F_FILE_OK, F_FILE_UNKNOWN_TYPE, F_FILE_NOT_OPENED, F_FILE_MALFORMED};
+
     FMesher();
-    FMesher(string);
+    FMesher(std::string);
 
 	// General problem attributes
-	double  Frequency;
-	double  Precision;
+	int     filetype;
 	double	MinAngle;
-	double  Depth;
-	int		LengthUnits;
-	int		ACSolver;
-	bool    ProblemType;
-	bool	Coords;
-	string  ProblemNote;
-	bool	FirstDraw;
-	bool	NoDraw;
 	bool    DoForceMaxMeshArea;
 
 	// default behaviors
-	double	d_prec;
 	double	d_minangle;
-	double	d_freq;
-	double	d_depth;
-	int		d_coord;
-	int		d_length;
-	int		d_type;
-	int		d_solver;
 	bool    Verbose;
 
-	string BinDir;
+	std::string BinDir;
 
 	// lists of nodes, segments, and block labels
-	std::vector< CNode >       nodelist;
-	std::vector< CSegment >    linelist;
-	std::vector< CArcSegment > arclist;
-	std::vector< CBlockLabel > blocklist;
+	std::vector< femm::CNode >       nodelist;
+	std::vector< femm::CSegment >    linelist;
+	std::vector< femm::CArcSegment > arclist;
+	std::vector< femm::CBlockLabel > blocklist;
 
 	// lists of nodes, segments, and block labels for undo purposes...
-	std::vector< CNode >       undonodelist;
-	std::vector< CSegment >    undolinelist;
-	std::vector< CArcSegment > undoarclist;
-	std::vector< CBlockLabel > undoblocklist;
+	std::vector< femm::CNode >       undonodelist;
+	std::vector< femm::CSegment >    undolinelist;
+	std::vector< femm::CArcSegment > undoarclist;
+	std::vector< femm::CBlockLabel > undoblocklist;
 
 	// vectors containing the mesh information
 	std::vector< myPoint >		meshline;
 	std::vector< myPoint >		greymeshline;
-	std::vector< CNode >		meshnode;
+	std::vector< femm::CNode >		meshnode;
 
 	// lists of properties
-	std::vector< CMaterialProp > blockproplist;
-	std::vector< CBoundaryProp > lineproplist;
-	std::vector< CPointProp >    nodeproplist;
-	std::vector< CCircuit >      circproplist;
-	double extRo,extRi,extZo;
+	std::vector< femm::CBoundaryProp > lineproplist;
+	std::vector< femm::CPointProp >    nodeproplist;
+	std::vector< femm::CCircuit >      circproplist;
+
+    // used to echo start of input file to output
+    std::vector< std::string > probdescstrings;
 
 // Operations
 public:
 
-    bool LoadFEMFile(string PathName);
-    bool SaveFEMFile(string PathName);
-    bool WriteTriangulationFiles(const struct triangulateio &out, string Pathname);
+    static int GetFileType (std::string PathName);
+    int LoadFEMFile(std::string PathName);
+    int LoadFEMFile(std::string PathName, int ftype);
+    bool SaveFEMFile(std::string PathName);
+    bool WriteTriangulationFiles(const struct triangulateio &out, std::string Pathname);
 
     //void downstr(char *s);
-
-	//virtual ~CFemmeDoc();
-
-	//bool AddNode(double x, double y, double d);
-	//bool AddSegment(int n0, int n1, double tol=0);
-	//bool AddSegment(int n0, int n1, CSegment *parsegm, double tol=0);
-	//bool AddArcSegment(CArcSegment &asegm, double tol=0);
-	//bool AddBlockLabel(double x, double y, double d);
-	//bool AddNode(CNode &node, double d);
-	//bool AddSegment(CComplex p0, CComplex p1, CSegment &segm, double tol=0);
-	//bool AddArcSegment(CComplex p0, CComplex p1, CArcSegment &asegm, double tol=0);
-	//bool AddBlockLabel(CBlockLabel &blabel, double d);
-    //bool OpBlkDlg();
-	//void OpNodeDlg();
-	//void OpSegDlg();
-	//void OpArcSegDlg();
-	//void OpGrpDlg();
-	//bool DeleteSelectedNodes();
-	//bool DeleteSelectedSegments();
-	//bool DeleteSelectedArcSegments();
-	//bool DeleteSelectedBlockLabels();
-    //void RotateMove(CComplex c, double t, int EditAction);
-	//void TranslateMove(double dx, double dy, int EditAction);
-	//void ScaleMove(double bx, double by, double sf, int EditAction);
-	//void MirrorSelected(double x0, double y0, double x1, double y1, int ea);
-	//void RotateCopy(CComplex c, double t, int ncopies, int EditAction);
-	//void TranslateCopy(double dx, double dy, int ncopies, int EditAction);
-    //bool ReadDXF(string fname, double DefTol=-1.);
-	//bool WriteDXF(string fname);
-    //bool CanCreateRadius(int n);
-	//bool CreateRadius(int n, double r);
-    //bool SelectOrphans();
-	//bool dxf_line_hook();
 
 	int ClosestNode(double x, double y);
 	int ClosestBlockLabel(double x, double y);
 	int ClosestSegment(double x, double y);
 	bool GetIntersection(int n0, int n1, int segm, double *xi, double *yi);
 	int ClosestArcSegment(double x, double y);
-	void GetCircle(CArcSegment &asegm,CComplex &c, double &R);
-	int GetLineArcIntersection(CSegment &seg, CArcSegment &arc, CComplex *p);
-	int GetArcArcIntersection(CArcSegment &arc1, CArcSegment &arc2, CComplex *p);
-	double ShortestDistanceFromArc(CComplex p, CArcSegment &arc);
+	void GetCircle(femm::CArcSegment &asegm,CComplex &c, double &R);
+	int GetLineArcIntersection(femm::CSegment &seg, femm::CArcSegment &arc, CComplex *p);
+	int GetArcArcIntersection(femm::CArcSegment &arc1, femm::CArcSegment &arc2, CComplex *p);
+	double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
 
 	double LineLength(int i);
-//	bool ScanPreferences();
 
     // Core functions
-	bool LoadMesh(string PathName);
-	int DoNonPeriodicBCTriangulation(string PathName);
-	int DoPeriodicBCTriangulation(string PathName);
+	bool LoadMesh(std::string PathName);
+	int DoNonPeriodicBCTriangulation(std::string PathName);
+	int DoPeriodicBCTriangulation(std::string PathName);
 	void UpdateUndo();
 	void Undo();
 	//bool OldOnOpenDocument(LPCTSTR lpszPathName);
@@ -200,7 +159,10 @@ public:
 private:
 
 	virtual bool Initialize();
+	void addFileStr (char * q);
 
 };
 
+} // namespace femm
 
+#endif

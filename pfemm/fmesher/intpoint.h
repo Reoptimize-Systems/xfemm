@@ -22,6 +22,7 @@
 // myPoint, replacement for the MFC CPoint class
 #ifndef MYPOINT
 #define MYPOINT
+
 class myPoint {
 
   public:
