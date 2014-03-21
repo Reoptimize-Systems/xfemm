@@ -23,13 +23,11 @@
 #include <string>
 #include "complex.h"
 
-using namespace std;
-
-namespace femmedata
+namespace femm
 {
 
 /////////////////////////////////////////////////////////////////////////////
-// CNode -- structure that holds information about each control point.
+// CNode -- class that holds information about each control point.
 
 class CNode
 {
@@ -39,7 +37,8 @@ class CNode
 		double x,y;
 		int xs,ys;
 		int IsSelected;
-		string BoundaryMarker;
+		std::string BoundaryMarker;
+		std::string InConductor;
 		int InGroup;
 
 		double GetDistance(double xo, double yo);
@@ -51,7 +50,7 @@ class CNode
 };
 
 /////////////////////////////////////////////////////////////////////////////
-// CSegment -- structure that holds information about lines joining control pts
+// CSegment -- class that holds information about lines joining control pts
 
 class CSegment
 {
@@ -62,7 +61,8 @@ class CSegment
 		int IsSelected;
 		bool Hidden;
 		double MaxSideLength;
-		string BoundaryMarker;
+		std::string BoundaryMarker;
+		std::string InConductor;
 		int InGroup;
 
 		void ToggleSelect();
@@ -70,6 +70,9 @@ class CSegment
 	private:
 
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// CArcSegment -- class that holds information about arcs joining control pts
 
 class CArcSegment
 {
@@ -81,7 +84,8 @@ class CArcSegment
 		int IsSelected;
 		bool Hidden;
 		double MaxSideLength,ArcLength;
-		string BoundaryMarker;
+		std::string BoundaryMarker;
+		std::string InConductor;
 		int InGroup;
 
 		void ToggleSelect();
@@ -90,23 +94,24 @@ class CArcSegment
 
 };
 /////////////////////////////////////////////////////////////////////////////
-// CBlockLabel -- structure that holds block label information
+// CBlockLabel -- class that holds block label information
 
 class CBlockLabel
 {
 	public:
 		CBlockLabel();
 
+        // common properties
 		double x,y;
 		double MaxArea;
-		double MagDir;
-		int    Turns;
 		int IsSelected;
-		string BlockType;
-		string InCircuit;
-		string MagDirFctn;
+		std::string BlockType;
 		int InGroup;
-		bool IsExternal;
+//		bool IsExternal;
+//		bool IsDefault;
+
+		// problem specific properties
+		std::string InCircuit;
 
 		void ToggleSelect();
 		double GetDistance(double xo, double yo);
@@ -115,39 +120,8 @@ class CBlockLabel
 
 };
 
-class CMaterialProp
-{
-	public:
-
-		CMaterialProp();
-		~CMaterialProp();
-		void StripBHData(string &b, string &h);
-		void BHDataToCString(string &b, string &h);
-
-		string BlockName;
-		double mu_x,mu_y;		// permeabilities, relative
-
-		int    BHpoints;		// number of B-H datapoints;
-		std::vector<CComplex> BHdata; // array of B-H pairs;
-
-		int    LamType;			// flag that tells how block is laminated;
-								//	0 = not laminated or laminated in plane;
-								//  1 = laminated in the x-direction;
-								//  2 = laminated in the y-direction;
-		double LamFill;			// lamination fill factor, dimensionless;
-		double Theta_m;			// direction of the magnetization, degrees
-		double H_c;				// magnetization, A/m
-		CComplex Jsrc;			// applied current density, MA/m^2
-		double Cduct;		    // conductivity of the material, MS/m
-		double Lam_d;			// lamination thickness, mm
-		double Theta_hn;		// max hysteresis angle, degrees, for nonlinear problems
-		double Theta_hx;		// hysteresis angle, degrees, x-direction
-		double Theta_hy;		// and y-direction, for anisotropic linear problems.
-		int    NStrands;		// number of strands per wire
-		double WireD;			// strand diameter, mm
-
-	private:
-};
+/////////////////////////////////////////////////////////////////////////////
+// CBoundaryProp -- class that holds information about boundary conditions
 
 class CBoundaryProp
 {
@@ -155,7 +129,7 @@ class CBoundaryProp
 
 		CBoundaryProp();
 
-		string BdryName;
+		std::string BdryName;
 		int BdryFormat;			// type of boundary condition we are applying
 								// 0 = constant value of A
 								// 1 = Small skin depth eddy current BC
@@ -164,18 +138,11 @@ class CBoundaryProp
 								// 4 = Periodic
 								// 5 = Antiperiodic
 
-		double A0,A1,A2,phi;	// set value of A for BdryFormat=0;
-
-		double Mu,Sig;			// material properties necessary to apply
-								// eddy current BC
-
-		CComplex c0,c1;			// coefficients for mixed BC
-
-		// TO DO:  ``flux pipe?'' and ''line currents''
-		// Line currents might be redundant, since we already have magnetization.
-
 	private:
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// CPointProp -- class that holds information about point properties
 
 class CPointProp
 {
@@ -183,12 +150,13 @@ class CPointProp
 
 		CPointProp();
 
-		string PointName;
-		CComplex Jp;			// applied point current, Amps
-		CComplex Ap;			// prescribed nodal value of vector potential;
+		std::string PointName;
 
 	private:
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// CCircuit -- class that holds information about boundary conditions
 
 class CCircuit
 {
@@ -196,13 +164,15 @@ class CCircuit
 
 		CCircuit();
 
-		string CircName;
-		CComplex Amps;
+		std::string CircName;
 		int		CircType;
 
 	private:
 
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// CPeriodicBoundary -- class that holds information on periodic boundaries
 
 class CPeriodicBoundary
 {
@@ -210,7 +180,7 @@ class CPeriodicBoundary
 
 		CPeriodicBoundary();
 
-		string BdryName;
+		std::string BdryName;
 		int BdryFormat;			// 0 = Periodic
 								// 1 = Antiperiodic
 		int nseg;				// number of segs with this bc
@@ -232,6 +202,5 @@ class CCommonPoint
 	private:
 };
 
-}
+} // namespace femm
 
-using namespace femmedata;
