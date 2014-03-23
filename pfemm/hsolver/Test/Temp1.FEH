@@ -1,0 +1,96 @@
+[Format]      =  1
+[Precision]   =  1e-008
+[MinAngle]    =  30
+[Depth]       =  20
+[LengthUnits] =  meters
+[ProblemType] =  planar
+[Coordinates] =  cartesian
+[PrevSoln] = "Temp0.anh"
+[dT] = 10
+[Comment]     =  "Add comments here."
+[PointProps]   = 0
+[BdryProps]   = 2
+  <BeginBdry>
+    <BdryName> = "Outer Boundary"
+    <BdryType> = 2
+    <Tset> = 0
+    <qs>   = 0
+    <beta> = 0
+    <h>    = 5
+    <Tinf> = 300
+  <EndBdry>
+  <BeginBdry>
+    <BdryName> = "Inner Boundary"
+    <BdryType> = 2
+    <Tset> = 0
+    <qs>   = 0
+    <beta> = 0
+    <h>    = 10
+    <Tinf> = 800
+  <EndBdry>
+[BlockProps]  = 2
+  <BeginBlock>
+    <BlockName> = "Brick, Common"
+    <Kx> = 5
+    <Ky> = 2
+    <Kt> = 3
+    <qv> = 1000000
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "Air"
+    <Kx> = 0.018100000000000002
+    <Ky> = 0.018100000000000002
+    <Kt> = 3
+    <qv> = 0
+    <TKPoints> = 18
+      200	0.018100000000000002
+      250	0.0223
+      300	0.026100000000000002
+      350	0.029700000000000001
+      400	0.033099999999999997
+      450	0.036299999999999999
+      500	0.0395
+      550	0.042599999999999999
+      600	0.045600000000000002
+      700	0.051299999999999998
+      800	0.056899999999999999
+      900	0.0625
+      1000	0.067199999999999996
+      1200	0.075899999999999995
+      1400	0.083500000000000005
+      1600	0.090399999999999994
+      1800	0.097000000000000003
+      2000	0.1032
+  <EndBlock>
+[ConductorProps]  = 0
+[NumPoints] = 12
+0	1	0	0	0
+0	2	0	0	0
+1	1	0	0	0
+1	0	0	0	0
+2	0	0	0	0
+2	2	0	0	0
+0	0	0	0	0
+1	0.5	0	0	0
+1.5	0.5	0	0	0
+1.5	1	0	0	0
+0.5	1.5	0	0	0
+1.5	1.5	0	0	0
+[NumSegments] = 12
+1	5	-1	1	0	0	0
+5	4	-1	1	0	0	0
+4	3	-1	0	0	0	0
+1	0	-1	0	0	0	0
+0	6	-1	0	0	0	0
+6	3	-1	0	0	0	0
+10	2	-1	0	0	0	0
+2	7	-1	0	0	0	0
+7	8	-1	0	0	0	0
+8	9	-1	0	0	0	0
+9	11	-1	0	0	0	0
+10	11	-1	0	0	0	0
+[NumArcSegments] = 0
+[NumHoles] = 0
+[NumBlockLabels] = 2
+0.5	0.5	1	-1	0	0
+1.1619999999999999	1.224	2	-1	0	0
