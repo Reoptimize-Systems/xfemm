@@ -9,8 +9,10 @@
 			<Depends filename="libfemm/libfemm.cbp" />
 		</Project>
 		<Project filename="libfemm/libfemm.cbp" />
-		<Project filename="fsolver/fsolver.cbp" active="1" />
+		<Project filename="fsolver/fsolver.cbp" />
 		<Project filename="fmesher/fmesher.cbp" />
 		<Project filename="../postproc/fpproc_interface.cbp" />
+		<Project filename="hsolver/hsolver.cbp" />
+		<Project filename="hpproc/hpproc.cbp" active="1" />
 	</Workspace>
 </CodeBlocks_workspace_file>
