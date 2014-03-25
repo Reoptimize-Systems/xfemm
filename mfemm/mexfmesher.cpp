@@ -1,10 +1,4 @@
 #include <iostream>
-
-// If the windows flag is defined we use diferent file separators
-// normally you would set this using the -DWINDOWS mex compiler option
-// when compiling on windows
-// #define WINDOWS
-
 #include <string>
 #include "fmesher.h"
 // include triangle.h for error code definitions
@@ -27,6 +21,8 @@ void FmesherInterfaceWarning(const char* warningmsg)
 }
 
 // extern void _main();
+
+using namespace femm;
 
 /* the gateway function */
 void mexFunction( int nlhs, mxArray *plhs[],
@@ -111,10 +107,32 @@ int nrhs, const mxArray *prhs[])
 
     MeshObj.TriMessage = &mexPrintf;
 
+    // attempt to discover the file type from the file name
+    MeshObj.filetype = FMesher::GetFileType (FilePath);
+
     /*  call the FMesher subroutines */
-    if (MeshObj.LoadFEMFile(FilePath) == false)
+    status = MeshObj.LoadFEMFile(FilePath);
+
+    if (status != FMesher::F_FILE_OK)
     {
-        mexErrMsgIdAndTxt("MFEMM:fmesher:badfile", "File %s could not be loaded.", FilePath.c_str());
+        switch (status)
+        {
+            case FMesher::F_FILE_NOT_OPENED:
+                mexErrMsgIdAndTxt( "MFEMM:fmesher:badfile",
+                                  "The input file %s could not be opened.", FilePath.c_str ());
+            case FMesher::F_FILE_MALFORMED:
+                mexErrMsgIdAndTxt( "MFEMM:fmesher:malformedfile",
+                                  "The input file appears to be malformed and could not be parsed");
+            case FMesher::F_FILE_UNKNOWN_TYPE:
+                mexErrMsgIdAndTxt( "MFEMM:fmesher:unknownfiletype",
+                                  "The input file problem type could not be determined from its extension.");
+            default:
+
+                break;
+
+        }
+
+        plhs[0] = mxCreateDoubleScalar(-1.0);
         return;
     }
 
@@ -145,112 +163,112 @@ int nrhs, const mxArray *prhs[])
         case -1:
             break;
         case TRIERR_OUT_OF_MEM:
-            mexErrMsgTxt("OUT OF MEM");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:outofmemory", "OUT OF MEM");
             break;
         case TRIERR_INTERNAL_ERR:
-            mexErrMsgTxt("INTERNAL ERR");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trierror", "TRIANGLE INTERNAL ERR");
             break;
         case TRIERR_ZERO_MAX_AREA:
-            mexErrMsgTxt("ZERO MAX AREA");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trizeromaxarea", "ZERO MAX AREA");
             break;
         case TRIERR_I_SWITCH_WITH_REFINE:
-            mexErrMsgTxt("I SWITCH WITH REFINE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triiswitch", "I SWITCH WITH REFINE");
             break;
         case TRIERR_INPUT_VERTICES_IDENTICAL:
-            mexErrMsgTxt("INPUT VERTICES IDENTICAL");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triidenticalverts", "INPUT VERTICES IDENTICAL");
             break;
         case TRIERR_NOT_ENOUGH_VERTICES:
-            mexErrMsgTxt("NOT ENOUGH VERTICES");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:tritoofewverts", "NOT ENOUGH VERTICES");
             break;
         case TRIERR_CANNOT_ACCESS_ELEFILE:
-            mexErrMsgTxt("CANNOT ACCESS ELEFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinoelefileaccess", "CANNOT ACCESS ELEFILE");
             break;
         case TRIERR_CANNOT_ACCESS_AREAFILE:
-            mexErrMsgTxt("CANNOT ACCESS AREAFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinoareafileaccess", "CANNOT ACCESS AREAFILE");
             break;
         case TRIERR_ELEFILE_AND_AREAFILE_DIFF_N_TRIANGLES:
-            mexErrMsgTxt("ELEFILE AND AREAFILE DIFF N TRIANGLES");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trieleandareatrinums", "ELEFILE AND AREAFILE DIFF NUMBER OF TRIANGLES");
             break;
         case TRIERR_TRI_INVALID_VERTEX_INDEX:
-            mexErrMsgTxt("TRI INVALID VERTEX INDEX");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triinvalidvert", "TRI INVALID VERTEX INDEX");
             break;
         case TRIERR_MISSING_VERTEX_INDEX:
-            mexErrMsgTxt("MISSING VERTEX_INDEX");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trimissingvert", "MISSING VERTEX_INDEX");
             break;
         case TRIERR_SEGMENT_NO_END_POINTS:
-            mexErrMsgTxt("SEGMENT NO END POINTS");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trimissingsegpoints", "SEGMENT NO END POINTS");
             break;
         case TRIERR_SEGMENT_NO_SECOND_END_POINT:
-            mexErrMsgTxt("SEGMENT NO SECOND END POINT");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trimissingsegpoint", "SEGMENT NO SECOND END POINT");
             break;
         case TRIERR_SEG_INVALID_VERTEX_INDEX:
-            mexErrMsgTxt("SEG INVALID VERTEX INDEX");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triinvalidvert", "SEG INVALID VERTEX INDEX");
             break;
         case TRIERR_SPLIT_SEG_TOO_SMALL:
-            mexErrMsgTxt("SPLIT SEG TOO SMALL");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trismallseg", "SPLIT SEG TOO SMALL");
             break;
         case TRIERR_UNEXPECTED_EOF:
-            mexErrMsgTxt("UNEXPECTED EOF 16");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triunexpectedeof", "UNEXPECTED EOF 16");
             break;
         case TRIERR_CANNOT_ACCESS_POLYFILE:
-            mexErrMsgTxt("CANNOT ACCESS POLYFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinopolyfileaccess", "CANNOT ACCESS POLYFILE");
             break;
         case TRIERR_CANNOT_ACCESS_NODEFILE:
-            mexErrMsgTxt("CANNOT ACCESS NODEFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinonodefileaccess", "CANNOT ACCESS NODEFILE");
             break;
         case TRIERR_MUST_HAVE_THREE_VERTICES:
-            mexErrMsgTxt("MUST HAVE THREE VERTICES");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trivertnum", "MUST HAVE THREE VERTICES");
             break;
         case TRIERR_TOO_MANY_MESH_DIMENSIONS:
-            mexErrMsgTxt("TOO MANY MESH DIMENSIONS");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:tritoomanydims", "TOO MANY MESH DIMENSIONS");
             break;
         case TRIERR_VERTEX_NO_X:
-            mexErrMsgTxt("VERTEX NO X");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trivertnox", "VERTEX NO X");
             break;
         case TRIERR_VERTEX_NO_Y:
-            mexErrMsgTxt("VERTEX NO Y");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trivertnoy", "VERTEX NO Y");
             break;
         case TRIERR_HOLE_NO_X:
-            mexErrMsgTxt("HOLE NO X");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triholenox", "HOLE NO X");
             break;
         case TRIERR_HOLE_NO_Y:
-            mexErrMsgTxt("HOLE NO Y");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triholenoy", "HOLE NO Y");
             break;
         case TRIERR_REGION_NO_X:
-            mexErrMsgTxt("REGION NO Y");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triregnox", "REGION NO Y");
             break;
         case TRIERR_REGION_NO_Y:
-            mexErrMsgTxt("REGION NO Y");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:triregnoy", "REGION NO Y");
             break;
         case TRIERR_REGION_NO_ATTRIBUTE_OR_AREA_CON:
-            mexErrMsgTxt("REGION NO ATTRIBUTE OR AREA CON");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinocon", "REGION HAS NO ATTRIBUTE OR AREA CON");
             break;
         case TRIERR_CANNOT_CREATE_NODEFILE:
-            mexErrMsgTxt("CANNOT CREATE NODEFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinonodefile", "CANNOT CREATE NODEFILE");
             break;
         case TRIERR_CANNOT_CREATE_ELEFILE:
-            mexErrMsgTxt("CANNOT CREATE ELEFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinoelefile", "CANNOT CREATE ELEFILE");
             break;
         case TRIERR_CANNOT_CREATE_POLYFILE:
-            mexErrMsgTxt("CANNOT CREATE POLYFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinopolyfile", "CANNOT CREATE POLYFILE");
             break;
         case TRIERR_CANNOT_CREATE_EDGEFILE:
-            mexErrMsgTxt("CANNOT CREATE EDGEFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinoedgefile", "CANNOT CREATE EDGEFILE");
             break;
         case TRIERR_CANNOT_CREATE_VNODEFILE:
-            mexErrMsgTxt("CANNOT CREATE VNODEFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinovnodefile", "CANNOT CREATE VNODEFILE");
             break;
         case TRIERR_CANNOT_CREATE_VEDGEFILE:
-            mexErrMsgTxt("CANNOT CREATE VEDGEFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinovedgefile", "CANNOT CREATE VEDGEFILE");
             break;
         case TRIERR_CANNOT_CREATE_NEIGHBOURFILE:
-            mexErrMsgTxt("CANNOT CREATE NEIGHBOURFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinoneighfile", "CANNOT CREATE NEIGHBOURFILE");
             break;
         case TRIERR_CANNOT_CREATE_OFFFILE:
-            mexErrMsgTxt("CANNOT CREATE OFFFILE");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:trinoofffile", "CANNOT CREATE OFFFILE");
             break;
         default:
-            mexErrMsgTxt("Unexpected error code");
+            mexErrMsgIdAndTxt( "MFEMM:fmesher:unknownerr", "Unexpected error code");
             break;
     }
 
