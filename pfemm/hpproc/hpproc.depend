@@ -1,0 +1,54 @@
+# depslib dependency file v1.0
+1395658555 source:c:\documents and settings\tibike\desktop\pfemm\hpproc\main.cpp
+	<iostream>
+	"hpproc.h"
+	"complex.h"
+
+1395595919 source:c:\documents and settings\tibike\desktop\pfemm\hpproc\hproblem.cpp
+	<cstdlib>
+	<cmath>
+	"hproblem.h"
+	"fullmatrix.h"
+	"complex.h"
+
+1395648286 c:\documents and settings\tibike\desktop\pfemm\hpproc\hproblem.h
+	<string>
+	"complex.h"
+
+1381227600 c:\documents and settings\tibike\desktop\pfemm\libfemm\complex.h
+
+1381227600 c:\documents and settings\tibike\desktop\pfemm\libfemm\fullmatrix.h
+
+1395650442 source:c:\documents and settings\tibike\desktop\pfemm\hpproc\hpproc.cpp
+	<cstdlib>
+	<string>
+	<cstring>
+	<cstdio>
+	<cmath>
+	"hproblem.h"
+	"complex.h"
+	"fparse.h"
+	"lua.h"
+	"lualib.h"
+	"hpproc.h"
+
+1381227600 c:\documents and settings\tibike\desktop\pfemm\libfemm\fparse.h
+	<string>
+
+1381227600 c:\documents and settings\tibike\desktop\pfemm\liblua\lua.h
+	"complex.h"
+	<stddef.h>
+
+1381227600 c:\documents and settings\tibike\desktop\pfemm\liblua\lualib.h
+	"lua.h"
+
+1395648138 c:\documents and settings\tibike\desktop\pfemm\hpproc\hpproc.h
+	<vector>
+	"lua.h"
+	"luadebug.h"
+	"complex.h"
+	"hproblem.h"
+
+1381227600 c:\documents and settings\tibike\desktop\pfemm\liblua\luadebug.h
+	"lua.h"
+
