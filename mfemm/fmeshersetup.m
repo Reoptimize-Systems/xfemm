@@ -26,9 +26,20 @@ function fmeshersetup(dodebug, verbose)
     % store the current directory
     origdir = pwd;
     
+    % return to original dir on interruption or completion
+    OC = onCleanup (@() cd(origdir));
+    
     % change to the mfemm directory (the directory this file is in)
     cd(fileparts(which('fmeshersetup.m')));
+    
+    % make architecture specific mex directory if it doesn't already exist
+    warning off MATLAB:MKDIR:DirectoryExists
+    mexdir = ['xfemm_mex_files_for_' computer('arch')];
+    mkdir (mexdir);
+    warning on MATLAB:MKDIR:DirectoryExists
 
+    cd (mexdir);
+    
     % set some common compiler flags, we replace all calls to printf to
     % calls to mexPrintf
     if dodebug
@@ -37,7 +48,10 @@ function fmeshersetup(dodebug, verbose)
         common_compiler_flags = {}; %common_compiler_flags = {'-D"PRINTF=mexPrintf"'};
     end
    
-    libcommands = {'pfemm/libfemm/libfemm.a', '-I"./pfemm/fmesher"', '-I"./pfemm/libfemm"'};
+    libcommands = {'-I"../pfemm/fmesher"', ...
+                   '-I"../pfemm/libfemm"', ...
+                   '-I"../pfemm/libfemm/liblua"', ...
+                   '../pfemm/fmesher/libfmesher.a'};
 
     % add an appropriate flag for the trilibrary C external depending on
     % computer architecture
@@ -54,12 +68,7 @@ function fmeshersetup(dodebug, verbose)
     % construnct the command string 
     mexcommands = [ common_compiler_flags, ...
                     trilibraryflag, ...
-                    { 'mexfmesher.cpp', ...
-                      'pfemm/fmesher/fmesher.cpp', ...
-                      'pfemm/fmesher/triangle.c', ...
-                      'pfemm/fmesher/intpoint.cpp', ...
-                      'pfemm/fmesher/nosebl.cpp', ...
-                      'pfemm/fmesher/writepoly.cpp'} ...
+                    { '../mexfmesher.cpp' } ...
                     libcommands ...
                   ];
 
@@ -69,8 +78,5 @@ function fmeshersetup(dodebug, verbose)
     else
         mex(mexcommands{:});
     end
-     
-    % return to original directory
-    cd(origdir);
     
 end

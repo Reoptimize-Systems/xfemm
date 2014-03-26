@@ -85,7 +85,23 @@ function mfemm_setup(forceallcompile)
     
     thisfilepath = fileparts (thisfilepath);
     
-    addpath(genpath(thisfilepath));
+    % add mfile paths
+    addpath(thisfilepath);
+    addpath (fullfile (thisfilepath, 'preproc'));
+    addpath (fullfile (thisfilepath, 'postproc'));
+    addpath (fullfile (thisfilepath, 'examples'));
+    addpath (fullfile (thisfilepath, 'depends'));
+    addpath (fullfile (thisfilepath, 'visualisation'));
+    
+    % make architecture specific directory for mex files if it doesn't
+    % already exist
+    warning off MATLAB:MKDIR:DirectoryExists
+    mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_' computer('arch')]);
+    mkdir (mexdir);
+    warning on MATLAB:MKDIR:DirectoryExists
+    
+    % add it to the path
+    addpath (mexdir);
     
     if ~(exist('mexfsolver', 'file') == 3) ...
             || ~(exist('mexfmesher', 'file') == 3) ...
@@ -102,8 +118,8 @@ function mfemm_setup(forceallcompile)
             system(sprintf('make -f %s', fullfile(thisfilepath, 'Makefile')));
         end
         
-        if exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'libfemm', 'libfemm.a'), 'file') ...
-            && exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'liblua', 'liblua.a'), 'file') ...
+        if exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'fmesher', 'libfmesher.a'), 'file') ...
+            && exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'fsolver', 'libfsolver.a'), 'file') ...
             && exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'fpproc', 'libfpproc.a'), 'file')
 
             fmeshersetup;
@@ -112,12 +128,12 @@ function mfemm_setup(forceallcompile)
 
         else
 
-            if ~exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'libfemm', 'libfemm.a'), 'file') 
-                fprintf(1, 'mfemm_setup can''t find the libfemm library (libfemm.a), have you built it?\nType help mfemm_setup for more info.\n')
+            if ~exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'fmesher', 'libfmesher.a'), 'file') 
+                fprintf(1, 'mfemm_setup can''t find the libfemm library (libfmesher.a), have you built it?\nType help mfemm_setup for more info.\n')
             end
 
-            if ~exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'liblua', 'liblua.a'), 'file') 
-                fprintf(1, 'mfemm_setup can''t find the liblua library (liblua.a), have you built it?\nType help mfemm_setup for more info.\n')
+            if ~exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'fsolver', 'libfsolver.a'), 'file') 
+                fprintf(1, 'mfemm_setup can''t find the libfsolver library (libfsolver.a), have you built it?\nType help mfemm_setup for more info.\n')
             end
 
             if ~exist(fullfile(fileparts(which('mfemm_setup.m')), 'pfemm', 'fpproc', 'libfpproc.a'), 'file')

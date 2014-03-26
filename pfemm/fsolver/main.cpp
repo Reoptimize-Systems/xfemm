@@ -28,8 +28,9 @@
 #include <math.h>
 #include <string.h>
 #include "femmcomplex.h"
-#include "spars.h"
-#include "mesh.h"
+//#include "spars.h"
+//#include "mmesh.h"
+#include "feasolver.h"
 #include "fsolver.h"
 
 //using namespace std;

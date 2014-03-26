@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="liblua" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output="lua" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj\Release\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="Debug">
+				<Option output="lua" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj\Debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-fPIC" />
+			<Add directory="..\libfemm" />
+		</Compiler>
+		<Linker>
+			<Add option="-lfemm" />
+			<Add directory="..\libfemm" />
+		</Linker>
+		<Unit filename="lapi.cpp" />
+		<Unit filename="lapi.h" />
+		<Unit filename="lauxlib.cpp" />
+		<Unit filename="lauxlib.h" />
+		<Unit filename="lbaselib.cpp" />
+		<Unit filename="lcode.cpp" />
+		<Unit filename="lcode.h" />
+		<Unit filename="ldblib.cpp" />
+		<Unit filename="ldebug.cpp" />
+		<Unit filename="ldebug.h" />
+		<Unit filename="ldo.cpp" />
+		<Unit filename="ldo.h" />
+		<Unit filename="lfunc.cpp" />
+		<Unit filename="lfunc.h" />
+		<Unit filename="lgc.cpp" />
+		<Unit filename="lgc.h" />
+		<Unit filename="liolib.cpp" />
+		<Unit filename="llex.cpp" />
+		<Unit filename="llex.h" />
+		<Unit filename="llimits.h" />
+		<Unit filename="lmathlib.cpp" />
+		<Unit filename="lmem.cpp" />
+		<Unit filename="lmem.h" />
+		<Unit filename="lobject.cpp" />
+		<Unit filename="lobject.h" />
+		<Unit filename="lopcodes.h" />
+		<Unit filename="lparser.cpp" />
+		<Unit filename="lparser.h" />
+		<Unit filename="lstate.cpp" />
+		<Unit filename="lstate.h" />
+		<Unit filename="lstring.cpp" />
+		<Unit filename="lstring.h" />
+		<Unit filename="lstrlib.cpp" />
+		<Unit filename="ltable.cpp" />
+		<Unit filename="ltable.h" />
+		<Unit filename="ltests.cpp" />
+		<Unit filename="ltm.cpp" />
+		<Unit filename="ltm.h" />
+		<Unit filename="lua.h" />
+		<Unit filename="luadebug.h" />
+		<Unit filename="lualib.h" />
+		<Unit filename="lundump.cpp" />
+		<Unit filename="lundump.h" />
+		<Unit filename="lvm.cpp" />
+		<Unit filename="lvm.h" />
+		<Unit filename="lzio.cpp" />
+		<Unit filename="lzio.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
