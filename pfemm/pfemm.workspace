@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
-		<Project filename="liblua/liblua.cbp" />
-		<Project filename="fpproc/FPProc.cbp">
-			<Depends filename="liblua/liblua.cbp" />
-			<Depends filename="libfemm/libfemm.cbp" />
-		</Project>
-		<Project filename="libfemm/libfemm.cbp">
-			<Depends filename="liblua/liblua.cbp" />
-		</Project>
+		<Project filename="fpproc/libfpproc.cbp" />
+		<Project filename="libfemm/libfemm.cbp" />
+		<Project filename="fsolver/libfsolver.cbp" active="1" />
 		<Project filename="fsolver/fsolver.cbp">
-			<Depends filename="libfemm/libfemm.cbp" />
+			<Depends filename="fsolver/libfsolver.cbp" />
 		</Project>
-		<Project filename="fmesher/fmesher.cbp" />
+		<Project filename="fmesher/libfmesher.cbp" />
+		<Project filename="fmesher/fmesher.cbp">
+			<Depends filename="fmesher/libfmesher.cbp" />
+		</Project>
 		<Project filename="../postproc/fpproc_interface.cbp" />
-		<Project filename="hsolver/hsolver.cbp" active="1">
-			<Depends filename="libfemm/libfemm.cbp" />
+		<Project filename="hsolver/libhsolver.cbp" />
+		<Project filename="hsolver/hsolver.cbp">
+			<Depends filename="hsolver/libhsolver.cbp" />
 		</Project>
 		<Project filename="hpproc/hpproc.cbp" />
+		<Project filename="fpproc/test_fpproc.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

@@ -528,6 +528,7 @@ int FMesher::LoadFEMFile (string PathName)
         // Deal with flag for file format version
         if( _strnicmp(q,"[format]",8)==0 )
         {
+            addFileStr (s);
             v = StripKey(s);
             double dblvers;
             sscanf(v,"%lf",&dblvers);
@@ -538,8 +539,6 @@ int FMesher::LoadFEMFile (string PathName)
                             "This file may contain attributes not\n"
                             "supported by this version of FEMM");
             }
-
-            addFileStr (q);
             q[0] = '\0';
             continue;
         }
@@ -547,9 +546,9 @@ int FMesher::LoadFEMFile (string PathName)
         // Minimum Angle Constraint for finite element mesh
         if( _strnicmp(q,"[minangle]",10)==0)
         {
+            addFileStr (s);
             v = StripKey(s);
             sscanf(v,"%lf",&MinAngle);
-            addFileStr (q);
             q[0] = '\0';
             continue;
         }
@@ -572,12 +571,13 @@ int FMesher::LoadFEMFile (string PathName)
             {
                 DoForceMaxMeshArea = true;
             }
+            addFileStr (s);
         }
 
         // Point Properties
         if( _strnicmp(q,"<beginpoint>",11)==0)
         {
-            string ppropstring (q);
+            string ppropstring (s);
 
             PProp.PointName="New Point Property";
 
@@ -592,6 +592,9 @@ int FMesher::LoadFEMFile (string PathName)
                 {
                     return F_FILE_MALFORMED;
                 }
+
+                // append the line to the property string
+                ppropstring += s;
 
                 if( _strnicmp(q,"<pointname>",11)==0)
                 {
@@ -621,10 +624,6 @@ int FMesher::LoadFEMFile (string PathName)
                     sscanf(v,"%i",&BProp.BdryFormat);
                 }
 
-                // append the line to the boundary string
-                ppropstring += '\n';
-                ppropstring += q;
-
             }
 
             // add the point property string to the list of strings
@@ -639,7 +638,7 @@ int FMesher::LoadFEMFile (string PathName)
         if( _strnicmp(q,"<beginbdry>",11)==0)
         {
             // string to hold a copy of the boundary string
-            string boundstring (q);
+            string boundstring (s);
 
             BProp.BdryName="New Boundary";
             BProp.BdryFormat=0;
@@ -656,6 +655,9 @@ int FMesher::LoadFEMFile (string PathName)
                 {
                     return F_FILE_MALFORMED;
                 }
+
+                // append the line to the boundary string
+                boundstring += s;
 
                 if( _strnicmp(q,"<bdryname>",10)==0)
                 {
@@ -690,10 +692,6 @@ int FMesher::LoadFEMFile (string PathName)
                     sscanf(v,"%i",&BProp.BdryFormat);
                 }
 
-                // append the line to the boundary string
-                boundstring += '\n';
-                boundstring += q;
-
             }
 
             lineproplist.push_back (BProp);
@@ -709,9 +707,9 @@ int FMesher::LoadFEMFile (string PathName)
         // Block Properties;
         if( _strnicmp(q,"<beginblock>",12) == 0)
         {
-            string mpropstring (q);
+            string mpropstring (s);
 
-            while ( _strnicmp(q,"<endblock>",9) != 0)
+            while ( _strnicmp(q,"<endblock>",10) != 0)
             {
                 q[0] = '\0';
                 fgets(s,1024,fp);
@@ -724,15 +722,14 @@ int FMesher::LoadFEMFile (string PathName)
                 }
 
                 // append the line to the boundary string
-                mpropstring += '\n';
-                mpropstring += q;
+                mpropstring += s;
             }
 
             q[0] = '\0';
 
             // add the material property string to the list of strings
             probdescstrings.push_back (mpropstring);
-
+            continue;
         }
 
 
@@ -744,7 +741,7 @@ int FMesher::LoadFEMFile (string PathName)
             CProp.CircType = 0;
 
             // add the string to the list of strings to be echoed later
-            addFileStr (q);
+            addFileStr (s);
             q[0] = '\0';
             continue;
         }
@@ -752,6 +749,8 @@ int FMesher::LoadFEMFile (string PathName)
         if ( ( _strnicmp(q,"<circuitname>",13)==0)
              || ( _strnicmp(q,"<conductorname>",15)==0) )
         {
+            // add the string to the list of strings to be echoed later
+            addFileStr (s);
             v = StripKey(s);
             k=strlen(v);
             for(i=0; i<k; i++)
@@ -770,8 +769,6 @@ int FMesher::LoadFEMFile (string PathName)
                     }
                 }
             CProp.CircName=v;
-            // add the string to the list of strings to be echoed later
-            addFileStr (q);
             q[0] = '\0';
             continue;
         }
@@ -779,10 +776,10 @@ int FMesher::LoadFEMFile (string PathName)
         if ( ( _strnicmp(q,"<circuittype>",13)==0)
              || ( _strnicmp(q,"<conductortype>",15)==0) )
         {
+            // add the string to the list of strings to be echoed later
+            addFileStr (s);
             v = StripKey(s);
             sscanf(v,"%i",&CProp.CircType);
-            // add the string to the list of strings to be echoed later
-            addFileStr (q);
             q[0] = '\0';
             continue;
         }
@@ -790,9 +787,9 @@ int FMesher::LoadFEMFile (string PathName)
         if ( ( _strnicmp(q,"<endcircuit>",12)==0)
              || ( _strnicmp(q,"<endconductor>",14)==0) )
         {
-            circproplist.push_back(CProp);
             // add the string to the list of strings to be echoed later
-            addFileStr (q);
+            addFileStr (s);
+            circproplist.push_back(CProp);
             q[0] = '\0';
             continue;
         }
@@ -972,7 +969,7 @@ int FMesher::LoadFEMFile (string PathName)
         // read in regional attributes
         if (_strnicmp(q,"[numblocklabels]",13) == 0)
         {
-            addFileStr (q);
+            addFileStr (s);
             v = StripKey (s);
             sscanf (v,"%i",&k);
 
@@ -1039,7 +1036,7 @@ int FMesher::LoadFEMFile (string PathName)
 
         // add the string to the list of strings to be echoed later
         // if it was not parsd by any of the preceeding statements
-        addFileStr (q);
+        addFileStr (s);
 
     }
 
@@ -1048,9 +1045,9 @@ int FMesher::LoadFEMFile (string PathName)
     return F_FILE_OK;
 }
 
-void FMesher::addFileStr (char *q)
+void FMesher::addFileStr (char *s)
 {
-    probdescstrings.push_back (string (q));
+    probdescstrings.push_back (string (s));
 }
 
 bool FMesher::SaveFEMFile(string PathName)
@@ -1070,7 +1067,7 @@ bool FMesher::SaveFEMFile(string PathName)
     // echo the start of the input file
     for (i = 0; i < probdescstrings.size (); i++)
     {
-        fprintf(fp,"%s\n", probdescstrings[i].c_str () );
+        fprintf(fp,"%s", probdescstrings[i].c_str () );
     }
 
     // write out node list

@@ -38,16 +38,26 @@ function fsolversetup(dodebug, verbose)
 
     % store the current directory
     origdir = pwd;
+    
+    % return to original dir on interruption or completion
+    OC = onCleanup (@() cd(origdir));
 
     % change to the mfemm directory (the directory this file is in)
     cd(fileparts(which('fsolversetup.m')));
 
-    % set some common compiler flags, we replace all calls to printf to
-    % calls to mexPrintf
+    % make architecture specific mex directory if it doesn't already exist
+    warning off MATLAB:MKDIR:DirectoryExists
+    mexdir = ['xfemm_mex_files_for_' computer('arch')];
+    mkdir (mexdir);
+    warning on MATLAB:MKDIR:DirectoryExists
+
+    cd (mexdir);
+    
+    % set some common compiler flags
     if dodebug
-        common_compiler_flags = {'-g', '-DMATLAB_MEX_FILE'};
+        common_compiler_flags = {'-g'};
     else
-        common_compiler_flags={'-DMATLAB_MEX_FILE'};% common_compiler_flags = '-D"printf=mexPrintf"';
+        common_compiler_flags={};% common_compiler_flags = '-D"printf=mexPrintf"';
     end
 
     if verbose
@@ -63,22 +73,15 @@ function fsolversetup(dodebug, verbose)
     %                   'pfemm/libfemm/libfemm.lib', ...
     %                   '-I".\pfemm\fsolver"', '-I".\pfemm\liblua"', '-I".\pfemm\libfemm"'};
     %elseif strcmp('gcc', cc.Name)
-        libcommands = {'pfemm/liblua/liblua.a', ...
-                       'pfemm/libfemm/libfemm.a', ...
-                       '-I"./pfemm/fsolver"', '-I"./pfemm/liblua"', '-I"./pfemm/libfemm"'};
+        libcommands = {'-I"../pfemm/fsolver"', ...
+                       '-I"../pfemm/liblua"', ...
+                       '-I"../pfemm/libfemm"', ...
+                       '../pfemm/fsolver/libfsolver.a'};
     %end
 
     % put all the compiler commands in a cell array
     mexcommands = [ common_compiler_flags, ...
-                    { ...
-                      'mexfsolver.cpp', ...
-                      'pfemm/fsolver/fsolver.cpp', ...
-                      'pfemm/fsolver/cuthill.cpp', ...
-                      'pfemm/fsolver/harmonic2d.cpp', ...
-                      'pfemm/fsolver/static2d.cpp', ...
-                      'pfemm/fsolver/harmonicaxi.cpp', ...
-                      'pfemm/fsolver/staticaxi.cpp', ...
-                    }, ...
+                    { '../mexfsolver.cpp' }, ...
                     libcommands ...
                   ];
 
@@ -88,9 +91,5 @@ function fsolversetup(dodebug, verbose)
         % call mex with the appropriately constructed commands
         mex(mexcommands{:});
     end
-
-    % return to original directory
-    cd(origdir);
-
 
 end

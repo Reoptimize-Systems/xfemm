@@ -25,9 +25,20 @@ function fpprocsetup(dodebug, verbose)
     % store the current directory
     origdir = pwd;
 
+    % return to original dir on interruption or completion
+    OC = onCleanup (@() cd(origdir));
+    
     % change to the mfemm directory (the directory this file is in)
     cd(fileparts(which('fpprocsetup.m')));
+    
+    % make architecture specific mex directory if it doesn't already exist
+    warning off MATLAB:MKDIR:DirectoryExists
+    mexdir = ['xfemm_mex_files_for_' computer('arch')];
+    mkdir (mexdir);
+    warning on MATLAB:MKDIR:DirectoryExists
 
+    cd (mexdir);
+    
     % set some common compiler flags, we replace all calls to printf to
     % calls to mexPrintf
     if dodebug
@@ -40,17 +51,17 @@ function fpprocsetup(dodebug, verbose)
         common_compiler_flags = [common_compiler_flags, {'-v'}];
     end
 
-    % TODO: build the libries?
-    libcommands = {'./pfemm/fpproc/libfpproc.a', ...
-                   './pfemm/liblua/liblua.a', ...
-                   './pfemm/libfemm/libfemm.a', ...
-                   '-I"./pfemm/fpproc"','-I"./pfemm/liblua"','-I"./pfemm/libfemm"', '-I"./postproc"'};
+    libcommands = {'-I"../pfemm/fpproc"', ...
+                   '-I"../pfemm/libfemm"', ...
+                   '-I"../pfemm/libfemm/liblua"', ...
+                   '-I"../postproc"', ...
+                   '../pfemm/fpproc/libfpproc.a' };
 
     % put all the compiler commands in a cell array
     mexcommands = [ common_compiler_flags, ...
                     { ...
-                      './postproc/fpproc_interface_mex.cpp', ...
-                      './postproc/fpproc_interface.cpp', ...
+                      '../postproc/fpproc_interface_mex.cpp', ...
+                      '../postproc/fpproc_interface.cpp', ...
                     }, ...
                     libcommands ...
                   ];
@@ -61,9 +72,5 @@ function fpprocsetup(dodebug, verbose)
         % call mex with the appropriately constructed commands
         mex(mexcommands{:});
     end
-
-    % return to original directory
-    cd(origdir);
-
 
 end

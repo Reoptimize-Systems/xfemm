@@ -2,7 +2,7 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="femm" />
+		<Option title="libfemm" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
@@ -10,7 +10,7 @@
 				<Option output="libfemm" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="obj\Release\" />
-				<Option type="2" />
+				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
@@ -21,10 +21,10 @@
 				</Linker>
 			</Target>
 			<Target title="Debug">
-				<Option output="libfemm" prefix_auto="1" extension_auto="1" />
+				<Option output="femm" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="obj\Debug\" />
-				<Option type="2" />
+				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
@@ -36,15 +36,67 @@
 			<Add option="-Wall" />
 			<Add option="-fPIC" />
 			<Add option="-fexceptions" />
+			<Add directory="liblua" />
+			<Add directory="..\libfemm" />
 		</Compiler>
-		<Unit filename="complex.cpp" />
-		<Unit filename="complex.h" />
 		<Unit filename="cspars.cpp" />
+		<Unit filename="cuthill.cpp" />
+		<Unit filename="feasolver.cpp" />
+		<Unit filename="feasolver.h" />
+		<Unit filename="femmcomplex.cpp" />
+		<Unit filename="femmcomplex.h" />
 		<Unit filename="fparse.cpp" />
 		<Unit filename="fparse.h" />
 		<Unit filename="fullmatrix.cpp" />
 		<Unit filename="fullmatrix.h" />
-		<Unit filename="matprop.cpp" />
+		<Unit filename="liblua\lapi.cpp" />
+		<Unit filename="liblua\lapi.h" />
+		<Unit filename="liblua\lauxlib.cpp" />
+		<Unit filename="liblua\lauxlib.h" />
+		<Unit filename="liblua\lbaselib.cpp" />
+		<Unit filename="liblua\lcode.cpp" />
+		<Unit filename="liblua\lcode.h" />
+		<Unit filename="liblua\ldblib.cpp" />
+		<Unit filename="liblua\ldebug.cpp" />
+		<Unit filename="liblua\ldebug.h" />
+		<Unit filename="liblua\ldo.cpp" />
+		<Unit filename="liblua\ldo.h" />
+		<Unit filename="liblua\lfunc.cpp" />
+		<Unit filename="liblua\lfunc.h" />
+		<Unit filename="liblua\lgc.cpp" />
+		<Unit filename="liblua\lgc.h" />
+		<Unit filename="liblua\liblua.vcxproj" />
+		<Unit filename="liblua\liolib.cpp" />
+		<Unit filename="liblua\llex.cpp" />
+		<Unit filename="liblua\llex.h" />
+		<Unit filename="liblua\llimits.h" />
+		<Unit filename="liblua\lmathlib.cpp" />
+		<Unit filename="liblua\lmem.cpp" />
+		<Unit filename="liblua\lmem.h" />
+		<Unit filename="liblua\lobject.cpp" />
+		<Unit filename="liblua\lobject.h" />
+		<Unit filename="liblua\lopcodes.h" />
+		<Unit filename="liblua\lparser.cpp" />
+		<Unit filename="liblua\lparser.h" />
+		<Unit filename="liblua\lstate.cpp" />
+		<Unit filename="liblua\lstate.h" />
+		<Unit filename="liblua\lstring.cpp" />
+		<Unit filename="liblua\lstring.h" />
+		<Unit filename="liblua\lstrlib.cpp" />
+		<Unit filename="liblua\ltable.cpp" />
+		<Unit filename="liblua\ltable.h" />
+		<Unit filename="liblua\ltests.cpp" />
+		<Unit filename="liblua\ltm.cpp" />
+		<Unit filename="liblua\ltm.h" />
+		<Unit filename="liblua\lua.h" />
+		<Unit filename="liblua\luadebug.h" />
+		<Unit filename="liblua\lualib.h" />
+		<Unit filename="liblua\lundump.cpp" />
+		<Unit filename="liblua\lundump.h" />
+		<Unit filename="liblua\lvm.cpp" />
+		<Unit filename="liblua\lvm.h" />
+		<Unit filename="liblua\lzio.cpp" />
+		<Unit filename="liblua\lzio.h" />
 		<Unit filename="mesh.h" />
 		<Unit filename="spars.cpp" />
 		<Unit filename="spars.h" />

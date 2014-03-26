@@ -32,6 +32,7 @@
 #include "spars.h"
 #include "fparse.h"
 #include "fsolver.h"
+#include "mmesh.h"
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libfpproc" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="libfpproc.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="obj\Debug\" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="libfpproc.a" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="obj\Release\" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions -fPIC" />
+			<Add directory="..\libfemm" />
+			<Add directory="..\libfemm\liblua" />
+		</Compiler>
+		<Linker>
+			<Add option="-lfemm" />
+			<Add directory="..\libfemm" />
+		</Linker>
+		<Unit filename="fpproc.cpp" />
+		<Unit filename="fpproc.h" />
+		<Unit filename="makemask.cpp" />
+		<Unit filename="problem.cpp" />
+		<Unit filename="problem.h" />
+		<Unit filename="..\libfemm\cspars.cpp" />
+		<Unit filename="..\libfemm\cuthill.cpp" />
+		<Unit filename="..\libfemm\feasolver.cpp" />
+		<Unit filename="..\libfemm\feasolver.h" />
+		<Unit filename="..\libfemm\femmcomplex.cpp" />
+		<Unit filename="..\libfemm\femmcomplex.h" />
+		<Unit filename="..\libfemm\fparse.cpp" />
+		<Unit filename="..\libfemm\fparse.h" />
+		<Unit filename="..\libfemm\fullmatrix.cpp" />
+		<Unit filename="..\libfemm\fullmatrix.h" />
+		<Unit filename="..\libfemm\liblua\lapi.cpp" />
+		<Unit filename="..\libfemm\liblua\lapi.h" />
+		<Unit filename="..\libfemm\liblua\lauxlib.cpp" />
+		<Unit filename="..\libfemm\liblua\lauxlib.h" />
+		<Unit filename="..\libfemm\liblua\lbaselib.cpp" />
+		<Unit filename="..\libfemm\liblua\lcode.cpp" />
+		<Unit filename="..\libfemm\liblua\lcode.h" />
+		<Unit filename="..\libfemm\liblua\ldblib.cpp" />
+		<Unit filename="..\libfemm\liblua\ldebug.cpp" />
+		<Unit filename="..\libfemm\liblua\ldebug.h" />
+		<Unit filename="..\libfemm\liblua\ldo.cpp" />
+		<Unit filename="..\libfemm\liblua\ldo.h" />
+		<Unit filename="..\libfemm\liblua\lfunc.cpp" />
+		<Unit filename="..\libfemm\liblua\lfunc.h" />
+		<Unit filename="..\libfemm\liblua\lgc.cpp" />
+		<Unit filename="..\libfemm\liblua\lgc.h" />
+		<Unit filename="..\libfemm\liblua\liolib.cpp" />
+		<Unit filename="..\libfemm\liblua\llex.cpp" />
+		<Unit filename="..\libfemm\liblua\llex.h" />
+		<Unit filename="..\libfemm\liblua\llimits.h" />
+		<Unit filename="..\libfemm\liblua\lmathlib.cpp" />
+		<Unit filename="..\libfemm\liblua\lmem.cpp" />
+		<Unit filename="..\libfemm\liblua\lmem.h" />
+		<Unit filename="..\libfemm\liblua\lobject.cpp" />
+		<Unit filename="..\libfemm\liblua\lobject.h" />
+		<Unit filename="..\libfemm\liblua\lopcodes.h" />
+		<Unit filename="..\libfemm\liblua\lparser.cpp" />
+		<Unit filename="..\libfemm\liblua\lparser.h" />
+		<Unit filename="..\libfemm\liblua\lstate.cpp" />
+		<Unit filename="..\libfemm\liblua\lstate.h" />
+		<Unit filename="..\libfemm\liblua\lstring.cpp" />
+		<Unit filename="..\libfemm\liblua\lstring.h" />
+		<Unit filename="..\libfemm\liblua\lstrlib.cpp" />
+		<Unit filename="..\libfemm\liblua\ltable.cpp" />
+		<Unit filename="..\libfemm\liblua\ltable.h" />
+		<Unit filename="..\libfemm\liblua\ltests.cpp" />
+		<Unit filename="..\libfemm\liblua\ltm.cpp" />
+		<Unit filename="..\libfemm\liblua\ltm.h" />
+		<Unit filename="..\libfemm\liblua\lua.h" />
+		<Unit filename="..\libfemm\liblua\luadebug.h" />
+		<Unit filename="..\libfemm\liblua\lualib.h" />
+		<Unit filename="..\libfemm\liblua\lundump.cpp" />
+		<Unit filename="..\libfemm\liblua\lundump.h" />
+		<Unit filename="..\libfemm\liblua\lvm.cpp" />
+		<Unit filename="..\libfemm\liblua\lvm.h" />
+		<Unit filename="..\libfemm\liblua\lzio.cpp" />
+		<Unit filename="..\libfemm\liblua\lzio.h" />
+		<Unit filename="..\libfemm\main.cpp" />
+		<Unit filename="..\libfemm\mesh.h" />
+		<Unit filename="..\libfemm\spars.cpp" />
+		<Unit filename="..\libfemm\spars.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+			<envvars />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
