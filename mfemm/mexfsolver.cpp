@@ -71,10 +71,10 @@ int nrhs, const mxArray *prhs[])
     // make the warning message function point to mexPrintf
     SolveObj.WarnMessage = &voidmexPrintF;
 
-    status = SolveObj.LoadFEMFile();
+    status = SolveObj.LoadProblemFile ();
 	if (status != TRUE){
 		mexPrintf("problem loading .fem file\n");
-		plhs[0] = mxCreateDoubleScalar(1.0);
+		plhs[0] = mxCreateDoubleScalar (1.0);
         return;
 	}
 
