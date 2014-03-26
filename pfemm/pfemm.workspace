@@ -11,7 +11,6 @@
 		<Project filename="fmesher/fmesher.cbp">
 			<Depends filename="fmesher/libfmesher.cbp" />
 		</Project>
-		<Project filename="../postproc/fpproc_interface.cbp" />
 		<Project filename="hsolver/libhsolver.cbp" />
 		<Project filename="hsolver/hsolver.cbp">
 			<Depends filename="hsolver/libhsolver.cbp" />
