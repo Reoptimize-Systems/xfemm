@@ -25,7 +25,7 @@
 */
 
 #include <string>
-#include "complex.h"
+#include "femmcomplex.h"
 
 
 #ifndef BOOL

@@ -26,7 +26,7 @@
 
 #include <iostream>
 #include "hpproc.h"
-#include "complex.h"
+#include "femmcomplex.h"
 
 #ifndef FALSE
 #define FALSE 0

@@ -21,7 +21,7 @@
 
 #include "math.h"
 #include "stdio.h"
-#include "complex.h"
+#include "femmcomplex.h"
 
 CComplex::CComplex(double x)
 {

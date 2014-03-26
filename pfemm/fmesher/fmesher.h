@@ -26,7 +26,7 @@
 
 #include <string>
 #include "nosebl.h"
-#include "complex.h"
+#include "femmcomplex.h"
 #include "intpoint.h"
 #include "triangle.h"
 

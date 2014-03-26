@@ -23,7 +23,7 @@
 #include <cstdio>
 #include <math.h>
 #include <malloc.h>
-#include "complex.h"
+#include "femmcomplex.h"
 #include "mesh.h"
 #include "spars.h"
 #include "fsolver.h"
@@ -38,12 +38,12 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
 {
     int i,j,k,s,w,sdi_iter,sdin;
     double Me[3][3],Mx[3][3],My[3][3],Mn[3][3];
-    double l[3],p[3],q[3],g[3],be[3],u[3],v[3],res,lastres,dv,vol;
-    int n[3];					// numbers of nodes for a particular element;
-    double a,K,r,t,x,y,B,mu,R,rn[3],a_hat,R_hat,Cduct;
+    double l[3],p[3]={0.,0.,0.},q[3]={0.,0.,0.},g[3],be[3],u[3],v[3],res,lastres=0.,dv,vol;
+    int n[3] = { 0, 0, 0}; // numbers of nodes for a particular element;
+    double a,K,r,t=0.,x,y,B,mu,R,rn[3],a_hat,R_hat=0.,Cduct;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
-    double *V_old,*V_sdi,*CircInt1,*CircInt2,*CircInt3;;
+    double *V_old=NULL,*V_sdi=NULL,*CircInt1=NULL,*CircInt2=NULL,*CircInt3=NULL;
     int flag,Iter=0,pctr;
     int LinearFlag=TRUE;
     int SDIflag=FALSE;

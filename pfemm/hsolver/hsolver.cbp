@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/hsolver" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option output="bin\Debug\hsolver" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -16,8 +16,8 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/hsolver" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
+				<Option output="bin\Release\hsolver" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -31,22 +31,22 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
-			<Add directory="../libfemm" />
-			<Add directory="../liblua" />
+			<Add directory="..\libfemm" />
+			<Add directory="..\liblua" />
 		</Compiler>
 		<Linker>
-			<Add library="..\liblua\liblua.a" />
 			<Add library="..\libfemm\libfemm.a" />
-			<Add directory="../libfemm" />
-			<Add directory="../liblua" />
+			<Add library="..\liblua\liblua.a" />
+			<Add directory="..\libfemm" />
+			<Add directory="..\liblua" />
 		</Linker>
-		<Unit filename="cuthill.cpp" />
 		<Unit filename="hmesh.h" />
 		<Unit filename="hsolver.cpp" />
 		<Unit filename="hsolver.h" />
 		<Unit filename="hspars.cpp" />
 		<Unit filename="hspars.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="matprop.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

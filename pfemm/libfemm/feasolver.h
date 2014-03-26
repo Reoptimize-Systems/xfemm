@@ -19,25 +19,16 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-// fsolver.h : interface of the FSolver class
+// feasolver.h : interface of the generic feasolver class
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifndef FSOLVER_H
-#define FSOLVER_H
+#ifndef FEASOLVER_H
+#define FEASOLVER_H
 
 #include <string>
-#include "feasolver.h"
-#include "mmesh.h"
+#include "mesh.h"
 #include "spars.h"
-
-#ifndef muo
-#define muo 1.2566370614359173e-6
-#endif
-
-#ifndef Golden
-#define Golden 0.3819660112501051517954131656
-#endif
 
 #ifndef FALSE
 #define FALSE 0
@@ -47,58 +38,77 @@
 #define TRUE 1
 #endif
 
-class FSolver : public FEASolver
+enum LoadMeshErr
+{
+  BADFEMFILE,
+  BADNODEFILE,
+  BADPBCFILE,
+  BADELEMENTFILE,
+  BADEDGEFILE,
+  MISSINGMATPROPS
+};
+
+class FEASolver
 {
 
 // Attributes
 public:
 
-    FSolver();
-    ~FSolver();
+    FEASolver();
+    ~FEASolver();
 
     // General problem attributes
-    double  Frequency;
-    double  Relax;
+    double  Precision;
+    int		LengthUnits;
     int		ACSolver;
+    int     ProblemType;
+    int	    Coords;
+    bool    DoForceMaxMeshArea;
+    bool    bMultiplyDefinedLabels;
 
-    // mesh information
-    CNode *meshnode;
-    int NumCircPropsOrig;
+    // axisymmetric external region parameters
+    double  extRo,extRi,extZo;
 
-    CMaterialProp  *blockproplist;
-    CMBoundaryProp  *lineproplist;
-    CPointProp      *nodeproplist;
-    CMCircuit       *circproplist;
-    CMBlockLabel    *labellist;
+    // CArrays containing the mesh information
+    int	BandWidth;
+    CElement *meshele;
+
+    int NumNodes;
+    int NumEls;
+
+    // lists of properties
+    int NumBlockProps;
+    int NumPBCs;
+    int NumLineProps;
+    int NumPointProps;
+    int NumCircProps;
+    int NumBlockLabels;
+
+    CBoundaryProp	*lineproplist;
+    CCommonPoint	*pbclist;
+
+    // string to hold the location of the files
+    std::string PathName;
 
 // Operations
 public:
 
-    int LoadMesh();
-    int LoadProblemFile ();
-    int Static2D(CBigLinProb &L);
-    int WriteStatic2D(CBigLinProb &L);
-    int Harmonic2D(CBigComplexLinProb &L);
-    int WriteHarmonic2D(CBigComplexLinProb &L);
-    int StaticAxisymmetric(CBigLinProb &L);
-    int HarmonicAxisymmetric(CBigComplexLinProb &L);
-    void GetFillFactor(int lbl);
-    double ElmArea(int i);
+    virtual int LoadMesh() = 0;
+    virtual int LoadProblemFile () = 0;
+    int Cuthill();
+    int SortElements();
+
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
 
 private:
 
-    void MsgBox(const char* message);
-    void CleanUp();
-
-    // override parent class virtual method
-    void SortNodes (int* newnum);
+    virtual void SortNodes (int* newnum) = 0;
 
 };
 
 /////////////////////////////////////////////////////////////////////////////
 
-double GetNewMu(double mu,int BHpoints, CComplex *BHdata,double muc,double B);
+double Power(double x, int n);
 
 #endif

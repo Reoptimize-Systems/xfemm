@@ -36,7 +36,7 @@
 #include <cstdio>
 #include <cmath>
 #include "hproblem.h"
-#include "complex.h"
+#include "femmcomplex.h"
 #include "fparse.h"
 //#include "femm.h"
 //#include "xyplot.h"

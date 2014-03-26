@@ -31,10 +31,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "complex.h"
+#include "femmcomplex.h"
 #include "hspars.h"
 #include "hmesh.h"
-#include "HSolver.h"
+#include "hsolver.h"
 
 //using namespace std;
 
@@ -45,7 +45,6 @@ int main(int argc, char** argv)
     HSolver theHSolver;
     char PathName[512];
     char outstr[1024];
-
 
     if (argc < 2)
     {
@@ -69,7 +68,7 @@ int main(int argc, char** argv)
 
     theHSolver.PathName = PathName;
 
-    if (theHSolver.LoadFEHFile() != TRUE)
+    if (theHSolver.LoadProblemFile () != TRUE)
     {
         theHSolver.WarnMessage("problem loading .feh file");
         return 1;

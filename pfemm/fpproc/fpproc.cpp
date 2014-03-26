@@ -12,7 +12,7 @@
 // include the boost format lib to get nicer string handling capabilies
 //#include "boost/format.hpp"
 #include "problem.h"
-#include "complex.h"
+#include "femmcomplex.h"
 #include "fparse.h"
 //#include "femm.h"
 //#include "xyplot.h"

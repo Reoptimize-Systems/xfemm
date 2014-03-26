@@ -22,7 +22,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "complex.h"
+#include "femmcomplex.h"
 #include "spars.h"
 
 #define KLUDGE
@@ -270,7 +270,7 @@ bool CBigLinProb::PCGSolve(int flag)
     // residual with V=0
     MultPC(b,Z);
     res_o=Dot(Z,b);
-    if(res_o==0) return 1;
+    if(res_o==0) return true;
 
     // if flag is false, initialize V with zeros;
     if (flag==0) for(i=0; i<n; i++) V[i]=0;

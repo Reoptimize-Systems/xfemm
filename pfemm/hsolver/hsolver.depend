@@ -71,3 +71,68 @@
 	"hsolver.h"
 	"hspars.h"
 
+1395763924 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\hsolver\hspars.cpp
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	"hsolver.h"
+	"hspars.h"
+
+1395761012 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\hsolver\hsolver.h
+	<string>
+	"feasolver.h"
+	"hmesh.h"
+	"hspars.h"
+
+1395758104 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\feasolver.h
+	<string>
+	"mesh.h"
+	"spars.h"
+
+1395760145 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\mesh.h
+	"femmcomplex.h"
+
+1395754239 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\femmcomplex.h
+
+1395313128 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\spars.h
+
+1395760228 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\hsolver\hmesh.h
+	"mesh.h"
+	"femmcomplex.h"
+
+1395738783 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\hsolver\hspars.h
+	"spars.h"
+
+1395762051 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\hsolver\main.cpp
+	<cstdlib>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	"femmcomplex.h"
+	"hspars.h"
+	"hmesh.h"
+	"hsolver.h"
+
+1395765320 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\hsolver\hsolver.cpp
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	<cstring>
+	<malloc.h>
+	"lua.h"
+	"femmcomplex.h"
+	"hmesh.h"
+	"hspars.h"
+	"fparse.h"
+	"hsolver.h"
+
+1395758719 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\liblua\lua.h
+	"../libfemm/femmcomplex.h"
+	<stddef.h>
+
+1395738782 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\fparse.h
+	<string>
+
+1395760461 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\hsolver\matprop.cpp
+	"hmesh.h"
+

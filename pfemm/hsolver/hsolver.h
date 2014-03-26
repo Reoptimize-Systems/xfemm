@@ -25,9 +25,14 @@
 */
 
 // hsolver.h : interface of the HSolver class
-//
-/////////////////////////////////////////////////////////////////////////////
+
+#ifndef HSOLVER_H
+#define HSOLVER_H
+
 #include <string>
+#include "feasolver.h"
+#include "hmesh.h"
+#include "hspars.h"
 
 #ifndef muo
 #define muo 1.2566370614359173e-6
@@ -37,12 +42,6 @@
 #define Golden 0.3819660112501051517954131656
 #endif
 
-// replace original windows BOOL type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
-
 #ifndef FALSE
 #define FALSE 0
 #endif
@@ -51,34 +50,16 @@
 #define TRUE 1
 #endif
 
-#include "mesh.h"
-#include "hspars.h"
-
-#ifndef FSOLVER_H
-#define FSOLVER_H
-
-enum LoadMeshErr
-{
-  BADFEMFILE,
-  BADNODEFILE,
-  BADPBCFILE,
-  BADELEMENTFILE,
-  BADEDGEFILE,
-  MISSINGMATPROPS
-};
-
-class HSolver
+class HSolver : public FEASolver
 {
 
 // Attributes
 public:
 
-
 	HSolver();
 	~HSolver();
 
-
- // General problem attributes
+    // General problem attributes
 	double  Precision;
 	double  Depth;
 	int		LengthUnits;
@@ -90,57 +71,37 @@ public:
 	// Axisymmetric external region parameters
 	double extRo,extRi,extZo;
 
-	//ChsolvDlg *TheView;
-
-	// CArrays containing the mesh information
-	int	BandWidth;
-	CNode *meshnode;
-	CElement	*meshele;
-
-	int NumNodes;
-	int NumEls;
+	// mesh information
+	CHNode *meshnode;
 
 	// Vector containing previous solution for time-transient analysis
 	double *Tprev;
 
-	// lists of properties
-	int NumBlockProps;
-	int NumPBCs;
-	int NumLineProps;
-	int NumPointProps;
-	int NumCircProps;
-	int NumBlockLabels;
-
-	CMaterialProp	*blockproplist;
-	CBoundaryProp	*lineproplist;
-	CPointProp		*nodeproplist;
-	CCircuit		*circproplist;
-	CBlockLabel		*labellist;
-	CCommonPoint	*pbclist;
-
-	// string to hold the location of the files
-    std::string PathName;
-
+	CMaterialProp   *blockproplist;
+	CHBoundaryProp  *lineproplist;
+	CPointProp      *nodeproplist;
+	CConductor      *circproplist;
+	CBlockLabel     *labellist;
 
 // Operations
 public:
 
     int LoadMesh();
     int LoadPrev();
-	int LoadFEHFile();
-	void CleanUp();
-    int Cuthill();
-	int SortElements();
-	void MsgBox(const char* message);
+	int LoadProblemFile();
     double ChargeOnConductor(int OnConductor, CHBigLinProb &L);
 	int WriteResults(CHBigLinProb &L);
-
     int AnalyzeProblem(CHBigLinProb &L);
     void (*WarnMessage)(const char*);
 
+private:
+
+    void MsgBox(const char* message);
+    void CleanUp();
+
+    // override parent class virtual method
+    void SortNodes (int* newnum);
+
 };
 
-/////////////////////////////////////////////////////////////////////////////
-
-double Power(double x, int n);
 #endif
