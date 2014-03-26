@@ -21,7 +21,7 @@
 
 #include <vector>
 #include <string>
-#include "complex.h"
+#include "femmcomplex.h"
 
 namespace femm
 {
@@ -31,21 +31,21 @@ namespace femm
 
 class CNode
 {
-	public:
-		CNode();
+public:
+    CNode();
 
-		double x,y;
-		int xs,ys;
-		int IsSelected;
-		std::string BoundaryMarker;
-		std::string InConductor;
-		int InGroup;
+    double x,y;
+    int xs,ys;
+    int IsSelected;
+    std::string BoundaryMarker;
+    std::string InConductor;
+    int InGroup;
 
-		double GetDistance(double xo, double yo);
-		CComplex CC();
-		void ToggleSelect();
+    double GetDistance(double xo, double yo);
+    CComplex CC();
+    void ToggleSelect();
 
-	private:
+private:
 
 };
 
@@ -54,20 +54,20 @@ class CNode
 
 class CSegment
 {
-	public:
-		CSegment();
+public:
+    CSegment();
 
-		int n0,n1;
-		int IsSelected;
-		bool Hidden;
-		double MaxSideLength;
-		std::string BoundaryMarker;
-		std::string InConductor;
-		int InGroup;
+    int n0,n1;
+    int IsSelected;
+    bool Hidden;
+    double MaxSideLength;
+    std::string BoundaryMarker;
+    std::string InConductor;
+    int InGroup;
 
-		void ToggleSelect();
+    void ToggleSelect();
 
-	private:
+private:
 
 };
 
@@ -76,21 +76,21 @@ class CSegment
 
 class CArcSegment
 {
-	public:
-		CArcSegment();
+public:
+    CArcSegment();
 
-		int n0,n1;
-		bool NormalDirection;
-		int IsSelected;
-		bool Hidden;
-		double MaxSideLength,ArcLength;
-		std::string BoundaryMarker;
-		std::string InConductor;
-		int InGroup;
+    int n0,n1;
+    bool NormalDirection;
+    int IsSelected;
+    bool Hidden;
+    double MaxSideLength,ArcLength;
+    std::string BoundaryMarker;
+    std::string InConductor;
+    int InGroup;
 
-		void ToggleSelect();
+    void ToggleSelect();
 
-	private:
+private:
 
 };
 /////////////////////////////////////////////////////////////////////////////
@@ -98,25 +98,23 @@ class CArcSegment
 
 class CBlockLabel
 {
-	public:
-		CBlockLabel();
+public:
+    CBlockLabel();
 
-        // common properties
-		double x,y;
-		double MaxArea;
-		int IsSelected;
-		std::string BlockType;
-		int InGroup;
-//		bool IsExternal;
-//		bool IsDefault;
+    // common properties
+    double x,y;
+    double MaxArea;
+    int IsSelected;
+    std::string BlockType;
+    int InGroup;
 
-		// problem specific properties
-		std::string InCircuit;
+    // problem specific properties
+    std::string InCircuit;
 
-		void ToggleSelect();
-		double GetDistance(double xo, double yo);
+    void ToggleSelect();
+    double GetDistance(double xo, double yo);
 
-	private:
+private:
 
 };
 
@@ -125,20 +123,20 @@ class CBlockLabel
 
 class CBoundaryProp
 {
-	public:
+public:
 
-		CBoundaryProp();
+    CBoundaryProp();
 
-		std::string BdryName;
-		int BdryFormat;			// type of boundary condition we are applying
-								// 0 = constant value of A
-								// 1 = Small skin depth eddy current BC
-								// 2 = Mixed BC
-								// 3 = SDI
-								// 4 = Periodic
-								// 5 = Antiperiodic
+    std::string BdryName;
+    int BdryFormat;            // type of boundary condition we are applying
+    // 0 = constant value
+    // 1 = Small skin depth eddy current BC
+    // 2 = Mixed BC
+    // 3 = SDI
+    // 4 = Periodic
+    // 5 = Antiperiodic
 
-	private:
+private:
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -146,13 +144,13 @@ class CBoundaryProp
 
 class CPointProp
 {
-	public:
+public:
 
-		CPointProp();
+    CPointProp();
 
-		std::string PointName;
+    std::string PointName;
 
-	private:
+private:
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -160,14 +158,14 @@ class CPointProp
 
 class CCircuit
 {
-	public:
+public:
 
-		CCircuit();
+    CCircuit();
 
-		std::string CircName;
-		int		CircType;
+    std::string CircName;
+    int        CircType;
 
-	private:
+private:
 
 };
 
@@ -176,30 +174,30 @@ class CCircuit
 
 class CPeriodicBoundary
 {
-	public:
+public:
 
-		CPeriodicBoundary();
+    CPeriodicBoundary();
 
-		std::string BdryName;
-		int BdryFormat;			// 0 = Periodic
-								// 1 = Antiperiodic
-		int nseg;				// number of segs with this bc
-		int narc;				// number of arcs with this bc
-		int seg[2];				// (arc)segments to which is applied
+    std::string BdryName;
+    int BdryFormat;            // 0 = Periodic
+    // 1 = Antiperiodic
+    int nseg;                // number of segs with this bc
+    int narc;                // number of arcs with this bc
+    int seg[2];                // (arc)segments to which is applied
 
-	private:
+private:
 };
 
 class CCommonPoint
 {
-	public:
+public:
 
-		CCommonPoint();
-		void Order();
+    CCommonPoint();
+    void Order();
 
-		int x,y,t;
+    int x,y,t;
 
-	private:
+private:
 };
 
 } // namespace femm

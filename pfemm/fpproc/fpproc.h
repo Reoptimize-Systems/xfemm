@@ -4,7 +4,7 @@
 #include <vector>
 #include "lua.h"
 #include "luadebug.h"
-#include "complex.h"
+#include "femmcomplex.h"
 #include "problem.h"
 //#include "luaconsoledlg.h"
 

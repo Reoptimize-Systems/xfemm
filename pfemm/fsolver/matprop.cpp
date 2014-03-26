@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <math.h>
 #include "malloc.h"
-#include "complex.h"
-#include "mesh.h"
+#include "femmcomplex.h"
+#include "mmesh.h"
 #include "fullmatrix.h"
 
 #ifndef muo
@@ -35,12 +35,6 @@
 #endif
 
 #define ElementsPerSkinDepth 10
-
-// replace original windows BOOL type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
 
 #ifndef FALSE
 #define FALSE 0

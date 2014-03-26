@@ -22,7 +22,7 @@
 #include <cstdlib>
 #include <math.h>
 #include "malloc.h"
-#include "complex.h"
+#include "femmcomplex.h"
 #include "fullmatrix.h"
 
 // replace original windows int type, which is actually

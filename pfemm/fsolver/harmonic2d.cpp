@@ -24,7 +24,7 @@
 #include<math.h>
 #include<algorithm>
 #include <malloc.h>
-#include "complex.h"
+#include "femmcomplex.h"
 #include "mesh.h"
 #include "spars.h"
 #include "fsolver.h"

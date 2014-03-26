@@ -28,7 +28,7 @@
 #include <cmath>
 #include "hproblem.h"
 #include "fullmatrix.h"
-#include "complex.h"
+#include "femmcomplex.h"
 
 #ifndef muo
 #define muo 1.2566370614359173e-6

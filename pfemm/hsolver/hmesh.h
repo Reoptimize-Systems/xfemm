@@ -24,7 +24,8 @@
         richard.crozier@yahoo.co.uk
 */
 
-#include "complex.h"
+#include "mesh.h"
+#include "femmcomplex.h"
 
 // replace original windows BOOL type, which is actually
 // just an int
@@ -41,94 +42,40 @@
 #endif
 
 
-// guard mesh class definitions
-#ifndef MESH_H
-#define MESH_H
+// guard hmesh class definitions
+#ifndef HMESH_H
+#define HMESH_H
 
 /////////////////////////////////////////////////////////////////////////////
-// CNode -- structure that holds information about each mesh point.
-class CNode
+// CHNode -- structure that holds information about each mesh point.
+class CHNode : public CNode
 {
 public:
 
-    double x,y;
     int xs,ys;
     int BoundaryMarker;
-    int InGroup,InConductor;
-    int bc;
-
-private:
-
-};
-
-class CMeshline
-{
-public:
-
-    int n0,n1;
-
-private:
-};
-
-class CElement
-{
-public:
-
-    int p[3];
-    int e[3];
-    CComplex mu1,mu2;
-    int blk;
-    int lbl;
-
-private:
-};
-
-class CBlockLabel
-{
-public:
-
-    double x,y;
-    double MaxArea;
-    double MagDir;
-    int BlockType;
-    int InCircuit;
-    int InMask;
     int InGroup;
-    int Turns;
-    int IsExternal;
-    int IsDefault;
-    char *MagDirFctn;
-
-    // used for proximity effect regions only.
-    CComplex ProximityMu;
-    int bIsWound;
+    int InConductor;
 
 private:
 
 };
 
-class CCommonPoint
-{
-public:
-    int x,y,t;
-
-private:
-};
 /////////////////////////////////////////////////////////////////////////////
-// Classes that hold property data:  CMaterialProp, CBoundaryProp, CPointProp
+// Classes that hold property data:  CMaterialProp, CHBoundaryProp, CPointProp
 class CMaterialProp
 {
     // Properties
 public:
 
-   		double Kx,Ky;		// thermal conductivity for linear (possibly anisotropic) regions
-		double Kt;			// volumetric heat capacity
-		double qv;			// volume heat generation
+   	double Kx,Ky;		// thermal conductivity for linear (possibly anisotropic) regions
+	double Kt;			// volumetric heat capacity
+	double qv;			// volume heat generation
 
-		// properties for nonlinear conductivity
-		int npts;			// number of points in the nonlinear conductivity curve
-		CComplex Kn[128];   // here, I'm being _very_ lazy by defining a fixed-length buffer for the
-		                    // thermal conductivity data points.
+	// properties for nonlinear conductivity
+	int npts;			// number of points in the nonlinear conductivity curve
+	CComplex Kn[128];   // here, I'm being _very_ lazy by defining a fixed-length buffer for the
+	                    // thermal conductivity data points.
 
     // Methods
 public:
@@ -141,18 +88,15 @@ public:
 private:
 };
 
-class CBoundaryProp
+class CHBoundaryProp : public CBoundaryProp
 {
 public:
 
-    int BdryFormat;
-
-		double Tset;			// Fixed value of temperature for BdryFormat=0;
-		double Tinf;			// External temperature for convection or radiation
-		double qs;				// Heat flux;
-		double beta;			// radiosity coefficient
-		double h;				// Heat transfer coefficient
-
+    double Tset;			// Fixed value of temperature for BdryFormat=0;
+    double Tinf;			// External temperature for convection or radiation
+    double qs;				// Heat flux;
+    double beta;			// radiosity coefficient
+    double h;				// Heat transfer coefficient
 
 private:
 };
@@ -166,12 +110,11 @@ public:
 private:
 };
 
-class CCircuit
+class CConductor : public CCircuit
 {
 public:
 
     double V,q;
-    int	CircType;
 
 private:
 };

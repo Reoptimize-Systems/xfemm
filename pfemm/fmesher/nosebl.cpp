@@ -149,8 +149,6 @@ CBlockLabel::CBlockLabel()
     IsSelected = 0;
     BlockType = "<None>";
     InGroup = 0;
-//    IsExternal = false;
-//    IsDefault = false;
 
     // problem specific properties
     InCircuit = "<None>";
@@ -184,11 +182,11 @@ double CBlockLabel::GetDistance(double xo, double yo)
 
 CBoundaryProp::CBoundaryProp()
 {
-        BdryName = "New Boundary";
-        BdryFormat = 0;                // type of boundary condition we are applying
-                                    // 0 = constant value of A
-                                    // 1 = Small skin depth eddy current BC
-                                    // 2 = Mixed BC
+    BdryName = "New Boundary";
+    BdryFormat = 0;                // type of boundary condition we are applying
+    // 0 = constant value of A
+    // 1 = Small skin depth eddy current BC
+    // 2 = Mixed BC
 
 }
 
@@ -200,7 +198,7 @@ CBoundaryProp::CBoundaryProp()
 
 CPointProp::CPointProp()
 {
-        PointName = "New Point Property";
+    PointName = "New Point Property";
 }
 
 //*************************************************************************//
@@ -212,8 +210,8 @@ CPointProp::CPointProp()
 
 CCircuit::CCircuit()
 {
-        CircName = "New Circuit";
-        CircType=1;
+    CircName = "New Circuit";
+    CircType=1;
 };
 
 
@@ -225,12 +223,12 @@ CCircuit::CCircuit()
 
 CPeriodicBoundary::CPeriodicBoundary()
 {
-        BdryName="";
-        BdryFormat=0;
-        nseg=0;
-        narc=0;
-        seg[0]=0;
-        seg[1]=0;
+    BdryName="";
+    BdryFormat=0;
+    nseg=0;
+    narc=0;
+    seg[0]=0;
+    seg[1]=0;
 }
 
 
@@ -250,7 +248,8 @@ void CCommonPoint::Order()
 {
     int z;
 
-    if(x>y){
+    if(x>y)
+    {
         z=y;
         y=x;
         x=z;

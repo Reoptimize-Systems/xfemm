@@ -34,15 +34,11 @@
 #include <cstring>
 #include <malloc.h>
 #include "lua.h"
-#include "complex.h"
+#include "femmcomplex.h"
 #include "hmesh.h"
 #include "hspars.h"
 #include "fparse.h"
 #include "hsolver.h"
-/* for compiling as matlab mex */
-#ifdef MATLAB_MEX_FILE
-#include "mex.h"
-#endif
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -54,21 +50,18 @@
 double units[]={0.0254,0.001,0.01,1,2.54e-5,1.e-6};
 double sq(double x){ return x*x; }
 
-
-
-
-extern void lua_baselibopen (lua_State *L);
-extern void lua_iolibopen (lua_State *L);
-extern void lua_strlibopen (lua_State *L);
-extern void lua_mathlibopen (lua_State *L);
-extern void lua_dblibopen (lua_State *L);
-extern lua_State *lua; // the main lua object
-extern int bLinehook;
-extern int lua_byebye;
-
-lua_State *lua;
-int bLinehook;
-int lua_byebye;
+//extern void lua_baselibopen (lua_State *L);
+//extern void lua_iolibopen (lua_State *L);
+//extern void lua_strlibopen (lua_State *L);
+//extern void lua_mathlibopen (lua_State *L);
+//extern void lua_dblibopen (lua_State *L);
+//extern lua_State *lua; // the main lua object
+//extern int bLinehook;
+//extern int lua_byebye;
+//
+//lua_State *lua;
+//int bLinehook;
+//int lua_byebye;
 
 using namespace std;
 using namespace femm;
@@ -79,65 +72,31 @@ using namespace femm;
 
 HSolver::HSolver()
 {
-//	TheView=NULL;
-	Precision=NULL;
-	LengthUnits=NULL;
-	ProblemType=NULL;
-	Coords=NULL;
-	BandWidth=NULL;
-	NumNodes=NULL;
-	NumEls=NULL;
-	NumBlockProps=NULL;
-	NumPBCs=NULL;
-	NumLineProps=NULL;
-	NumPointProps=NULL;
-	NumCircProps=NULL;
-	NumBlockLabels=NULL;
-
 	meshnode=NULL;
-	meshele=NULL;
 	Tprev=NULL;
 	blockproplist=NULL;
-	lineproplist=NULL;
 	nodeproplist=NULL;
 	circproplist=NULL;
 	labellist=NULL;
-	pbclist=NULL;
-//	PathName=NULL;
-
-	extRo=extRi=extZo=NULL;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
 
-    // Initialize Lua
-	bLinehook = FALSE;
-	//bMultiplyDefinedLabels = false;
-    lua = lua_open(4096);
-	lua_baselibopen(lua);
-	lua_strlibopen(lua);
-	lua_mathlibopen(lua);
-	lua_iolibopen(lua);
 }
 
 HSolver::~HSolver()
 {
-	lua_close(lua);
     CleanUp();
-	// This space for rent.
 }
 
 void HSolver::CleanUp()
 {
 	if (meshnode!=NULL)		free(meshnode);
-	if (meshele!=NULL)		free(meshele);
 	if (blockproplist!=NULL) free(blockproplist);
-	if (lineproplist!=NULL)	 free(lineproplist);
 	if (nodeproplist!=NULL)	 free(nodeproplist);
 	if (circproplist!=NULL)	 free(circproplist);
 	if (labellist!=NULL)	 free(labellist);
-	if (pbclist!=NULL)		 free(pbclist);
 	if (Tprev!=NULL)		 free(Tprev);
 }
 
@@ -149,17 +108,16 @@ void HSolver::MsgBox(const char* message)
     printf("%s\n", message);
 }
 
-
-int HSolver::LoadFEHFile()
+int HSolver::LoadProblemFile ()
 {
 	FILE *fp;
 	int j,k;
 	char s[1024],q[1024];
 	char *v;
 	CPointProp	  PProp;
-	CBoundaryProp BProp;
+	CHBoundaryProp BProp;
 	CMaterialProp MProp;
-	CCircuit	  CProp;
+	CConductor	  CProp;
 	CBlockLabel   blk;
 
 
@@ -285,7 +243,7 @@ int HSolver::LoadFEHFile()
 		if( _strnicmp(q,"[bdryprops]",11)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if (k>0) lineproplist=(CBoundaryProp *)calloc(k,sizeof(CBoundaryProp));
+			if (k>0) lineproplist=(CHBoundaryProp *)calloc(k,sizeof(CHBoundaryProp));
 			q[0]='\0';
 		}
 
@@ -438,7 +396,7 @@ int HSolver::LoadFEHFile()
 		if( _strnicmp(q,"[conductorprops]",16)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if(k>0) circproplist=(CCircuit *)calloc(k,sizeof(CCircuit));
+			if(k>0) circproplist=(CConductor *)calloc(k,sizeof(CConductor));
 			q[0]='\0';
 		}
 
@@ -569,8 +527,8 @@ int HSolver::LoadMesh()
 	sscanf(s,"%i",&k);
 	NumNodes=k;
 
-	meshnode=(CNode *)calloc(k,sizeof(CNode));
-	CNode node;
+	meshnode=(CHNode *)calloc(k,sizeof(CHNode));
+	CHNode node;
 	for(i=0;i<k;i++){
 		fscanf(fp,"%i",&j);
 		fscanf(fp,"%lf",&node.x);
@@ -785,28 +743,28 @@ int HSolver::LoadMesh()
     return 0;
 }
 
-CComplex CMaterialProp::GetK(double t)
-{
-	int i,j;
-
-	// Kx returned as real part;
-	// Ky returned as imag part
-
-	if (npts==0) return (Kx+I*Ky);
-	if (npts==1) return (Im(Kn[0])*(1+I));
-	if (t<=Re(Kn[0])) return (Im(Kn[0])*(1+I));
-	if (t>=Re(Kn[npts-1])) return (Im(Kn[npts-1])*(1+I));
-
-	for(i=0,j=1;j<npts;i++,j++)
-	{
-		if((t>=Re(Kn[i])) && (t<=Re(Kn[j])))
-		{
-			return (1+I)*(Im(Kn[i])+Im(Kn[j]-Kn[i])*Re(t-Kn[i])/Re(Kn[j]-Kn[i]));
-		}
-	}
-
-	return (Kx+I*Ky);
-}
+//CComplex CMaterialProp::GetK(double t)
+//{
+//	int i,j;
+//
+//	// Kx returned as real part;
+//	// Ky returned as imag part
+//
+//	if (npts==0) return (Kx+I*Ky);
+//	if (npts==1) return (Im(Kn[0])*(1+I));
+//	if (t<=Re(Kn[0])) return (Im(Kn[0])*(1+I));
+//	if (t>=Re(Kn[npts-1])) return (Im(Kn[npts-1])*(1+I));
+//
+//	for(i=0,j=1;j<npts;i++,j++)
+//	{
+//		if((t>=Re(Kn[i])) && (t<=Re(Kn[j])))
+//		{
+//			return (1+I)*(Im(Kn[i])+Im(Kn[j]-Kn[i])*Re(t-Kn[i])/Re(Kn[j]-Kn[i]));
+//		}
+//	}
+//
+//	return (Kx+I*Ky);
+//}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1162,12 +1120,12 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 		}
 
 		// solve the problem;
-		if (L.PCGSolve(iter++)==FALSE){
+		if (L.PCGSolve(iter++)==false){
 			free(Vo);
 			return FALSE;
 		}
 
-		if (IsNonlinear)
+		if (IsNonlinear == TRUE)
 		{
 			double e1=0;
 			double e2=0;
@@ -1193,7 +1151,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 			}
 		}
 
-	}while(IsNonlinear);
+	}while(IsNonlinear == TRUE);
 
 	// compute total charge on conductors
 	// with a specified voltage
@@ -1311,4 +1269,28 @@ double HSolver::ChargeOnConductor(int u, CHBigLinProb &L)
 	}
 
 	return Z;
+}
+
+
+// SortNodes: sorts mesh nodes based on a new numbering
+void HSolver::SortNodes (int* newnum)
+{
+    int j=0,n=0;
+
+    // sort mesh nodes based on newnum;
+    for(int i = 0; i < NumNodes; i++)
+    {
+        while(newnum[i] != i)
+        {
+            CHNode swap;
+
+            j = newnum[i];
+            n = newnum[j];
+            newnum[j] = newnum[i];
+            newnum[i] = n;
+            swap = meshnode[j];
+            meshnode[j] = meshnode[i];
+            meshnode[i] = swap;
+        }
+    }
 }

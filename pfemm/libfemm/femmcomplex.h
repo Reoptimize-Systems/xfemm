@@ -19,8 +19,8 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#ifndef CCOMPLEX
-#define CCOMPLEX
+#ifndef CCOMPLEX_H
+#define CCOMPLEX_H
 
 #define PI 3.141592653589793238462643383
 #define SmallNo 1.e-14

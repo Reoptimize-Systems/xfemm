@@ -16,7 +16,8 @@
 //#endif
 
 
-#include "complex.h"
+#include "../libfemm/femmcomplex.h"
+class CComplex;
 
 /* definition of `size_t' */
 #include <stddef.h>

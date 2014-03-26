@@ -28,32 +28,14 @@
 #include <cstring>
 #include <malloc.h>
 #include "lua.h"
-#include "complex.h"
-#include "mesh.h"
+#include "femmcomplex.h"
 #include "spars.h"
 #include "fparse.h"
 #include "fsolver.h"
-/* for compiling as matlab mex */
-#ifdef MATLAB_MEX_FILE
-#include "mex.h"
-#endif
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
 #endif
-
-extern void lua_baselibopen (lua_State *L);
-extern void lua_iolibopen (lua_State *L);
-extern void lua_strlibopen (lua_State *L);
-extern void lua_mathlibopen (lua_State *L);
-extern void lua_dblibopen (lua_State *L);
-extern lua_State *lua; // the main lua object
-extern int bLinehook;
-extern int lua_byebye;
-
-lua_State *lua;
-int bLinehook;
-int lua_byebye;
 
 using namespace std;
 using namespace femm;
@@ -63,55 +45,26 @@ using namespace femm;
 
 FSolver::FSolver()
 {
-//	TheView=NULL;
     Frequency = NULL;
-    Precision = NULL;
     Relax = NULL;
-    LengthUnits = NULL;
-    ProblemType = NULL;
     ACSolver=NULL;
-    DoForceMaxMeshArea = false;
-    Coords = NULL;
-    BandWidth = NULL;
-    NumNodes = NULL;
-    NumEls = NULL;
-    NumBlockProps = NULL;
-    NumPBCs = NULL;
-    NumLineProps = NULL;
-    NumPointProps = NULL;
-    NumCircProps = NULL;
-    NumBlockLabels = NULL;
     NumCircPropsOrig = NULL;
 
     meshnode = NULL;
-    meshele = NULL;
     blockproplist = NULL;
-    lineproplist = NULL;
     nodeproplist = NULL;
     circproplist = NULL;
     labellist = NULL;
-    pbclist = NULL;
-    //PathName = NULL;
 
     extRo = extRi = extZo = NULL;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
-
-    // Initialize Lua
-	bLinehook = FALSE;
-	bMultiplyDefinedLabels = false;
-    lua = lua_open(4096);
-	lua_baselibopen(lua);
-	lua_strlibopen(lua);
-	lua_mathlibopen(lua);
-	lua_iolibopen(lua);
 }
 
 FSolver::~FSolver()
 {
-    lua_close(lua);
     CleanUp();
 }
 
@@ -124,11 +77,6 @@ void FSolver::CleanUp()
         free(meshnode);
     }
 
-    if (meshele!=NULL)
-    {
-        free(meshele);
-    }
-
     if (blockproplist!=NULL)
     {
         for(k=0; k<NumBlockProps; k++)
@@ -139,7 +87,7 @@ void FSolver::CleanUp()
         }
         free(blockproplist);
     }
-    if (lineproplist!=NULL)	 free(lineproplist);
+
     if (nodeproplist!=NULL)	 free(nodeproplist);
     if (circproplist!=NULL)	 free(circproplist);
 
@@ -155,11 +103,6 @@ void FSolver::CleanUp()
 
         free(labellist);
     }
-
-    if (pbclist!=NULL)
-    {
-        free(pbclist);
-    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -170,17 +113,17 @@ void FSolver::MsgBox(const char* message)
     printf("%s\n", message);
 }
 
-int FSolver::LoadFEMFile()
+int FSolver::LoadProblemFile ()
 {
     FILE *fp;
     int j,k,ic;
     char s[1024],q[1024];
     char *v;
-    CPointProp	  PProp;
-    CBoundaryProp BProp;
-    CMaterialProp MProp;
-    CCircuit	  CProp;
-    CBlockLabel   blk;
+    CPointProp	   PProp;
+    CMBoundaryProp BProp;
+    CMaterialProp  MProp;
+    CMCircuit	   CProp;
+    CMBlockLabel    blk;
 
     sprintf(s,"%s.fem", PathName.c_str() );
     if ((fp=fopen(s,"rt"))==NULL)
@@ -366,7 +309,7 @@ int FSolver::LoadFEMFile()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) lineproplist=(CBoundaryProp *)calloc(k,sizeof(CBoundaryProp));
+            if (k>0) lineproplist=(CMBoundaryProp *)calloc(k,sizeof(CMBoundaryProp));
             q[0] = '\0';
         }
 
@@ -640,7 +583,7 @@ int FSolver::LoadFEMFile()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if(k>0) circproplist=(CCircuit *)calloc(k,sizeof(CCircuit));
+            if(k>0) circproplist=(CMCircuit *)calloc(k,sizeof(CMCircuit));
             q[0] = '\0';
         }
 
@@ -704,7 +647,7 @@ int FSolver::LoadFEMFile()
             string str;
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) labellist=(CBlockLabel *)calloc(k, sizeof(CBlockLabel));
+            if (k>0) labellist=(CMBlockLabel *)calloc(k, sizeof(CMBlockLabel));
             NumBlockLabels=k;
             for(i=0; i<k; i++)
             {
@@ -771,7 +714,7 @@ int FSolver::LoadFEMFile()
     // parallel connected.
 
     // first, make enough space for all possible circuits;
-    CCircuit *temp=(CCircuit *)calloc(NumCircProps+NumBlockLabels,sizeof(CCircuit));
+    CMCircuit *temp=(CMCircuit *)calloc(NumCircProps+NumBlockLabels,sizeof(CMCircuit));
     for(k=0; k<NumCircProps; k++)
     {
         temp[k]=circproplist[k];
@@ -783,7 +726,7 @@ int FSolver::LoadFEMFile()
 
     // now, go through the block label list and make a new "circuit"
     // for every block label that is an element of a "serial" circuit.
-    CCircuit ncirc;
+    CMCircuit ncirc;
     for(k=0; k<NumBlockLabels; k++)
         if(labellist[k].InCircuit>=0)
         {
@@ -853,15 +796,6 @@ int FSolver::LoadMesh()
     fgets(s,1024,fp);
     sscanf(s,"%i",&k);
     NumNodes = k;
-
-#ifdef CRIPPLEWARE
-    if (NumNodes>999)
-    {
-        fclose(fp);
-        WarnMessage("This demo version only allows meshes with less than 1000 nodes");
-        return BADNODEFILE;
-    }
-#endif
 
     meshnode = (CNode *)calloc(k,sizeof(CNode));
     CNode node;
@@ -1076,8 +1010,8 @@ void FSolver::GetFillFactor(int lbl)
     // post-processing the voltage.
 
     CMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
-    CBlockLabel* bl= &labellist[lbl];
-    double atot,awire,d,o,fill,dd,W,R,c1,c2;
+    CMBlockLabel* bl= &labellist[lbl];
+    double atot,awire=0,d,o,fill,dd,W,R=0,c1,c2;
     int i,wiretype;
     CComplex ufd,ofd;
 
@@ -1170,7 +1104,7 @@ void FSolver::GetFillFactor(int lbl)
 	// post-processing the voltage.
 
 	CMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
-	CBlockLabel* bl= &labellist[lbl];
+	CMBlockLabel* bl= &labellist[lbl];
 	double atot,awire,r,FillFactor;
 	int i,wiretype;
 	CComplex ufd;
@@ -1247,12 +1181,37 @@ double FSolver::ElmArea(int i)
     int j,n[3];
     double b0,b1,c0,c1;
 
-    for(j=0; j<3; j++) n[j]=meshele[i].p[j];
+    for(j=0; j<3; j++) n[j] = meshele[i].p[j];
 
-    b0=meshnode[n[1]].y - meshnode[n[2]].y;
-    b1=meshnode[n[2]].y - meshnode[n[0]].y;
-    c0=meshnode[n[2]].x - meshnode[n[1]].x;
-    c1=meshnode[n[0]].x - meshnode[n[2]].x;
-    return 0.0001*(b0*c1-b1*c0)/2.;
+    b0 = meshnode[n[1]].y - meshnode[n[2]].y;
+    b1 = meshnode[n[2]].y - meshnode[n[0]].y;
+    c0 = meshnode[n[2]].x - meshnode[n[1]].x;
+    c1 = meshnode[n[0]].x - meshnode[n[2]].x;
 
+    return 0.0001 * (b0*c1 - b1*c0) / 2.;
+
+}
+
+// SortNodes: sorts mesh nodes based on a new numbering
+void FSolver::SortNodes (int* newnum)
+{
+    int j = 0;
+    int n = 0;
+
+    // sort mesh nodes based on newnum;
+    for(int i = 0; i < NumNodes; i++)
+    {
+        while(newnum[i] != i)
+        {
+            CNode swap;
+
+            j = newnum[i];
+            n = newnum[j];
+            newnum[j] = newnum[i];
+            newnum[i] = n;
+            swap = meshnode[j];
+            meshnode[j] = meshnode[i];
+            meshnode[i] = swap;
+        }
+    }
 }

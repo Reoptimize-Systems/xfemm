@@ -37,6 +37,7 @@ CHBigLinProb::CHBigLinProb()
 CHBigLinProb::~CHBigLinProb()
 {
 	free(Q);
+	n = 0;
 }
 
 int CHBigLinProb::Create(int d, int bw)
@@ -48,5 +49,5 @@ int CHBigLinProb::Create(int d, int bw)
 	// initialise the Q array
 	Q = (int *)  calloc(d,sizeof(int));
 
-	return 1;
+	return status;
 }

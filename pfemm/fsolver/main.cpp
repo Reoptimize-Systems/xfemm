@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "complex.h"
+#include "femmcomplex.h"
 #include "spars.h"
 #include "mesh.h"
 #include "fsolver.h"
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 
     theFSolver.PathName = PathName;
 
-    if (theFSolver.LoadFEMFile() != TRUE)
+    if (theFSolver.LoadProblemFile () != TRUE)
     {
         theFSolver.WarnMessage("problem loading .fem file");
         return 1;

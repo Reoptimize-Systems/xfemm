@@ -25,13 +25,13 @@
 #include<math.h>
 #include "malloc.h"
 #include "femmcomplex.h"
-#include "hmesh.h"
-#include "spars.h"
-#include "hsolver.h"
+#include "mesh.h"
+//#include "spars.h"
+#include "feasolver.h"
 
 #define muo 1.2566370614359173e-6
 
-int HSolver::SortElements()
+int FEASolver::SortElements()
 {
     // Comb Sort -- see http://en.wikipedia.org/wiki/Comb_sort
     int *Score;
@@ -80,7 +80,7 @@ int HSolver::SortElements()
     return TRUE;
 }
 
-int HSolver::Cuthill()
+int FEASolver::Cuthill()
 {
 
     FILE *fp;
@@ -88,10 +88,7 @@ int HSolver::Cuthill()
     long int j,k;
     int newwide,*newnum,**ocon;
     int  *numcon,*nxtnum;
-    CNode swap;
     char infile[256];
-
-
 
     // read in connectivity from nodefile
     sprintf(infile,"%s.edge",PathName.c_str());
@@ -293,24 +290,26 @@ int HSolver::Cuthill()
         for(j=0; j<3; j++)
             meshele[i].p[j]=newnum[meshele[i].p[j]];
 
-    // now, sort nodes based on newnum;
-    for(i=0; i<NumNodes; i++)
-    {
-        while(newnum[i]!=i)
-        {
-            // get an object of whatever type is in the meshnode vector
-            // for use as a temporary location during the renumbering
-            typename meshnode::value_type swap;
+//    // now, sort nodes based on newnum;
+//    for(i=0; i<NumNodes; i++)
+//    {
+//        while(newnum[i]!=i)
+//        {
+//            CNode swap;
+//
+//            j=newnum[i];
+//            n=newnum[j];
+//            newnum[j]=newnum[i];
+//            newnum[i]=n;
+//            swap=meshnode[j];
+//            meshnode[j]=meshnode[i];
+//            meshnode[i]=swap;
+//        }
+//    }
 
-            j=newnum[i];
-            n=newnum[j];
-            newnum[j]=newnum[i];
-            newnum[i]=n;
-            swap=meshnode[j];
-            meshnode[j]=meshnode[i];
-            meshnode[i]=swap;
-        }
-    }
+    // virtual method that must be overridden by child classes
+    // as the mesh nodes class type varies
+    SortNodes (newnum);
 
     free(newnum);
 
