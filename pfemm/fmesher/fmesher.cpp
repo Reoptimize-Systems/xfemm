@@ -501,7 +501,7 @@ int FMesher::LoadFEMFile (string PathName)
     Initialize();
 
     FILE *fp;
-    int i,j,k,t;
+    int i,k,t;
     int vers=0;
     char s[1024],q[1024];
     char *v;
@@ -695,6 +695,8 @@ int FMesher::LoadFEMFile (string PathName)
                 boundstring += q;
 
             }
+
+            lineproplist.push_back (BProp);
 
             q[0] = '\0';
 
