@@ -437,7 +437,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // store the number of holes
     Nholes = j;
 
-    NRegionalAttribs = blocklist.size()-j;
+    NRegionalAttribs = blocklist.size() - j;
 
 	// figure out a good default mesh size for block labels where
 	// mesh size isn't explicitly specified
@@ -519,8 +519,18 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // write out node marker list
 	for(i=0;i<nodelst.size();i++)
 	{
-		for(j=0,t=0;j<nodeproplist.size();j++)
-				if(nodeproplist[j].PointName==nodelst[i].BoundaryMarker) t=j+2;
+		for(j=0,t=0;j<nodeproplist.size ();j++)
+				if(nodeproplist[j].PointName==nodelst[i].BoundaryMarker) t = j + 2;
+
+        if (filetype == F_TYPE_HEATFLOW)
+        {
+            // include conductor number;
+            for(j=0;j<circproplist.size ();j++)
+            {
+                // add the conductor numer using a mask
+                if(circproplist[j].CircName==nodelst[i].InConductor) t += ((j+1) * 0x10000);
+            }
+        }
 
         in.pointmarkerlist[i] = t;
 	}
@@ -554,9 +564,9 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 	{
 		for(j=0,t=0; j < lineproplist.size (); j++)
 		{
-				if (lineproplist[j].BdryName==linelst[i].BoundaryMarker)
+				if (lineproplist[j].BdryName == linelst[i].BoundaryMarker)
 				{
-				    t =- (j+2);
+				    t = -(j+2);
                 }
 		}
 
@@ -565,9 +575,9 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             // include conductor number;
             for (j=0; j < circproplist.size (); j++)
             {
-				if (circproplist[j].CircName==linelst[i].InConductor)
+				if (circproplist[j].CircName == linelst[i].InConductor)
 				{
-				    t -= ((j+1)*0x10000);
+				    t -= ((j+1) * 0x10000);
 				}
             }
         }
@@ -2064,10 +2074,17 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     t = 0;
     // write out node marker list
-	for(i=0;i<nodelst.size();i++)
+	for(i=0;i<nodelst.size ();i++)
 	{
-		for(j=0,t=0;j<nodeproplist.size();j++)
-				if(nodeproplist[j].PointName==nodelst[i].BoundaryMarker) t=j+2;
+		for(j=0,t=0; j < nodeproplist.size (); j++)
+				if(nodeproplist[j].PointName == nodelst[i].BoundaryMarker) t = j + 2;
+
+        if (filetype == F_TYPE_HEATFLOW)
+        {
+            // include conductor number;
+            for(j=0; j < circproplist.size (); j++)
+				if(circproplist[j].CircName == nodelst[i].InConductor) t += ((j+1) * 0x10000);
+        }
 
         in.pointmarkerlist[i] = t;
 	}
@@ -2100,10 +2117,17 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     t = 0;
 
     // construct the segment list
-	for(i=0;i<linelst.size();i++)
+	for(i=0; i < linelst.size (); i++)
 	{
-		for(j=0,t=0;j<lineproplist.size();j++)
-				if(lineproplist[j].BdryName==linelst[i].BoundaryMarker) t=-(j+2);
+		for(j=0,t=0; j < lineproplist.size (); j++)
+				if(lineproplist[j].BdryName==linelst[i].BoundaryMarker) t = -(j+2);
+
+        if (filetype == F_TYPE_HEATFLOW)
+        {
+            // include conductor number;
+            for(j=0; j < circproplist.size (); j++)
+                if(circproplist[j].CircName == linelst[i].InConductor) t -= ((j+1) * 0x10000);
+        }
 
         in.segmentmarkerlist[i] = t;
 	}
