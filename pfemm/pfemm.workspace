@@ -3,7 +3,7 @@
 	<Workspace title="Workspace">
 		<Project filename="fpproc/libfpproc.cbp" />
 		<Project filename="libfemm/libfemm.cbp" />
-		<Project filename="fsolver/libfsolver.cbp" active="1" />
+		<Project filename="fsolver/libfsolver.cbp" />
 		<Project filename="fsolver/fsolver.cbp">
 			<Depends filename="fsolver/libfsolver.cbp" />
 		</Project>
@@ -16,6 +16,6 @@
 			<Depends filename="hsolver/libhsolver.cbp" />
 		</Project>
 		<Project filename="hpproc/hpproc.cbp" />
-		<Project filename="fpproc/test_fpproc.cbp" />
+		<Project filename="fpproc/test_fpproc.cbp" active="1" />
 	</Workspace>
 </CodeBlocks_workspace_file>
