@@ -16,6 +16,7 @@
 			<Depends filename="hsolver/libhsolver.cbp" />
 		</Project>
 		<Project filename="hpproc/hpproc.cbp" />
-		<Project filename="fpproc/test_fpproc.cbp" active="1" />
+		<Project filename="fpproc/test_fpproc.cbp" />
+		<Project filename="hpproc/test_hpproc.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
