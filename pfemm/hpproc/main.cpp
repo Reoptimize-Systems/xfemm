@@ -48,7 +48,7 @@ int main()
     cout << "HPProc Loaded!" << endl;
 
 
-    int test = testHPProc.OpenDocument("htutor0.anh");
+    int test = testHPProc.OpenDocument("Temp0.anh");
 
     if (test==TRUE)
     {
@@ -60,14 +60,14 @@ int main()
             }
         }
 
-        for(int j=0; j<(int)(testHPProc.blocklist.size()); j++)
+       // for(int j=0; j<(int)(testHPProc.blocklist.size()); j++)
         {
           //  if (testHPProc.blocklist[j].InGroup==3)
             {
                 testHPProc.blocklist[0].ToggleSelect();
             }
 
-            testHPProc.bHasMask = FALSE;
+         //   testHPProc.bHasMask = FALSE;
         }
 
 
