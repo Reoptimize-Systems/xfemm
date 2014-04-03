@@ -11,9 +11,10 @@ function conv = length2metres_mfemm(length, units)
 %   length - the original length, or matrix of lengths to be converted to
 %     metres.
 %
-%   units - integer defining the original length units, as typically stored
-%     in the FemmProblem.Probinfo.LengthUnits field. units can have values
-%     0 through 5 where the numbers denote the units below:
+%   units - either an integer or string defining the original length units,
+%     as typically stored in the FemmProblem.Probinfo.LengthUnits field. If
+%     an integer, can have values 0 through 5 where the numbers denote the
+%     units below:
 %
 %     0: inches
 %     1: millimeters
@@ -21,6 +22,9 @@ function conv = length2metres_mfemm(length, units)
 %     3: meters
 %     4: mils
 %     5: micrometers
+%
+%     If a string, one of the following: inches, millimeters, centimeters,
+%     meters, mils, micrometers
 %
 % Output
 %
@@ -43,7 +47,24 @@ function conv = length2metres_mfemm(length, units)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-
+    if ischar (units)
+        
+        if strcmp (units, 'inches')
+            units = 0;
+        elseif strcmp (units, 'millimeters')
+            units = 1;
+        elseif strcmp (units, 'centimeters')
+            units = 2;
+        elseif strcmp (units, 'metres')
+            units = 3;
+        elseif strcmp (units, 'mils')
+            units = 4;
+        elseif strcmp (units, 'micrometers')
+            units = 5;
+        end
+                
+    end
+    
     switch units
         
         case 0
