@@ -3,7 +3,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
 %
 % Syntax
 %
-% plotnodelinks(nodes, links)
+% plotarclinks(nodes, links, angles, maxdeg)
 %
 % Input
 %
@@ -12,6 +12,11 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
 %
 % links - (n x 2) set of links between nodes. these are a set of integers
 %  which index the nodes in the list.  
+%
+% angles - 
+%
+% maxdeg - 
+%
 %
 
 % Copyright 2012 Richard Crozier
