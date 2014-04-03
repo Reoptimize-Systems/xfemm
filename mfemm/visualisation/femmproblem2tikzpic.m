@@ -1,14 +1,18 @@
-function tikzstrs = femmproblem2tikzpic (FemmProblem)
+function tikzstrs = femmproblem2tikzpic (FemmProblem, width_mm)
 % Converts a FemmProblem structure to TIKZ picture suitible for inclusion
 % in a LaTeX document
 %
 % Syntax
 %
 % tikzstrs = femmproblem2tikzpic (FemmProblem)
+% tikzstrs = femmproblem2tikzpic (FemmProblem, width_mm)
 %
 % Input
 %
 %   FemmProblem - structure containing mfemm problem
+%
+%   width_mm - the approximate width the final picture will be in mm, if
+%     not supplied, the picture will be approximately 150 mm wide
 %
 % Output
 %
@@ -20,11 +24,15 @@ function tikzstrs = femmproblem2tikzpic (FemmProblem)
     
     w = length2metres_mfemm (w, FemmProblem.ProbInfo.LengthUnits);
     
-    % default real width in m
-    colwidth = 150e-3;
+    if nargin > 1
+        width = width_mm / 1000;
+    else
+        % default real width in m
+        width = 150e-3;
+    end
     
     tikzstart = { ...
-sprintf('\\begin{tikzpicture}[x=100cm,y=100cm,scale=%f,', colwidth / w);
+sprintf('\\begin{tikzpicture}[x=100cm,y=100cm,scale=%f,', width / w);
 ...sprintf('\\begin{tikzpicture}[scale=1,');
 '  lines/.style={draw=black}]';
     };
