@@ -75,7 +75,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
         error('Supplied file name must have .fem extension');
     end
 
-    if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
+    if (exist(['mexfmesher.', mexext()], 'file')==3) && (exist(['mexfsolver.', mexext()], 'file')==3) ...
             && ~usefemm
         
         if quiet && ~isoctave
