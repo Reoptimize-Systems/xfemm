@@ -40,9 +40,9 @@ OBJDIR_RELEASE = obj/Release
 DEP_RELEASE = 
 OUT_RELEASE = libfsolver.a
 
-OBJ_DEBUG = $(OBJDIR_DEBUG)/__/libfemm/liblua/ltable.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lundump.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltm.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltests.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lstrlib.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lstring.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lstate.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lparser.o $(OBJDIR_DEBUG)/staticaxi.o $(OBJDIR_DEBUG)/static2d.o $(OBJDIR_DEBUG)/matprop.o $(OBJDIR_DEBUG)/harmonicaxi.o $(OBJDIR_DEBUG)/harmonic2d.o $(OBJDIR_DEBUG)/fsolver.o $(OBJDIR_DEBUG)/__/libfemm/spars.o $(OBJDIR_DEBUG)/__/libfemm/main.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lzio.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lvm.o $(OBJDIR_DEBUG)/__/libfemm/fullmatrix.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lcode.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lbaselib.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lauxlib.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lapi.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ldblib.o $(OBJDIR_DEBUG)/__/libfemm/fparse.o $(OBJDIR_DEBUG)/__/libfemm/femmcomplex.o $(OBJDIR_DEBUG)/__/libfemm/feasolver.o $(OBJDIR_DEBUG)/__/libfemm/cuthill.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lobject.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lmem.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lmathlib.o $(OBJDIR_DEBUG)/__/libfemm/liblua/llex.o $(OBJDIR_DEBUG)/__/libfemm/liblua/liolib.o $(OBJDIR_DEBUG)/__/libfemm/cspars.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lgc.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lfunc.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ldo.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ldebug.o
+OBJ_DEBUG = $(OBJDIR_DEBUG)/__/libfemm/liblua/lstrlib.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltm.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltests.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltable.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lundump.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lstring.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lstate.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lparser.o $(OBJDIR_DEBUG)/staticaxi.o $(OBJDIR_DEBUG)/static2d.o $(OBJDIR_DEBUG)/matprop.o $(OBJDIR_DEBUG)/harmonicaxi.o $(OBJDIR_DEBUG)/harmonic2d.o $(OBJDIR_DEBUG)/fsolver.o $(OBJDIR_DEBUG)/__/libfemm/spars.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lzio.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lvm.o $(OBJDIR_DEBUG)/__/libfemm/fullmatrix.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lcode.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lbaselib.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lauxlib.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lapi.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ldblib.o $(OBJDIR_DEBUG)/__/libfemm/fparse.o $(OBJDIR_DEBUG)/__/libfemm/femmcomplex.o $(OBJDIR_DEBUG)/__/libfemm/feasolver.o $(OBJDIR_DEBUG)/__/libfemm/cuthill.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lobject.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lmem.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lmathlib.o $(OBJDIR_DEBUG)/__/libfemm/liblua/llex.o $(OBJDIR_DEBUG)/__/libfemm/liblua/liolib.o $(OBJDIR_DEBUG)/__/libfemm/cspars.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lgc.o $(OBJDIR_DEBUG)/__/libfemm/liblua/lfunc.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ldo.o $(OBJDIR_DEBUG)/__/libfemm/liblua/ldebug.o
 
-OBJ_RELEASE = $(OBJDIR_RELEASE)/__/libfemm/liblua/ltable.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lundump.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltm.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltests.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lstrlib.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lstring.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lstate.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lparser.o $(OBJDIR_RELEASE)/staticaxi.o $(OBJDIR_RELEASE)/static2d.o $(OBJDIR_RELEASE)/matprop.o $(OBJDIR_RELEASE)/harmonicaxi.o $(OBJDIR_RELEASE)/harmonic2d.o $(OBJDIR_RELEASE)/fsolver.o $(OBJDIR_RELEASE)/__/libfemm/spars.o $(OBJDIR_RELEASE)/__/libfemm/main.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lzio.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lvm.o $(OBJDIR_RELEASE)/__/libfemm/fullmatrix.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lcode.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lbaselib.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lauxlib.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lapi.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ldblib.o $(OBJDIR_RELEASE)/__/libfemm/fparse.o $(OBJDIR_RELEASE)/__/libfemm/femmcomplex.o $(OBJDIR_RELEASE)/__/libfemm/feasolver.o $(OBJDIR_RELEASE)/__/libfemm/cuthill.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lobject.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lmem.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lmathlib.o $(OBJDIR_RELEASE)/__/libfemm/liblua/llex.o $(OBJDIR_RELEASE)/__/libfemm/liblua/liolib.o $(OBJDIR_RELEASE)/__/libfemm/cspars.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lgc.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lfunc.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ldo.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ldebug.o
+OBJ_RELEASE = $(OBJDIR_RELEASE)/__/libfemm/liblua/lstrlib.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltm.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltests.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltable.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lundump.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lstring.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lstate.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lparser.o $(OBJDIR_RELEASE)/staticaxi.o $(OBJDIR_RELEASE)/static2d.o $(OBJDIR_RELEASE)/matprop.o $(OBJDIR_RELEASE)/harmonicaxi.o $(OBJDIR_RELEASE)/harmonic2d.o $(OBJDIR_RELEASE)/fsolver.o $(OBJDIR_RELEASE)/__/libfemm/spars.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lzio.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lvm.o $(OBJDIR_RELEASE)/__/libfemm/fullmatrix.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lcode.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lbaselib.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lauxlib.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lapi.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ldblib.o $(OBJDIR_RELEASE)/__/libfemm/fparse.o $(OBJDIR_RELEASE)/__/libfemm/femmcomplex.o $(OBJDIR_RELEASE)/__/libfemm/feasolver.o $(OBJDIR_RELEASE)/__/libfemm/cuthill.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lobject.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lmem.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lmathlib.o $(OBJDIR_RELEASE)/__/libfemm/liblua/llex.o $(OBJDIR_RELEASE)/__/libfemm/liblua/liolib.o $(OBJDIR_RELEASE)/__/libfemm/cspars.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lgc.o $(OBJDIR_RELEASE)/__/libfemm/liblua/lfunc.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ldo.o $(OBJDIR_RELEASE)/__/libfemm/liblua/ldebug.o
 
 all: debug release
 
@@ -60,11 +60,8 @@ debug: before_debug out_debug after_debug
 out_debug: before_debug $(OBJ_DEBUG) $(DEP_DEBUG)
 	$(AR) rcs $(OUT_DEBUG) $(OBJ_DEBUG)
 
-$(OBJDIR_DEBUG)/__/libfemm/liblua/ltable.o: ../libfemm/liblua/ltable.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/ltable.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltable.o
-
-$(OBJDIR_DEBUG)/__/libfemm/liblua/lundump.o: ../libfemm/liblua/lundump.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/lundump.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/lundump.o
+$(OBJDIR_DEBUG)/__/libfemm/liblua/lstrlib.o: ../libfemm/liblua/lstrlib.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/lstrlib.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/lstrlib.o
 
 $(OBJDIR_DEBUG)/__/libfemm/liblua/ltm.o: ../libfemm/liblua/ltm.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/ltm.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltm.o
@@ -72,8 +69,11 @@ $(OBJDIR_DEBUG)/__/libfemm/liblua/ltm.o: ../libfemm/liblua/ltm.cpp
 $(OBJDIR_DEBUG)/__/libfemm/liblua/ltests.o: ../libfemm/liblua/ltests.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/ltests.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltests.o
 
-$(OBJDIR_DEBUG)/__/libfemm/liblua/lstrlib.o: ../libfemm/liblua/lstrlib.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/lstrlib.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/lstrlib.o
+$(OBJDIR_DEBUG)/__/libfemm/liblua/ltable.o: ../libfemm/liblua/ltable.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/ltable.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/ltable.o
+
+$(OBJDIR_DEBUG)/__/libfemm/liblua/lundump.o: ../libfemm/liblua/lundump.cpp
+	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/lundump.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/lundump.o
 
 $(OBJDIR_DEBUG)/__/libfemm/liblua/lstring.o: ../libfemm/liblua/lstring.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/lstring.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/lstring.o
@@ -104,9 +104,6 @@ $(OBJDIR_DEBUG)/fsolver.o: fsolver.cpp
 
 $(OBJDIR_DEBUG)/__/libfemm/spars.o: ../libfemm/spars.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/spars.cpp -o $(OBJDIR_DEBUG)/__/libfemm/spars.o
-
-$(OBJDIR_DEBUG)/__/libfemm/main.o: ../libfemm/main.cpp
-	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/main.cpp -o $(OBJDIR_DEBUG)/__/libfemm/main.o
 
 $(OBJDIR_DEBUG)/__/libfemm/liblua/lzio.o: ../libfemm/liblua/lzio.cpp
 	$(CXX) $(CFLAGS_DEBUG) $(INC_DEBUG) -c ../libfemm/liblua/lzio.cpp -o $(OBJDIR_DEBUG)/__/libfemm/liblua/lzio.o
@@ -192,11 +189,8 @@ release: before_release out_release after_release
 out_release: before_release $(OBJ_RELEASE) $(DEP_RELEASE)
 	$(AR) rcs $(OUT_RELEASE) $(OBJ_RELEASE)
 
-$(OBJDIR_RELEASE)/__/libfemm/liblua/ltable.o: ../libfemm/liblua/ltable.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/ltable.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltable.o
-
-$(OBJDIR_RELEASE)/__/libfemm/liblua/lundump.o: ../libfemm/liblua/lundump.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/lundump.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/lundump.o
+$(OBJDIR_RELEASE)/__/libfemm/liblua/lstrlib.o: ../libfemm/liblua/lstrlib.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/lstrlib.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/lstrlib.o
 
 $(OBJDIR_RELEASE)/__/libfemm/liblua/ltm.o: ../libfemm/liblua/ltm.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/ltm.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltm.o
@@ -204,8 +198,11 @@ $(OBJDIR_RELEASE)/__/libfemm/liblua/ltm.o: ../libfemm/liblua/ltm.cpp
 $(OBJDIR_RELEASE)/__/libfemm/liblua/ltests.o: ../libfemm/liblua/ltests.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/ltests.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltests.o
 
-$(OBJDIR_RELEASE)/__/libfemm/liblua/lstrlib.o: ../libfemm/liblua/lstrlib.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/lstrlib.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/lstrlib.o
+$(OBJDIR_RELEASE)/__/libfemm/liblua/ltable.o: ../libfemm/liblua/ltable.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/ltable.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/ltable.o
+
+$(OBJDIR_RELEASE)/__/libfemm/liblua/lundump.o: ../libfemm/liblua/lundump.cpp
+	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/lundump.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/lundump.o
 
 $(OBJDIR_RELEASE)/__/libfemm/liblua/lstring.o: ../libfemm/liblua/lstring.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/lstring.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/lstring.o
@@ -236,9 +233,6 @@ $(OBJDIR_RELEASE)/fsolver.o: fsolver.cpp
 
 $(OBJDIR_RELEASE)/__/libfemm/spars.o: ../libfemm/spars.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/spars.cpp -o $(OBJDIR_RELEASE)/__/libfemm/spars.o
-
-$(OBJDIR_RELEASE)/__/libfemm/main.o: ../libfemm/main.cpp
-	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/main.cpp -o $(OBJDIR_RELEASE)/__/libfemm/main.o
 
 $(OBJDIR_RELEASE)/__/libfemm/liblua/lzio.o: ../libfemm/liblua/lzio.cpp
 	$(CXX) $(CFLAGS_RELEASE) $(INC_RELEASE) -c ../libfemm/liblua/lzio.cpp -o $(OBJDIR_RELEASE)/__/libfemm/liblua/lzio.o
