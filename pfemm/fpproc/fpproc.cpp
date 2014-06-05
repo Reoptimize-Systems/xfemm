@@ -1482,8 +1482,9 @@ int FPProc::InTriangle(double x, double y)
     int j,hi,lo,sz;
     double z;
 
-    sz=meshelem.size();
-    if((k<0) || (k>=sz)) k=0;
+    sz = meshelem.size();
+    
+    if ((k < 0) || (k >= sz)) k = 0;
 
     // In most applications, the triangle we're looking
     // for is nearby the last one we found.  Since the elements
@@ -1491,34 +1492,38 @@ int FPProc::InTriangle(double x, double y)
     // elements nearby the last one selected first.
     if (InTriangleTest(x,y,k)) return k;
 
-    hi=k;
-    lo=k;
+    // wasn't in the last searched triangle, so look through all the 
+    // elements
+    hi = k;
+    lo = k;
 
     for(j=0; j<sz; j+=2)
     {
         hi++;
-        if(hi>=sz) hi=0;
+        if (hi >= sz) hi = 0;
         lo--;
-        if(lo<0)   lo=sz-1;
+        if (lo < 0)   lo = sz - 1;
 
-        z=(meshelem[hi].ctr.re-x)*(meshelem[hi].ctr.re-x) +
-          (meshelem[hi].ctr.im-y)*(meshelem[hi].ctr.im-y);
-        if(z<=meshelem[hi].rsqr)
+        z = (meshelem[hi].ctr.re - x) * (meshelem[hi].ctr.re - x) +
+            (meshelem[hi].ctr.im - y) * (meshelem[hi].ctr.im - y);
+        
+        if (z <= meshelem[hi].rsqr)
         {
-            if(InTriangleTest(x,y,hi))
+            if (InTriangleTest(x,y,hi))
             {
-                k=hi;
+                k = hi;
                 return k;
             }
         }
 
-        z=(meshelem[lo].ctr.re-x)*(meshelem[lo].ctr.re-x) +
-          (meshelem[lo].ctr.im-y)*(meshelem[lo].ctr.im-y);
-        if(z<=meshelem[lo].rsqr)
+        z = (meshelem[lo].ctr.re-x)*(meshelem[lo].ctr.re-x) +
+            (meshelem[lo].ctr.im-y)*(meshelem[lo].ctr.im-y);
+        
+        if (z <= meshelem[lo].rsqr)
         {
-            if(InTriangleTest(x,y,lo))
+            if (InTriangleTest(x,y,lo))
             {
-                k=lo;
+                k = lo;
                 return k;
             }
         }
@@ -2579,24 +2584,41 @@ int FPProc::ClosestNode(double x, double y)
 
 bool FPProc::InTriangleTest(double x, double y, int i)
 {
+        
+    if ((i < 0) || (i >= int(meshelem.size()))) return false;
+    
     int j,k;
     double z;
-    bool InFlag;
 
-    if(i<0) return false;
-
-    for(j=0,InFlag=true; ((j<3) && (InFlag==true)); j++)
+    for (j=0; j<3; j++)
     {
-        k=j+1;
-        if(k==3) k=0;
-        z=(meshnode[meshelem[i].p[k]].x-meshnode[meshelem[i].p[j]].x)*
-          (y-meshnode[meshelem[i].p[j]].y) -
-          (meshnode[meshelem[i].p[k]].y-meshnode[meshelem[i].p[j]].y)*
-          (x-meshnode[meshelem[i].p[j]].x);
-        if(z<0) InFlag=false;
+        k = j + 1; 
+        
+        if (k == 3) k = 0;
+        
+        // Case 1: p[k]>p[j]
+        if (meshelem[i].p[k] > meshelem[i].p[j])
+        {
+            z = (meshnode[meshelem[i].p[k]].x - meshnode[meshelem[i].p[j]].x) *
+                (y - meshnode[meshelem[i].p[j]].y) -
+                (meshnode[meshelem[i].p[k]].y - meshnode[meshelem[i].p[j]].y) *
+                (x - meshnode[meshelem[i].p[j]].x);
+            
+            if(z<0) return false;
+        }
+        //Case 2: p[k]<p[j]
+        else
+        {
+            z = (meshnode[meshelem[i].p[j]].x - meshnode[meshelem[i].p[k]].x) *
+                (y - meshnode[meshelem[i].p[k]].y) -
+                (meshnode[meshelem[i].p[j]].y - meshnode[meshelem[i].p[k]].y) *
+                (x - meshnode[meshelem[i].p[k]].x);
+            
+            if (z > 0) return false;
+        }
     }
 
-    return InFlag;
+    return true;
 }
 
 CPointVals::CPointVals()
