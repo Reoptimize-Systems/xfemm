@@ -95,7 +95,6 @@
 		<Unit filename="../libfemm/liblua/lvm.h" />
 		<Unit filename="../libfemm/liblua/lzio.cpp" />
 		<Unit filename="../libfemm/liblua/lzio.h" />
-		<Unit filename="../libfemm/main.cpp" />
 		<Unit filename="../libfemm/mesh.h" />
 		<Unit filename="../libfemm/spars.cpp" />
 		<Unit filename="../libfemm/spars.h" />
