@@ -21,7 +21,7 @@ function groupno = getgroupnumber_mfemm (FemmProblem, name)
 
     groupno = [];
     
-    if isfield (FemmProblem.Groups)
+    if isfield (FemmProblem, 'Groups')
         try
             groupno = FemmProblem.Groups.(name);
         end
