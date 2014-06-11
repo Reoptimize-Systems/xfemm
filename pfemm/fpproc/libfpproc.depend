@@ -1,1 +1,468 @@
 # depslib dependency file v1.0
+1383055184 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\fpproc\makemask.cpp
+	<cstdlib>
+	<string>
+	<cmath>
+	"fpproc.h"
+	"problem.h"
+	"spars.h"
+	"fparse.h"
+
+1395761969 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\fpproc\fpproc.h
+	<vector>
+	"lua.h"
+	"luadebug.h"
+	"femmcomplex.h"
+	"problem.h"
+
+1395846105 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lua.h
+	"femmcomplex.h"
+	<stddef.h>
+
+1395757839 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\femmcomplex.h
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\luadebug.h
+	"lua.h"
+
+1395761968 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\fpproc\problem.h
+	<string>
+	"femmcomplex.h"
+
+1395316728 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\spars.h
+
+1395742382 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\fparse.h
+	<string>
+
+1395761969 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\fpproc\problem.cpp
+	<cstdlib>
+	<cmath>
+	"problem.h"
+	"fullmatrix.h"
+	"femmcomplex.h"
+
+1383055184 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\fullmatrix.h
+
+1395761969 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\cspars.cpp
+	<math.h>
+	<stdio.h>
+	<cstdlib>
+	"femmcomplex.h"
+	"spars.h"
+
+1395761969 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\cuthill.cpp
+	<stdio.h>
+	<math.h>
+	"malloc.h"
+	"femmcomplex.h"
+	"mesh.h"
+	"feasolver.h"
+
+1395763745 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\mesh.h
+	"femmcomplex.h"
+
+1395761704 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\feasolver.h
+	<string>
+	"mesh.h"
+	"spars.h"
+
+1395761969 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\feasolver.cpp
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	<cstring>
+	<malloc.h>
+	"lua.h"
+	"femmcomplex.h"
+	"mesh.h"
+	"spars.h"
+	"fparse.h"
+	"feasolver.h"
+
+1395761969 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\femmcomplex.cpp
+	"math.h"
+	"stdio.h"
+	"femmcomplex.h"
+
+1383055184 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\fparse.cpp
+	<string>
+	<cstring>
+	<cstdio>
+
+1395761969 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\fullmatrix.cpp
+	<cstdlib>
+	<math.h>
+	"malloc.h"
+	"femmcomplex.h"
+	"fullmatrix.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lapi.cpp
+	<string.h>
+	"lua.h"
+	"lapi.h"
+	"ldo.h"
+	"lfunc.h"
+	"lgc.h"
+	"lmem.h"
+	"lobject.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+	"ltm.h"
+	"lvm.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lapi.h
+	"lobject.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lobject.h
+	"lua.h"
+	"llimits.h"
+	<assert.h>
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\llimits.h
+	<limits.h>
+	<stddef.h>
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ldo.h
+	"lobject.h"
+	"lstate.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lstate.h
+	"lobject.h"
+	"lua.h"
+	"luadebug.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lfunc.h
+	"lobject.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lgc.h
+	"lobject.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lmem.h
+	<stddef.h>
+	"lua.h"
+	"llimits.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lstring.h
+	"lobject.h"
+	"lstate.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ltable.h
+	"lobject.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ltm.h
+	"lobject.h"
+	"lstate.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lvm.h
+	"ldo.h"
+	"lobject.h"
+	"ltm.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lauxlib.cpp
+	<stdarg.h>
+	<stdio.h>
+	<string.h>
+	"lua.h"
+	"lauxlib.h"
+	"luadebug.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lbaselib.cpp
+	<ctype.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"lua.h"
+	"lauxlib.h"
+	"luadebug.h"
+	"lualib.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lualib.h
+	"lua.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lcode.cpp
+	"stdlib.h"
+	"lua.h"
+	"lcode.h"
+	"ldo.h"
+	"llex.h"
+	"lmem.h"
+	"lobject.h"
+	"lopcodes.h"
+	"lparser.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lcode.h
+	"llex.h"
+	"lobject.h"
+	"lopcodes.h"
+	"lparser.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\llex.h
+	"lobject.h"
+	"lzio.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lzio.h
+	<stdio.h>
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lopcodes.h
+	"llimits.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lparser.h
+	"lobject.h"
+	"lzio.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ldblib.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"lua.h"
+	"lauxlib.h"
+	"luadebug.h"
+	"lualib.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ldebug.cpp
+	<stdlib.h>
+	"lua.h"
+	"lapi.h"
+	"lcode.h"
+	"ldebug.h"
+	"ldo.h"
+	"lfunc.h"
+	"lobject.h"
+	"lopcodes.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+	"ltm.h"
+	"luadebug.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ldebug.h
+	"lstate.h"
+	"luadebug.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ldo.cpp
+	<setjmp.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"lua.h"
+	"ldebug.h"
+	"ldo.h"
+	"lgc.h"
+	"lmem.h"
+	"lobject.h"
+	"lparser.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+	"ltm.h"
+	"lundump.h"
+	"lvm.h"
+	"lzio.h"
+
+1383055182 c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lundump.h
+	"lobject.h"
+	"lzio.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lfunc.cpp
+	<stdlib.h>
+	"lua.h"
+	"lfunc.h"
+	"lmem.h"
+	"lstate.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lgc.cpp
+	"lua.h"
+	"ldo.h"
+	"lfunc.h"
+	"lgc.h"
+	"lmem.h"
+	"lobject.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+	"ltm.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\liolib.cpp
+	<ctype.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"lua.h"
+	"lauxlib.h"
+	"luadebug.h"
+	"lualib.h"
+	<errno.h>
+	<locale.h>
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\llex.cpp
+	<ctype.h>
+	<stdio.h>
+	<string.h>
+	"lua.h"
+	"llex.h"
+	"lmem.h"
+	"lobject.h"
+	"lparser.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+	"luadebug.h"
+	"lzio.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lmathlib.cpp
+	<stdlib.h>
+	<math.h>
+	"lua.h"
+	"lauxlib.h"
+	"lualib.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lmem.cpp
+	<stdlib.h>
+	"lua.h"
+	"ldo.h"
+	"lmem.h"
+	"lobject.h"
+	"lstate.h"
+	<assert.h>
+	<limits.h>
+	<string.h>
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lobject.cpp
+	<ctype.h>
+	<stdarg.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"lua.h"
+	"lmem.h"
+	"lobject.h"
+	"lstate.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lparser.cpp
+	<stdio.h>
+	<string.h>
+	"lua.h"
+	"lcode.h"
+	"lfunc.h"
+	"llex.h"
+	"lmem.h"
+	"lobject.h"
+	"lopcodes.h"
+	"lparser.h"
+	"lstate.h"
+	"lstring.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lstate.cpp
+	<stdio.h>
+	"lua.h"
+	"ldo.h"
+	"lgc.h"
+	"llex.h"
+	"lmem.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+	"ltm.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lstring.cpp
+	<string.h>
+	"lua.h"
+	"lmem.h"
+	"lobject.h"
+	"lstate.h"
+	"lstring.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lstrlib.cpp
+	<ctype.h>
+	<stddef.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"lua.h"
+	"lauxlib.h"
+	"lualib.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ltable.cpp
+	"lua.h"
+	"lmem.h"
+	"lobject.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ltests.cpp
+	<ctype.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"lua.h"
+	"lapi.h"
+	"lauxlib.h"
+	"lcode.h"
+	"ldebug.h"
+	"ldo.h"
+	"lfunc.h"
+	"lmem.h"
+	"lopcodes.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+	"luadebug.h"
+	"lualib.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\ltm.cpp
+	<stdio.h>
+	<string.h>
+	"lua.h"
+	"ldo.h"
+	"lmem.h"
+	"lobject.h"
+	"lstate.h"
+	"ltm.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lundump.cpp
+	<stdio.h>
+	<string.h>
+	"lfunc.h"
+	"lmem.h"
+	"lopcodes.h"
+	"lstring.h"
+	"lundump.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lvm.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"lua.h"
+	"lapi.h"
+	"ldebug.h"
+	"ldo.h"
+	"lfunc.h"
+	"lgc.h"
+	"lobject.h"
+	"lopcodes.h"
+	"lstate.h"
+	"lstring.h"
+	"ltable.h"
+	"ltm.h"
+	"lvm.h"
+
+1383055182 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\liblua\lzio.cpp
+	<stdio.h>
+	<string.h>
+	"lua.h"
+	"lzio.h"
+
+1395768422 source:c:\documents and settings\s0237326\my documents\matlab\matlab\utilities\mfemm\pfemm\libfemm\spars.cpp
+	<math.h>
+	<stdio.h>
+	<stdlib.h>
+	"femmcomplex.h"
+	"spars.h"
+
