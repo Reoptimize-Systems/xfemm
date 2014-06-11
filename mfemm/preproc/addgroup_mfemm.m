@@ -32,8 +32,7 @@ function FemmProblem = addgroup_mfemm(FemmProblem, name, groupno)
     if nargin < 3
         % generate a group number, incorporating the date and time to
         % encourage uniqueness
-        groupno = str2double ([num2str( ceil ( 1000000 + rand (1) * (9999999 - 1000000) )), ...
-                               num2str( round(now * 10000) )]);
+        groupno = ceil ( 1000000 + rand (1) * (9999999 - 1000000) );
     else
         checkforexisting (FemmProblem, groupno);
     end
