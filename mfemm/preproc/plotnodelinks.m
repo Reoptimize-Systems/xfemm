@@ -30,6 +30,7 @@ function plotnodelinks(nodes, links, varargin)
 
     Inputs.ZeroBased = true;
     Inputs.ShowDirection = false;
+    Inputs.UserData = [];
     
     Inputs = parse_pv_pairs(Inputs, varargin);
     
@@ -52,7 +53,7 @@ function plotnodelinks(nodes, links, varargin)
     if isoctave
         scatter3(nodes(:,1), nodes(:,2), nodes(:,3), [], [], 'xr');
     else
-        scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr');
+        scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr', 'UserData', Inputs.UserData);
     end
     
     hold off
@@ -66,9 +67,10 @@ function plotnodelinks(nodes, links, varargin)
                   [nodes(links(i,2),1), nodes(links(i,2),2), nodes(links(i,2),3)], ...
                   'Width', 2);
         else
-            line([nodes(links(i,1),1), nodes(links(i,2),1)], ...
-                 [nodes(links(i,1),2), nodes(links(i,2),2)], ...
-                 [nodes(links(i,1),3), nodes(links(i,2),3)]);
+            line( [nodes(links(i,1),1), nodes(links(i,2),1)], ...
+                  [nodes(links(i,1),2), nodes(links(i,2),2)], ...
+                  [nodes(links(i,1),3), nodes(links(i,2),3)], ...
+                  'UserData', Inputs.UserData );
         end
     end
     
