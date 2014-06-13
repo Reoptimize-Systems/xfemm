@@ -43,7 +43,26 @@ function conv = metres2length_mfemm(metres, units)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-
+    if ischar (units)
+        
+        if strncmpi (units, 'i', 1)
+            units = 0;
+        elseif strncmpi (units, 'mill', 4)
+            units = 1;
+        elseif strncmpi (units, 'c', 1)
+            units = 2;
+        elseif strncmpi (units, 'me', 2)
+            units = 3;
+        elseif strncmpi (units, 'mils', 4)
+            units = 4;
+        elseif strncmpi (units, 'mic', 3)
+            units = 5;
+        else
+            units = nan;
+        end
+        
+    end
+    
     switch units
         
         case 0
