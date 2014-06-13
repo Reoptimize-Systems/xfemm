@@ -36,6 +36,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
 %     warning('Plotting arc segments not yet supported, they will be ignored');
     
     Inputs.ZeroBased = true;
+    Inputs.UserData = [];
     
     Inputs = parse_pv_pairs(Inputs, varargin);
     
@@ -58,7 +59,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
         
         [x, y] = arcpoints(nodes(links(i,1),:), nodes(links(i,2),:), angles(i), maxdeg(i));
         
-        line(x, y);
+        line(x, y, 'UserData', Inputs.UserData);
         
     end
     
@@ -70,7 +71,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
     if isoctave
         scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), [], [], 'xr');
     else
-        scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), 'xr');
+        scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), 'xr', 'UserData', Inputs.UserData);
     end
 %     
 %     if ~is2d

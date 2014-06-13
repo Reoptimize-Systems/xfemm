@@ -1,4 +1,4 @@
-function [hfig, hax] = plotfemmproblem(FemmProblem, hfig)
+function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
 % plotfemmproblem: plots a simple visualisation of an mfemm problem
 % structure
 % 
@@ -29,8 +29,17 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, hfig)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    if nargin < 2
+
+    options.FigureHandle = [];
+    options.LabelText = {'Color', [0 0 0.5]};
+    options.AddLabels = true;
+    
+    options = parseoptions (options, varargin);
+    
+    if isempty (options.FigureHandle)
         hfig = figure;
+    else
+        hfig = options.FigureHandle;
     end
     
     hax = axes;
@@ -42,14 +51,14 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, hfig)
     
     if ~isoctave
         hZoom = zoom(gcf);
-        set(hZoom, 'ActionPostCallback', {@zoomfemmplot,hax});
+        set(hZoom, 'ActionPostCallback', {@zoomfemmplot,hax,options});
     end
     
-    makefemmplot(hax);
+    makefemmplot(hax,options);
    
 end
 
-function zoomfemmplot(fig,evd,hax)
+function zoomfemmplot(fig,evd,hax,options)
 % makes a plot after a zoom operation, used to keep block labels the same
 % size at all zoom levels
 
@@ -62,9 +71,21 @@ function zoomfemmplot(fig,evd,hax)
     w = xlim(2) - xlim(1);
     h = ylim(2) - ylim(1);
 
-    cla(hax);
+%     cla(hax);
     
-    makefemmplot(hax,w,h)
+    % string all the old mfemm stuff from the plot, it will be tagged in
+    % the UserData of the plot object
+    plothandles = get (hax, 'Children');
+    
+    for ind = 1:numel (plothandles)
+        ud = get (plothandles(ind), 'UserData');
+        
+        if ischar (ud) && strcmp (ud, 'mfemm')
+            delete (plothandles(ind));
+        end
+    end
+    
+    makefemmplot(hax,options,w,h)
     
     set(hax, 'XLim', xlim);
     
@@ -73,12 +94,12 @@ function zoomfemmplot(fig,evd,hax)
 end
 
 
-function makefemmplot(hax,w,h)
+function makefemmplot(hax,options,w,h)
 % creates the entire problem plot
 
     FemmProblem = get(hax, 'UserData');  
         
-    if nargin == 1
+    if nargin == 2
         % get the extent of the problem region
         [~,~,w,h] = extent_mfemm(FemmProblem);
     end
@@ -88,14 +109,14 @@ function makefemmplot(hax,w,h)
     links = getnodelinks_mfemm(FemmProblem);
 
     % plot the segments as lines
-    plotnodelinks(nodes, links);
+    plotnodelinks(nodes, links, 'UserData', 'mfemm');
 
     arclinks = getarclinks_mfemm(FemmProblem);
 
     % plot the arc segments as lines 
     hold all
     if ~isempty(arclinks)
-        plotarclinks(nodes, arclinks(:,1:2), arclinks(:,3), arclinks(:,4));
+        plotarclinks(nodes, arclinks(:,1:2), arclinks(:,3), arclinks(:,4), 'UserData', 'mfemm');
     end
     hold off
 
@@ -103,10 +124,14 @@ function makefemmplot(hax,w,h)
         maxtriarea = max(cell2mat({FemmProblem.BlockLabels(:).MaxArea}'));
     end
     
-    for i = 1:numel(FemmProblem.BlockLabels)
+    if options.AddLabels
+        
+        for i = 1:numel(FemmProblem.BlockLabels)
 
-        plotblocklabel(w,h,maxtriarea,FemmProblem.BlockLabels(i));
+            plotblocklabel(w, h, maxtriarea, FemmProblem.BlockLabels(i), options);
 
+        end
+    
     end
     
     % plot the mesh if it's present, would be nice to cycle through colours
@@ -124,7 +149,7 @@ function makefemmplot(hax,w,h)
 end
 
 
-function plotblocklabel(w,h,maxtriarea,BlockLabel)
+function plotblocklabel(w, h, maxtriarea, BlockLabel, options)
 % adds a single block label to the problem plot
 %
 
@@ -154,11 +179,15 @@ function plotblocklabel(w,h,maxtriarea,BlockLabel)
                 labeld ];
     
     hold all
-    rectangle('Position', rectpos, 'Curvature', [1,1], 'EdgeColor', labelcolour);
+    rectangle('Position', rectpos, 'Curvature', [1,1], ...
+              'EdgeColor', labelcolour, ...
+              'UserData', 'mfemm');
 
     plotcross( BlockLabel.Coords(1), ...
                BlockLabel.Coords(2), ...
-               labeld,labeld, 'Color', labelcolour)
+               labeld,labeld, ...
+               'Color', labelcolour, ...
+               'UserData', 'mfemm');
 
     hold off
     
@@ -166,7 +195,8 @@ function plotblocklabel(w,h,maxtriarea,BlockLabel)
     text( BlockLabel.Coords(1) + 1.025*(labeld/2), ...
           BlockLabel.Coords(2) + 1.025*(labeld/2), ...
           BlockLabel.BlockType, ...
-          'Color', [0 0 0.5] );
+          'UserData', 'mfemm', ...
+          options.LabelText{:} );
 
 end
 
