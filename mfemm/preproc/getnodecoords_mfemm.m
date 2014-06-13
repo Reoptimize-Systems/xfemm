@@ -1,6 +1,24 @@
 function nodecoords = getnodecoords_mfemm(FemmProblem)
 % getnodes_femm: gets all the node locations from an mfemm problem
 % structure
+%
+% Syntax
+%
+% nodecoords = getnodecoords_mfemm(FemmProblem)
+%
+% Input 
+%
+%  FemmProblem - mfemm FemmProblem structure from which to extract the node
+%    coordinates
+%
+% Output
+%
+%  nodecoords - (n x 2) matrix containing the node coordinates
+%
+%
+% See also: getnodelinks_mfemm.m, getseglinks_mfemm,
+%           getsegnodecoords_mfemm, getsegmidpointcoords_mfemm
+%           
 
 % Copyright 2012 Richard Crozier
 % 
