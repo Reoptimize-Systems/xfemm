@@ -24,7 +24,7 @@ function tikzstrs = femmproblem2tikzpic (FemmProblem, varargin)
 %
 % Output
 %
-%   tikzstrs - cell array of strings containing the tizpicture, one line
+%   tikzstrs - cell array of strings containing the tikzpicture, one line
 %     per row.
 %
 % Example
@@ -32,6 +32,10 @@ function tikzstrs = femmproblem2tikzpic (FemmProblem, varargin)
 % % to draw the only the groups 1 and 5 from the FemmProblem 
 % tikzstrs = femmproblem2tikzpic (FemmProblem, 'groups', [1, 5])
 %
+% See also: cellstr2txtfile
+%
+
+% Created by Richard Crozier (C) 2014
 
     opts.width_mm = 150;
     opts.groups = [];
