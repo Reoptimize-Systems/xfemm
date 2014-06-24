@@ -33,7 +33,7 @@ add_executable(fsolver-bin
   main.cpp
   )
 
-SET_TARGET_PROPERTIES(fsolver-bin
+set_target_properties(fsolver-bin
   PROPERTIES OUTPUT_NAME fsolver)
 
 target_link_libraries(fsolver-bin fsolver)

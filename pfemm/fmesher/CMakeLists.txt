@@ -32,7 +32,7 @@ add_executable(fmesher-bin
   main.cpp
   )
 
-SET_TARGET_PROPERTIES(fmesher-bin
+set_target_properties(fmesher-bin
   PROPERTIES OUTPUT_NAME fmesher)
 
 target_link_libraries(fmesher-bin fmesher)
