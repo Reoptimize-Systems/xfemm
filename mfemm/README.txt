@@ -13,18 +13,18 @@ CONTENTS
 
 mfemm is a collection of m-files (with .m extension) for use 
 with Octave or Matlab, for the generation of finite problem 
-definitions suitable for the program FEMM, and the pfemm 
+definitions suitable for the program FEMM, and the cfemm 
 system (based on FEMM). Also included are some useful C++ code 
 files which provide a direct interface between Octave/Matlab and 
-pfemm. Further information on FEMM and pfemm is provided in 
+cfemm. Further information on FEMM and cfemm is provided in 
 Section 3.
 
 The provided m-files can be used for the creation of 
 magnetic finite element problem definitions, and the 
 generation of associated .fem files suitible for reading by 
-the pfemm system. The m-files also have some routines for 
+the cfemm system. The m-files also have some routines for 
 problem visualisation and reading of solution files produced
-by the pfemm system. Ultimately a set of post-processing 
+by the cfemm system. Ultimately a set of post-processing 
 algorithms are planned, none of these are yet implemented.
 
 
@@ -34,7 +34,7 @@ All m-files provided in this package are licenced under the
 Apache Version 2.0 licence. A copy of the text of this licence 
 is supplied in the file LICENCE.txt. This licence also applies 
 to the C++ files in the top level directory which provide a 
-mex interface to Octave/Matlab for the pfemm routines fmesher 
+mex interface to Octave/Matlab for the cfemm routines fmesher 
 and fsolver. fmesher and fsolver have their own licencing terms 
 and are not covered by the Apache Version 2.0 licence. You 
 should take care to adhere to the licencing of these separate 
@@ -60,10 +60,10 @@ a file based method.
 
 To speed the creation of Finite Element problem files from 
 Octave/Matlab the system of m-files provided with this package 
-was created. In parallel, a separate project (pfemm) was created 
+was created. In parallel, a separate project (cfemm) was created 
 to allow the native compilation and running of the core magnetics 
 solution and meshing algorithms on non-windows systems. As FEMM 
-was licenced under the Alladin Free Public Licence, the pfemm 
+was licenced under the Alladin Free Public Licence, the cfemm 
 project was licenced under the same terms.
 
 
