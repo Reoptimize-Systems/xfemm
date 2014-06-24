@@ -13,7 +13,9 @@ project (fpproc)
 include_directories(../libfemm/liblua)
 include_directories(../libfemm)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libfemm ${CMAKE_CURRENT_BINARY_DIR}/libfemm)
+if (NOT TARGET femm)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libfemm ${CMAKE_CURRENT_BINARY_DIR}/libfemm)
+endif ()
 
 add_library(fpproc STATIC 
   fpproc.cpp    
