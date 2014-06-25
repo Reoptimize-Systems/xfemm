@@ -1,7 +1,20 @@
 function fsolversetup(dodebug, verbose)
 % compiles the fsolver mexfunction
+%
+% Syntax
+%
+% fsolversetup(dodebug, verbose)
+%
+% Input
+%
+%  dodebug - compile with debugging symbols
+%
+%  verbose - verbose compiler output to the command line
+%
+% See also: fpprocsetup.m, fmeshersetup.m
+%
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2014 Richard Crozier
 %
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
