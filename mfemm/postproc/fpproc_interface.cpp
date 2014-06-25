@@ -412,7 +412,7 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
     if (type<0 || type >5)
     {
         mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidinttype",
-                           "Invalid line integral selected %d",type);
+                           "Invalid line integral type selected %d",type);
         return 0;
     }
 
@@ -690,6 +690,13 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
     {
         mexErrMsgIdAndTxt("MFEMM:fpproc:noblockselected",
                           "Block integral failed, no area has been selected");
+    }
+    
+    if((type<0) || (type>24))
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidinttype",
+                           "Invalid block integral type selected %d",type);
+        return 0;
     }
 
     if((type>=18) && (type<=23))

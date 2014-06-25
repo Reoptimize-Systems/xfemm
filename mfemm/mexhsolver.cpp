@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "fsolver.h"
+#include "hsolver.h"
 #include "complex.h"
-#include "spars.h"
-#include "mesh.h"
+#include "hspars.h"
+#include "hmesh.h"
 
 #include "mex.h"
 
@@ -136,7 +136,7 @@ int nrhs, const mxArray *prhs[])
               SolveObj.NumNodes,SolveObj.NumEls,
               SolveObj.Precision);
 
-    CBigLinProb L;
+    CHBigLinProb L;
 
     L.Precision = SolveObj.Precision;
 

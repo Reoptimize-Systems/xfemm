@@ -148,20 +148,20 @@ function varargout = mfemm_setup(forceallcompile)
         
         makelibs (thisfilepath);
         
-        if exist(fullfile(thisfilepath, 'pfemm', 'fmesher', 'libfmesher.a'), 'file') 
+        if exist(fullfile(thisfilepath, 'cfemm', 'fmesher', 'libfmesher.a'), 'file') 
             fmeshersetup;
         else
             % try building 
             error('MFEMM:setup', 'mfemm_setup can''t find the libfmesher library (libfmesher.a), run ''help mfemm_setup'' for more info.\n')
         end
 
-        if exist(fullfile(thisfilepath, 'pfemm', 'fsolver', 'libfsolver.a'), 'file') 
+        if exist(fullfile(thisfilepath, 'cfemm', 'fsolver', 'libfsolver.a'), 'file') 
             fsolversetup;
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libfsolver library (libfsolver.a), run ''help mfemm_setup'' for more info.\n')
         end
 
-        if exist(fullfile(thisfilepath, 'pfemm', 'fpproc', 'libfpproc.a'), 'file')
+        if exist(fullfile(thisfilepath, 'cfemm', 'fpproc', 'libfpproc.a'), 'file')
             fpprocsetup;
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libfpproc library (libfpproc.a), run ''help mfemm_setup'' for more info.\n')
@@ -182,7 +182,7 @@ function makelibs (thisfilepath)
     if isunix
         % if we are on a unixy computer we can make the necessary
         % libraries using make
-        system(sprintf('make -f %s', fullfile(thisfilepath, 'Makefile')));
+        system(sprintf('make -f %s', fullfile(thisfilepath, 'cfemm', 'Makefile')));
     else
         % user must install code::blocks, but we can run it using the
         % command line args here
