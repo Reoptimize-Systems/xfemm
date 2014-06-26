@@ -711,7 +711,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
 
-                C = textscan(s, '%f\t%f\t%f\t%f');
+                C = textscan(s, '%f %f %f %f');
 
                 nodeprops.InGroup = C{4};
 
@@ -744,7 +744,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
 
-                C = textscan(s, '%f\t%f\t%f\t%f\t%f\t%f');
+                C = textscan(s, '%f %f %f %f %f %f');
 
                 segprops.MaxSideLength = C{3};
 
@@ -782,7 +782,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
 
-                C = textscan(s,'%f\t%f\t%f\t%f\t%f\t%f\t%f');
+                C = textscan(s,'%f %f %f %f %f %f %f');
 
                 arcsegprops.MaxSegDegrees = C{4};
 
@@ -827,7 +827,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                     s = fgetl(fid);
 
-                    C = textscan(s,'%f\t%f');
+                    C = textscan(s,'%f %f');
 
                     FemmProblem.Holes(i).x = C{1};
                     FemmProblem.Holes(i).y = C{2};
@@ -856,7 +856,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
 
-                C = textscan(s,'%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%s');
+                C = textscan(s,'%f %f %f %f %f %f %f %f %f %s');
 
                 %some defaults
                 FemmProblem.BlockLabels(i).Coords = [C{1}, C{2}];
@@ -955,11 +955,11 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
                 % read in four values from the string, the x and y
                 % coordinates of the node and the real and imaginary
                 % values of A at the node
-                Solution.MeshNodes(i,1:4) = sscanf(s,'%f\t%f\t%f\t%f');
+                Solution.MeshNodes(i,1:4) = sscanf(s,'%f %f %f %f');
             else
                 % read in three values from the string, the x and y
                 % coordinates of the node and the value of A at the node
-                Solution.MeshNodes(i,1:3) = sscanf(s,'%f\t%f\t%f');
+                Solution.MeshNodes(i,1:3) = sscanf(s,'%f %f %f');
                 Solution.MeshNodes(i,4) = 0;
             end
 
@@ -975,7 +975,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
             s = fgetl(fid);
 
-            vals = sscanf(s,'%f\t%f\t%f\t%f');
+            vals = sscanf(s,'%f %f %f %f');
 
             Solution.Vertices(i,:) = vals(1:3);
             Solution.LabelNum(i,1) = vals(4);
@@ -997,7 +997,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
             if FemmProblem.ProbInfo.Frequency == 0
 
-                cvals = sscanf(s,'%f\t%f');
+                cvals = sscanf(s,'%f %f');
 
                 Solution.Circuits(i).Type = cvals(1);
 
@@ -1009,7 +1009,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
             else
 
-                cvals = sscanf(s,'%f\t%f\t%f');
+                cvals = sscanf(s,'%f %f %f');
 
                 Solution.Circuits(i).Type = cvals(1);
 
