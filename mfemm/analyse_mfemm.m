@@ -75,18 +75,18 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
         error('Supplied file name must have .fem extension');
     end
 
-    if (exist(['mexfmesher.', mexext()], 'file')==3) && (exist(['mexfsolver.', mexext()], 'file')==3) ...
+    if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
             && ~usefemm
         
-        if quiet && ~isoctave
+        if quiet
             % using xfemm interface
             % mesh the problem using fmesher
             fprintf(1, 'Meshing mfemm problem ...\n');
-            evalc('fmesher(femfilename)');
+            fmesher(femfilename);
             fprintf(1, 'mfemm problem meshed ...\n');
             % solve the fea problem using fsolver
             fprintf(1, 'Solving mfemm problem ...\n');
-            evalc('fsolver(femfilename(1:end-4))');
+            fsolver(femfilename(1:end-4), false);
             fprintf(1, 'mfemm problem solved ...\n');
         else
             % using xfemm interface
@@ -96,7 +96,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
             fprintf(1, 'mfemm problem meshed ...\n');
             % solve the fea problem using fsolver
             fprintf(1, 'Solving mfemm problem ...\n');
-            fsolver(femprob(1:end-4));
+            fsolver(femprob(1:end-4), true);
             fprintf(1, 'mfemm problem solved ...\n');
         end
         

@@ -21,6 +21,7 @@
 
 // extern void _main();
 void voidmexPrintF(const char *message);
+void dummymexPrintF(const char *message);
 
 /* the gateway function */
 void mexFunction( int nlhs, mxArray *plhs[],
@@ -175,4 +176,9 @@ int nrhs, const mxArray *prhs[])
 void voidmexPrintF(const char *message)
 {
     mexPrintf(message);
+}
+
+void dummymexPrintF(const char *message)
+{
+
 }

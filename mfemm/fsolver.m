@@ -1,4 +1,4 @@
-function ansfile = fsolver(filename)
+function ansfile = fsolver(filename, verbose)
 % solves a finite element problem described by a .fem file and which has
 % already been meshed using fmesher
 %
@@ -18,6 +18,10 @@ function ansfile = fsolver(filename)
 %  fsolver
 %
 
+    if nargin < 2
+        verbose = true;
+    end
+    
     % if present, strip the .fem extension to get the base file name for
     % mexfsolver
     if strcmpi(filename(end-3:end), '.fem')
@@ -44,7 +48,7 @@ function ansfile = fsolver(filename)
         error('The following required files were missing\n%sPerhaps you need to rerun fmesher?', missingfilestr);
     end
 
-    mexfsolver(filename)
+    mexfsolver(filename, double(verbose));
 
     ansfile = [filename, '.ans'];
     
