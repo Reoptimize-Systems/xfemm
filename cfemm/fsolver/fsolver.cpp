@@ -90,7 +90,7 @@ void FSolver::CleanUp()
     }
 
     if (nodeproplist!=NULL)	 free(nodeproplist);
-    if (circproplist!=NULL)	 free(circproplist);
+    if (circproplist!=NULL)     free(circproplist);
 
     if (labellist!=NULL)
     {
@@ -120,11 +120,11 @@ int FSolver::LoadProblemFile ()
     int j,k,ic;
     char s[1024],q[1024];
     char *v;
-    CPointProp	   PProp;
-    CMBoundaryProp BProp;
-    CMaterialProp  MProp;
-    CMCircuit	   CProp;
-    CMBlockLabel    blk;
+    CPointProp       PProp;
+    CMBoundaryProp   BProp;
+    CMaterialProp    MProp;
+    CMCircuit        CProp;
+    CMBlockLabel     blk;
 
     sprintf(s,"%s.fem", PathName.c_str() );
     if ((fp=fopen(s,"rt"))==NULL)
@@ -424,18 +424,18 @@ int FSolver::LoadProblemFile ()
         if( _strnicmp(q,"<beginblock>",12)==0)
         {
             MProp.mu_x=1.;
-            MProp.mu_y=1.;			// permeabilities, relative
-            MProp.H_c=0.;				// magnetization, A/m
+            MProp.mu_y=1.;            // permeabilities, relative
+            MProp.H_c=0.;                // magnetization, A/m
             MProp.Jr=0.;
-            MProp.Ji=0.;				// applied current density, MA/m^2
-            MProp.Cduct=0.;		    // conductivity of the material, MS/m
-            MProp.Lam_d=0.;			// lamination thickness, mm
-            MProp.Theta_hn=0.;			// hysteresis angle, degrees
-            MProp.Theta_hx=0.;			// hysteresis angle, degrees
-            MProp.Theta_hy=0.;			// hysteresis angle, degrees
-            MProp.Theta_m=0.;			// magnetization direction, degrees;
-            MProp.LamFill=1.;			// lamination fill factor;
-            MProp.LamType=0;			// type of lamination;
+            MProp.Ji=0.;                // applied current density, MA/m^2
+            MProp.Cduct=0.;            // conductivity of the material, MS/m
+            MProp.Lam_d=0.;            // lamination thickness, mm
+            MProp.Theta_hn=0.;            // hysteresis angle, degrees
+            MProp.Theta_hx=0.;            // hysteresis angle, degrees
+            MProp.Theta_hy=0.;            // hysteresis angle, degrees
+            MProp.Theta_m=0.;            // magnetization direction, degrees;
+            MProp.LamFill=1.;            // lamination fill factor;
+            MProp.LamType=0;            // type of lamination;
             MProp.NStrands=0;
             MProp.WireD=0;
             MProp.BHpoints=0;
@@ -561,7 +561,7 @@ int FSolver::LoadProblemFile ()
                 for(j=0; j<MProp.BHpoints; j++)
                 {
                     fgets(s,1024,fp);
-                    sscanf(s,"%lf	%lf",&MProp.Bdata[j],&MProp.Hdata[j].re);
+                    sscanf(s,"%lf\t%lf",&MProp.Bdata[j],&MProp.Hdata[j].re);
                     MProp.Hdata[j].im=0;
                 }
             }
@@ -654,7 +654,7 @@ int FSolver::LoadProblemFile ()
             {
                 fgets(s,1024,fp);
 
-//				sscanf(s,"%lf	%lf	%i	%lf	%i	%lf	%i	%i	%i",&blk.x,&blk.y,&blk.BlockType,&blk.MaxArea,
+//sscanf(s,"%lf%lf	%i	%lf	%i	%lf	%i	%i	%i",&blk.x,&blk.y,&blk.BlockType,&blk.MaxArea,
 //					&blk.InCircuit,&blk.MagDir,&blk.InGroup,&blk.Turns,&blk.IsExternal);
 
                 //some defaults
@@ -950,9 +950,9 @@ int FSolver::LoadMesh()
     {
         return BADEDGEFILE;
     }
-    fscanf(fp,"%i",&k);	// read in number of lines
+    fscanf(fp,"%i",&k);// read in number of lines
 
-    fscanf(fp,"%i",&j);	// read in boundarymarker flag;
+    fscanf(fp,"%i",&j);// read in boundarymarker flag;
     for(i=0; i<k; i++)
     {
         fscanf(fp,"%i",&j);
@@ -1051,9 +1051,9 @@ void FSolver::GetFillFactor(int lbl)
         W=2.*PI*Frequency;
         d=bp->WireD*0.001;
         fill=fabs(d*d*((double) bl->Turns)/atot);
-        dd=d/sqrt(fill);			// foil pitch
-        fill=d/dd;					// fill for purposes of equivalent foil analysis
-        o=bp->Cduct*(d/dd)*1.e6;	// effective foil conductivity in S/m
+        dd=d/sqrt(fill);// foil pitch
+        fill=d/dd;                    // fill for purposes of equivalent foil analysis
+        o=bp->Cduct*(d/dd)*1.e6;    // effective foil conductivity in S/m
 
         // effective permeability for the equivalent foil
         ufd=muo*tanh(sqrt(I*W*o*muo)*d/2.)/(sqrt(I*W*o*muo)*d/2.);
@@ -1085,8 +1085,8 @@ void FSolver::GetFillFactor(int lbl)
     fill=fabs(awire/atot);
 
     // preliminary definitions
-    o=bp->Cduct*1.e6;						// conductivity in S/m
-    W=2.*PI*Frequency*o*muo*R*R/2.;			// non-dimensionalized frequency
+    o=bp->Cduct*1.e6;                        // conductivity in S/m
+    W=2.*PI*Frequency*o*muo*R*R/2.;            // non-dimensionalized frequency
 
     // fit for frequency-dependent permeability...
     c1=0.7756067409818643 + fill*(0.6873854335408803 + fill*(0.06841584481674128 -0.07143732702512284*fill));
