@@ -793,11 +793,11 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
     cf=unitconv[LengthUnits];
     fprintf(fp,"%i\n",NumNodes);
     for(i=0; i<NumNodes; i++)
-        fprintf(fp,"%.17g	%.17g	%.17g	%.17g\n",meshnode[i].x/cf,
+        fprintf(fp,"%.17g\t%.17g\t%.17g\t%.17g\n",meshnode[i].x/cf,
                 meshnode[i].y/cf,L.b[i].re,L.b[i].im);
     fprintf(fp,"%i\n",NumEls);
     for(i=0; i<NumEls; i++)
-        fprintf(fp,"%i	%i	%i	%i\n",
+        fprintf(fp,"%i\t%i\t%i\t%i\n",
                 meshele[i].p[0],meshele[i].p[1],meshele[i].p[2],meshele[i].lbl);
 
     /*
@@ -826,19 +826,19 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
             // print out some "dummy" propeties that say that
             // there is a fixed additional current density,
             // but that that additional current density is zero.
-            fprintf(fp,"1	0	0\n");
+            fprintf(fp,"1\t0\t0\n");
         }
         else
         {
             if (circproplist[i].Case==0)
-                fprintf(fp,"0	%.17g	%.17g\n",circproplist[i].dV.Re(),
+                fprintf(fp,"0\t%.17g\t%.17g\n",circproplist[i].dV.Re(),
                         circproplist[i].dV.Im());
             if (circproplist[i].Case==1)
-                fprintf(fp,"1	%.17g	%.17g\n",circproplist[i].J.Re(),
+                fprintf(fp,"1\t%.17g\t%.17g\n",circproplist[i].J.Re(),
                         circproplist[i].J.Im());
 
             if (circproplist[i].Case==2)
-                fprintf(fp,"0	%.17g	%.17g\n",L.b[NumNodes+i].Re(),
+                fprintf(fp,"0\t%.17g\t%.17g\n",L.b[NumNodes+i].Re(),
                         L.b[NumNodes+i].Im());
         }
     }
