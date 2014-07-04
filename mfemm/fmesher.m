@@ -44,7 +44,6 @@ function filename = fmesher(varargin)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-
     if nargin == 1
         
         if isstruct(varargin{1})
