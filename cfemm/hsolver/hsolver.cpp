@@ -525,37 +525,43 @@ int HSolver::LoadMesh()
 	}
 	fgets(s,1024,fp);
 	sscanf(s,"%i",&k);
-	NumNodes=k;
+	NumNodes = k;
 
-	meshnode=(CHNode *)calloc(k,sizeof(CHNode));
+	meshnode = (CHNode *)calloc(k,sizeof(CHNode));
 	CHNode node;
-	for(i=0;i<k;i++){
+	for(i = 0; i < k; i++)
+	{
 		fscanf(fp,"%i",&j);
 		fscanf(fp,"%lf",&node.x);
 		fscanf(fp,"%lf",&node.y);
 		fscanf(fp,"%i",&n);
 
-		if(n>1){
+		if (n > 1)
+		{
 			// strip off point BC number;
-			j=n & 0xffff;
-			j=j-2;
-			if (j<0) j=-1;
+			j = n & 0xffff;
+			j = j - 2;
+			if (j<0)
+			{
+			    j = -1;
+			}
 
 			// strip off Conductor number
-			n= (n - (n & 0xffff))/0x10000 - 1;
+			n = (n - (n & 0xffff))/0x10000 - 1;
 		}
-		else{
-			j=-1;
-			n=-1;
+		else
+		{
+			j = -1;
+			n = -1;
 		}
-		node.bc=j;
-		node.InConductor=n;
+		node.bc = j;
+		node.InConductor = n;
 
 		// convert all lengths to internal working units of mm
-		node.x*=c[LengthUnits];
-		node.y*=c[LengthUnits];
+		node.x *= c[LengthUnits];
+		node.y *= c[LengthUnits];
 
-		meshnode[i]=node;
+		meshnode[i] = node;
 	}
 	fclose(fp);
 
@@ -811,19 +817,19 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 		// The V vector denotes the assigned value
 		for(i=0;i<NumNodes;i++)
 		{
-			L.Q[i]=-2;
-			if(meshnode[i].bc >=0)
-				if(nodeproplist[meshnode[i].bc].qp==0)
+			L.Q[i] = -2;
+			if(meshnode[i].bc >= 0)
+				if(nodeproplist[meshnode[i].bc].qp == 0)
 				{
-					L.V[i]=nodeproplist[meshnode[i].bc].V;
-					L.Q[i]=-1;
+					L.V[i] = nodeproplist[meshnode[i].bc].V;
+					L.Q[i] = -1;
 				}
 
-			if(meshnode[i].InConductor>=0)
-				if(circproplist[meshnode[i].InConductor].CircType==1)
+			if(meshnode[i].InConductor >= 0)
+				if(circproplist[meshnode[i].InConductor].CircType == 1)
 				{
-					L.V[i]=circproplist[meshnode[i].InConductor].V;
-					L.Q[i]=meshnode[i].InConductor;
+					L.V[i] = circproplist[meshnode[i].InConductor].V;
+					L.Q[i] = meshnode[i].InConductor;
 				}
 		}
 
