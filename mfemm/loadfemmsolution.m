@@ -74,7 +74,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
     
     fid = fopen(filename);
 
-%     cleanupObj = onCleanup(@(x) fclose(x));
+    cleanupObj = onCleanup(@fclose(fid));
 
     matind = 0;
     boundind = 0;
@@ -867,6 +867,9 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
                 FemmProblem.BlockLabels(i).InGroup = C{7};
                 FemmProblem.BlockLabels(i).Turns = C{8};
                 FemmProblem.BlockLabels(i).IsExternal = C{9};
+                FemmProblem.BlockLabels(i) = bitand(FemmProblem.BlockLabels(i), 2);
+				FemmProblem.BlockLabels(i) = bitand(FemmProblem.BlockLabels(i), 1);
+                
                 FemmProblem.BlockLabels(i).MagDirFctn = C{10};
 
                 if FemmProblem.BlockLabels(i).MaxArea < 0
@@ -1029,7 +1032,6 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
         Solution = [];
     end
     
-    fclose(fid);
 
 end
 
