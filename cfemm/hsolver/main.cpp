@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 
     if (theHSolver.LoadPrev()==FALSE)
     {
-    printf("Loading previous solution\n");
+        printf("Loading previous solution\n");
     }
 
     // renumber using Cuthill-McKee
