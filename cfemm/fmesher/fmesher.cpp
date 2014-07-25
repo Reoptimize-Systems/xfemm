@@ -808,10 +808,52 @@ int FMesher::LoadFEMFile (string PathName)
                 v=ParseDbl(s,&node.x);
                 v=ParseDbl(v,&node.y);
                 v=ParseInt(v,&t);
-                v=ParseInt(v,&node.InGroup);
-                if(t==0) node.BoundaryMarker="";
-                else if(t<= (int)nodeproplist.size())
-                    node.BoundaryMarker=nodeproplist[t-1].PointName;
+
+                switch (filetype)
+                {
+                    case F_TYPE_MAGNETICS:
+
+
+                        v=ParseInt(v,&node.InGroup);
+
+                        if (t==0)
+                        {
+                            node.BoundaryMarker =" ";
+                        }
+                        else if (t<= (int)nodeproplist.size())
+                        {
+                            node.BoundaryMarker = nodeproplist[t-1].PointName;
+                        }
+
+                        break;
+
+                    case F_TYPE_HEATFLOW:
+
+
+                        if (t==0)
+                        {
+                            node.BoundaryMarker =" ";
+                        }
+                        else if (t<= (int)nodeproplist.size())
+                        {
+                            node.BoundaryMarker = nodeproplist[t-1].PointName;
+                        }
+
+                        v = ParseInt(v,&node.InGroup);
+                        v = ParseInt(v,&t);
+
+                        if(t==0)
+                        {
+                            node.InConductor = "<None>";
+                        }
+        				else if(t <= (int)circproplist.size())
+		        		{
+				            node.InConductor = circproplist[t-1].CircName;
+                        }
+
+                        break;
+                }
+
                 nodelist.push_back(node);
             }
             q[0] = '\0';
@@ -839,41 +881,48 @@ int FMesher::LoadFEMFile (string PathName)
                 v = ParseInt(v,&segm.n1);
                 v = ParseDbl(v,&segm.MaxSideLength);
                 v = ParseInt(v,&t);
-
-                if(t==0)
+                    
+                if (t == 0) 
                 {
-                    segm.BoundaryMarker="";
+                   segm.BoundaryMarker="";
                 }
-                else if (t<= (int)lineproplist.size())
+                else if (t<=(int) lineproplist.size())
                 {
-                    segm.BoundaryMarker=lineproplist[t-1].BdryName;
+                    segm.BoundaryMarker = lineproplist[t-1].BdryName;
                 }
-                t = 0;
-
-                int Hidden = 0;
+                
+                int Hidden = 0;        
                 v = ParseInt(v,&Hidden);
+                    
                 segm.Hidden = Hidden;
-
-                v = ParseInt(v,&segm.InGroup);
-
-                if (v != NULL)
+            
+                v = ParseInt(v,&segm.InGroup); 
+                
+                switch (filetype)
                 {
-                    v = ParseInt(v,&t);
-                }
-                else
-                {
-                    t = 0;
-                }
+                    case F_TYPE_MAGNETICS:
+                    
+                        // nothing to do
+                    
+                        break;
 
-				if(t==0)
-				{
-				    segm.InConductor="<None>";
-                }
-				else if (t<=(int) circproplist.size ())
-				{
-					segm.InConductor = circproplist[t-1].CircName;
-				}
+                    case F_TYPE_HEATFLOW:
+                        
+                        // get the conductor number
+                        v = ParseInt(v,&t);
+                        
+                        if(t==0) 
+                        {
+                            segm.InConductor = "<None>";
+                        }
+                        else if(t<=(int) circproplist.size())
+                        {
+                            segm.InConductor = circproplist[t-1].CircName;
+                        }
 
+                        break;
+
+                }
                 linelist.push_back(segm);
             }
             q[0] = '\0';
@@ -918,23 +967,39 @@ int FMesher::LoadFEMFile (string PathName)
 
                 v = ParseInt(v,&asegm.InGroup);
 
-                if (v != NULL)
+                switch (filetype)
                 {
-                    v = ParseInt(v,&t);
-                }
-                else
-                {
-                    t = 0;
+                    case F_TYPE_MAGNETICS:
+                    
+                        // nothing to do
+                    
+                        break;
+
+                    case F_TYPE_HEATFLOW:
+                        
+                        // get conductor number
+                        if (v != NULL)
+                        {
+                            v = ParseInt(v,&t);
+                        }
+                        else
+                        {
+                            t = 0;
+                        }
+
+                        if (t == 0)
+                        {
+                            segm.InConductor="<None>";
+                        }
+                        else if(t<=(int) circproplist.size ())
+                        {
+                            asegm.InConductor = circproplist[t-1].CircName;
+                        }
+
+                        break;
+
                 }
 
-                if (t == 0)
-                {
-                    segm.InConductor="<None>";
-                }
-                else if(t<=(int) circproplist.size ())
-				{
-				    asegm.InConductor = circproplist[t-1].CircName;
-                }
 
                 arclist.push_back(asegm);
             }
@@ -1035,7 +1100,7 @@ int FMesher::LoadFEMFile (string PathName)
         }
 
         // add the string to the list of strings to be echoed later
-        // if it was not parsd by any of the preceeding statements
+        // if it was not parsed by any of the preceeding statements
         addFileStr (s);
 
     }
@@ -1193,7 +1258,7 @@ bool FMesher::LoadMesh(string PathName)
     for(i=0; i<k; i++)
     {
         fgets(s,1024,fp);
-        sscanf(s,"%i	%lf	%lf",&j,&node.x,&node.y);
+        sscanf(s,"%i\t%lf\t%lf",&j,&node.x,&node.y);
         meshnode[i] = node;
     }
     fclose(fp);
