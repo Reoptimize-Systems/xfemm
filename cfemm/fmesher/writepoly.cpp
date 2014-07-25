@@ -525,10 +525,10 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         if (filetype == F_TYPE_HEATFLOW)
         {
             // include conductor number;
-            for(j=0;j<circproplist.size ();j++)
+            for(j = 0; j < circproplist.size (); j++)
             {
                 // add the conductor numer using a mask
-                if(circproplist[j].CircName==nodelst[i].InConductor) t += ((j+1) * 0x10000);
+                if(circproplist[j].CircName == nodelst[i].InConductor) t += ((j+1) * 0x10000);
             }
         }
 
