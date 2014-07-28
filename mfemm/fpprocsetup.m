@@ -2,16 +2,20 @@ function fpprocsetup(dodebug, verbose)
 % compiles the fpproc mexfunction
 %
 % Syntax
-%
+% fpprocsetup()
+% fpprocsetup(dodebug)
 % fpprocsetup(dodebug, verbose)
 %
 % Input
 %
-%  dodebug - compile with debugging symbols
+%  dodebug - flag determines whether to include debugging symbols
 %
-%  verbose - verbose compiler output to the command line
+%  verbose - flag determines whether to print compiler output to command
+%    line
 %
-% See also: fmeshersetup.m, fsolversetup.m
+%
+% See also: mfemm_setup.m fmeshersetup.m, fsolversetup.m, hsolversetup.m, 
+%           hpprocsetup.m
 %
 
 % Copyright 2012-2014 Richard Crozier
