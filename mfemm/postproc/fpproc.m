@@ -170,8 +170,8 @@ classdef fpproc < mfemmpproc
             % H2    field intensity Hy if planar, Hz if axisymmetric
             % Je    eddy current density
             % Js    source current density
-            % Mu1   relative permeability ?x if planar, ?r if axisymmetric
-            % Mu2   relative permeability ?y if planar, ?z if axisymmetric
+            % Mu1   relative permeability Mu_x if planar, Mu_r if axisymmetric
+            % Mu2   relative permeability Mu_y if planar, Mu_z if axisymmetric
             % Pe    Power density dissipated through ohmic losses
             % Ph    Power density dissipated by hysteresis
             % ff    Fill Factor
@@ -542,11 +542,11 @@ classdef fpproc < mfemmpproc
             % circprops is a vector of three values. In order, these values
             % are:
             %
-            % � current:  Current carried by the circuit.
+            %  current:  Current carried by the circuit.
             %
-            % � volts:    Voltage drop across the circuit in the circuit.
+            %  volts:    Voltage drop across the circuit in the circuit.
             %
-            % � flux:     Circuit�s flux linkage
+            %  flux:     Circuit's flux linkage
             %
             
             if ~this.isdocopen
