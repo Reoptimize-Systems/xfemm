@@ -17,6 +17,10 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
 %    be Materials structures in the same format as produced by the function
 %    matstr2matstruct_mfemm, or newmaterial_mfemm.m.
 %
+%    materials can also be a cell array with each cell containing either a
+%    string or structure (or structure array) matching the specification
+%    described previously.
+%
 %
 % Output
 %
@@ -51,23 +55,30 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
         FemmProblem.Materials = [];
     end
     
-    if iscellstr(Materials) 
+    if iscellstr (Materials) 
 
         matinds = lastmatind + (1:numel(Materials));
         
         FemmProblem.Materials = [FemmProblem.Materials, matstr2matstruct_mfemm( Materials )];
         
-    elseif ischar(Materials)
+    elseif ischar (Materials)
         
         matinds = lastmatind + (1:numel(Materials));
         
         FemmProblem.Materials = [FemmProblem.Materials, matstr2matstruct_mfemm( Materials )];
         
-    elseif isstruct(Materials)
+    elseif isstruct (Materials)
         
         matinds = lastmatind + (1:numel(Materials));
         
         FemmProblem.Materials = [FemmProblem.Materials, Materials];
+        
+    elseif iscell (Materials)
+        
+        matinds = [];
+        for ind = 1:numel (Materials)
+            [FemmProblem, matinds(end+1)] = addmaterials_mfemm(FemmProblem, Materials{ind});
+        end
         
     else
         error('MFEMM:addmaterials_mfemm:badmaterials', ...
