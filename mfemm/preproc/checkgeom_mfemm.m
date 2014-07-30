@@ -130,7 +130,7 @@ function labnearsegs = labelsnearsegments(labelcoords, segcoords, tol)
     for ind = 1:size(labelcoords, 1)
         for iind = 1:size(segcoords, 1)
 
-            d = point_to_line_2D(labelcoords(ind,:)', segcoords(iind,1:2)', segcoords(iind,3:4)');
+            d = point_to_line_2D(labelcoords(ind,:), segcoords(iind,1:2), segcoords(iind,3:4));
 
             if d <= tol
                 % store                      label   seg    distance
@@ -139,6 +139,16 @@ function labnearsegs = labelsnearsegments(labelcoords, segcoords, tol)
 
         end
     end
+
+end
+
+function d = point_to_line_2D (p, l1, l2)
+
+    p = p(:)';
+    l1 = l1(:)';
+    l2 = l2(:)';
+    
+    d = abs( det([p-l1;l2-l1]) ) / norm(l2-l1);
 
 end
 
