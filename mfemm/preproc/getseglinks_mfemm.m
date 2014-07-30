@@ -32,7 +32,7 @@ function links = getseglinks_mfemm(FemmProblem)
 %    limitations under the License.
 
 
-    if isfield(FemmProblem, 'Segments')
+    if isfield(FemmProblem, 'Segments') && ~isempty (FemmProblem.Segments)
         links = [cell2mat({FemmProblem.Segments(:).n0}'), ...
                  cell2mat({FemmProblem.Segments(:).n1}')];
     else
