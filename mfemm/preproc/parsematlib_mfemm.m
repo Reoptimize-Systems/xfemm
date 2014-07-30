@@ -45,8 +45,7 @@ function Matlib = parsematlib_mfemm(filename)
     j = 0;
     
     % preallocate an empty structure array to hold the materials data
-    % TODO: should this be a structure produced by newmaterial_mfemm.m?
-    Matlib = struct;
+    Matlib = emptymaterial_mfemm ();
 
     while 1
 

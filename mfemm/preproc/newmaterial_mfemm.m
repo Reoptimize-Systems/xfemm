@@ -50,34 +50,39 @@ function Material = newmaterial_mfemm(Name, varargin)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
         
+    % create a struct array of materials of length 0
+    Material = emptymaterial_mfemm ();
+    
+    % set default values
+    
     % Magnetics properties
-    Material.Mu_x = 1;
-    Material.Mu_y = 1;
-    Material.H_c = 0;
-    Material.H_cAngle = 0;
-    Material.J_re = 0;
-    Material.J_im = 0;
-    Material.Sigma = 0;
-    Material.d_lam = 0;
-    Material.Phi_h = 0;
-    Material.Phi_hx = 0;
-    Material.Phi_hy = 0;
-    Material.LamType = 0;
-    Material.LamFill = 1;
-    Material.NStrands = 0;
-    Material.WireD = 0;
-    Material.BHPoints = [];
-    Material.Density = [];
+    Material(1).Mu_x = 1;
+    Material(1).Mu_y = 1;
+    Material(1).H_c = 0;
+    Material(1).H_cAngle = 0;
+    Material(1).J_re = 0;
+    Material(1).J_im = 0;
+    Material(1).Sigma = 0;
+    Material(1).d_lam = 0;
+    Material(1).Phi_h = 0;
+    Material(1).Phi_hx = 0;
+    Material(1).Phi_hy = 0;
+    Material(1).LamType = 0;
+    Material(1).LamFill = 1;
+    Material(1).NStrands = 0;
+    Material(1).WireD = 0;
+    Material(1).BHPoints = [];
+    Material(1).Density = [];
     
     % Thermal material properties
-    Material.Kx = nan;
-    Material.Ky = nan;
-    Material.Kt = nan;
-    Material.qv = nan;
-    Material.TKPoints = [];
+    Material(1).Kx = nan;
+    Material(1).Ky = nan;
+    Material(1).Kt = nan;
+    Material(1).qv = nan;
+    Material(1).TKPoints = [];
 
-    Material = parseoptions(Material, varargin);
+    Material(1) = parseoptions(Material(1), varargin);
     
-    Material.Name = Name;
+    Material(1).Name = Name;
     
 end
