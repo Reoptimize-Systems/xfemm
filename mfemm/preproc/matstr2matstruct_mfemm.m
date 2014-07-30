@@ -11,10 +11,15 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
 % matstr - a string, or cell array of strings containing the names of the
 %   materials to be extracted from the materials library.
 %
+% matlib - either an array of structures, or a string representing a file path
+%   to a materials library saved in a .
+%
 % Output
 %
 % materials - a structure array, one element per specified material name
 %   string, containing the following fields:
+%
+% Magnetic material properties
 %
 %   Name        - name of the material
 %   Mu_x        - relative permeability in x-direction
@@ -31,12 +36,22 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
 %   Phi_hx      - hysterisis lag angle in x-direction for linear problems (degrees)
 %   Phi_hy      - hysterisis lag angle in y-direction for linear problems (degrees)
 %
-%   LamType     - type of lamination (0 = none/inplane, 1 = parallel to x, 2 = parallel to y)
+%   LamType     - type of lamination (0 = none/inplane, 1 = parallel to x, 
+%                 2 = parallel to y)
 %   LamFill     - fill factor, fraction of core filled with iron
 %   NStrands    - number of wire strands
 %   WireD       - wire diameter
 %   BHPoints    - a table of points defining the BH curve (can be empty)
 %   Density     - material density (kg/m3)
+%
+% Thermal material properties
+%
+%   Kx          - 
+%   Ky          -
+%   Kt          -
+%   qv          -
+%   TKPoints    - a table of points defining the conductivity with respect
+%                 to temperature
 
 % Copyright 2012 Richard Crozier
 % 
@@ -60,13 +75,38 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
     end
     
     if nargin < 2
-        if exist('matlib.mat', 'file')
-            % Load materials library from disk
-            load ('matlib.mat')
+    
+        matlibfile = fullfile(fileparts (which ('matstr2matstruct_mfemm')), '..', 'matlib.mat');
+
+    end
+
+    if ischar (matlib)
+        matlibfile = matlib;
+    
+        if exist(matlibfile, 'file')
+        
+            [~, ~, ext] = fileparts (matlibfile);
+            
+            if strcmpi(ext, '.mat')
+            
+                % Load materials library from disk
+                load (matlibfile);
+            
+            elseif strcmpi (ext, '.dat')
+                % convert to matlib structures
+                matlib = parsematlib_mfemm(matlibfile);
+            else
+                error ('MFEMM:matstr2matstruct_mfemm:badfile', ...
+                    'Unrecognised materials library file type, must be .mat or .dat');
+            end
+            
         else
             matlibdat2mat();
-            load ('matlib.mat')
+            load (matlibfile);
         end
+    elseif ~isstruct (matlib)
+        error ('MFEMM:matstr2matstruct:badinput', ...
+               'Second input must be a file location of array of material structures.');
     end
     
     for j = 1:numel(matstr)
@@ -86,15 +126,9 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
         end
         
         if notfoundmat
-            error('MFEMM:matstr2matstruct_mfemm:matnotfound', ...
+            error('MFEMM:matstr2matstruct:matnotfound', ...
                      'Material %s not found in library\n', matstr{i});
         end
-        
-
-        % Error check, if density not specified
-%         if isempty(material.Density)
-%             error('MFEMM:matstr2matstruct_mfemm', 'No density specified for material %s\n', material.Name)
-%         end
     
     end
     
