@@ -23,6 +23,12 @@ function BoundaryProps = emptyboundaryprop_mfemm()
 % BoundaryProps.Mu_ssd = 0;
 % BoundaryProps.Sigma_ssd = 0;
 %
+% BoundaryProps.Tset = 0
+% BoundaryProps.qs   = 0
+% BoundaryProps.beta = 0
+% BoundaryProps.h    = 0
+% BoundaryProps.T0 = 0
+%
 % These values correspond to boundary conditions in an mfemm finite element
 % problem description. emptyboundaryprops_mfemm is not usually called
 % directly, but is a utility function for the functions
@@ -46,6 +52,7 @@ function BoundaryProps = emptyboundaryprop_mfemm()
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
+    % magnetics properties
     BoundaryProps.Name = '';
     BoundaryProps.BdryType = [];
     BoundaryProps.A0 = 0;
@@ -58,5 +65,12 @@ function BoundaryProps = emptyboundaryprop_mfemm()
     BoundaryProps.c1i = 0;
     BoundaryProps.Mu_ssd = 0;
     BoundaryProps.Sigma_ssd = 0;
+    
+    % heat flux properties
+    BoundaryProps.Tset = 0
+    BoundaryProps.qs   = 0
+    BoundaryProps.beta = 0
+    BoundaryProps.h    = 0
+    BoundaryProps.T0   = 0
 
 end

@@ -36,7 +36,7 @@ function Material = newmaterial_mfemm(Name, varargin)
 %
 %
 
-% Copyright 2013 Richard Crozier
+% Copyright 2013-2014 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ function Material = newmaterial_mfemm(Name, varargin)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
         
+    % Magnetics properties
     Material.Mu_x = 1;
     Material.Mu_y = 1;
     Material.H_c = 0;
@@ -67,6 +68,13 @@ function Material = newmaterial_mfemm(Name, varargin)
     Material.WireD = 0;
     Material.BHPoints = [];
     Material.Density = [];
+    
+    % Thermal material properties
+    Material.Kx = nan;
+    Material.Ky = nan;
+    Material.Kt = nan;
+    Material.qv = nan;
+    Material.TKPoints = [];
 
     Material = parseoptions(Material, varargin);
     

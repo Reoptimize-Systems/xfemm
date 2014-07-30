@@ -1,4 +1,4 @@
-function writefemmfile(filename, FemmProblem)
+function writefemmfile(filename, FemmProblem, varargin)
 % writefemmfile: creates a .fem problem file in the same format as used by
 % FEMM, the eletromagnetic finite element analysis solver
 %
@@ -98,8 +98,32 @@ function writefemmfile(filename, FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    % check to see if we are ready to write a datafile;
+    Inputs.FileType = '';
+    
+    Inputs = parseoptions (Inputs, varargin);
+    
+    % use a structure to create an enum of file types
+    ftype.magnetics = 0;
+    ftype.heatflow = 1;
 
+    % use a structure to map the file extensions to problem types
+    fexmap.fem = 'magnetics';
+    fexmap.feh = 'heatflow';
+    
+    if isempty (Inputs.FileType) 
+        % try to determine from the file name extension
+        [~, ~, fext] = fileparts (filename);
+        
+        
+        if ~isempty(fext) && isfield(fexmap, fext(2:end))
+            domaintype = fexmap.(fext(2:end))
+        else
+            error ('MFEMM:badfiletype', ...
+                   'The output file name extension is not recognised and you have not explicitly set the file type.');
+        end
+    end
+    
+    % check to see if we are ready to write a datafile;
     [fp, message] = fopen(filename, 'wt');
     if fp == -1
         error('MFEMM:writefemmfile:nofileopen', message);
@@ -268,12 +292,24 @@ function writefemmfile(filename, FemmProblem)
 
         fprintf(fp,'  <BeginPoint>\n');
         fprintf(fp,'    <PointName> = "%s"\n',FemmProblem.PointProps(i).Name);
-        fprintf(fp,'    <I_re> = %.17g\n',FemmProblem.PointProps(i).I_re);
-        fprintf(fp,'    <I_im> = %.17g\n',FemmProblem.PointProps(i).I_im);
-        fprintf(fp,'    <A_re> = %.17g\n',FemmProblem.PointProps(i).A_re);
-        fprintf(fp,'    <A_im> = %.17g\n',FemmProblem.PointProps(i).A_im);
-        fprintf(fp,'  <EndPoint>\n');
+        
+        switch ftype.(domaintype)
+        
+            case ftype.magnetics
+        
+                fprintf(fp,'    <I_re> = %.17g\n',FemmProblem.PointProps(i).I_re);
+                fprintf(fp,'    <I_im> = %.17g\n',FemmProblem.PointProps(i).I_im);
+                fprintf(fp,'    <A_re> = %.17g\n',FemmProblem.PointProps(i).A_re);
+                fprintf(fp,'    <A_im> = %.17g\n',FemmProblem.PointProps(i).A_im);
+        
+            case ftype.heatflow
+            
+                fprintf(fp,'   <Tp> = %.17g\n',FemmProblem.PointProps(i).Tp);
+                fprintf(fp,'   <qp> = %.17g\n',FemmProblem.PointProps(i).qp);
 
+        end
+        
+        fprintf(fp,'  <EndPoint>\n');
     end
 
     if ~isfield(FemmProblem, 'BoundaryProps')
@@ -287,16 +323,32 @@ function writefemmfile(filename, FemmProblem)
         fprintf(fp,'  <BeginBdry>\n');
         fprintf(fp,'    <BdryName> = \"%s\"\n', FemmProblem.BoundaryProps(i).Name);
         fprintf(fp,'    <BdryType> = %i\n',FemmProblem.BoundaryProps(i).BdryType);
-        fprintf(fp,'    <A_0> = %.17g\n',FemmProblem.BoundaryProps(i).A0);
-        fprintf(fp,'    <A_1> = %.17g\n',FemmProblem.BoundaryProps(i).A1);
-        fprintf(fp,'    <A_2> = %.17g\n',FemmProblem.BoundaryProps(i).A2);
-        fprintf(fp,'    <Phi> = %.17g\n',FemmProblem.BoundaryProps(i).Phi);
-        fprintf(fp,'    <c0> = %.17g\n',FemmProblem.BoundaryProps(i).c0);
-        fprintf(fp,'    <c0i> = %.17g\n',FemmProblem.BoundaryProps(i).c0i);
-        fprintf(fp,'    <c1> = %.17g\n',FemmProblem.BoundaryProps(i).c1);
-        fprintf(fp,'    <c1i> = %.17g\n',FemmProblem.BoundaryProps(i).c1i);
-        fprintf(fp,'    <Mu_ssd> = %.17g\n',FemmProblem.BoundaryProps(i).Mu_ssd);
-        fprintf(fp,'    <Sigma_ssd> = %.17g\n',FemmProblem.BoundaryProps(i).Sigma_ssd);
+        
+        switch ftype.(domaintype)
+        
+            case ftype.magnetics
+        
+                fprintf(fp,'    <A_0> = %.17g\n',FemmProblem.BoundaryProps(i).A0);
+                fprintf(fp,'    <A_1> = %.17g\n',FemmProblem.BoundaryProps(i).A1);
+                fprintf(fp,'    <A_2> = %.17g\n',FemmProblem.BoundaryProps(i).A2);
+                fprintf(fp,'    <Phi> = %.17g\n',FemmProblem.BoundaryProps(i).Phi);
+                fprintf(fp,'    <c0> = %.17g\n',FemmProblem.BoundaryProps(i).c0);
+                fprintf(fp,'    <c0i> = %.17g\n',FemmProblem.BoundaryProps(i).c0i);
+                fprintf(fp,'    <c1> = %.17g\n',FemmProblem.BoundaryProps(i).c1);
+                fprintf(fp,'    <c1i> = %.17g\n',FemmProblem.BoundaryProps(i).c1i);
+                fprintf(fp,'    <Mu_ssd> = %.17g\n',FemmProblem.BoundaryProps(i).Mu_ssd);
+                fprintf(fp,'    <Sigma_ssd> = %.17g\n',FemmProblem.BoundaryProps(i).Sigma_ssd);
+                
+             case ftype.heatflow
+             
+                fprintf(fp,'    <Tset> = %.17g\n', FemmProblem.BoundaryProps(i).Tset);
+                fprintf(fp,'    <qs> = %.17g\n', FemmProblem.BoundaryProps(i).qs);
+                fprintf(fp,'    <beta> = %.17g\n', FemmProblem.BoundaryProps(i).beta);
+                fprintf(fp,'    <h> = %.17g\n', FemmProblem.BoundaryProps(i).h);
+                fprintf(fp,'    <Tinf> = %.17g\n', FemmProblem.BoundaryProps(i).T0);
+                
+        end
+        
         fprintf(fp,'  <EndBdry>\n');
 
     end
@@ -311,76 +363,143 @@ function writefemmfile(filename, FemmProblem)
 
         fprintf(fp,'  <BeginBlock>\n');
         fprintf(fp,'    <BlockName> = \"%s\"\n',FemmProblem.Materials(i).Name);
-        fprintf(fp,'    <Mu_x> = %.17g\n',FemmProblem.Materials(i).Mu_x);
-        fprintf(fp,'    <Mu_y> = %.17g\n',FemmProblem.Materials(i).Mu_y);
-        fprintf(fp,'    <H_c> = %.17g\n',FemmProblem.Materials(i).H_c);
-        fprintf(fp,'    <H_cAngle> = %.17g\n',FemmProblem.Materials(i).H_cAngle);
-        fprintf(fp,'    <J_re> = %.17g\n',FemmProblem.Materials(i).J_re);
-        fprintf(fp,'    <J_im> = %.17g\n',FemmProblem.Materials(i).J_im);
-        fprintf(fp,'    <Sigma> = %.17g\n',FemmProblem.Materials(i).Sigma);
-        fprintf(fp,'    <d_lam> = %.17g\n',FemmProblem.Materials(i).d_lam);
-        fprintf(fp,'    <Phi_h> = %.17g\n',FemmProblem.Materials(i).Phi_h);
-        fprintf(fp,'    <Phi_hx> = %.17g\n',FemmProblem.Materials(i).Phi_hx);
-        fprintf(fp,'    <Phi_hy> = %.17g\n',FemmProblem.Materials(i).Phi_hy);
-        fprintf(fp,'    <LamType> = %i\n',FemmProblem.Materials(i).LamType);
-        fprintf(fp,'    <LamFill> = %.17g\n',FemmProblem.Materials(i).LamFill);
-        fprintf(fp,'    <NStrands> = %i\n',FemmProblem.Materials(i).NStrands);
-        fprintf(fp,'    <WireD> = %.17g\n',FemmProblem.Materials(i).WireD);
-        fprintf(fp,'    <BHPoints> = %i\n',size(FemmProblem.Materials(i).BHPoints,1));
+        
+        switch ftype.(domaintype)
+        
+            case ftype.magnetics
+            
+                fprintf(fp,'    <Mu_x> = %.17g\n',FemmProblem.Materials(i).Mu_x);
+                fprintf(fp,'    <Mu_y> = %.17g\n',FemmProblem.Materials(i).Mu_y);
+                fprintf(fp,'    <H_c> = %.17g\n',FemmProblem.Materials(i).H_c);
+                fprintf(fp,'    <H_cAngle> = %.17g\n',FemmProblem.Materials(i).H_cAngle);
+                fprintf(fp,'    <J_re> = %.17g\n',FemmProblem.Materials(i).J_re);
+                fprintf(fp,'    <J_im> = %.17g\n',FemmProblem.Materials(i).J_im);
+                fprintf(fp,'    <Sigma> = %.17g\n',FemmProblem.Materials(i).Sigma);
+                fprintf(fp,'    <d_lam> = %.17g\n',FemmProblem.Materials(i).d_lam);
+                fprintf(fp,'    <Phi_h> = %.17g\n',FemmProblem.Materials(i).Phi_h);
+                fprintf(fp,'    <Phi_hx> = %.17g\n',FemmProblem.Materials(i).Phi_hx);
+                fprintf(fp,'    <Phi_hy> = %.17g\n',FemmProblem.Materials(i).Phi_hy);
+                fprintf(fp,'    <LamType> = %i\n',FemmProblem.Materials(i).LamType);
+                fprintf(fp,'    <LamFill> = %.17g\n',FemmProblem.Materials(i).LamFill);
+                fprintf(fp,'    <NStrands> = %i\n',FemmProblem.Materials(i).NStrands);
+                fprintf(fp,'    <WireD> = %.17g\n',FemmProblem.Materials(i).WireD);
+                fprintf(fp,'    <BHPoints> = %i\n',size(FemmProblem.Materials(i).BHPoints,1));
 
-        % write the materials B-H points, these should be stored in a
-        % two-column matrix where column 1 is the B points and col 2 the H
-        % points
-        for j = 1:size(FemmProblem.Materials(i).BHPoints, 1)
+                % write the materials B-H points, these should be stored in a
+                % two-column matrix where column 1 is the B points and col 2 the H
+                % points
+                for j = 1:size(FemmProblem.Materials(i).BHPoints, 1)
 
-            fprintf(fp,'      %.17g\t%.17g\n', ...
-                FemmProblem.Materials(i).BHPoints(j,1), ...
-                FemmProblem.Materials(i).BHPoints(j,2));
+                    fprintf(fp,'      %.17g\t%.17g\n', ...
+                        FemmProblem.Materials(i).BHPoints(j,1), ...
+                        FemmProblem.Materials(i).BHPoints(j,2));
 
+                end
+                
+            case ftype.heatflow
+            
+                fprintf(fp,'    <Kx> = %.17g\n', FemmProblem.Materials(i).Kx);
+                fprintf(fp,'    <Ky> = %.17g\n', FemmProblem.Materials(i).Ky);
+                fprintf(fp,'    <Kt> = %.17g\n', FemmProblem.Materials(i).Kt);
+                fprintf(fp,'    <qv> = %.17g\n', FemmProblem.Materials(i).qv);
+                fprintf(fp,'    <TKPoints> = %i\n', size(FemmProblem.Materials(i).TKPoints,1));
+                
+                % write the materials B-H points, these should be stored in a
+                % two-column matrix where column 1 is the B points and col 2 the H
+                % points
+                for j = 1:size(FemmProblem.Materials(i).TKPoints, 1)
+
+                    fprintf(fp,'      %.17g\t%.17g\n', ...
+                        FemmProblem.Materials(i).TKPoints(j,1), ...
+                        FemmProblem.Materials(i).TKPoints(j,2));
+
+                end
+        
         end
 
         fprintf(fp,'  <EndBlock>\n');
 
     end
 
-    if ~isfield(FemmProblem, 'Circuits')
-        FemmProblem.Circuits = [];
-    end
-    
-    % write out the circuit properties
-    fprintf(fp,'[CircuitProps]  = %i\n',numel(FemmProblem.Circuits));
-    for i = 1:numel(FemmProblem.Circuits)
-
-        fprintf(fp,'  <BeginCircuit>\n');
-        fprintf(fp,'    <CircuitName> = \"%s\"\n',FemmProblem.Circuits(i).Name);
-        fprintf(fp,'    <TotalAmps_re> = %.17g\n',FemmProblem.Circuits(i).TotalAmps_re);
-        fprintf(fp,'    <TotalAmps_im> = %.17g\n',FemmProblem.Circuits(i).TotalAmps_im);
-
-        if ischar(FemmProblem.Circuits(i).CircType)
-
-            if strncmpi(FemmProblem.Circuits(i).CircType, ...
-                    'series', length(FemmProblem.Circuits(i).CircType))
-
-                FemmProblem.Circuits(i).CircType = 1;
-
-            elseif strncmpi(FemmProblem.Circuits(i).CircType, ...
-                    'parallel', length(FemmProblem.Circuits(i).CircType))
-
-                FemmProblem.Circuits(i).CircType = 0;
-
-            else
-                error('MFEMM:writefemmfile:badcircuittype', 'Unrecognised circuit type')
+    switch ftype.(domaintype)
+        
+        case ftype.magnetics
+        
+            % magnetics problems have circuits
+            if ~isfield(FemmProblem, 'Circuits')
+                FemmProblem.Circuits = [];
             end
+            
+            % write out the circuit properties
+            fprintf(fp,'[CircuitProps]  = %i\n',numel(FemmProblem.Circuits));
+            for i = 1:numel(FemmProblem.Circuits)
 
-        elseif isscalar(FemmProblem.Circuits(i).CircType)
-            if ~any(FemmProblem.Circuits(i).CircType == [0,1])
-                error('MFEMM:writefemmfile:badcircuittype', 'Unrecognised circuit type')
+                fprintf(fp,'  <BeginCircuit>\n');
+                fprintf(fp,'    <CircuitName> = \"%s\"\n',FemmProblem.Circuits(i).Name);
+                fprintf(fp,'    <TotalAmps_re> = %.17g\n',FemmProblem.Circuits(i).TotalAmps_re);
+                fprintf(fp,'    <TotalAmps_im> = %.17g\n',FemmProblem.Circuits(i).TotalAmps_im);
+
+                if ischar(FemmProblem.Circuits(i).CircType)
+
+                    if strncmpi(FemmProblem.Circuits(i).CircType, ...
+                            'series', length(FemmProblem.Circuits(i).CircType))
+
+                        FemmProblem.Circuits(i).CircType = 1;
+
+                    elseif strncmpi(FemmProblem.Circuits(i).CircType, ...
+                            'parallel', length(FemmProblem.Circuits(i).CircType))
+
+                        FemmProblem.Circuits(i).CircType = 0;
+
+                    else
+                        error('MFEMM:writefemmfile:badcircuittype', 'Unrecognised circuit type')
+                    end
+
+                elseif isscalar(FemmProblem.Circuits(i).CircType)
+                    if ~any(FemmProblem.Circuits(i).CircType == [0,1])
+                        error('MFEMM:writefemmfile:badcircuittype', 'Unrecognised circuit type')
+                    end
+                end
+
+                fprintf(fp,'    <CircuitType> = %i\n',FemmProblem.Circuits(i).CircType);
+                fprintf(fp,'  <EndCircuit>\n');
+
             end
-        end
+            
+        case ftype.heatflow
+            % heat flow problems have conductors
+            fprintf(fp,'[ConductorProps]  = %i\n',numel(FemmProblem.Conductors));
+            
+            fprintf(fp,'  <BeginConductor>\n'); 
+            
+            fprintf(fp,'    <ConductorName> = \"%s\"\n',FemmProblem.Conductors(i).ConductorName);
+            fprintf(fp,'    <Tc> = %.17g\n', FemmProblem.Conductors(i).Tc);
+            fprintf(fp,'    <qc> = %.17g\n', FemmProblem.Conductors(i).qc);
+                
+            if ischar(FemmProblem.Conductors(i).ConductorType)
 
-        fprintf(fp,'    <CircuitType> = %i\n',FemmProblem.Circuits(i).CircType);
-        fprintf(fp,'  <EndCircuit>\n');
+                if strncmpi(FemmProblem.Conductors(i).ConductorType, ...
+                        'temperature', length(FemmProblem.Conductors(i).ConductorType))
 
+                    FemmProblem.Conductors(i).ConductorType = 1;
+
+                elseif strncmpi(FemmProblem.Conductors(i).ConductorType, ...
+                        'flux', length(FemmProblem.Conductors(i).ConductorType))
+
+                    FemmProblem.Conductors(i).ConductorType = 0;
+
+                else
+                    error('MFEMM:writefemmfile:badconductortype', 'Unrecognised conductor type')
+                end
+
+            elseif isscalar(FemmProblem.Conductors(i).ConductorType)
+                if ~any(FemmProblem.Conductors(i).ConductorType == [0,1])
+                    error('MFEMM:writefemmfile:badconductortype', 'Unrecognised conductor type')
+                end
+            end
+   
+            fprintf(fp,'  <EndConductor>\n');
+            
     end
 
     if ~isfield(FemmProblem, 'Nodes')
@@ -392,19 +511,56 @@ function writefemmfile(filename, FemmProblem)
     for i = 1:numel(FemmProblem.Nodes)
 
         t = 0;
-        if isfield(FemmProblem, 'NodeProps')
-            for j = 1:numel(FemmProblem.NodeProps)
-                if isequal(FemmProblem.NodeProps(j).Name, FemmProblem.Nodes(i).PointPropName)
-                    t = j;
-                end
-            end
-        end
 
-        fprintf(fp,'%.17g\t%.17g\t%i\t%i\n', ...
-            FemmProblem.Nodes(i).Coords(1), ...
-            FemmProblem.Nodes(i).Coords(2), ...
-            t, ...
-            FemmProblem.Nodes(i).InGroup);
+        switch ftype.(domaintype)
+            
+            case ftype.magnetics
+            
+                if isfield(FemmProblem, 'NodeProps')
+                    for j = 1:numel(FemmProblem.NodeProps)
+                        if isequal(FemmProblem.NodeProps(j).Name, FemmProblem.Nodes(i).PointPropName)
+                            t = j;
+                        end
+                    end
+                end
+                
+                fprintf(fp,'%.17g\t%.17g\t%i\t%i\n', ...
+                        FemmProblem.Nodes(i).Coords(1), ...
+                        FemmProblem.Nodes(i).Coords(2), ...
+                        t, ...
+                        FemmProblem.Nodes(i).InGroup);
+                  
+            case ftype.heatflow
+            
+                if isfield(FemmProblem, 'NodeProps')
+                    for j = 1:numel(FemmProblem.NodeProps)
+                        if isequal(FemmProblem.NodeProps(j).Name, FemmProblem.Nodes(i).PointPropName)
+                            t = j;
+                        end
+                    end
+                end
+                
+                fprintf(fp,'%.17g\t%.17g\t%i\t%i\t', ...
+                        FemmProblem.Nodes(i).Coords(1), ...
+                        FemmProblem.Nodes(i).Coords(2), ...
+                        t, ...
+                        FemmProblem.Nodes(i).InGroup);
+                
+                t = 0;
+                
+                if isfield (FemmProblem, 'Conductors')
+                    for j = 1:numel(FemmProblem.Conductors)
+                        if isequal(FemmProblem.Conductors(j).Name, FemmProblem.Nodes(i).InConductor)
+                            t = j;
+                        end
+                    end
+                end
+                
+                fprintf(fp,'%i\n', t);
+                
+        end
+        
+
 
     end
 
@@ -434,7 +590,28 @@ function writefemmfile(filename, FemmProblem)
             fprintf(fp,'%.17g\t', FemmProblem.Segments(i).MaxSideLength);
         end
 
-        fprintf(fp,'%i\t%i\t%i\n', t, FemmProblem.Segments(i).Hidden, FemmProblem.Segments(i).InGroup);
+        fprintf(fp,'%i\t%i\t%i', t, FemmProblem.Segments(i).Hidden, FemmProblem.Segments(i).InGroup);
+        
+        switch ftype.(domaintype)
+            
+            case ftype.magnetics
+                fprintf(fp,'\n');
+            
+            case ftype.heatflow
+            
+                t = 0;
+                
+                if isfield (FemmProblem, 'Conductors')
+                    for j = 1:numel(FemmProblem.Conductors)
+                        if isequal(FemmProblem.Conductors(j).Name, FemmProblem.Segments(i).InConductor)
+                            t = j;
+                        end
+                    end
+                end
+                
+                fprintf(fp,'%i\n', t);
+            
+        end
     end
 
     if ~isfield(FemmProblem, 'ArcSegments')
@@ -454,7 +631,7 @@ function writefemmfile(filename, FemmProblem)
             end
         end
         
-        fprintf(fp,'%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i\n', ...
+        fprintf(fp,'%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i', ...
             FemmProblem.ArcSegments(i).n0, ...
             FemmProblem.ArcSegments(i).n1, ...
             FemmProblem.ArcSegments(i).ArcLength, ...
@@ -463,6 +640,27 @@ function writefemmfile(filename, FemmProblem)
             FemmProblem.ArcSegments(i).Hidden, ...
             FemmProblem.ArcSegments(i).InGroup);
 
+        switch ftype.(domaintype)
+            
+            case ftype.magnetics
+            
+                fprintf(fp,'\n');
+            
+            case ftype.heatflow
+            
+                t = 0;
+                
+                if isfield (FemmProblem, 'Conductors')
+                    for j = 1:numel(FemmProblem.Conductors)
+                        if isequal(FemmProblem.Conductors(j).Name, FemmProblem.ArcSegments(i).InConductor)
+                            t = j;
+                        end
+                    end
+                end
+                
+                fprintf(fp,'%i\n', t);
+            
+        end
     end
 
     if ~isfield(FemmProblem, 'BlockLabels')
@@ -519,24 +717,39 @@ function writefemmfile(filename, FemmProblem)
                 fprintf(fp,'-1\t');
             end
 
-            t = 0;
-            for j = 1:numel(FemmProblem.Circuits)
-                if isequal(FemmProblem.Circuits(j).Name, FemmProblem.BlockLabels(i).InCircuit)
-                    t = j;
-                end
+
+            switch ftype.(domaintype)
+                
+                case ftype.magnetics
+                
+                    t = 0;
+                    for j = 1:numel(FemmProblem.Circuits)
+                        if isequal(FemmProblem.Circuits(j).Name, FemmProblem.BlockLabels(i).InCircuit)
+                            t = j;
+                        end
+                    end
+
+                    fprintf(fp,'%i\t%.17g\t%i\t%i\t%i', ...
+                        t, ...
+                        FemmProblem.BlockLabels(i).MagDir, ...
+                        FemmProblem.BlockLabels(i).InGroup, ...
+                        FemmProblem.BlockLabels(i).Turns, ...
+                        FemmProblem.BlockLabels(i).IsExternal + FemmProblem.BlockLabels(i).IsDefault);
+
+                    if isfield(FemmProblem.BlockLabels, 'MagDirFctn') && ~isempty(FemmProblem.BlockLabels(i).MagDirFctn)
+                        fprintf(fp,'\t"%s"', FemmProblem.BlockLabels(i).MagDirFctn);
+                    end
+
+                    
+                case ftype.heatflow
+                
+                    fprintf(fp,'%i\t%i', ...
+                        FemmProblem.BlockLabels(i).InGroup, ...
+                        FemmProblem.BlockLabels(i).IsDefault );
+
+                
             end
-
-            fprintf(fp,'%i\t%.17g\t%i\t%i\t%i', ...
-                t, ...
-                FemmProblem.BlockLabels(i).MagDir, ...
-                FemmProblem.BlockLabels(i).InGroup, ...
-                FemmProblem.BlockLabels(i).Turns, ...
-                FemmProblem.BlockLabels(i).IsExternal);
-
-            if isfield(FemmProblem.BlockLabels, 'MagDirFctn') && ~isempty(FemmProblem.BlockLabels(i).MagDirFctn)
-                fprintf(fp,'\t"%s"', FemmProblem.BlockLabels(i).MagDirFctn);
-            end
-
+            
             fprintf(fp,'\n');
 
             k = k + 1;

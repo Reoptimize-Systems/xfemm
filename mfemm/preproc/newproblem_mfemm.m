@@ -82,6 +82,7 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     Inputs.LengthUnits = 'metres';
     Inputs.ACSolver = 0;
     Inputs.Coords = 'cart';
+    Inputs.Domain = 'Magnetics';
 
     Inputs = parse_pv_pairs(Inputs, varargin);
     
@@ -131,6 +132,26 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
 
     FemmProblem.ProbInfo = Inputs;
     
+    AirTK = [ 200.000000,0.018100;
+      250.000000,0.022300;
+      300.000000,0.026100;
+      350.000000,0.029700;
+      400.000000,0.033100;
+      450.000000,0.036300;
+      500.000000,0.039500;
+      550.000000,0.042600;
+      600.000000,0.045600;
+      700.000000,0.051300;
+      800.000000,0.056900;
+      900.000000,0.062500;
+      1000.000000,0.067200;
+      1200.000000,0.075900;
+      1400.000000,0.083500;
+      1600.000000,0.090400;
+      1800.000000,0.097000;
+      2000.000000,0.103200 ]
+
+    
     FemmProblem.Materials = struct('Name', 'Air', ...
                                    'Mu_x', 1.000000, ...
                                    'Mu_y', 1.000000, ...
@@ -148,7 +169,12 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
                                    'NStrands', 0.000000, ...
                                    'WireD', 0.000000, ...
                                    'BHPoints', [], ...
-                                   'Density', 1.225);
+                                   'Density', 1.225, ...
+                                   'Kx', 0.0181, ...
+                                   'Ky', 0.0181, ...
+                                   'Kt', 3, ...
+                                   'qv', 0, ...
+                                   'TKPoints', AirTK);
                                
     FemmProblem.Segments = [];
     FemmProblem.ArcSegments = [];
