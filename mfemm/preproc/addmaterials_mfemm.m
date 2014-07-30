@@ -31,7 +31,7 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials, var
 % See also: matstr2matstruct_mfemm.m, newmaterial_mfemm.m
 %
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2014 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
