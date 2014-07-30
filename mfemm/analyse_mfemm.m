@@ -57,55 +57,112 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
     end
     
     if isstruct(femprob)
-        % assume it is a FemmProblem structure, create the .fem file
-        femfilename = [ tempname(), '.fem' ];
+    
+        % assume it is a FemmProblem structure,
+        if strncmpi (femmprob.ProbInfo.Domain, 'm', 1) 
+            % create the .fem file
+            femfilename = [ tempname(), '.fem' ];
+        elseif strncmpi (femmprob.ProbInfo.Domain, 'h', 1) 
+            % create the .feh file
+            femfilename = [ tempname(), '.feh' ];
+        end
+        
         writefemmfile(femfilename, femprob);
         
     elseif ischar(femprob)
-        % assume it is the file name of the .fem file
+        % assume it is the file name of the problem file
         femfilename = femprob;
         
     else
         error('First input should be a string or an mfemm FemmProblem structure.');
     end
     
+    % use a structure to create an enum of file types
+    ftype.magnetics = 0;
+    ftype.heatflow = 1;
+    
     if strcmpi(femfilename(end-3:end), '.fem')
+        domain = ftype.magnetics;
         ansfilename = [femfilename(1:end-4), '.ans'];
+    else if strcmpi(femfilename(end-3:end), '.feh')
+        domain = ftype.heatflow;
+        ansfilename = [femfilename(1:end-4), '.anh'];
     else
         error('Supplied file name must have .fem extension');
     end
+    
+    switch domain
+    
+        case ftype.magnetics
 
-    if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
-            && ~usefemm
+            if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
+                    && ~usefemm
+                
+                if quiet
+                    % using xfemm interface
+                    % mesh the problem using fmesher
+                    fprintf(1, 'Meshing mfemm problem ...\n');
+                    fmesher(femfilename);
+                    fprintf(1, 'mfemm problem meshed ...\n');
+                    % solve the fea problem using fsolver
+                    fprintf(1, 'Solving mfemm problem ...\n');
+                    fsolver(femfilename(1:end-4), false);
+                    fprintf(1, 'mfemm problem solved ...\n');
+                else
+                    % using xfemm interface
+                    % mesh the problem using fmesher
+                    fprintf(1, 'Meshing mfemm problem ...\n');
+                    fmesher(femprob);
+                    fprintf(1, 'mfemm problem meshed ...\n');
+                    % solve the fea problem using fsolver
+                    fprintf(1, 'Solving mfemm problem ...\n');
+                    fsolver(femprob(1:end-4), true);
+                    fprintf(1, 'mfemm problem solved ...\n');
+                end
+                
+            else
+                % using original femm interface
+                opendocument(femfilename);
+                % writes the analysis file to disk when done
+                mi_analyse(1);
+                mi_close();
+            end
+            
+        case ftype.heatflow
         
-        if quiet
-            % using xfemm interface
-            % mesh the problem using fmesher
-            fprintf(1, 'Meshing mfemm problem ...\n');
-            fmesher(femfilename);
-            fprintf(1, 'mfemm problem meshed ...\n');
-            % solve the fea problem using fsolver
-            fprintf(1, 'Solving mfemm problem ...\n');
-            fsolver(femfilename(1:end-4), false);
-            fprintf(1, 'mfemm problem solved ...\n');
-        else
-            % using xfemm interface
-            % mesh the problem using fmesher
-            fprintf(1, 'Meshing mfemm problem ...\n');
-            fmesher(femprob);
-            fprintf(1, 'mfemm problem meshed ...\n');
-            % solve the fea problem using fsolver
-            fprintf(1, 'Solving mfemm problem ...\n');
-            fsolver(femprob(1:end-4), true);
-            fprintf(1, 'mfemm problem solved ...\n');
-        end
-        
-    else
-        % using original femm interface
-        opendocument(femfilename);
-        % writes the analysis file to disk when done
-        mi_analyse(1);
-        mi_close();
+            if (exist('mexfmesher', 'file')==3) && (exist('mexhsolver', 'file')==3) ...
+                    && ~usefemm
+                
+                if quiet
+                    % using xfemm interface
+                    % mesh the problem using fmesher
+                    fprintf(1, 'Meshing mfemm problem ...\n');
+                    fmesher(femfilename);
+                    fprintf(1, 'mfemm problem meshed ...\n');
+                    % solve the fea problem using fsolver
+                    fprintf(1, 'Solving mfemm problem ...\n');
+                    hsolver(femfilename(1:end-4), false);
+                    fprintf(1, 'mfemm problem solved ...\n');
+                else
+                    % using xfemm interface
+                    % mesh the problem using fmesher
+                    fprintf(1, 'Meshing mfemm problem ...\n');
+                    fmesher(femprob);
+                    fprintf(1, 'mfemm problem meshed ...\n');
+                    % solve the fea problem using fsolver
+                    fprintf(1, 'Solving mfemm problem ...\n');
+                    hsolver(femprob(1:end-4), true);
+                    fprintf(1, 'mfemm problem solved ...\n');
+                end
+                
+            else
+                % using original femm interface
+                opendocument(femfilename);
+                % writes the analysis file to disk when done
+                hi_analyse(1);
+                hi_close();
+            end
+            
     end
 
 end
