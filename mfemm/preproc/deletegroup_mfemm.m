@@ -25,7 +25,7 @@ function FemmProblem = deletegroup_mfemm(FemmProblem, groupno)
     end
     
     for ind = 1:numel(rminds)
-        FemmProblem = deletenode_mfemm(FemmProblem, rminds(ind));
+        FemmProblem = deletenode_mfemm(FemmProblem, rminds(ind)-1);
         rminds(rminds > rminds(ind)) = rminds(rminds > rminds(ind)) - 1;
     end
     
