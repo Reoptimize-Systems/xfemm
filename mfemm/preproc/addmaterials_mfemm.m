@@ -1,4 +1,4 @@
-function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
+function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials, varargin)
 % adds one or more materials to an mfemm FemmProblem structure
 %
 % Syntax
@@ -11,15 +11,12 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
 %  FemmProblem - an mfemm FemmProblem structure
 %
 %  Materials - either a single string, a cell array of strings a
-%    structure or array of structure. If a string or cell array of strings,
+%    structure, array of structures, or a cell array where each element is
+%    either a scalar structure or a string. If a string or cell array of strings,
 %    these are the names of materials from the materials library to be
 %    added to the model. If a structure or array of structures these must
 %    be Materials structures in the same format as produced by the function
-%    matstr2matstruct_mfemm, or newmaterial_mfemm.m.
-%
-%    materials can also be a cell array with each cell containing either a
-%    string or structure (or structure array) matching the specification
-%    described previously.
+%    matstr2matstruct_mfemm, or newmaterial_mfemm.m. 
 %
 %
 % Output
@@ -31,7 +28,7 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
 %    newly added materials
 %
 % 
-% See also: matstr2matstruct_mfemm.m
+% See also: matstr2matstruct_mfemm.m, newmaterial_mfemm.m
 %
 
 % Copyright 2012 Richard Crozier
@@ -48,6 +45,10 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
+    Inputs.MaterialsLibrary = fullfile(fileparts (which ('matstr2matstruct_mfemm')), '..', 'matlib.mat');
+    
+    Inputs = parseoptions (Inputs, varargin);
+    
     if isfield(FemmProblem, 'Materials')
         lastmatind = numel(FemmProblem.Materials);
     else
@@ -55,31 +56,36 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials)
         FemmProblem.Materials = [];
     end
     
-    if iscellstr (Materials) 
+    if iscellstr(Materials) 
 
         matinds = lastmatind + (1:numel(Materials));
         
-        FemmProblem.Materials = [FemmProblem.Materials, matstr2matstruct_mfemm( Materials )];
+        FemmProblem.Materials = [FemmProblem.Materials, matstr2matstruct_mfemm( Materials, Inputs.MaterialsLibrary )];
         
-    elseif ischar (Materials)
+    elseif ischar(Materials)
+    
+        Materials = {Materials};
         
         matinds = lastmatind + (1:numel(Materials));
         
-        FemmProblem.Materials = [FemmProblem.Materials, matstr2matstruct_mfemm( Materials )];
+        FemmProblem.Materials = [FemmProblem.Materials, matstr2matstruct_mfemm( Materials, Inputs.MaterialsLibrary )];
         
-    elseif isstruct (Materials)
+    elseif isstruct(Materials)
         
         matinds = lastmatind + (1:numel(Materials));
         
         FemmProblem.Materials = [FemmProblem.Materials, Materials];
         
     elseif iscell (Materials)
-        
+        % could be a mixture of specifications (strings and structures, so go
+        % through them one by one)
         matinds = [];
-        for ind = 1:numel (Materials)
-            [FemmProblem, matinds(end+1)] = addmaterials_mfemm(FemmProblem, Materials{ind});
-        end
         
+        for ind = 1:numel(Materials)
+            [FemmProblem, tempmatinds] = addmaterials_mfemm(FemmProblem, Materials(ind), varargin{:});
+            matinds = [matinds, tempmatinds];
+        end
+    
     else
         error('MFEMM:addmaterials_mfemm:badmaterials', ...
             'Materials must be a string, cell array of strings, or an array of materials structures.');
