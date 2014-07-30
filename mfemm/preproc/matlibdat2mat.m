@@ -1,6 +1,6 @@
 function matlibdat2mat(datfile)
-% comverts a materials library .dat file to a .mat file containing the
-% material information saved as an array of structures
+% converts a materials library .dat file to a .mat file of the same name 
+% containing the material information saved as an array of structures
 %
 % Syntax
 %
@@ -8,7 +8,7 @@ function matlibdat2mat(datfile)
 %
 % 
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2014 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
