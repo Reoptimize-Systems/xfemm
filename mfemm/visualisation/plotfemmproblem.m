@@ -12,10 +12,11 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
 %
 % Output
 %
-%  hfig - hadle to the created figure
+%  hfig - handle to the created figure
 %
+%  hax - handle to the created axes
 
-% Copyright 2012-2013 Richard Crozier
+% Copyright 2012-2014 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
