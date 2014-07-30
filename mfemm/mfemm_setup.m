@@ -1,4 +1,4 @@
-function varargout = mfemm_setup(forceallcompile)
+function varargout = mfemm_setup(varargin)
 % mfemm_setup
 %
 % A large proportion of mfemm's functionality depends on interfaces to C++
@@ -100,7 +100,6 @@ function varargout = mfemm_setup(forceallcompile)
 %
 
     if nargin < 1
-        forceallcompile = false;
         
         if nargout > 0
             % return the subfunctions for testing/use
@@ -108,6 +107,12 @@ function varargout = mfemm_setup(forceallcompile)
             return;
         end
     end
+    
+    Inputs.ForceAllRecompile = false;
+    Inputs.DoDebug = false;
+    Inputs.Verbose = false;
+    
+    Inputs = parseoptions (Inputs, varargin);
 
     % add the required directories to the path
     thisfilepath = which('mfemm_setup.m');
@@ -139,7 +144,7 @@ function varargout = mfemm_setup(forceallcompile)
     if ~(exist('mexfsolver', 'file') == 3) ...
             || ~(exist('mexfmesher', 'file') == 3) ...
             || ~(exist('fpproc_interface_mex', 'file') == 3) ...
-            || forceallcompile
+            || Inputs.ForceAllRecompile
 
         fprintf('Compiling mex functions for mfemm.\n');
         
@@ -149,20 +154,20 @@ function varargout = mfemm_setup(forceallcompile)
         makelibs (thisfilepath);
         
         if exist(fullfile(thisfilepath, 'cfemm', 'fmesher', 'libfmesher.a'), 'file') 
-            fmeshersetup;
+            fmeshersetup (Inputs.DoDebug, Inputs.Verbose);
         else
             % try building 
             error('MFEMM:setup', 'mfemm_setup can''t find the libfmesher library (libfmesher.a), run ''help mfemm_setup'' for more info.\n')
         end
 
         if exist(fullfile(thisfilepath, 'cfemm', 'fsolver', 'libfsolver.a'), 'file') 
-            fsolversetup;
+            fsolversetup (Inputs.DoDebug, Inputs.Verbose);
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libfsolver library (libfsolver.a), run ''help mfemm_setup'' for more info.\n')
         end
 
         if exist(fullfile(thisfilepath, 'cfemm', 'fpproc', 'libfpproc.a'), 'file')
-            fpprocsetup;
+            fpprocsetup (Inputs.DoDebug, Inputs.Verbose);
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libfpproc library (libfpproc.a), run ''help mfemm_setup'' for more info.\n')
         end
@@ -179,10 +184,12 @@ end
 function makelibs (thisfilepath)
 % build the libs required for mfemm
 
+    cd (fullfile(thisfilepath, 'cfemm'));
+    
     if isunix
         % if we are on a unixy computer we can make the necessary
         % libraries using make
-        system(sprintf('make -f %s', fullfile(thisfilepath, 'cfemm', 'Makefile')));
+        system('make');
     else
         % user must install code::blocks, but we can run it using the
         % command line args here
