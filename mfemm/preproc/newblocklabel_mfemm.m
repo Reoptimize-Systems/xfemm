@@ -21,6 +21,8 @@ function BlockLabel = newblocklabel_mfemm(x, y, varargin)
 %   InGroup        Group number of the block
 %   Turns          Number of turns associated with block when in circuit
 %   IsExternal     Specifies if block label lies in an external region
+%   IsDefault      Specifies if block is to be used as the default material 
+%                  for blocks where no material is specified
 %
 % x and y are the coordinates of the block label. Values of the other
 % structure fields can be supplied by passing in the field name and value
@@ -34,12 +36,12 @@ function BlockLabel = newblocklabel_mfemm(x, y, varargin)
 %    InGroup = 0        block group number
 %    Turns = 1          one turn
 %    IsExternal = 0     Block not in external region
-%
+%    IsDefault = 0      Block not default material
 %
 % See also: addblocklabel_mfemm.m, addrectregion_mfemm.m
 %
     
-% Copyright 2012-2013 Richard Crozier
+% Copyright 2012-2014 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -60,6 +62,7 @@ function BlockLabel = newblocklabel_mfemm(x, y, varargin)
     BlockLabel.InGroup = 0;
     BlockLabel.Turns = 1;
     BlockLabel.IsExternal = 0;
+    BlockLabel.IsDefault = 0;
     BlockLabel.MagDirFctn = '';
     
     BlockLabel = parseoptions(BlockLabel, varargin);
