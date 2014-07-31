@@ -139,9 +139,17 @@ function writefemmfile(filename, FemmProblem, varargin)
         FemmProblem.ProbInfo.ForceMaxMesh = false;
     end
         
+    switch ftype.(domaintype)
+        
+        case ftype.magnetics
+            fprintf(fp,'[Format]      =  4.0\n');
+            fprintf(fp,'[Frequency]   =  %.17g\n',FemmProblem.ProbInfo.Frequency);
+        case ftype.heatflow
+            fprintf(fp,'[Format]      =  1.0\n');
+            fprintf(fp,'[PrevSoln] = "%s"\n', FemmProblem.ProbInfo.PrevSolutionFile);
+            fprintf(fp,'[dT] = %.17g\n', FemmProblem.ProbInfo.dT);
+    end
     
-    fprintf(fp,'[Format]      =  4.0\n');
-    fprintf(fp,'[Frequency]   =  %.17g\n',FemmProblem.ProbInfo.Frequency);
     fprintf(fp,'[Precision]   =  %.17g\n',FemmProblem.ProbInfo.Precision);
     fprintf(fp,'[MinAngle]    =  %.17g\n',FemmProblem.ProbInfo.MinAngle);
     fprintf(fp,'[Depth]       =  %.17g\n',FemmProblem.ProbInfo.Depth);
@@ -467,38 +475,47 @@ function writefemmfile(filename, FemmProblem, varargin)
             end
             
         case ftype.heatflow
+        
             % heat flow problems have conductors
+            if ~isfield(FemmProblem, 'Conductors')
+                FemmProblem.Conductors = [];
+            end
+            
             fprintf(fp,'[ConductorProps]  = %i\n',numel(FemmProblem.Conductors));
             
-            fprintf(fp,'  <BeginConductor>\n'); 
+            for i = 1:numel(FemmProblem.Conductors)
             
-            fprintf(fp,'    <ConductorName> = \"%s\"\n',FemmProblem.Conductors(i).ConductorName);
-            fprintf(fp,'    <Tc> = %.17g\n', FemmProblem.Conductors(i).Tc);
-            fprintf(fp,'    <qc> = %.17g\n', FemmProblem.Conductors(i).qc);
+                fprintf(fp,'  <BeginConductor>\n'); 
                 
-            if ischar(FemmProblem.Conductors(i).ConductorType)
+                fprintf(fp,'    <ConductorName> = \"%s\"\n',FemmProblem.Conductors(i).ConductorName);
+                fprintf(fp,'    <Tc> = %.17g\n', FemmProblem.Conductors(i).Tc);
+                fprintf(fp,'    <qc> = %.17g\n', FemmProblem.Conductors(i).qc);
+                    
+                if ischar(FemmProblem.Conductors(i).ConductorType)
 
-                if strncmpi(FemmProblem.Conductors(i).ConductorType, ...
-                        'temperature', length(FemmProblem.Conductors(i).ConductorType))
+                    if strncmpi(FemmProblem.Conductors(i).ConductorType, ...
+                            'temperature', length(FemmProblem.Conductors(i).ConductorType))
 
-                    FemmProblem.Conductors(i).ConductorType = 1;
+                        FemmProblem.Conductors(i).ConductorType = 1;
 
-                elseif strncmpi(FemmProblem.Conductors(i).ConductorType, ...
-                        'flux', length(FemmProblem.Conductors(i).ConductorType))
+                    elseif strncmpi(FemmProblem.Conductors(i).ConductorType, ...
+                            'flux', length(FemmProblem.Conductors(i).ConductorType))
 
-                    FemmProblem.Conductors(i).ConductorType = 0;
+                        FemmProblem.Conductors(i).ConductorType = 0;
 
-                else
-                    error('MFEMM:writefemmfile:badconductortype', 'Unrecognised conductor type')
+                    else
+                        error('MFEMM:writefemmfile:badconductortype', 'Unrecognised conductor type')
+                    end
+
+                elseif isscalar(FemmProblem.Conductors(i).ConductorType)
+                    if ~any(FemmProblem.Conductors(i).ConductorType == [0,1])
+                        error('MFEMM:writefemmfile:badconductortype', 'Unrecognised conductor type')
+                    end
                 end
-
-            elseif isscalar(FemmProblem.Conductors(i).ConductorType)
-                if ~any(FemmProblem.Conductors(i).ConductorType == [0,1])
-                    error('MFEMM:writefemmfile:badconductortype', 'Unrecognised conductor type')
-                end
+       
+                fprintf(fp,'  <EndConductor>\n');
+            
             end
-   
-            fprintf(fp,'  <EndConductor>\n');
             
     end
 
@@ -658,7 +675,7 @@ function writefemmfile(filename, FemmProblem, varargin)
                     end
                 end
                 
-                fprintf(fp,'%i\n', t);
+                fprintf(fp,'\t%i\n', t);
             
         end
     end
