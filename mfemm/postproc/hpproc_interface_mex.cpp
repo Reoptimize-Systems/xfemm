@@ -22,7 +22,7 @@ enum ClassMethods { evNotDefined,
                     smoothon,
                     smoothoff,
                     getprobleminfo,
-                    getcircuitprops,
+                    getconductorprops,
                     numnodes,
                     numelements,
                     getelements,
@@ -148,7 +148,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case getprobleminfo:
         HPProc_interface_instance->getprobleminfo(nlhs, plhs, nrhs, prhs);
         return;
-    case getcircuitprops:
+    case getconductorprops:
         HPProc_interface_instance->getconductorprops(nlhs, plhs, nrhs, prhs);
         return;
     case numnodes:
