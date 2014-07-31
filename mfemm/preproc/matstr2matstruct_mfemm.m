@@ -109,16 +109,16 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
                'Second input must be a file location of array of material structures.');
     end
     
-    for j = 1:numel(matstr)
+    for matnameind = 1:numel(matstr)
         
         notfoundmat = true;
         
         % Check for material in the material library
-        for i = 1:numel(matlib)
+        for libind = 1:numel(matlib)
 
            % Look for string in the materials library, once found break loop
-           if strcmpi(matlib(i).Name, matstr{j})
-               materials(j) = matlib(i);
+           if strcmpi(matlib(libind).Name, matstr{matnameind})
+               materials(matnameind) = matlib(libind);
                notfoundmat = false;
                break;
            end
@@ -127,7 +127,7 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
         
         if notfoundmat
             error('MFEMM:matstr2matstruct:matnotfound', ...
-                     'Material %s not found in library\n', matstr{i});
+                     'Material %s not found in library\n', matstr{matnameind});
         end
     
     end
