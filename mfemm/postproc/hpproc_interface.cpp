@@ -11,7 +11,6 @@
 #include <cmath>
 #include "mex.h"
 #include "hpproc.h"
-#include "problem.h"
 #include "hpproc_interface.h"
 
 
@@ -88,7 +87,6 @@ int HPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
 
 int HPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
-
     double *px, *py, *outpointerRe;
     size_t mxrows, myrows, nxcols, nycols;
 
@@ -251,7 +249,7 @@ int HPProc_interface::clearcontour()
 int HPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     int type;
-    CComplex *z;
+    double *z;
     double *ptype, *outpointerRe, *outpointerIm;
     size_t mrows, ncols;
 
@@ -291,7 +289,7 @@ int HPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
     }
 
     // Create an array of CComplex to hold the results of the integral
-    z = (CComplex *)calloc(4,sizeof(CComplex));
+    z = (double *)calloc(2,sizeof(double));
     theHPProc.LineIntegral(type,z);
 
     switch(type)
@@ -302,7 +300,7 @@ int HPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
         plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
         // get a pointer to the start of the actual output data array
         outpointerRe = mxGetPr(plhs[0]);
-        outpointerRe[0] = z[0].re; // contour length
+        outpointerRe[0] = z[0]; // contour length
         free(z);
         return 0;
 
@@ -312,8 +310,8 @@ int HPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
         plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
         // get a pointer to the start of the actual output data array
         outpointerRe = mxGetPr(plhs[0]);
-        outpointerRe[0] = z[0].re;
-        outpointerRe[1] = z[1].re;
+        outpointerRe[0] = z[0];
+        outpointerRe[1] = z[1];
 
         free(z);
         return 1;
@@ -325,8 +323,8 @@ int HPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
         plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
         // get a pointer to the start of the actual output data array
         outpointerRe = mxGetPr(plhs[0]);
-        outpointerRe[0] = z[0].re;
-        outpointerRe[1] = z[1].re;
+        outpointerRe[0] = z[0];
+        outpointerRe[1] = z[1];
 
         free(z);
         return 2;
@@ -337,8 +335,8 @@ int HPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
         plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
         // get a pointer to the start of the actual output data array
         outpointerRe = mxGetPr(plhs[0]);
-        outpointerRe[0] = z[0].re;
-        outpointerRe[1] = z[1].re;
+        outpointerRe[0] = z[0];
+        outpointerRe[1] = z[1];
 
         free(z);
         return 2;
@@ -651,10 +649,8 @@ int HPProc_interface::getconductorprops(int nlhs, mxArray *plhs[], int nrhs, con
         mexErrMsgTxt("Unknown circuit");
     }
 
-    CComplex amps,volts,fluxlinkage;
-
-    temperature = theHPProc.circproplist[k].V;
-    flux = theHPProc.circproplist[k].q;
+    double temperature = theHPProc.circproplist[k].V;
+    double flux = theHPProc.circproplist[k].q;
 
     /*  set the output pointer to the output matrix */
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
@@ -663,7 +659,7 @@ int HPProc_interface::getconductorprops(int nlhs, mxArray *plhs[], int nrhs, con
     outpointerRe[0] = temperature;
     outpointerRe[1] = flux;
 
-    return 3;
+    return 2;
 }
 
 
