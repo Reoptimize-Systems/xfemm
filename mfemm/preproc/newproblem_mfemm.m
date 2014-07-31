@@ -83,6 +83,8 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     Inputs.ACSolver = 0;
     Inputs.Coords = 'cart';
     Inputs.Domain = 'Magnetics';
+    Inputs.PrevSolutionFile = "";
+    Inputs.dT = 0;
 
     Inputs = parse_pv_pairs(Inputs, varargin);
     
@@ -105,7 +107,7 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
             end
 
         else
-            error('Unrecognised problem type')
+            error('Unrecognised problem type');
         end
 
     else
@@ -133,23 +135,23 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     FemmProblem.ProbInfo = Inputs;
     
     AirTK = [ 200.000000,0.018100;
-      250.000000,0.022300;
-      300.000000,0.026100;
-      350.000000,0.029700;
-      400.000000,0.033100;
-      450.000000,0.036300;
-      500.000000,0.039500;
-      550.000000,0.042600;
-      600.000000,0.045600;
-      700.000000,0.051300;
-      800.000000,0.056900;
-      900.000000,0.062500;
-      1000.000000,0.067200;
-      1200.000000,0.075900;
-      1400.000000,0.083500;
-      1600.000000,0.090400;
-      1800.000000,0.097000;
-      2000.000000,0.103200 ]
+              250.000000,0.022300;
+              300.000000,0.026100;
+              350.000000,0.029700;
+              400.000000,0.033100;
+              450.000000,0.036300;
+              500.000000,0.039500;
+              550.000000,0.042600;
+              600.000000,0.045600;
+              700.000000,0.051300;
+              800.000000,0.056900;
+              900.000000,0.062500;
+              1000.000000,0.067200;
+              1200.000000,0.075900;
+              1400.000000,0.083500;
+              1600.000000,0.090400;
+              1800.000000,0.097000;
+              2000.000000,0.103200 ];
 
     
     FemmProblem.Materials = struct('Name', 'Air', ...
