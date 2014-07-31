@@ -24,16 +24,20 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 %   FemmProblem - The Existing mfemm problem structure to which the new
 %              boundary condition will be added.
 %
-%   Name     - A string denoting the name of the boundary condition for
-%              later use. this name will be modified to ensure it is unique
-%              by adding the string 'ID: X - ' in front of the supplied
-%              name string where X is replaced by an iteger value. The
-%              value will be one greater than the number of boundaries
-%              already present in the problem. The new boundary name will
-%              be returned in 'boundname'.
+%   Name     - A string denoting the name of the new boundary. If
+%              'NBoundaryProps' or 'FemmProblem' is also supplied, this
+%              name will be modified to ensure it is unique by adding the
+%              string 'ID: X - ' in front of the supplied name string where
+%              X is replaced by an iteger value. If NBoundaryProps is
+%              supplied the value of this integer wil be NBoundaryProps +
+%              1. If a FemmProblem is supplied, the value will be one
+%              greater than the number of boundaries already present in the
+%              problem. The supplied boundayr name will not be changed if
+%              only Name, BdryType and parameter-value pairs are supplied.
 %
 %   BdryType - Scalar value determining the boundary type. This can have 
-%              the values:
+%              values between 0 and 5. For magnetics problems, these numbers
+%              have the following meanings:
 %               
 %              0 - Prescribed A type boundary condition
 %              1 - Small Skin Depth type boundary condtion
@@ -42,8 +46,21 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 %              4 - Periodic boundary condition
 %              5 - Anti-Perodicboundary condition
 %
+%              For heat flow problems, these numbers have the follwoing
+%              meanings:
+%
+%              0 - Fixed temperature type boundary condition
+%              1 - Heat flux type boundary condition
+%              2 - Convection boundary condition
+%              3 - Radiation boundary condition
+%              4 - Periodic boundary condition
+%              5 - Anti-Perodic boundary condition
+%
 %              Further discussion of these boundary conditions, and
-%              appropriate parameter-value pairs now follows.
+%              appropriate parameter-value pairs in each case now follows.
+%
+%                     Magnetics Problem Boundaries
+%                     ----------------------------
 %
 % Prescribed A Type Boundary Condition Variables
 %
@@ -63,10 +80,10 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 %  
 %  Relevant Parmater/Value Pairs:
 %
-%     A0  - A0 coeffictient
-%     A1  - A1 coefficient
-%     A2  - A2 coefficient
-%     Phi - Angle to segment at which the condition will be applied
+%     'A0'  - A0 coeffictient
+%     'A1'  - A1 coefficient
+%     'A2'  - A2 coefficient
+%     'Phi' - Angle to segment at which the condition will be applied
 %
 %   For a Prescribed A type boundary condition, set the A0, A1, A2 and Phi
 %   parameters as required. Set all other parameters to zero.
@@ -84,13 +101,13 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 %  
 %  Relevant Parmater/Value Pairs:
 %
-%      c0  - asymtotic boundary condition c_0 coefficient (real part),
+%      'c0'  - asymtotic boundary condition c_0 coefficient (real part),
 %            defaults to zero.
-%      c0i - asymtotic boundary condition c_0 coefficient (imaginary 
+%      'c0i' - asymtotic boundary condition c_0 coefficient (imaginary 
 %            part), defaults to zero.
-%      c1  - asymtotic boundary condition c_1 coefficient (real part),
+%      'c1'  - asymtotic boundary condition c_1 coefficient (real part),
 %            defautls to zero.
-%      c1i - asymtotic boundary condition c_1 coefficient (imaginary
+%      'c1i' - asymtotic boundary condition c_1 coefficient (imaginary
 %            part), defautls to zero.
 %
 % Small Skin Depth Type Boundary Condition Variables
@@ -115,10 +132,10 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 %  
 %  Relevant Parmater/Value Pairs:
 %
-%   Mu_ssd      - Small skin depth relative permeability
-%   Sigma_ssd   - Small skin depth conductivity
+%   'Mu_ssd'     - Small skin depth relative permeability
+%   'Sigma_ssd'  - Small skin depth conductivity
 %
-% Selecting a boundary
+% Selecting a magnetics boundary
 % 
 % For a Small Skin Depth type boundary condtion, set Mu_ssd to the desired
 % relative permeability and Sigma_ssd to the desired conductivity in MS/m.
@@ -127,17 +144,82 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 % To obtain a Mixed type boundary condition, set C1 and C0 as required and
 % BdryFormat to 2. Set all other parameters to zero (the defaults).
 %
-% For a Strategic dual image boundary, set BdryFormat to 3 and set all
-% other parameters to zero, or supply no p-v pairs to have
-% addboundaryprop_mfemm do this for you.
+% For a Strategic dual image boundary, set BdryFormat to 3 and set all other
+% parameters to zero, or supply no p-v pairs to have newboundaryprop_mfemm
+% do this for you.
 %
 % For a Periodic boundary condition, set BdryFormat to 4 and set all other
-% parameters to zero, or supply no p-v pairs to have addboundaryprop_mfemm
+% parameters to zero, or supply no p-v pairs to have newboundaryprop_mfemm
 % do this for you.
 %
 % For an Anti-Perodic set BdryFormat to 5 and set all other
-% parameters to zero, or supply no p-v pairs to have addboundaryprop_mfemm
+% parameters to zero, or supply no p-v pairs to have newboundaryprop_mfemm
 % do this for you.
+%
+% 
+%                     Heat flow Problem Boundaries
+%                     ----------------------------
+%
+% Fixed Temperature Boundary
+%
+% Sets the temperature along the boundayr to a fixed value
+%
+% Heat flux boundary
+%
+% The heat flux q across the boundary is prescribed such that
+%
+%  k dT/dn + q = 0
+%
+% where n is a vector normal to the boundary, k is the thermal conductivity of
+% the material and q is the flux crossing the boundary.
+%
+% Convection boundary
+%
+% Represents a surface cooled by a fluid flow. This is represented by the
+% equation
+%
+%  k dT/dN + h (T - T0) = 0
+% 
+% where h is the heat transfer coefficient and T0 is the ambient cooling fluid
+% temperature
+%
+% Radiation
+%
+% Represents heat radiated from the surface of a body. Mathmatically this is 
+% described using
+%
+%  k dT/dN + beta ksb (T^4 - T0^4) = 0
+%
+% where beta is the emissivity of the surface (a dimensionless value between 0
+% and 1) and ksb is the Stefan-Boltzmann constant.
+%
+% Selecting a heat flow boundary
+%
+% 
+% For a Fixed Temperature boundary condtion, set Tset to the desired
+% temperature. Set BdryFormat to 0 and all other parameters to zero.
+%
+% To obtain a Heat Flux boundary condition, set qs to the desired W/m^2 on the
+% boundary and BdryFormat to 1. Set all other parameters to zero (the defaults).
+%
+% For a Convection boundary, set h to the desired heat flow coefficient and T0
+% to the ambient temperature of the convecting fluid. Set BdryFormat to 2 and 
+% set all other parameters to zero.
+%
+% For a Radiation boundary set beta to the desired emissivity constant and T0
+% to the ambient temperature. Set BdryFormat to 3.
+%
+% For a Periodic boundary condition, set BdryFormat to 4 and set all other
+% parameters to zero, or supply no p-v pairs to have newboundaryprop_mfemm
+% do this for you.
+%
+% For an Anti-Perodic set BdryFormat to 5 and set all other
+% parameters to zero, or supply no p-v pairs to have newboundaryprop_mfemm
+% do this for you.
+%
+%
+%
+% See also: addboundaryprop_mfemm.m, emptyboundaryprops_mfemm.m
 %
 %
 % See also: newboundaryprop_mfemm.m, emptyboundaryprops_mfemm
