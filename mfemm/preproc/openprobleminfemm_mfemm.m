@@ -18,12 +18,13 @@ function filename = openprobleminfemm_mfemm(FemmProblem, filename)
 %
     
     if nargin < 2
-        if strncmpi (FemmProblem.Domain, 'm', 1)
+        if strncmpi (FemmProblem.ProbInfo.Domain, 'm', 1)
             filename = [tempname, '.fem'];
-        elseif strncmpi (FemmProblem.Domain, 'h', 1)
+        elseif strncmpi (FemmProblem.ProbInfo.Domain, 'h', 1)
             filename = [tempname, '.feh'];
         end
     end
+    
     writefemmfile(filename, FemmProblem);
     % open femm if we have not already done so
     openfemm;
