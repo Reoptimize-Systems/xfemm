@@ -39,7 +39,11 @@ function [x, y] = arcpoints(A, B, angle, maxdeg)
     % get arc points
     npnts = max(3, ceil(angle ./ maxdeg));
     
-    pnts = linspace(starttheta, starttheta + angle, npnts);
+    pnts = ones (numel (npnts), max(npnts)) * nan;
+    
+    for ind = 1:size(pnts,1)
+        pnts(ind,1:npnts(ind)) = linspace(starttheta(ind), starttheta(ind) + angle(ind), npnts(ind));
+    end
     
     [x, y] = pol2cart(pnts, repmat(rho, 1, size(pnts,2)));
     

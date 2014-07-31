@@ -31,12 +31,12 @@ function id = findarcsegment_mfemm(FemmProblem, loc)
         % ipdm returns a structure with fields named 'rowindex', 'columnindex' and 
         % 'distance'
         dists = ones (size(xm,1),1) * nan;
-        for indi = 1:size (xm,1)
-            result = ipdm(loc, [xm(indi,:)', ym(indi,:)'], ...
+        for indii = 1:size (xm,1)
+            result = ipdm(loc(indi,:), [xm(indii,:)', ym(indii,:)'], ...
                           'Result', 'Structure', ...
                           'Subset', 'NearestNeighbor');
                           
-            dists(indi) = result.distance;
+            dists(indii) = result.distance;
         end
         
         % get the indices of the closest arc segment
