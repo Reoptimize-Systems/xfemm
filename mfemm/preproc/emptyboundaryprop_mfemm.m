@@ -67,10 +67,10 @@ function BoundaryProps = emptyboundaryprop_mfemm()
     BoundaryProps.Sigma_ssd = 0;
     
     % heat flux properties
-    BoundaryProps.Tset = 0
-    BoundaryProps.qs   = 0
-    BoundaryProps.beta = 0
-    BoundaryProps.h    = 0
-    BoundaryProps.T0   = 0
+    BoundaryProps.Tset = 0;
+    BoundaryProps.qs   = 0;
+    BoundaryProps.beta = 0;
+    BoundaryProps.h    = 0;
+    BoundaryProps.T0   = 0;
 
 end
