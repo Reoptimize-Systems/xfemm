@@ -84,7 +84,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
     if strcmpi(femfilename(end-3:end), '.fem')
         domain = ftype.magnetics;
         ansfilename = [femfilename(1:end-4), '.ans'];
-    else if strcmpi(femfilename(end-3:end), '.feh')
+    elseif strcmpi(femfilename(end-3:end), '.feh')
         domain = ftype.heatflow;
         ansfilename = [femfilename(1:end-4), '.anh'];
     else
