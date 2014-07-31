@@ -171,6 +171,18 @@ function varargout = mfemm_setup(varargin)
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libfpproc library (libfpproc.a), run ''help mfemm_setup'' for more info.\n')
         end
+        
+        if exist(fullfile(thisfilepath, 'cfemm', 'hsolver', 'libhsolver.a'), 'file') 
+            hsolversetup (Inputs.DoDebug, Inputs.Verbose);
+        else
+            error('MFEMM:setup', 'mfemm_setup can''t find the libhsolver library (libhsolver.a), run ''help mfemm_setup'' for more info.\n')
+        end
+
+        if exist(fullfile(thisfilepath, 'cfemm', 'hpproc', 'libhpproc.a'), 'file')
+            hpprocsetup (Inputs.DoDebug, Inputs.Verbose);
+        else
+            error('MFEMM:setup', 'mfemm_setup can''t find the libhpproc library (libhpproc.a), run ''help mfemm_setup'' for more info.\n')
+        end
 
     else
         
@@ -189,6 +201,9 @@ function makelibs (thisfilepath)
     if isunix
         % if we are on a unixy computer we can make the necessary
         % libraries using make
+        if exist (fullfile(pwd, 'Makefile'), 'file') == 0
+            system('cmake .');
+        end
         system('make');
     else
         % user must install code::blocks, but we can run it using the
