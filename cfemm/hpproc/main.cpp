@@ -25,6 +25,7 @@
 */
 
 #include <iostream>
+#include <cstdio>
 #include "hpproc.h"
 #include "femmcomplex.h"
 
@@ -44,11 +45,13 @@ int main()
     string mystr;
     HPProc testHPProc;
     CComplex out;
+    CPointVals u;
+    double x, y;
 
     cout << "HPProc Loaded!" << endl;
 
 
-    int test = testHPProc.OpenDocument("Temp0.anh");
+    int test = testHPProc.OpenDocument("/home/rcrozier/src/xfemm-code/cfemm/hpproc/Test/Temp0.anh");
 
     if (test==TRUE)
     {
@@ -71,8 +74,57 @@ int main()
         }
 
 
+        out = testHPProc.BlockIntegral(0);
+        printf ("Block Temperature Integral for block 0 %f\n", out.Re());
+
+        out = testHPProc.BlockIntegral(1);
+        printf ("Block Cross-section Area Integral for block 0 %f\n", out.Re());
 
         out = testHPProc.BlockIntegral(2);
+        printf ("Block Volume Integral for block 0 %f\n", out.Re());
+
+        out = testHPProc.BlockIntegral(3);
+        printf ("Block Average F Integral for block 0 Fx: %f, Fy: %f\n", out.Re(), out.Im());
+
+        out = testHPProc.BlockIntegral(4);
+        printf ("Block Average G Integral for block 0 Gx: %f, Gy: %f\n", out.Re(), out.Im());
+
+        testHPProc.Smooth = false;
+
+        printf ("Field Smoothing OFF\n");
+
+        // get point values
+        x = 0.01;
+        y = 0.01;
+        testHPProc.GetPointValues(x, y, u);
+        printf ("Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
+                x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
+
+        // get point values
+        x = 0.005;
+        y = 0.005;
+        testHPProc.GetPointValues(x, y, u);
+        printf ("Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
+                x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
+
+        testHPProc.Smooth = true;
+
+        printf ("Field Smoothing ON\n");
+
+        // get point values
+        x = 0.01;
+        y = 0.01;
+        testHPProc.GetPointValues(x, y, u);
+        printf ("Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
+                x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
+
+        // get point values
+        x = 0.005;
+        y = 0.005;
+        testHPProc.GetPointValues(x, y, u);
+        printf ("Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
+                x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
+
     }
 
     return 0;
