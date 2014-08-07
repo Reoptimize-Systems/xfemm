@@ -31,10 +31,10 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
 %     FemmProblem structure was supplied, it is the location of the
 %     generated .fem file for the problem.
 %
-% See also: fmesher.m, fsolver.m, fpproc.m
+% See also: fmesher.m, fsolver.m, fpproc.m, hsolver.m, hpproc.m
 % 
 
-% Copyright 2013 Richard Crozier
+% Copyright 2013-2014 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -59,10 +59,10 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
     if isstruct(femprob)
     
         % assume it is a FemmProblem structure,
-        if strncmpi (femmprob.ProbInfo.Domain, 'm', 1) 
+        if strncmpi (femprob.ProbInfo.Domain, 'm', 1) 
             % create the .fem file
             femfilename = [ tempname(), '.fem' ];
-        elseif strncmpi (femmprob.ProbInfo.Domain, 'h', 1) 
+        elseif strncmpi (femprob.ProbInfo.Domain, 'h', 1) 
             % create the .feh file
             femfilename = [ tempname(), '.feh' ];
         end
