@@ -1004,7 +1004,8 @@ void HPProc::GetPointD(double x, double y, CComplex &D, CElement &elm)
 	// elm is a reference to the element that contains the point of interest.
 	int i,n[3];
 	double da,a[3],b[3],c[3];
-
+char buffer [50]; sprintf(buffer, "In GetPointD Smooth is: %i \n", Smooth);
+WarnMessage (buffer);
 	if(Smooth==false){
 		D=elm.D;
 		return;

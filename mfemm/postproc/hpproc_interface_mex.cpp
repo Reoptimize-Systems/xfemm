@@ -12,6 +12,7 @@ using namespace std;
 // Value-Defintions of the different class methods available
 enum ClassMethods { evNotDefined,
                     opendocument,
+                    temperaturebounds,
                     getpointvals,
                     clearcontour,
                     addcontour,
@@ -44,6 +45,7 @@ void Initialize()
 {
     // Set up the class methods map
     s_mapClassMethodStrs["opendocument"]      = opendocument;
+    s_mapClassMethodStrs["temperaturebounds"] = temperaturebounds;
     s_mapClassMethodStrs["getpointvals"]      = getpointvals;
     s_mapClassMethodStrs["clearcontour"]      = clearcontour;
     s_mapClassMethodStrs["addcontour"]        = addcontour;
@@ -117,6 +119,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     {
     case opendocument:
         HPProc_interface_instance->opendocument(nlhs, plhs, nrhs, prhs);
+        return;
+    case temperaturebounds:
+        HPProc_interface_instance->temperaturebounds(nlhs, plhs, nrhs, prhs);
         return;
     case getpointvals:
         HPProc_interface_instance->getpointvals(nlhs, plhs, nrhs, prhs);

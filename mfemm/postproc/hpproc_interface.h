@@ -20,6 +20,7 @@ public:
     //~HPProc_interface();
 
     int opendocument(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int temperaturebounds(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 	int getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 	int addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 	int clearcontour();
