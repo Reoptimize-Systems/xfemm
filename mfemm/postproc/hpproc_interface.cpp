@@ -85,6 +85,21 @@ int HPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
     return wasopened;
 }
 
+int HPProc_interface::temperaturebounds(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    double *outpointerRe; 
+
+    /*  set the output pointer to the output matrix */
+    plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(2), mxREAL);
+    
+    // get a pointer to the start of the actual output data array
+    outpointerRe = mxGetPr(plhs[0]);
+    
+    outpointerRe[0] = theHPProc.A_Low;
+    outpointerRe[1] = theHPProc.A_High;
+}
+
+
 int HPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
     double *px, *py, *outpointerRe;

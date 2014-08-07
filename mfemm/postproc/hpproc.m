@@ -68,6 +68,12 @@ classdef hpproc < mfemmpproc
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
     
+    properties (SetAcccess = private, GetAccess = public)
+    
+        T_Max;
+        T_Min;
+    
+    end
     
     methods  
     
@@ -138,6 +144,12 @@ classdef hpproc < mfemmpproc
                 end
                     
             end
+            
+            % get the temperature bounds
+            Tbounds = hpproc_interface_mex('temperaturebounds', this.objectHandle);
+            
+            T_Min = Tbounds(1);
+            T_Max = Tbounds(2);
             
         end
 
