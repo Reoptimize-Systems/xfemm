@@ -202,7 +202,7 @@ function makelibs (thisfilepath)
         % if we are on a unixy computer we can make the necessary
         % libraries using make
         if exist (fullfile(pwd, 'Makefile'), 'file') == 0
-            system('cmake .');
+            system('cmake . -DCMAKE_BUILD_TYPE=Release');
         end
         system('make');
     else
