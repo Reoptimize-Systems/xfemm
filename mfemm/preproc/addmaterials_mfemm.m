@@ -82,7 +82,7 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials, var
         matinds = [];
         
         for ind = 1:numel(Materials)
-            [FemmProblem, tempmatinds] = addmaterials_mfemm(FemmProblem, Materials(ind), varargin{:});
+            [FemmProblem, tempmatinds] = addmaterials_mfemm(FemmProblem, Materials{ind}, varargin{:});
             matinds = [matinds, tempmatinds];
         end
     
