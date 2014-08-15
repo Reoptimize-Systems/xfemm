@@ -83,7 +83,7 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     Inputs.ACSolver = 0;
     Inputs.Coords = 'cart';
     Inputs.Domain = 'Magnetics';
-    Inputs.PrevSolutionFile = "";
+    Inputs.PrevSolutionFile = '';
     Inputs.dT = 0;
 
     Inputs = parse_pv_pairs(Inputs, varargin);
