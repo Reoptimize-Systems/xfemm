@@ -76,7 +76,7 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
     
     if nargin < 2
     
-        matlibfile = fullfile(fileparts (which ('matstr2matstruct_mfemm')), '..', 'matlib.mat');
+        matlib = fullfile(fileparts (which ('matstr2matstruct_mfemm')), '..', 'matlib.mat');
 
     end
 
