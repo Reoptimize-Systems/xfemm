@@ -116,7 +116,7 @@ function writefemmfile(filename, FemmProblem, varargin)
         
         
         if ~isempty(fext) && isfield(fexmap, fext(2:end))
-            domaintype = fexmap.(fext(2:end))
+            domaintype = fexmap.(fext(2:end));
         else
             error ('MFEMM:badfiletype', ...
                    'The output file name extension is not recognised and you have not explicitly set the file type.');
