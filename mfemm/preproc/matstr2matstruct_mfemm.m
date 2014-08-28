@@ -74,7 +74,7 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
             'matstr must be a string or cell array of strings containing material names.')
     end
     
-    if nargin < 2
+    if nargin < 2 || isempty (matlib)
     
         matlib = fullfile(fileparts (which ('matstr2matstruct_mfemm')), '..', 'matlib.mat');
 
