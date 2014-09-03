@@ -1,4 +1,4 @@
-function links = getseglinks_mfemm(FemmProblem)
+function links = getseglinks_mfemm(FemmProblem, varargin)
 % gets the links between nodes from an mfemm FemmProblem structure
 %
 % Syntax
@@ -17,7 +17,7 @@ function links = getseglinks_mfemm(FemmProblem)
 %     segments
 %
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2014 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -31,10 +31,30 @@ function links = getseglinks_mfemm(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-
+    Inputs.Groups = [];
+    
+    Inputs = parseoptions (Inputs, varargin);
+    
     if isfield(FemmProblem, 'Segments') && ~isempty (FemmProblem.Segments)
+        
         links = [cell2mat({FemmProblem.Segments(:).n0}'), ...
                  cell2mat({FemmProblem.Segments(:).n1}')];
+             
+        if ~isempty(Inputs.Groups)
+            
+            rmlinks = [];
+            for ind = 1:numel (FemmProblem.Segments)
+                
+                if ~(any(Inputs.Groups == FemmProblem.Segments(ind).InGroup))
+                    rmlinks = [ rmlinks, ind ];
+                end
+                
+            end
+            % delete links not in the specified groups
+            links(rmlinks,:) = [];
+
+        end
+    
     else
         links = [];
     end
