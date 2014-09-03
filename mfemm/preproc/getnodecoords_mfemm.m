@@ -1,4 +1,4 @@
-function nodecoords = getnodecoords_mfemm(FemmProblem)
+function [nodecoords, originds] = getnodecoords_mfemm(FemmProblem, varargin)
 % getnodes_femm: gets all the node locations from an mfemm problem
 % structure
 %
@@ -20,7 +20,7 @@ function nodecoords = getnodecoords_mfemm(FemmProblem)
 %           getsegnodecoords_mfemm, getsegmidpointcoords_mfemm
 %           
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2014 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -34,6 +34,34 @@ function nodecoords = getnodecoords_mfemm(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    nodecoords = cell2mat({FemmProblem.Nodes(:).Coords}');
+    Inputs.Groups = [];
+    
+    Inputs = parseoptions (Inputs, varargin);
+    
+    if isfield(FemmProblem, 'Nodes') && ~isempty (FemmProblem.Nodes)
+        
+        nodecoords = cell2mat({FemmProblem.Nodes(:).Coords}');
+        originds = 1:size (nodecoords, 1);
+        
+        if ~isempty(Inputs.Groups)
+            
+            rmnodes = [];
+            for ind = 1:numel (FemmProblem.Nodes)
+
+                if ~(any(Inputs.Groups == FemmProblem.Nodes(ind).InGroup))
+                    rmnodes = [ rmnodes, ind ];
+                end
+
+            end
+            
+            % delete nodes not in the specified groups
+            nodecoords(rmnodes,:) = [];
+            originds(rmnodes) = [];
+
+        end
+        
+    else
+        nodecoords = [];
+    end
 
 end
