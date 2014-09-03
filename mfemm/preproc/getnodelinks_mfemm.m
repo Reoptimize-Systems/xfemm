@@ -1,6 +1,6 @@
-function [links, nodes] = getnodelinks_mfemm(FemmProblem)
+function [links, nodes] = getnodelinks_mfemm(FemmProblem, varargin)
 % getnodelinks_femm: gets all the nodes from an mfemm FemmProblem structure
-% and the lins between them
+% and the links between them
 %
 % Syntax
 % 
@@ -22,8 +22,27 @@ function [links, nodes] = getnodelinks_mfemm(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    links = getseglinks_mfemm(FemmProblem);
+    Inputs.Groups = [];
     
-    nodes = getnodecoords_mfemm(FemmProblem);
+    Inputs = parseoptions (Inputs, varargin);
+    
+    links = getseglinks_mfemm(FemmProblem, Inputs);
+    
+    [nodes, originds] = getnodecoords_mfemm(FemmProblem, Inputs);
+    
+    if ~isempty (Inputs.Groups)
+       
+        % renumber the links to reflect new node indices
+        temp_links = ones (size (links)) * nan;
+        
+        for ind = 1:numel (originds)
+
+            temp_links (links == originds(ind)) = ind - 1;
+
+        end
+        
+        links = temp_links;
+        
+    end
 
 end

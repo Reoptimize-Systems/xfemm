@@ -1,4 +1,4 @@
-function links = getarclinks_mfemm(FemmProblem)
+function links = getarclinks_mfemm(FemmProblem, varargin)
 % gets all the arc segments from an mfemm problem structure
 %
 % Syntax
@@ -31,11 +31,32 @@ function links = getarclinks_mfemm(FemmProblem)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
+    Inputs.Groups = [];
+    
+    Inputs = parseoptions (Inputs, varargin);
+    
     if isfield(FemmProblem, 'ArcSegments') && ~isempty(FemmProblem.ArcSegments)
+        
         links = [cell2mat({FemmProblem.ArcSegments(:).n0}'), ...
                  cell2mat({FemmProblem.ArcSegments(:).n1}'), ...
                  cell2mat({FemmProblem.ArcSegments(:).ArcLength}'), ...
                  cell2mat({FemmProblem.ArcSegments(:).MaxSegDegrees}')];
+             
+        if ~isempty(Inputs.Groups)
+            
+            rmlinks = [];
+            for ind = 1:numel (FemmProblem.ArcSegments)
+                
+                if ~(any(Inputs.Groups == FemmProblem.ArcSegments(ind).InGroup))
+                    rmlinks = [ rmlinks, ind ];
+                end
+                
+            end
+            % delete links not in the specified groups
+            links(rmlinks,:) = [];
+
+        end
+        
     else
         links = [];
     end
