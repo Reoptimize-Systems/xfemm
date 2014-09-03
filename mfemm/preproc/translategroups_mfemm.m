@@ -60,7 +60,7 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
                 
                 if FemmProblem.ArcSegments(ii).InGroup == groupnos(i)
                     
-                    includenodes = [includenodes, FemmProblem.Segments(ii).n0, FemmProblem.Segments(ii).n1];
+                    includenodes = [includenodes, FemmProblem.ArcSegments(ii).n0, FemmProblem.ArcSegments(ii).n1];
                     
                 end
                 
@@ -90,7 +90,7 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
                 if FemmProblem.Nodes(ii).InGroup == groupnos(i) && ...
                         ~any(excludenodes == ii)
 
-                    includenodes = [includenodes, FemmProblem.Segments(ii).n0, FemmProblem.Segments(ii).n1];
+                    includenodes = [includenodes, ii-1];
 
                 end
                 
