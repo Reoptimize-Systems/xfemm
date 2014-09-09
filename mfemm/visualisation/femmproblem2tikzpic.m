@@ -19,7 +19,7 @@ function tikzstrs = femmproblem2tikzpic (FemmProblem, varargin)
 %     not supplied, the picture will be approximately 150 mm wide
 %
 %   'groups' - a vector of groups in the problem. Only these groups will be
-%     drawn in the output. All segmetns will be added to the picture, but
+%     drawn in the output. All segments will be added to the picture, but
 %     those not in these groups will be commented out.
 %
 % Output
