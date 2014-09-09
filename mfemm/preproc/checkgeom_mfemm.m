@@ -185,7 +185,7 @@ function intersectingsegments = getintersectingsegments(FemmProblem, segcoords)
     
     intersectingsegments(:,3) = out.coincAdjacencyMatrix(out.intAdjacencyMatrix);
     
-    % remove and segments which are connected to the same node at either
+    % remove any segments which are connected to the same node at either
     % end as they will intersect at this point
     removeentry = [];
     for ind = 1:size(intersectingsegments, 1)
