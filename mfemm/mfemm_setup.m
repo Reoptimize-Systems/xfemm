@@ -1,26 +1,56 @@
 function varargout = mfemm_setup(varargin)
-% mfemm_setup
+% mfemm_setup: set up the matlab interface to xfemm
 %
-% A large proportion of mfemm's functionality depends on interfaces to C++
-% code. This code must be compiled into mex functions to be accessibly from
-% the matlab or octave command line. Compiled mex files for your platform
-% may be provided for your convenience with this package, in which case
-% mfemm_setup will skip the compilation step (unless you call it as
+% Syntax
+%
+% mfemm_setup ()
+% mfemm_setup ('Parameter', Value)
+% 
+% Description
+%
+% mfemm_setup compiles mex files required for the interface to mfemm, and
+% where necessary and possible, builds some required C++ libraries.
+% mfemm_setup has several optional arguments that may be supplied as
+% Parameter-Value pairs. The possible options are:
+%
+% 'ForceAllRecompile' - true or false flag. If true all mex files will be
+%   recompiled. If any required libraries are missing, an attempt will be
+%   made to build them also.
+%
+% 'DoDebug' - true or false flag. Mex files will be built with debugging
+%   symbols.
+%
+% 'Verbose' - true or false flag. Verbose build output if true.
+% 
+% A large proportion of mfemm's functionality depends on mex interfaces to
+% C++ code. This code must be compiled into mex functions to be accessible
+% from the matlab or octave command line. If you're using a released
+% version of mfemm for your platform, you won't have to worry too much
+% about this, and can just run mfemm_setup. Compiled mex files for your
+% platform may be provided for your convenience with this package, in which
+% case mfemm_setup will skip the compilation step (unless you call it as
 % mfemm_setup(true) to force recompilation).
 %
 % If you do need/want to create the mex files, before running this script
 % it must first compile some library files for use by the mex compiler.
-% What is required for this depends on your system type.
+% What is required for this depends on your system type, but always
+% requires that you have a C++ compiler set up for use by Matlab or Octave
+% (Octave will not have a problem thanks to its seamless integration with
+% gcc). In Matlab you must have previously run:
+%
+% mex -setup
+%
+% And selected a valid C++ compiler before attempting to run this
+% mfemm_setup function. For Linux, or Octave on Windows, the system gcc
+% compiler will be ideal.
 %
 % ------------------------   Linux Systems    ----------------------------- 
 %
-% On linux type systems the process is smoothly automated, and
-% mfemm_setup.m will build the libraries using the system 'make' program,
-% you will not need to do anything. If there are problems, you can try
-% invoking the make command yourself, see the instructions for building the
-% libraries using a makefile below.
-%
-% -------------------------------------------------------------------------
+% On linux type systems the process is smoothly automated, and if necessary
+% mfemm_setup.m will build the libraries using cmake and the system 'make'
+% program, you will not need to do anything. If there are problems, you can
+% try invoking the make command yourself, see the instructions for building
+% the libraries using a makefile below.
 %
 % ------------------------- Windows Systems ------------------------------- 
 %
@@ -40,18 +70,9 @@ function varargout = mfemm_setup(varargin)
 %
 % Code::Blocks can be obtained from here: www.codeblocks.org
 %
-% -------------------------------------------------------------------------
-%
-% In both cases mfemm_setup requires requires that you have a C++ compiler
-% set up for use by Matlab or Octave (Octave will not have a problem thanks
-% to its seamless integration with gcc). In Matlab you must have previously
-% run:
-%
-% mex -setup
-%
-% And selected a valid C++ compiler before attempting to run this
-% mfemm_setup function. For Linux, or Octave on Windows, the system gcc
-% compiler will be ideal.
+% However, xfemm uses cmake for it's build system, if you're familiar with
+% this you can create visual studio solution files, and use the microsoft
+% compilers with matlab.
 %
 % For Windows, the compilers supported by Matlab vary over time. However,
 % you will need to build the mex files using the same compiler with which
@@ -63,40 +84,6 @@ function varargout = mfemm_setup(varargin)
 %
 %                 http://gnumex.sourceforge.net/
 % 
-%
-%
-% = Instructions for building required libraries manually using Makefile =
-%
-% On your linux system, mfemm_setup will do this automaticaly without any
-% action required from you, but if you want to do it manually for some
-% reason you can do the following. First change directory to the mfemm top
-% level directory. In this directory run the following command:
-%
-% make
-%
-% That should be it! Now you can rerun mfemm_setup to complete the process.
-%
-%
-% ===  Instructions for building required libraries with Code::Blocks   ===
-%
-% Code::Blocks can be obtained from here: www.codeblocks.org
-%
-% If Code::Blocks has been installed in the usual directory, mfemm_setup
-% should find it and call it using command line arguments to build the
-% libraries without you having to do anything. However, if for some reason
-% this doesn't work. to build the required library files, open the file
-% mfemm_libs.workspace file in the same directory as this funtion in
-% Code::Blocks. This Code::Blocks workspace contains several projects all
-% of which must be compiled before running the rest of the setup. You will
-% want to build the "Release" versions of these. Once this has been done
-% simply select 'build workspace' from the build menu and Code::Blocks will
-% build all of the projects. Next rerun mfemm_setup to create the mex
-% functions.
-%
-% Note that you are building for Matlab will want your Matlab mex compiler
-% to be the same as your Code::Blocks compiler. The gnumex project
-% (available elsewhere) can help you use the gcc with Matlab.
-%
 %
 
     if nargin < 1
@@ -153,32 +140,32 @@ function varargout = mfemm_setup(varargin)
         
         makelibs (thisfilepath);
         
-        if exist(fullfile(thisfilepath, 'cfemm', 'fmesher', 'libfmesher.a'), 'file') 
+        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfmesher.a'), 'file') 
             fmeshersetup (Inputs.DoDebug, Inputs.Verbose);
         else
             % try building 
             error('MFEMM:setup', 'mfemm_setup can''t find the libfmesher library (libfmesher.a), run ''help mfemm_setup'' for more info.\n')
         end
 
-        if exist(fullfile(thisfilepath, 'cfemm', 'fsolver', 'libfsolver.a'), 'file') 
+        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfsolver.a'), 'file') 
             fsolversetup (Inputs.DoDebug, Inputs.Verbose);
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libfsolver library (libfsolver.a), run ''help mfemm_setup'' for more info.\n')
         end
 
-        if exist(fullfile(thisfilepath, 'cfemm', 'fpproc', 'libfpproc.a'), 'file')
+        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfpproc.a'), 'file')
             fpprocsetup (Inputs.DoDebug, Inputs.Verbose);
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libfpproc library (libfpproc.a), run ''help mfemm_setup'' for more info.\n')
         end
         
-        if exist(fullfile(thisfilepath, 'cfemm', 'hsolver', 'libhsolver.a'), 'file') 
+        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhsolver.a'), 'file') 
             hsolversetup (Inputs.DoDebug, Inputs.Verbose);
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libhsolver library (libhsolver.a), run ''help mfemm_setup'' for more info.\n')
         end
 
-        if exist(fullfile(thisfilepath, 'cfemm', 'hpproc', 'libhpproc.a'), 'file')
+        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhpproc.a'), 'file')
             hpprocsetup (Inputs.DoDebug, Inputs.Verbose);
         else
             error('MFEMM:setup', 'mfemm_setup can''t find the libhpproc library (libhpproc.a), run ''help mfemm_setup'' for more info.\n')
