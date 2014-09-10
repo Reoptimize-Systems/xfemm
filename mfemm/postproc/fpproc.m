@@ -410,13 +410,19 @@ classdef fpproc < mfemmpproc
             % Description
             %
             % Selects all blocks which are members of the supplied group
-            % number. If groupno is empty, all blocks are selected.
+            % number(s). If groupno is empty, all blocks are selected.
             %
             
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end
-            fpproc_interface_mex('groupselectblock', this.objectHandle, groupno);
+            if isempty (groupno)
+                fpproc_interface_mex('groupselectblock', this.objectHandle, groupno);
+            else
+                for gpind = 1:numel(groupno)
+                    fpproc_interface_mex('groupselectblock', this.objectHandle, groupno(gpind));
+                end
+            end
         end
         
         function selectallblocks(this)
