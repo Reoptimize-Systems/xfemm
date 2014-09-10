@@ -1,4 +1,4 @@
-function FemmProblem = addgroup_mfemm(FemmProblem, name, groupno)
+function [FemmProblem, groupno] = addgroup_mfemm(FemmProblem, name, groupno)
 % adds a new group number to the list of groups in a FemmProblem structure
 %
 % Syntax
