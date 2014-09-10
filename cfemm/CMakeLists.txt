@@ -1,6 +1,11 @@
 cmake_minimum_required (VERSION 2.8.8)
 project (cfemm)
 
+# set the output directories
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
 add_subdirectory(fmesher)
 add_subdirectory(fsolver)
 add_subdirectory(fpproc)
