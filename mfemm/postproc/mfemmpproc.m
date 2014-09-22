@@ -19,7 +19,7 @@ classdef mfemmpproc < handle
     
     methods (Access = protected)
           
-          function hfig = plotvectorfield(this, method, x, y, w, h, points, datafcn)
+          function hfig = plotvectorfield(this, datafcn, x, y, w, h, varargin)
               % creates a plot of a vector field on the FemmProblem
               %
               % Syntax
@@ -42,31 +42,46 @@ classdef mfemmpproc < handle
               % 
               %   h - height of region to be plotted
               % 
-              %   points - determines the number of points that will be
+              % Further options are supplied using parameter-value pairs,
+              % the possible options are:
+              %
+              %   'Points' - determines the number of points that will be
               %     plotted using method 0. If points is a scalar, a grid of
               %     this number of points on both sides will be created. If
               %     points is a two element vector it will be the number of
               %     points in the x and y direction respectively.
               % 
+              %    'PlotNodes' - determines if nodes are drawn when
+              %      plotting the femmproblem
               %
+              %   'Method' - plot method use 0 for a vector field plot using
+              %     coloured arrows. Use 1 for a contour plot of the
+              %     magnitude of the magnetic field.
+              %
+            
+              Inputs.PlotNodes = true;
+              Inputs.Points = 40;
+              Inputs.Method = 0;
+              
+              Inputs = parseoptions (Inputs, varargin);
               
               if ~isempty (this.FemmProblem)
-                  [hfig, hax] = plotfemmproblem(this.FemmProblem);
+                  [hfig, hax] = plotfemmproblem(this.FemmProblem, 'PlotNodes', Inputs.PlotNodes);
               else
                   hfig = figure;
               end
               
-              if isscalar(points)
-                  points = [points, points];
+              if isscalar(Inputs.Points)
+                  Inputs.Points = [Inputs.Points, Inputs.Points];
               end
               
-              xgv = linspace(x, x + w, points(1));
-              ygv = linspace(y, y + h, points(2));
+              xgv = linspace(x, x + w, Inputs.Points(1));
+              ygv = linspace(y, y + h, Inputs.Points(2));
               [Xsample,Ysample] = meshgrid(xgv, ygv);
               
               data = feval(datafcn, Xsample, Ysample);
               
-              switch method
+              switch Inputs.Method
                   
                   case 0
                       % plot a vector field using colored arrows
@@ -92,7 +107,7 @@ classdef mfemmpproc < handle
               
           end
           
-          function hfig = plotscalarfield(this, method, x, y, w, h, points, datafcn)
+          function hfig = plotscalarfield(this, datafcn, x, y, w, h, varargin)
               % creates a plot of a scalar field on the FemmProblem
               %
               % Syntax
@@ -101,9 +116,6 @@ classdef mfemmpproc < handle
               %
               % Input
               %
-              %   method - plot method use 0 for a vector field plot using
-              %     coloured arrows. Use 1 for a contour plot of the
-              %     magnitude of the magnetic field.
               %
               %   x - x (or r) coordinate lower left corner of region to be
               %     plotted
@@ -114,32 +126,46 @@ classdef mfemmpproc < handle
               %   w - width of region to be plotted
               % 
               %   h - height of region to be plotted
-              % 
-              %   points - determines the number of points that will be
+              %
+              % Further options are supplied using parameter-value pairs,
+              % the possible options are:
+              %
+              %   'Points' - determines the number of points that will be
               %     plotted using method 0. If points is a scalar, a grid of
               %     this number of points on both sides will be created. If
               %     points is a two element vector it will be the number of
               %     points in the x and y direction respectively.
               % 
+              %    'PlotNodes' - determines if nodes are drawn when
+              %      plotting the femmproblem
               %
+              %    'Method' - plot method use 0 for a filled contour plot.
+              %      Use 1 for a contour plot with just lines.
+              %
+            
+              Inputs.PlotNodes = true;
+              Inputs.Points = 100;
+              Inputs.Method = 0;
+              
+              Inputs = parseoptions (Inputs, varargin);
               
               if ~isempty (this.FemmProblem)
-                  [hfig, hax] = plotfemmproblem(this.FemmProblem);
+                  [hfig, hax] = plotfemmproblem(this.FemmProblem, 'PlotNodes', Inputs.PlotNodes);
               else
                   hfig = figure;
               end
               
-              if isscalar(points)
-                  points = [points, points];
+              if isscalar(Inputs.Points)
+                  Inputs.Points = [Inputs.Points, Inputs.Points];
               end
               
-              xgv = linspace(x, x + w, points(1));
-              ygv = linspace(y, y + h, points(2));
+              xgv = linspace(x, x + w, Inputs.Points(1));
+              ygv = linspace(y, y + h, Inputs.Points(2));
               [Xsample,Ysample] = meshgrid(xgv, ygv);
               
               data = feval(datafcn, Xsample, Ysample);
               
-              switch method
+              switch Inputs.Method
                   
                   case 0
                       % plot a scalar field using filled contour

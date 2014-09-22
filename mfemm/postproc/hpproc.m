@@ -988,18 +988,15 @@ classdef hpproc < mfemmpproc
         
         end
         
-        function hfig = plotFfield(this, method, x, y, w, h, points)
+        function hfig = plotFfield(this, x, y, w, h, varargin)
             % creates a plot of the heat flux vector field
             %
             % Syntax
             %
-            % hpproc.plotFfield(this, method, x, y, w, h, points)
+            % hpproc.plotFfield(x, y, w, h)
+            % hpproc.plotFfield(x, y, w, h, 'Parameter', Value)
             %
             % Input
-            %
-            %   method - plot method use 0 for a vector field plot using
-            %     coloured arrows. Use 1 for a contour plot of the
-            %     magnitude of the flux.
             %
             %   x - x (or r) coordinate lower left corner of region to be
             %     plotted
@@ -1011,35 +1008,46 @@ classdef hpproc < mfemmpproc
             % 
             %   h - height of region to be plotted
             % 
-            %   points - determines the number of points that will be
+            % Further options are supplied using parameter-value pairs,
+            % the possible options are:
+            %
+            %   'Points' - determines the number of points that will be
             %     plotted using method 0. If points is a scalar, a grid of
             %     this number of points on both sides will be created. If
             %     points is a two element vector it will be the number of
             %     points in the x and y direction respectively.
             % 
+            %    'PlotNodes' - determines if nodes are drawn when
+            %      plotting the femmproblem
             %
+            %   'Method' - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the magnetic field.
+            
+            Inputs.Points = 40;
+            Inputs.PlotNodes = true;
+            Inputs.Method = 0;
+            
+            Inputs = parseoptions (Inputs, varargin);
             
             datafcn = @this.getf;
             
-            hfig = this.plotvectorfield(method, x, y, w, h, points, datafcn);
+            hfig = this.plotvectorfield(datafcn, x, y, w, h, Inputs);
             
             title ('Heat Flux, F');
             
         end
 
         
-        function hfig = plotGfield(this, method, x, y, w, h, points)
+        function hfig = plotGfield(this, x, y, w, h, varargin)
             % creates a plot of the temperature gradient vector field
             %
             % Syntax
             %
-            % hpproc.plotGfield(method, x, y, w, h, points)
+            % hpproc.plotGfield(x, y, w, h)
+            % hpproc.plotGfield(x, y, w, h, 'Parameter', Value)
             %
             % Input
-            %
-            %   method - plot method use 0 for a vector field plot using
-            %     coloured arrows. Use 1 for a contour plot of the
-            %     magnitude of the gradient.
             %
             %   x - x (or r) coordinate lower left corner of region to be
             %     plotted
@@ -1051,34 +1059,47 @@ classdef hpproc < mfemmpproc
             % 
             %   h - height of region to be plotted
             % 
-            %   points - determines the number of points that will be
+            % Further options are supplied using parameter-value pairs,
+            % the possible options are:
+            %
+            %   'Points' - determines the number of points that will be
             %     plotted using method 0. If points is a scalar, a grid of
             %     this number of points on both sides will be created. If
             %     points is a two element vector it will be the number of
             %     points in the x and y direction respectively.
             % 
+            %    'PlotNodes' - determines if nodes are drawn when
+            %      plotting the femmproblem
             %
+            %   'Method' - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the magnetic field.
+            %
+            
+            Inputs.Points = 40;
+            Inputs.PlotNodes = true;
+            Inputs.Method = 0;
+            
+            Inputs = parseoptions (Inputs, varargin);
             
             datafcn = @this.getg;
             
-            hfig = this.plotvectorfield(method, x, y, w, h, points, datafcn);
+            hfig = this.plotvectorfield(datafcn, x, y, w, h, Inputs);
             
-            title ('Temperature gradient, G');
+            title ('Temperature Gradient, G');
             
         end
         
         
-        function hfig = plotTfield(this, method, x, y, w, h, points)
+        function hfig = plotTfield(this, x, y, w, h, varargin)
             % creates a plot of the temperature scalar field
             %
             % Syntax
             %
-            % hpproc.plotTfield(method, x, y, w, h, points)
+            % hpproc.plotTfield(method, x, y, w, h)
+            % hpproc.plotTfield(method, x, y, w, h, 'Parameter', Value)
             %
             % Input
-            %
-            %   method - plot method use 0 for a filled contour plot using.
-            %     Use 1 for a contour plot with lines only.
             %
             %   x - x (or r) coordinate lower left corner of region to be
             %     plotted
@@ -1090,19 +1111,34 @@ classdef hpproc < mfemmpproc
             % 
             %   h - height of region to be plotted
             % 
-            %   points - determines the number of points that will be
+            % Further options are supplied using parameter-value pairs,
+            % the possible options are:
+            %
+            %   'Points' - determines the number of points that will be
             %     plotted using method 0. If points is a scalar, a grid of
             %     this number of points on both sides will be created. If
             %     points is a two element vector it will be the number of
             %     points in the x and y direction respectively.
             % 
+            %    'PlotNodes' - determines if nodes are drawn when
+            %      plotting the femmproblem
             %
+            %   'Method' - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the magnetic field.
+            %
+            
+            Inputs.Points = 100;
+            Inputs.PlotNodes = true;
+            Inputs.Method = 0;
+            
+            Inputs = parseoptions (Inputs, varargin);
             
             datafcn = @(x,y) reshape (this.gett (x,y), size (x));
             
-            hfig = this.plotscalarfield (method, x, y, w, h, points, datafcn);
+            hfig = this.plotscalarfield (datafcn, x, y, w, h, Inputs);
             
-            title ('Vector Potential');
+            title ('Temperature, T');
             
         end
         

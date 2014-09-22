@@ -688,18 +688,16 @@ classdef fpproc < mfemmpproc
         end
         
         
-        function hfig = plotBfield(this, method, x, y, w, h, points)
+        function hfig = plotBfield(this, x, y, w, h, varargin)
             % creates a plot of the flux density vector field
             %
             % Syntax
             %
-            % fpproc.plotBfield(this, method, x, y, w, h, points)
+            % fpproc.plotBfield(x, y, w, h)
+            % fpproc.plotBfield(x, y, w, h, 'Parameter', Value)
             %
             % Input
             %
-            %   method - plot method use 0 for a vector field plot using
-            %     coloured arrows. Use 1 for a contour plot of the
-            %     magnitude of the flux density.
             %
             %   x - x (or r) coordinate lower left corner of region to be
             %     plotted
@@ -710,36 +708,49 @@ classdef fpproc < mfemmpproc
             %   w - width of region to be plotted
             % 
             %   h - height of region to be plotted
-            % 
-            %   points - determines the number of points that will be
+            %
+            % Further options are supplied using parameter-value pairs,
+            % the possible options are:
+            %
+            %   'Points' - determines the number of points that will be
             %     plotted using method 0. If points is a scalar, a grid of
             %     this number of points on both sides will be created. If
             %     points is a two element vector it will be the number of
             %     points in the x and y direction respectively.
             % 
+            %    'PlotNodes' - determines if nodes are drawn when
+            %      plotting the femmproblem
             %
+            %   'Method' - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the magnetic field.
+            %
+            
+            Inputs.Points = 40;
+            Inputs.PlotNodes = true;
+            Inputs.Method = 0;
+            
+            Inputs = parseoptions (Inputs, varargin);
             
             datafcn = @this.getb;
             
-            hfig = this.plotvectorfield(method, x, y, w, h, points, datafcn);
+            hfig = this.plotvectorfield(datafcn, x, y, w, h, Inputs);
             
             title ('Magnetic Flux Density, B');
             
         end
 
         
-        function hfig = plotHfield(this, method, x, y, w, h, points)
+        function hfig = plotHfield(this, x, y, w, h, varargin)
             % creates a plot of the magnetic intensity vector field
             %
             % Syntax
             %
-            % fpproc.plotHfield(method, x, y, w, h, points)
+            % fpproc.plotHfield(x, y, w, h)
+            % fpproc.plotHfield(x, y, w, h, 'Parameter', Value)
             %
             % Input
             %
-            %   method - plot method use 0 for a vector field plot using
-            %     coloured arrows. Use 1 for a contour plot of the
-            %     magnitude of the magnetic field.
             %
             %   x - x (or r) coordinate lower left corner of region to be
             %     plotted
@@ -751,34 +762,47 @@ classdef fpproc < mfemmpproc
             % 
             %   h - height of region to be plotted
             % 
-            %   points - determines the number of points that will be
+            % Further options are supplied using parameter-value pairs,
+            % the possible options are:
+            %
+            %   'Points' - determines the number of points that will be
             %     plotted using method 0. If points is a scalar, a grid of
             %     this number of points on both sides will be created. If
             %     points is a two element vector it will be the number of
             %     points in the x and y direction respectively.
             % 
+            %    'PlotNodes' - determines if nodes are drawn when
+            %      plotting the femmproblem
             %
+            %   'Method' - plot method use 0 for a vector field plot using
+            %     coloured arrows. Use 1 for a contour plot of the
+            %     magnitude of the magnetic field.
+            %
+            
+            Inputs.Points = 40;
+            Inputs.PlotNodes = true;
+            Inputs.Method = 0;
+            
+            Inputs = parseoptions (Inputs, varargin);
             
             datafcn = @this.geth;
             
-            hfig = this.plotvectorfield(method, x, y, w, h, points, datafcn);
+            hfig = this.plotvectorfield(datafcn, x, y, w, h, Inputs);
             
             title ('Magnetic Intensity Field, H');
             
         end
         
         
-        function hfig = plotAfield(this, method, x, y, w, h, points)
+        function hfig = plotAfield(this, x, y, w, h, varargin)
             % creates a plot of the magneticvector potential scalar field
             %
             % Syntax
             %
-            % fpproc.plotAfield(method, x, y, w, h, points)
+            % fpproc.plotAfield(x, y, w, h)
+            % fpproc.plotAfield(x, y, w, h, 'Parameter', Value)
             %
             % Input
-            %
-            %   method - plot method use 0 for a filled contour plot using.
-            %     Use 1 for a contour plot with lines only.
             %
             %   x - x (or r) coordinate lower left corner of region to be
             %     plotted
@@ -790,17 +814,31 @@ classdef fpproc < mfemmpproc
             % 
             %   h - height of region to be plotted
             % 
-            %   points - determines the number of points that will be
+            % Further options are supplied using parameter-value pairs,
+            % the possible options are:
+            %
+            %   'Points' - determines the number of points that will be
             %     plotted using method 0. If points is a scalar, a grid of
             %     this number of points on both sides will be created. If
             %     points is a two element vector it will be the number of
             %     points in the x and y direction respectively.
             % 
+            %    'PlotNodes' - determines if nodes are drawn when
+            %      plotting the femmproblem
             %
+            %   'Method' - plot method use 0 for a filled contour plot.
+            %     Use 1 for a contour plot with lines only.
+            %
+            
+            Inputs.Points = 100;
+            Inputs.PlotNodes = true;
+            Inputs.Method = 0;
+            
+            Inputs = parseoptions (Inputs, varargin);
             
             datafcn = @(x,y) reshape (this.geta (x,y), size (x));
             
-            hfig = this.plotscalarfield (method, x, y, w, h, points, datafcn);
+            hfig = this.plotscalarfield (datafcn, x, y, w, h, Inputs);
             
             title ('Vector Potential');
             

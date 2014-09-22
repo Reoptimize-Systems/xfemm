@@ -37,6 +37,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
     
     Inputs.ZeroBased = true;
     Inputs.UserData = [];
+    Inputs.PlotNodes = true;
     
     Inputs = parse_pv_pairs(Inputs, varargin);
     
@@ -68,10 +69,12 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
     hold on
 
     % plot all the nodes
-    if isoctave
-        scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), [], [], 'xr');
-    else
-        scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), 'xr', 'UserData', Inputs.UserData);
+    if Inputs.PlotNodes
+        if isoctave
+            scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), [], [], 'xr');
+        else
+            scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), 'xr', 'UserData', Inputs.UserData);
+        end
     end
 %     
 %     if ~is2d
