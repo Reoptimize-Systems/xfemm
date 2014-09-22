@@ -34,6 +34,7 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     options.FigureHandle = [];
     options.LabelText = {'Color', [0 0 0.5]};
     options.AddLabels = true;
+    options.PlotNodes = true;
     
     options = parseoptions (options, varargin);
     
@@ -110,14 +111,15 @@ function makefemmplot(hax,options,w,h)
     links = getnodelinks_mfemm(FemmProblem);
 
     % plot the segments as lines
-    plotnodelinks(nodes, links, 'UserData', 'mfemm');
+    plotnodelinks(nodes, links, 'PlotNodes', options.PlotNodes, 'UserData', 'mfemm');
 
     arclinks = getarclinks_mfemm(FemmProblem);
 
     % plot the arc segments as lines 
     hold all
     if ~isempty(arclinks)
-        plotarclinks(nodes, arclinks(:,1:2), arclinks(:,3), arclinks(:,4), 'UserData', 'mfemm');
+        plotarclinks(nodes, arclinks(:,1:2), arclinks(:,3), arclinks(:,4), ...
+            'PlotNodes', options.PlotNodes, 'UserData', 'mfemm');
     end
     hold off
 

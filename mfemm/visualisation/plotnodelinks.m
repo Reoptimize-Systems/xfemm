@@ -31,6 +31,7 @@ function plotnodelinks(nodes, links, varargin)
     Inputs.ZeroBased = true;
     Inputs.ShowDirection = false;
     Inputs.UserData = [];
+    Inputs.PlotNodes = true;
     
     Inputs = parse_pv_pairs(Inputs, varargin);
     
@@ -49,11 +50,13 @@ function plotnodelinks(nodes, links, varargin)
 
     hold on
     
-    % plot all the nodes
-    if isoctave
-        scatter3(nodes(:,1), nodes(:,2), nodes(:,3), [], [], 'xr');
-    else
-        scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr', 'UserData', Inputs.UserData);
+    if Inputs.PlotNodes == true
+        % plot all the nodes
+        if isoctave
+            scatter3(nodes(:,1), nodes(:,2), nodes(:,3), [], [], 'xr');
+        else
+            scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr', 'UserData', Inputs.UserData);
+        end
     end
     
     hold off
