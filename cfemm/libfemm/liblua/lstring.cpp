@@ -6,6 +6,7 @@
 
 
 #include <string.h>
+#include <stdint.h>
 
 #include "lua.h"
 
@@ -69,7 +70,7 @@ void luaS_resize (lua_State *L, stringtable *tb, int newsize)
         while (p)    /* for each node in the list */
         {
             TString *next = p->nexthash;  /* save next */
-            unsigned long h = (tb == &L->strt) ? p->u.s.hash : IntPoint(p->u.d.value);
+            uintptr_t h = (tb == &L->strt) ? p->u.s.hash : IntPoint(p->u.d.value);
             int h1 = h&(newsize-1);  /* new position */
             LUA_ASSERT(h%newsize == (h&(newsize-1)),
                        "a&(x-1) == a%x, for x power of 2");
