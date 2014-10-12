@@ -17,6 +17,7 @@
 ** performance penalties.
 */
 
+#include <stdint.h>
 
 #include "lua.h"
 
@@ -25,7 +26,6 @@
 #include "lstate.h"
 #include "lstring.h"
 #include "ltable.h"
-
 
 #define gcsize(L, n)	(sizeof(Hash)+(n)*sizeof(Node))
 
@@ -41,11 +41,11 @@
 */
 Node *luaH_mainposition (const Hash *t, const TObject *key)
 {
-    unsigned long h;
+    uintptr_t h;
     switch (ttype(key))
     {
     case LUA_TNUMBER:
-        h = (unsigned long)(long)Re(nvalue(key));
+        h = (uintptr_t)(long)Re(nvalue(key));
         break;
     case LUA_TSTRING:
         h = tsvalue(key)->u.s.hash;
