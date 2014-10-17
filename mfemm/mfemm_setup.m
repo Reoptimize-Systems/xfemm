@@ -8,14 +8,32 @@ function varargout = mfemm_setup(varargin)
 % 
 % Description
 %
-% mfemm_setup compiles mex files required for the interface to mfemm, and
-% where necessary and possible, builds some required C++ libraries.
+% mfemm_setup performs various operations to set up mfemm. At it's
+% simplest, it will just add some directories to your Matlab/Octave path.
+% At it's most complicated it will compile from scratch a set of libraries
+% and matlab mex files. What it does, or attempts to do, will depend on
+% what has already been done before, or supplied with the package, or what
+% you tell it to do using various options.
+%
 % mfemm_setup has several optional arguments that may be supplied as
-% Parameter-Value pairs. The possible options are:
+% Parameter-Value pairs. The possible options are shown below. Some may
+% require further reading of the help below to fully understand.
+%
+% 'RunTests' - true or false flag. If true, a set of test runs of the mex
+%   files will be performed. Defaults to false.
+%
+% 'ForceMexRecompile' - true or false flag. If true, forces the mex files
+%   all be recompiled. Library files will not be recompiled unless they are
+%   not present. Defaults to false.
 %
 % 'ForceAllRecompile' - true or false flag. If true all mex files will be
-%   recompiled. If any required libraries are missing, an attempt will be
-%   made to build them also. Defaults to false if not supplied.
+%   recompiled, and the libraries. If any required libraries are missing,
+%   an attempt will be made to build them also. Defaults to false if not
+%   supplied.
+%
+% 'ForceCmake' - true or false flag. If true, forces cmake to be rerun,
+%   even if the makefiles are already present (i.e. cmake has already been
+%   run). Defaults to false.
 %
 % 'DoDebug' - true or false flag. Mex files will be built with debugging
 %   symbols. Defaults to false if not supplied.
@@ -34,15 +52,16 @@ function varargout = mfemm_setup(varargin)
 % version of mfemm for your platform, you won't have to worry too much
 % about this, and can just run mfemm_setup. Compiled mex files for your
 % platform may be provided for your convenience with this package, in which
-% case mfemm_setup will skip the compilation step (unless you call it as
-% mfemm_setup('ForceAllRecompile', true) to force recompilation). In Matlab
-% therefore, you must have previously run:
+% case mfemm_setup will skip the compilation step (unless you force it not
+% to). If you do need/want to recompile, in Matlab therefore, you must have
+% previously run:
 %
 % mex -setup
 %
 % And selected a valid C++ compiler before attempting to run this
-% mfemm_setup function. For Linux, or Octave on Windows, the system gcc
-% compiler will be ideal.
+% mfemm_setup function. For Linux, or Octave on Windows, the default gcc
+% compiler will be ideal. For Matlab on Windows, the situation is more
+% complicated. 
 %
 %
 % If you are not using a release of mfemm_setup, or you are not using a
@@ -53,9 +72,11 @@ function varargout = mfemm_setup(varargin)
 %
 % ------------------------   Linux Systems    ----------------------------- 
 %
-% On linux type systems the process is smoothly automated, and if necessary
-% mfemm_setup.m will build the libraries using cmake and the system 'make'
-% program, you will not need to do anything. 
+% On linux type systems the process is quite smoothly automated and, if
+% necessary, mfemm_setup.m will build the libraries using cmake and the
+% system 'make' program, you will not need to do anything.
+%
+%                            ** cmake **
 %
 % If there are problems, you can try invoking the cmake and make command
 % yourself. Just change directory to the mfemm/cfemm directory, and run the
@@ -66,38 +87,40 @@ function varargout = mfemm_setup(varargin)
 %
 % ------------------------- Windows Systems ------------------------------- 
 %
+%                           ** mingw-w64 **
+%
 % Unfortunately Windows lacks somewhat the development environment of Linux
-% systems. On Windows, it is easiest to install the Code::Blocks C++ IDE
-% and mingw compiler suite which comes with the Code::Blocks package. You
-% will also require the gnumex project which allows you to use the mingw
-% compiler as the Matlab mex compiler, there is further information about
-% gnumex below.
+% systems. On Windows, you will need to install mingw-w64. At the time of
+% writing, there are no official mingw-w64 toolchains available, but
+% several stable 'unofficial' toolchains. Choose one targeted at your
+% platform.
 %
-% mfemm_setup will call Code::Blocks automatically if it is installed in
-% the normal location to build the required libraries. You shouldn't need
-% to take any manual building steps, but you will probably have had to open
-% Code::Blocks at least once before running mfemm_setup doing this to
-% select the default compiler.
-%
-% Code::Blocks can be obtained from here: www.codeblocks.org
-%
-% However, mfemm uses cmake for it's build system, if you're familiar with
-% this you can create visual studio solution files, and use the microsoft
-% compilers with matlab. You will then need to use the same compiler in
-% Matlab to build the mex files.
-%
-%                          ** Gnumex **
+%                            ** Gnumex **
 %
 % For Windows, the compilers supported by Matlab vary over time. However,
 % you will need to build the mex files using the same compiler with which
-% you (or whoever) created the libraries. Often there is a free version of
-% Microsoft Visual C++ which will work, but no project files are provided
-% for this. The gnumex project provides a way to use gcc on Windows with
-% Matlab (this will work with the compiler which comes with code::blocks,
-% mingw). gnumex can be found on sourceforge, here:
+% you (or the mfemm developers, or whoever) created the libraries. Often
+% there is a free version of Microsoft Visual C++ which will work, but no
+% project files are provided for this. The gnumex project provides a way to
+% use gcc on Windows with Matlab (this will work with the compiler which
+% comes with code::blocks, mingw). gnumex can be found on sourceforge,
+% here:
 %
 %                 http://gnumex.sourceforge.net/
 %
+%
+%                            ** cmake **
+%
+% If you need to rebuild *everything* from scratch (even the makefiles)
+% including the libraries, you will need cmake (version 2.8.8 or newer).
+% You will usually not need to do this.
+%
+% mfemm uses cmake for its build system, if you're familiar with this, you
+% can create visual studio solution files (or nmake files) for the library
+% compilation, and use the microsoft compilers with matlab. You will then
+% need to use the same compiler in Matlab to build the mex files.
+% mfemm_setup will not call cmake correctly to create Visual Studio
+% solution files and build them, you will have to invoke this manually.
 %
 
     if nargin < 1
@@ -109,12 +132,6 @@ function varargout = mfemm_setup(varargin)
         end
     end
     
-    Inputs.ForceAllRecompile = false;
-    Inputs.DoDebug = false;
-    Inputs.Verbose = false;
-    
-    Inputs = parseoptions (Inputs, varargin);
-
     % add the required directories to the path
     thisfilepath = which('mfemm_setup.m');
     
@@ -132,6 +149,16 @@ function varargout = mfemm_setup(varargin)
     addpath (fullfile (thisfilepath, 'depends'));
     addpath (fullfile (thisfilepath, 'visualisation'));
     
+    % parse inputs
+    Inputs.ForceAllRecompile = false;
+    Inputs.ForceMexRecompile = false;
+    Inputs.ForceCmake = false;
+    Inputs.DoDebug = false;
+    Inputs.Verbose = false;
+    Inputs.RunTests = false;
+    
+    Inputs = parseoptions (Inputs, varargin);
+
     % make architecture specific directory for mex files if it doesn't
     % already exist
     warning off MATLAB:MKDIR:DirectoryExists
@@ -145,14 +172,32 @@ function varargout = mfemm_setup(varargin)
     if ~(exist('mexfsolver', 'file') == 3) ...
             || ~(exist('mexfmesher', 'file') == 3) ...
             || ~(exist('fpproc_interface_mex', 'file') == 3) ...
-            || Inputs.ForceAllRecompile
+            || Inputs.ForceAllRecompile ...
+            || Inputs.ForceMexRecompile
 
         fprintf('Compiling mex functions for mfemm.\n');
         
         CC = onCleanup(@() cd(pwd));
         cd (thisfilepath);
         
-        makelibs (thisfilepath);
+        if ~ ( all( [ exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfmesher.a'), 'file'), ... 
+                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfsolver.a'), 'file'), ...
+                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfpproc.a'), 'file'), ...
+                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhsolver.a'), 'file'), ...
+                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhpproc.a'), 'file') ] ) ...
+               || all( [ exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfmesher.lib'), 'file'), ... 
+                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfsolver.lib'), 'file'), ...
+                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfpproc.lib'), 'file'), ...
+                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhsolver.lib'), 'file'), ...
+                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhpproc.lib'), 'file') ] ) ...
+             ) ...
+             || Inputs.ForceAllRecompile
+          
+            % attempt to make the libs if not found, or we're recompiling
+            % everything
+            makelibs (thisfilepath, Inputs);
+            
+        end
         
         if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfmesher.a'), 'file') 
             fmeshersetup (Inputs.DoDebug, Inputs.Verbose);
@@ -190,54 +235,52 @@ function varargout = mfemm_setup(varargin)
         fprintf('Not compiling mex functions as they already exist.\n');
     
     end
+    
+    if Inputs.RunTests
+        
+        fmesher_test_file = fullfile (thisfilepath, 'cfemm', 'fmesher', 'test', 'Temp.fem');
+        
+        fprintf ('Running mexfmesher on file:\n%s\n', fmesher_test_file);
+        mexfmesher (fmesher_test_file);
+        
+        fsolver_test_file = fullfile (thisfilepath, 'cfemm', 'fmesher', 'test', 'Temp');
+        fprintf ('Running mexfsolver on file:\n%s\n', fsolver_test_file);
+        mexfsolver (fsolver_test_file, double(true));
+        
+        fprintf ('Running fmesher on file:\n%s\n', fmesher_test_file);
+        fmesher (fmesher_test_file);
+        
+        fsolver_test_file = fullfile (thisfilepath, 'cfemm', 'fmesher', 'test', 'Temp.fem');
+        fprintf ('Running fsolver on file:\n%s\n', fsolver_test_file);
+        fsolver (fmesher_test_file);
+        
+        fpproc_test_file = fullfile (thisfilepath, 'cfemm', 'fmesher', 'test', 'Temp.ans');
+        fprintf ('Loading solution using fpproc from file:\n%s\n', fpproc_test_file);
+        solution = fpproc (fpproc_test_file);
+        vals = solution.getpointvalues(0.038, 0.207)
+        
+    end
 
 
 end
 
-function makelibs (thisfilepath)
-% build the libs required for mfemm
+function makelibs (thisfilepath, Inputs)
+% build the libs required for mfemm, invoking cmake if necessary
 
     cd (fullfile(thisfilepath, 'cfemm'));
     
     if isunix
-        % if we are on a unixy computer we can make the necessary
-        % libraries using make
-        if exist (fullfile(pwd, 'Makefile'), 'file') == 0
+        if (exist (fullfile(pwd, 'Makefile'), 'file') == 0) || Inputs.ForceCmake
             system('cmake . -DCMAKE_BUILD_TYPE=Release');
         end
         system('make');
     else
-        % user must install code::blocks, but we can run it using the
-        % command line args here
-
-        % see if code::blocks is on the windows path
-        [status, result] = system ('codeblocks --help');
-
-        if status ~= 0
-            % look for it in the normal locations
-            if (exist ('C:\Program Files\CodeBlocks\codeblocks.exe', 'file'))
-                cbcmd = '"C:\Program Files\CodeBlocks\codeblocks.exe"';
-            else
-                cbcmd = '';
-            end
-        else
-            cbcmd = 'codeblocks';
+        if (exist (fullfile(pwd, 'Makefile'), 'file') == 0)  || Inputs.ForceCmake
+            system('cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release .')
         end
-        
-        if isempty (cbcmd)
-            error ('MFEMM:setup', 'Not all the libraries required for mfemm are present, you are on windows, and I couldn''t find a code::blocks installation to make the libraries.');
-        end
-
-        fprintf (1, 'Attempting to build required libraries for mfemm using code::blocks ...\n');
-        
-        [status,~] = system ([cbcmd, '--target="Release" --build "', fullfile(thisfilepath, 'mfemm_libs.workspace'), '"'], '-echo');
-        
-        if status ~= 0
-            error ('MFEMM:setup', 'There was an error while attempting to build the mfemm libraries using code::blocks.')
-        end
-
+        system('mingw32-make.exe');
     end
-        
+
 end
 
 function t = isoctave()
