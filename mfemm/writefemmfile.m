@@ -746,6 +746,10 @@ function writefemmfile(filename, FemmProblem, varargin)
                         end
                     end
 
+                    if isnan (FemmProblem.BlockLabels(i).MagDir)
+                        FemmProblem.BlockLabels(i).MagDir = 0;
+                    end
+                    
                     fprintf(fp,'%i\t%.17g\t%i\t%i\t%i', ...
                         t, ...
                         FemmProblem.BlockLabels(i).MagDir, ...

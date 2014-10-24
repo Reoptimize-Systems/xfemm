@@ -58,12 +58,13 @@ function BlockLabel = newblocklabel_mfemm(x, y, varargin)
     BlockLabel.BlockType = '';
     BlockLabel.MaxArea = -1;
     BlockLabel.InCircuit = '';
-    BlockLabel.MagDir = 0;
+    BlockLabel.MagDir = NaN;
     BlockLabel.InGroup = 0;
     BlockLabel.Turns = 1;
     BlockLabel.IsExternal = 0;
     BlockLabel.IsDefault = 0;
     BlockLabel.MagDirFctn = '';
+    BlockLabel.IsMagnet = false;
     
     BlockLabel = parseoptions(BlockLabel, varargin);
 
