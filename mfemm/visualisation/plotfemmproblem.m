@@ -156,7 +156,7 @@ function plotblocklabel(w, h, maxtriarea, BlockLabel, options)
 % adds a single block label to the problem plot
 %
 
-    minlabelrad = 0.005 * magn([w,h]);
+    minlabelrad = 0.05 * magn([w,h]);
     
     maxlabelrad = 2 * minlabelrad;
     
@@ -191,6 +191,15 @@ function plotblocklabel(w, h, maxtriarea, BlockLabel, options)
                labeld,labeld, ...
                'Color', labelcolour, ...
                'UserData', 'mfemm');
+           
+    if isscalar (BlockLabel.MagDir) && ((~isnan (BlockLabel.MagDir)) || (BlockLabel.IsMagnet == false))
+        plotmagdirarrow ( BlockLabel.Coords(1), ...
+            BlockLabel.Coords(2), ...
+            labeld,labeld, ...
+            BlockLabel.MagDir, ...
+            'Color', labelcolour, ...
+            'UserData', 'mfemm' );
+    end
 
     hold off
     
@@ -216,6 +225,22 @@ function plotcross(x,y,w,h,varargin)
           x - w/2], ...
          [y - h/2, ...
           y + h/2], varargin{:});
+
+end
+
+
+function plotmagdirarrow (x,y,w,h,dir,varargin)
+
+    arrownodes = [ x + w/2, y - h/2 ;
+                   x + 2*w/2, y;
+                   x + w/2, y + h/2 ;
+                   x + w/2, y - h/2 ; ];
+               
+	arrownodes = rotate2D (arrownodes, deg2rad(dir), [x,y]);
+               
+    line(arrownodes(:,1), arrownodes(:,2), varargin{:});
+
+    line(arrownodes(:,1), arrownodes(:,2), varargin{:});
 
 end
 
