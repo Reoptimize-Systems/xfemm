@@ -4,7 +4,7 @@ function nodes = problem2polygon_mfemm (FemmProblem, varargin)
 %
 % Description
 %
-% problem2polygon_mfemm takes the segmetns from a FemmProblem structure and
+% problem2polygon_mfemm takes the segments from a FemmProblem structure and
 % creates a closed polygon, defined by a set of nodes which form it's
 % boundary. The boundary can be reconstructed by following the nodes in
 % sequence. Either the entire FemmProblem can be converted, or just a
