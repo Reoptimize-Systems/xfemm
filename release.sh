@@ -29,7 +29,7 @@ mkdir -p /tmp/xfemm_linux64
 cd /tmp/xfemm_linux64
 cmake -DCMAKE_BUILD_TYPE=Release $WORKING_COPY_DIR/release/xfemm_linux64/cfemm
 make
-# remove all the build stuff and repeat for mfemm 
+# remove all the build stuff and repeat for mfemm
 rm -r *
 cmake -DCMAKE_BUILD_TYPE=Release $WORKING_COPY_DIR/release/xfemm_linux64/mfemm/cfemm
 make
@@ -53,11 +53,19 @@ rm -rf /tmp/xfemm_mingw_win64
 mkdir -p /tmp/xfemm_mingw_win64
 # run cmake from temp dir and build
 cd /tmp/xfemm_mingw_win64
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/opt/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake $WORKING_COPY_DIR/release/xfemm_mingw_win64/cfemm 
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} "-static -static-libgcc -static-libstdc++"" \
+      -DCMAKE_STATIC_LINKER_FLAGS="${CMAKE_STATIC_LINKER_FLAGS} "-static -static-libgcc -static-libstdc++"" \
+      -DCMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
+      -DCMAKE_TOOLCHAIN_FILE=/opt/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake $WORKING_COPY_DIR/release/xfemm_mingw_win64/cfemm
 make
-# remove all the build stuff and repeat for mfemm 
+# remove all the build stuff and repeat for mfemm
 rm -r *
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=/opt/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake $WORKING_COPY_DIR/release/xfemm_mingw_win64/mfemm/cfemm 
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} "-static -static-libgcc -static-libstdc++"" \
+      -DCMAKE_STATIC_LINKER_FLAGS="${CMAKE_STATIC_LINKER_FLAGS} "-static -static-libgcc -static-libstdc++"" \
+      -DCMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
+      -DCMAKE_TOOLCHAIN_FILE=/opt/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake $WORKING_COPY_DIR/release/xfemm_mingw_win64/mfemm/cfemm
 make
 # tar up the result in the release directory
 cd $WORKING_COPY_DIR/release
