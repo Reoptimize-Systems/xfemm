@@ -15,7 +15,7 @@ function [groupnos, info] = allgroupnumbers_mfemm (FemmProblem)
 %    FemmProblem.
 %
 %  info - structure containingg more detailed information on what entities
-%    are in which groups
+%    are in which groups, and names associated with groups, if any.
 
 
     groupnos = [];
@@ -35,7 +35,7 @@ function [groupnos, info] = allgroupnumbers_mfemm (FemmProblem)
                 
                 groupnos = [ groupnos, FemmProblem.Nodes(ind).InGroup ];
                 info = setfield (info, fname, []);
-                info.(fname).Nodes = FemmProblem.Nodes(ind).InGroup;
+                info.(fname).Nodes = ind - 1;
                 info.(fname).Number = FemmProblem.Nodes(ind).InGroup;
                 
             end
@@ -57,7 +57,7 @@ function [groupnos, info] = allgroupnumbers_mfemm (FemmProblem)
                 
                 groupnos = [ groupnos, FemmProblem.Segments(ind).InGroup ];
                 info = setfield (info, fname, []);
-                info.(fname).Segments = FemmProblem.Segments(ind).InGroup;
+                info.(fname).Segments = ind - 1;
                 info.(fname).Number = FemmProblem.Segments(ind).InGroup;
             end
         end
@@ -76,7 +76,7 @@ function [groupnos, info] = allgroupnumbers_mfemm (FemmProblem)
                 
                 groupnos = [ groupnos, FemmProblem.ArcSegments(ind).InGroup ];
                 info = setfield (info, fname, []);
-                info.(fname).ArcSegments = FemmProblem.ArcSegments(ind).InGroup;
+                info.(fname).ArcSegments = ind - 1;
                 info.(fname).Number = FemmProblem.ArcSegments(ind).InGroup;
             end
         end
@@ -95,7 +95,7 @@ function [groupnos, info] = allgroupnumbers_mfemm (FemmProblem)
                 
                 groupnos = [ groupnos, FemmProblem.BlockLabels(ind).InGroup ];
                 info = setfield (info, fname, []);
-                info.(fname).BlockLabels = FemmProblem.BlockLabels(ind).InGroup;
+                info.(fname).BlockLabels = ind - 1;
                 info.(fname).Number = FemmProblem.BlockLabels(ind).InGroup;
             end
         end
