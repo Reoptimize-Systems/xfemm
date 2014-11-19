@@ -22,6 +22,8 @@ mkdir $WORKING_COPY_DIR/release
 svn export $WORKING_COPY_DIR $WORKING_COPY_DIR/release/xfemm_linux64
 # remove the release script
 rm $WORKING_COPY_DIR/release/xfemm_linux64/release.sh
+# remove the windows dependencies
+rm -r $WORKING_COPY_DIR/release/xfemm_linux64/windeps/
 # create temp build directory
 rm -rf /tmp/xfemm_linux64
 mkdir -p /tmp/xfemm_linux64
@@ -33,6 +35,7 @@ make
 rm -r *
 cmake -DCMAKE_BUILD_TYPE=Release $WORKING_COPY_DIR/release/xfemm_linux64/mfemm/cfemm
 make
+
 # tar up the result in the release directory
 cd $WORKING_COPY_DIR/release
 tar cvzf xfemm_linux64.tar.gz xfemm_linux64/
@@ -51,22 +54,28 @@ rm $WORKING_COPY_DIR/release/xfemm_mingw_win64/release.sh
 # create temp build directory
 rm -rf /tmp/xfemm_mingw_win64
 mkdir -p /tmp/xfemm_mingw_win64
-# run cmake from temp dir and build
+# run cmake from temp dir and build cfemm
 cd /tmp/xfemm_mingw_win64
 cmake -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} "-static -static-libgcc -static-libstdc++"" \
-      -DCMAKE_STATIC_LINKER_FLAGS="${CMAKE_STATIC_LINKER_FLAGS} "-static -static-libgcc -static-libstdc++"" \
-      -DCMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
+      -DEXTRA_CMAKE_CXX_FLAGS="-static -static-libgcc -static-libstdc++" \
+      -DEXTRA_CMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
       -DCMAKE_TOOLCHAIN_FILE=/opt/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake $WORKING_COPY_DIR/release/xfemm_mingw_win64/cfemm
 make
 # remove all the build stuff and repeat for mfemm
 rm -r *
 cmake -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} "-static -static-libgcc -static-libstdc++"" \
-      -DCMAKE_STATIC_LINKER_FLAGS="${CMAKE_STATIC_LINKER_FLAGS} "-static -static-libgcc -static-libstdc++"" \
-      -DCMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
+      -DEXTRA_CMAKE_CXX_FLAGS="-static -static-libgcc -static-libstdc++" \
+      -DEXTRA_CMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
       -DCMAKE_TOOLCHAIN_FILE=/opt/mxe/usr/x86_64-w64-mingw32/share/cmake/mxe-conf.cmake $WORKING_COPY_DIR/release/xfemm_mingw_win64/mfemm/cfemm
 make
+
+# copy over the windows dlls, and delete from dist
+cp $WORKING_COPY_DIR/release/xfemm_mingw_win64/windeps/* $WORKING_COPY_DIR/release/xfemm_mingw_win64/cfemm/lib/
+cp $WORKING_COPY_DIR/release/xfemm_mingw_win64/windeps/* $WORKING_COPY_DIR/release/xfemm_mingw_win64/cfemm/bin/
+cp $WORKING_COPY_DIR/release/xfemm_mingw_win64/windeps/* $WORKING_COPY_DIR/release/xfemm_mingw_win64/mfemm/cfemm/lib/
+cp $WORKING_COPY_DIR/release/xfemm_mingw_win64/windeps/* $WORKING_COPY_DIR/release/xfemm_mingw_win64/mfemm/cfemm/bin/
+rm -r $WORKING_COPY_DIR/release/xfemm_mingw_win64/windeps/
+
 # tar up the result in the release directory
 cd $WORKING_COPY_DIR/release
 zip -r xfemm_mingw_win64.zip xfemm_mingw_win64/
