@@ -116,6 +116,7 @@
 		<Unit filename="../libfemm/mesh.h" />
 		<Unit filename="../libfemm/spars.cpp" />
 		<Unit filename="../libfemm/spars.h" />
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="fmesher.cpp" />
 		<Unit filename="fmesher.h" />
 		<Unit filename="intpoint.cpp" />

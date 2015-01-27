@@ -100,6 +100,7 @@
 		<Unit filename="../libfemm/mesh.h" />
 		<Unit filename="../libfemm/spars.cpp" />
 		<Unit filename="../libfemm/spars.h" />
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="fpproc.cpp" />
 		<Unit filename="fpproc.h" />
 		<Unit filename="makemask.cpp" />
