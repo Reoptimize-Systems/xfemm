@@ -98,6 +98,7 @@
 		<Unit filename="../libfemm/mesh.h" />
 		<Unit filename="../libfemm/spars.cpp" />
 		<Unit filename="../libfemm/spars.h" />
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="fsolver.cpp" />
 		<Unit filename="fsolver.h" />
 		<Unit filename="harmonic2d.cpp" />
