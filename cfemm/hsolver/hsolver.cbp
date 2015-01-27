@@ -63,6 +63,7 @@
 			<Add option="-lhsolver" />
 			<Add directory="../hsolver" />
 		</Linker>
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

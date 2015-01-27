@@ -122,6 +122,7 @@
 		<Unit filename="../libfemm/mesh.h" />
 		<Unit filename="../libfemm/spars.cpp" />
 		<Unit filename="../libfemm/spars.h" />
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="hmesh.h" />
 		<Unit filename="hsolver.cpp" />
 		<Unit filename="hsolver.h" />

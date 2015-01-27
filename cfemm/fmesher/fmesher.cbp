@@ -63,6 +63,7 @@
 			<Add option="-lfmesher" />
 			<Add directory="../fmesher" />
 		</Linker>
+		<Unit filename="CMakeLists.txt" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
