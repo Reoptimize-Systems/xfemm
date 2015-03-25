@@ -1,4 +1,5 @@
 classdef mfemmpproc < handle
+    % mfemmpproc - base class for xfemm post-processing C++ interfaces
 
 
     properties (SetAccess = protected, Hidden = true)
