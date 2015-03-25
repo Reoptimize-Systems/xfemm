@@ -1,4 +1,4 @@
-Instructions for installing mfemm can be found by running the 
+Instructions for installing mfemm can be found by running the
 command:
 
 help mfemm_setup
@@ -6,64 +6,125 @@ help mfemm_setup
 at the Octave or Matlab command prompt. This displays the
 the following information:
 
-  mfemm_setup
- 
-  A large proportion of mfemm's functionality depends on interfaces to C++
-  code. This code must be compiled into mex functions to be accessibly from
-  the matlab or octave command line. Compiled mex files for your platform
-  may be provided for your with this package, in which case mfemm_setup
-  will skip the compilation step (unless you call it as mfemm_setup(true)
-  to force recompilation). 
- 
-  If you do need/want to create the mex files, before running this script
-  you must first compile some library files for use by the mex compiler.
-  There are two ways to do this. On linux type systems it is probably
-  easiest to use the provided Makefile in the mfemm directory. On windows,
-  it is probably easiest to use the Code::Blocks C++ IDE. Several project
-  and workspace files for the free Code::Blocks IDE are provided to ease
-  this process. Instructions are provided below for creating the required
-  libraries using Code::Blocks or using the Makefile.
- 
-  mfemm_setup requires requires that you ave a C++ compiler set up for use
-  by Matlab or Octave (of course Octave will not have a problem thanks to
-  its seamless integration with gcc). In Matlab you must have run 
- 
+  mfemm_setup: set up the matlab interface to xfemm
+
+  Syntax
+
+  mfemm_setup ()
+  mfemm_setup ('Parameter', Value)
+
+  Description
+
+  mfemm_setup performs various operations to set up mfemm. At it's
+  simplest, it will just add some directories to your Matlab/Octave path.
+  At it's most complicated it will compile from scratch a set of libraries
+  and matlab mex files. What it does, or attempts to do, will depend on
+  what has already been done before, or supplied with the package, or what
+  you tell it to do using various options.
+
+  mfemm_setup has several optional arguments that may be supplied as
+  Parameter-Value pairs. The possible options are shown below. Some may
+  require further reading of the help below to fully understand.
+
+  'RunTests' - true or false flag. If true, a set of test runs of the mex
+    files will be performed. Defaults to false.
+
+  'ForceMexRecompile' - true or false flag. If true, forces the mex files
+    all be recompiled. Library files will not be recompiled unless they are
+    not present. Defaults to false.
+
+  'ForceAllRecompile' - true or false flag. If true all mex files will be
+    recompiled, and the libraries. If any required libraries are missing,
+    an attempt will be made to build them also. Defaults to false if not
+    supplied.
+
+  'ForceCmake' - true or false flag. If true, forces cmake to be rerun,
+    even if the makefiles are already present (i.e. cmake has already been
+    run). Defaults to false.
+
+  'DoDebug' - true or false flag. Mex files will be built with debugging
+    symbols. Defaults to false if not supplied.
+
+  'Verbose' - true or false flag. Verbose build output if true. Defaults to
+    false if not supplied.
+
+  These may be supplied in any order. An example call the mfemm_setup might
+  be:
+
+    mfemm_setup ('DoDebug', false, 'ForceAllRecompile', true)
+
+  A large proportion of mfemm's functionality depends on mex interfaces to
+  C++ code. This code must be compiled into mex functions to be accessible
+  from the matlab or octave command line. If you're using a released
+  version of mfemm for your platform, you won't have to worry too much
+  about this, and can just run mfemm_setup. Compiled mex files for your
+  platform may be provided for your convenience with this package, in which
+  case mfemm_setup will skip the compilation step (unless you force it not
+  to). If you do need/want to recompile, in Matlab therefore, you must have
+  previously run:
+
   mex -setup
- 
+
   And selected a valid C++ compiler before attempting to run this
-  mfemm_setup function. For linux the system gcc compiler will be perfect.
-  The free windows compilers supported by Matlab vary over time, but often
-  there is a free version of Microsoft Visual C++ which will work. The
-  gnumex project provides a way to use gcc on Windows with Matlab if
-  desired.
- 
-  
-  ===   Instructions for building required libraries using Makefile     ===
- 
-  On your linux system change directory to the mfemm top level directory.
-  In this directory run the following command:
- 
+  mfemm_setup function. For Linux, or Octave on Windows, the default gcc
+  compiler will be ideal. For Matlab on Windows, the situation is more
+  complicated.
+
+
+  If you are not using a release of mfemm_setup, or you are not using a
+  platform for which a release has been supplied, before running this
+  script it may also first be required to compile some library files for
+  use by the mex compiler. mfemm uses cmake as it's build system, and any
+  platform supported by cmake therefore should work.
+
+  ------------------------   Linux Systems    -----------------------------
+
+  On linux type systems the process is quite smoothly automated and, if
+  necessary, mfemm_setup.m will build the libraries using cmake and the
+  system 'make' program, you will not need to do anything.
+
+                             ** cmake **
+
+  If there are problems, you can try invoking the cmake and make command
+  yourself. Just change directory to the mfemm/cfemm directory, and run the
+  following commands:
+
+  cmake . -DCMAKE_BUILD_TYPE=Release
   make
- 
-  That should be it! Now you can rerun mfemm_setup to complete the process.
- 
- 
-  ===  Instructions for building required libraries with Code::Blocks   ===
- 
-  Code::Blocks can be obtained from here: www.codeblocks.org
- 
-  To build the required library files, open the file mfemm_libs.workspace
-  file in the same directory as this funtion in Code::Blocks. This
-  Code::Blocks workspace contains several projects all of which must be
-  compiled before running the rest of the setup. You will need to manually
-  ensure that those projects which have a 'Library' build target have this
-  selected. The projects which have a 'Library' target are fmesher, fsolver
-  and fpproc. The other projects are always libraries and you will want to
-  build the "Release" versions of these. Once this has been done simply
-  select 'build workspace' from the build menu and Code::Blocks will build
-  all of the projects. Once this is done rerun mfemm_setup to create the
-  mex functions. 
- 
-  Note that you are building for Matlab will want your Matlab mex compiler
-  to be the same as your Code::Blocks compiler. The gnumex project
-  (available elsewhere) can help you use the gcc with Matlab.
+
+  ------------------------- Windows Systems -------------------------------
+
+                            ** mingw-w64 **
+
+  Unfortunately Windows lacks somewhat the development environment of Linux
+  systems. On Windows, you will need to install mingw-w64. At the time of
+  writing, there are no official mingw-w64 toolchains available, but
+  several stable 'unofficial' toolchains. Choose one targeted at your
+  platform.
+
+                             ** Gnumex **
+
+  For Windows, the compilers supported by Matlab vary over time. However,
+  you will need to build the mex files using the same compiler with which
+  you (or the mfemm developers, or whoever) created the libraries. Often
+  there is a free version of Microsoft Visual C++ which will work, but no
+  project files are provided for this. The gnumex project provides a way to
+  use gcc on Windows with Matlab (this will work with the compiler which
+  comes with code::blocks, mingw). gnumex can be found on sourceforge,
+  here:
+
+                  http://gnumex.sourceforge.net/
+
+
+                             ** cmake **
+
+  If you need to rebuild *everything* from scratch (even the makefiles)
+  including the libraries, you will need cmake (version 2.8.8 or newer).
+  You will usually not need to do this.
+
+  mfemm uses cmake for its build system, if you're familiar with this, you
+  can create visual studio solution files (or nmake files) for the library
+  compilation, and use the microsoft compilers with matlab. You will then
+  need to use the same compiler in Matlab to build the mex files.
+  mfemm_setup will not call cmake correctly to create Visual Studio
+  solution files and build them, you will have to invoke this manually.
