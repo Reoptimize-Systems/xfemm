@@ -156,9 +156,9 @@ function plotblocklabel(w, h, maxtriarea, BlockLabel, options)
 % adds a single block label to the problem plot
 %
 
-    minlabelrad = 0.05 * magn([w,h]);
+    minlabelrad = 0.015 * magn([w,h]);
     
-    maxlabelrad = 2 * minlabelrad;
+    maxlabelrad = 1.5 * minlabelrad;
     
     labelradrange = maxlabelrad - minlabelrad;
     
