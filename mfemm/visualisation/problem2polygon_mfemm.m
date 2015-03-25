@@ -77,11 +77,12 @@ function nodes = problem2polygon_mfemm (FemmProblem, varargin)
             
             % remove the first node, this will already have been added
             x(1) = []; y(1) = [];
-
+            
             nodes = [ nodes;
                       [x(:), y(:)]; ];
 
         else
+            
             nodes = [ nodes;
                       orignodes(alllinks(row,colend),:) ];
 
