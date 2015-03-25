@@ -181,6 +181,11 @@ classdef fpproc < mfemmpproc
                 error('No solution document has been opened.')
             end
             
+            if nargin == 2 && size (x,2) == 2
+                y = x(:,2);
+                x = x(:,1);
+            end
+            
             pvals = fpproc_interface_mex('getpointvals', this.objectHandle, x(:), y(:));
             
         end
