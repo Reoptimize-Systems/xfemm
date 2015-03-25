@@ -86,7 +86,7 @@ public:
 // Operations
 public:
 
-    int LoadMesh();
+    int LoadMesh(bool deleteFiles=true);
     int LoadPrev();
 	int LoadProblemFile();
     double ChargeOnConductor(int OnConductor, CHBigLinProb &L);

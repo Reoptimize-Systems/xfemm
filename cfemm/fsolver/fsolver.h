@@ -74,7 +74,7 @@ public:
 // Operations
 public:
 
-    int LoadMesh();
+    int LoadMesh(bool deleteFiles=true);
     int LoadProblemFile ();
     int Static2D(CBigLinProb &L);
     int WriteStatic2D(CBigLinProb &L);

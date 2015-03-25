@@ -1,4 +1,4 @@
-function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
+function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, keepmesh)
 % analyses a .fem file using the mfemm mex interface if present, or the
 % original femm interface if not.
 %
@@ -21,6 +21,9 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
 %   usefemm - (optional) if true, forces the use of the original femm
 %     interface to analyse the problem. If not supplied defaults to false.
 %
+%   keepmesh - (optional) if true, and not using FEMM, allows the mesh
+%    files to be kept after loading by fsolver.
+% 
 % Output
 %
 %   ansfilename - string containing the name of the solution file (the .fem
@@ -54,6 +57,10 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
     
     if nargin < 3
         quiet = true;
+    end
+    
+    if nargin < 4
+        keepmesh = false;
     end
     
     if isstruct(femprob)
@@ -106,7 +113,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
-                    fsolver(femfilename(1:end-4), false);
+                    fsolver(femfilename(1:end-4), false, ~keepmesh);
                     fprintf(1, 'mfemm problem solved ...\n');
                 else
                     % using xfemm interface
@@ -116,7 +123,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
-                    fsolver(femprob(1:end-4), true);
+                    fsolver(femprob(1:end-4), true, ~keepmesh);
                     fprintf(1, 'mfemm problem solved ...\n');
                 end
                 
@@ -141,7 +148,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
-                    hsolver(femfilename(1:end-4), false);
+                    hsolver(femfilename(1:end-4), false, ~keepmesh);
                     fprintf(1, 'mfemm problem solved ...\n');
                 else
                     % using xfemm interface
@@ -151,7 +158,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet)
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
-                    hsolver(femprob(1:end-4), true);
+                    hsolver(femprob(1:end-4), true, ~keepmesh);
                     fprintf(1, 'mfemm problem solved ...\n');
                 end
                 
