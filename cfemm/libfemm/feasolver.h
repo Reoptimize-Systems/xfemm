@@ -93,7 +93,7 @@ public:
 // Operations
 public:
 
-    virtual int LoadMesh() = 0;
+    virtual int LoadMesh(bool deleteFiles=true) = 0;
     virtual int LoadProblemFile () = 0;
     int Cuthill();
     int SortElements();

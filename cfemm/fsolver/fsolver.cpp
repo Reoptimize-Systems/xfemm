@@ -779,7 +779,7 @@ int FSolver::LoadProblemFile ()
     return TRUE;
 }
 
-int FSolver::LoadMesh()
+int FSolver::LoadMesh(bool deleteFiles)
 {
     int i,j,k,q,n0,n1;
     char infile[256];
@@ -884,16 +884,19 @@ int FSolver::LoadMesh()
             msg += "button to highlight the problem regions.";
             WarnMessage(msg.c_str());
             fclose(fp);
-            sprintf(infile,"%s.ele",PathName.c_str());
-            remove(infile);
-            sprintf(infile,"%s.node",PathName.c_str());
-            remove(infile);
-            sprintf(infile,"%s.pbc",PathName.c_str());
-            remove(infile);
-            sprintf(infile,"%s.poly",PathName.c_str());
-            remove(infile);
-            sprintf(infile,"%s.edge",PathName.c_str());
-            remove(infile);
+            if (deleteFiles)
+            {
+                sprintf(infile,"%s.ele",PathName.c_str());
+                remove(infile);
+                sprintf(infile,"%s.node",PathName.c_str());
+                remove(infile);
+                sprintf(infile,"%s.pbc",PathName.c_str());
+                remove(infile);
+                sprintf(infile,"%s.poly",PathName.c_str());
+                remove(infile);
+                sprintf(infile,"%s.edge",PathName.c_str());
+                remove(infile);
+            }
             return MISSINGMATPROPS;
         }
         // look up block type out of the list of block labels
@@ -990,15 +993,18 @@ int FSolver::LoadMesh()
     for(i=0; i<NumNodes; i++) free(mbr[i]);
     free(mbr);
 
-    // clear out temporary files
-    sprintf(infile,"%s.ele",PathName.c_str());
-    remove(infile);
-    sprintf(infile,"%s.node",PathName.c_str());
-    remove(infile);
-    sprintf(infile,"%s.pbc",PathName.c_str());
-    remove(infile);
-    sprintf(infile,"%s.poly",PathName.c_str());
-    remove(infile);
+    if (deleteFiles)
+    {
+        // clear out temporary files
+        sprintf(infile,"%s.ele",PathName.c_str());
+        remove(infile);
+        sprintf(infile,"%s.node",PathName.c_str());
+        remove(infile);
+        sprintf(infile,"%s.pbc",PathName.c_str());
+        remove(infile);
+        sprintf(infile,"%s.poly",PathName.c_str());
+        remove(infile);
+    }
 
     return 0;
 }

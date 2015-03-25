@@ -37,10 +37,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //(void) plhs;    /* unused parameters */
 
     /* Check for proper number of input and output arguments */
-    if (nrhs != 2)
+    if (nrhs != 3)
     {
         mexErrMsgIdAndTxt("MFEMM:fsolver:nargin", 
-          "Two input arguments required.");
+          "Three input arguments required.");
     }
 
     if (nlhs > 1)
@@ -53,7 +53,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     if (!mxIsChar(prhs[0]) || (mxGetM(prhs[0]) != 1 ) )
     {
         mexErrMsgIdAndTxt("MFEMM:fsolver:badinput", 
-          "Input argument must be a string.");
+          "First input argument must be a string.");
     }
 
     /* Find out how long the input string is.  Allocate enough memory
@@ -68,9 +68,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* Copy the string data into buf. */
     status = mxGetString (prhs[0], inputbuf, buflen);
     
-    /* get the verbosity flag */
-    verbose = (bool)mxGetScalar (prhs[1]);
-    
     /*  get the dimensions of the second input */
     size_t rows = mxGetM(prhs[1]);
     size_t cols = mxGetN(prhs[1]);
@@ -80,6 +77,18 @@ void mexFunction( int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt( "MFEMM:fsolver:inputnotscalar",
                            "Second input must be a scalar.");
     }
+    
+    /* get the verbosity flag */
+    verbose = (bool)mxGetScalar (prhs[1]);
+    
+    if ((!mxIsNumeric(prhs[1])) || (mxGetM(prhs[2]) != 1) || (mxGetN(prhs[2]) != 1))
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fsolver:inputnotscalar",
+                           "Third input must be a scalar.");
+    }
+    
+    /* get the flag deermiing if mesh files are deleted after loading */
+    bool deleteMeshFiles = (bool)mxGetScalar (prhs[2]);
 
     if (verbose != 0.0)
     {
@@ -111,7 +120,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
 
     // load mesh
-    status = SolveObj.LoadMesh();
+    status = SolveObj.LoadMesh(deleteMeshFiles);
     if (status != 0)
     {
 
