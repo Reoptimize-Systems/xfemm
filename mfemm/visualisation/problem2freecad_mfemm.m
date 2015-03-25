@@ -1,4 +1,4 @@
-function nodes = problem2freecad_mfemm (FemmProblem, varargin)
+function [cellstrs, nodes] = problem2freecad_mfemm (FemmProblem, varargin)
 % converts the segments from a FemmProblem, or portion of a FemmProblem to
 % a set of sequential nodes making the boundary of a polygon
 %
@@ -25,6 +25,8 @@ function nodes = problem2freecad_mfemm (FemmProblem, varargin)
     Inputs.Groups = [];
     Inputs.ShapeName = 'Polygon';
     Inputs.FileName = [];
+    Inputs.IncludeHeader = true;
+    Inputs.Print = false;
     
     Inputs = parseoptions (Inputs, varargin);
     
@@ -32,73 +34,93 @@ function nodes = problem2freecad_mfemm (FemmProblem, varargin)
         fid = 1;
     end
     
-    nodes = getnodecoords_mfemm(FemmProblem);
-    links = getseglinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
-    arclinks = getarclinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
+%     nodes = getnodecoords_mfemm(FemmProblem);
+%     links = getseglinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
+%     arclinks = getarclinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
+%     
+%     arclinkpnts = [];
+%     for ind = 1:size (arclinks, 1)
+%         
+%         [x, y] = arcpoints( nodes(arclinks(ind,1)+1,:), ...
+%                             nodes(arclinks(ind,2)+1,:), ...
+%                             arclinks(ind,3), ...
+%                             arclinks(ind,3)/2 );
+%         
+%         nodes = [ nodes; x(2), y(2) ];
+%         
+%         arclinkpnts = [ arclinkpnts; size(nodes,1)-1 ];
+%         
+%     end
+%     
+    if Inputs.IncludeHeader
+        cellstrs = writeheader_freecad ();
+    else
+        cellstrs = {};
+    end
     
-    arclinkpnts = [];
-    for ind = 1:size (arclinks, 1)
-        
-        [x, y] = arcpoints( nodes(arclinks(ind,1)+1,:), ...
-                            nodes(arclinks(ind,2)+1,:), ...
-                            arclinks(ind,3), ...
-                            arclinks(ind,3)/2 );
-        
-        nodes = [ nodes; x(2), y(2) ];
-        
-        arclinkpnts = [ arclinkpnts; size(nodes,1)-1 ];
-        
+    unique_str = int2str(round(now*1000));
+    
+%     cellstrs = [ cellstrs; writenodes_freecad(nodes * 1000, unique_str) ];
+%     cellstrs = [ cellstrs; writelines_freecad(links, unique_str) ];
+%     cellstrs = [ cellstrs; writearcs_freecad([ arclinks(:,1:2), arclinkpnts ], unique_str) ];
+
+    nodes = problem2polygon_mfemm (FemmProblem, 'Groups', Inputs.Groups);
+    cellstrs = [ cellstrs; writenodes_freecad(nodes * 1000, unique_str) ];
+    links = [ [(0:size(nodes,1)-2)', (1:size(nodes,1)-1)']; [size(nodes,1)-1, 0] ];
+    cellstrs = [ cellstrs; writelines_freecad(links, unique_str) ];
+    
+    % create the shape
+    cellstrs = [ cellstrs; sprintf('wire%s = Part.Wire (lines%s)', unique_str, unique_str) ];
+    cellstrs = [ cellstrs; sprintf('%s = Part.Face (wire%s)', Inputs.ShapeName, unique_str) ];
+    
+    % output the results
+    if Inputs.Print
+        for ind = 1:numel (cellstrs)
+            fprintf(fid, '%s\n', cellstrs{ind});
+        end
     end
 
-     writeheader_freecad (fid);
-     writenodes_freecad (nodes * 1000, fid);
-     writelines_freecad (links, fid);
-     writearcs_freecad ([ arclinks(:,1:2), arclinkpnts ], fid);
-     
-     % create the shape
-     fprintf(fid, '%s = Part.Shape (lines + arcs)\n', Inputs.ShapeName);
-
 end
 
-function writeheader_freecad (fid)
+function cellstrs = writeheader_freecad ()
 
-    fprintf(fid, 'import Part\n');
-    fprintf(fid, 'from FreeCAD import Vector\n\n');
+    cellstrs = {sprintf('import Part') };
+    cellstrs = [ cellstrs; {sprintf('from FreeCAD import Vector\n')}];
     
 end
 
 
-function writenodes_freecad (nodes, fid)
+function cellstrs = writenodes_freecad (nodes, unique_str)
 
-    fprintf(fid, 'nodes = [ \n');
+    cellstrs = { sprintf('nodes%s = [ ', unique_str) };
     for vind = 1:size(nodes,1)
-        fprintf(fid, '        Vector (%.17e, %.17e, %.17e),\n', nodes(vind,1), nodes(vind,2), 0.0);
+        cellstrs = [ cellstrs; {sprintf('        Vector (%.17e, %.17e, %.17e),', nodes(vind,1), nodes(vind,2), 0.0)} ];
     end
-    fprintf(fid, '        ]\n\n');
+    cellstrs = [ cellstrs; {sprintf('        ]\n')} ];
 
 end
 
-function writelines_freecad (links, fid)
+function cellstrs = writelines_freecad (links, unique_str)
 
     % get the lines for the face
-    fprintf(fid, 'lines = [\n');
+    cellstrs = { sprintf('lines%s = [', unique_str) };
     nlinks = size (links,1);
     for ind = 1:nlinks
-        fprintf(fid, '              Part.Line(nodes[%d], nodes[%d]),\n', links(ind,1), links(ind,2));
+        cellstrs = [ cellstrs; {sprintf('              Part.makeLine(nodes%s[%d], nodes%s[%d]),', unique_str, links(ind,1), unique_str, links(ind,2))} ];
     end
-    fprintf(fid, '            ]\n\n');
+    cellstrs = [ cellstrs; {sprintf('            ]\n')} ];
     
 end
 
-function writearcs_freecad (arclinks, fid)
+function cellstrs = writearcs_freecad (arclinks, unique_str)
 
     % get the lines for the face
-    fprintf(fid, 'arcs = [\n');
+    cellstrs = { sprintf('arcs%s = [', unique_str) };
     nlinks = size (arclinks,1);
     for ind = 1:nlinks
-        fprintf(fid, '              Part.Arc(nodes[%d], nodes[%d], nodes[%d]),\n', arclinks(ind,1), arclinks(ind,3), arclinks(ind,2));
+        cellstrs = [ cellstrs; {sprintf('              Part.Arc(nodes%s[%d], nodes%s[%d], nodes%s[%d]).toShape(),', unique_str, arclinks(ind,1), unique_str, arclinks(ind,3), unique_str, arclinks(ind,2))} ];
     end
-    fprintf(fid, '            ]\n\n');
+    cellstrs = [ cellstrs; {sprintf('            ]\n')} ];
     
 end
 
