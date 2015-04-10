@@ -219,7 +219,7 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, varargin)
 % See also: addboundaryprop_mfemm.m, emptyboundaryprops_mfemm.m
 %
     
-% Copyright 2012-2014 Richard Crozier
+% Copyright 2012-2015 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -233,26 +233,30 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, varargin)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
+    if nargin > 2
+        Arg3 = varargin{1};
 
-    Arg3 = varargin{1};
+        if isstruct(Arg3)
+
+            FemmProblem = Arg3;
+
+            % get the number of existing nodes, segments, boundaries etc. if any
+            elcount = elementcount_mfemm(FemmProblem);
+
+            NBoundaryProps = elcount.NBoundaryProps;
+            makeid = true;
+            varargin = varargin(2:end);
+
+        elseif ~ischar(Arg3) && isscalar(Arg3)
+
+            NBoundaryProps = Arg3;
+            makeid = true;
+            varargin = varargin(2:end);
+
+        else
+            makeid = false;
+        end
     
-    if isstruct(Arg3)
-       
-        FemmProblem = Arg3;
-        
-        % get the number of existing nodes, segments, boundaries etc. if any
-        elcount = elementcount_mfemm(FemmProblem);
-        
-        NBoundaryProps = elcount.NBoundaryProps;
-        makeid = true;
-        varargin = varargin(2:end);
-        
-    elseif ~ischar(Arg3) && isscalar(Arg3)
-        
-        NBoundaryProps = Arg3;
-        makeid = true;
-        varargin = varargin(2:end);
-        
     else
         makeid = false;
     end
@@ -283,7 +287,7 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, varargin)
         % Give it the correct name, with a unique id
         BoundaryProp.Name = sprintf('ID: %d - %s', NBoundaryProps + 1, Name);
     else
-        % Use the name passed in, withut making it unique
+        % Use the name passed in, without making it unique
         BoundaryProp.Name = Name;
     end
     
