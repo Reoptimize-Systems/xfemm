@@ -21,7 +21,7 @@ function FemmProblem = setcircuitcurrent (FemmProblem, cname, current)
             cname);
     end
     
-    FemmProblem.Cricuits(loc).TotalAmps_re = real (current);
-    FemmProblem.Cricuits(loc).TotalAmps_im = imag (current);
+    FemmProblem.Circuits(loc).TotalAmps_re = real (current);
+    FemmProblem.Circuits(loc).TotalAmps_im = imag (current);
 
 end
