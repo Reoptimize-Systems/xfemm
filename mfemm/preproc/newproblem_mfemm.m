@@ -185,5 +185,6 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     FemmProblem.Circuits = [];
     FemmProblem.BlockLabels = [];
     FemmProblem.PointProps = [];
+    FemmProblem.Groups = struct ();
 
 end
