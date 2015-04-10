@@ -543,7 +543,7 @@ classdef fpproc < mfemmpproc
             %
             % Syntax
             %
-            % circprops = fpproc.getcircuitproperties(circuitname)
+            % circprops = fpproc.getcircuitprops(circuitname)
             %
             % Description
             %
