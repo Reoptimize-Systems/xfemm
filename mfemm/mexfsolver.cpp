@@ -68,11 +68,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* Copy the string data into buf. */
     status = mxGetString (prhs[0], inputbuf, buflen);
     
-    /*  get the dimensions of the second input */
-    size_t rows = mxGetM(prhs[1]);
-    size_t cols = mxGetN(prhs[1]);
-    
-    if ((!mxIsNumeric(prhs[1])) || (rows != 1) || (cols != 1))
+    if ((!mxIsNumeric(prhs[1])) || (mxGetM(prhs[1]) != 1) || (mxGetN(prhs[1]) != 1))
     {
         mexErrMsgIdAndTxt( "MFEMM:fsolver:inputnotscalar",
                            "Second input must be a scalar.");
@@ -81,7 +77,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     /* get the verbosity flag */
     verbose = (bool)mxGetScalar (prhs[1]);
     
-    if ((!mxIsNumeric(prhs[1])) || (mxGetM(prhs[2]) != 1) || (mxGetN(prhs[2]) != 1))
+    if ((!mxIsNumeric(prhs[2])) || (mxGetM(prhs[2]) != 1) || (mxGetN(prhs[2]) != 1))
     {
         mexErrMsgIdAndTxt( "MFEMM:fsolver:inputnotscalar",
                            "Third input must be a scalar.");
