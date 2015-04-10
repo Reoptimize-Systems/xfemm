@@ -22,22 +22,21 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 % parameter.
 %
 %   FemmProblem - The Existing mfemm problem structure to which the new
-%              boundary condition will be added.
+%     boundary condition will be added.
 %
-%   Name     - A string denoting the name of the new boundary. If
-%              'NBoundaryProps' or 'FemmProblem' is also supplied, this
-%              name will be modified to ensure it is unique by adding the
-%              string 'ID: X - ' in front of the supplied name string where
-%              X is replaced by an iteger value. If NBoundaryProps is
-%              supplied the value of this integer wil be NBoundaryProps +
-%              1. If a FemmProblem is supplied, the value will be one
-%              greater than the number of boundaries already present in the
-%              problem. The supplied boundayr name will not be changed if
-%              only Name, BdryType and parameter-value pairs are supplied.
+%   Name - A string denoting the name of the new boundary. If
+%     'NBoundaryProps' or 'FemmProblem' is also supplied, this name will be
+%     modified to ensure it is unique by adding the string 'ID: X - ' in
+%     front of the supplied name string where X is replaced by an iteger
+%     value. If NBoundaryProps is supplied the value of this integer wil be
+%     NBoundaryProps + 1. If a FemmProblem is supplied, the value will be
+%     one greater than the number of boundaries already present in the
+%     problem. The supplied boundayr name will not be changed if only Name,
+%     BdryType and parameter-value pairs are supplied.
 %
 %   BdryType - Scalar value determining the boundary type. This can have 
-%              values between 0 and 5. For magnetics problems, these numbers
-%              have the following meanings:
+%     values between 0 and 5. For magnetics problems, these numbers have
+%     the following meanings:
 %               
 %              0 - Prescribed A type boundary condition
 %              1 - Small Skin Depth type boundary condtion
@@ -225,7 +224,7 @@ function [FemmProblem, boundind, boundname] = addboundaryprop_mfemm(FemmProblem,
 % See also: newboundaryprop_mfemm.m, emptyboundaryprops_mfemm
 %
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2015 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
