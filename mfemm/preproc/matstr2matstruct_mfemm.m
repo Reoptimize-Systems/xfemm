@@ -94,7 +94,7 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
             
             elseif strcmpi (ext, '.dat')
                 % convert to matlib structures
-                matlib = parsematlib_mfemm(matlibfile);
+                matlib = parsematlib_mfemm (matlibfile);
             else
                 error ('MFEMM:matstr2matstruct_mfemm:badfile', ...
                     'Unrecognised materials library file type, must be .mat or .dat');
