@@ -8,7 +8,7 @@ function [FemmProblem] = translatenodes_mfemm(FemmProblem, x, y, nodeids)
 %
 % 
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2015 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
