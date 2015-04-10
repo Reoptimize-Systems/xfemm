@@ -3,8 +3,8 @@ function [FemmProblem, groupno] = addgroup_mfemm(FemmProblem, name, groupno)
 %
 % Syntax
 %
-% FemmProblem = addgroup_mfemm(FemmProblem, name)
-% FemmProblem = addgroup_mfemm(FemmProblem, name, groupno)
+% [FemmProblem, groupno] = addgroup_mfemm(FemmProblem, name)
+% [FemmProblem, groupno] = addgroup_mfemm(FemmProblem, name, groupno)
 %
 % Input
 %
