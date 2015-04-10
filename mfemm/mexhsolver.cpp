@@ -32,21 +32,28 @@ int nrhs, const mxArray *prhs[])
     char *inputbuf;
     mwSize buflen;
     int status;
+    bool verbose = false;
 
     //(void) plhs;    /* unused parameters */
 
     /* Check for proper number of input and output arguments */
-    if (nrhs != 1) {
-        mexErrMsgTxt("One input argument required.");
+    if (nrhs != 3)
+    {
+        mexErrMsgIdAndTxt("MFEMM:hsolver:nargin", 
+          "Three input arguments required.");
     }
 
-    if (nlhs > 1) {
-        mexErrMsgTxt("Too many output arguments.");
+    if (nlhs > 1)
+    {
+        mexErrMsgIdAndTxt("MFEMM:hsolver:nargout", 
+          "Too many output arguments.");
     }
 
     /* Check for proper input type */
-    if (!mxIsChar(prhs[0]) || (mxGetM(prhs[0]) != 1 ) )  {
-        mexErrMsgTxt("Input argument must be a string.");
+    if (!mxIsChar(prhs[0]) || (mxGetM(prhs[0]) != 1 ) )
+    {
+        mexErrMsgIdAndTxt("MFEMM:hsolver:badinput", 
+          "First input argument must be a string.");
     }
 
     /* Find out how long the input string is.  Allocate enough memory
@@ -60,17 +67,44 @@ int nrhs, const mxArray *prhs[])
 
     /* Copy the string data into buf. */
     status = mxGetString(prhs[0], inputbuf, buflen);
-    mexPrintf("Solving file: %s\n",inputbuf);
+    
+    if ((!mxIsNumeric(prhs[1])) || (mxGetM(prhs[1]) != 1) || (mxGetN(prhs[1]) != 1))
+    {
+        mexErrMsgIdAndTxt( "MFEMM:hsolver:inputnotscalar",
+                           "Second input must be a scalar.");
+    }
+    
+    /* get the verbosity flag */
+    verbose = (bool)mxGetScalar (prhs[1]);
+    
+    if ((!mxIsNumeric(prhs[2])) || (mxGetM(prhs[2]) != 1) || (mxGetN(prhs[2]) != 1))
+    {
+        mexErrMsgIdAndTxt( "MFEMM:hsolver:inputnotscalar",
+                           "Third input must be a scalar.");
+    }
+    
+    /* get the flag deermiing if mesh files are deleted after loading */
+    bool deleteMeshFiles = (bool)mxGetScalar (prhs[2]);
 
-    // Tell FSolver the location of the mesh and fem files this should be
+    // Tell hsolver the location of the mesh and fem files this should be
     // an extension free base name
     SolveObj.PathName = inputbuf;
 
     // free the input buffer
     mxFree(inputbuf);
 
-    // make the warning message function point to mexPrintf
-    SolveObj.WarnMessage = &voidmexPrintF;
+    if (verbose != 0.0)
+    {
+        mexPrintf("Solving file: %s\n",inputbuf);
+        // if verbose make the warning message function point to mexPrintf
+        SolveObj.WarnMessage = &voidmexPrintF;
+    }
+    else
+    {
+        // if not verbose make the warning message function point to a dummy
+        // function
+        SolveObj.WarnMessage = &dummymexPrintF;
+    }
 
     status = SolveObj.LoadProblemFile ();
     
@@ -81,7 +115,7 @@ int nrhs, const mxArray *prhs[])
     }
 
     // load mesh
-    status = SolveObj.LoadMesh();
+    status = SolveObj.LoadMesh(deleteMeshFiles);
     if (status != 0){
 
         mexPrintf("problem loading mesh\n");
@@ -89,35 +123,43 @@ int nrhs, const mxArray *prhs[])
 
         switch (status)
         {
-            case ( BADEDGEFILE ):
+        case ( BADEDGEFILE ):
 
-                  mexErrMsgTxt("Could not open .edge file.\n");
-                  break;
+            mexErrMsgIdAndTxt("MFEMM:hsolver:badedgefile", 
+                "Could not open .edge file.\n");
+            break;
 
-            case ( BADELEMENTFILE ):
-                  mexErrMsgTxt("Could not open .ele file.\n");
-                  break;
+        case ( BADELEMENTFILE ):
+            mexErrMsgIdAndTxt("MFEMM:hsolver:badelefile", 
+                "Could not open .ele file.\n");
+            break;
 
-            case( BADFEMFILE ):
-                  mexErrMsgTxt("Could not open .fem file.\n");
-                  break;
+        case( BADFEMFILE ):
+            mexErrMsgIdAndTxt("MFEMM:hsolver:badfemfile", 
+                "Could not open .fem file.\n");
+            break;
 
-            case( BADNODEFILE ):
-                  mexErrMsgTxt("Could not open .node file.\n");
-                  break;
+        case( BADNODEFILE ):
+            mexErrMsgIdAndTxt("MFEMM:hsolver:badnodefile", 
+                "Could not open .node file.\n");
+            break;
 
-            case( BADPBCFILE ):
-                  mexErrMsgTxt("Could not open .pbc file.\n");
-                  break;
+        case( BADPBCFILE ):
+            mexErrMsgIdAndTxt("MFEMM:hsolver:badpbcfile", 
+                "Could not open .pbc file.\n");
+            break;
 
-            case( MISSINGMATPROPS ):
-                  mexErrMsgTxt("Material properties have not been defined for all regions.\n");
-                  break;
+        case( MISSINGMATPROPS ):
+            mexErrMsgIdAndTxt("MFEMM:hsolver:missingmatprops", 
+                "Material properties have not been defined for all regions.\n");
+            break;
 
-            default:
-                  mexErrMsgTxt("AN unknown error occured.\n");
-                  break;
+        default:
+            mexErrMsgIdAndTxt("MFEMM:hsolver:unknown", 
+                "An unknown error occured.\n");
+            break;
         }
+
 
           return;
       //return -1;

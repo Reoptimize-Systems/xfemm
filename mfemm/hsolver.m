@@ -1,16 +1,24 @@
-function ansfile = hsolver(filename, verbose)
+function ansfile = hsolver(filename, verbose, keepmesh)
 % solves a finite element problem described by a .fem file and which has
 % already been meshed using fmesher
 %
 % Syntax
 %
 % ansfile = hsolver(filename)
+% ansfile = hsolver(filename, verbose)
+% ansfile = hsolver(filename, verbose, deletemeshfiles)
 %
 % Input
 %
-% filename - string containing either the full path of the .fem file to be
-%  solved, which must already have been meshed by fmesher, or the full
-%  path, but without the .fem extension.
+%  filename - string containing either the full path of the .fem file to be
+%    solved, which must already have been meshed by fmesher, or the full
+%    path, but without the .fem extension.
+%
+%  verbose - optional flag determining how much output is printed by
+%    hsolver. 
+%
+%  deletemeshfiles - optional flag determining whether to delete mesh files
+%    after loading them from disk.
 %
 % Output
 %
@@ -48,7 +56,7 @@ function ansfile = hsolver(filename, verbose)
         error('The following required files were missing\n%sPerhaps you need to rerun fmesher?', missingfilestr);
     end
 
-    mexhsolver(filename);
+    mexhsolver(filename, double (verbose), double (keepmesh));
 
     ansfile = [filename, '.anh'];
     
