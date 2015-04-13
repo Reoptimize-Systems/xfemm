@@ -35,6 +35,7 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     options.LabelText = {'Color', [0 0 0.5]};
     options.AddLabels = true;
     options.PlotNodes = true;
+    options.InitialViewPort = [];
     
     options = parseoptions (options, varargin);
     
@@ -56,7 +57,17 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
         set(hZoom, 'ActionPostCallback', {@zoomfemmplot,hax,options});
     end
     
-    makefemmplot(hax,options);
+    if ~isempty (options.InitialViewPort)
+        x = options.InitialViewPort(1);
+        y = options.InitialViewPort(2);
+        w = options.InitialViewPort(3);
+        h = options.InitialViewPort(4);
+        makefemmplot(hax,options,w,h);
+        set(hax, 'XLim', [x, x+w]);
+        set(hax, 'YLim', [y, y+h]);
+    else
+        makefemmplot(hax,options);
+    end
    
 end
 
