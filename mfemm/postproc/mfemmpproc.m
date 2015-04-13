@@ -67,7 +67,9 @@ classdef mfemmpproc < handle
               Inputs = parseoptions (Inputs, varargin);
               
               if ~isempty (this.FemmProblem)
-                  [hfig, hax] = plotfemmproblem(this.FemmProblem, 'PlotNodes', Inputs.PlotNodes);
+                  [hfig, hax] = plotfemmproblem(this.FemmProblem, ...
+                                    'PlotNodes', Inputs.PlotNodes, ...
+                                    'InitialViewPort', [x,y,w,h]);
               else
                   hfig = figure;
               end
