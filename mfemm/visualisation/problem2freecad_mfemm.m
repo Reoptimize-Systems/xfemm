@@ -27,6 +27,7 @@ function [cellstrs, nodes] = problem2freecad_mfemm (FemmProblem, varargin)
     Inputs.FileName = [];
     Inputs.IncludeHeader = true;
     Inputs.Print = false;
+    Inputs.MakeFace = false;
     
     Inputs = parseoptions (Inputs, varargin);
     
@@ -34,10 +35,10 @@ function [cellstrs, nodes] = problem2freecad_mfemm (FemmProblem, varargin)
         fid = 1;
     end
     
-%     nodes = getnodecoords_mfemm(FemmProblem);
-%     links = getseglinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
-%     arclinks = getarclinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
-%     
+    nodes = getnodecoords_mfemm (FemmProblem) * 1000;
+    links = getseglinks_mfemm (FemmProblem, 'Groups', Inputs.Groups);
+    arclinks = getarclinks_mfemm (FemmProblem, 'Groups', Inputs.Groups);
+
 %     arclinkpnts = [];
 %     for ind = 1:size (arclinks, 1)
 %         
@@ -52,6 +53,7 @@ function [cellstrs, nodes] = problem2freecad_mfemm (FemmProblem, varargin)
 %         
 %     end
 %     
+
     if Inputs.IncludeHeader
         cellstrs = writeheader_freecad ();
     else
@@ -60,18 +62,22 @@ function [cellstrs, nodes] = problem2freecad_mfemm (FemmProblem, varargin)
     
     unique_str = int2str(round(now*1000));
     
-%     cellstrs = [ cellstrs; writenodes_freecad(nodes * 1000, unique_str) ];
-%     cellstrs = [ cellstrs; writelines_freecad(links, unique_str) ];
-%     cellstrs = [ cellstrs; writearcs_freecad([ arclinks(:,1:2), arclinkpnts ], unique_str) ];
-
-    nodes = problem2polygon_mfemm (FemmProblem, 'Groups', Inputs.Groups);
-    cellstrs = [ cellstrs; writenodes_freecad(nodes * 1000, unique_str) ];
-    links = [ [(0:size(nodes,1)-2)', (1:size(nodes,1)-1)']; [size(nodes,1)-1, 0] ];
+    cellstrs = [ cellstrs; writenodes_freecad(nodes, unique_str) ];
     cellstrs = [ cellstrs; writelines_freecad(links, unique_str) ];
-    
+    cellstrs = [ cellstrs; writearcs_freecad(nodes, arclinks, unique_str) ];
+
+%     nodes = problem2polygon_mfemm (FemmProblem, 'Groups', Inputs.Groups);
+%     cellstrs = [ cellstrs; writenodes_freecad(nodes * 1000, unique_str) ];
+%     links = [ [(0:size(nodes,1)-2)', (1:size(nodes,1)-1)']; [size(nodes,1)-1, 0] ];
+%     cellstrs = [ cellstrs; writelines_freecad(links, unique_str) ];
+%     
     % create the shape
-    cellstrs = [ cellstrs; sprintf('wire%s = Part.Wire (lines%s)', unique_str, unique_str) ];
-    cellstrs = [ cellstrs; sprintf('%s = Part.Face (wire%s)', Inputs.ShapeName, unique_str) ];
+    cellstrs = [ cellstrs; sprintf('wire%s = Part.Wire (Part.__sortEdges__ (lines%s + arcs%s))', unique_str, unique_str, unique_str) ];
+    if Inputs.MakeFace
+        cellstrs = [ cellstrs; sprintf('%s = Part.Face (wire%s)', Inputs.ShapeName, unique_str) ];
+    else
+        cellstrs = [ cellstrs; sprintf('%s = wire%s', Inputs.ShapeName, unique_str) ];
+    end
     
     % output the results
     if Inputs.Print
@@ -106,19 +112,35 @@ function cellstrs = writelines_freecad (links, unique_str)
     cellstrs = { sprintf('lines%s = [', unique_str) };
     nlinks = size (links,1);
     for ind = 1:nlinks
-        cellstrs = [ cellstrs; {sprintf('              Part.makeLine(nodes%s[%d], nodes%s[%d]),', unique_str, links(ind,1), unique_str, links(ind,2))} ];
+        cellstrs = [ cellstrs; {sprintf('              Part.makeLine (nodes%s[%d], nodes%s[%d]),', unique_str, links(ind,1), unique_str, links(ind,2))} ];
     end
     cellstrs = [ cellstrs; {sprintf('            ]\n')} ];
     
 end
 
-function cellstrs = writearcs_freecad (arclinks, unique_str)
+function cellstrs = writearcs_freecad (nodes, arclinks, unique_str)
 
+
+    % FreeCAD:  makeCircle(radius,[pnt,dir,angle1,angle2])
+    arcstartnodes = nodes(arclinks(:,1)+1,:);
+    arcendnodes = nodes(arclinks(:,2)+1,:);
+    [centres, r] = circcentre (arcstartnodes, arcendnodes, deg2rad(arclinks(:,3)));
+    [arcstartangles, ~] = cart2pol (arcstartnodes(:,1)-centres(:,1), arcstartnodes(:,2)-centres(:,2));
+	[arcendangles, ~] = cart2pol (arcendnodes(:,1)-centres(:,1), arcendnodes(:,2)-centres(:,2));
+    arcstartangles = rad2deg (arcstartangles);
+    arcendangles = rad2deg (arcendangles);
+    
     % get the lines for the face
     cellstrs = { sprintf('arcs%s = [', unique_str) };
     nlinks = size (arclinks,1);
+
     for ind = 1:nlinks
-        cellstrs = [ cellstrs; {sprintf('              Part.Arc(nodes%s[%d], nodes%s[%d], nodes%s[%d]).toShape(),', unique_str, arclinks(ind,1), unique_str, arclinks(ind,3), unique_str, arclinks(ind,2))} ];
+        cellstrs = [ cellstrs; {sprintf('              Part.makeCircle (%.17e, Vector (%.17e, %.17e, %.1e), Vector (0, 0, 1), %.17e, %.17e),', ...
+            r(ind), ...
+            centres(ind,1), centres(ind,2), 0, ...
+            arcstartangles(ind), ...
+            arcendangles(ind) ...
+                                        ) } ];
     end
     cellstrs = [ cellstrs; {sprintf('            ]\n')} ];
     
