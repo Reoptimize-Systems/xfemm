@@ -881,8 +881,8 @@ int FMesher::LoadFEMFile (string PathName)
                 v = ParseInt(v,&segm.n1);
                 v = ParseDbl(v,&segm.MaxSideLength);
                 v = ParseInt(v,&t);
-                    
-                if (t == 0) 
+
+                if (t == 0)
                 {
                    segm.BoundaryMarker="";
                 }
@@ -890,28 +890,28 @@ int FMesher::LoadFEMFile (string PathName)
                 {
                     segm.BoundaryMarker = lineproplist[t-1].BdryName;
                 }
-                
-                int Hidden = 0;        
+
+                int Hidden = 0;
                 v = ParseInt(v,&Hidden);
-                    
+
                 segm.Hidden = Hidden;
-            
-                v = ParseInt(v,&segm.InGroup); 
-                
+
+                v = ParseInt(v,&segm.InGroup);
+
                 switch (filetype)
                 {
                     case F_TYPE_MAGNETICS:
-                    
+
                         // nothing to do
-                    
+
                         break;
 
                     case F_TYPE_HEATFLOW:
-                        
+
                         // get the conductor number
                         v = ParseInt(v,&t);
-                        
-                        if(t==0) 
+
+                        if(t==0)
                         {
                             segm.InConductor = "<None>";
                         }
@@ -970,13 +970,13 @@ int FMesher::LoadFEMFile (string PathName)
                 switch (filetype)
                 {
                     case F_TYPE_MAGNETICS:
-                    
+
                         // nothing to do
-                    
+
                         break;
 
                     case F_TYPE_HEATFLOW:
-                        
+
                         // get conductor number
                         if (v != NULL)
                         {
@@ -1008,21 +1008,21 @@ int FMesher::LoadFEMFile (string PathName)
         }
 
         // read in list of holes;
-        if(_strnicmp(q,"[numholes]",13)==0)
+        if(_strnicmp(q,"[numholes]",13) == 0)
         {
             v = StripKey(s);
             sscanf(v,"%i",&k);
-            if(k>0)
+            if (k > 0)
             {
-                blk.BlockType="<No Mesh>";
-                blk.MaxArea=0;
-                blk.InGroup=0;
+                blk.BlockType = "<No Mesh>";
+                blk.MaxArea = 0;
+                blk.InGroup = 0;
                 for(i=0; i<k; i++)
                 {
                     fgets(s,1024,fp);
-                    v=ParseDbl(s,&blk.x);
-                    v=ParseDbl(v,&blk.y);
-                    v=ParseInt(v,&blk.InGroup);
+                    v = ParseDbl(s,&blk.x);
+                    v = ParseDbl(v,&blk.y);
+                    v = ParseInt(v,&blk.InGroup);
 
                     blocklist.push_back(blk);
                 }
@@ -1045,6 +1045,7 @@ int FMesher::LoadFEMFile (string PathName)
 
                 //some defaults
                 t = 0;
+                blk.BlockType = "";
                 blk.MaxArea = 0.;
                 blk.InCircuit = "<None>";
                 blk.InGroup = 0;
@@ -1208,15 +1209,23 @@ bool FMesher::SaveFEMFile(string PathName)
 
     // write out list of holes;
     for(i=0,j=0; i<blocklist.size(); i++)
-        if(blocklist[i].BlockType=="<No Mesh>") j++;
+    {
+        if(blocklist[i].BlockType=="<No Mesh>")
+        {
+            j++;
+        }
+    }
+
     fprintf(fp,"[NumHoles] = %i\n",j);
     for(i=0,k=0; i<blocklist.size(); i++)
+    {
         if(blocklist[i].BlockType=="<No Mesh>")
         {
             fprintf(fp,"%.17g\t%.17g\t%i\n",blocklist[i].x,blocklist[i].y,
                     blocklist[i].InGroup);
             k++;
         }
+    }
 
     fclose(fp);
 
