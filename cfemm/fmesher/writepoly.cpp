@@ -155,6 +155,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
     int i, j, nexttriattrib;
     std::string msg;
 
+    // write the .edge file
     string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".edge";
 
     if (out.numberofedges > 0)
@@ -182,6 +183,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
 
     }
 
+    // write the .ele file
     plyname = PathName.substr(0, PathName.find_last_of('.')) + ".ele";
 
     if (out.numberoftriangles > 0)
@@ -233,6 +235,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
 
     }
 
+    // write the .node file
     plyname = PathName.substr(0, PathName.find_last_of('.')) + ".node";
 
     if (out.numberofpoints > 0)
@@ -247,7 +250,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
         }
 
         // <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>
-        fprintf(fp, "%i\t%i\t%i\t%i\n", out.numberofpoints, 2, out.numberofpoints, 1);
+        fprintf(fp, "%i\t%i\t%i\t%i\n", out.numberofpoints, 2, 0, 1);
         //fprintf(fp, "%i\t%i\t%i\n", out.numberofpoints, 2, out.numberofpoints, 1);
 
         // <vertex #> <x> <y> [attributes] [boundary marker]
