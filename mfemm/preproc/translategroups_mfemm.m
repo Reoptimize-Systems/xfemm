@@ -6,9 +6,20 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
 %
 % FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
 %
-% 
+% Input
+%
+%  FemmProblem - xfemm femmproblem structure
+%
+%  groupnos - matrix or array of one of more group numbers. These (and only
+%    these) groups will be translated by the supplied x and y
+%    displacements.
+%
+%  x - scalar displacement to translate groups in x direction
+%
+%  y - scalar displacement to translate groups in x direction
+%
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2015 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -100,7 +111,8 @@ function FemmProblem = translategroups_mfemm(FemmProblem, groupnos, x, y)
     end
     
     includenodes = unique(includenodes);
-    
-    FemmProblem = translatenodes_mfemm(FemmProblem, shift(1), shift(2), includenodes);
+    if ~isempty (includenodes)
+        FemmProblem = translatenodes_mfemm(FemmProblem, shift(1), shift(2), includenodes);
+    end
     
 end
