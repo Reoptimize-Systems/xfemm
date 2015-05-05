@@ -405,7 +405,7 @@ classdef fpproc < mfemmpproc
             fpproc_interface_mex('selectblock', this.objectHandle, x, y);
         end
         
-        function groupselectblock(this, groupno)
+        function groupselectblock(this, groupno, clearselected)
             % select blocks based on group membership
             %
             % Syntax
@@ -420,6 +420,12 @@ classdef fpproc < mfemmpproc
             
             if ~this.isdocopen
                 error('No solution document has been opened.')
+            end
+            if nargin < 3
+                clearselected = false;
+            end
+            if clearselected
+                this.clearblock();
             end
             if isempty (groupno)
                 fpproc_interface_mex('groupselectblock', this.objectHandle, groupno);
