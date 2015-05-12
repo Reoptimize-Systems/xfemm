@@ -135,7 +135,7 @@ function varargout = mfemm_setup(varargin)
     % add the required directories to the path
     thisfilepath = which('mfemm_setup.m');
     
-    if mfemmdeps.isoctave
+    if isoctave
         thisfilepath = canonicalize_file_name(thisfilepath);
     end
     
@@ -283,7 +283,7 @@ function makelibs (thisfilepath, Inputs)
 
 end
 
-function t = mfemmdeps.isoctave()
+function t = isoctave()
 % ISOCTAVE.M
 % ISOCTAVE  True if the operating environment is octave.
 %    Usage: t=mfemmdeps.isoctave();
