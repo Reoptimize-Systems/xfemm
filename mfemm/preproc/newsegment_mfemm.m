@@ -50,7 +50,7 @@ function Segment = newsegment_mfemm(n0, n1, varargin)
     Segment.BoundaryMarker = '';
     
     % parse any options for the segment supplied by the user
-    Segment = parseoptions(Segment, varargin);
+    Segment = mfemmdeps.parseoptions(Segment, varargin);
     
     Segment.n0 = n0;
     Segment.n1 = n1;

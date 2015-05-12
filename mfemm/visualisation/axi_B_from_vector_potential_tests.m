@@ -173,7 +173,7 @@ hax2 = gca;
 title('FEMM Br')
 colorbar
 
-sameclims([hax1; hax2]);
+mfemmdeps.sameclims([hax1; hax2]);
 
 % Clim1 = get(hax1, 'CLim');
 % Clim2 = get(hax2, 'CLim');
@@ -201,7 +201,7 @@ colormap autumn
 colorbar
 title('FEMM Bz')
 
-sameclims([hax1; hax2]);
+mfemmdeps.sameclims([hax1; hax2]);
 
 %% 
  
@@ -213,13 +213,13 @@ BrFEMM = reshape(FEMMdata(:,2), size(xi));
 BzFEMM = reshape(FEMMdata(:,3), size(xi));
 
 figure; 
-cquiver(BrFEMM(1:plotskip:end,1:plotskip:end), BzFEMM(1:plotskip:end,1:plotskip:end), plotskip * gridspace)
+mfemmdeps.cquiver(BrFEMM(1:plotskip:end,1:plotskip:end), BzFEMM(1:plotskip:end,1:plotskip:end), plotskip * gridspace)
 title('FEMM B Vector')
 colorbar;
 
 
 figure;
-cquiver(Br(1:plotskip:end,1:plotskip:end), Bz(1:plotskip:end,1:plotskip:end), plotskip * gridspace)
+mfemmdeps.cquiver(Br(1:plotskip:end,1:plotskip:end), Bz(1:plotskip:end,1:plotskip:end), plotskip * gridspace)
 title('MATLAB Calculated B Vector')
 colorbar;
 

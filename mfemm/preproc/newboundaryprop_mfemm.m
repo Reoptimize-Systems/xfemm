@@ -278,7 +278,7 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, varargin)
         otherwise
             
             % Parse the optional arguments
-            BoundaryProp = parse_pv_pairs(BoundaryProp, varargin);
+            BoundaryProp = mfemmdeps.parse_pv_pairs(BoundaryProp, varargin);
             
     end
     

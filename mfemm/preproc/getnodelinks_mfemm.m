@@ -24,7 +24,7 @@ function [links, nodes] = getnodelinks_mfemm(FemmProblem, varargin)
 
     Inputs.Groups = [];
     
-    Inputs = parseoptions (Inputs, varargin);
+    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
     
     links = getseglinks_mfemm(FemmProblem, Inputs);
     

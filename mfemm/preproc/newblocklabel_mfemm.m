@@ -66,7 +66,7 @@ function BlockLabel = newblocklabel_mfemm(x, y, varargin)
     BlockLabel.MagDirFctn = '';
     BlockLabel.IsMagnet = false;
     
-    BlockLabel = parseoptions(BlockLabel, varargin);
+    BlockLabel = mfemmdeps.parseoptions(BlockLabel, varargin);
 
     if ischar(BlockLabel.MagDir)
         BlockLabel.MagDirFctn = BlockLabel.MagDir;

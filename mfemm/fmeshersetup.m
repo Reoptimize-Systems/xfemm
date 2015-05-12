@@ -86,7 +86,7 @@ function fmeshersetup(dodebug, verbose)
                   ];
 
     % call mex with the appropriately constructed commands
-    if isoctave
+    if mfemmdeps.isoctave
         mkoctfile('--mex', mexcommands{:});
     else
         mex(mexcommands{:});

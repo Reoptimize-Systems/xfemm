@@ -24,9 +24,9 @@ function [id, xycoords] = findsegment_mfemm(FemmProblem, loc)
     segcoords = getsegmidpointcoords_mfemm(FemmProblem);
     
     % find the nearest node to the location
-    % ipdm returns a structure with fields named 'rowindex',
+    % mfemmdeps.ipdm returns a structure with fields named 'rowindex',
     % 'columnindex', and 'distance'.
-    result = ipdm(loc, segcoords, 'Result', 'Structure', 'Subset', 'NearestNeighbor');
+    result = mfemmdeps.ipdm(loc, segcoords, 'Result', 'Structure', 'Subset', 'NearestNeighbor');
     
     % get the indices of the nodes and subtract 1 to make zero based
     id = result.columnindex - 1;

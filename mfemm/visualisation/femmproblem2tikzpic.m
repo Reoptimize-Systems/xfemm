@@ -40,7 +40,7 @@ function tikzstrs = femmproblem2tikzpic (FemmProblem, varargin)
     opts.width_mm = 150;
     opts.groups = [];
     
-    opts = parseoptions (opts, varargin);
+    opts = mfemmdeps.parseoptions (opts, varargin);
     
     [~,~,w,~] = extent_mfemm (FemmProblem);
     
@@ -113,9 +113,9 @@ end
 function asegstr = drawarcseg (arcseg, FemmProblem, groups)
 % function to convert the arc segments in the femm problem to tikz arcs
     
-    [centre, r] = circcentre ( FemmProblem.Nodes(FemmProblem.ArcSegments(arcseg).n0+1).Coords, ...
+    [centre, r] = mfemmdeps.circcentre ( FemmProblem.Nodes(FemmProblem.ArcSegments(arcseg).n0+1).Coords, ...
                                FemmProblem.Nodes(FemmProblem.ArcSegments(arcseg).n1+1).Coords, ...
-                               deg2rad(FemmProblem.ArcSegments(arcseg).ArcLength) );
+                               mfemmdeps.deg2rad(FemmProblem.ArcSegments(arcseg).ArcLength) );
 
     startcoords = FemmProblem.Nodes(FemmProblem.ArcSegments(arcseg).n0+1).Coords - centre;
     endcoords = FemmProblem.Nodes(FemmProblem.ArcSegments(arcseg).n1+1).Coords - centre;
@@ -142,14 +142,14 @@ function asegstr = drawarcseg (arcseg, FemmProblem, groups)
 end
 
 
-function [centre, r] = circcentre (A, B, angle)
+function [centre, r] = mfemmdeps.circcentre (A, B, angle)
 % calculates the centre and radius of a circle given two points and an arc
 % angle between them. The position of the circle is determined by the
 % order of the supplied points.
 %
 % Syntax
 %
-% [centre, r] = circcentre(A, B, angle)
+% [centre, r] = mfemmdeps.circcentre(A, B, angle)
 %
 %
     
@@ -163,13 +163,13 @@ function [centre, r] = circcentre (A, B, angle)
     M = A + AB .* 0.5;
     
     % find length of AB and divide by two to get triangle base
-    b = 0.5 * magn(AB);
+    b = 0.5 * mfemmdeps.magn(AB);
     
     % find triangle height
     h = b ./ tan(angle ./ 2);
     
     % find circle centre
-    centre = M + h * unit(V);
+    centre = M + h * mfemmdeps.unit(V);
     
     % find radius
     r = sqrt(h.^2 + b.^2);

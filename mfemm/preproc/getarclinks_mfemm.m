@@ -33,7 +33,7 @@ function links = getarclinks_mfemm(FemmProblem, varargin)
 
     Inputs.Groups = [];
     
-    Inputs = parseoptions (Inputs, varargin);
+    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
     
     if isfield(FemmProblem, 'ArcSegments') && ~isempty(FemmProblem.ArcSegments)
         

@@ -75,7 +75,7 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
     options.BoundaryMarker = '';
     
     % parse any options for the segment supplied by the user
-    options = parseoptions(options, varargin);
+    options = mfemmdeps.parseoptions(options, varargin);
     
     if ischar(options.BoundaryMarker)
     	options.BoundaryMarker = {options.BoundaryMarker};
@@ -99,13 +99,13 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
        
        if iscellstr(options.BoundaryMarker) && (numel(options.BoundaryMarker) == 1)
            options.BoundaryMarker = repmat(options.BoundaryMarker, size(n0));
-       elseif isnumeric(options.BoundaryMarker) && samesize(options.BoundaryMarker, n0)
+       elseif isnumeric(options.BoundaryMarker) && mfemmdeps.samesize(options.BoundaryMarker, n0)
            strbounds = {};
            for ind = 1:numel(options.BoundaryMarker)
                strbounds = [strbounds, {FemmProblem.BoundaryProps(options.BoundaryMarker(ind)+1).Name}];
            end
            options.BoundaryMarker = strbounds;
-       elseif ~samesize(options.BoundaryMarker, n0)
+       elseif ~mfemmdeps.samesize(options.BoundaryMarker, n0)
            error('MFEMM:InvalidBoundary', 'Invalid boundary specification.')
        end
        

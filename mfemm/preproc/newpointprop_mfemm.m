@@ -20,7 +20,7 @@ function PointProp = newpointprop_mfemm(PPropName, varargin)
     PointProp.A_re = 0;
     PointProp.A_im = 0;
 
-    PointProp = parseoptions(PointProp, varargin);
+    PointProp = mfemmdeps.parseoptions(PointProp, varargin);
     
     PointProp.Name = PPropName;
     

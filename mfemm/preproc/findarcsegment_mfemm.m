@@ -28,11 +28,11 @@ function id = findarcsegment_mfemm(FemmProblem, loc)
         
         % find the nearest midpoint to the location for each arc and the distance
         %
-        % ipdm returns a structure with fields named 'rowindex', 'columnindex' and 
+        % mfemmdeps.ipdm returns a structure with fields named 'rowindex', 'columnindex' and 
         % 'distance'
         dists = ones (size(xm,1),1) * nan;
         for indii = 1:size (xm,1)
-            result = ipdm(loc(indi,:), [xm(indii,:)', ym(indii,:)'], ...
+            result = mfemmdeps.ipdm(loc(indi,:), [xm(indii,:)', ym(indii,:)'], ...
                           'Result', 'Structure', ...
                           'Subset', 'NearestNeighbor');
                           
@@ -65,7 +65,7 @@ function [xm, ym] = arcsegmidpoints_mfemm (FemmProblem)
     B = nodes(links(:,2)+1,:);
     
     % get the discretised arc points
-    [x, y] = arcpoints(A, B, links(:,3), links(:,4));
+    [x, y] = mfemmdeps.arcpoints(A, B, links(:,3), links(:,4));
     
     % now calculate the midpoints of the subsegments
     xm = [x(:,2:end) + x(:,1:end-1)] ./ 2;

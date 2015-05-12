@@ -34,9 +34,9 @@ function [id, xycoords] = findnode_mfemm(FemmProblem, loc)
     for ind = 1:size(loc,1)
         
         % find the nearest node to the location
-        % ipdm returns a structure with fields named 'rowindex',
+        % mfemmdeps.ipdm returns a structure with fields named 'rowindex',
         % 'columnindex', and 'distance'.
-        result = ipdm(loc(ind,:), nodecoords, 'Result', 'Structure', 'Subset', 'NearestNeighbor');
+        result = mfemmdeps.ipdm(loc(ind,:), nodecoords, 'Result', 'Structure', 'Subset', 'NearestNeighbor');
 
         % get the indices of the nodes and subtract 1 to make zero based
         id(ind) = result.columnindex - 1;

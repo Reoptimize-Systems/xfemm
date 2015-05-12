@@ -81,7 +81,7 @@ function Material = newmaterial_mfemm(Name, varargin)
     Material(1).qv = nan;
     Material(1).TKPoints = [];
 
-    Material(1) = parseoptions(Material(1), varargin);
+    Material(1) = mfemmdeps.parseoptions(Material(1), varargin);
     
     Material(1).Name = Name;
     
