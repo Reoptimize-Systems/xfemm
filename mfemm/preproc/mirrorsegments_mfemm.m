@@ -115,7 +115,7 @@ function [FemmProblem, newseginds] = mirrorsegments_mfemm(FemmProblem, seginds, 
         segnodecoords = [ FemmProblem.Nodes(FemmProblem.Segments(seginds(i)).n0 + 1).Coords; 
                           FemmProblem.Nodes(FemmProblem.Segments(seginds(i)).n1 + 1).Coords ];
                           
-        newsegcoords = reflect2d(segnodecoords, varargin{:});
+        newsegcoords = mfemmdeps.reflect2d(segnodecoords, varargin{:});
         
         % get all the existing node coordinates
 %         existingnodecoords = getnodecoords_mfemm(FemmProblem);
@@ -123,7 +123,7 @@ function [FemmProblem, newseginds] = mirrorsegments_mfemm(FemmProblem, seginds, 
         % get the distances between the nodes of the segment being
         % mirrored, and those of the new segment which would be created by
         % the mirroring
-        nodedists = diag(ipdm(segnodecoords, newsegcoords));
+        nodedists = diag(mfemmdeps.ipdm(segnodecoords, newsegcoords));
         
 %         if any(nodedists > disttol)
 %             

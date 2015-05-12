@@ -36,7 +36,7 @@ function hpprocsetup(dodebug, verbose)
         verbose = false;
     end 
 
-    if isoctave
+    if mfemmdeps.isoctave
         cc.Name = 'gcc';
     else
         try
@@ -93,7 +93,7 @@ function hpprocsetup(dodebug, verbose)
                     libcommands ...
                   ];
 
-    if isoctave
+    if mfemmdeps.isoctave
         mkoctfile('--mex', mexcommands{:});
     else
         % call mex with the appropriately constructed commands

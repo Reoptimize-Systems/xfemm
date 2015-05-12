@@ -314,7 +314,7 @@ myfpproc.opendocument(ansfile);
 % are really calls to the C++ versions supplied in the original FEMM code.
 % You can view a list of all the avaialable methods using the methods
 % function
-if ~isoctave
+if ~mfemmdeps.isoctave
     methods(myfpproc);
 end
 

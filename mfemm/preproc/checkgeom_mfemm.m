@@ -72,21 +72,21 @@ function varargout = checkgeom_mfemm(FemmProblem, tol, dodisplay)
     
     % find any distances between all nodes less than the specified
     % tolerance
-    d = ipdm(nodecoords, 'Subset', 'Maximum', 'Limit', tol, 'Result', 'Structure');
+    d = mfemmdeps.ipdm(nodecoords, 'Subset', 'Maximum', 'Limit', tol, 'Result', 'Structure');
 
     problems.nodes = [d.rowindex, d.columnindex, d.distance];
     % strip the self referencing indices
     problems.nodes = problems.nodes(problems.nodes(:,1) ~= problems.nodes(:,2), :);
     
     % check for labels within a given tolerance of each other
-    d = ipdm(labelcoords, 'Subset', 'Maximum', 'Limit', tol, 'Result', 'Structure');
+    d = mfemmdeps.ipdm(labelcoords, 'Subset', 'Maximum', 'Limit', tol, 'Result', 'Structure');
 
     problems.labels = [d.rowindex, d.columnindex, d.distance];
     % strip the self referencing indices
     problems.labels = problems.labels(problems.labels(:,1) ~= problems.labels(:,2), :);
     
     % check for labels overlapping nodes
-    d = ipdm(labelcoords, nodecoords, 'Subset', 'Maximum', 'Limit', tol, 'Result', 'Structure');
+    d = mfemmdeps.ipdm(labelcoords, nodecoords, 'Subset', 'Maximum', 'Limit', tol, 'Result', 'Structure');
 
     problems.labelsandnodes = [d.rowindex, d.columnindex, d.distance];
     
@@ -177,7 +177,7 @@ function intersectingsegments = getintersectingsegments(FemmProblem, segcoords)
 % finds segments which intersect or are coincident
 %
     
-    out = lineSegmentIntersect(segcoords,segcoords);
+    out = mfemmdeps.lineSegmentIntersect(segcoords,segcoords);
     
     [intersectingsegments,intersectingsegments(:,2)] = find(out.intAdjacencyMatrix);
     

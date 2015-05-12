@@ -135,7 +135,7 @@ function varargout = mfemm_setup(varargin)
     % add the required directories to the path
     thisfilepath = which('mfemm_setup.m');
     
-    if isoctave
+    if mfemmdeps.isoctave
         thisfilepath = canonicalize_file_name(thisfilepath);
     end
     
@@ -157,7 +157,7 @@ function varargout = mfemm_setup(varargin)
     Inputs.Verbose = false;
     Inputs.RunTests = false;
     
-    Inputs = parseoptions (Inputs, varargin);
+    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
 
     % make architecture specific directory for mex files if it doesn't
     % already exist
@@ -283,10 +283,10 @@ function makelibs (thisfilepath, Inputs)
 
 end
 
-function t = isoctave()
+function t = mfemmdeps.isoctave()
 % ISOCTAVE.M
 % ISOCTAVE  True if the operating environment is octave.
-%    Usage: t=isoctave();
+%    Usage: t=mfemmdeps.isoctave();
 % 
 %    Returns 1 if the operating environment is octave, otherwise
 %    0 (Matlab)

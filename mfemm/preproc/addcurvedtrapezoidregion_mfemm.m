@@ -54,7 +54,7 @@ function [FemmProblem, seginds, aseginds, nodeinds, blockind, nodeids, labelloc]
     [FemmProblem, seginds, aseginds, nodeinds, nodeids, labelloc] = ...
                             addcurvedtrapezoid_mfemm (FemmProblem, Ri, Ro, angi, ango);
     
-    BlockPropsPVPairs = struct2pvpairs (BlockProps);
+    BlockPropsPVPairs = mfemmdeps.struct2pvpairs (BlockProps);
     
     [FemmProblem, blockind] = addblocklabel_mfemm (FemmProblem, labelloc(1), labelloc(2), BlockPropsPVPairs{:});
     
@@ -71,10 +71,10 @@ function [FemmProblem, seginds, aseginds, nodeinds, blockind, nodeids, labelloc]
 
         end
 
-        FemmProblem.Segments(seginds(1)) = parse_pv_pairs (FemmProblem.Segments(seginds(1)), struct2pvpairs (SegProps(1)));
-        FemmProblem.Segments(seginds(2)) = parse_pv_pairs (FemmProblem.Segments(seginds(2)), struct2pvpairs (SegProps(2)));
-        FemmProblem.ArcSegments(aseginds(1)) = parse_pv_pairs (FemmProblem.ArcSegments(aseginds(1)), struct2pvpairs (SegProps(3)));
-        FemmProblem.ArcSegments(aseginds(2)) = parse_pv_pairs (FemmProblem.ArcSegments(aseginds(2)), struct2pvpairs (SegProps(4)));
+        FemmProblem.Segments(seginds(1)) = mfemmdeps.parse_pv_pairs (FemmProblem.Segments(seginds(1)), mfemmdeps.struct2pvpairs (SegProps(1)));
+        FemmProblem.Segments(seginds(2)) = mfemmdeps.parse_pv_pairs (FemmProblem.Segments(seginds(2)), mfemmdeps.struct2pvpairs (SegProps(2)));
+        FemmProblem.ArcSegments(aseginds(1)) = mfemmdeps.parse_pv_pairs (FemmProblem.ArcSegments(aseginds(1)), mfemmdeps.struct2pvpairs (SegProps(3)));
+        FemmProblem.ArcSegments(aseginds(2)) = mfemmdeps.parse_pv_pairs (FemmProblem.ArcSegments(aseginds(2)), mfemmdeps.struct2pvpairs (SegProps(4)));
 
     end
 

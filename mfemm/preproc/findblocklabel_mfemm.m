@@ -18,9 +18,9 @@ function [id, xycoords] = findblocklabel_mfemm(FemmProblem, loc)
     labelcoords = getblocklabelcoords_mfemm(FemmProblem);
     
     % find the nearest node to the location
-    % ipdm returns a structure with fields named 'rowindex',
+    % mfemmdeps.ipdm returns a structure with fields named 'rowindex',
     % 'columnindex', and 'distance'.
-    result = ipdm(loc, labelcoords, 'Result', 'Structure', 'Subset', 'NearestNeighbor');
+    result = mfemmdeps.ipdm(loc, labelcoords, 'Result', 'Structure', 'Subset', 'NearestNeighbor');
     
     % get the indices of the nodes and subtract 1 to make zero based
     id = result.columnindex - 1;

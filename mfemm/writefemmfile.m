@@ -100,7 +100,7 @@ function writefemmfile(filename, FemmProblem, varargin)
 
     Inputs.FileType = '';
     
-    Inputs = parseoptions (Inputs, varargin);
+    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
     
     % use a structure to create an enum of file types
     ftype.magnetics = 0;

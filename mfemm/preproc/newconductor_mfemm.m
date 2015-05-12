@@ -42,7 +42,7 @@ function Conductor = newconductor_mfemm(Name, varargin)
 	Conductor.Tc = 0;
     Conductor.qc = 0;
     
-    Conductor = parse_pv_pairs(Conductor, varargin);
+    Conductor = mfemmdeps.parse_pv_pairs(Conductor, varargin);
     
     Conductor.Name = Name;
 

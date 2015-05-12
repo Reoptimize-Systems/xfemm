@@ -28,7 +28,7 @@ function matlibdat2mat(datfile)
         matlib = parsematlib_mfemm(datfile);
     end
         
-    rootpath = getmfilepath('matlibdat2mat');
+    rootpath = mfemmdeps.getmfilepath('matlibdat2mat');
     
     save(fullfile(rootpath, 'matlib.mat'), 'matlib');
     

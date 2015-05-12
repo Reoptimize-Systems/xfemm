@@ -39,7 +39,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
     Inputs.UserData = [];
     Inputs.PlotNodes = true;
     
-    Inputs = parse_pv_pairs(Inputs, varargin);
+    Inputs = mfemmdeps.parse_pv_pairs(Inputs, varargin);
     
     if Inputs.ZeroBased
         links = links + 1;
@@ -58,7 +58,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
     
     for i = 1:size(links, 1)
         
-        [x, y] = arcpoints(nodes(links(i,1),:), nodes(links(i,2),:), angles(i), maxdeg(i));
+        [x, y] = mfemmdeps.arcpoints(nodes(links(i,1),:), nodes(links(i,2),:), angles(i), maxdeg(i));
         
         line(x, y, 'UserData', Inputs.UserData);
         
@@ -70,7 +70,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
 
     % plot all the nodes
     if Inputs.PlotNodes
-        if isoctave
+        if mfemmdeps.isoctave
             scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), [], [], 'xr');
         else
             scatter3(nodes(:,1), nodes(:,2), zeros(size(nodes(:,2))), 'xr', 'UserData', Inputs.UserData);
@@ -94,15 +94,15 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
 
 end
 
-function [x, y] = arcpoints(A, B, angle, maxdeg)
+function [x, y] = mfemmdeps.arcpoints(A, B, angle, maxdeg)
 % get the points on an arc for plotting
 
     % convert the angles to radians
-    angle = deg2rad(angle);
-    maxdeg = deg2rad(maxdeg);
+    angle = mfemmdeps.deg2rad(angle);
+    maxdeg = mfemmdeps.deg2rad(maxdeg);
 
     % get centre and radius of circles
-    [centre, r] = circcentre(A, B, angle);
+    [centre, r] = mfemmdeps.circcentre(A, B, angle);
     
     % get starting angle of arcs
     tempA = A - centre;
@@ -123,14 +123,14 @@ function [x, y] = arcpoints(A, B, angle, maxdeg)
 end
 
 
-function [centre, r] = circcentre(A, B, angle)
+function [centre, r] = mfemmdeps.circcentre(A, B, angle)
 % calculates the centre and radius of a circle given two points and an arc
 % angle between them. The position of the circle is determined by the
 % order of the supplied points.
 %
 % Syntax
 %
-% [centre, r] = circcentre(A, B, angle)
+% [centre, r] = mfemmdeps.circcentre(A, B, angle)
 %
 %
     
@@ -144,13 +144,13 @@ function [centre, r] = circcentre(A, B, angle)
     M = A + AB .* 0.5;
     
     % find length of AB and divide by two to get triangle base
-    b = 0.5 * magn(AB);
+    b = 0.5 * mfemmdeps.magn(AB);
     
     % find triangle height
     h = b ./ tan(angle ./ 2);
     
     % find circle centre
-    centre = M + h * unit(V);
+    centre = M + h * mfemmdeps.unit(V);
     
     % find radius
     r = sqrt(h.^2 + b.^2);

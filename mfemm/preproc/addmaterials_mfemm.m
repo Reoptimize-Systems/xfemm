@@ -47,7 +47,7 @@ function [FemmProblem, matinds] = addmaterials_mfemm(FemmProblem, Materials, var
 
     Inputs.MaterialsLibrary = fullfile(fileparts (which ('matstr2matstruct_mfemm')), '..', 'matlib.mat');
     
-    Inputs = parseoptions (Inputs, varargin);
+    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
     
     if isfield(FemmProblem, 'Materials')
         lastmatind = numel(FemmProblem.Materials);

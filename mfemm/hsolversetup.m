@@ -36,7 +36,7 @@ function hsolversetup(dodebug, verbose)
         verbose = false;
     end
 
-%     if isoctave
+%     if mfemmdeps.isoctave
 %         cc.Name = 'gcc';
 %     else
 %         try
@@ -98,7 +98,7 @@ function hsolversetup(dodebug, verbose)
                     libcommands ...
                   ];
 
-    if isoctave
+    if mfemmdeps.isoctave
         mkoctfile('--mex', mexcommands{:});
     else
         % call mex with the appropriately constructed commands

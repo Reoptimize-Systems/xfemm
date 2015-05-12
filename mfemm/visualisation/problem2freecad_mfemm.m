@@ -29,7 +29,7 @@ function [cellstrs, nodes] = problem2freecad_mfemm (FemmProblem, varargin)
     Inputs.Print = false;
     Inputs.MakeFace = false;
     
-    Inputs = parseoptions (Inputs, varargin);
+    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
     
     if isempty (Inputs.FileName)
         fid = 1;
@@ -42,7 +42,7 @@ function [cellstrs, nodes] = problem2freecad_mfemm (FemmProblem, varargin)
 %     arclinkpnts = [];
 %     for ind = 1:size (arclinks, 1)
 %         
-%         [x, y] = arcpoints( nodes(arclinks(ind,1)+1,:), ...
+%         [x, y] = mfemmdeps.arcpoints( nodes(arclinks(ind,1)+1,:), ...
 %                             nodes(arclinks(ind,2)+1,:), ...
 %                             arclinks(ind,3), ...
 %                             arclinks(ind,3)/2 );
@@ -124,7 +124,7 @@ function cellstrs = writearcs_freecad (nodes, arclinks, unique_str)
     % FreeCAD:  makeCircle(radius,[pnt,dir,angle1,angle2])
     arcstartnodes = nodes(arclinks(:,1)+1,:);
     arcendnodes = nodes(arclinks(:,2)+1,:);
-    [centres, r] = circcentre (arcstartnodes, arcendnodes, deg2rad(arclinks(:,3)));
+    [centres, r] = mfemmdeps.circcentre (arcstartnodes, arcendnodes, mfemmdeps.deg2rad(arclinks(:,3)));
     [arcstartangles, ~] = cart2pol (arcstartnodes(:,1)-centres(:,1), arcstartnodes(:,2)-centres(:,2));
 	[arcendangles, ~] = cart2pol (arcendnodes(:,1)-centres(:,1), arcendnodes(:,2)-centres(:,2));
     arcstartangles = rad2deg (arcstartangles);

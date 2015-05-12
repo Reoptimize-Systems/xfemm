@@ -37,7 +37,7 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     options.PlotNodes = true;
     options.InitialViewPort = [];
     
-    options = parseoptions (options, varargin);
+    options = mfemmdeps.parseoptions (options, varargin);
     
     if isempty (options.FigureHandle)
         hfig = figure;
@@ -52,7 +52,7 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     % store the FemmProblem in the  axes user data
     set(hax, 'UserData', FemmProblem);
     
-    if ~isoctave
+    if ~mfemmdeps.isoctave
         hZoom = zoom(gcf);
         set(hZoom, 'ActionPostCallback', {@zoomfemmplot,hax,options});
     end
@@ -167,7 +167,7 @@ function plotblocklabel(w, h, maxtriarea, BlockLabel, options)
 % adds a single block label to the problem plot
 %
 
-    minlabelrad = 0.015 * magn([w,h]);
+    minlabelrad = 0.015 * mfemmdeps.magn([w,h]);
     
     maxlabelrad = 1.5 * minlabelrad;
     
@@ -247,7 +247,7 @@ function plotmagdirarrow (x,y,w,h,dir,varargin)
                    x + w/2, y + h/2 ;
                    x + w/2, y - h/2 ; ];
                
-	arrownodes = rotate2D (arrownodes, deg2rad(dir), [x,y]);
+	arrownodes = rotate2D (arrownodes, mfemmdeps.deg2rad(dir), [x,y]);
                
     line(arrownodes(:,1), arrownodes(:,2), varargin{:});
 

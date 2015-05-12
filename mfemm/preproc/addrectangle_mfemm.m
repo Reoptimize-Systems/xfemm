@@ -31,6 +31,6 @@ function [FemmProblem, seginds, nodeinds, nodeids, centre] = addrectangle_mfemm(
     [FemmProblem, seginds, nodeinds, nodeids] = addpolygon_mfemm(FemmProblem, coords, varargin{:});
 
     % locate the centre for convenience
-    centre = rectcentre(coords(1,:), coords(3,:));
+    centre = mfemmdeps.rectcentre(coords(1,:), coords(3,:));
     
 end

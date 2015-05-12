@@ -64,7 +64,7 @@ classdef mfemmpproc < handle
               Inputs.Points = 40;
               Inputs.Method = 0;
               
-              Inputs = parseoptions (Inputs, varargin);
+              Inputs = mfemmdeps.parseoptions (Inputs, varargin);
               
               if ~isempty (this.FemmProblem)
                   [hfig, hax] = plotfemmproblem(this.FemmProblem, ...
@@ -88,7 +88,7 @@ classdef mfemmpproc < handle
                   
                   case 0
                       % plot a vector field using colored arrows
-                      cquiver( cat(3, reshape(data(1,:), size(Xsample)), reshape(data(2,:), size(Xsample))), ...
+                      mfemmdeps.cquiver( cat(3, reshape(data(1,:), size(Xsample)), reshape(data(2,:), size(Xsample))), ...
                                'sx', xgv(2)-xgv(1), ...
                                'sy', ygv(2)-ygv(1), ...
                                'xshift', x, ...
@@ -98,7 +98,7 @@ classdef mfemmpproc < handle
                        colorbar;
                   case 1
                       % contour plot
-                      contour( Xsample, Ysample, reshape(magn(data), size(Xsample)) );
+                      contour( Xsample, Ysample, reshape(mfemmdeps.magn(data), size(Xsample)) );
                       
                   otherwise
                           
@@ -150,7 +150,7 @@ classdef mfemmpproc < handle
               Inputs.Points = 100;
               Inputs.Method = 0;
               
-              Inputs = parseoptions (Inputs, varargin);
+              Inputs = mfemmdeps.parseoptions (Inputs, varargin);
               
               if ~isempty (this.FemmProblem)
                   [hfig, hax] = plotfemmproblem(this.FemmProblem, 'PlotNodes', Inputs.PlotNodes);

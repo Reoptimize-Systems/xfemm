@@ -36,7 +36,7 @@ function [nodecoords, originds] = getnodecoords_mfemm(FemmProblem, varargin)
 
     Inputs.Groups = [];
     
-    Inputs = parseoptions (Inputs, varargin);
+    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
     
     if isfield(FemmProblem, 'Nodes') && ~isempty (FemmProblem.Nodes)
         

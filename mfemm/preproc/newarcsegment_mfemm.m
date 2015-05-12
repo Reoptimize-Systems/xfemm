@@ -52,7 +52,7 @@ function ArcSegment = newarcsegment_mfemm(n0, n1, angle, varargin)
     ArcSegment.BoundaryMarker = '';
     
     % parse any options for the segment supplied by the user
-    ArcSegment = parseoptions(ArcSegment, varargin);
+    ArcSegment = mfemmdeps.parseoptions(ArcSegment, varargin);
     
     ArcSegment.n0 = n0;
     ArcSegment.n1 = n1;

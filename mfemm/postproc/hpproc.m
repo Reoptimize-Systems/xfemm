@@ -32,7 +32,7 @@ classdef hpproc < mfemmpproc
     %    lineintegral - perform a line integral along a contour
     %    selectblock - select a block
     %    groupselectblock - select blocks by group number
-    %    selectallblocks - selects every block
+    %    selectallblocks - selects mfemmdeps.every block
     %    clearblock - clear all block selections
     %    blockintegral - perfom integrals over selected blocks
     %    getprobleminfo - get information about the problem
@@ -488,7 +488,7 @@ classdef hpproc < mfemmpproc
         end
         
         function selectallblocks(this)
-            % selects every block in the solution
+            % selects mfemmdeps.every block in the solution
             %
             % Syntax
             %
@@ -547,7 +547,7 @@ classdef hpproc < mfemmpproc
                 if nargin == 3 || nargin > 4
                     error('Wrong number of input arguments.')
                 else
-                    if samesize(x, y)
+                    if mfemmdeps.samesize(x, y)
                         % clear existing block selection
                         this.clearblock();
                         % select the specified blocks
@@ -624,7 +624,7 @@ classdef hpproc < mfemmpproc
                 error('No solution document has been opened.')
             end
             
-            if ~samesize(x,y) || ~isvector(x) || numel(x) < 2
+            if ~mfemmdeps.samesize(x,y) || ~isvector(x) || numel(x) < 2
                 error('x and y must be vectors of at least two values.')
             end
 
@@ -698,7 +698,7 @@ classdef hpproc < mfemmpproc
             %
             % n - optional matrix of element numbers for which to obtain
             %   the vertices. Element numbers start from 1 (rather than
-            %   zero). The vertices of every mesh element are returned if n
+            %   zero). The vertices of mfemmdeps.every mesh element are returned if n
             %   is not supplied.
             %
             % Output
@@ -731,7 +731,7 @@ classdef hpproc < mfemmpproc
             %
             % n - optional matrix of element numbers for which to obtain information. 
             %   Element numbers start from 1 (rather than zero). If omitted
-            %   information on every mesh element is returned.
+            %   information on mfemmdeps.every mesh element is returned.
             %
             % Output
             % 
@@ -742,7 +742,7 @@ classdef hpproc < mfemmpproc
             %         3. One-based Index of third element node
             %         4. x (or r) coordinate of the element centroid
             %         5. y (or z) coordinate of the element centroid
-            %         6. element area using the length unit defined for the problem
+            %         6. element area using the length mfemmdeps.unit defined for the problem
             %         7. group number associated with the element
             %
             
@@ -766,7 +766,7 @@ classdef hpproc < mfemmpproc
             %
             % n - optional matrix of element numbers for which to obtain
             %   the centroids. Element numbers start from 1 (rather than
-            %   zero). The centroids of every mesh element are returned if
+            %   zero). The centroids of mfemmdeps.every mesh element are returned if
             %   n is not supplied.
             %
             % Output
@@ -799,7 +799,7 @@ classdef hpproc < mfemmpproc
             %
             % n - optional matrix of element numbers for which to obtain
             %   the areas. Element numbers start from 1 (rather than
-            %   zero). The areas of every mesh element are returned if
+            %   zero). The areas of mfemmdeps.every mesh element are returned if
             %   n is not supplied.
             %
             % Output
@@ -904,7 +904,7 @@ classdef hpproc < mfemmpproc
             %         3. One-based Index of third element node
             %         4. x (or r) coordinate of the element centroid
             %         5. y (or z) coordinate of the element centroid
-            %         6. element area using the length unit defined for the problem
+            %         6. element area using the length mfemmdeps.unit defined for the problem
             %         7. group number associated with the element
             %
             
@@ -1028,7 +1028,7 @@ classdef hpproc < mfemmpproc
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
             
-            Inputs = parseoptions (Inputs, varargin);
+            Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
             datafcn = @this.getf;
             
@@ -1080,7 +1080,7 @@ classdef hpproc < mfemmpproc
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
             
-            Inputs = parseoptions (Inputs, varargin);
+            Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
             datafcn = @this.getg;
             
@@ -1132,7 +1132,7 @@ classdef hpproc < mfemmpproc
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
             
-            Inputs = parseoptions (Inputs, varargin);
+            Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
             datafcn = @(x,y) reshape (this.gett (x,y), size (x));
             

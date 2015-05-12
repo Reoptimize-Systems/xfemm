@@ -23,7 +23,7 @@ function Node = newnode_mfemm(x, y, varargin)
     Node.PointPropName = '';
     Node.InGroup = 0;
     
-    Node = parseoptions(Node, varargin);
+    Node = mfemmdeps.parseoptions(Node, varargin);
     
     Node.Coords = [x, y];
     

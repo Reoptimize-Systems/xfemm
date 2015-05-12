@@ -42,7 +42,7 @@ function Circuit = newcircuit_mfemm(Name, varargin)
 	Circuit.TotalAmps_re = 0;
     Circuit.TotalAmps_im = 0;
     
-    Circuit = parse_pv_pairs(Circuit, varargin);
+    Circuit = mfemmdeps.parse_pv_pairs(Circuit, varargin);
     
     Circuit.Name = Name;
 

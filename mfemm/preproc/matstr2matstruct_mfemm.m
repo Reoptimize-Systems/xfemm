@@ -132,7 +132,7 @@ function materials = matstr2matstruct_mfemm(matstr, matlib)
     
     end
     
-    if ~every(isfield(materials, 'Density'))
+    if ~mfemmdeps.every(isfield(materials, 'Density'))
         materials(end).Density = [];
     end
     

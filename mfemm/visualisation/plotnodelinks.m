@@ -33,7 +33,7 @@ function plotnodelinks(nodes, links, varargin)
     Inputs.UserData = [];
     Inputs.PlotNodes = true;
     
-    Inputs = parse_pv_pairs(Inputs, varargin);
+    Inputs = mfemmdeps.parse_pv_pairs(Inputs, varargin);
     
     if Inputs.ZeroBased
         links = links + 1;
@@ -52,7 +52,7 @@ function plotnodelinks(nodes, links, varargin)
     
     if Inputs.PlotNodes == true
         % plot all the nodes
-        if isoctave
+        if mfemmdeps.isoctave
             scatter3(nodes(:,1), nodes(:,2), nodes(:,3), [], [], 'xr');
         else
             scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr', 'UserData', Inputs.UserData);
@@ -82,7 +82,7 @@ function plotnodelinks(nodes, links, varargin)
 %     hold on
 %     
 %     % plot all the nodes too
-%     if isoctave
+%     if mfemmdeps.isoctave
 %         scatter3(nodes(:,1), nodes(:,2), nodes(:,3), [], [], 'xr');
 %     else
 %         scatter3(nodes(:,1), nodes(:,2), nodes(:,3), 'xr');

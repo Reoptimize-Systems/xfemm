@@ -1170,7 +1170,7 @@ end
 %             % calculate theta in degrees
 %             theta = atan2(y,x) .* 180./pi;
 %             % calculate the distance from the 
-%             R = magn([x,y],2);
+%             R = mfemmdeps.magn([x,y],2);
 %             % convert the string containing the magnetization direction
 %             % function to an inline matlab function
 %             magdirfcn = inline(FemmProblem.BlockLabels(i).MagDirFctn, 'x', 'y', 'theta', 'R');

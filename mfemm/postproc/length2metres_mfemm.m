@@ -80,7 +80,7 @@ function conv = length2metres_mfemm(length, units)
         case 5
             scaleval = 1.e-06;   % micrometers
         otherwise
-            error('Unrecognised unit.')
+            error('Unrecognised mfemmdeps.unit.')
     end
     
     conv = length .* scaleval;

@@ -86,7 +86,7 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     Inputs.PrevSolutionFile = '';
     Inputs.dT = 0;
 
-    Inputs = parse_pv_pairs(Inputs, varargin);
+    Inputs = mfemmdeps.parse_pv_pairs(Inputs, varargin);
     
     if ischar(probtype)
 

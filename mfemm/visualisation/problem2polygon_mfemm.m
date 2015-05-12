@@ -23,7 +23,7 @@ function nodes = problem2polygon_mfemm (FemmProblem, varargin)
 
     Inputs.Groups = [];
     
-    Inputs = parseoptions (Inputs, varargin);
+    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
     
     orignodes = getnodecoords_mfemm(FemmProblem);
     links = getseglinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
@@ -65,7 +65,7 @@ function nodes = problem2polygon_mfemm (FemmProblem, varargin)
             % it is an arc segment, so we must generate the subsegments making
             % it and add them to the list
 
-            [x, y] = arcpoints( orignodes(alllinks(row,1),:), ...
+            [x, y] = mfemmdeps.arcpoints( orignodes(alllinks(row,1),:), ...
                                 orignodes(alllinks(row,2),:), ...
                                 arclinks(alllinks(row,4),3), ...
                                 arclinks(alllinks(row,4),4) );
