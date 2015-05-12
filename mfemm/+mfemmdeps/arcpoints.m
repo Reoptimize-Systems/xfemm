@@ -25,11 +25,11 @@ function [x, y] = arcpoints(A, B, angle, maxdeg)
 %
 
     % convert the angles to radians
-    angle = deg2rad(angle);
-    maxdeg = deg2rad(maxdeg);
+    angle = deg2rad (angle);
+    maxdeg = deg2rad (maxdeg);
 
     % get centre and radius of circles
-    [centre, r] = circcentre(A, B, angle);
+    [centre, r] = mfemmdeps.circcentre (A, B, angle);
     
     % get starting angle of arcs
     tempA = A - centre;
