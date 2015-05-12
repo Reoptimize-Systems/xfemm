@@ -24,6 +24,20 @@ function mesh = loadmesh_mfemm (meshpath)
 %
 %
 
+% Copyright 2015 Richard Crozier
+% 
+%    Licensed under the Apache License, Version 2.0 (the "License");
+%    you may not use this file except in compliance with the License.
+%    You may obtain a copy of the License at
+% 
+%        http://www.apache.org/licenses/LICENSE-2.0
+% 
+%    Unless required by applicable law or agreed to in writing, software
+%    distributed under the License is distributed on an "AS IS" BASIS,
+%    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%    See the License for the specific language governing permissions and
+%    limitations under the License.
+
     % read in the nodes
     [fid_node, delobj_node] = safefopen ([meshpath, '.node']);
     
@@ -40,8 +54,6 @@ function mesh = loadmesh_mfemm (meshpath)
         formatstr = '%d\t%f\t%f';
     end
     
-%     [fid_node, delobj_node] = safefopen ([meshpath, '.node']);
-%     C = getdata (fid_node, mesh.NNodes, formatstr);
     C = textscan (fid_node, formatstr, mesh.NNodes, 'CollectOutput', true, 'CommentStyle', '#');
     
     mesh.NodeIDs = C{1};
@@ -64,8 +76,6 @@ function mesh = loadmesh_mfemm (meshpath)
                  repmat('%d\t', 1, mesh.NNodesPerElement), ...
                  repmat('%d\t', 1, mesh.NElementAttributes)];
               
-%     [fid_ele, delobj_ele] = safefopen ([meshpath, '.ele']);
-%     C = getdata (fid_ele, mesh.NElements, formatstr);
     C = textscan (fid_ele, formatstr, mesh.NElements, 'CollectOutput', true, 'CommentStyle', '#');
     
     mesh.ElementIDs = C{1}(:,1);
@@ -86,8 +96,6 @@ function mesh = loadmesh_mfemm (meshpath)
         formatstr = '%d\t%d\t%d';  
     end
     
-% 	[fid_edge, delobj_edge] = safefopen ([meshpath, '.edge']);
-%     C = getdata (fid_edge, mesh.NEdges, formatstr);
     C = textscan (fid_edge, formatstr, mesh.NEdges, 'CollectOutput', true, 'CommentStyle', '#');
     
     mesh.EdgeIDs = C{1}(:,1);
@@ -99,46 +107,6 @@ function mesh = loadmesh_mfemm (meshpath)
     
 end
 
-% function data = getdata (fid, NLines, formatstr)
-% 
-% 
-%     firstline = true;
-%     
-%     for n = 1:NLines
-%         
-%         tline = fgetl (fid);
-%         
-%         if n > 1
-%         
-%             if tline(1) ~= '#'
-% 
-%                 C = textscan (tline, formatstr, 'CollectOutput', true);
-%                 
-%                 if firstline
-%                     
-%                     data = cell(size(C));
-% 
-%                     for Cind = 1:numel (C) 
-% 
-%                         data{Cind} = repmat (C{Cind}, NLines, 1);
-% 
-%                     end
-%                 end
-% 
-%                 for Cind = 1:numel (C) 
-% 
-%                     data{Cind}(n,:) = C{Cind}(1,:);
-% 
-%                 end
-% 
-%                 firstline = false;
-%             end
-%         
-%         end
-%         
-%     end
-% 
-% end
 
 function [fid, delobj] = safefopen (filepath)
 
