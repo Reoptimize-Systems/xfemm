@@ -267,16 +267,22 @@ end
 function makelibs (thisfilepath, Inputs)
 % build the libs required for mfemm, invoking cmake if necessary
 
+    CC = onCleanup(@() cd(pwd));
+    
     cd (fullfile(thisfilepath, 'cfemm'));
+    
+    mkdir ('build');
+    
+    cd ('build');
     
     if isunix
         if (exist (fullfile(pwd, 'Makefile'), 'file') == 0) || Inputs.ForceCmake
-            system('cmake . -DCMAKE_BUILD_TYPE=Release');
+            system('cmake .. -DCMAKE_BUILD_TYPE=Release');
         end
         system('make');
     else
         if (exist (fullfile(pwd, 'Makefile'), 'file') == 0)  || Inputs.ForceCmake
-            system('cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release .')
+            system('cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..')
         end
         system('mingw32-make.exe');
     end
