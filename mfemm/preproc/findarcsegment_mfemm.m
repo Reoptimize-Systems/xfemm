@@ -65,7 +65,7 @@ function [xm, ym] = arcsegmidpoints_mfemm (FemmProblem)
     B = nodes(links(:,2)+1,:);
     
     % get the discretised arc points
-    [x, y] = mfemmdeps.arcpoints(A, B, links(:,3), links(:,4));
+    [x, y] = mfemmdeps.arcpoints (A, B, links(:,3), links(:,4));
     
     % now calculate the midpoints of the subsegments
     xm = [x(:,2:end) + x(:,1:end-1)] ./ 2;
