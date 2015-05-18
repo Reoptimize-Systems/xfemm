@@ -58,7 +58,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
     
     for i = 1:size(links, 1)
         
-        [x, y] = mfemmdeps.arcpoints(nodes(links(i,1),:), nodes(links(i,2),:), angles(i), maxdeg(i));
+        [x, y] = arcpoints(nodes(links(i,1),:), nodes(links(i,2),:), angles(i), maxdeg(i));
         
         line(x, y, 'UserData', Inputs.UserData);
         
@@ -94,7 +94,7 @@ function plotarclinks(nodes, links, angles, maxdeg, varargin)
 
 end
 
-function [x, y] = mfemmdeps.arcpoints(A, B, angle, maxdeg)
+function [x, y] = arcpoints(A, B, angle, maxdeg)
 % get the points on an arc for plotting
 
     % convert the angles to radians
@@ -102,7 +102,7 @@ function [x, y] = mfemmdeps.arcpoints(A, B, angle, maxdeg)
     maxdeg = mfemmdeps.deg2rad(maxdeg);
 
     % get centre and radius of circles
-    [centre, r] = mfemmdeps.circcentre(A, B, angle);
+    [centre, r] = circcentre(A, B, angle);
     
     % get starting angle of arcs
     tempA = A - centre;
@@ -123,7 +123,7 @@ function [x, y] = mfemmdeps.arcpoints(A, B, angle, maxdeg)
 end
 
 
-function [centre, r] = mfemmdeps.circcentre(A, B, angle)
+function [centre, r] = circcentre(A, B, angle)
 % calculates the centre and radius of a circle given two points and an arc
 % angle between them. The position of the circle is determined by the
 % order of the supplied points.
