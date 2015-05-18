@@ -113,7 +113,7 @@ end
 function asegstr = drawarcseg (arcseg, FemmProblem, groups)
 % function to convert the arc segments in the femm problem to tikz arcs
     
-    [centre, r] = mfemmdeps.circcentre ( FemmProblem.Nodes(FemmProblem.ArcSegments(arcseg).n0+1).Coords, ...
+    [centre, r] = circcentre ( FemmProblem.Nodes(FemmProblem.ArcSegments(arcseg).n0+1).Coords, ...
                                FemmProblem.Nodes(FemmProblem.ArcSegments(arcseg).n1+1).Coords, ...
                                mfemmdeps.deg2rad(FemmProblem.ArcSegments(arcseg).ArcLength) );
 
@@ -142,7 +142,7 @@ function asegstr = drawarcseg (arcseg, FemmProblem, groups)
 end
 
 
-function [centre, r] = mfemmdeps.circcentre (A, B, angle)
+function [centre, r] = circcentre (A, B, angle)
 % calculates the centre and radius of a circle given two points and an arc
 % angle between them. The position of the circle is determined by the
 % order of the supplied points.
