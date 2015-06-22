@@ -216,18 +216,18 @@ void HPProc::ClearDocument()
 
 /////////////////////////////////////////////////////////////////////////////
 // HPProc diagnostics
-
-#ifdef _DEBUG
-void HPProc::AssertValid() const
-{
-	CDocument::AssertValid();
-}
-
-void HPProc::Dump(CDumpContext& dc) const
-{
-	CDocument::Dump(dc);
-}
-#endif //_DEBUG
+//
+//#ifdef _DEBUG
+//void HPProc::AssertValid() const
+//{
+//	CDocument::AssertValid();
+//}
+//
+//void HPProc::Dump(CDumpContext& dc) const
+//{
+//	CDocument::Dump(dc);
+//}
+//#endif //_DEBUG
 
 /////////////////////////////////////////////////////////////////////////////
 // HPProc commands

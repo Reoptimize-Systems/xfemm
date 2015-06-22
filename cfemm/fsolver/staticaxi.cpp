@@ -32,6 +32,16 @@
 
 #define Log log
 
+#ifdef _MSC_VER
+  #ifndef SNPRINTF
+  #define SNPRINTF _snprintf
+  #endif
+#else
+  #ifndef SNPRINTF
+  #define SNPRINTF std::snprintf
+  #endif
+#endif
+
 extern lua_State *lua;
 
 int FSolver::StaticAxisymmetric(CBigLinProb &L)
@@ -364,7 +374,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
 //                    fmatter % (X.re) % (X.im) % (arg(X)*180/PI) % (abs(X)) % (labellist[El->lbl].MagDirFctn);
                     // get the created string
 //                    str = fmatter.str();
-                    std::snprintf(magbuff, sizeof magbuff, "r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s",
+                    SNPRINTF(magbuff, sizeof magbuff, "r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s",
                                  (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn));
                     str = magbuff;
                     top1=lua_gettop(lua);

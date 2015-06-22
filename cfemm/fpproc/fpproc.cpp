@@ -39,6 +39,13 @@
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
+#ifndef SNPRINTF
+  #define SNPRINTF std::snprintf
+#endif
+#else
+#ifndef SNPRINTF
+  #define SNPRINTF _snprintf
+#endif
 #endif
 
 extern lua_State * lua;
@@ -224,18 +231,18 @@ bool FPProc::NewDocument()
 
 /////////////////////////////////////////////////////////////////////////////
 // FPProc diagnostics
-
-#ifdef _DEBUG
-void FPProc::AssertValid() const
-{
-    CDocument::AssertValid();
-}
-
-void FPProc::Dump(CDumpContext& dc) const
-{
-    CDocument::Dump(dc);
-}
-#endif //_DEBUG
+//
+//#ifdef _DEBUG
+//void FPProc::AssertValid() const
+//{
+//    CDocument::AssertValid();
+//}
+//
+//void FPProc::Dump(CDumpContext& dc) const
+//{
+//    CDocument::Dump(dc);
+//}
+//#endif //_DEBUG
 
 /////////////////////////////////////////////////////////////////////////////
 // FPProc commands
@@ -1114,7 +1121,7 @@ bool FPProc::OpenDocument(string pathname)
 //            // get the created string
 //            str = fmatter.str();
             // generate the string using snprintf
-            std::snprintf(magbuff, 4096, "x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s",
+            SNPRINTF(magbuff, 4096, "x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s",
                           (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (blocklist[meshelem[i].lbl].MagDirFctn.c_str() ) );
             str = magbuff;
             // Have the lua interpreter evaluate the string
