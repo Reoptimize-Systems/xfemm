@@ -166,10 +166,10 @@ public:
     //PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp);
     //void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi,HBITMAP hBMP, HDC hDC) ;
 
-#ifdef _DEBUG
-    virtual void AssertValid() const;
-    virtual void Dump(CDumpContext& dc) const;
-#endif
+//#ifdef _DEBUG
+//    virtual void AssertValid() const;
+//    virtual void Dump(CDumpContext& dc) const;
+//#endif
 
 };
 #endif

@@ -15721,14 +15721,6 @@ char **argv;
 #endif /* not TRILIBRARY */
 
 {
-#ifdef TRILIBRARY
-  if (printfcnptr != NULL)
-  {
-    /* replace the printing function with the one provided */
-    TriMessage = printfcnptr;
-  }
-#endif /* TRILIBRARY */
-
   struct mesh m;
   struct behavior b;
   int status = 0;
@@ -15746,6 +15738,14 @@ char **argv;
 
   /* ensure the global exit code variable is set to zero */
   trilibrary_exit_code = 0;
+
+#ifdef TRILIBRARY
+  if (printfcnptr != NULL)
+  {
+    /* replace the printing function with the one provided */
+    TriMessage = printfcnptr;
+  }
+#endif /* TRILIBRARY */
 
 #ifndef NO_TIMER
   gettimeofday(&tv0, &tz);

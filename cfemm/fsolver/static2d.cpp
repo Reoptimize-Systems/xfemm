@@ -34,10 +34,16 @@
 #include "liblua/lua.h"
 #include "liblua/lualib.h"
 #include "liblua/lauxlib.h"
+  #ifndef SNPRINTF
+  #define SNPRINTF _snprintf
+  #endif
 #else
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
+  #ifndef SNPRINTF
+  #define SNPRINTF std::snprintf
+  #endif
 #endif
 
 // declare the lua_state type *lua is declared globally in fsolver.cpp
@@ -377,7 +383,7 @@ int FSolver::Static2D(CBigLinProb &L)
 //                    fmatter % (X.re) % (X.im) % (arg(X)*180/PI) % (abs(X)) % (labellist[El->lbl].MagDirFctn);
                     // get the created string
 //                    str = fmatter.str();
-                    std::snprintf(magbuff, sizeof magbuff, "x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s",
+                    SNPRINTF(magbuff, sizeof magbuff, "x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s",
                                   (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn));
                     str = magbuff;
                     top1 = lua_gettop(lua);
