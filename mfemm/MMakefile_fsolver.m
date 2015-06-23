@@ -1,4 +1,4 @@
-function [rules,vars] = MMakefile_fmesher ()
+function [rules,vars] = MMakefile_fsolver ()
 
 %     mfemmdeps.getmfilepath (mfilename);
 
@@ -9,7 +9,7 @@ function [rules,vars] = MMakefile_fmesher ()
     end
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -g -I"../cfemm/fmesher" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    vars.MEXFLAGS = ['${MEXFLAGS} -g -I"../cfemm/fsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
 
     vars.OBJS = { ...
       ... % liblua
@@ -45,18 +45,19 @@ function [rules,vars] = MMakefile_fmesher ()
       '../cfemm/libfemm/fparse.${OBJ_EXT}', ...
       '../cfemm/libfemm/fullmatrix.${OBJ_EXT}', ...
       '../cfemm/libfemm/spars.${OBJ_EXT}', ...
-      ... % fmesher
-      '../cfemm/fmesher/fmesher.${OBJ_EXT}', ... 
-      '../cfemm/fmesher/intpoint.${OBJ_EXT}', ... 
-      '../cfemm/fmesher/nosebl.${OBJ_EXT}', ...  
-      '../cfemm/fmesher/triangle.${OBJ_EXT}', ...  
-      '../cfemm/fmesher/writepoly.${OBJ_EXT}', ...
+      ... % fsolver
+      '../cfemm/fsolver/fsolver.${OBJ_EXT}', ... 
+      '../cfemm/fsolver/harmonic2d.${OBJ_EXT}', ... 
+      '../cfemm/fsolver/harmonicaxi.${OBJ_EXT}', ...  
+      '../cfemm/fsolver/matprop.${OBJ_EXT}', ...  
+      '../cfemm/fsolver/static2d.${OBJ_EXT}', ...
+      '../cfemm/fsolver/staticaxi.${OBJ_EXT}', ...
       ... % mexfunction
-      'mexfmesher.cpp' };
+      'mexfsolver.cpp' };
 
     % mexfmesher.${MEX_EXT}: ${OBJS}
     %     mex $^ -output $@
-    rules(1).target = {'mexfmesher.${MEX_EXT}'};
+    rules(1).target = {'mexfsolver.${MEX_EXT}'};
     rules(1).deps = vars.OBJS;
     rules(1).commands = 'mex ${MEXFLAGS} $^ -output $@';
     
@@ -138,46 +139,17 @@ function [rules,vars] = MMakefile_fmesher ()
     rules(end+1).target = '../cfemm/libfemm/liblua/lzio.${OBJ_EXT}';
     rules(end).deps = '../cfemm/libfemm/liblua/lzio.h';
 
-%     rules(end+1).target = '../cfemm/libfemm/cspars.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/cspars.h';
+    rules(end+1).target = '../cfemm/fsolver/fsolver.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/fsolver/fsolver.h';
 
-%     rules(end+1).target = '../cfemm/libfemm/cuthill.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/cuthill.h';
+    rules(end+1).target = '../cfemm/fsolver/mmesh.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/fsolver/mmesh.h';
 
-    rules(end+1).target = '../cfemm/libfemm/feasolver.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/feasolver.h';
-
-    rules(end+1).target = '../cfemm/libfemm/femmcomplex.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/femmcomplex.h';
-
-    rules(end+1).target = '../cfemm/libfemm/fparse.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/fparse.h';
-
-    rules(end+1).target = '../cfemm/libfemm/fullmatrix.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/fullmatrix.h';
-
-    rules(end+1).target = '../cfemm/libfemm/spars.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/spars.h';
-
-    rules(end+1).target = '../cfemm/fmesher/fmesher.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/fmesher.h';
-
-    rules(end+1).target = '../cfemm/fmesher/intpoint.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/intpoint.h';
-
-    rules(end+1).target = '../cfemm/fmesher/nosebl.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/nosebl.h';
-
-    rules(end+1).target = '../cfemm/fmesher/triangle.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/triangle.h';
-% 
-%     rules(end+1).target = '../cfemm/fmesher/writepoly.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/fmesher/writepoly.h';
 
     rules(3).target = 'tidy';
     rules(3).commands = {'try; delete(''../cfemm/libfemm/liblua/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''../cfemm/libfemm/*.${OBJ_EXT}''); catch; end;', ...
-                         'try; delete(''../cfemm/fmesher/*.${OBJ_EXT}''); catch; end;'};
+                         'try; delete(''../cfemm/fsolver/*.${OBJ_EXT}''); catch; end;'};
     
     rules(4).target = 'clean';
     rules(4).commands = [ rules(3).commands, ...
