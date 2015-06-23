@@ -740,6 +740,7 @@ classdef fpproc < mfemmpproc
             Inputs.Points = 40;
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
+            Inputs.AddLabels = true;
             
             Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
