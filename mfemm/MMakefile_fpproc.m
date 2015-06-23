@@ -1,4 +1,4 @@
-function [rules,vars] = MMakefile_fmesher ()
+function [rules,vars] = MMakefile_fpproc ()
 
 %     mfemmdeps.getmfilepath (mfilename);
 
@@ -9,7 +9,7 @@ function [rules,vars] = MMakefile_fmesher ()
     end
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -g -I"../cfemm/fmesher" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    vars.MEXFLAGS = ['${MEXFLAGS} -g -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
 
     vars.OBJS = { ...
       ... % liblua
@@ -45,18 +45,17 @@ function [rules,vars] = MMakefile_fmesher ()
       '../cfemm/libfemm/fparse.${OBJ_EXT}', ...
       '../cfemm/libfemm/fullmatrix.${OBJ_EXT}', ...
       '../cfemm/libfemm/spars.${OBJ_EXT}', ...
-      ... % fmesher
-      '../cfemm/fmesher/fmesher.${OBJ_EXT}', ... 
-      '../cfemm/fmesher/intpoint.${OBJ_EXT}', ... 
-      '../cfemm/fmesher/nosebl.${OBJ_EXT}', ...  
-      '../cfemm/fmesher/triangle.${OBJ_EXT}', ...  
-      '../cfemm/fmesher/writepoly.${OBJ_EXT}', ...
+      ... % fpproc
+      '../cfemm/fpproc/fpproc.${OBJ_EXT}', ... 
+      '../cfemm/fpproc/makemask.${OBJ_EXT}', ... 
+      '../cfemm/fpproc/problem.${OBJ_EXT}', ...
+      'postproc/fpproc_interface.${OBJ_EXT}', ...
       ... % mexfunction
-      'mexfmesher.cpp' };
+      'postproc/fpproc_interface_mex.${OBJ_EXT}' };
 
     % mexfmesher.${MEX_EXT}: ${OBJS}
     %     mex $^ -output $@
-    rules(1).target = {'mexfmesher.${MEX_EXT}'};
+    rules(1).target = {'fpproc_interface_mex.${MEX_EXT}'};
     rules(1).deps = vars.OBJS;
     rules(1).commands = 'mex ${MEXFLAGS} $^ -output $@';
     
@@ -159,25 +158,18 @@ function [rules,vars] = MMakefile_fmesher ()
     rules(end+1).target = '../cfemm/libfemm/spars.${OBJ_EXT}';
     rules(end).deps = '../cfemm/libfemm/spars.h';
 
-    rules(end+1).target = '../cfemm/fmesher/fmesher.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/fmesher.h';
 
-    rules(end+1).target = '../cfemm/fmesher/intpoint.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/intpoint.h';
+    rules(end+1).target = 'postproc/fpproc_interface.${OBJ_EXT}';
+    rules(end).deps = 'postproc/fpproc_interface.h';
 
-    rules(end+1).target = '../cfemm/fmesher/nosebl.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/nosebl.h';
-
-    rules(end+1).target = '../cfemm/fmesher/triangle.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/triangle.h';
-% 
-%     rules(end+1).target = '../cfemm/fmesher/writepoly.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/fmesher/writepoly.h';
-
+    rules(end+1).target = 'postproc/fpproc_interface_mex.${OBJ_EXT}';
+    rules(end).deps = 'postproc/class_handle.hpp';
+    
     rules(3).target = 'tidy';
     rules(3).commands = {'try; delete(''../cfemm/libfemm/liblua/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''../cfemm/libfemm/*.${OBJ_EXT}''); catch; end;', ...
-                         'try; delete(''../cfemm/fmesher/*.${OBJ_EXT}''); catch; end;'};
+                         'try; delete(''../cfemm/fpproc/*.${OBJ_EXT}''); catch; end;', ...
+                         'try; delete(''postproc/*.${OBJ_EXT}''); catch; end;'};
     
     rules(4).target = 'clean';
     rules(4).commands = [ rules(3).commands, ...
