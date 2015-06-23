@@ -146,13 +146,10 @@ function varargout = mfemm_setup(varargin)
     addpath (fullfile (thisfilepath, 'preproc'));
     addpath (fullfile (thisfilepath, 'postproc'));
     addpath (fullfile (thisfilepath, 'examples'));
-    addpath (fullfile (thisfilepath, 'depends'));
     addpath (fullfile (thisfilepath, 'visualisation'));
     
     % parse inputs
-    Inputs.ForceAllRecompile = false;
     Inputs.ForceMexRecompile = false;
-    Inputs.ForceCmake = false;
     Inputs.DoDebug = false;
     Inputs.Verbose = false;
     Inputs.RunTests = false;
@@ -172,7 +169,6 @@ function varargout = mfemm_setup(varargin)
     if ~(exist('mexfsolver', 'file') == 3) ...
             || ~(exist('mexfmesher', 'file') == 3) ...
             || ~(exist('fpproc_interface_mex', 'file') == 3) ...
-            || Inputs.ForceAllRecompile ...
             || Inputs.ForceMexRecompile
 
         fprintf('Compiling mex functions for mfemm.\n');
@@ -180,55 +176,43 @@ function varargout = mfemm_setup(varargin)
         CC = onCleanup(@() cd(pwd));
         cd (thisfilepath);
         
-        if ~ ( all( [ exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfmesher.a'), 'file'), ... 
-                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfsolver.a'), 'file'), ...
-                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfpproc.a'), 'file'), ...
-                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhsolver.a'), 'file'), ...
-                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhpproc.a'), 'file') ] ) ...
-               || all( [ exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfmesher.lib'), 'file'), ... 
-                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfsolver.lib'), 'file'), ...
-                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfpproc.lib'), 'file'), ...
-                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhsolver.lib'), 'file'), ...
-                   exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhpproc.lib'), 'file') ] ) ...
-             ) ...
-             || Inputs.ForceAllRecompile
-          
-            % attempt to make the libs if not found, or we're recompiling
-            % everything
-            makelibs (thisfilepath, Inputs);
-            
+        makefilenames = {'MMakefile_fmesher.m', ...
+                         'MMakefile_fpproc.m', ...
+                         'MMakefile_fsolver.m', ...
+                         'MMakefile_hpproc.m', ...
+                         'MMakefile_hsolver.m' };
+                     
+        if Inputs.ForceMexRecompile
+            % run make clean for all projects to force complete
+            % recompilation
+            for ind = 1:numel(makefilenames)
+                mfemmdeps.mmake ('clean', makefilenames{ind})
+            end
         end
         
-        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfmesher.a'), 'file') 
-            fmeshersetup (Inputs.DoDebug, Inputs.Verbose);
-        else
-            % try building 
-            error('MFEMM:setup', 'mfemm_setup can''t find the libfmesher library (libfmesher.a), run ''help mfemm_setup'' for more info.\n')
+        % now invoke mmake for all files
+        ws = warning( 'off', 'MATLAB:mex:GccVersion');
+        for ind = 1:numel(makefilenames)
+            mfemmdeps.mmake ('', makefilenames{ind})
         end
-
-        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfsolver.a'), 'file') 
-            fsolversetup (Inputs.DoDebug, Inputs.Verbose);
-        else
-            error('MFEMM:setup', 'mfemm_setup can''t find the libfsolver library (libfsolver.a), run ''help mfemm_setup'' for more info.\n')
-        end
-
-        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libfpproc.a'), 'file')
-            fpprocsetup (Inputs.DoDebug, Inputs.Verbose);
-        else
-            error('MFEMM:setup', 'mfemm_setup can''t find the libfpproc library (libfpproc.a), run ''help mfemm_setup'' for more info.\n')
+        warning (ws);
+        for ind = 1:numel(makefilenames)
+            mfemmdeps.mmake ('tidy', makefilenames{ind})
         end
         
-        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhsolver.a'), 'file') 
-            hsolversetup (Inputs.DoDebug, Inputs.Verbose);
-        else
-            error('MFEMM:setup', 'mfemm_setup can''t find the libhsolver library (libhsolver.a), run ''help mfemm_setup'' for more info.\n')
-        end
-
-        if exist(fullfile(thisfilepath, 'cfemm', 'lib', 'libhpproc.a'), 'file')
-            hpprocsetup (Inputs.DoDebug, Inputs.Verbose);
-        else
-            error('MFEMM:setup', 'mfemm_setup can''t find the libhpproc library (libhpproc.a), run ''help mfemm_setup'' for more info.\n')
-        end
+        % copy over the created mex files to the mex directory
+        mexfilenames = {'mexfmesher', ...
+                        'mexfsolver', ...
+                        'fpproc_interface_mex', ... 
+                        'mexhsolver', ...
+                        'hpproc_interface_mex'};
+                    
+         for ind = 1:numel(mexfilenames)
+             movefile ([mexfilenames{ind}, '.',  mexext()], mexdir);
+         end
+         
+         % force a path refresh
+         rehash ()
 
     else
         
@@ -245,7 +229,7 @@ function varargout = mfemm_setup(varargin)
         
         fsolver_test_file = fullfile (thisfilepath, 'cfemm', 'fmesher', 'test', 'Temp');
         fprintf ('Running mexfsolver on file:\n%s\n', fsolver_test_file);
-        mexfsolver (fsolver_test_file, double(true));
+        mexfsolver (fsolver_test_file, double(true), double(false));
         
         fprintf ('Running fmesher on file:\n%s\n', fmesher_test_file);
         fmesher (fmesher_test_file);
@@ -264,30 +248,30 @@ function varargout = mfemm_setup(varargin)
 
 end
 
-function makelibs (thisfilepath, Inputs)
-% build the libs required for mfemm, invoking cmake if necessary
-
-    CC = onCleanup(@() cd(pwd));
-    
-    cd (fullfile(thisfilepath, 'cfemm'));
-    
-    mkdir ('build');
-    
-    cd ('build');
-    
-    if isunix
-        if (exist (fullfile(pwd, 'Makefile'), 'file') == 0) || Inputs.ForceCmake
-            system('cmake .. -DCMAKE_BUILD_TYPE=Release');
-        end
-        system('make');
-    else
-        if (exist (fullfile(pwd, 'Makefile'), 'file') == 0)  || Inputs.ForceCmake
-            system('cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..')
-        end
-        system('mingw32-make.exe');
-    end
-
-end
+% function makelibs (thisfilepath, Inputs)
+% % build the libs required for mfemm, invoking cmake if necessary
+% 
+%     CC = onCleanup(@() cd(pwd));
+%     
+%     cd (fullfile(thisfilepath, 'cfemm'));
+%     
+%     mkdir ('build');
+%     
+%     cd ('build');
+%     
+%     if isunix
+%         if (exist (fullfile(pwd, 'Makefile'), 'file') == 0) || Inputs.ForceCmake
+%             system('cmake .. -DCMAKE_BUILD_TYPE=Release');
+%         end
+%         system('make');
+%     else
+%         if (exist (fullfile(pwd, 'Makefile'), 'file') == 0)  || Inputs.ForceCmake
+%             system('cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..')
+%         end
+%         system('mingw32-make.exe');
+%     end
+% 
+% end
 
 function t = isoctave()
 % ISOCTAVE.M
