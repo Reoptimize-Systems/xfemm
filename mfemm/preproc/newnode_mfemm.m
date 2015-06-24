@@ -22,6 +22,7 @@ function Node = newnode_mfemm(x, y, varargin)
 
     Node.PointPropName = '';
     Node.InGroup = 0;
+    Node.InConductor = 0;
     
     Node = mfemmdeps.parseoptions(Node, varargin);
     

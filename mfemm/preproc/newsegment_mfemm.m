@@ -48,6 +48,7 @@ function Segment = newsegment_mfemm(n0, n1, varargin)
     Segment.Hidden = 0;
     Segment.InGroup = 0;
     Segment.BoundaryMarker = '';
+    Segment.InConductor = 0;
     
     % parse any options for the segment supplied by the user
     Segment = mfemmdeps.parseoptions(Segment, varargin);

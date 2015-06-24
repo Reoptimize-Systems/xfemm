@@ -73,6 +73,7 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
     options.Hidden = zeros(size(n0));
     options.InGroup = zeros(size(n0));
     options.BoundaryMarker = '';
+    options.InConductor = 0;
     
     % parse any options for the segment supplied by the user
     options = mfemmdeps.parseoptions(options, varargin);

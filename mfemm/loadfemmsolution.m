@@ -72,6 +72,25 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
         problemonly = false;
     end
     
+    % use a structure to create an enum of file types
+    ftype.magnetics = 0;
+    ftype.heatflow = 1;
+
+    % use a structure to map the file extensions to problem types
+    fexmap.ans = 'magnetics';
+    fexmap.anh = 'heatflow';
+    
+    % try to determine from the file name extension
+    [~, ~, fext] = fileparts (filename);
+
+
+    if ~isempty(fext) && isfield(fexmap, fext(2:end))
+        domaintype = fexmap.(fext(2:end));
+    else
+        error ('MFEMM:badfiletype', ...
+               'The output file name extension is not recognised and you have not explicitly set the file type.');
+    end
+    
     fid = fopen(filename);
 
     cleanupObj = onCleanup(@() fclose(fid));
@@ -91,8 +110,21 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
             v = str2double(StripKey(q));
 
-            if v ~= 4
-                error('This file is from a different version of FEMM\nRe-analyze the problem using the current version.');
+            switch ftype.(domaintype)
+                
+                case ftype.magnetics
+                    if v ~= 4
+                        error('This file is from a different version of FEMM\nRe-analyze the problem using the current version.');
+                    end
+                    
+                case ftype.heatflow
+                    if v ~= 1
+                        error('This file is from a different version of FEMM\nRe-analyze the problem using the current version.');
+                    end
+                    
+                otherwise
+                    error('Unrecognised file extension.');
+                    
             end
 
             % get the next line of input
@@ -418,7 +450,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
             FemmProblem.BoundaryProps(boundind).c1i = str2double(v);
             % get the next line of input
             q = fgetl(fid);
-            continue;;
+            continue;
         end
 
         if( strncmpi(q,'<endbdry>',9))
@@ -710,9 +742,15 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
             for i = 1:npoints
 
                 s = fgetl(fid);
-
-                C = textscan(s, '%f %f %f %f');
-
+                
+                switch ftype.(domaintype)
+                    case ftype.magnetics
+                        C = textscan(s, '%f %f %f %f');
+                    case ftype.heatflow
+                        C = textscan(s, '%f %f %f %f %f');
+                        nodeprops.InConductor = C{5};
+                end
+                
                 nodeprops.InGroup = C{4};
 
                 if C{3} > 0
@@ -744,7 +782,13 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
 
-                C = textscan(s, '%f %f %f %f %f %f');
+                switch ftype.(domaintype)
+                    case ftype.magnetics
+                        C = textscan(s, '%f %f %f %f %f %f');
+                    case ftype.heatflow
+                        C = textscan(s, '%f %f %f %f %f %f %f');
+                        segprops.InConductor = C{7};
+                end
 
                 segprops.MaxSideLength = C{3};
 
@@ -782,8 +826,15 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
 
-                C = textscan(s,'%f %f %f %f %f %f %f');
-
+                
+                switch ftype.(domaintype)
+                    case ftype.magnetics
+                        C = textscan(s,'%f %f %f %f %f %f %f');
+                    case ftype.heatflow
+                        C = textscan(s,'%f %f %f %f %f %f %f %f');
+                        arcsegprops.InConductor = C{8};
+                end
+                
                 arcsegprops.MaxSegDegrees = C{4};
 
                 arcsegprops.BoundaryMarker = C{5};
@@ -855,28 +906,44 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
             for i = 1:nregionalattrib
 
                 s = fgetl(fid);
-
-                C = textscan(s,'%f %f %f %f %f %f %f %f %f %s');
-
-                %some defaults
-                FemmProblem.BlockLabels(i).Coords = [C{1}, C{2}];
-                FemmProblem.BlockLabels(i).BlockType = C{3};
-                FemmProblem.BlockLabels(i).MaxArea = C{4};
-                FemmProblem.BlockLabels(i).InCircuit = C{5};
-                FemmProblem.BlockLabels(i).MagDir = C{6};
-                FemmProblem.BlockLabels(i).InGroup = C{7};
-                FemmProblem.BlockLabels(i).Turns = C{8};
-                FemmProblem.BlockLabels(i).IsExternal = C{9};
-%                 FemmProblem.BlockLabels(i) = bitand(FemmProblem.BlockLabels(i), 2);
-% 				FemmProblem.BlockLabels(i) = bitand(FemmProblem.BlockLabels(i), 1);
                 
-                FemmProblem.BlockLabels(i).MagDirFctn = C{10};
+                switch ftype.(domaintype)
+                    
+                    case ftype.magnetics
+                        
+                        C = textscan(s,'%f %f %f %f %f %f %f %f %f %s');
 
-                if FemmProblem.BlockLabels(i).MaxArea < 0
-                    FemmProblem.BlockLabels(i).MaxArea = 0;
-%                 else
-%                     % convert from a side length to area constraint
-%                     FemmProblem.BlockLabels(i).MaxArea = pi * FemmProblem.BlockLabels(i).MaxArea * FemmProblem.BlockLabels(i).MaxArea / 4;
+                        %some defaults
+                        FemmProblem.BlockLabels(i).Coords = [C{1}, C{2}];
+                        FemmProblem.BlockLabels(i).BlockType = C{3};
+                        FemmProblem.BlockLabels(i).MaxArea = C{4};
+                        FemmProblem.BlockLabels(i).InCircuit = C{5};
+                        FemmProblem.BlockLabels(i).MagDir = C{6};
+                        FemmProblem.BlockLabels(i).InGroup = C{7};
+                        FemmProblem.BlockLabels(i).Turns = C{8};
+                        FemmProblem.BlockLabels(i).IsExternal = C{9};
+                        FemmProblem.BlockLabels(i).IsDefault = bitand (int32 (FemmProblem.BlockLabels(i).IsExternal), int32 (2));
+                        FemmProblem.BlockLabels(i).IsExternal = bitand (int32 (FemmProblem.BlockLabels(i).IsExternal), int32 (1));
+
+                        FemmProblem.BlockLabels(i).MagDirFctn = C{10};
+
+                        if FemmProblem.BlockLabels(i).MaxArea < 0
+                            FemmProblem.BlockLabels(i).MaxArea = 0;
+        %                 else
+        %                     % convert from a side length to area constraint
+        %                     FemmProblem.BlockLabels(i).MaxArea = pi * FemmProblem.BlockLabels(i).MaxArea * FemmProblem.BlockLabels(i).MaxArea / 4;
+                        end
+                
+                    case ftype.heatflow
+                        
+                        C = textscan(s,'%f %f %f %f %f %f');
+                        
+                        FemmProblem.BlockLabels(i).Coords = [C{1}, C{2}];
+                        FemmProblem.BlockLabels(i).BlockType = C{3};
+                        FemmProblem.BlockLabels(i).MaxArea = C{4};
+                        FemmProblem.BlockLabels(i).InGroup = C{5};
+                        FemmProblem.BlockLabels(i).IsDefault = C{6};
+                        
                 end
 
             end
@@ -929,15 +996,21 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 %         end
 %     end
 
-    if isfield(FemmProblem, 'BlockLabels')
-        for i = 1:numel(FemmProblem.BlockLabels)
-            FemmProblem.BlockLabels(i).BlockType = FemmProblem.Materials(FemmProblem.BlockLabels(i).BlockType).Name;
+    switch ftype.(domaintype)
+        
+        case ftype.magnetics
+            
+            if isfield(FemmProblem, 'BlockLabels')
+                for i = 1:numel(FemmProblem.BlockLabels)
+                    FemmProblem.BlockLabels(i).BlockType = FemmProblem.Materials(FemmProblem.BlockLabels(i).BlockType).Name;
 
-            if FemmProblem.BlockLabels(i).InCircuit > 0
-                % convert the circuit number to a circuit name
-                FemmProblem.BlockLabels(i).InCircuit = FemmProblem.Circuits(FemmProblem.BlockLabels(i).InCircuit).Name;
+                        if FemmProblem.BlockLabels(i).InCircuit > 0
+                            % convert the circuit number to a circuit name
+                            FemmProblem.BlockLabels(i).InCircuit = FemmProblem.Circuits(FemmProblem.BlockLabels(i).InCircuit).Name;
+                        end
+
+                end
             end
-        end
     end
 
     if hassolution && ~problemonly
