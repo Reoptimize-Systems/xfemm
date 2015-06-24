@@ -681,7 +681,11 @@ int FSolver::LoadProblemFile ()
                 v = ParseInt(v,&blk.InGroup);
                 v = ParseInt(v,&blk.Turns);
                 v = ParseInt(v,&blk.IsExternal);
+                // second last bit in IsExternal is IsDefault flag, we mask the other bits
+                // and take the resulting value, if not zero it will evaluate to true
                 blk.IsDefault  = blk.IsExternal & 2;
+                // last bit in IsExternal is IsExternal flag, we mask the other bits
+                // and take the resulting value, if not zero it will evaluate to true
                 blk.IsExternal = blk.IsExternal & 1;
                 v = ParseString(v,&str);
                 if (str.length()>0)
