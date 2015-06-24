@@ -750,12 +750,22 @@ function writefemmfile(filename, FemmProblem, varargin)
                         FemmProblem.BlockLabels(i).MagDir = 0;
                     end
                     
+                    ExternalDefaultFlags = int32 (0);
+                    
+                    if  FemmProblem.BlockLabels(i).IsExternal
+                        ExternalDefaultFlags = bitset (ExternalDefaultFlags, 1);
+                    end
+                    
+                    if  FemmProblem.BlockLabels(i).IsDefault
+                        ExternalDefaultFlags = bitset (ExternalDefaultFlags, 1);
+                    end
+                    
                     fprintf(fp,'%i\t%.17g\t%i\t%i\t%i', ...
                         t, ...
                         FemmProblem.BlockLabels(i).MagDir, ...
                         FemmProblem.BlockLabels(i).InGroup, ...
                         FemmProblem.BlockLabels(i).Turns, ...
-                        FemmProblem.BlockLabels(i).IsExternal + FemmProblem.BlockLabels(i).IsDefault);
+                        ExternalDefaultFlags);
 
                     if isfield(FemmProblem.BlockLabels, 'MagDirFctn') && ~isempty(FemmProblem.BlockLabels(i).MagDirFctn)
                         fprintf(fp,'\t"%s"', FemmProblem.BlockLabels(i).MagDirFctn);
