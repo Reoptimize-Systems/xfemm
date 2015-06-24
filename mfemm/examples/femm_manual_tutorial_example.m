@@ -349,12 +349,12 @@ coilarea = myfpproc.blockintegral(5)
 % Plots of the B and H vector fields can also be produced using fpproc like
 % so:
 
-myfpproc.plotBfield(0, -1, -4.5, 6, 9, [30, 45]);
+myfpproc.plotBfield(-1, -4.5, 6, 9, 'Points', [30, 45]);
 
-myfpproc.plotHfield(0, -1, -4.5, 6, 9, [30, 45]);
+myfpproc.plotHfield(-1, -4.5, 6, 9, 'Points', [30, 45]);
 
 % The vector potential can also be plotted
-myfpproc.plotAfield(0, -1, -4.5, 6, 9, 100);
+myfpproc.plotAfield(-1, -4.5, 6, 9, 'Points', 100);
 
 
 
