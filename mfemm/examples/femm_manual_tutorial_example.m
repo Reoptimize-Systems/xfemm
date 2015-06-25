@@ -314,9 +314,7 @@ myfpproc.opendocument(ansfile);
 % are really calls to the C++ versions supplied in the original FEMM code.
 % You can view a list of all the avaialable methods using the methods
 % function
-if ~mfemmdeps.isoctave
-    methods(myfpproc);
-end
+methods(myfpproc);
 
 %%
 %
@@ -348,13 +346,16 @@ coilarea = myfpproc.blockintegral(5)
 %
 % Plots of the B and H vector fields can also be produced using fpproc like
 % so:
+if mfemmdeps.isoctave
+    fprintf (1, 'In Matlab you would see some field plots now, but it''s not quite supported in Octave yet.\nYou can always view the .ans files in FEMM.\n');
+else
+    myfpproc.plotBfield(-1, -4.5, 6, 9, 'Points', [30, 45]);
 
-myfpproc.plotBfield(-1, -4.5, 6, 9, 'Points', [30, 45]);
+    myfpproc.plotHfield(-1, -4.5, 6, 9, 'Points', [30, 45]);
 
-myfpproc.plotHfield(-1, -4.5, 6, 9, 'Points', [30, 45]);
-
-% The vector potential can also be plotted
-myfpproc.plotAfield(-1, -4.5, 6, 9, 'Points', 100);
+    % The vector potential can also be plotted
+    myfpproc.plotAfield(-1, -4.5, 6, 9, 'Points', 100);
+end
 
 
 
