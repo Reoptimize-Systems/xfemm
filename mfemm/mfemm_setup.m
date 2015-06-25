@@ -81,10 +81,6 @@ function varargout = mfemm_setup(varargin)
     Inputs.RunTests = false;
     
     Inputs = mfemmdeps.parseoptions (Inputs, varargin);
-    
-    if ~exist (fullfile ('..', 'cfemm'), 'dir')
-        error ('MFEMM:Build', 'The cfemm directory was not found in the expected location, you must preserve xfemm directory stucture, compilation terminating');
-    end
 
     % make architecture specific directory for mex files if it doesn't
     % already exist
@@ -105,6 +101,10 @@ function varargout = mfemm_setup(varargin)
         
         CC = onCleanup(@() cd(pwd));
         cd (thisfilepath);
+        
+        if ~exist (fullfile ('..', 'cfemm'), 'dir')
+            error ('MFEMM:Build', 'The cfemm directory was not found in the expected location, you must preserve xfemm directory stucture, compilation terminating');
+        end
         
         makefilenames = {'MMakefile_fmesher.m', ...
                          'MMakefile_fpproc.m', ...
