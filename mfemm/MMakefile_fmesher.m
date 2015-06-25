@@ -1,6 +1,6 @@
 function [rules,vars] = MMakefile_fmesher ()
 
-%     mfemmdeps.getmfilepath (mfilename);
+    thisfilepath = mfemmdeps.getmfilepath (mfilename);
 
     if ispc
         trilibraryflag = '-DCPU86';
@@ -9,48 +9,52 @@ function [rules,vars] = MMakefile_fmesher ()
     end
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -g -I"../cfemm/fmesher" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fmesher" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    
+    cfemmpath = fullfile (thisfilepath, '..', 'cfemm');
+    libfemmpath = fullfile (cfemmpath, 'libfemm');
+    libluapath = fullfile (libfemmpath, 'liblua');
 
     vars.OBJS = { ...
       ... % liblua
-      '../cfemm/libfemm/liblua/lapi.${OBJ_EXT}', ...  
-      '../cfemm/libfemm/liblua/lcode.${OBJ_EXT}', ...  
-      '../cfemm/libfemm/liblua/ldo.${OBJ_EXT}', ...  
-      '../cfemm/libfemm/liblua/liolib.${OBJ_EXT}', ...  
-      '../cfemm/libfemm/liblua/lmem.${OBJ_EXT}', ...  
-      '../cfemm/libfemm/liblua/lstate.${OBJ_EXT}', ...  
-      '../cfemm/libfemm/liblua/ltable.${OBJ_EXT}', ... 
-      '../cfemm/libfemm/liblua/lundump.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/lauxlib.${OBJ_EXT}', ... 
-      '../cfemm/libfemm/liblua/ldblib.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/lfunc.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/llex.${OBJ_EXT}', ...    
-      '../cfemm/libfemm/liblua/lobject.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/lstring.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/ltests.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/lvm.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/lbaselib.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/ldebug.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/lgc.${OBJ_EXT}', ...  
-      '../cfemm/libfemm/liblua/lmathlib.${OBJ_EXT}', ... 
-      '../cfemm/libfemm/liblua/lparser.${OBJ_EXT}', ... 
-      '../cfemm/libfemm/liblua/lstrlib.${OBJ_EXT}', ...
-      '../cfemm/libfemm/liblua/ltm.${OBJ_EXT}', ...   
-      '../cfemm/libfemm/liblua/lzio.${OBJ_EXT}', ...
+      fullfile(libluapath, 'lapi.${OBJ_EXT}'), ...  
+      fullfile(libluapath, 'lcode.${OBJ_EXT}'), ...  
+      fullfile(libluapath, 'ldo.${OBJ_EXT}'), ...  
+      fullfile(libluapath, 'liolib.${OBJ_EXT}'), ...  
+      fullfile(libluapath, 'lmem.${OBJ_EXT}'), ...  
+      fullfile(libluapath, 'lstate.${OBJ_EXT}'), ...  
+      fullfile(libluapath, 'ltable.${OBJ_EXT}'), ... 
+      fullfile(libluapath, 'lundump.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'lauxlib.${OBJ_EXT}'), ... 
+      fullfile(libluapath, 'ldblib.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'lfunc.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'llex.${OBJ_EXT}'), ...    
+      fullfile(libluapath, 'lobject.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'lstring.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'ltests.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'lvm.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'lbaselib.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'ldebug.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'lgc.${OBJ_EXT}'), ...  
+      fullfile(libluapath, 'lmathlib.${OBJ_EXT}'), ... 
+      fullfile(libluapath, 'lparser.${OBJ_EXT}'), ... 
+      fullfile(libluapath, 'lstrlib.${OBJ_EXT}'), ...
+      fullfile(libluapath, 'ltm.${OBJ_EXT}'), ...   
+      fullfile(libluapath, 'lzio.${OBJ_EXT}'), ...
       ... % libfemm
-      '../cfemm/libfemm/cspars.${OBJ_EXT}', ...
-      '../cfemm/libfemm/cuthill.${OBJ_EXT}', ...
-      '../cfemm/libfemm/feasolver.${OBJ_EXT}', ...
-      '../cfemm/libfemm/femmcomplex.${OBJ_EXT}', ...
-      '../cfemm/libfemm/fparse.${OBJ_EXT}', ...
-      '../cfemm/libfemm/fullmatrix.${OBJ_EXT}', ...
-      '../cfemm/libfemm/spars.${OBJ_EXT}', ...
+      fullfile(libfemmpath, 'cspars.${OBJ_EXT}'), ...
+      fullfile(libfemmpath, 'cuthill.${OBJ_EXT}'), ...
+      fullfile(libfemmpath, 'feasolver.${OBJ_EXT}'), ...
+      fullfile(libfemmpath, 'femmcomplex.${OBJ_EXT}'), ...
+      fullfile(libfemmpath, 'fparse.${OBJ_EXT}'), ...
+      fullfile(libfemmpath, 'fullmatrix.${OBJ_EXT}'), ...
+      fullfile(libfemmpath, 'spars.${OBJ_EXT}'), ...
       ... % fmesher
-      '../cfemm/fmesher/fmesher.${OBJ_EXT}', ... 
-      '../cfemm/fmesher/intpoint.${OBJ_EXT}', ... 
-      '../cfemm/fmesher/nosebl.${OBJ_EXT}', ...  
-      '../cfemm/fmesher/triangle.${OBJ_EXT}', ...  
-      '../cfemm/fmesher/writepoly.${OBJ_EXT}', ...
+      fullfile(cfemmpath, 'fmesher', 'fmesher.${OBJ_EXT}'), ... 
+      fullfile(cfemmpath, 'fmesher', 'intpoint.${OBJ_EXT}'), ... 
+      fullfile(cfemmpath, 'fmesher', 'nosebl.${OBJ_EXT}'), ...  
+      fullfile(cfemmpath, 'fmesher', 'triangle.${OBJ_EXT}'), ...  
+      fullfile(cfemmpath, 'fmesher', 'writepoly.${OBJ_EXT}'), ...
       ... % mexfunction
       'mexfmesher.cpp' };
 
@@ -66,118 +70,119 @@ function [rules,vars] = MMakefile_fmesher ()
     %     fprintf ('rules(end+1).target = ''%s.${OBJ_EXT}'';\nrules(end).deps = ''%s.h'';\n\n', vars.OBJS{i}(1:end-11), vars.OBJS{i}(1:end-11));
     % end
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lapi.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lapi.h';
+    rules(end+1).target = fullfile (libluapath, 'lapi.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lapi.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lcode.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lcode.h';
+    rules(end+1).target = fullfile (libluapath, 'lcode.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lcode.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/ldo.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/ldo.h';
+    rules(end+1).target = fullfile (libluapath, 'ldo.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'ldo.h');
 
-%     rules(end+1).target = '../cfemm/libfemm/liblua/liolib.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/liblua/liolib.h';
+%     rules(end+1).target = fullfile (libluapath, 'liolib.${OBJ_EXT}');
+%     rules(end).deps = fullfile (libluapath, 'liolib.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lmem.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lmem.h';
+    rules(end+1).target = fullfile (libluapath, 'lmem.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lmem.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lstate.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lstate.h';
+    rules(end+1).target = fullfile (libluapath, 'lstate.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lstate.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/ltable.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/ltable.h';
+    rules(end+1).target = fullfile (libluapath, 'ltable.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'ltable.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lundump.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lundump.h';
+    rules(end+1).target = fullfile (libluapath, 'lundump.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lundump.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lauxlib.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lauxlib.h';
+    rules(end+1).target = fullfile (libluapath, 'lauxlib.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lauxlib.h');
 
-%     rules(end+1).target = '../cfemm/libfemm/liblua/ldblib.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/liblua/ldblib.h';
+%     rules(end+1).target = fullfile (libluapath, 'ldblib.${OBJ_EXT}');
+%     rules(end).deps = fullfile (libluapath, 'ldblib.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lfunc.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lfunc.h';
+    rules(end+1).target = fullfile (libluapath, 'lfunc.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lfunc.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/llex.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/llex.h';
+    rules(end+1).target = fullfile (libluapath, 'llex.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'llex.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lobject.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lobject.h';
+    rules(end+1).target = fullfile (libluapath, 'lobject.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lobject.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lstring.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lstring.h';
+    rules(end+1).target = fullfile (libluapath, 'lstring.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lstring.h');
 
-%     rules(end+1).target = '../cfemm/libfemm/liblua/ltests.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/liblua/ltests.h';
+%     rules(end+1).target = fullfile (libluapath, 'ltests.${OBJ_EXT}');
+%     rules(end).deps = fullfile (libluapath, 'ltests.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lvm.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lvm.h';
+    rules(end+1).target = fullfile (libluapath, 'lvm.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lvm.h');
 
-%     rules(end+1).target = '../cfemm/libfemm/liblua/lbaselib.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/liblua/lbaselib.h';
+%     rules(end+1).target = fullfile (libluapath, 'lbaselib.${OBJ_EXT}');
+%     rules(end).deps = fullfile (libluapath, 'lbaselib.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/ldebug.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/ldebug.h';
+    rules(end+1).target = fullfile (libluapath, 'ldebug.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'ldebug.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lgc.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lgc.h';
+    rules(end+1).target = fullfile (libluapath, 'lgc.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lgc.h');
 
-%     rules(end+1).target = '../cfemm/libfemm/liblua/lmathlib.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/liblua/lmathlib.h';
+%     rules(end+1).target = fullfile (libluapath, 'lmathlib.${OBJ_EXT}');
+%     rules(end).deps = fullfile (libluapath, 'lmathlib.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lparser.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lparser.h';
+    rules(end+1).target = fullfile (libluapath, 'lparser.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lparser.h');
 
-%     rules(end+1).target = '../cfemm/libfemm/liblua/lstrlib.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/liblua/lstrlib.h';
+%     rules(end+1).target = fullfile (libluapath, 'lstrlib.${OBJ_EXT}');
+%     rules(end).deps = fullfile (libluapath, 'lstrlib.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/ltm.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/ltm.h';
+    rules(end+1).target = fullfile (libluapath, 'ltm.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'ltm.h');
 
-    rules(end+1).target = '../cfemm/libfemm/liblua/lzio.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/liblua/lzio.h';
+    rules(end+1).target = fullfile (libluapath, 'lzio.${OBJ_EXT}');
+    rules(end).deps = fullfile (libluapath, 'lzio.h');
 
-%     rules(end+1).target = '../cfemm/libfemm/cspars.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/cspars.h';
+%     rules(end+1).target = fullfile(libfemmpath, 'cspars.${OBJ_EXT}');
+%     rules(end).deps = fullfile(libfemmpath, 'cspars.h');
 
-%     rules(end+1).target = '../cfemm/libfemm/cuthill.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/libfemm/cuthill.h';
+%     rules(end+1).target = fullfile(libfemmpath, 'cuthill.${OBJ_EXT}');
+%     rules(end).deps = fullfile(libfemmpath, 'cuthill.h');
 
-    rules(end+1).target = '../cfemm/libfemm/feasolver.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/feasolver.h';
+    rules(end+1).target = fullfile(libfemmpath, 'feasolver.${OBJ_EXT}');
+    rules(end).deps = fullfile(libfemmpath, 'feasolver.h');
 
-    rules(end+1).target = '../cfemm/libfemm/femmcomplex.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/femmcomplex.h';
+    rules(end+1).target = fullfile(libfemmpath, 'femmcomplex.${OBJ_EXT}');
+    rules(end).deps = fullfile(libfemmpath, 'femmcomplex.h');
 
-    rules(end+1).target = '../cfemm/libfemm/fparse.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/fparse.h';
+    rules(end+1).target = fullfile(libfemmpath, 'fparse.${OBJ_EXT}');
+    rules(end).deps = fullfile(libfemmpath, 'fparse.h');
 
-    rules(end+1).target = '../cfemm/libfemm/fullmatrix.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/fullmatrix.h';
+    rules(end+1).target = fullfile(libfemmpath, 'fullmatrix.${OBJ_EXT}');
+    rules(end).deps = fullfile(libfemmpath, 'fullmatrix.h');
 
-    rules(end+1).target = '../cfemm/libfemm/spars.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/libfemm/spars.h';
+    rules(end+1).target = fullfile(libfemmpath, 'spars.${OBJ_EXT}');
+    rules(end).deps = fullfile(libfemmpath, 'spars.h');
 
-    rules(end+1).target = '../cfemm/fmesher/fmesher.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/fmesher.h';
+    rules(end+1).target = fullfile(cfemmpath, 'fmesher/fmesher.${OBJ_EXT}');
+    rules(end).deps = fullfile(cfemmpath, 'fmesher/fmesher.h');
 
-    rules(end+1).target = '../cfemm/fmesher/intpoint.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/intpoint.h';
+    rules(end+1).target = fullfile(cfemmpath, 'fmesher/intpoint.${OBJ_EXT}');
+    rules(end).deps = fullfile(cfemmpath, 'fmesher/intpoint.h');
 
-    rules(end+1).target = '../cfemm/fmesher/nosebl.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/nosebl.h';
+    rules(end+1).target = fullfile(cfemmpath, 'fmesher/nosebl.${OBJ_EXT}');
+    rules(end).deps = fullfile(cfemmpath, 'fmesher/nosebl.h');
 
-    rules(end+1).target = '../cfemm/fmesher/triangle.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/fmesher/triangle.h';
+    rules(end+1).target = fullfile(cfemmpath, 'fmesher/triangle.${OBJ_EXT}');
+    rules(end).deps = fullfile(cfemmpath, 'fmesher/triangle.h');
 % 
-%     rules(end+1).target = '../cfemm/fmesher/writepoly.${OBJ_EXT}';
-%     rules(end).deps = '../cfemm/fmesher/writepoly.h';
+%     rules(end+1).target = fullfile(cfemmpath, 'fmesher/writepoly.${OBJ_EXT}');
+%     rules(end).deps = fullfile(cfemmpath, 'fmesher/writepoly.h');
 
     rules(3).target = 'tidy';
     rules(3).commands = {'try; delete(''../cfemm/libfemm/liblua/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''../cfemm/libfemm/*.${OBJ_EXT}''); catch; end;', ...
-                         'try; delete(''../cfemm/fmesher/*.${OBJ_EXT}''); catch; end;'};
+                         'try; delete(''../cfemm/fmesher/*.${OBJ_EXT}''); catch; end;', ...
+                         'try; delete(''*.${OBJ_EXT}''); catch; end;'};
     
     rules(4).target = 'clean';
     rules(4).commands = [ rules(3).commands, ...
