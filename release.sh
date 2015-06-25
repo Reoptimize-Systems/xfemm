@@ -10,6 +10,7 @@
 # stop on first error
 set -e
 
+VERSION="1_1"
 WORKING_COPY_DIR=$(pwd)
 echo $WORKING_COPY_DIR
 mkdir $WORKING_COPY_DIR/release
@@ -32,7 +33,7 @@ make
 
 # tar up the result in the release directory
 cd $WORKING_COPY_DIR/release
-tar cvzf xfemm_linux64.tar.gz xfemm_linux64/
+tar cvzf xfemm_v${VERSION}_linux64.tar.gz xfemm_linux64/
 
 
 # repeat the above, but cross-compiling for windows, requires MXE: http://mxe.cc/
@@ -63,7 +64,7 @@ make
 
 # tar up the result in the release directory
 cd $WORKING_COPY_DIR/release
-zip -r xfemm_mingw_win64.zip xfemm_mingw_win64/
+zip -r xfemm_v${VERSION}_mingw_win64.zip xfemm_mingw_win64/
 
 
 
