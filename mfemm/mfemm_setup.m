@@ -63,6 +63,7 @@ function varargout = mfemm_setup(varargin)
     
     if isoctave
         thisfilepath = canonicalize_file_name(thisfilepath);
+        addpath (fullfile (thisfilepath, '+mfemmdeps'));
     end
     
     thisfilepath = fileparts (thisfilepath);
