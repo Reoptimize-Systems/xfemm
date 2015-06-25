@@ -153,21 +153,20 @@ function [rules, vars] = implicit_mmakefile()
     vars.MEX_EXT = mexext;
     
     % deterine the appropriate file extension for object files
-    vars.OPTIMFLAGS = '-O2';
+    vars.OPTIMFLAGS = '';
     if isunix || isoctave
         vars.OBJ_EXT = 'o';
     else
         cc = mex.getCompilerConfigurations ('C');
         if strncmpi (cc.ShortName, 'MSVC', 4)
             vars.OBJ_EXT = 'obj';
-            vars.OPTIMFLAGS = '/Ox';
         else
             vars.OBJ_EXT = 'o';
         end
     end
     vars.PWD = pwd;
     
-    vars.MEXFLAGS = ''; % Mirror MATLAB's default, but be explicit about it
+    vars.MEXFLAGS = '-O'; % Mirror MATLAB's default, but be explicit about it
     
     if isoctave
         vars.CFLAGSKEY   = '-W';
@@ -228,18 +227,14 @@ function [rules, vars] = implicit_mmakefile()
         rules(idx).target   = {['%.' vars.OBJ_EXT]}; % Note: in a normal function-style MMakefile.m, variable expansion is performed on targets and deps
         rules(idx).deps     = {'%.c'};
         rules(idx).commands = {'mex -c ${MEXFLAGS} "${CFLAGSKEY}${CFLAGS}" "${CXXFLAGSKEY}${CXXFLAGS}" "${LDFLAGSKEY}${LDFLAGS}" $<', ...
-                               '[pathstr,name,ext] = fileparts (''$<'')', ...
-                               'disp ([name,''.'',''${OBJ_EXT}''])', ...
+                               '[pathstr,name,ext] = fileparts (''$<'');', ...
                                'movefile ([name,''.'',''${OBJ_EXT}''], pathstr)' };
         idx = idx+1;
         rules(idx).target   = {['%.' vars.OBJ_EXT]};
         rules(idx).deps     = {'%.cpp'};
         rules(idx).commands = {'mex -c ${MEXFLAGS} "${CFLAGSKEY}${CFLAGS}" "${CXXFLAGSKEY}${CXXFLAGS}" "${LDFLAGSKEY}${LDFLAGS}" $<', ...
-                               '[pathstr,name,ext] = fileparts (''$<'')', ...
-                               'disp ([''output name is: '', name,''.'',''${OBJ_EXT}''])', ...
-                               'ls -a', ...
-                               'disp (pwd)', ...
-                               'movefile ([name,''.'',''${OBJ_EXT}''], pathstr)'};
+                               '[pathstr,name,ext] = fileparts (''$<'');', ...
+                               'movefile ([name,''.'',''${OBJ_EXT}''], pathstr);'};
         idx = idx+1;
         rules(idx).target   = {'%.dlm'};
         rules(idx).deps     = {'%.mdl'};
@@ -703,28 +698,26 @@ end
 % exist(*,'file') SEARCHES the path,
 % dir(file) returns bad information for directories.
 function b = file_exist(filename)
-%     import java.io.*;
     if isempty (javachk ('jvm'))
         a = javaObject ('java.io.File', filename);
-%         a=File(filename);
         b=(a.exists() && ~a.isDirectory);
     else
-        
+        error ('MJB:mmake:file_exist:java', ...
+               'mmake requires java support.');
     end
 end
 
 function t = ftime(filename)
-%     import java.io.*;
     if isempty (javachk ('jvm'))
         a = javaObject ('java.io.File', filename);
-%         a=File(filename);
         if a.exists()
             t=a.lastModified();
         else
             t=[];
         end
     else
-        
+        error ('MJB:mmake:file_exist:java', ...
+               'mmake requires java support.');
     end
 end
 
