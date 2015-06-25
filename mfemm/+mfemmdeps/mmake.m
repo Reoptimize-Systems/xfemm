@@ -123,7 +123,7 @@ end
     % Read the makefile
     [state.implicitRules, state.vars] = implicit_mmakefile();
     state = read_mmakefile(state,mmakefilename);
-    
+
     if isempty(target)
         target = state.rules(1).target{1};
     end
@@ -167,28 +167,43 @@ function [rules, vars] = implicit_mmakefile()
     end
     vars.PWD = pwd;
     
-    vars.MEXFLAGS = '-O'; % Mirror MATLAB's default, but be explicit about it
+    vars.MEXFLAGS = ''; % Mirror MATLAB's default, but be explicit about it
     
-    if ispc
-        % WHY, MATHWORKS, WHY!?
-        vars.CFLAGSKEY   = 'COMPFLAGS';
-        vars.CXXFLAGSKEY = 'COMPFLAGS';
-        vars.FFLAGSKEY   = 'COMPFLAGS';
-        vars.LDFLAGSKEY  = 'LINKFLAGS';
+    if isoctave
+        vars.CFLAGSKEY   = '-W';
+        vars.CXXFLAGSKEY = '-W';
+        vars.FFLAGSKEY   = '';
+        vars.LDFLAGSKEY  = '-Wl,';
+        
+        vars.CFLAGS   = '';
+        vars.CXXFLAGS = '';
+        vars.FFLAGS   = '';
+        vars.LDFLAGS  = '';
+        
     else
-        vars.CFLAGSKEY   = 'CFLAGS';
-        vars.CXXFLAGSKEY = 'CXXFLAGS';
-        vars.FFLAGSKEY   = 'FFLAGS';
-        vars.LDFLAGSKEY  = 'LDFLAGS';
+        if ispc
+            % WHY, MATHWORKS, WHY!?
+            vars.CFLAGSKEY   = 'COMPFLAGS';
+            vars.CXXFLAGSKEY = 'COMPFLAGS';
+            vars.FFLAGSKEY   = 'COMPFLAGS';
+            vars.LDFLAGSKEY  = 'LINKFLAGS';
+        else
+            vars.CFLAGSKEY   = 'CFLAGS';
+            vars.CXXFLAGSKEY = 'CXXFLAGS';
+            vars.FFLAGSKEY   = 'FFLAGS';
+            vars.LDFLAGSKEY  = 'LDFLAGS';
+        end
+        vars.OPTIMFLAGSKEY  = 'OPTIMFLAGS';
+        
+        vars.CFLAGS   = ['$' vars.CFLAGSKEY];
+        vars.CXXFLAGS = ['$' vars.CXXFLAGSKEY];
+        vars.FFLAGS   = ['$' vars.FFLAGSKEY];
+        vars.LDFLAGS  = ['$' vars.LDFLAGSKEY];
+    
     end
-    vars.OPTIMFLAGSKEY  = 'OPTIMFLAGS';
     
-    vars.CFLAGS   = ['$' vars.CFLAGSKEY];
-    vars.CXXFLAGS = ['$' vars.CXXFLAGSKEY];
-    vars.FFLAGS   = ['$' vars.FFLAGSKEY];
-    vars.LDFLAGS  = ['$' vars.LDFLAGSKEY];
-    
-    if isunix
+
+    if isunix && ~isoctave
         % Must escape $ signs in unix for the following vars:
         fields = {'CFLAGS' 'CXXFLAGS' 'FFLAGS' 'LDFLAGS', 'OPTIMFLAGS'};
         for i = 1:length(fields)
@@ -200,26 +215,57 @@ function [rules, vars] = implicit_mmakefile()
     % If no CFLAGS have been set, use the CXXFLAGS as their default
     if ~isfield(vars,'CFLAGS'), vars.CFLAGS = vars.CXXFLAGS; end;
     
-    idx = 1;
-    rules(idx).target   = {['%.' mexext]};
-    rules(idx).deps     = {'%.c'};
-    rules(idx).commands = {'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
-    idx = idx+1;
-    rules(idx).target   = {['%.' mexext]};
-    rules(idx).deps     = {'%.cpp'};
-    rules(idx).commands = {'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
-    idx = idx+1;
-    rules(idx).target   = {['%.' vars.OBJ_EXT]}; % Note: in a normal function-style MMakefile.m, variable expansion is performed on targets and deps
-    rules(idx).deps     = {'%.c'};
-    rules(idx).commands = {'mex -c ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
-    idx = idx+1;
-    rules(idx).target   = {['%.' vars.OBJ_EXT]};
-    rules(idx).deps     = {'%.cpp'};
-    rules(idx).commands = {'mex -c ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
-    idx = idx+1;
-    rules(idx).target   = {'%.dlm'};
-    rules(idx).deps     = {'%.mdl'};
-    rules(idx).commands = {'rtwbuild(''$*'')'};
+    if isoctave
+        idx = 1;
+        rules(idx).target   = {['%.' mexext]};
+        rules(idx).deps     = {'%.c'};
+        rules(idx).commands = {'mex ${MEXFLAGS} "${CFLAGSKEY}${CFLAGS}" "${CXXFLAGSKEY}${CXXFLAGS}" "${LDFLAGSKEY}${LDFLAGS}" $< -output $@'};
+        idx = idx+1;
+        rules(idx).target   = {['%.' mexext]};
+        rules(idx).deps     = {'%.cpp'};
+        rules(idx).commands = {'mex ${MEXFLAGS} "${CFLAGSKEY}${CFLAGS}" "${CXXFLAGSKEY}${CXXFLAGS}" "${LDFLAGSKEY}${LDFLAGS}" $< -output $@'};
+        idx = idx+1;
+        rules(idx).target   = {['%.' vars.OBJ_EXT]}; % Note: in a normal function-style MMakefile.m, variable expansion is performed on targets and deps
+        rules(idx).deps     = {'%.c'};
+        rules(idx).commands = {'mex -c ${MEXFLAGS} "${CFLAGSKEY}${CFLAGS}" "${CXXFLAGSKEY}${CXXFLAGS}" "${LDFLAGSKEY}${LDFLAGS}" $<', ...
+                               '[pathstr,name,ext] = fileparts (''$<'')', ...
+                               'disp ([name,''.'',''${OBJ_EXT}''])', ...
+                               'movefile ([name,''.'',''${OBJ_EXT}''], pathstr)' };
+        idx = idx+1;
+        rules(idx).target   = {['%.' vars.OBJ_EXT]};
+        rules(idx).deps     = {'%.cpp'};
+        rules(idx).commands = {'mex -c ${MEXFLAGS} "${CFLAGSKEY}${CFLAGS}" "${CXXFLAGSKEY}${CXXFLAGS}" "${LDFLAGSKEY}${LDFLAGS}" $<', ...
+                               '[pathstr,name,ext] = fileparts (''$<'')', ...
+                               'disp ([''output name is: '', name,''.'',''${OBJ_EXT}''])', ...
+                               'ls -a', ...
+                               'disp (pwd)', ...
+                               'movefile ([name,''.'',''${OBJ_EXT}''], pathstr)'};
+        idx = idx+1;
+        rules(idx).target   = {'%.dlm'};
+        rules(idx).deps     = {'%.mdl'};
+        rules(idx).commands = {'rtwbuild(''$*'')'};
+    else
+        idx = 1;
+        rules(idx).target   = {['%.' mexext]};
+        rules(idx).deps     = {'%.c'};
+        rules(idx).commands = {'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
+        idx = idx+1;
+        rules(idx).target   = {['%.' mexext]};
+        rules(idx).deps     = {'%.cpp'};
+        rules(idx).commands = {'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
+        idx = idx+1;
+        rules(idx).target   = {['%.' vars.OBJ_EXT]}; % Note: in a normal function-style MMakefile.m, variable expansion is performed on targets and deps
+        rules(idx).deps     = {'%.c'};
+        rules(idx).commands = {'mex -c ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
+        idx = idx+1;
+        rules(idx).target   = {['%.' vars.OBJ_EXT]};
+        rules(idx).deps     = {'%.cpp'};
+        rules(idx).commands = {'mex -c ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
+        idx = idx+1;
+        rules(idx).target   = {'%.dlm'};
+        rules(idx).deps     = {'%.mdl'};
+        rules(idx).commands = {'rtwbuild(''$*'')'};
+    end
 end
 
 % Recursively make the target, using the dependency information available
@@ -231,7 +277,7 @@ end
 function result = make(target, state)
     % see if we have a rule to make the target
     target_rules = find_matching_rules(target, state.rules);
-    
+
     cmds = {};
     deps = {};
     
@@ -272,7 +318,7 @@ function result = make(target, state)
             end
         end
     end
-    
+
     if isempty(cmds) && isempty(deps)
         % We don't know how to make it; ensure it exists:
         if file_exist(target)
@@ -565,6 +611,17 @@ function out = expand_auto_vars(cmds, ruleset)
     cmds = regexprep(cmds, '(\$\^|\$\{\^\}|\$\(\^\))', regexptranslate('escape',unique_deps));
     cmds = regexprep(cmds, '(\$\+|\$\{\+\}|\$\(\+\))', regexptranslate('escape',all_deps));
     cmds = regexprep(cmds, '(\$\&|\$\{\&\}|\$\(\&\))', regexptranslate('escape',target_dir));
+    
+    if isoctave
+        % in octave regexprep returns the escaped string, matlab returns
+        % the unescaped string
+        escapedchars = { '\$', '\.', '\?', '\[' };
+        replacechars = { '$', '.', '?', '[' };
+        for ind = 1:numel (escapedchars)
+            cmds = strrep (cmds, escapedchars{ind}, replacechars{ind});
+        end
+    end
+    
     out = cmds;
 end
 
@@ -646,18 +703,28 @@ end
 % exist(*,'file') SEARCHES the path,
 % dir(file) returns bad information for directories.
 function b = file_exist(filename)
-    import java.io.*;
-    a=File(filename);
-    b=(a.exists() && ~a.isDirectory);
+%     import java.io.*;
+    if isempty (javachk ('jvm'))
+        a = javaObject ('java.io.File', filename);
+%         a=File(filename);
+        b=(a.exists() && ~a.isDirectory);
+    else
+        
+    end
 end
 
 function t = ftime(filename)
-    import java.io.*;
-    a=File(filename);
-    if a.exists()
-        t=a.lastModified();
+%     import java.io.*;
+    if isempty (javachk ('jvm'))
+        a = javaObject ('java.io.File', filename);
+%         a=File(filename);
+        if a.exists()
+            t=a.lastModified();
+        else
+            t=[];
+        end
     else
-        t=[];
+        
     end
 end
 
