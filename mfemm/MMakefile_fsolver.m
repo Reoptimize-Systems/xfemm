@@ -9,7 +9,7 @@ function [rules,vars] = MMakefile_fsolver ()
     end
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -g -I"../cfemm/fsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
 
     vars.OBJS = { ...
       ... % liblua
@@ -149,7 +149,8 @@ function [rules,vars] = MMakefile_fsolver ()
     rules(3).target = 'tidy';
     rules(3).commands = {'try; delete(''../cfemm/libfemm/liblua/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''../cfemm/libfemm/*.${OBJ_EXT}''); catch; end;', ...
-                         'try; delete(''../cfemm/fsolver/*.${OBJ_EXT}''); catch; end;'};
+                         'try; delete(''../cfemm/fsolver/*.${OBJ_EXT}''); catch; end;', ...
+                         'try; delete(''*.${OBJ_EXT}''); catch; end;'};
     
     rules(4).target = 'clean';
     rules(4).commands = [ rules(3).commands, ...
