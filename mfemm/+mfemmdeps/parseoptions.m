@@ -41,7 +41,7 @@ function defaults = parseoptions(defaults, args)
     if isstruct(args) && numel(args) == 1
         
         % input is a scalar structure array
-        defaults = parse_pv_pairs(defaults, struct2pvpairs(args));
+        defaults = mfemmdeps.parse_pv_pairs(defaults, mfemmdeps.struct2pvpairs(args));
         
     elseif iscell(args)
         
@@ -50,7 +50,7 @@ function defaults = parseoptions(defaults, args)
             
             % call this function again with the structure as input, normal
             % error hadling can be done for the structure case then
-            defaults = parseoptions(defaults, args{1});
+            defaults = mfemmdeps.parseoptions(defaults, args{1});
             
         else
             
@@ -58,11 +58,11 @@ function defaults = parseoptions(defaults, args)
                 % input must be a cell containing another cell with a set of
                 % p-v pairs, parse_pv_pairs will do appropriate checking for
                 % this
-                defaults = parse_pv_pairs(defaults, args{:});
+                defaults = mfemmdeps.parse_pv_pairs(defaults, args{:});
             else
                 % input must be a set of p-v pairs, parse_pv_pairs will do
                 % appropriate checking for this
-                defaults = parse_pv_pairs(defaults, args); 
+                defaults = mfemmdeps.parse_pv_pairs(defaults, args); 
             end
             
         end
