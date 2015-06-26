@@ -247,7 +247,7 @@ function plotmagdirarrow (x,y,w,h,dir,varargin)
                    x + w/2, y + h/2 ;
                    x + w/2, y - h/2 ; ];
                
-	arrownodes = rotate2D (arrownodes, mfemmdeps.deg2rad(dir), [x,y]);
+	arrownodes = mfemmdeps.rotate2D (arrownodes, mfemmdeps.deg2rad(dir), [x,y]);
                
     line(arrownodes(:,1), arrownodes(:,2), varargin{:});
 
