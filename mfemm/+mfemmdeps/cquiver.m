@@ -201,7 +201,7 @@ function [u,v,sx,sy,maxd,cmap,bgcolor,axprops,xshift,yshift,hax] = parse_inputs(
     
     if fstparamstr
         
-        Inputs = parse_pv_pairs(Inputs, var(fstparamstr:end));
+        Inputs = mfemmdeps.parse_pv_pairs(Inputs, var(fstparamstr:end));
         
         % throw away the p-v pairs
         var = var(1:end-fstparamstr+1);
