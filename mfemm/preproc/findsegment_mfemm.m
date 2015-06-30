@@ -6,8 +6,23 @@ function [id, xycoords] = findsegment_mfemm(FemmProblem, loc)
 % [id, xycoords] = findsegment_mfemm(FemmProblem, loc)
 %
 % 
+% Input
+%
+%  FemmProblem - an mfemm problem structure containing at least one segment
+%
+%  loc - (n x 2) matrix of sets of x and y positions. The segment midpoint
+%    closest to each location will be found.
+%
+% Output
+%
+%  id - zero-based id of segments found, add 1 to get the index in the
+%    FemmProblem structure
+%
+%  xycoords - the x and y coordinates of the segments which where found
+%
 
-% Copyright 2012 Richard Crozier
+
+% Copyright 2012-2015 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
