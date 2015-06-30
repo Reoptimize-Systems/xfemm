@@ -12,9 +12,15 @@ function [id, xycoords] = findnode_mfemm(FemmProblem, loc)
 %  loc - (n x 2) matrix of sets of x and y positions. The node closest to
 %    each location will be found.
 %
-% 
+% Output
+%
+%  id - zero-based id of nodes found, add 1 to get the index in the
+%    FemmProblem structure
+%
+%  xycoords - the x and y coordinate of the nodes which where found
+%
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2015 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.

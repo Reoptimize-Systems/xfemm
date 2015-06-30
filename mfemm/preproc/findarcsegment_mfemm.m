@@ -5,9 +5,24 @@ function id = findarcsegment_mfemm(FemmProblem, loc)
 %
 % [id] = findarcsegment_mfemm(FemmProblem, loc)
 %
-% 
+% Input
+%
+%  FemmProblem - an mfemm problem structure containing at least one arc
+%    segment
+%
+%  loc - (n x 2) matrix of sets of x and y positions. The arg segment
+%    closest to each location will be found.
+%
+% Output
+%
+%  id - zero-based id of arc segments found, add 1 to get the index in the
+%    FemmProblem structure
+%
+%  xycoords - the x and y coordinates of the arc segments which where found
+%
 
-% Copyright 2014 Richard Crozier
+
+% Copyright 2014-2015 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
