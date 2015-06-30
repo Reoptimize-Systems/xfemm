@@ -79,6 +79,8 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
     % use a structure to map the file extensions to problem types
     fexmap.ans = 'magnetics';
     fexmap.anh = 'heatflow';
+    fexmap.fem = 'magnetics';
+    fexmap.feh = 'heatflow';
     
     % try to determine from the file name extension
     [~, ~, fext] = fileparts (filename);
