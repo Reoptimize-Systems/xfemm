@@ -30,6 +30,6 @@ function matlibdat2mat(datfile)
         
     rootpath = mfemmdeps.getmfilepath('matlibdat2mat');
     
-    save(fullfile(rootpath, 'matlib.mat'), 'matlib');
+    save(fullfile(rootpath, '..', 'matlib.mat'), 'matlib');
     
 end
