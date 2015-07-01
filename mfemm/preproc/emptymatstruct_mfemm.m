@@ -37,22 +37,24 @@ function Material = emptymatstruct_mfemm()
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    Material.Name = '';
-    Material.Mu_x = [];
-    Material.Mu_y = [];
-    Material.H_c = [];
-    Material.H_cAngle = [];
-    Material.J_re = [];
-    Material.J_im = [];
-    Material.Sigma = [];
-    Material.d_lam = [];
-    Material.Phi_h = [];
-    Material.Phi_hx = [];
-    Material.Phi_hy = [];
-    Material.LamType = [];
-    Material.LamFill = [];
-    Material.NStrands = [];
-    Material.WireD = [];
-    Material.BHPoints = [];
+%     Material.Name = '';
+%     Material.Mu_x = [];
+%     Material.Mu_y = [];
+%     Material.H_c = [];
+%     Material.H_cAngle = [];
+%     Material.J_re = [];
+%     Material.J_im = [];
+%     Material.Sigma = [];
+%     Material.d_lam = [];
+%     Material.Phi_h = [];
+%     Material.Phi_hx = [];
+%     Material.Phi_hy = [];
+%     Material.LamType = [];
+%     Material.LamFill = [];
+%     Material.NStrands = [];
+%     Material.WireD = [];
+%     Material.BHPoints = [];
+
+    Material = newmaterial_mfemm ('');
 
 end
