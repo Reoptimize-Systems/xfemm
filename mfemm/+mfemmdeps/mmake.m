@@ -158,7 +158,7 @@ function [rules, vars] = implicit_mmakefile()
         vars.OBJ_EXT = 'o';
     else
         cc = mex.getCompilerConfigurations ('C');
-        if strncmpi (cc.ShortName, 'MSVC', 4)
+        if strncmpi (cc.ShortName, 'MS', 2)
             vars.OBJ_EXT = 'obj';
         else
             vars.OBJ_EXT = 'o';
