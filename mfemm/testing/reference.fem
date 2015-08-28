@@ -1,0 +1,71 @@
+[Format]      =  4.0
+[Frequency]   =  0
+[Precision]   =  1e-008
+[MinAngle]    =  30
+[Depth]       =  1
+[LengthUnits] =  meters
+[ProblemType] =  planar
+[Coordinates] =  cartesian
+[ACSolver]    =  0
+[Comment]     =  "Add comments here."
+[PointProps]   = 0
+[BdryProps]   = 0
+[BlockProps]  = 2
+  <BeginBlock>
+    <BlockName> = "Air"
+    <Mu_x> = 1
+    <Mu_y> = 1
+    <H_c> = 0
+    <H_cAngle> = 0
+    <J_re> = 0
+    <J_im> = 0
+    <Sigma> = 0
+    <d_lam> = 0
+    <Phi_h> = 0
+    <Phi_hx> = 0
+    <Phi_hy> = 0
+    <LamType> = 0
+    <LamFill> = 1
+    <NStrands> = 0
+    <WireD> = 0
+    <BHPoints> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "NdFeB 40 MGOe"
+    <Mu_x> = 1.0489999999999999
+    <Mu_y> = 1.0489999999999999
+    <H_c> = 979000
+    <H_cAngle> = 0
+    <J_re> = 0
+    <J_im> = 0
+    <Sigma> = 0.66700000000000004
+    <d_lam> = 0
+    <Phi_h> = 0
+    <Phi_hx> = 0
+    <Phi_hy> = 0
+    <LamType> = 0
+    <LamFill> = 1
+    <NStrands> = 0
+    <WireD> = 0
+    <BHPoints> = 0
+  <EndBlock>
+[CircuitProps]  = 0
+[NumPoints] = 6
+0	-10	0	0
+0	10	0	0
+-1	-1	0	0
+1	-1	0	0
+1	1	0	0
+-1	1	0	0
+[NumSegments] = 4
+5	4	-1	0	0	0
+4	3	-1	0	0	0
+3	2	-1	0	0	0
+2	5	-1	0	0	0
+[NumArcSegments] = 2
+0	1	180	1	0	0	0
+1	0	180	1	0	0	0
+[NumHoles] = 0
+[NumBlockLabels] = 2
+0	0	2	0.20000000000000001	0	90	0	1	0
+0	2	1	0.20000000000000001	0	0	0	1	0
