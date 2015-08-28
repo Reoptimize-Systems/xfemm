@@ -68,6 +68,7 @@ zip -r xfemm_v${VERSION}_mingw_win64.zip xfemm_mingw_win64/
 
 
 
-
-
+# test
+cd $WORKING_COPY_DIR
+./test_release.sh
 
