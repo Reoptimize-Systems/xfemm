@@ -1,0 +1,14 @@
+## [Unreleased][unreleased]
+No unreleased changes as yet
+
+## [1.5] - 2015-28-08
+### Added
+- CHANGELOG.TXT
+- Test_fpproc.m, ande reference.fem. A basic test script and 
+  reference case for fpproc
+
+### Fixed
+- Properly implemented line integral matlab interface
+- Added missing return statement in heat flow interface
+
+
