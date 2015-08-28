@@ -364,6 +364,13 @@ classdef fpproc < mfemmpproc
         end
 
         function varargout = addcontour(this, x, y)
+            % add point to integration contour at point (x,y)
+            %
+            % Syntax
+            %
+            % fpproc.addcontour(x, y)
+            %
+            
             if ~this.isdocopen
                 error('No solution document has been opened.')
             end

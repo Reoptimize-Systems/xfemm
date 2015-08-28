@@ -19,6 +19,7 @@ enum ClassMethods { evNotDefined,
                     groupselectblock,
                     clearblock,
                     blockintegral,
+                    lineintegral,
                     smoothon,
                     smoothoff,
                     getprobleminfo,
@@ -51,6 +52,7 @@ void Initialize()
     s_mapClassMethodStrs["groupselectblock"]  = groupselectblock;
     s_mapClassMethodStrs["clearblock"]        = clearblock;
     s_mapClassMethodStrs["blockintegral"]     = blockintegral;
+    s_mapClassMethodStrs["lineintegral"]      = lineintegral;
     s_mapClassMethodStrs["smoothon"]          = smoothon;
     s_mapClassMethodStrs["smoothoff"]         = smoothoff;
     s_mapClassMethodStrs["getprobleminfo"]    = getprobleminfo;
@@ -138,6 +140,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     case blockintegral:
         FPProc_interface_instance->blockintegral(nlhs, plhs, nrhs, prhs);
+        return;
+    case lineintegral:
+        FPProc_interface_instance->lineintegral(nlhs, plhs, nrhs, prhs);
         return;
     case smoothon:
         FPProc_interface_instance->smoothon();
