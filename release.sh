@@ -10,7 +10,7 @@
 # stop on first error
 set -e
 
-VERSION="1_2"
+VERSION="1_5"
 WORKING_COPY_DIR=$(pwd)
 echo $WORKING_COPY_DIR
 mkdir $WORKING_COPY_DIR/release
