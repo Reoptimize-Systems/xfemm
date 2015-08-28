@@ -23,6 +23,7 @@ mkdir $WORKING_COPY_DIR/release
 svn export $WORKING_COPY_DIR $WORKING_COPY_DIR/release/xfemm_linux64
 # remove the release script
 rm $WORKING_COPY_DIR/release/xfemm_linux64/release.sh
+rm $WORKING_COPY_DIR/release/xfemm_linux64/test_release.sh
 # create temp build directory
 rm -rf /tmp/xfemm_linux64
 mkdir -p /tmp/xfemm_linux64
