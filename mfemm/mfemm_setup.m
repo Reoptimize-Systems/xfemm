@@ -174,6 +174,9 @@ function varargout = mfemm_setup(varargin)
         solution = fpproc (fpproc_test_file);
         vals = solution.getpointvalues(0.038, 0.207)
         
+        % run test scripts
+        run (fullfile (thisfilepath, 'testing', 'Test_fpproc.m'));
+        
     end
 
 
