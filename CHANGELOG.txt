@@ -6,6 +6,7 @@ No unreleased changes as yet
 - CHANGELOG.TXT
 - Test_fpproc.m, ande reference.fem. A basic test script and 
   reference case for fpproc
+- test_release.sh: release test script
 
 ### Fixed
 - Properly implemented line integral matlab interface
