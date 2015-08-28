@@ -419,7 +419,7 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
     // Create an array of CComplex to hold the results of the integral
     z = (CComplex *)calloc(4,sizeof(CComplex));
     theFPProc.LineIntegral(type,z);
-
+mexPrintf ("%f %f %f %f %f %f %f %f %f %f\n", z[0].re, z[0].im, z[1].re, z[1].im, z[2].re, z[2].im, z[3].re, z[3].im);
     switch(type)
     {
     case 2: // length result
@@ -446,8 +446,9 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
             // get a pointer to the start of the actual output data array
             outpointerRe = mxGetPr(plhs[0]);
             outpointerIm = mxGetPi(plhs[0]);
-            outpointerRe[0] = z[2].re; //outpointerIm[0] = 0.0;
-            outpointerRe[1] = z[3].re; //outpointerIm[1] = 0.0;
+            
+            outpointerRe[0] = z[2].re; outpointerIm[0] = 0.0;
+            outpointerRe[1] = z[3].re; outpointerIm[1] = 0.0;
             outpointerRe[2] = z[0].re;
             outpointerIm[2] = z[0].im;
             outpointerRe[3] = z[1].re;
@@ -462,6 +463,7 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
             plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
             // get a pointer to the start of the actual output data array
             outpointerRe = mxGetPr(plhs[0]);
+            
             outpointerRe[0] = z[0].re;
             outpointerRe[1] = z[1].re;
 
@@ -498,16 +500,28 @@ int FPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
         }
 
     default:
-        /*  set the output pointer to the output matrix */
-        plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxCOMPLEX);
-        // get a pointer to the start of the actual output data array
-        outpointerRe = mxGetPr(plhs[0]);
-        outpointerIm = mxGetPi(plhs[0]);
-        outpointerRe[0] = z[0].re;
-        outpointerIm[0] = z[0].im;
-        outpointerRe[1] = z[1].re;
-        outpointerIm[1] = z[1].im;
-
+        
+        if (theFPProc.Frequency!=0)
+        {
+            /*  set the output pointer to the output matrix */
+            plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxCOMPLEX);
+            // get a pointer to the start of the actual output data array
+            outpointerRe = mxGetPr(plhs[0]);
+            outpointerIm = mxGetPi(plhs[0]);
+            outpointerRe[0] = z[0].re;
+            outpointerIm[0] = z[0].im;
+            outpointerRe[1] = z[1].re;
+            outpointerIm[1] = z[1].im;
+        }
+        else
+        {
+            /*  set the output pointer to the output matrix */
+            plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
+            // get a pointer to the start of the actual output data array
+            outpointerRe = mxGetPr(plhs[0]);
+            outpointerRe[0] = z[0].re;
+            outpointerRe[1] = z[1].re;
+        }
         free(z);
         return 2;
     }

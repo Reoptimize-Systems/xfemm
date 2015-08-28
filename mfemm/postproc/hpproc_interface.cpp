@@ -97,6 +97,8 @@ int HPProc_interface::temperaturebounds(int nlhs, mxArray *plhs[], int nrhs, con
     
     outpointerRe[0] = theHPProc.A_Low;
     outpointerRe[1] = theHPProc.A_High;
+    
+    return 0;
 }
 
 
