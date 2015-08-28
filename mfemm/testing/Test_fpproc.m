@@ -1,8 +1,9 @@
 %% Fpproc Unit tests
 
+fprintf ('Running Test_fpproc\n');
 
 % solve reference problem
-femprob = fullfile (getmfilepath ('Test_fpproc.m'), 'reference.fem');
+femprob = fullfile (mfemmdeps.getmfilepath ('Test_fpproc.m'), 'reference.fem');
 [ansfilename, femfilename] = analyse_mfemm(femprob);
 
 solution = fpproc (ansfilename);
