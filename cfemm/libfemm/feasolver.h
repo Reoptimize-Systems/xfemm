@@ -95,7 +95,7 @@ public:
 
     virtual int LoadMesh(bool deleteFiles=true) = 0;
     virtual int LoadProblemFile () = 0;
-    int Cuthill();
+    int Cuthill(bool deleteFiles=true);
     int SortElements();
 
     // pointer to function to call when issuing warning messages
