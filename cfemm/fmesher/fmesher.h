@@ -99,9 +99,9 @@ public:
 	std::vector< femm::CBlockLabel > undoblocklist;
 
 	// vectors containing the mesh information
-	std::vector< myPoint >		meshline;
-	std::vector< myPoint >		greymeshline;
-	std::vector< femm::CNode >		meshnode;
+	std::vector< myPoint >      meshline;
+	std::vector< myPoint >      greymeshline;
+	std::vector< femm::CNode >	meshnode;
 
 	// lists of properties
 	std::vector< femm::CBoundaryProp > lineproplist;
