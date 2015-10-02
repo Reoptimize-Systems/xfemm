@@ -168,7 +168,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     // renumber using Cuthill-McKee
     if (verbose != 0.0) mexPrintf("renumbering nodes");
       
-    if (SolveObj.Cuthill() != TRUE)
+    if (SolveObj.Cuthill(deleteMeshFiles) != TRUE)
     {
         if (verbose != 0.0) mexPrintf("problem renumbering node points\n");
         plhs[0] = mxCreateDoubleScalar(3.0);

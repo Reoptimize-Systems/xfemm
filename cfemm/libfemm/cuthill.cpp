@@ -80,7 +80,7 @@ int FEASolver::SortElements()
     return TRUE;
 }
 
-int FEASolver::Cuthill()
+int FEASolver::Cuthill(bool deletefiles)
 {
 
     FILE *fp;
@@ -153,7 +153,11 @@ int FEASolver::Cuthill()
         nxtnum[n1]++;
     }
     fclose(fp);
-    remove(infile);
+    if (deletefiles)
+    {
+        remove(infile);
+    }
+    
 
     // sort connections in order of increasing connectivity;
     // I'm lazy, so I'm doing a bubble sort;
