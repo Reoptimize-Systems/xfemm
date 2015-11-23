@@ -915,7 +915,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
                         
                         C = textscan(s,'%f %f %f %f %f %f %f %f %f %s');
 
-                        %some defaults
+                        % copy the data to the new block
                         FemmProblem.BlockLabels(i).Coords = [C{1}, C{2}];
                         FemmProblem.BlockLabels(i).BlockType = C{3};
                         FemmProblem.BlockLabels(i).MaxArea = C{4};
@@ -926,8 +926,12 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
                         FemmProblem.BlockLabels(i).IsExternal = C{9};
                         FemmProblem.BlockLabels(i).IsDefault = bitand (int32 (FemmProblem.BlockLabels(i).IsExternal), int32 (2));
                         FemmProblem.BlockLabels(i).IsExternal = bitand (int32 (FemmProblem.BlockLabels(i).IsExternal), int32 (1));
-
-                        FemmProblem.BlockLabels(i).MagDirFctn = C{10};
+                        
+                        if ~isempty (C{10})
+                            FemmProblem.BlockLabels(i).MagDirFctn = C{10}{1};
+                        else
+                            FemmProblem.BlockLabels(i).MagDirFctn = '';
+                        end
 
                         if FemmProblem.BlockLabels(i).MaxArea < 0
                             FemmProblem.BlockLabels(i).MaxArea = 0;
