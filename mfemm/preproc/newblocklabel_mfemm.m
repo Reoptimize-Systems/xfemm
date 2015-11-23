@@ -37,6 +37,8 @@ function BlockLabel = newblocklabel_mfemm(x, y, varargin)
 %    Turns = 1          one turn
 %    IsExternal = 0     Block not in external region
 %    IsDefault = 0      Block not default material
+%    MagDirFctn = ''    No magnetisation function string
+%    IsMagnet = false   Flag indicating if block is magnet
 %
 % See also: addblocklabel_mfemm.m, addrectregion_mfemm.m
 %
