@@ -41,13 +41,16 @@ function varargout = checkgeom_mfemm(FemmProblem, tol, dodisplay)
 %   distance between them.
 %
 % intersectingsegments: [n x 1 matrix], first two columns are the indices
-%   of the overlapping/intersecting segments, third is the distance between them.
+%   of the overlapping/intersecting segments, third is the distance between
+%   them.
 %
-% labnearsegs: [n x 3 matrix], first two columns are the indices of the
-%   overlapping nodes, third is the distance between them.
+% labnearsegs: [n x 3 matrix], first column is the indices of labels
+%   the second is the indices of segments, third is the distance between
+%   them.
 %
-% nodesnearsegs: [n x 3 matrix], first two columns are the indices of the
-%   overlapping nodes, third is the distance between them.
+% nodesnearsegs: [n x 3 matrix], first column is the indices of labels
+%   the second is the indices of segments, third is the distance between
+%   them.
 %
 % Display of the results at the command line can be forced by supplying
 % dodisplay and setting its value to true.
@@ -77,6 +80,34 @@ function varargout = checkgeom_mfemm(FemmProblem, tol, dodisplay)
     problems.nodes = [d.rowindex, d.columnindex, d.distance];
     % strip the self referencing indices
     problems.nodes = problems.nodes(problems.nodes(:,1) ~= problems.nodes(:,2), :);
+    
+    foundduplicates = true;
+    
+    while foundduplicates
+        
+        duplicates = [];
+        
+        flippednodes = fliplr (problems.nodes(:,1:2));
+        for ind = 1:size (problems.nodes,1)
+            for indii = 1:size (flippednodes,1)
+                if indii ~= ind
+                    if all(problems.nodes(ind,1:2) == flippednodes(indii,1:2))
+                        duplicates = [duplicates, indii];
+                    end
+                end
+            end
+            foundduplicates = ~isempty(duplicates);
+            
+            if foundduplicates
+                break;
+            end
+            
+        end
+        
+        % delete the duplicates
+        problems.nodes(duplicates,:) = [];
+        
+    end
     
     % check for labels within a given tolerance of each other
     d = mfemmdeps.ipdm(labelcoords, 'Subset', 'Maximum', 'Limit', tol, 'Result', 'Structure');
