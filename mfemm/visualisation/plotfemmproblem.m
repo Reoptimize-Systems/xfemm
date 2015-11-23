@@ -36,6 +36,11 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     options.AddLabels = true;
     options.PlotNodes = true;
     options.InitialViewPort = [];
+    options.ProblemStruct = [];
+    options.PlotOverlappingNodes = [];
+    options.PlotNodesOnSegments = [];
+    options.PlotOverlappingSegments = [];
+    options.PlotIntersectingSegments = [];
     
     options = mfemmdeps.parseoptions (options, varargin);
     
@@ -148,6 +153,10 @@ function makefemmplot(hax,options,w,h)
     
     end
     
+    if ~isempty (options.ProblemStruct)
+        plotgeomproblems (FemmProblem, w, h, options);
+    end
+    
     % plot the mesh if it's present, would be nice to cycle through colours
     % for regions here
     hold all
@@ -160,6 +169,100 @@ function makefemmplot(hax,options,w,h)
     end
     hold off
 
+end
+
+
+function plotgeomproblems (FemmProblem, w, h, options)
+
+    r = 0.015 * mfemmdeps.magn([w,h]);
+    
+    % overlapping nodes
+    for ind = 1:size (options.ProblemStruct.nodes, 1)
+        
+        x = FemmProblem.Nodes(options.ProblemStruct.nodes(ind,1)).Coords(1);
+        y = FemmProblem.Nodes(options.ProblemStruct.nodes(ind,1)).Coords(2);
+        
+        plotcircle (x, y, r)
+        
+        % Draw a label a little to the right and above the marker showing
+        % the node numbers
+        text( x + 1.025*r, ...
+              y + 1.025*r, ...
+              sprintf ('%d,%d,%e', ...
+                       options.ProblemStruct.nodes(ind,1), ...
+                       options.ProblemStruct.nodes(ind,2), ...
+                       options.ProblemStruct.nodes(ind,3) ), ...
+              'UserData', 'mfemm', ...
+              options.LabelText{:} ...
+              );
+    end
+    
+    % overlapping labels
+    for ind = 1:size (options.ProblemStruct.labels, 1)
+        
+        x = FemmProblem.BlockLabels(options.ProblemStruct.labels(ind,1)).x;
+        y = FemmProblem.BlockLabels(options.ProblemStruct.labels(ind,1)).y;
+        
+        plotcircle (x, y, r)
+        
+        % Draw a label a little to the right and above the marker showing
+        % the label numbers and distance
+        text( x + 1.025*r, ...
+              y + 1.025*r, ...
+              sprintf ('%d,%d,%e', ...
+                       options.ProblemStruct.labels(ind,1), ...
+                       options.ProblemStruct.labels(ind,2), ...
+                       options.ProblemStruct.labels(ind,3) ), ...
+              'UserData', 'mfemm', ...
+              options.LabelText{:} ...
+              );
+    end
+    
+    % labels near nodes
+    for ind = 1:size (options.ProblemStruct.labelsandnodes, 1)
+        
+        x = FemmProblem.BlockLabels(options.ProblemStruct.labelsandnodes(ind,1)).x;
+        y = FemmProblem.BlockLabels(options.ProblemStruct.labelsandnodes(ind,1)).y;
+        
+        plotcircle (x, y, r)
+        
+        % Draw a label a little to the right and above the marker showing
+        % the label numbers and distance
+        text( x + 1.025*r, ...
+              y + 1.025*r, ...
+              sprintf ('%d,%d,%e', ...
+                       options.ProblemStruct.labelsandnodes(ind,1), ...
+                       options.ProblemStruct.labelsandnodes(ind,2), ...
+                       options.ProblemStruct.labelsandnodes(ind,3) ), ...
+              'UserData', 'mfemm', ...
+              options.LabelText{:} ...
+              );
+    end
+    
+    % overlapping segments
+    
+    % overlapping segments and nodes
+    
+    % intersecting segments
+    
+    % labels near segmetns
+    
+    % nodes near segments
+
+end
+
+function plotcircle (x, y, r)
+
+    rectpos = [ x - r, ...
+                y - r, ...
+                r*2, ...
+                r*2 ];
+
+         
+    rectangle('Position', rectpos, 'Curvature', [1,1], ...
+              'EdgeColor', 'red', ...
+              'UserData', 'mfemm');
+    
 end
 
 
@@ -193,10 +296,12 @@ function plotblocklabel(w, h, maxtriarea, BlockLabel, options)
                 labeld ];
     
     hold all
+    % draw the circle (using 'rectangle' naturally
     rectangle('Position', rectpos, 'Curvature', [1,1], ...
               'EdgeColor', labelcolour, ...
               'UserData', 'mfemm');
 
+    % draw a cross marking the lable centre
     plotcross( BlockLabel.Coords(1), ...
                BlockLabel.Coords(2), ...
                labeld,labeld, ...
