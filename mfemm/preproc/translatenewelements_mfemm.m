@@ -3,11 +3,11 @@ function FemmProblem = translatenewelements_mfemm (FemmProblem, oldelcount, XShi
 %
 % Syntax
 %
-% FemmProblem = shiftnewelements_mfemm (FemmProblem, oldelcount, XShift, YShift)
+% FemmProblem = translatenewelements_mfemm (FemmProblem, oldelcount, XShift, YShift)
 %
 % Description
 %
-% shiftnewelements_mfemm moves allelements added since the element count
+% translatenewelements_mfemm moves allelements added since the element count
 % provided in oldelcount was performed by the specified amount in the x and
 % y direction.
 %
