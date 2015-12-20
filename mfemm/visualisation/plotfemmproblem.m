@@ -10,11 +10,36 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
 %
 %  FemmProblem - mfemm problem structure
 %
+% Additional options may be supplied as parameter-value pairs.
+%
+%  'FigureHandle' - handle to figure in which to create the plot. By default
+%    a new figure is created.
+%
+%  'LabelText' - Cell array of additional arguments to pass to the label
+%    creation function. Default is {'Color', [0 0 0.5]}.
+%
+%  'AddLabels' - flag determining whether to diplay block labels in plot.
+%    default is true
+%
+%  'PlotNodes' - flag determining whether to plot nodes, defaut is true.
+%
+%  'InitialViewPort' - (4 X 1) vector specifying the initial viewport of
+%    the plot. The vector is [x, y, w, h].
+%
+%  'FindGeomProblems' - flag determining whether to find and plot problems
+%    with the geometry using checkgeom_mfemm. Default is false.
+%
+%  'ProblemStruct' - Using this option a geometry problem structure (as 
+%    produced by checkgeom_mfemm) can be supplied directly rather than
+%    generating it. 
+%
 % Output
 %
 %  hfig - handle to the created figure
 %
 %  hax - handle to the created axes
+%
+% 
 
 % Copyright 2012-2014 Richard Crozier
 % 
@@ -37,12 +62,18 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     options.PlotNodes = true;
     options.InitialViewPort = [];
     options.ProblemStruct = [];
-    options.PlotOverlappingNodes = [];
-    options.PlotNodesOnSegments = [];
-    options.PlotOverlappingSegments = [];
-    options.PlotIntersectingSegments = [];
+    options.FindGeomProblems = false;
+%     options.PlotOverlappingNodes = [];
+%     options.PlotNodesOnSegments = [];
+%     options.PlotOverlappingSegments = [];
+%     options.PlotIntersectingSegments = [];
     
     options = mfemmdeps.parseoptions (options, varargin);
+    
+    if options.FindGeomProblems && isempty (options.ProblemStruct)
+        fprintf (1,'Checking for problems with geometry using checkgeom_mfemm.\n');
+        options.ProblemStruct = checkgeom_mfemm (FemmProblem, [], true);
+    end
     
     if isempty (options.FigureHandle)
         hfig = figure;
@@ -154,7 +185,7 @@ function makefemmplot(hax,options,w,h)
     end
     
     if ~isempty (options.ProblemStruct)
-        plotgeomproblems (FemmProblem, w, h, options);
+        options = plotgeomproblems (FemmProblem, w, h, options);
     end
     
     % plot the mesh if it's present, would be nice to cycle through colours
@@ -172,8 +203,8 @@ function makefemmplot(hax,options,w,h)
 end
 
 
-function plotgeomproblems (FemmProblem, w, h, options)
-
+function options = plotgeomproblems (FemmProblem, w, h, options)
+    
     r = 0.015 * mfemmdeps.magn([w,h]);
     
     % overlapping nodes
