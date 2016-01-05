@@ -1,9 +1,9 @@
-function [FemmProblem, segids] = splitsegment_mfemm (FemmProblem, segid, lenfrac, varargin)
+function [FemmProblem, newsegids, newnodeids] = splitsegment_mfemm (FemmProblem, segid, lenfrac, varargin)
 % splits a segment into two new segments, adding a new nodes as necessary
 %
 % Syntax
 %
-% [FemmProblem, segids] = splitsegment_mfemm (FemmProblem, segid, lenfrac)
+% [FemmProblem, segids, newnodeids] = splitsegment_mfemm (FemmProblem, segid, lenfrac)
 %
 % Input 
 %
@@ -51,7 +51,7 @@ function [FemmProblem, segids] = splitsegment_mfemm (FemmProblem, segid, lenfrac
     
     if any(lenfrac == 0) || any(abs(lenfrac) >= 1)
         error ('MFEMM:splitsegment:badlenfrac', ...
-               'lenfrac must satisfy 0 < abs(lenfrac) < 1');
+               'lenfrac must satisfy -1 < abs(lenfrac) < 1 and lenfrac != 1');
     end
     
     lenfrac(lenfrac < 0) = 1 - abs (lenfrac(lenfrac < 0));
@@ -79,7 +79,7 @@ function [FemmProblem, segids] = splitsegment_mfemm (FemmProblem, segid, lenfrac
     % make new segments linking new node to old n2 of original segment
     [FemmProblem, seginds] = addsegments_mfemm (FemmProblem, newnodeids, [newnodeids(2:end), n2]);
     
-    segids = seginds - 1;
+    newsegids = seginds - 1;
     
     % TODO: copy over info as requested
 
