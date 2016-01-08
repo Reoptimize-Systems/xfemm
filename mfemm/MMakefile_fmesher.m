@@ -10,6 +10,10 @@ function [rules,vars] = MMakefile_fmesher ()
 
     % flags that will be passed direct to mex
     vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fmesher" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    if isunix
+        vars.OPTIMFLAGS = ['-O2'];
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+    end
     
     cfemmpath = fullfile (thisfilepath, '..', 'cfemm');
     libfemmpath = fullfile (cfemmpath, 'libfemm');
