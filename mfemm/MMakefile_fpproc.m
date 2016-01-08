@@ -9,8 +9,12 @@ function [rules,vars] = MMakefile_fpproc ()
     end
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -g -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
-
+    vars.MEXFLAGS = ['${MEXFLAGS} -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    if isunix
+        vars.OPTIMFLAGS = ['-O2'];
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+    end
+    
     vars.OBJS = { ...
       ... % liblua
       '../cfemm/libfemm/liblua/lapi.${OBJ_EXT}', ...  

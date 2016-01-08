@@ -10,6 +10,10 @@ function [rules,vars] = MMakefile_hpproc ()
 
     % flags that will be passed direct to mex
     vars.MEXFLAGS = ['${MEXFLAGS} -I"postproc" -I"../cfemm/hpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    if isunix
+        vars.OPTIMFLAGS = ['-O2'];
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+    end
 
     vars.OBJS = { ...
       ... % liblua
