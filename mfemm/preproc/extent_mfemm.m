@@ -12,6 +12,9 @@ function [x,y,w,h] = extent_mfemm(FemmProblem)
 %
 % Output
 %
+% If there are no nodes in the problem all outputs will be a single Nan
+% value, otherwise:
+%
 % x - x coordinate of lower left corner of simulation region
 % 
 % y - y coordinate of lower left corner of simulation region
@@ -37,14 +40,22 @@ function [x,y,w,h] = extent_mfemm(FemmProblem)
 
     nodecoords = getnodecoords_mfemm(FemmProblem);
     
-    x = min(nodecoords(:,1));
-    
-    y = min(nodecoords(:,2));
-    
-    
-    w = max(nodecoords(:,1)) - x;
-    
-    h = max(nodecoords(:,2)) - y;
+    if ~isempty (nodecoords)
+        
+        x = min(nodecoords(:,1));
 
+        y = min(nodecoords(:,2));
+
+
+        w = max(nodecoords(:,1)) - x;
+
+        h = max(nodecoords(:,2)) - y;
+        
+    else
+        x = nan;
+        y = nan;
+        w = nan;
+        h = nan;
+    end
 
 end
