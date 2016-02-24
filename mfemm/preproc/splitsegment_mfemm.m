@@ -43,7 +43,7 @@ function [FemmProblem, newsegids, newnodeids] = splitsegment_mfemm (FemmProblem,
 %     options.CopyGroupNumber = true;
 %     options.CopyBoundary = 0;
 %     
-%     options = parse_pv_pairs (options, varargin);
+%     options = mfemmdeps.parse_pv_pairs (options, varargin);
     
     % check lenfrac is a numeric vector
     assert (isvector (lenfrac) & isnumeric (lenfrac), 'MFEMM:splitsegment:badlenfrac', ...
