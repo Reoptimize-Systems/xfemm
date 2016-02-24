@@ -1,10 +1,34 @@
 ## [Unreleased][unreleased]
 No unreleased changes as yet
 
-## [1.5] - 2015-28-08
+## [1.6] - 2016-02-24
+### Added
+- segmentlength_mfemm.m: returns length of a segment
+- translatenewelements_mfemm.m: translates the n most recently 
+  added elements
+- splitsegment_mfemm: split a segment into smaller subsegments
+
+### Modified
+- plotfemmproblem.m: add options to find and mark geometry 
+  problems on the problem plot
+
+### Fixed
+- findsegment_mfemm.m: change to use actual distance to segment, 
+  not segment mid points
+- keep .edge file of mesh if keeping the mesh after loading it 
+  is requested
+- checkgeom_mfemm.m: no longer reports overlapping nodes twice
+- loadfemmsolution.m: correct loading of magnet direction when 
+  it is a lua function string
+- plotfemmproblem.m: correct drawing of magnet direction when 
+  it is a lua function string
+- Fixed various calls to functions in mfemmdeps package
+- Various improvements to help text etc.
+
+## [1.5] - 2015-08-28
 ### Added
 - CHANGELOG.TXT
-- Test_fpproc.m, ande reference.fem. A basic test script and 
+- Test_fpproc.m, and reference.fem. A basic test script and 
   reference case for fpproc
 - test_release.sh: release test script
 
