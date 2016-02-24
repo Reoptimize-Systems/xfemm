@@ -27,14 +27,14 @@ function [FemmProblem, newseginds] = mirrorsegments_mfemm(FemmProblem, seginds, 
 %                                 .                                         
 %                      |         .
 %                      |        .
-%                      |       . �
-%                      |      .  �dy     m = dy / dx             
+%                      |       . :
+%                      |      .  :dy     m = dy / dx             
 %                      |     .----                                              
 %                      |    .   dx
 %                 _____|___._____________________                           
-%                    � |  .                                                 
-%                  c � | .                                                  
-%                    � |.                                                   
+%                    : |  .                                                 
+%                  c : | .                                                  
+%                    : |.                                                   
 %                    v x                                                    
 %                     .    
 %
