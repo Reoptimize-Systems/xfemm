@@ -20,7 +20,7 @@ mkdir $WORKING_COPY_DIR/release
 # linux 64 bit
 #mkdir $WORKING_COPY_DIR/release/xfemm_linux64
 # export from the working directory to the release directory
-svn export $WORKING_COPY_DIR $WORKING_COPY_DIR/release/xfemm_linux64
+hg archive $WORKING_COPY_DIR/release/xfemm_linux64
 # remove the release script
 rm $WORKING_COPY_DIR/release/xfemm_linux64/release.sh
 rm $WORKING_COPY_DIR/release/xfemm_linux64/test_release.sh
@@ -45,7 +45,7 @@ tar cvzf xfemm_v${VERSION}_linux64.tar.gz xfemm_linux64/
 #rm $WORKING_COPY_DIR/release/xfemm_mingw_win32/release.sh
 
 # win 64 -- x86_64-w64-mingw32 MXE target
-svn export $WORKING_COPY_DIR $WORKING_COPY_DIR/release/xfemm_mingw_win64 --native-eol CRLF
+hg archive $WORKING_COPY_DIR/release/xfemm_mingw_win64 # TODO: windows line endings?
 rm $WORKING_COPY_DIR/release/xfemm_mingw_win64/release.sh
 # create temp build directory
 rm -rf /tmp/xfemm_mingw_win64
