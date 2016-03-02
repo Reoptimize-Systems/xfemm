@@ -127,8 +127,8 @@ function cellstrs = writearcs_freecad (nodes, arclinks, unique_str)
     [centres, r] = mfemmdeps.circcentre (arcstartnodes, arcendnodes, mfemmdeps.deg2rad(arclinks(:,3)));
     [arcstartangles, ~] = cart2pol (arcstartnodes(:,1)-centres(:,1), arcstartnodes(:,2)-centres(:,2));
 	[arcendangles, ~] = cart2pol (arcendnodes(:,1)-centres(:,1), arcendnodes(:,2)-centres(:,2));
-    arcstartangles = rad2deg (arcstartangles);
-    arcendangles = rad2deg (arcendangles);
+    arcstartangles = mfemmdeps.rad2deg (arcstartangles);
+    arcendangles = mfemmdeps.rad2deg (arcendangles);
     
     % get the lines for the face
     cellstrs = { sprintf('arcs%s = [', unique_str) };
