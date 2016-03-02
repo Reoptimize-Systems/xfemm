@@ -5,7 +5,7 @@
 - Fixed problem with determining compiler in oder versions of 
   Matlab
 - Fixed mfemm/MMakefile_fmesher.m to use forward slashes for Windows
-  compilation
+  compilation (caused some problems with certain windows paths)
 
 ## [1.6] - 2016-02-24
 ### Added
