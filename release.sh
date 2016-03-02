@@ -10,7 +10,7 @@
 # stop on first error
 set -e
 
-VERSION="1_6"
+VERSION="1_7"
 WORKING_COPY_DIR=$(pwd)
 echo $WORKING_COPY_DIR
 mkdir $WORKING_COPY_DIR/release
@@ -21,6 +21,8 @@ mkdir $WORKING_COPY_DIR/release
 #mkdir $WORKING_COPY_DIR/release/xfemm_linux64
 # export from the working directory to the release directory
 hg archive $WORKING_COPY_DIR/release/xfemm_linux64
+# remove file created by mercurial
+rm $WORKING_COPY_DIR/release/xfemm_linux64/.hg_archival.txt
 # remove the release script
 rm $WORKING_COPY_DIR/release/xfemm_linux64/release.sh
 rm $WORKING_COPY_DIR/release/xfemm_linux64/test_release.sh
@@ -46,7 +48,11 @@ tar cvzf xfemm_v${VERSION}_linux64.tar.gz xfemm_linux64/
 
 # win 64 -- x86_64-w64-mingw32 MXE target
 hg archive $WORKING_COPY_DIR/release/xfemm_mingw_win64 # TODO: windows line endings?
+# remove file created by hg
+rm $WORKING_COPY_DIR/release/xfemm_linux64/.hg_archival.txt
+# remove release scripts
 rm $WORKING_COPY_DIR/release/xfemm_mingw_win64/release.sh
+rm $WORKING_COPY_DIR/release/xfemm_linux64/test_release.sh
 # create temp build directory
 rm -rf /tmp/xfemm_mingw_win64
 mkdir -p /tmp/xfemm_mingw_win64
