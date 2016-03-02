@@ -3,7 +3,7 @@ syntax: glob
 # xfem specific patterns #
 --------------------------
 
-# None as yet
+release/
 
 # common patterns #
 -------------------
