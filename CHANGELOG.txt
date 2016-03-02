@@ -4,6 +4,8 @@
   problem2freecad)
 - Fixed problem with determining compiler in oder versions of 
   Matlab
+- Fixed mfemm/MMakefile_fmesher.m to use forward slashes for Windows
+  compilation
 
 ## [1.6] - 2016-02-24
 ### Added
