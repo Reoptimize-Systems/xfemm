@@ -1,5 +1,9 @@
-## [Unreleased][unreleased]
-No unreleased changes as yet
+## [1.7] - 2016-03-02
+### Fixed
+- missing dependancy rad2deg.m added (needed for 
+  problem2freecad)
+- Fixed problem with determining compiler in oder versions of 
+  Matlab
 
 ## [1.6] - 2016-02-24
 ### Added
