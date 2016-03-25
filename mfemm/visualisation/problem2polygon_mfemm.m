@@ -22,6 +22,7 @@ function nodes = problem2polygon_mfemm (FemmProblem, varargin)
 
 
     Inputs.Groups = [];
+    Inputs.CheckZeroLinks = true;
     
     Inputs = mfemmdeps.parseoptions (Inputs, varargin);
     
@@ -29,9 +30,21 @@ function nodes = problem2polygon_mfemm (FemmProblem, varargin)
     links = getseglinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
     arclinks = getarclinks_mfemm(FemmProblem, 'Groups', Inputs.Groups);
 
+    if ~isempty (links)
+        templinks = [links, zeros(size(links,1), 1), (1:size(links,1))'];
+    else
+        templinks = [];
+    end
+    
+    if ~isempty (arclinks)
+        temparclinks = [arclinks(:,1:2), ones(size(arclinks,1), 1), (1:size(arclinks,1))'];
+    else
+        temparclinks = [];
+    end
+    
     % get all links so we can traverse them, converting as required
-    alllinks = [ [links, zeros(size(links,1), 1), (1:size(links,1))']; 
-                 [arclinks(:,1:2), ones(size(arclinks,1), 1), (1:size(arclinks,1))'] ];
+    alllinks = [ templinks; 
+                 temparclinks ];
 
     % make the link locations indices rather than zero-based ids
     alllinks(:,1:2) = alllinks(:,1:2) + 1;
@@ -55,10 +68,19 @@ function nodes = problem2polygon_mfemm (FemmProblem, varargin)
 
         if colstart == 1, colend = 2; else colend = 1; end
 
-        if numel(row) ~= 1
-            error ('Each segment must be connected to exactly one other segment');
+        if numel(row) > 1
+            error ('Each segment must be connected to no more than one other segment');
         end
 
+        if numel(row) < 1
+            if Inputs.CheckZeroLinks
+                error ('Each segment must be connected to one other segment');
+            else
+                % stop as we don't have anywhere to go
+                return;
+            end
+        end
+        
         searchind = alllinks(row,colend);
 
         if alllinks(row,3)
