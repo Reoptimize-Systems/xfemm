@@ -27,7 +27,7 @@ function [FemmProblem] = rotatenodes_mfemm(FemmProblem, rotangle, nodeids, varar
     
     Inputs = mfemmdeps.parseoptions (Inputs, varargin);
 
-    if nargin < 4
+    if nargin < 3
         nodeinds = 1:numel(FemmProblem.Nodes);
     else
         nodeinds = nodeids + 1;
