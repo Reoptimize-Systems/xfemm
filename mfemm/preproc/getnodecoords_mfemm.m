@@ -62,6 +62,7 @@ function [nodecoords, originds] = getnodecoords_mfemm(FemmProblem, varargin)
         
     else
         nodecoords = [];
+        originds = [];
     end
 
 end
