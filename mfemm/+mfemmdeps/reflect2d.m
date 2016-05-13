@@ -24,14 +24,14 @@ function [xycoords] = reflect2d(xycoords, varargin)
 %                                 .                                         
 %                      |         .
 %                      |        .
-%                      |       . ¦
-%                      |      .  ¦dy     m = dy / dx             
+%                      |       . :
+%                      |      .  :dy     m = dy / dx             
 %                      |     .----                                              
 %                      |    .   dx
 %                 _____|___._____________________                           
-%                    ¦ |  .                                                 
-%                  c ¦ | .                                                  
-%                    ¦ |.                                                   
+%                    : |  .                                                 
+%                  c : | .                                                  
+%                    : |.                                                   
 %                    v x                                                    
 %                     .    
 %
