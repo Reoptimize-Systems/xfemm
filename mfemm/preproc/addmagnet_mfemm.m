@@ -45,6 +45,8 @@ function [FemmProblem, matname, matind] = addmagnet_mfemm(FemmProblem, Hc, mu_x,
 
     matname = ['NdFeB ', int2str(hc2mgoe(Hc)), ' MGOe'];
     
+    magmaterial = newmaterial_mfemm (matname);
+    
     magmaterial.Name = matname;
     magmaterial.Mu_x = 1.049;
     magmaterial.Mu_y = 1.049;
