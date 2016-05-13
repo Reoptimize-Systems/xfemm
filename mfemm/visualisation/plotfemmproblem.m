@@ -33,6 +33,9 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
 %    produced by checkgeom_mfemm) can be supplied directly rather than
 %    generating it. 
 %
+%  'HighlightSegments' - array of segment ids to highlight in the plot by
+%    drawing in red
+%
 % Output
 %
 %  hfig - handle to the created figure
@@ -61,6 +64,8 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     options.AddLabels = true;
     options.PlotNodes = true;
     options.InitialViewPort = [];
+    options.HighlightSegments = [];
+    options.ShowSegmentDirections = false;
     options.ProblemStruct = [];
     options.FindGeomProblems = false;
 %     options.PlotOverlappingNodes = [];
@@ -158,7 +163,17 @@ function makefemmplot(hax,options,w,h)
     links = getnodelinks_mfemm(FemmProblem);
 
     % plot the segments as lines
-    plotnodelinks(nodes, links, 'PlotNodes', options.PlotNodes, 'UserData', 'mfemm');
+    plotnodelinks(nodes, links, ...
+                  'PlotNodes', options.PlotNodes, ...
+                  'UserData', 'mfemm', ...
+                  'ShowDirection', options.ShowSegmentDirections);
+    
+    if ~isempty (options.HighlightSegments)
+        plotnodelinks(nodes, links(options.HighlightSegments+1,:), ...
+                        'PlotNodes', false, ...
+                        'UserData', 'mfemm', ...
+                        'LineSpec', {'Color', 'red', 'LineWidth', 2});
+    end
 
     arclinks = getarclinks_mfemm(FemmProblem);
 
