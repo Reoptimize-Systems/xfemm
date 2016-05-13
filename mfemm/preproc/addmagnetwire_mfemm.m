@@ -11,6 +11,8 @@ function [FemmProblem, matind] = addmagnetwire_mfemm(FemmProblem, name, Dc, resi
 %   resistivity - optional resistivity of the material  58
 %
 
+    wirematerial = newmaterial_mfemm (name);
+    
     wirematerial.Name = name;
     wirematerial.Mu_x = 1;
     wirematerial.Mu_y = 1;
