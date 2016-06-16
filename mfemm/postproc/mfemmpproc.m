@@ -151,11 +151,15 @@ classdef mfemmpproc < handle
               Inputs.PlotNodes = true;
               Inputs.Points = 100;
               Inputs.Method = 0;
+              Inputs.AddLabels = true;
               
               Inputs = mfemmdeps.parseoptions (Inputs, varargin);
               
               if ~isempty (this.FemmProblem)
-                  [hfig, hax] = plotfemmproblem(this.FemmProblem, 'PlotNodes', Inputs.PlotNodes);
+                  [hfig, hax] = plotfemmproblem(this.FemmProblem, ...
+                                                'PlotNodes', Inputs.PlotNodes, ...
+                                                'InitialViewPort', [x,y,w,h], ...
+                                                'AddLabels', Inputs.AddLabels);
               else
                   hfig = figure;
               end
@@ -196,6 +200,38 @@ classdef mfemmpproc < handle
               
               axis equal
               set (hax, 'XLim', [x, x + w], 'YLim', [y, y + h]);
+              
+              if ~isempty (this.FemmProblem)
+                  if isnumeric(this.FemmProblem.ProbInfo.LengthUnits)
+                      switch this.FemmProblem.ProbInfo.LengthUnits
+
+                          case 1
+                              lenstr = 'millimeters';
+                          case 2
+                              lenstr = 'centimeters';
+                          case 3
+                              lenstr = 'meters';
+                          case 4
+                              lenstr = 'mils';
+                          case 5
+                              lenstr = 'microns';
+                          otherwise
+                              lenstr = 'inches';
+                      end
+                  else
+                      lenstr = this.FemmProblem.ProbInfo.LengthUnits;
+                  end
+
+                  if (ischar(this.FemmProblem.ProbInfo.ProblemType) ...
+                          && strncmpi (this.FemmProblem.ProbInfo.ProblemType, 'axi', 3)) ...
+                      || (this.FemmProblem.ProbInfo.ProblemType == 1)
+                      xlabel (sprintf('r [%s]', lenstr));
+                      ylabel (sprintf('z [%s]', lenstr));
+                  else
+                      xlabel (sprintf('x [%s]', lenstr));
+                      ylabel (sprintf('y [%s]', lenstr));
+                  end
+              end
               
           end
           
