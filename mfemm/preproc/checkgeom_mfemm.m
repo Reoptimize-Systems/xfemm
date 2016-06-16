@@ -81,7 +81,7 @@ function varargout = checkgeom_mfemm(FemmProblem, tol, dodisplay)
     % strip the self referencing indices
     problems.nodes = problems.nodes(problems.nodes(:,1) ~= problems.nodes(:,2), :);
     
-    foundduplicates = true;
+    foundduplicates = ~isempty(problems.nodes);
     
     while foundduplicates
         
