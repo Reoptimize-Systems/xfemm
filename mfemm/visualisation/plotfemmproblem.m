@@ -214,6 +214,35 @@ function makefemmplot(hax,options,w,h)
 
     end
     hold off
+    
+    if isnumeric(FemmProblem.ProbInfo.LengthUnits)
+        switch FemmProblem.ProbInfo.LengthUnits
+            
+            case 1
+                lenstr = 'millimeters';
+            case 2
+                lenstr = 'centimeters';
+            case 3
+                lenstr = 'meters';
+            case 4
+                lenstr = 'mils';
+            case 5
+                lenstr = 'microns';
+            otherwise
+                lenstr = 'inches';
+        end
+    else
+        lenstr = FemmProblem.ProbInfo.LengthUnits;
+    end
+    
+    if (ischar(FemmProblem.ProbInfo.ProblemType) && strncmpi (FemmProblem.ProbInfo.ProblemType, 'axi', 3)) ...
+            || (FemmProblem.ProbInfo.ProblemType == 1)
+        xlabel (sprintf('r [%s]', lenstr));
+        ylabel (sprintf('z [%s]', lenstr));
+    else
+        xlabel (sprintf('x [%s]', lenstr));
+        ylabel (sprintf('y [%s]', lenstr));
+    end
 
 end
 
