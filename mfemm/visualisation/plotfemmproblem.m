@@ -236,7 +236,7 @@ function makefemmplot(hax,options,w,h)
     end
     
     if (ischar(FemmProblem.ProbInfo.ProblemType) && strncmpi (FemmProblem.ProbInfo.ProblemType, 'axi', 3)) ...
-            || (FemmProblem.ProbInfo.ProblemType == 1)
+            || (isnumeric(FemmProblem.ProbInfo.ProblemType) && FemmProblem.ProbInfo.ProblemType == 1)
         xlabel (sprintf('r [%s]', lenstr));
         ylabel (sprintf('z [%s]', lenstr));
     else
