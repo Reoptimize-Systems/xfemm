@@ -104,19 +104,13 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
 
             if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
                     && ~usefemm
-                
+                % using xfemm interface
                 if quiet
-                    % using xfemm interface
                     % mesh the problem using fmesher
-                    fprintf(1, 'Meshing mfemm problem ...\n');
                     fmesher(femfilename);
-                    fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
-                    fprintf(1, 'Solving mfemm problem ...\n');
                     fsolver(femfilename(1:end-4), false, ~keepmesh);
-                    fprintf(1, 'mfemm problem solved ...\n');
                 else
-                    % using xfemm interface
                     % mesh the problem using fmesher
                     fprintf(1, 'Meshing mfemm problem ...\n');
                     fmesher(femprob);
@@ -139,19 +133,13 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
         
             if (exist('mexfmesher', 'file')==3) && (exist('mexhsolver', 'file')==3) ...
                     && ~usefemm
-                
+                % using xfemm interface
                 if quiet
-                    % using xfemm interface
                     % mesh the problem using fmesher
-                    fprintf(1, 'Meshing mfemm problem ...\n');
                     fmesher(femfilename);
-                    fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
-                    fprintf(1, 'Solving mfemm problem ...\n');
                     hsolver(femfilename(1:end-4), false, ~keepmesh);
-                    fprintf(1, 'mfemm problem solved ...\n');
                 else
-                    % using xfemm interface
                     % mesh the problem using fmesher
                     fprintf(1, 'Meshing mfemm problem ...\n');
                     fmesher(femprob);
