@@ -224,7 +224,9 @@ classdef mfemmpproc < handle
 
                   if (ischar(this.FemmProblem.ProbInfo.ProblemType) ...
                           && strncmpi (this.FemmProblem.ProbInfo.ProblemType, 'axi', 3)) ...
-                      || (this.FemmProblem.ProbInfo.ProblemType == 1)
+                      || (isnumeric(this.FemmProblem.ProbInfo.ProblemType) ...
+                          && this.FemmProblem.ProbInfo.ProblemType == 1)
+                      
                       xlabel (sprintf('r [%s]', lenstr));
                       ylabel (sprintf('z [%s]', lenstr));
                   else
