@@ -86,13 +86,13 @@ FEASolver::FEASolver()
     WarnMessage = &PrintWarningMsg;
 
     // Initialize Lua
-	bLinehook = FALSE;
-	bMultiplyDefinedLabels = false;
+    bLinehook = FALSE;
+    bMultiplyDefinedLabels = false;
     lua = lua_open(4096);
-	lua_baselibopen(lua);
-	lua_strlibopen(lua);
-	lua_mathlibopen(lua);
-	lua_iolibopen(lua);
+    lua_baselibopen(lua);
+    lua_strlibopen(lua);
+    lua_mathlibopen(lua);
+    lua_iolibopen(lua);
 }
 
 FEASolver::~FEASolver()
