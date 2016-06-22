@@ -1,32 +1,39 @@
-## [1.7] - 2016-03-02
+## [1.7] - 2016-22-06
+
+## Modified
+- plotfemmproblem.m: now add labels with units to plot axes
+
 ### Fixed
-- missing dependancy rad2deg.m added (needed for 
+- missing dependancy rad2deg.m added (needed for
   problem2freecad)
-- Fixed problem with determining compiler in oder versions of 
+- Fixed problem with determining compiler in older versions of
   Matlab
 - Fixed mfemm/MMakefile_fmesher.m to use forward slashes for Windows
   compilation (caused some problems with certain windows paths)
+- checkgeom_mfemm.m: fixed endless loop when there are no nodes
+  in problem
+
 
 ## [1.6] - 2016-02-24
 ### Added
 - segmentlength_mfemm.m: returns length of a segment
-- translatenewelements_mfemm.m: translates the n most recently 
+- translatenewelements_mfemm.m: translates the n most recently
   added elements
 - splitsegment_mfemm: split a segment into smaller subsegments
 
 ### Modified
-- plotfemmproblem.m: add options to find and mark geometry 
+- plotfemmproblem.m: add options to find and mark geometry
   problems on the problem plot
 
 ### Fixed
-- findsegment_mfemm.m: change to use actual distance to segment, 
+- findsegment_mfemm.m: change to use actual distance to segment,
   not segment mid points
-- keep .edge file of mesh if keeping the mesh after loading it 
+- keep .edge file of mesh if keeping the mesh after loading it
   is requested
 - checkgeom_mfemm.m: no longer reports overlapping nodes twice
-- loadfemmsolution.m: correct loading of magnet direction when 
+- loadfemmsolution.m: correct loading of magnet direction when
   it is a lua function string
-- plotfemmproblem.m: correct drawing of magnet direction when 
+- plotfemmproblem.m: correct drawing of magnet direction when
   it is a lua function string
 - Fixed various calls to functions in mfemmdeps package
 - Various improvements to help text etc.
@@ -34,7 +41,7 @@
 ## [1.5] - 2015-08-28
 ### Added
 - CHANGELOG.TXT
-- Test_fpproc.m, and reference.fem. A basic test script and 
+- Test_fpproc.m, and reference.fem. A basic test script and
   reference case for fpproc
 - test_release.sh: release test script
 
