@@ -155,15 +155,6 @@ classdef mfemmpproc < handle
               
               Inputs = mfemmdeps.parseoptions (Inputs, varargin);
               
-              if ~isempty (this.FemmProblem)
-                  [hfig, hax] = plotfemmproblem(this.FemmProblem, ...
-                                                'PlotNodes', Inputs.PlotNodes, ...
-                                                'InitialViewPort', [x,y,w,h], ...
-                                                'AddLabels', Inputs.AddLabels);
-              else
-                  hfig = figure;
-              end
-              
               if isscalar(Inputs.Points)
                   Inputs.Points = [Inputs.Points, Inputs.Points];
               end
@@ -196,12 +187,15 @@ classdef mfemmpproc < handle
                           
               end
               
-              hold off;
-              
-              axis equal
-              set (hax, 'XLim', [x, x + w], 'YLim', [y, y + h]);
+              hold on
               
               if ~isempty (this.FemmProblem)
+                  [hfig, hax] = plotfemmproblem(this.FemmProblem, ...
+                                             'AxesHandle', gca, ...
+                                             'PlotNodes', Inputs.PlotNodes, ...
+                                             'InitialViewPort', [x,y,w,h], ...
+                                             'AddLabels', Inputs.AddLabels);
+                                         
                   if isnumeric(this.FemmProblem.ProbInfo.LengthUnits)
                       switch this.FemmProblem.ProbInfo.LengthUnits
 
@@ -233,7 +227,13 @@ classdef mfemmpproc < handle
                       xlabel (sprintf('x [%s]', lenstr));
                       ylabel (sprintf('y [%s]', lenstr));
                   end
+                  
               end
+              
+              hold off;
+              
+              axis equal
+              set (hax, 'XLim', [x, x + w], 'YLim', [y, y + h]);
               
           end
           
