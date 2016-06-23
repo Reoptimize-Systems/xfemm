@@ -9,7 +9,7 @@ else
   matlab -nodesktop -r "restoredefaultpath; cd release/xfemm_linux64/mfemm; mfemm_setup('Runtests', true, 'ForceMexRecompile', true); quit"
 fi
 
-if ! [ -x "$(command -v git)" ]; then
+if ! [ -x "$(command -v octave-cli)" ]; then
   echo 'octave is not installed, not running tests using Octave.' >&2
 else
   octave-cli --no-init-file --eval "cd release/xfemm_linux64/mfemm; mfemm_setup('Runtests', true, 'ForceMexRecompile', true); quit"
