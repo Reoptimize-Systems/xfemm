@@ -30,8 +30,12 @@ function ansfile = hsolver(filename, verbose, keepmesh)
         verbose = true;
     end
     
-    % if present, strip the .fem extension to get the base file name for
-    % mexfsolver
+    if nargin < 3
+        keepmesh = false;
+    end
+    
+    % if present, strip the .feh extension to get the base file name for
+    % mexhsolver
     if strcmpi(filename(end-3:end), '.feh')
         filename = filename(1:end-4);
     end
