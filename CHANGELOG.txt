@@ -1,5 +1,15 @@
-## [1.7] - 2016-22-06
+## [1.8] - DATE
+## Fixed
+- hsolver.cpp: fixed major bug in writing solution file where wrong   
+  conversion factor was used to convert from internal units of mm to 
+  problem units
+- plotfemmproblem.m: now handle case where there is no MagDirFcn field in 
+  BlockLabel (e.g. in thermal simulation)
+- loadfemmsolution.m: fixed bug where block material numbers were not 
+  converted to names for non magnetostatics problems
+- hpproc: fixed annoying debug message about smoothing
 
+## [1.7] - 2016-22-06
 ## Modified
 - plotfemmproblem.m: now add labels with units to plot axes
 
