@@ -1186,19 +1186,20 @@ int HSolver::WriteResults(CHBigLinProb &L)
 	FILE *fp,*fz;
 	int i;
 	double cf;
-	double unitconv[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
 	// first, echo input .feh file to the .anh file;
 	sprintf(c,"%s.feh",PathName.c_str());
 
 	fz=fopen(c,"rt");
-	if(fz==NULL){
+	if(fz==NULL)
+    {
 		printf("Couldn't open %s.feh\n", PathName.c_str());
 		return FALSE;
 	}
 
     sprintf(c,"%s.anh",PathName.c_str());
     fp=fopen(c,"wt");
-	if(fp==NULL){
+	if(fp==NULL)
+    {
 		printf("Couldn't write to %s.anh",PathName.c_str());
 		return FALSE;
 	}
@@ -1211,19 +1212,29 @@ int HSolver::WriteResults(CHBigLinProb &L)
 
 	// then print out node, line, and element information
 	fprintf(fp,"[Solution]\n");
-	cf=unitconv[LengthUnits];
+    // get conversion factor for conversion from internal working units of 
+    // mm to the specified length units
+	cf = units[LengthUnits];
 	fprintf(fp,"%i\n",NumNodes);
 	for(i=0;i<NumNodes;i++)
+    {
 		fprintf(fp,"%.17g	%.17g	%.17g	%i\n",meshnode[i].x/cf,meshnode[i].y/cf,L.V[i],L.Q[i]);
+    }
+    
 	fprintf(fp,"%i\n",NumEls);
+    
 	for(i=0;i<NumEls;i++)
+    {
 		fprintf(fp,"%i	%i	%i	%i\n",
 			meshele[i].p[0],meshele[i].p[1],meshele[i].p[2],meshele[i].lbl);
+    }
 
 	// print out circuit info
 	fprintf(fp,"%i\n",NumCircProps);
 	for(i=0;i<NumCircProps;i++)
+    {
 		fprintf(fp,"%.17g	%.17g\n",L.V[NumNodes+i],circproplist[i].q);
+    }
 
 	fclose(fp);
 	return TRUE;
