@@ -1141,7 +1141,7 @@ classdef hpproc < mfemmpproc
             
             hfig = this.plotscalarfield (datafcn, x, y, w, h, Inputs);
             
-            title ('Temperature, T');
+            title ('Temperature, T [^{o}C]');
             
         end
         
