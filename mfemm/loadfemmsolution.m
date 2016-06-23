@@ -1002,19 +1002,22 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 %         end
 %     end
 
+    if isfield(FemmProblem, 'BlockLabels')
+        for i = 1:numel(FemmProblem.BlockLabels)
+            FemmProblem.BlockLabels(i).BlockType = FemmProblem.Materials(FemmProblem.BlockLabels(i).BlockType).Name;
+        end
+    end
+    
     switch ftype.(domaintype)
         
         case ftype.magnetics
             
             if isfield(FemmProblem, 'BlockLabels')
                 for i = 1:numel(FemmProblem.BlockLabels)
-                    FemmProblem.BlockLabels(i).BlockType = FemmProblem.Materials(FemmProblem.BlockLabels(i).BlockType).Name;
-
-                        if FemmProblem.BlockLabels(i).InCircuit > 0
-                            % convert the circuit number to a circuit name
-                            FemmProblem.BlockLabels(i).InCircuit = FemmProblem.Circuits(FemmProblem.BlockLabels(i).InCircuit).Name;
-                        end
-
+                    if FemmProblem.BlockLabels(i).InCircuit > 0
+                        % convert the circuit number to a circuit name
+                        FemmProblem.BlockLabels(i).InCircuit = FemmProblem.Circuits(FemmProblem.BlockLabels(i).InCircuit).Name;
+                    end
                 end
             end
     end
