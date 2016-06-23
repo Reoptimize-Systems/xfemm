@@ -1027,6 +1027,7 @@ classdef hpproc < mfemmpproc
             Inputs.Points = 40;
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
+            Inputs.AddLabels = true;
             
             Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
@@ -1079,6 +1080,7 @@ classdef hpproc < mfemmpproc
             Inputs.Points = 40;
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
+            Inputs.AddLabels = true;
             
             Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
@@ -1131,6 +1133,7 @@ classdef hpproc < mfemmpproc
             Inputs.Points = 100;
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
+            Inputs.AddLabels = true;
             
             Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
