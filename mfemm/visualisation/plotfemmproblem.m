@@ -60,6 +60,7 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
 
 
     options.FigureHandle = [];
+    options.AxesHandle = [];
     options.LabelText = {'Color', [0 0 0.5]};
     options.AddLabels = true;
     options.PlotNodes = true;
@@ -80,13 +81,23 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
         options.ProblemStruct = checkgeom_mfemm (FemmProblem, [], true);
     end
     
-    if isempty (options.FigureHandle)
-        hfig = figure;
-    else
-        hfig = options.FigureHandle;
-    end
+    if isempty (options.AxesHandle)
     
-    hax = axes;
+        if isempty (options.FigureHandle)
+            hfig = figure;
+        else
+            hfig = options.FigureHandle;
+        end
+
+        hax = axes;
+        
+    else
+        
+        hax = options.AxesHandle;
+        
+        hfig = get(hax, 'parent');
+    
+    end
     
     axis equal
     
