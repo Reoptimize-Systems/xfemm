@@ -801,6 +801,7 @@ classdef fpproc < mfemmpproc
             Inputs.Points = 40;
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
+            Inputs.AddLabels = true;
             
             Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
@@ -849,9 +850,10 @@ classdef fpproc < mfemmpproc
             %     Use 1 for a contour plot with lines only.
             %
             
-            Inputs.Points = 100;
+            Inputs.Points = 500;
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
+            Inputs.AddLabels = true;
             
             Inputs = mfemmdeps.parseoptions (Inputs, varargin);
             
