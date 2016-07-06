@@ -149,7 +149,7 @@ classdef mfemmpproc < handle
               %
             
               Inputs.PlotNodes = true;
-              Inputs.Points = 100;
+              Inputs.Points = 250;
               Inputs.Method = 0;
               Inputs.AddLabels = true;
               
