@@ -850,7 +850,7 @@ classdef fpproc < mfemmpproc
             %     Use 1 for a contour plot with lines only.
             %
             
-            Inputs.Points = 500;
+            Inputs.Points = 250;
             Inputs.PlotNodes = true;
             Inputs.Method = 0;
             Inputs.AddLabels = true;
