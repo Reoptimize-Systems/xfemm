@@ -1,13 +1,53 @@
 function [FemmProblem, seginds, nodeinds, nodeids, centre] = addrectangle_mfemm(FemmProblem, x, y, w, h, varargin)
-% adds a rectangular region 
+% adds a rectangular region to FemmProblem structure
 %
 % Syntax
 %
-% [FemmProblem, seginds, nodeinds, nodeids, centre] = addrectangle_mfemm(FemmProblem, x, y, w, h, varargin)
+% [FemmProblem, seginds, nodeinds, nodeids, centre] = addrectangle_mfemm(FemmProblem, x, y, w, h)
+% [...] = addrectangle_mfemm(..., )
 %
-% 
+% Description
+%
+% Creates a rectangular region made up of four nodes and four segments. The
+% nodes are created anti-clockwise from the bottom left corner, and the new
+% segments are added in the same order.
+%
+% Input
+%
+%  FemmProblem - existing FemmProblem structure to which new nodes and
+%    segments will be added
+%
+%  x - x position of lower left hand corner of rectangle
+%
+%  y - y position of lower left hand corner of rectangle
+%
+%  w - width of the rectangle (length in x direction)
+%
+%  h - height of the rectangle (length in y direction)
+%
+%  Segment properties can be supplied as additional arguments, either as a
+%  structure containing the appropriate fields, or as Parameter-Value
+%  pairs. The syntax is the same as that described in the help for
+%  addsegments_mfemm.
+%
+% Output
+%
+%  FemmProblem - modified femmproblem with new nodes and segments added
+%
+%  seginds - indices of new segments
+%
+%  nodeinds - indices of new nodes
+%
+%  nodeids - zero-based IDs of new nodes
+%
+%  centre - 2 element vector containing the x and y position of the
+%   rectangle centre
+%
+%
+%
+% See also: addpolygon_mfemm, addsegments_mfemm
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2016 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
