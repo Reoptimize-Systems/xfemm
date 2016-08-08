@@ -3,10 +3,37 @@ function [FemmProblem, seginds, nodeinds, nodeids] = addpolygon_mfemm(FemmProble
 %
 % Syntax
 %
+% [FemmProblem, seginds, nodeinds, nodeids] = addpolygon_mfemm(FemmProblem, coords)
 % [FemmProblem, seginds, nodeinds, nodeids] = addpolygon_mfemm(FemmProblem, coords, 'Parameter', 'Value')
+% [FemmProblem, seginds, nodeinds, nodeids] = addpolygon_mfemm(FemmProblem, coords, segprops)
 % 
+% Input
+%
+%  FemmProblem - existing FemmProblem structure to which new nodes and
+%    segments will be added
+%
+%  coords - (n x 2) matrix where each row is a vertex of the polygonal
+%    region to be added. n must be > 2. 
+%
+%  Segment properties can be supplied as additional arguments, either as a
+%  structure containing the appropriate fields, or as Parameter-Value
+%  pairs. The syntax is the same as that described in the help for
+%  addsegments_mfemm.
+%
+% Output
+%
+%  FemmProblem - modified FemmProblem structure with new nodes and segments
+%    added
+%
+%  seginds - indices of new segments
+%
+%  nodeinds - indices of new nodes
+%
+%  nodeids - zero-based IDs of new nodes
+%
+%
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2016 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
