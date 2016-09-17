@@ -19,27 +19,12 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#include "mesh.h"
-#include "femmcomplex.h"
-
-// replace original windows BOOL type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-
 // guard mesh class definitions
 #ifndef MMESH_H
 #define MMESH_H
+
+#include "mesh.h"
+#include "femmcomplex.h"
 
 class CMBlockLabel : public CBlockLabel
 {

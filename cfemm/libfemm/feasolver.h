@@ -30,14 +30,6 @@
 #include "mesh.h"
 #include "spars.h"
 
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
 enum LoadMeshErr
 {
   BADFEMFILE,

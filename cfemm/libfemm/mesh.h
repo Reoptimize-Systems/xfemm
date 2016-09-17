@@ -25,14 +25,6 @@
 
 #include "femmcomplex.h"
 
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
 
 /////////////////////////////////////////////////////////////////////////////
 // CNode -- structure that holds information about each mesh point.

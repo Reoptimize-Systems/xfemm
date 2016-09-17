@@ -13,6 +13,7 @@
 //#include "boost/format.hpp"
 #include "problem.h"
 #include "femmcomplex.h"
+#include "femmconstants.h"
 #include "fparse.h"
 //#include "femm.h"
 //#include "xyplot.h"
@@ -21,13 +22,6 @@
 #include "lualib.h"
 #include "fpproc.h"
 
-#ifndef muo
-#define muo 1.2566370614359173e-6
-#endif
-
-#ifndef Golden
-#define Golden 0.3819660112501051517954131656
-#endif
 
 //#ifndef PLANAR
 //#define PLANAR 0
@@ -1447,7 +1441,7 @@ bool FPProc::OpenDocument(string pathname)
                 // the region
 
                 // select the offending region
-                blocklist[meshelem[i].lbl].IsSelected=TRUE;
+                blocklist[meshelem[i].lbl].IsSelected=true;
 
                 // if it the first multiply defined label we have found, issue a warning
                 // and set the appropriate flag to true

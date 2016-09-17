@@ -23,19 +23,12 @@
 #include <stdio.h>
 #include <cstdlib>
 #include "femmcomplex.h"
-#include "spars.h"
+#include "cspars.h"
 
 #define MAXITER 1000000
 #define KLUDGE
 #define nrm(X) sqrt(Re(ConjDot(X,X)))
 
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
 
 CComplexEntry::CComplexEntry()
 {
@@ -146,7 +139,7 @@ int CBigComplexLinProb::Create(int d, int bw, int nodes)
         M[i]->c = i;
     }
 
-    bNewton=FALSE;
+    bNewton=false;
 
     return 1;
 }
@@ -166,9 +159,9 @@ void CBigComplexLinProb::Put(CComplex v, int p, int q, int k)
     }
 
     // allocate space for auxilliary matrices if they are actually needed
-    if ((k>0) && (bNewton==FALSE))
+    if ((k>0) && (bNewton==false))
     {
-        bNewton=TRUE;
+        bNewton=true;
 
         Mh=(CComplexEntry **)calloc(n,sizeof(CComplexEntry *));
         for(i=0; i<n; i++)
@@ -256,15 +249,15 @@ CComplex CBigComplexLinProb::Get(int p, int q, int k)
     switch(k)
     {
     case 1:
-        if (bNewton==FALSE) return CComplex(0,0);
+        if (bNewton==false) return CComplex(0,0);
         e=Mh[p];
         break;
     case 2:
-        if (bNewton==FALSE) return CComplex(0,0);
+        if (bNewton==false) return CComplex(0,0);
         e=Ms[p];
         break;
     case 3:
-        if (bNewton==FALSE) return CComplex(0,0);
+        if (bNewton==false) return CComplex(0,0);
         e=Ma[p];
         break;
     default:
@@ -826,7 +819,7 @@ int CBigComplexLinProb::PBCGSolve(int flag)
     int prg2,prg1=0;
 
     // Initialize if required
-    if(flag==FALSE)
+    if(flag==false)
     {
         for(i=0; i<n; i++) V[i]=0;
     }
@@ -841,7 +834,7 @@ int CBigComplexLinProb::PBCGSolve(int flag)
     prg1=(int) (20.*log10(er)/(log10(Precision)));
 //	TheView->m_prog1.SetPos(5*prg1);
 //	TheView->SetDlgItemText(IDC_FRAME1,"BiConjugate Gradient Solver");
-//	TheView->InvalidateRect(NULL, FALSE);
+//	TheView->InvalidateRect(NULL, false);
 //	TheView->UpdateWindow();
 
     // form initial search direction;
@@ -882,7 +875,7 @@ int CBigComplexLinProb::PBCGSolve(int flag)
             prg2=(prg1*5);
             if(prg2>100) prg2=100;
 //			TheView->m_prog1.SetPos(prg2);
-//			TheView->InvalidateRect(NULL, FALSE);
+//			TheView->InvalidateRect(NULL, false);
 //			TheView->UpdateWindow();
         }
 
@@ -912,7 +905,7 @@ int CBigComplexLinProb::BiCGSTAB(int flag)
     int prg2;
 //	TheView->SetDlgItemText(IDC_FRAME1,"BiCGSTAB Solver");
 
-    if (flag==FALSE) for(i=0; i<n; i++) V[i]=0;
+    if (flag==false) for(i=0; i<n; i++) V[i]=0;
 
     MultA(V,R,-1);
     for(j=0; j<n; j++)
@@ -963,7 +956,7 @@ int CBigComplexLinProb::BiCGSTAB(int flag)
             prg2=(prg1*5);
             if(prg2>100) prg2=100;
 //			TheView->m_prog1.SetPos(prg2);
-//			TheView->InvalidateRect(NULL, FALSE);
+//			TheView->InvalidateRect(NULL, false);
 //			TheView->UpdateWindow();
         }
 
@@ -1031,7 +1024,7 @@ int CBigComplexLinProb::KludgeSolve(int flag)
         MultA(V,R,3);
         for(i=0; i<n; i++) b[i]=borig[i] - P[i] - conj(U[i]) - R[i];
 
-        PBCGSolve(TRUE);
+        PBCGSolve(true);
 
         // adjust step length along the new direction
         // to result in the greatest reduction in error
@@ -1066,7 +1059,7 @@ int CBigComplexLinProb::PBCGSolveMod(int flag)
         return KludgeSolve(flag);
 
     // Get starting point with a few iterations of CGNE;
-    if(flag==FALSE)
+    if(flag==false)
     {
 //		TheView->SetDlgItemText(IDC_FRAME1,"Initializing Solver");
         printf("Initializing Solver");

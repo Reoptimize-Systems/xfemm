@@ -12,12 +12,20 @@ include_directories(${PROJECT_SOURCE_DIR}/liblua)
 
 add_library(femm OBJECT
   cspars.cpp
+  cspars.h
   cuthill.cpp
   feasolver.cpp
+  feasolver.h
   femmcomplex.cpp
+  femmcomplex.h
+  femmconstants.h
   fparse.cpp
+  fparse.h
   fullmatrix.cpp
+  fullmatrix.h
+  mesh.h
   spars.cpp
+  spars.h
   liblua/lapi.cpp
   liblua/lcode.cpp 
   liblua/ldo.cpp  

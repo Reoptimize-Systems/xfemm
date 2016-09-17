@@ -20,6 +20,7 @@ add_library(fsolver STATIC
   harmonic2d.cpp
   harmonicaxi.cpp
   matprop.cpp
+  mmesh.h
   static2d.cpp
   staticaxi.cpp
   $<TARGET_OBJECTS:femm>
