@@ -90,7 +90,7 @@ FPProc::FPProc()
     Frequency = 0.;
     Depth = 1/0.0254;
     LengthUnits = 0;
-    ProblemType = PLANAR;
+    problemType = PLANAR;
     ProblemNote = "Add comments here.";
     FirstDraw = -1;
     A_High = 0.;
@@ -199,7 +199,7 @@ bool FPProc::NewDocument()
     Frequency = 0.;
     LengthUnits = 0;
     Precision = 1e-8;
-    ProblemType = PLANAR;
+    problemType = PLANAR;
     ProblemNote = "Add comments here.";
     bHasMask = false;
     extRo = extRi = extZo = 0;
@@ -338,8 +338,8 @@ bool FPProc::OpenDocument(string pathname)
         {
             v=StripKey(s);
             sscanf(v,"%s",q);
-            if( _strnicmp(q,"planar",6)==0) ProblemType=PLANAR;
-            if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=AXISYMMETRIC;
+            if( _strnicmp(q,"planar",6)==0) problemType=PLANAR;
+            if( _strnicmp(q,"axisymmetric",3)==0) problemType=AXISYMMETRIC;
             q[0] = '\0';
         }
 
@@ -1591,7 +1591,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
     if (Frequency==0)
     {
         u.A = 0;
-        if(ProblemType==PLANAR)
+        if(problemType==PLANAR)
         {
             for(i=0; i<3; i++)
                 u.A.re += meshnode[n[i]].A.re * (a[i] + b[i] * x + c[i] * y) / (da);
@@ -1689,7 +1689,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
         {
             if(blocklist[lbl].Case==0)
             {
-                if (ProblemType==PLANAR)
+                if (problemType==PLANAR)
                     u.Js-=Re(blocklist[meshelem[k].lbl].o)*
                           blocklist[lbl].dVolts;
                 else
@@ -1760,7 +1760,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
     if(Frequency!=0)
     {
         u.A=0;
-        if(ProblemType==PLANAR)
+        if(problemType==PLANAR)
         {
             for(i=0; i<3; i++)
                 u.A+=meshnode[n[i]].A*(a[i]+b[i]*x+c[i]*y)/(da);
@@ -1827,7 +1827,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
         {
             if(blocklist[lbl].Case==0)
             {
-                if (ProblemType==PLANAR)
+                if (problemType==PLANAR)
                     u.Js-=blocklist[meshelem[k].lbl].o*blocklist[lbl].dVolts;
                 else
                 {
@@ -1860,7 +1860,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
         if (blocklist[meshelem[k].lbl].FillFactor<0)
             u.Je=-I*Frequency*2.*PI*u.c*u.A;
 
-        if(ProblemType!=0)
+        if(problemType!=0)
         {
             if(x!=0)
                 u.Je/=(2.*PI*x*LengthConv[LengthUnits]);
@@ -2036,7 +2036,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
                     r=(meshnode[pt].x+meshnode[k].x)*LengthConv[LengthUnits]/2.;
                     bn=(meshnode[pt].A-meshnode[k].A)/
                        (abs(tn)*LengthConv[LengthUnits]);
-                    if(ProblemType==AXISYMMETRIC)
+                    if(problemType==AXISYMMETRIC)
                     {
                         bn/=(-2.*PI*r);
                     }
@@ -2099,7 +2099,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
                         r=(meshnode[pt].x+meshnode[k].x)*LengthConv[LengthUnits]/2.;
                         bn=(meshnode[pt].A-meshnode[k].A)/
                            (abs(tn)*LengthConv[LengthUnits]);
-                        if(ProblemType==AXISYMMETRIC)
+                        if(problemType==AXISYMMETRIC)
                         {
                             bn/=(-2.*PI*r);
                         }
@@ -2195,7 +2195,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
 
 
         //check for special case of node on r=0 axisymmetric; set Br=0;
-        if ((fabs(p.re)<1.e-06) && (ProblemType==AXISYMMETRIC)) b1[i].Set(0.,0);
+        if ((fabs(p.re)<1.e-06) && (problemType==AXISYMMETRIC)) b1[i].Set(0.,0);
     }
 }
 
@@ -2214,7 +2214,7 @@ void FPProc::GetElementB(CElement &elm)
     c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
     da=(b[0]*c[1]-b[1]*c[0]);
 
-    if (ProblemType==PLANAR)
+    if (problemType==PLANAR)
     {
         elm.B1=0;
         elm.B2=0;
@@ -2701,7 +2701,7 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
     // first, get A
     for(i=0; i<3; i++)
     {
-        if(ProblemType==PLANAR) A[i]=(meshnode[meshelem[k].p[i]].A);
+        if(problemType==PLANAR) A[i]=(meshnode[meshelem[k].p[i]].A);
         else
         {
             rn=meshnode[meshelem[k].p[i]].x*LengthConv[LengthUnits];
@@ -2710,7 +2710,7 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
         }
     }
 
-    if(ProblemType==AXISYMMETRIC) r = Re(Ctr(k))*LengthConv[LengthUnits];
+    if(problemType==AXISYMMETRIC) r = Re(Ctr(k))*LengthConv[LengthUnits];
 
     // contribution from explicitly specified J
     for(i=0; i<3; i++) J[i]=blockproplist[blk].Jr+I*blockproplist[blk].Ji;
@@ -2735,7 +2735,7 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
     {
         if(blocklist[lbl].Case==0)  // specified voltage
         {
-            if(ProblemType==PLANAR)
+            if(problemType==PLANAR)
             {
                 for(i=0; i<3; i++)
                     J[i]-=c*blocklist[lbl].dVolts;
@@ -2851,7 +2851,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                 // compute some useful quantities employed by most integrals...
                 J=GetJA(i,Jn,A);
                 a=ElmArea(i)*pow(LengthConv[LengthUnits],2.);
-                if(ProblemType==AXISYMMETRIC)
+                if(problemType==AXISYMMETRIC)
                 {
                     for(k=0; k<3; k++)
                         r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
@@ -2863,7 +2863,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                 {
                 case 0: //  A.J
                     for(k=0; k<3; k++) V[k]=Jn[k].Conj();
-                    if(ProblemType==PLANAR)
+                    if(problemType==PLANAR)
                         y=PlnInt(a,A,V)*Depth;
                     else
                         y=AxiInt(a,A,V,r);
@@ -2874,7 +2874,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                 case 11: // x (or r) direction Lorentz force, SS part.
                     B2=meshelem[i].B2;
                     y= -(B2.re*J.re + B2.im*J.im);
-                    if (ProblemType==AXISYMMETRIC) y=0;
+                    if (problemType==AXISYMMETRIC) y=0;
                     else y*=Depth;
                     if(Frequency!=0) y*=0.5;
                     z+=(a*y);
@@ -2882,7 +2882,7 @@ CComplex FPProc::BlockIntegral(int inttype)
 
                 case 12: // y (or z) direction Lorentz force, SS part.
                     for(k=0; k<3; k++) V[k]=Re(meshelem[i].B1*Jn[k].Conj());
-                    if(ProblemType==PLANAR)
+                    if(problemType==PLANAR)
                         y=PlnInt(a,U,V)*Depth;
                     else
                         y=AxiInt(-a,U,V,r);
@@ -2892,7 +2892,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 13: // x (or r) direction Lorentz force, 2x part.
-                    if((Frequency!=0) && (ProblemType==PLANAR))
+                    if((Frequency!=0) && (problemType==PLANAR))
                     {
                         B2=meshelem[i].B2;
                         y= -(B2.re*J.re - B2.im*J.im) - I*(B2.re*J.im+B2.im*J.re);
@@ -2906,14 +2906,14 @@ CComplex FPProc::BlockIntegral(int inttype)
                         B1=meshelem[i].B1;
                         B2=meshelem[i].B2;
                         y= (B1.re*J.re - B1.im*J.im) + I*(B1.re*J.im+B1.im*J.re);
-                        if(ProblemType==AXISYMMETRIC) y=(-y*2.*PI*R);
+                        if(problemType==AXISYMMETRIC) y=(-y*2.*PI*R);
                         else y*=Depth;
                         z+=(a*y)/2.;
                     }
                     break;
 
                 case 16: // Lorentz Torque, 2x
-                    if ((Frequency!=0) && (ProblemType==PLANAR))
+                    if ((Frequency!=0) && (problemType==PLANAR))
                     {
                         B1=meshelem[i].B1;
                         B2=meshelem[i].B2;
@@ -2925,7 +2925,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 15: // Lorentz Torque, SS part.
-                    if(ProblemType==PLANAR)
+                    if(problemType==PLANAR)
                     {
                         B1=meshelem[i].B1;
                         B2=meshelem[i].B2;
@@ -2937,7 +2937,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 1: // integrate A over the element;
-                    if(ProblemType==AXISYMMETRIC)
+                    if(problemType==AXISYMMETRIC)
                         y=AxiInt(a,U,A,r);
                     else
                         for(k=0,y=0; k<3; k++) y+=a*Depth*A[k]/3.;
@@ -2946,7 +2946,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 2: // stored energy
-                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
+                    if(problemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
@@ -3011,7 +3011,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                 case 3:  // Hysteresis & Laminated eddy current losses
                     if(Frequency!=0)
                     {
-                        if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
+                        if(problemType==AXISYMMETRIC) a*=(2.*PI*R);
                         else a*=Depth;
                         B1=meshelem[i].B1;
                         B2=meshelem[i].B2;
@@ -3031,13 +3031,13 @@ CComplex FPProc::BlockIntegral(int inttype)
                     if(sig!=0)
                     {
 
-                        if (ProblemType==PLANAR)
+                        if (problemType==PLANAR)
                         {
                             for(k=0; k<3; k++) V[k]=Jn[k].Conj()/sig;
                             y=PlnInt(a,Jn,V)*Depth;
                         }
 
-                        if(ProblemType==AXISYMMETRIC)
+                        if(problemType==AXISYMMETRIC)
                             y=2.*PI*R*a*J*conj(J)/sig;
 
                         if(Frequency!=0) y/=2.;
@@ -3050,7 +3050,7 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 10: // volume
-                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
+                    if(problemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     z+=a;
                     break;
@@ -3061,19 +3061,19 @@ CComplex FPProc::BlockIntegral(int inttype)
                     break;
 
                 case 8: // integrate x or r part of b over the block
-                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
+                    if(problemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     z+=(a*meshelem[i].B1);
                     break;
 
                 case 9: // integrate y or z part of b over the block
-                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
+                    if(problemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     z+=(a*meshelem[i].B2);
                     break;
 
                 case 17: // Coenergy
-                    if(ProblemType==AXISYMMETRIC) a*=(2.*PI*R);
+                    if(problemType==AXISYMMETRIC) a*=(2.*PI*R);
                     else a*=Depth;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
@@ -3112,7 +3112,7 @@ CComplex FPProc::BlockIntegral(int inttype)
 
                     // For axisymmetric problems, compute the moment
                     // of inertia about the r=0 axis.
-                    if(ProblemType==AXISYMMETRIC)
+                    if(problemType==AXISYMMETRIC)
                     {
                         for(k=0; k<3; k++) V[k]=r[k];
                         y=AxiInt(a,V,V,r);
@@ -3148,7 +3148,7 @@ CComplex temp;
             if((inttype>=18) || (inttype<=23))
             {
                 a=ElmArea(i)*pow(LengthConv[LengthUnits],2.);
-                if(ProblemType==AXISYMMETRIC)
+                if(problemType==AXISYMMETRIC)
                 {
                     for(k=0; k<3; k++)
                         r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
@@ -3161,7 +3161,7 @@ CComplex temp;
                 {
 
                 case 18: // x (or r) direction Henrotte force, SS part.
-                    if(ProblemType!=0) break;
+                    if(problemType!=0) break;
 
                     B1 = meshelem[i].B1;
 
@@ -3198,7 +3198,7 @@ CComplex temp;
 
                 case 20: // x (or r) direction Henrotte force, 2x part.
 
-                    if(ProblemType!=0) break;
+                    if(problemType!=0) break;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
                     c=HenrotteVector(i);
@@ -3216,7 +3216,7 @@ CComplex temp;
                     break;
 
                 case 22: // Henrotte torque, SS part.
-                    if(ProblemType!=0) break;
+                    if(problemType!=0) break;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
                     c=HenrotteVector(i);
@@ -3238,7 +3238,7 @@ CComplex temp;
 
                 case 23: // Henrotte torque, 2x part.
 
-                    if(ProblemType!=0) break;
+                    if(problemType!=0) break;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
                     c=HenrotteVector(i);
@@ -3284,7 +3284,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
         a0=u.A;
         GetPointValues(contour[k-1].re,contour[k-1].im,u);
         a1=u.A;
-        if(ProblemType==PLANAR)
+        if(problemType==PLANAR)
         {
             for(i=0,l=0; i<k-1; i++)
                 l+=abs(contour[i+1]-contour[i]);
@@ -3371,7 +3371,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
             z[0].re+=abs(contour[i+1]-contour[i]);
         z[0].re*=LengthConv[LengthUnits];
 
-        if(ProblemType==AXISYMMETRIC)
+        if(problemType==AXISYMMETRIC)
         {
             for(i=0,z[0].im=0; i<k-1; i++)
                 z[0].im+=(PI*(contour[i].re+contour[i+1].re)*
@@ -3440,7 +3440,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                         dF2=v.H2*Bn + v.B2*Hn - n.im*BH;
 
                         dza=dz*LengthConv[LengthUnits];
-                        if(ProblemType==AXISYMMETRIC)
+                        if(problemType==AXISYMMETRIC)
                         {
                             dza*=2.*PI*pt.re*LengthConv[LengthUnits];
                             dF1=0;
@@ -3459,7 +3459,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
                         dF2 = v.H2*Bn + v.B2*Hn - n.im*BH;
 
                         dza=dz*LengthConv[LengthUnits];
-                        if(ProblemType==AXISYMMETRIC)
+                        if(problemType==AXISYMMETRIC)
                         {
                             dza*=2.*PI*pt.re*LengthConv[LengthUnits];
                             dF1=0;
@@ -3471,7 +3471,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 
                         BH  = v.B1*v.H1.Conj() +v.B2*v.H2.Conj();
 
-                        if (ProblemType!=AXISYMMETRIC)
+                        if (problemType!=AXISYMMETRIC)
                             dF1 = v.H1*Bn.Conj() + v.B1*Hn.Conj() - n.re*BH;
                         dF2=  v.H2*Bn.Conj() + v.B2*Hn.Conj() - n.im*BH;
 
@@ -3896,14 +3896,14 @@ CComplex FPProc::GetStrandedVoltageDrop(int lbl)
             a=ElmArea(i)*LengthConv[LengthUnits]*LengthConv[LengthUnits];
             atot+=a;
 
-            if(ProblemType==AXISYMMETRIC)
+            if(problemType==AXISYMMETRIC)
             {
                 for(k=0; k<3; k++)
                     r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
             }
 
             for(k=0; k<3; k++) V[k]=(2.*PI*I*Frequency*A[k] + rho*J[k]);
-            if(ProblemType==PLANAR) dVolts+=PlnInt(a,V,U)*Depth;
+            if(problemType==PLANAR) dVolts+=PlnInt(a,V,U)*Depth;
             else dVolts+=AxiInt(a,V,U,r);
         }
     }
@@ -4080,13 +4080,13 @@ CComplex FPProc::GetStrandedLinkage(int lbl)
             a=ElmArea(i)*LengthConv[LengthUnits]*LengthConv[LengthUnits];
             atot+=a;
 
-            if(ProblemType==AXISYMMETRIC)
+            if(problemType==AXISYMMETRIC)
             {
                 for(k=0; k<3; k++)
                     r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
             }
 
-            if(ProblemType==PLANAR) FluxLinkage+=PlnInt(a,A,U)*Depth;
+            if(problemType==PLANAR) FluxLinkage+=PlnInt(a,A,U)*Depth;
             else FluxLinkage+=AxiInt(a,A,U,r);
         }
     }
@@ -4165,7 +4165,7 @@ CComplex FPProc::GetParallelLinkage(int numcirc)
             GetJA(i,J,A);
             a=ElmArea(i)*LengthConv[LengthUnits]*LengthConv[LengthUnits];
 
-            if(ProblemType==AXISYMMETRIC)
+            if(problemType==AXISYMMETRIC)
             {
                 for(k=0; k<3; k++)
                     r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
@@ -4173,7 +4173,7 @@ CComplex FPProc::GetParallelLinkage(int numcirc)
                 Aa=(A[0]+A[1]+A[2])/3.;
             }
 
-            if(ProblemType==PLANAR)
+            if(problemType==PLANAR)
             {
                 FluxLinkage+=PlnInt(a,A,U)*Depth*c;
                 atot+=(a*c);
@@ -4219,7 +4219,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
             a=ElmArea(i)*LengthConv[LengthUnits]*LengthConv[LengthUnits];
             atot+=a;
 
-            if(ProblemType==AXISYMMETRIC)
+            if(problemType==AXISYMMETRIC)
             {
                 for(k=0; k<3; k++)
                     r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
@@ -4227,7 +4227,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
                 Aa=(A[0]+A[1]+A[2])/3.;
             }
 
-            if(ProblemType==PLANAR)    FluxLinkage+=PlnInt(a,A,U)*Depth;
+            if(problemType==PLANAR)    FluxLinkage+=PlnInt(a,A,U)*Depth;
             else FluxLinkage+=AxiInt(a,A,U,r);
         }
     }
@@ -4255,7 +4255,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
                 {
                     // still need to multiply by turns, since it indicates
                     // the direction of the current;
-                    if(ProblemType==AXISYMMETRIC)
+                    if(problemType==AXISYMMETRIC)
                         Volts -= (2.*PI*blocklist[i].dVolts*blocklist[i].Turns);
                     else
                         Volts -= (Depth*blocklist[i].dVolts*blocklist[i].Turns);
@@ -4274,7 +4274,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
         {
             if ((blocklist[i].InCircuit==circnum) && (blocklist[i].Case==0))
             {
-                if(ProblemType==AXISYMMETRIC)
+                if(problemType==AXISYMMETRIC)
                     Volts -= (2.*PI*blocklist[i].dVolts);
                 else
                     Volts -= (Depth*blocklist[i].dVolts);
@@ -4307,12 +4307,12 @@ CComplex FPProc::GetVoltageDrop(int circnum)
                     a=ElmArea(i)*LengthConv[LengthUnits]*LengthConv[LengthUnits];
                     atot+=a;
 
-                    if(ProblemType==AXISYMMETRIC)
+                    if(problemType==AXISYMMETRIC)
                     {
                         for(k=0; k<3; k++)
                             r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
                     }
-                    if(ProblemType==PLANAR)
+                    if(problemType==PLANAR)
                         FluxLinkage+=PlnInt(a,A,U)*Depth;
                     else FluxLinkage+=AxiInt(a,A,U,r);
                 }
@@ -4341,7 +4341,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
             {
                 GetJA(i,J,A);
                 a=ElmArea(i)*LengthConv[LengthUnits]*LengthConv[LengthUnits];
-                if(ProblemType==AXISYMMETRIC)
+                if(problemType==AXISYMMETRIC)
                 {
                     for(k=0; k<3; k++)
                         r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
@@ -4358,7 +4358,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
                 }
 
                 for(k=0; k<3; k++) J[k]=J[k].Conj();
-                if(ProblemType==PLANAR) FluxLinkage+=PlnInt(a,A,J)*Depth;
+                if(problemType==PLANAR) FluxLinkage+=PlnInt(a,A,J)*Depth;
                 else FluxLinkage+=AxiInt(a,A,J,r);
 
 
@@ -4391,7 +4391,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
                 {
                     if(blocklist[i].InCircuit==circnum)
                     {
-                        if((blocklist[i].Case==1) || (ProblemType==PLANAR))
+                        if((blocklist[i].Case==1) || (problemType==PLANAR))
                             FluxLinkage+=GetStrandedLinkage(i);
                         // in solid, axisymmetric case, the current distribution
                         // isn't even.  We have to do some extra work to get
@@ -4461,7 +4461,7 @@ double FPProc::AECF(int k)
     // designed to have a permeability that varies with position in a
     // continuous way.
 
-    if (ProblemType!=AXISYMMETRIC) {
+    if (problemType!=AXISYMMETRIC) {
         return 1.; // no correction for planar problems
     }
 
