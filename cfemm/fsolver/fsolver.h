@@ -49,9 +49,9 @@ public:
     femm::CNode *meshnode;
     int NumCircPropsOrig;
 
-    CMaterialProp  *blockproplist;
+    CMMaterialProp  *blockproplist;
     CMBoundaryProp  *lineproplist;
-    CPointProp      *nodeproplist;
+    CMPointProp      *nodeproplist;
     CMCircuit       *circproplist;
     CMBlockLabel    *labellist;
 

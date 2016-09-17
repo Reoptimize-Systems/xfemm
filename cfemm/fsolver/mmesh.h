@@ -44,7 +44,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CBoundaryProp, CPointProp
-class CMaterialProp
+class CMMaterialProp
 {
     // Properties
 public:
@@ -70,9 +70,9 @@ public:
     // Methods
 public:
 
-    CMaterialProp();
-    ~CMaterialProp();
-    CMaterialProp( const CMaterialProp & );
+    CMMaterialProp();
+    ~CMMaterialProp();
+    CMMaterialProp( const CMMaterialProp & );
     void GetSlopes();
     void GetSlopes(double omega);
     CComplex GetH(double B);
@@ -103,7 +103,7 @@ public:
 private:
 };
 
-class CPointProp
+class CMPointProp
 {
 public:
 

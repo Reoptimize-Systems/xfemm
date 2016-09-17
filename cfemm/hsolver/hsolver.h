@@ -62,10 +62,10 @@ public:
 	// Vector containing previous solution for time-transient analysis
 	double *Tprev;
 
-	CMaterialProp   *blockproplist;
+    CHMaterialProp   *blockproplist;
 	CHBoundaryProp  *lineproplist;
-	CPointProp      *nodeproplist;
-	CConductor      *circproplist;
+    CHPointProp      *nodeproplist;
+	CHConductor      *circproplist;
     femm::CBlockLabel     *labellist;
 
 // Operations

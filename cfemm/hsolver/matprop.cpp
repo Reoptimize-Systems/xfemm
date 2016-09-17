@@ -1,19 +1,19 @@
 
 #include "hmesh.h"
 
-CMaterialProp::CMaterialProp()
+CHMaterialProp::CHMaterialProp()
 {
     Kx=Ky=1;
     Kt=0;
     qv=0;
 }
 
-CMaterialProp::~CMaterialProp()
+CHMaterialProp::~CHMaterialProp()
 {
 
 }
 
-CMaterialProp::CMaterialProp( const CMaterialProp & other)
+CHMaterialProp::CHMaterialProp( const CHMaterialProp & other)
 {
     Kx = other.Kx;
     Ky = other.Kx;
@@ -30,7 +30,7 @@ CMaterialProp::CMaterialProp( const CMaterialProp & other)
 	}
 }
 
-CComplex CMaterialProp::GetK(double t)
+CComplex CHMaterialProp::GetK(double t)
 {
 	int i,j;
 

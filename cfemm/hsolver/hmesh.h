@@ -48,7 +48,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CHBoundaryProp, CPointProp
-class CMaterialProp
+class CHMaterialProp
 {
     // Properties
 public:
@@ -65,9 +65,9 @@ public:
     // Methods
 public:
 
-    CMaterialProp();
-    ~CMaterialProp();
-    CMaterialProp( const CMaterialProp & );
+    CHMaterialProp();
+    ~CHMaterialProp();
+    CHMaterialProp( const CHMaterialProp & );
     CComplex GetK(double t);
 
 private:
@@ -86,7 +86,7 @@ public:
 private:
 };
 
-class CPointProp
+class CHPointProp
 {
 public:
 
@@ -95,7 +95,7 @@ public:
 private:
 };
 
-class CConductor : public femm::CCircuit
+class CHConductor : public femm::CCircuit
 {
 public:
 
