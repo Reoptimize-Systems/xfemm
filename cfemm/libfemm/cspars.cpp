@@ -747,6 +747,9 @@ void CBigComplexLinProb::Periodicity(int i, int j)
             Put(c,i,j,h);
             Put(c,j,j,h);
         }
+#ifdef KLUDGE
+    bdw=tmpbdw;
+#endif
 }
 
 // Make into a Hermitian problem and solve.
