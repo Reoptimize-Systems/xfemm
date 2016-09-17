@@ -24,27 +24,12 @@
         richard.crozier@yahoo.co.uk
 */
 
-#include "mesh.h"
-#include "femmcomplex.h"
-
-// replace original windows BOOL type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-
 // guard hmesh class definitions
 #ifndef HMESH_H
 #define HMESH_H
+
+#include "mesh.h"
+#include "femmcomplex.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CHNode -- structure that holds information about each mesh point.

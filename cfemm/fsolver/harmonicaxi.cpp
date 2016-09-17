@@ -28,8 +28,6 @@
 #include "spars.h"
 #include "fsolver.h"
 
-#define Log log
-
 // #define NEWTON
 
 int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
@@ -45,8 +43,8 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     CElement *El;
-    int LinearFlag=TRUE;
-    int SDIflag=FALSE;
+    int LinearFlag=true;
+    int SDIflag=false;
     res=0;
 
 // #ifndef NEWTON
@@ -75,7 +73,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
                 (blockproplist[meshele[i].blk].LamType==2) )
         {
             WarnMessage("On-edge lamination not supported in AC analyses");
-            return FALSE;
+            return false;
         }
     }
 
@@ -160,24 +158,24 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     // check to see if there are any SDI boundaries...
     // lineproplist[ meshele[i].e[j] ].BdryFormat==0
     for(i=0; i<NumLineProps; i++)
-        if(lineproplist[i].BdryFormat==3) SDIflag=TRUE;
+        if(lineproplist[i].BdryFormat==3) SDIflag=true;
 
-    if(SDIflag==TRUE)
+    if(SDIflag==true)
     {
         // there is an SDI boundary defined; check to see if it is in use
-        SDIflag=FALSE;
+        SDIflag=false;
         for(i=0; i<NumEls; i++)
             for(j=0; j<3; j++)
                 if (lineproplist[meshele[i].e[j]].BdryFormat==3)
                 {
-                    SDIflag=TRUE;
+                    SDIflag=true;
                     printf("Problem has SDI boundaries\n");
                     i=NumEls;
                     j=3;
                 }
     }
 
-    if (SDIflag==TRUE)
+    if (SDIflag==true)
     {
         V_sdi=(CComplex *) calloc(NumNodes+NumCircProps,sizeof(CComplex));
         sdin=2;
@@ -495,7 +493,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
                 if (Iter==0)
                 {
                     k=meshele[i].blk;
-                    if (blockproplist[k].BHpoints != 0) LinearFlag=FALSE;
+                    if (blockproplist[k].BHpoints != 0) LinearFlag=false;
                     meshele[i].mu1=Mu[k][0];
                     meshele[i].mu2=Mu[k][1];
                 }
@@ -727,7 +725,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
                         }
                 }
 
-            if ((SDIflag==TRUE) && (sdi_iter==1)) for(i=0; i<NumEls; i++)
+            if ((SDIflag==true) && (sdi_iter==1)) for(i=0; i<NumEls; i++)
                     for(j=0; j<3; j++)
                     {
                         k=j+1;
@@ -753,7 +751,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
             }
 
             // solve the problem;
-            if (SDIflag==FALSE) for(j=0; j<NumNodes+NumCircProps; j++) V_old[j]=L.V[j];
+            if (SDIflag==false) for(j=0; j<NumNodes+NumCircProps; j++) V_old[j]=L.V[j];
             else
             {
                 if(sdi_iter==0)
@@ -772,14 +770,14 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
                 if (L.Precision<Precision) L.Precision=Precision;
             }
 
-            if (L.PBCGSolveMod(Iter+sdi_iter)==FALSE) return FALSE;
+            if (L.PBCGSolveMod(Iter+sdi_iter)==false) return false;
 
             if(sdi_iter==1)
                 for(j=0; j<NumNodes+NumCircProps; j++) L.V[j]=(V_sdi[j]+L.V[j])/2.;
 
         } //end of SDI loop;
 
-        if (LinearFlag==FALSE)
+        if (LinearFlag==false)
         {
 
             for(j=0,x=0,y=0; j<NumNodes; j++)
@@ -787,7 +785,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
                 x+=Re((L.V[j]-V_old[j])*conj(L.V[j]-V_old[j]));
                 y+=Re(L.V[j]*conj(L.V[j]));
             }
-            if (y==0) LinearFlag=TRUE;
+            if (y==0) LinearFlag=true;
             else
             {
                 lastres=res;
@@ -821,12 +819,12 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
         // nonlinear iteration has to have a looser tolerance
         // than the linear solver--otherwise, things can't ever
         // converge.  Arbitrarily choose 100*tolerance.
-        if((res<100.*Precision) && Iter>0) LinearFlag=TRUE;
+        if((res<100.*Precision) && Iter>0) LinearFlag=true;
 
         Iter++;
 
     }
-    while(LinearFlag==FALSE);
+    while(LinearFlag==false);
 
 
     // convert answer back to webers
@@ -839,12 +837,12 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     for(k=0; k<NumBlockProps; k++) free(Mu[k]);
     free(Mu);
     free(V_old);
-    if (SDIflag==TRUE) free(V_sdi);
+    if (SDIflag==true) free(V_sdi);
     if(NumCircProps>0)
     {
         free(CircInt1);
         free(CircInt2);
         free(CircInt3);
     }
-    return TRUE;
+    return true;
 }

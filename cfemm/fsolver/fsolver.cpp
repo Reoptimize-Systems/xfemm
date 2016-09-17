@@ -130,7 +130,7 @@ int FSolver::LoadProblemFile ()
     if ((fp=fopen(s,"rt"))==NULL)
     {
         printf("Couldn't read from specified .fem file\n");
-        return FALSE;
+        return false;
     }
 
     // define some defaults
@@ -709,7 +709,7 @@ int FSolver::LoadProblemFile ()
 
     fclose(fp);
 
-    if (NumCircProps==0) return TRUE;
+    if (NumCircProps==0) return true;
 
     // Process circuits for serial connections.
     // The program deals with serial "circuits" by making a separate
@@ -765,7 +765,7 @@ int FSolver::LoadProblemFile ()
 //            // it's in the problem region,
 //            if(meshele[i].lbl != k)
 //            {
-//                labellist[meshelem[i].lbl].IsSelected = TRUE;
+//                labellist[meshelem[i].lbl].IsSelected = true;
 //                if (!bMultiplyDefinedLabels)
 //                {
 //
@@ -780,7 +780,7 @@ int FSolver::LoadProblemFile ()
 //        }
 //    }
 
-    return TRUE;
+    return true;
 }
 
 int FSolver::LoadMesh(bool deleteFiles)
@@ -1027,9 +1027,9 @@ void FSolver::GetFillFactor(int lbl)
     CComplex ufd,ofd;
 
     if ((abs(bl->Turns)>1) || (blockproplist[labellist[lbl].BlockType].LamType>2))
-        bl->bIsWound=TRUE;
+        bl->bIsWound=true;
     else
-        bl->bIsWound=FALSE;
+        bl->bIsWound=false;
 
     if ((Frequency==0) || (blockproplist[labellist[lbl].BlockType].LamType<3))
     {

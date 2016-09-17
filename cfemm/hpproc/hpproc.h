@@ -32,26 +32,6 @@
 #include "hproblem.h"
 //#include "luaconsoledlg.h"
 
-#ifndef muo
-#define muo 1.2566370614359173e-6
-#endif
-
-#ifndef Golden
-#define Golden 0.3819660112501051517954131656
-#endif
-
-#ifndef bool
-#define bool int
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 using namespace HPProcdata;
 
 #ifndef HPPROC_H_INCLUDED

@@ -61,8 +61,8 @@ int FSolver::Static2D(CBigLinProb &L)
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     int Iter=0,pctr;
-    int LinearFlag=TRUE;
-    int SDIflag=FALSE;
+    int LinearFlag=true;
+    int SDIflag=false;
     res=0;
     CElement *El;
     V_old = (double *) calloc(NumNodes,sizeof(double));
@@ -78,14 +78,14 @@ int FSolver::Static2D(CBigLinProb &L)
     {
         if(lineproplist[i].BdryFormat == 3)
         {
-            SDIflag = TRUE;
+            SDIflag = true;
         }
     }
 
-    if(SDIflag == TRUE)
+    if(SDIflag == true)
     {
         // there is an SDI boundary defined; check to see if it is in use
-        SDIflag = FALSE;
+        SDIflag = false;
 
         for(i = 0; i < NumEls; i++)
         {
@@ -93,7 +93,7 @@ int FSolver::Static2D(CBigLinProb &L)
             {
                 if (lineproplist[meshele[i].e[j]].BdryFormat == 3)
                 {
-                    SDIflag = TRUE;
+                    SDIflag = true;
                     printf("Problem has SDI boundaries\n");
                     i = NumEls;
                     j = 3;
@@ -102,7 +102,7 @@ int FSolver::Static2D(CBigLinProb &L)
         }
     }
 
-    if (SDIflag == TRUE)
+    if (SDIflag == true)
     {
         V_sdi = (double *) calloc(NumNodes,sizeof(double));
         sdin = 2;
@@ -455,7 +455,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
                     if (blockproplist[k].BHpoints != 0)
                     {
-                        LinearFlag = FALSE;
+                        LinearFlag = false;
                     }
 
                     if (blockproplist[k].LamType==0)
@@ -728,7 +728,7 @@ int FSolver::Static2D(CBigLinProb &L)
                 }
 
             // Apply SDI boundary condition;
-            if ((SDIflag==TRUE) && (sdi_iter==1))
+            if ((SDIflag==true) && (sdi_iter==1))
             {
                 for(i = 0; i<NumEls; i++)
                 {
@@ -765,7 +765,7 @@ int FSolver::Static2D(CBigLinProb &L)
             }
 
             // solve the problem;
-            if (SDIflag==FALSE)
+            if (SDIflag==false)
             {
                 for(j = 0; j<NumNodes; j++)
                 {
@@ -793,7 +793,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
             if (L.PCGSolve(Iter+sdi_iter)==false)
             {
-                return FALSE;
+                return false;
             }
 
             if(sdi_iter==1)
@@ -808,7 +808,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
 
 
-        if (LinearFlag==FALSE)
+        if (LinearFlag==false)
         {
 
             for(j = 0,x = 0,y = 0; j<NumNodes; j++)
@@ -819,7 +819,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
             if (y==0)
             {
-                LinearFlag = TRUE;
+                LinearFlag = true;
             }
             else
             {
@@ -865,13 +865,13 @@ int FSolver::Static2D(CBigLinProb &L)
         // converge.  Arbitrarily choose 100*tolerance.
         if((res<100.*Precision) && (Iter>0))
         {
-            LinearFlag = TRUE;
+            LinearFlag = true;
         }
 
         Iter++;
 
     }
-    while(LinearFlag==FALSE);
+    while(LinearFlag==false);
 
     for(i = 0; i<NumNodes; i++)
     {
@@ -880,7 +880,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
     free(V_old);
 
-    if(SDIflag==TRUE)
+    if(SDIflag==true)
     {
         free(V_sdi);
     }
@@ -892,7 +892,7 @@ int FSolver::Static2D(CBigLinProb &L)
         free(CircInt3);
     }
 
-    return TRUE;
+    return true;
 }
 
 //=========================================================================
@@ -915,7 +915,7 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
     {
         //MsgBox("Couldn't open %s.fem\n", PathName.c_str());
         printf("Couldn't open %s.fem\n", PathName.c_str());
-        return FALSE;
+        return false;
     }
 
     sprintf(c,"%s.ans",PathName.c_str());
@@ -925,7 +925,7 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
         if (fz != NULL) fclose(fz);
         //MsgBox("Couldn't write to %s.ans\n",PathName.c_str());
         printf("Couldn't write to %s.ans\n",PathName.c_str());
-        return FALSE;
+        return false;
     }
 
     while(fgets(c,1024,fz)!=NULL)
@@ -994,7 +994,7 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
     }
 
     fclose(fp);
-    return TRUE;
+    return true;
 }
 
 //=========================================================================

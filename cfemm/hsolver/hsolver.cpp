@@ -35,6 +35,7 @@
 #include <malloc.h>
 #include "lua.h"
 #include "femmcomplex.h"
+#include "femmconstants.h"
 #include "hmesh.h"
 #include "hspars.h"
 #include "fparse.h"
@@ -43,8 +44,6 @@
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
 #endif
-
-#define Ksb 5.67032e-8 // Stefan-Boltzmann Constant
 
 //conversion to internal working units of m
 double units[]={0.0254,0.001,0.01,1,2.54e-5,1.e-6};
@@ -124,7 +123,7 @@ int HSolver::LoadProblemFile ()
 	sprintf(s,"%s.feh",PathName.c_str());
 	if ((fp=fopen(s,"rt"))==NULL){
 		fprintf(stderr,"Couldn't read from specified .feh file\n");
-		return FALSE;
+        return false;
 	}
 
 	// define some defaults
@@ -459,7 +458,7 @@ int HSolver::LoadProblemFile ()
 
 int HSolver::LoadPrev()
 {
-	if (strlen(PrevSoln)==0) return TRUE;
+    if (strlen(PrevSoln)==0) return true;
 
 	FILE *fp;
 	double x,y;
@@ -710,18 +709,18 @@ int HSolver::LoadMesh(bool deleteFiles)
 		{
 			// search through elements to find one containing the line;
 			// set corresponding edge equal to the bc number
-			for(q=0,n=FALSE;q<nmbr[n0];q++)
+            for(q=0,n=false;q<nmbr[n0];q++)
 			{
 				elm=meshele[mbr[n0][q]];
 
-				if ((elm.p[0] == n0) && (elm.p[1] == n1)) {elm.e[0]=j; n=TRUE;}
-				if ((elm.p[0] == n1) && (elm.p[1] == n0)) {elm.e[0]=j; n=TRUE;}
+                if ((elm.p[0] == n0) && (elm.p[1] == n1)) {elm.e[0]=j; n=true;}
+                if ((elm.p[0] == n1) && (elm.p[1] == n0)) {elm.e[0]=j; n=true;}
 
-				if ((elm.p[1] == n0) && (elm.p[2] == n1)) {elm.e[1]=j; n=TRUE;}
-				if ((elm.p[1] == n1) && (elm.p[2] == n0)) {elm.e[1]=j; n=TRUE;}
+                if ((elm.p[1] == n0) && (elm.p[2] == n1)) {elm.e[1]=j; n=true;}
+                if ((elm.p[1] == n1) && (elm.p[2] == n0)) {elm.e[1]=j; n=true;}
 
-				if ((elm.p[2] == n0) && (elm.p[0] == n1)) {elm.e[2]=j; n=TRUE;}
-				if ((elm.p[2] == n1) && (elm.p[0] == n0)) {elm.e[2]=j; n=TRUE;}
+                if ((elm.p[2] == n0) && (elm.p[0] == n1)) {elm.e[2]=j; n=true;}
+                if ((elm.p[2] == n1) && (elm.p[0] == n0)) {elm.e[2]=j; n=true;}
 
 				meshele[mbr[n0][q]]=elm;
 
@@ -788,7 +787,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 	int n[3],ne[3];				// numbers of nodes for a particular element;
 	double a,K,r,z,kludge;
 	double bta,Tinf,Tlast,*Vo;
-	int IsNonlinear=FALSE;
+    int IsNonlinear=false;
 	CElement *El;
 	CComplex kn;
 	int iter=0;
@@ -808,7 +807,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 	for(i=0;i<NumNodes;i++)
 	{
 		if (blockproplist[meshele[i].blk].npts>0){
-			IsNonlinear=TRUE;
+            IsNonlinear=true;
 			i=NumNodes;
 		}
 	}
@@ -995,7 +994,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 								c1=-c0*lineproplist[El->e[j]].Tinf;
 								break;
 							case 3:
-								IsNonlinear=TRUE;
+                                IsNonlinear=true;
 								bta =lineproplist[El->e[j]].beta;
 								Tinf=lineproplist[El->e[j]].Tinf;
 								Tlast=(Vo[n[j]]+Vo[n[k]])/2.;
@@ -1132,12 +1131,12 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 		}
 
 		// solve the problem;
-		if (L.PCGSolve(iter++)==false){
+        if (L.PCGSolve(iter++)==false){
 			free(Vo);
-			return FALSE;
+            return false;
 		}
 
-		if (IsNonlinear == TRUE)
+        if (IsNonlinear == true)
 		{
 			double e1=0;
 			double e2=0;
@@ -1155,7 +1154,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 			if(e2!=0)
 			{
 				// test to see if we have converged.
-				if(sqrt(e1/e2) < Precision*100.) IsNonlinear=FALSE;
+                if(sqrt(e1/e2) < Precision*100.) IsNonlinear=false;
 				prog=(int)  (100.*log10(e1/e2)/(log10(Precision)+2.));
 				if (prog>100) prog=100;
 			//	TheView->m_prog2.SetPos(prog);
@@ -1163,7 +1162,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 			}
 		}
 
-	}while(IsNonlinear == TRUE);
+    }while(IsNonlinear == true);
 
 	// compute total charge on conductors
 	// with a specified voltage
@@ -1172,7 +1171,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 			circproplist[i].q=ChargeOnConductor(i,L);
 
 	free(Vo);
-	return TRUE;
+    return true;
 }
 
 //=========================================================================
@@ -1193,7 +1192,7 @@ int HSolver::WriteResults(CHBigLinProb &L)
 	if(fz==NULL)
     {
 		printf("Couldn't open %s.feh\n", PathName.c_str());
-		return FALSE;
+        return false;
 	}
 
     sprintf(c,"%s.anh",PathName.c_str());
@@ -1201,7 +1200,7 @@ int HSolver::WriteResults(CHBigLinProb &L)
 	if(fp==NULL)
     {
 		printf("Couldn't write to %s.anh",PathName.c_str());
-		return FALSE;
+        return false;
 	}
 
 	while(fgets(c,1024,fz)!=NULL)
@@ -1237,7 +1236,7 @@ int HSolver::WriteResults(CHBigLinProb &L)
     }
 
 	fclose(fp);
-	return TRUE;
+    return true;
 }
 
 //=========================================================================

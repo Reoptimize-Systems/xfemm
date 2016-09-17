@@ -25,19 +25,6 @@
 #include "femmcomplex.h"
 #include "fullmatrix.h"
 
-// replace original windows int type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
 
 CFullMatrix::CFullMatrix()
 {
@@ -85,14 +72,14 @@ int CFullMatrix::Create(int d)
 
     M=(double **)calloc(d,sizeof(double *));
     b=(double *)calloc(d,sizeof(double));
-    if ((M==NULL) || (b==NULL)) return FALSE;
+    if ((M==NULL) || (b==NULL)) return false;
     for(i=0; i<d; i++)
     {
         M[i]=(double *)calloc(d,sizeof(double));
-        if (M[i]==NULL) return FALSE;
+        if (M[i]==NULL) return false;
     }
     n=d;
-    return TRUE;
+    return true;
 }
 
 int CFullMatrix::GaussSolve()
@@ -112,7 +99,7 @@ int CFullMatrix::GaussSolve()
                 max=M[j][i];
                 q=j;
             }
-        if(max==0) return FALSE;
+        if(max==0) return false;
         z=M[i];
         M[i]=M[q];
         M[q]=z;
@@ -134,7 +121,7 @@ int CFullMatrix::GaussSolve()
             f+=M[i][j]*b[j];
         b[i]=(b[i]-f)/M[i][i];
     }
-    return TRUE;
+    return true;
 }
 
 CComplexFullMatrix::CComplexFullMatrix()
@@ -183,14 +170,14 @@ int CComplexFullMatrix::Create(int d)
 
     M=(CComplex **)calloc(d,sizeof(CComplex *));
     b=(CComplex *)calloc(d,sizeof(CComplex));
-    if ((M==NULL) || (b==NULL)) return FALSE;
+    if ((M==NULL) || (b==NULL)) return false;
     for(i=0; i<d; i++)
     {
         M[i]=(CComplex *)calloc(d,sizeof(CComplex));
-        if (M[i]==NULL) return FALSE;
+        if (M[i]==NULL) return false;
     }
     n=d;
-    return TRUE;
+    return true;
 }
 
 int CComplexFullMatrix::GaussSolve()
@@ -210,7 +197,7 @@ int CComplexFullMatrix::GaussSolve()
                 max=M[j][i];
                 q=j;
             }
-        if(max==0) return FALSE;
+        if(max==0) return false;
         z=M[i];
         M[i]=M[q];
         M[q]=z;
@@ -232,7 +219,7 @@ int CComplexFullMatrix::GaussSolve()
             f+=M[i][j]*b[j];
         b[i]=(b[i]-f)/M[i][i];
     }
-    return TRUE;
+    return true;
 }
 
 

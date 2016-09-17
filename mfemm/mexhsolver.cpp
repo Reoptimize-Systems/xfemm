@@ -108,7 +108,7 @@ int nrhs, const mxArray *prhs[])
 
     status = SolveObj.LoadProblemFile ();
     
-    if (status != TRUE){
+    if (status != false){
       mexPrintf("problem loading .fem file\n");
       plhs[0] = mxCreateDoubleScalar (1.0);
           return;
@@ -167,7 +167,7 @@ int nrhs, const mxArray *prhs[])
 
     // renumber using Cuthill-McKee
     mexPrintf("renumbering nodes");
-    if (SolveObj.Cuthill() != TRUE){
+    if (SolveObj.Cuthill() != false){
         mexPrintf("problem renumbering node points\n");
         plhs[0] = mxCreateDoubleScalar(3.0);
         return;
@@ -184,7 +184,7 @@ int nrhs, const mxArray *prhs[])
     L.Precision = SolveObj.Precision;
 
     // initialize the problem, allocating the space required to solve it.
-    if (L.Create(SolveObj.NumNodes+SolveObj.NumCircProps,SolveObj.BandWidth) == FALSE)
+    if (L.Create(SolveObj.NumNodes+SolveObj.NumCircProps,SolveObj.BandWidth) == false)
     {
         mexPrintf("couldn't allocate enough space for matrices\n");
         plhs[0] = mxCreateDoubleScalar(4.0);
@@ -193,7 +193,7 @@ int nrhs, const mxArray *prhs[])
 
     // Create element matrices and solve the problem;
 
-    if (SolveObj.AnalyzeProblem(L)==FALSE)
+    if (SolveObj.AnalyzeProblem(L)==false)
     {
         mexPrintf("Couldn't solve the problem\n");
         plhs[0] = mxCreateDoubleScalar(5.0);
@@ -202,7 +202,7 @@ int nrhs, const mxArray *prhs[])
     mexPrintf("Static 2-D problem solved\n");
     
 
-    if (SolveObj.WriteResults(L) == FALSE)
+    if (SolveObj.WriteResults(L) == false)
     {
         mexPrintf("couldn't write results to disk\n");
         plhs[0] = mxCreateDoubleScalar(6.0);

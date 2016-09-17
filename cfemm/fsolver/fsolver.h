@@ -29,23 +29,7 @@
 #include <string>
 #include "feasolver.h"
 #include "mmesh.h"
-#include "spars.h"
-
-#ifndef muo
-#define muo 1.2566370614359173e-6
-#endif
-
-#ifndef Golden
-#define Golden 0.3819660112501051517954131656
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
+#include "cspars.h"
 
 class FSolver : public FEASolver
 {
