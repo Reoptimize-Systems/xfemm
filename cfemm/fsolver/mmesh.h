@@ -26,7 +26,7 @@
 #include "mesh.h"
 #include "femmcomplex.h"
 
-class CMBlockLabel : public CBlockLabel
+class CMBlockLabel : public femm::CBlockLabel
 {
 public:
 
@@ -86,7 +86,7 @@ public:
 private:
 };
 
-class CMBoundaryProp : public CBoundaryProp
+class CMBoundaryProp : public femm::CBoundaryProp
 {
 public:
 
@@ -113,7 +113,7 @@ public:
 private:
 };
 
-class CMCircuit : public CCircuit
+class CMCircuit : public femm::CCircuit
 {
 public:
 

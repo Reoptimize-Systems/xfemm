@@ -33,7 +33,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // CHNode -- structure that holds information about each mesh point.
-class CHNode : public CNode
+class CHNode : public femm::CNode
 {
 public:
 
@@ -73,7 +73,7 @@ public:
 private:
 };
 
-class CHBoundaryProp : public CBoundaryProp
+class CHBoundaryProp : public femm::CBoundaryProp
 {
 public:
 
@@ -95,7 +95,7 @@ public:
 private:
 };
 
-class CConductor : public CCircuit
+class CConductor : public femm::CCircuit
 {
 public:
 

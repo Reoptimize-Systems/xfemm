@@ -25,6 +25,7 @@
 
 #include "femmcomplex.h"
 
+namespace femm {
 
 /////////////////////////////////////////////////////////////////////////////
 // CNode -- structure that holds information about each mesh point.
@@ -107,5 +108,7 @@ public:
 
 private:
 };
+
+} //namespace femm
 
 #endif

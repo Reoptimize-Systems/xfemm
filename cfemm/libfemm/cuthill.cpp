@@ -35,7 +35,7 @@ int FEASolver::SortElements()
     // Comb Sort -- see http://en.wikipedia.org/wiki/Comb_sort
     int *Score;
     int i,j,k,gap;
-    CElement e;
+    femm::CElement e;
 
     Score=(int*)calloc(NumEls,sizeof(int));
 

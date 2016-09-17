@@ -63,7 +63,7 @@ public:
 
     // CArrays containing the mesh information
     int	BandWidth;
-    CElement *meshele;
+    femm::CElement *meshele;
 
     int NumNodes;
     int NumEls;
@@ -76,8 +76,8 @@ public:
     int NumCircProps;
     int NumBlockLabels;
 
-    CBoundaryProp	*lineproplist;
-    CCommonPoint	*pbclist;
+    femm::CBoundaryProp	*lineproplist;
+    femm::CCommonPoint	*pbclist;
 
     // string to hold the location of the files
     std::string PathName;
