@@ -30,6 +30,7 @@
 #include <vector>
 #include "femmcomplex.h"
 #include "hproblem.h"
+#include "fparse.h"
 //#include "luaconsoledlg.h"
 
 using namespace HPProcdata;
@@ -50,7 +51,7 @@ public:
 	double	Depth;
 	int		LengthUnits;
 	double *LengthConv;
-	bool    ProblemType;
+    femm::ProblemType problemType;
 	bool	Coords;
 	string ProblemNote;
 	bool	FirstDraw;

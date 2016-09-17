@@ -95,7 +95,7 @@ bool FPProc::MakeMask()
 	L.Create(NumNodes,bw);
 
 	 // if the problem is axisymmetric, does the selection lie along r=0?
-	if(ProblemType==AXISYMMETRIC)
+	if(problemType==AXISYMMETRIC)
 		for(i=0;i<NumEls;i++)
 			if(blocklist[meshelem[i].lbl].IsSelected)
 			{
@@ -401,7 +401,7 @@ bool FPProc::IsKosher(int k)
 	//
     // Returns true if it is OK to define the node as zero;
 
-    if((ProblemType==PLANAR) || (meshnode[k].x>1.e-6)) return true;
+    if((problemType==PLANAR) || (meshnode[k].x>1.e-6)) return true;
 
     int i,j,n;
     int score=0;

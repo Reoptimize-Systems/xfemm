@@ -6,6 +6,7 @@
 #include "luadebug.h"
 #include "femmcomplex.h"
 #include "problem.h"
+#include "fparse.h"
 //#include "luaconsoledlg.h"
 
 // extern CFemmApp theApp; //<DP>
@@ -38,7 +39,7 @@ public:
     double  Precision;
     int     LengthUnits;
     double *LengthConv;
-    int    ProblemType;
+    femm::ProblemType problemType;
     int    Coords;
     string  ProblemNote;
     bool    FirstDraw;

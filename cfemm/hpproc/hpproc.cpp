@@ -102,7 +102,7 @@ HPProc::HPProc()
 	d_LineIntegralPoints=400;
 	Depth=1/0.0254;
 	LengthUnits=0;
-    ProblemType=false;
+    problemType=PLANAR;
 	ProblemNote="Add comments here.";
 	FirstDraw=-1;
 	A_High=0.;
@@ -183,7 +183,7 @@ void HPProc::ClearDocument()
 
 	// set problem attributes to generic ones;
 	LengthUnits=0;
-    ProblemType=false;
+    problemType=PLANAR;
 	ProblemNote="Add comments here.";
     bHasMask=false;
 	extRo=extRi=extZo=0;
@@ -262,7 +262,7 @@ bool HPProc::OpenDocument(string pathname)
 //	}
 
 	// define some defaults
-	ProblemType=0;
+    problemType=PLANAR;
 	Coords=0;
 	ProblemNote="";
     bHasMask=false;
@@ -312,8 +312,8 @@ bool HPProc::OpenDocument(string pathname)
 		if( _strnicmp(q,"[problemtype]",13)==0){
 			v=StripKey(s);
 			sscanf(v,"%s",q);
-			if( _strnicmp(q,"planar",6)==0) ProblemType=0;
-			if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=1;
+            if( _strnicmp(q,"planar",6)==0) problemType=PLANAR;
+            if( _strnicmp(q,"axisymmetric",3)==0) problemType=AXISYMMETRIC;
 			q[0] = '\0';
 		}
 
@@ -1560,7 +1560,7 @@ CComplex HPProc::BlockIntegral(int inttype)
 		{
 			// compute some useful quantities employed by most integrals...
 			a=ElmArea(i)*pow(LengthConv[LengthUnits],2.);
-			if(ProblemType==1){
+            if(problemType==1){
                 for(int k=0;k<3;k++)
 					r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
 				R=(r[0]+r[1]+r[2])/3.;
@@ -1570,7 +1570,7 @@ CComplex HPProc::BlockIntegral(int inttype)
 			switch(inttype)
 			{
 				case 0: // T
-					if(ProblemType==1) a*=(2.*PI*R); else a*=Depth;
+                    if(problemType==1) a*=(2.*PI*R); else a*=Depth;
                     T=0;
                     for (int k=0;k<3;k++)
 						T+=meshnode[meshelem[i].p[k]].T/3.;
@@ -1582,17 +1582,17 @@ CComplex HPProc::BlockIntegral(int inttype)
 					break;
 
 				case 2: // volume
-					if(ProblemType==1) a*=(2.*PI*R); else a*=Depth;
+                    if(problemType==1) a*=(2.*PI*R); else a*=Depth;
 					z+=a;
 					break;
 
 				case 3: // F
-					if(ProblemType==1) a*=(2.*PI*R); else a*=Depth;
+                    if(problemType==1) a*=(2.*PI*R); else a*=Depth;
                     z+=a*D(i);
 					break;
 
 				case 4: // G
-					if(ProblemType==1) a*=(2.*PI*R); else a*=Depth;
+                    if(problemType==1) a*=(2.*PI*R); else a*=Depth;
 					z+=a*E(i);
 					break;
 
@@ -1675,7 +1675,7 @@ void HPProc::LineIntegral(int inttype, double *z)
                 if(flag==true){
 					Fn = Re(v.F/n);
 
-					if (ProblemType==AXISYMMETRIC)
+                    if (problemType==AXISYMMETRIC)
 						d=2.*PI*pt.re*sq(LengthConv[LengthUnits]);
 					else
 						d=Depth*LengthConv[LengthUnits];
@@ -1696,7 +1696,7 @@ void HPProc::LineIntegral(int inttype, double *z)
 			z[0]+=abs(contour[i+1]-contour[i]);
 		z[0]*=LengthConv[LengthUnits];
 
-		if(ProblemType==1){
+        if(problemType==1){
 			for(i=0,z[1]=0;i<k-1;i++)
 				z[1]+=(PI*(contour[i].re+contour[i+1].re)*
 						abs(contour[i+1]-contour[i]));
@@ -1747,7 +1747,7 @@ void HPProc::LineIntegral(int inttype, double *z)
                 else flag=false;
 
                 if(flag==true){
-					if (ProblemType==AXISYMMETRIC)
+                    if (problemType==AXISYMMETRIC)
 						d=2.*PI*pt.re*sq(LengthConv[LengthUnits]);
 					else
 						d=Depth*LengthConv[LengthUnits];
@@ -1943,7 +1943,7 @@ CComplex HPProc::e(int k, int i)
 	double aecf=1;
 	CComplex kn;
 
-	if((ProblemType) && (blocklist[meshelem[k].lbl].IsExternal))
+    if((problemType) && (blocklist[meshelem[k].lbl].IsExternal))
 	{
 		// correct for axisymmetric external region
 		double x=meshnode[meshelem[k].p[i]].x;
@@ -2014,7 +2014,7 @@ double HPProc::AECF(int k, CComplex p)
 {
 	// Correction factor for a point within the element, rather than
 	// for the center of the element.
-	if (!ProblemType) return 1.; // no correction for planar problems
+    if (!problemType) return 1.; // no correction for planar problems
 	if (!blocklist[meshelem[k].lbl].IsExternal) return 1; // only need to correct for external regions
 	double r=abs(p-I*extZo);
 	if (r==0) return AECF(k);
@@ -2029,7 +2029,7 @@ double HPProc::AECF(int k)
 	// designed to have a permeability that varies with position in a
 	// continuous way.
 
-	if (!ProblemType) return 1.; // no correction for planar problems
+    if (!problemType) return 1.; // no correction for planar problems
 	if (!blocklist[meshelem[k].lbl].IsExternal) return 1; // only need to correct for external regions
 
 	double r=abs(meshelem[k].ctr-I*extZo);
