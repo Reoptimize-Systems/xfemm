@@ -30,7 +30,7 @@
 #define ElementsPerSkinDepth 10
 
 
-CMaterialProp::~CMaterialProp()
+CMMaterialProp::~CMMaterialProp()
 {
     if (Bdata!=NULL) free(Bdata);
     if (Hdata!=NULL) free(Hdata);
@@ -38,7 +38,7 @@ CMaterialProp::~CMaterialProp()
 }
 
 // Constructor
-CMaterialProp::CMaterialProp()
+CMMaterialProp::CMMaterialProp()
 {
     mu_x=1.;
     mu_y=1.;            // permeabilities, relative
@@ -62,7 +62,7 @@ CMaterialProp::CMaterialProp()
 }
 
 // Copy Constructor
-CMaterialProp::CMaterialProp( const CMaterialProp &other )
+CMMaterialProp::CMMaterialProp( const CMMaterialProp &other )
 {
     mu_x = other.mu_x;
     mu_y = other.mu_y;          // permeabilities, relative
@@ -125,12 +125,12 @@ CMaterialProp::CMaterialProp( const CMaterialProp &other )
     }
 }
 
-void CMaterialProp::GetSlopes()
+void CMMaterialProp::GetSlopes()
 {
     GetSlopes(0);
 }
 
-void CMaterialProp::GetSlopes(double omega)
+void CMMaterialProp::GetSlopes(double omega)
 {
     if (BHpoints==0) return; // catch trivial case;
     if (slope!=NULL) return; // already have computed the slopes;
@@ -359,7 +359,7 @@ void CMaterialProp::GetSlopes(double omega)
 }
 
 
-CComplex CMaterialProp::GetH(double B)
+CComplex CMMaterialProp::GetH(double B)
 {
     double b,z,z2,l;
     CComplex h;
@@ -388,7 +388,7 @@ CComplex CMaterialProp::GetH(double B)
     return CComplex(0);
 }
 
-CComplex CMaterialProp::GetdHdB(double B)
+CComplex CMMaterialProp::GetdHdB(double B)
 {
     double b,z,l;
     CComplex h;
@@ -416,21 +416,21 @@ CComplex CMaterialProp::GetdHdB(double B)
     return CComplex(0);
 }
 
-CComplex CMaterialProp::Get_v(double B)
+CComplex CMMaterialProp::Get_v(double B)
 {
     if (B==0) return slope[0];
 
     return (GetH(B)/B);
 }
 
-CComplex CMaterialProp::Get_dvB2(double B)
+CComplex CMMaterialProp::Get_dvB2(double B)
 {
     if (B==0) return 0;
 
     return 0.5*(GetdHdB(B)/(B*B) - GetH(B)/(B*B*B));
 }
 
-void CMaterialProp::GetBHProps(double B, double &v, double &dv)
+void CMMaterialProp::GetBHProps(double B, double &v, double &dv)
 {
     // version to use in the magnetostatic case in
     // which we know that v and dv ought to be real-valued.
@@ -441,7 +441,7 @@ void CMaterialProp::GetBHProps(double B, double &v, double &dv)
     dv=Re(dvc);
 }
 
-void CMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
+void CMMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
 {
     double b,z,z2,l;
     CComplex h,dh;
@@ -492,7 +492,7 @@ void CMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
         }
 }
 
-CComplex CMaterialProp::LaminatedBH(double w, int i)
+CComplex CMMaterialProp::LaminatedBH(double w, int i)
 {
     int k,n,iter=0;
     CComplex *m0,*m1,*b,*x;

@@ -120,9 +120,9 @@ int FSolver::LoadProblemFile ()
     int j,k,ic;
     char s[1024],q[1024];
     char *v;
-    CPointProp       PProp;
+    CMPointProp       PProp;
     CMBoundaryProp   BProp;
-    CMaterialProp    MProp;
+    CMMaterialProp    MProp;
     CMCircuit        CProp;
     CMBlockLabel     blk;
 
@@ -257,7 +257,7 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) nodeproplist=(CPointProp *)calloc(k,sizeof(CPointProp));
+            if (k>0) nodeproplist=(CMPointProp *)calloc(k,sizeof(CMPointProp));
             q[0] = '\0';
         }
 
@@ -417,7 +417,7 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) blockproplist=(CMaterialProp *)calloc(k,sizeof(CMaterialProp));
+            if (k>0) blockproplist=(CMMaterialProp *)calloc(k,sizeof(CMMaterialProp));
             q[0] = '\0';
         }
 
@@ -1020,7 +1020,7 @@ void FSolver::GetFillFactor(int lbl)
     // the apparent conductivity and permeability for use in
     // post-processing the voltage.
 
-    CMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
+    CMMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
     CMBlockLabel* bl= &labellist[lbl];
     double atot,awire=0,d,o,fill,dd,W,R=0,c1,c2;
     int i,wiretype;

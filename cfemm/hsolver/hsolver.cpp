@@ -113,10 +113,10 @@ int HSolver::LoadProblemFile ()
 	int j,k;
 	char s[1024],q[1024];
 	char *v;
-	CPointProp	  PProp;
+    CHPointProp	  PProp;
 	CHBoundaryProp BProp;
-	CMaterialProp MProp;
-	CConductor	  CProp;
+    CHMaterialProp MProp;
+	CHConductor	  CProp;
 	CBlockLabel   blk;
 
 
@@ -210,7 +210,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[pointprops]",12)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if (k>0) nodeproplist=(CPointProp *)calloc(k,sizeof(CPointProp));
+            if (k>0) nodeproplist=(CHPointProp *)calloc(k,sizeof(CHPointProp));
 			q[0]='\0';
 		}
 
@@ -302,7 +302,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[blockprops]",12)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if (k>0) blockproplist=(CMaterialProp *)calloc(k,sizeof(CMaterialProp));
+            if (k>0) blockproplist=(CHMaterialProp *)calloc(k,sizeof(CHMaterialProp));
 			q[0]='\0';
 		}
 
@@ -395,7 +395,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[conductorprops]",16)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if(k>0) circproplist=(CConductor *)calloc(k,sizeof(CConductor));
+			if(k>0) circproplist=(CHConductor *)calloc(k,sizeof(CHConductor));
 			q[0]='\0';
 		}
 
