@@ -46,7 +46,7 @@ public:
     int		ACSolver;
 
     // mesh information
-    CNode *meshnode;
+    femm::CNode *meshnode;
     int NumCircPropsOrig;
 
     CMaterialProp  *blockproplist;

@@ -57,7 +57,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
     int SDIflag=false;
     res=0;
 
-    CElement *El;
+    femm::CElement *El;
     V_old=(double *) calloc(NumNodes,sizeof(double));
 
     for(i=0; i<NumBlockLabels; i++) GetFillFactor(i);

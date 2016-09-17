@@ -66,7 +66,7 @@ public:
 	CHBoundaryProp  *lineproplist;
 	CPointProp      *nodeproplist;
 	CConductor      *circproplist;
-	CBlockLabel     *labellist;
+    femm::CBlockLabel     *labellist;
 
 // Operations
 public:

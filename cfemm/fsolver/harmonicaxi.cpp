@@ -42,7 +42,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     CComplex **Mu,*V_sdi,*V_old;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
-    CElement *El;
+    femm::CElement *El;
     int LinearFlag=true;
     int SDIflag=false;
     res=0;
