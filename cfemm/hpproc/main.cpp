@@ -51,7 +51,7 @@ int main()
     cout << "HPProc Loaded!" << endl;
 
 
-    int test = testHPProc.OpenDocument("/home/rcrozier/src/xfemm-code/cfemm/hpproc/Test/Temp0.anh");
+    int test = testHPProc.OpenDocument("./test/Temp0.anh");
 
     if (test==TRUE)
     {
