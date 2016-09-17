@@ -643,7 +643,7 @@ bool HPProc::OpenDocument(string pathname)
 			{
 				fgets(s,1024,fp);
 				sscanf(s,"%i	%i	%lf %i	%i	%i	%i\n",
-					&segm.n0,&segm.n1,&segm.MaxSideLength,&t,&segm.Hidden,
+                    &segm.n0,&segm.n1,&segm.MaxSideLength,&t,(int*)(&segm.Hidden),
 					&segm.InGroup,&segm.InConductor);
 				segm.BoundaryMarker=t-1;
 				segm.InConductor--;
@@ -660,7 +660,7 @@ bool HPProc::OpenDocument(string pathname)
 			{
 				fgets(s,1024,fp);
 				sscanf(s,"%i	%i	%lf	%lf %i	%i %i %i\n",&asegm.n0,&asegm.n1,
-					&asegm.ArcLength,&asegm.MaxSideLength,&t,&asegm.Hidden,
+                    &asegm.ArcLength,&asegm.MaxSideLength,&t,(int*)(&asegm.Hidden),
 					&asegm.InGroup,&asegm.InConductor);
 				asegm.BoundaryMarker=t-1;
 				asegm.InConductor--;
@@ -699,7 +699,7 @@ bool HPProc::OpenDocument(string pathname)
 			{
 				fgets(s,1024,fp);
 				sscanf(s,"%lf	%lf	%i	%lf	%i	%i\n",&blk.x,&blk.y,
-					&blk.BlockType,&blk.MaxArea, &blk.InGroup, &blk.IsExternal);
+                    &blk.BlockType,&blk.MaxArea, &blk.InGroup, (int*)(&blk.IsExternal));
 				blk.IsDefault  = blk.IsExternal & 2;
 				blk.IsExternal = blk.IsExternal & 1;
 				if (blk.MaxArea<0) blk.MaxArea=0;
@@ -742,7 +742,7 @@ bool HPProc::OpenDocument(string pathname)
 	for(i=0;i<k;i++)
 	{
 		fgets(s,1024,fp);
-		sscanf(s,"%lf	%lf	%lf	%i",&mnode.x,&mnode.y,&mnode.T,&mnode.Q);
+        sscanf(s,"%lf	%lf	%lf	%i",&mnode.x,&mnode.y,&mnode.T,(int*)(&mnode.Q));
 		meshnode[i]=mnode;
 	}
 
@@ -969,7 +969,8 @@ bool HPProc::GetPointValues(double x, double y, CPointVals &u)
 bool HPProc::GetPointValues(double x, double y, int k, CPointVals &u)
 {
 	int i,n[3];
-	double a[3],b[3],c[3],da,ravg;
+    double a[3],b[3],c[3],da;
+    // double ravg;
 
 	for(i=0;i<3;i++) n[i]=meshelem[k].p[i];
 	a[0]=meshnode[n[1]].x * meshnode[n[2]].y - meshnode[n[2]].x * meshnode[n[1]].y;
@@ -982,8 +983,8 @@ bool HPProc::GetPointValues(double x, double y, int k, CPointVals &u)
 	c[1]=meshnode[n[0]].x - meshnode[n[2]].x;
 	c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
 	da=(b[0]*c[1]-b[1]*c[0]);
-	ravg=LengthConv[LengthUnits]*
-		(meshnode[n[0]].x + meshnode[n[1]].x + meshnode[n[2]].x)/3.;
+    //ravg=LengthConv[LengthUnits]*
+    //	(meshnode[n[0]].x + meshnode[n[1]].x + meshnode[n[2]].x)/3.;
 
 	GetPointD(x,y,u.F,meshelem[k]);
 

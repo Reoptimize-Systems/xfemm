@@ -46,10 +46,10 @@ using namespace femm;
 
 FSolver::FSolver()
 {
-    Frequency = NULL;
-    Relax = NULL;
-    ACSolver=NULL;
-    NumCircPropsOrig = NULL;
+    Frequency = 0.0;
+    Relax = 0.0;
+    ACSolver=0;
+    NumCircPropsOrig = 0;
 
     meshnode = NULL;
     blockproplist = NULL;
@@ -57,7 +57,7 @@ FSolver::FSolver()
     circproplist = NULL;
     labellist = NULL;
 
-    extRo = extRi = extZo = NULL;
+    extRo = extRi = extZo = 0.0;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
