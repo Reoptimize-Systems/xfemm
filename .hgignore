@@ -4,6 +4,8 @@ syntax: glob
 --------------------------
 
 release/
+# doxygen output
+cfemm/apidoc/
 
 # common patterns #
 -------------------

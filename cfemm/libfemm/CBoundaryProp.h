@@ -16,8 +16,7 @@ class CBoundaryProp
 
         CBoundaryProp();
 
-        /// <BdryName>
-        std::string BdryName;
+        std::string BdryName; /// \verbatim <BdryName> \endverbatim
         /**
          * @brief BdryFormat
          * Type of boundary condition we are applying
