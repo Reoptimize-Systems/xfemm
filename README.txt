@@ -8,6 +8,27 @@ command line magnetics finite element solver written in standard C++, a
 set of magnetics problem definition and post-processing functions in
 native !Matlab/Octave code, and a mex interface to the solvers
 
+--------    NOTE TO USERS  --------
+
+If you use xfemm, particularly for industrial work, but also academic, 
+it will be greatly appreciated if you could write an email stating this 
+and how it has supported your work. This is a low-cost way to ensure 
+further development and maintenance will continue! Contact the authors 
+on the discussion forum, or you will find an email address in the source 
+files.
+
+If you wish to cite xfemm in your work, please use the following:
+
+Crozier, R, Mueller, M., "A New MATLAB and Octave Interface to a 
+Popular Magnetics Finite Element Code", Proceedings of the 22nd 
+International Conference on Electric Machines (ICEM 2016), September 
+2016.
+
+We would also suggest you cite the original FEMM program.
+
+----------------------------------
+
+
 Installation and Setup
 -----------------------
 
