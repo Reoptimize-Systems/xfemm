@@ -360,7 +360,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                 t=labellist[El->lbl].MagDir;
                 // create the formatter object in case of a lua defined mag direction
 //                boost::format fmatter("r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s");
-                if (labellist[El->lbl].MagDirFctn!=NULL) // functional magnetization direction
+                if (!labellist[El->lbl].MagDirFctn.empty()) // functional magnetization direction
                 {
                     char magbuff[4096];
                     std::string str;
@@ -373,13 +373,13 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                     // get the created string
 //                    str = fmatter.str();
                     SNPRINTF(magbuff, sizeof magbuff, "r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s",
-                                 (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn));
+                                 (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn.c_str()));
                     str = magbuff;
                     top1=lua_gettop(lua);
                     if(lua_dostring(lua,str.c_str())!=0)
                     {
                         //MsgBox("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn);
-                        printf("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn);
+                        printf("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn.c_str());
                         //exit(7);
                         return -7;
                     }
@@ -392,7 +392,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
 //					MsgBox( "\"%s\" does not evaluate to a numerical value",
 //						labellist[El->lbl].MagDirFctn);
                             printf("\"%s\" does not evaluate to a numerical value",
-                                   labellist[El->lbl].MagDirFctn);
+                                   labellist[El->lbl].MagDirFctn.c_str());
 //					exit(7);
                             return -7;
                         }

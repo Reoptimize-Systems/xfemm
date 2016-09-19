@@ -25,18 +25,14 @@
 
 #include "mesh.h"
 #include "femmcomplex.h"
+#include "CBlockLabel.h"
 
 class CMBlockLabel : public femm::CBlockLabel
 {
 public:
-
-    double MagDir;
-    int Turns;
-    char *MagDirFctn;
-
     // used for proximity effect regions only.
     CComplex ProximityMu;
-    int bIsWound;
+    int bIsWound;// TODO: bIsWound == Turns???
 
 private:
 

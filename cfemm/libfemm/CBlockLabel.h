@@ -55,6 +55,7 @@ class CBlockLabel
         bool IsExternal; ///< is located in external region
 
         std::string MagDirFctn; ///< additional property for fpproc
+        bool IsDefault;  ///< additional property for hpproc
 
         bool IsSelected;
         void ToggleSelect();

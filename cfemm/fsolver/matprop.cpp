@@ -32,9 +32,9 @@
 
 CMMaterialProp::~CMMaterialProp()
 {
-    if (Bdata!=NULL) free(Bdata);
-    if (Hdata!=NULL) free(Hdata);
-    if (slope!=NULL) free(slope);
+    delete[] Bdata;
+    delete[] Hdata;
+    delete[] slope;
 }
 
 // Constructor
