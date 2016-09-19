@@ -544,10 +544,10 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
             // add in contribution from point currents;
             for(i=0; i<NumNodes; i++)
-                if(meshnode[i].bc>=0)
+                if(meshnode[i].BoundaryMarker>=0)
                 {
-                    K=0.01*(nodeproplist[meshnode[i].bc].Jr
-                            +I*nodeproplist[meshnode[i].bc].Ji);
+                    K=0.01*(nodeproplist[meshnode[i].BoundaryMarker].Jr
+                            +I*nodeproplist[meshnode[i].BoundaryMarker].Ji);
                     L.b[i]+=(-K);
                 }
 
@@ -561,12 +561,12 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
             // apply fixed boundary conditions at points;
             for(i=0; i<NumNodes; i++)
-                if(meshnode[i].bc >=0)
-                    if((nodeproplist[meshnode[i].bc].Jr==0) &&
-                            (nodeproplist[meshnode[i].bc].Ji==0) && (sdi_iter==0))
+                if(meshnode[i].BoundaryMarker >=0)
+                    if((nodeproplist[meshnode[i].BoundaryMarker].Jr==0) &&
+                            (nodeproplist[meshnode[i].BoundaryMarker].Ji==0) && (sdi_iter==0))
                     {
-                        K= (nodeproplist[meshnode[i].bc].Ar +
-                            I*nodeproplist[meshnode[i].bc].Ai)/c;
+                        K= (nodeproplist[meshnode[i].BoundaryMarker].Ar +
+                            I*nodeproplist[meshnode[i].BoundaryMarker].Ai)/c;
                         L.SetValue(i,K);
                     }
 

@@ -31,20 +31,6 @@
 #include "mesh.h"
 #include "femmcomplex.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// CHNode -- structure that holds information about each mesh point.
-class CHNode : public femm::CNode
-{
-public:
-
-    int xs,ys;
-    int BoundaryMarker;
-    int InGroup;
-    int InConductor;
-
-private:
-
-};
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CHBoundaryProp, CPointProp

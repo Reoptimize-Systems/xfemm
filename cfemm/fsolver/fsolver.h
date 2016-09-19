@@ -30,6 +30,7 @@
 #include "feasolver.h"
 #include "mmesh.h"
 #include "cspars.h"
+#include "CNode.h"
 
 class FSolver : public FEASolver
 {

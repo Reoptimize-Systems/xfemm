@@ -580,20 +580,20 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
 
             // add in contribution from point currents;
             for(i=0; i<NumNodes; i++)
-                if(meshnode[i].bc>=0)
+                if(meshnode[i].BoundaryMarker>=0)
                 {
                     r=meshnode[i].x;
-                    L.b[i]+=(0.01*nodeproplist[meshnode[i].bc].Jr*2.*r);
+                    L.b[i]+=(0.01*nodeproplist[meshnode[i].BoundaryMarker].Jr*2.*r);
                 }
 
             // apply fixed boundary conditions at points;
             for(i=0; i<NumNodes; i++)
             {
                 if(fabs(meshnode[i].x)<(units[LengthUnits]*1.e-06)) L.SetValue(i,0.);
-                else if(meshnode[i].bc >=0)
-                    if((nodeproplist[meshnode[i].bc].Jr==0) &&
-                            (nodeproplist[meshnode[i].bc].Ji==0) && (sdi_iter==0))
-                        L.SetValue(i,nodeproplist[meshnode[i].bc].Ar/c);
+                else if(meshnode[i].BoundaryMarker >=0)
+                    if((nodeproplist[meshnode[i].BoundaryMarker].Jr==0) &&
+                            (nodeproplist[meshnode[i].BoundaryMarker].Ji==0) && (sdi_iter==0))
+                        L.SetValue(i,nodeproplist[meshnode[i].BoundaryMarker].Ar/c);
             }
 
             // apply fixed boundary conditions along segments;

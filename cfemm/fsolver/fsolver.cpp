@@ -33,6 +33,7 @@
 #include "fparse.h"
 #include "fsolver.h"
 #include "mmesh.h"
+#include "CNode.h"
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -812,7 +813,7 @@ int FSolver::LoadMesh(bool deleteFiles)
         fscanf(fp,"%i",&j);
         if(j>1) j=j-2;
         else j=-1;
-        node.bc=j;
+        node.BoundaryMarker=j;
 
         // convert all lengths to centimeters (better conditioning this way...)
         node.x *= c[LengthUnits];
