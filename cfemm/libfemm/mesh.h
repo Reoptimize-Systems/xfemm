@@ -49,22 +49,6 @@ public:
 private:
 };
 
-class CBlockLabel
-{
-public:
-
-    double x,y;
-    double MaxArea;
-    int BlockType;
-    int InCircuit;
-    int InMask;
-    int InGroup;
-    int IsExternal;
-    int IsDefault;
-
-private:
-
-};
 
 class CCommonPoint
 {

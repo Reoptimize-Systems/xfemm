@@ -34,6 +34,7 @@
 #include "hmesh.h"
 #include "hspars.h"
 #include "CNode.h"
+#include "CBlockLabel.h"
 
 
 class HSolver : public FEASolver

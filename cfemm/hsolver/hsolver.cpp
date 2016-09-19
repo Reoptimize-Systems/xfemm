@@ -91,12 +91,12 @@ HSolver::~HSolver()
 
 void HSolver::CleanUp()
 {
-	if (meshnode!=NULL)		free(meshnode);
-	if (blockproplist!=NULL) free(blockproplist);
-	if (nodeproplist!=NULL)	 free(nodeproplist);
-	if (circproplist!=NULL)	 free(circproplist);
-	if (labellist!=NULL)	 free(labellist);
-	if (Tprev!=NULL)		 free(Tprev);
+    if (meshnode!=NULL)		 delete[] meshnode;
+    if (blockproplist!=NULL) delete[] blockproplist;
+    if (nodeproplist!=NULL)	 delete[] nodeproplist;
+    if (circproplist!=NULL)	 delete[] circproplist;
+    if (labellist!=NULL)	 delete[] labellist;
+    if (Tprev!=NULL)		 delete[] Tprev;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -210,7 +210,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[pointprops]",12)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-            if (k>0) nodeproplist=(CHPointProp *)calloc(k,sizeof(CHPointProp));
+            if (k>0) nodeproplist=new CHPointProp[k];
 			q[0]='\0';
 		}
 
@@ -302,7 +302,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[blockprops]",12)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-            if (k>0) blockproplist=(CHMaterialProp *)calloc(k,sizeof(CHMaterialProp));
+            if (k>0) blockproplist=new CHMaterialProp[k];
 			q[0]='\0';
 		}
 
@@ -395,7 +395,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[conductorprops]",16)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if(k>0) circproplist=(CHConductor *)calloc(k,sizeof(CHConductor));
+            if(k>0) circproplist=new CHConductor[k];
 			q[0]='\0';
 		}
 
@@ -435,15 +435,16 @@ int HSolver::LoadProblemFile ()
 			int i;
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if (k>0) labellist=(CBlockLabel *)calloc(k, sizeof(CBlockLabel));
+            if (k>0) labellist=new CBlockLabel[k];
 			NumBlockLabels=k;
 			for(i=0;i<k;i++)
 			{
 				fgets(s,1024,fp);
+                int ext=0;
 				sscanf(s,"%lf	%lf	%i	%lf	%i	%i",&blk.x,&blk.y,&blk.BlockType,
-					&blk.MaxArea,&blk.InGroup,&blk.IsExternal);
-				blk.IsDefault  = blk.IsExternal & 2;
-				blk.IsExternal = blk.IsExternal & 1;
+                    &blk.MaxArea,&blk.InGroup,&ext);
+                blk.IsDefault  = ext & 2;
+                blk.IsExternal = ext & 1;
 				blk.BlockType--;
 				labellist[i]=blk;
 			}
@@ -461,8 +462,8 @@ int HSolver::LoadPrev()
     if (strlen(PrevSoln)==0) return true;
 
 	FILE *fp;
-	double x,y;
-	int k;
+    double x,y;
+    int k;
 	char s[1024],q[256];
 
     if ((fp=fopen(PrevSoln,"rt"))==NULL)
@@ -497,7 +498,7 @@ int HSolver::LoadPrev()
 		return BADELEMENTFILE;
 	}
 
-	Tprev=(double *)calloc(NumNodes,sizeof(double));
+    Tprev=new double[NumNodes];
 
 	for(k=0;k<NumNodes;k++)
 	{
@@ -526,7 +527,7 @@ int HSolver::LoadMesh(bool deleteFiles)
 	sscanf(s,"%i",&k);
 	NumNodes = k;
 
-    meshnode = (CNode *)calloc(k,sizeof(CNode));
+    meshnode = new CNode[k];
     CNode node;
 	for(i = 0; i < k; i++)
 	{
