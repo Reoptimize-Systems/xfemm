@@ -33,6 +33,7 @@
 #include "feasolver.h"
 #include "hmesh.h"
 #include "hspars.h"
+#include "CNode.h"
 
 
 class HSolver : public FEASolver
@@ -57,7 +58,7 @@ public:
 	double extRo,extRi,extZo;
 
 	// mesh information
-	CHNode *meshnode;
+    femm::CNode *meshnode;
 
 	// Vector containing previous solution for time-transient analysis
 	double *Tprev;

@@ -27,19 +27,6 @@
 
 namespace femm {
 
-/////////////////////////////////////////////////////////////////////////////
-// CNode -- structure that holds information about each mesh point.
-class CNode
-{
-public:
-
-    double x,y;
-    int bc;
-
-private:
-
-};
-
 class CMeshline
 {
 public:

@@ -526,8 +526,8 @@ int HSolver::LoadMesh(bool deleteFiles)
 	sscanf(s,"%i",&k);
 	NumNodes = k;
 
-	meshnode = (CHNode *)calloc(k,sizeof(CHNode));
-	CHNode node;
+    meshnode = (CNode *)calloc(k,sizeof(CNode));
+    CNode node;
 	for(i = 0; i < k; i++)
 	{
 		fscanf(fp,"%i",&j);
@@ -553,7 +553,7 @@ int HSolver::LoadMesh(bool deleteFiles)
 			j = -1;
 			n = -1;
 		}
-		node.bc = j;
+        node.BoundaryMarker = j;
 		node.InConductor = n;
 
 		// convert all lengths to internal working units of mm
@@ -823,10 +823,10 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 		for(i=0;i<NumNodes;i++)
 		{
 			L.Q[i] = -2;
-			if(meshnode[i].bc >= 0)
-				if(nodeproplist[meshnode[i].bc].qp == 0)
+            if(meshnode[i].BoundaryMarker >= 0)
+                if(nodeproplist[meshnode[i].BoundaryMarker].qp == 0)
 				{
-					L.V[i] = nodeproplist[meshnode[i].bc].V;
+                    L.V[i] = nodeproplist[meshnode[i].BoundaryMarker].V;
 					L.Q[i] = -1;
 				}
 
@@ -1086,10 +1086,10 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 		// add in contribution from point charge density;
 		for(i=0;i<NumNodes;i++)
 		{
-			if((meshnode[i].bc>=0) && (L.Q[i]==-2))
+            if((meshnode[i].BoundaryMarker>=0) && (L.Q[i]==-2))
 			{
 				if (ProblemType==AXISYMMETRIC) Depth=2.*PI*meshnode[i].x;
-				L.b[i]+=(Depth*nodeproplist[meshnode[i].bc].qp);
+                L.b[i]+=(Depth*nodeproplist[meshnode[i].BoundaryMarker].qp);
 				L.Q[i]=-1;
 			}
 
@@ -1304,7 +1304,7 @@ void HSolver::SortNodes (int* newnum)
     {
         while(newnum[i] != i)
         {
-            CHNode swap;
+            CNode swap;
 
             j = newnum[i];
             n = newnum[j];
