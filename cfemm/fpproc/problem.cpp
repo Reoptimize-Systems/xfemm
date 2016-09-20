@@ -3,10 +3,7 @@
 #include "problem.h"
 #include "fullmatrix.h"
 #include "femmcomplex.h"
-
-#ifndef muo
-#define muo 1.2566370614359173e-6
-#endif
+#include "femmconstants.h"
 
 #define ElementsPerSkinDepth 10
 

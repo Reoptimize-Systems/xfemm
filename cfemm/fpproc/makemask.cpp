@@ -43,14 +43,14 @@ bool FPProc::MakeMask()
 		}
 	}
 
-	return TRUE;
+    return true;
 }
 
 #else
 
 bool FPProc::MakeMask()
 {
-	if(bHasMask) return TRUE;
+    if(bHasMask) return true;
 
 	int i,j,k,d;
 	CBigLinProb L;
@@ -65,7 +65,7 @@ bool FPProc::MakeMask()
 
 	int NumNodes=meshnode.size();
 	int NumEls=meshelem.size();
-	bool bOnAxis=false;
+    bool bOnAxis=false;
 
 	static int plus1mod3[3] = {1, 2, 0};
 	static int minus1mod3[3] = {2, 0, 1};
@@ -95,14 +95,14 @@ bool FPProc::MakeMask()
 	L.Create(NumNodes,bw);
 
 	 // if the problem is axisymmetric, does the selection lie along r=0?
-	if(ProblemType==AXISYMMETRIC)
+	if(problemType==AXISYMMETRIC)
 		for(i=0;i<NumEls;i++)
 			if(blocklist[meshelem[i].lbl].IsSelected)
 			{
 				for(j=0;j<3;j++)
 					if(meshnode[meshelem[i].p[j]].x<1.e-6)
 					{
-						   bOnAxis=TRUE;
+                           bOnAxis=true;
 						   break;
 					}
 				if (bOnAxis) break;
@@ -252,7 +252,7 @@ bool FPProc::MakeMask()
 //				}
 				free(matflag);
 				free(lblflag);
-				return false;
+                return false;
 			}
 		}
 
@@ -345,14 +345,14 @@ bool FPProc::MakeMask()
 	//bLinehook=BuildMask;
 	L.Precision = Precision;
 
-	if (L.PCGSolve(0)==false)
+    if (L.PCGSolve(0)==false)
 	{
 	    free(matflag);
         free(lblflag);
-	    return false;
+        return false;
 	}
 
-	//bLinehook=false;
+    //bLinehook=false;
 	for(i=0;i<NumNodes;i++)
 	{
 		switch(WeightingScheme)
@@ -382,9 +382,9 @@ bool FPProc::MakeMask()
 	}
 	free(matflag);
 	free(lblflag);
-	bHasMask=TRUE;
+    bHasMask=true;
 
-	return TRUE;
+    return true;
 }
 
 #endif
@@ -399,9 +399,9 @@ bool FPProc::IsKosher(int k)
     // This routine determines whether the node is at the extents of
     // the r=0 domain (or lies at a break in some sub-interval).
 	//
-	// Returns TRUE if it is OK to define the node as zero;
+    // Returns true if it is OK to define the node as zero;
 
-	if((ProblemType==PLANAR) || (meshnode[k].x>1.e-6)) return TRUE;
+    if((problemType==PLANAR) || (meshnode[k].x>1.e-6)) return true;
 
     int i,j,n;
     int score=0;
@@ -419,5 +419,5 @@ bool FPProc::IsKosher(int k)
         }
     }
 
-    return TRUE;
+    return true;
 }

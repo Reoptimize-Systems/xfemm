@@ -31,13 +31,11 @@
 #include "fmesher.h"
 #include "fparse.h"
 #include "intpoint.h"
+#include "femmconstants.h"
 //extern "C" {
 #include "triangle.h"
 //}
 
-#ifndef eo
-#define eo 8.85418781762e-12
-#endif
 
 #ifndef REAL
 #define REAL double

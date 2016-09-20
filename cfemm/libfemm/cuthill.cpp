@@ -25,18 +25,17 @@
 #include<math.h>
 #include "malloc.h"
 #include "femmcomplex.h"
+#include "femmconstants.h"
 #include "mesh.h"
 //#include "spars.h"
 #include "feasolver.h"
-
-#define muo 1.2566370614359173e-6
 
 int FEASolver::SortElements()
 {
     // Comb Sort -- see http://en.wikipedia.org/wiki/Comb_sort
     int *Score;
     int i,j,k,gap;
-    CElement e;
+    femm::CElement e;
 
     Score=(int*)calloc(NumEls,sizeof(int));
 
@@ -77,7 +76,7 @@ int FEASolver::SortElements()
 
 
     free(Score);
-    return TRUE;
+    return true;
 }
 
 int FEASolver::Cuthill(bool deletefiles)
@@ -96,7 +95,7 @@ int FEASolver::Cuthill(bool deletefiles)
     {
         //MsgBox("Couldn't open %s",infile);
         printf("Couldn't open %s",infile);
-        return FALSE;
+        return false;
     }
     fscanf(fp,"%li",&k);	// read in number of lines
     fscanf(fp,"%li",&j);	// read in boundarymarker flag;
@@ -319,5 +318,5 @@ int FEASolver::Cuthill(bool deletefiles)
 
     SortElements();
 
-    return TRUE;
+    return true;
 }

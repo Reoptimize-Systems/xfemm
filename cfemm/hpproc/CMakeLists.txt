@@ -16,7 +16,6 @@ endif ()
 
 add_library(hpproc STATIC 
   hpproc.cpp    
-  hmakemask.cpp
   hproblem.cpp
   $<TARGET_OBJECTS:femm>
   )

@@ -107,7 +107,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     status = SolveObj.LoadProblemFile ();
     
-    if (status != TRUE)
+    if (status != true)
     {
         mexPrintf("problem loading .fem file\n");
         plhs[0] = mxCreateDoubleScalar (1.0);
@@ -168,7 +168,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     // renumber using Cuthill-McKee
     if (verbose != 0.0) mexPrintf("renumbering nodes");
       
-    if (SolveObj.Cuthill(deleteMeshFiles) != TRUE)
+    if (SolveObj.Cuthill(deleteMeshFiles) != true)
     {
         if (verbose != 0.0) mexPrintf("problem renumbering node points\n");
         plhs[0] = mxCreateDoubleScalar(3.0);
@@ -192,7 +192,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         L.Precision = SolveObj.Precision;
 
         // initialize the problem, allocating the space required to solve it.
-        if (L.Create(SolveObj.NumNodes, SolveObj.BandWidth) == FALSE)
+        if (L.Create(SolveObj.NumNodes, SolveObj.BandWidth) == false)
         {
             mexPrintf("couldn't allocate enough space for matrices\n");
             plhs[0] = mxCreateDoubleScalar(4.0);
@@ -200,9 +200,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
         }
 
         // Create element matrices and solve the problem;
-        if (SolveObj.ProblemType == FALSE)
+        if (SolveObj.ProblemType == false)
         {
-            if (SolveObj.Static2D(L) == FALSE)
+            if (SolveObj.Static2D(L) == false)
             {
                 mexPrintf("Couldn't solve the problem\n");
                 plhs[0] = mxCreateDoubleScalar(5.0);
@@ -213,7 +213,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         else
         {
 
-            if (SolveObj.StaticAxisymmetric(L) == FALSE)
+            if (SolveObj.StaticAxisymmetric(L) == false)
             {
                 mexPrintf("Couldn't solve the problem\n");
                 plhs[0] = mxCreateDoubleScalar(5.0);
@@ -222,7 +222,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
             if (verbose != 0.0) mexPrintf("Static axisymmetric problem solved\n");
         }
 
-        if (SolveObj.WriteStatic2D(L) == FALSE)
+        if (SolveObj.WriteStatic2D(L) == false)
         {
             mexPrintf("couldn't write results to disk\n");
             plhs[0] = mxCreateDoubleScalar(6.0);
@@ -238,7 +238,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 
         // initialize the problem, allocating the space required to solve it.
 
-        if (L.Create(SolveObj.NumNodes+SolveObj.NumCircProps, SolveObj.BandWidth, SolveObj.NumNodes) == FALSE)
+        if (L.Create(SolveObj.NumNodes+SolveObj.NumCircProps, SolveObj.BandWidth, SolveObj.NumNodes) == false)
         {
             mexPrintf("couldn't allocate enough space for matrices\n");
             plhs[0] = mxCreateDoubleScalar(4.0);
@@ -246,9 +246,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
         }
 
         // Create element matrices and solve the problem;
-        if (SolveObj.ProblemType == FALSE)
+        if (SolveObj.ProblemType == false)
         {
-            if (SolveObj.Harmonic2D(L) == FALSE)
+            if (SolveObj.Harmonic2D(L) == false)
             {
                 mexPrintf("Couldn't solve the problem\n");
                 plhs[0] = mxCreateDoubleScalar(5.0);
@@ -258,7 +258,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         }
         else
         {
-            if (SolveObj.HarmonicAxisymmetric(L) == FALSE)
+            if (SolveObj.HarmonicAxisymmetric(L) == false)
             {
                 mexPrintf("Couldn't solve the problem\n");
                 plhs[0] = mxCreateDoubleScalar(5.0);
@@ -268,7 +268,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         }
 
 
-        if (SolveObj.WriteHarmonic2D(L)==FALSE)
+        if (SolveObj.WriteHarmonic2D(L)==false)
         {
             mexPrintf("couldn't write results to disk\n");
             plhs[0] = mxCreateDoubleScalar(6.0);
