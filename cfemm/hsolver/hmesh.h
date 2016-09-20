@@ -24,46 +24,17 @@
         richard.crozier@yahoo.co.uk
 */
 
-#include "mesh.h"
-#include "femmcomplex.h"
-
-// replace original windows BOOL type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-
 // guard hmesh class definitions
 #ifndef HMESH_H
 #define HMESH_H
 
-/////////////////////////////////////////////////////////////////////////////
-// CHNode -- structure that holds information about each mesh point.
-class CHNode : public CNode
-{
-public:
+#include "mesh.h"
+#include "femmcomplex.h"
 
-    int xs,ys;
-    int BoundaryMarker;
-    int InGroup;
-    int InConductor;
-
-private:
-
-};
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CHBoundaryProp, CPointProp
-class CMaterialProp
+class CHMaterialProp
 {
     // Properties
 public:
@@ -80,15 +51,15 @@ public:
     // Methods
 public:
 
-    CMaterialProp();
-    ~CMaterialProp();
-    CMaterialProp( const CMaterialProp & );
+    CHMaterialProp();
+    ~CHMaterialProp();
+    CHMaterialProp( const CHMaterialProp & );
     CComplex GetK(double t);
 
 private:
 };
 
-class CHBoundaryProp : public CBoundaryProp
+class CHBoundaryProp : public femm::CBoundaryProp
 {
 public:
 
@@ -101,7 +72,7 @@ public:
 private:
 };
 
-class CPointProp
+class CHPointProp
 {
 public:
 
@@ -110,7 +81,7 @@ public:
 private:
 };
 
-class CConductor : public CCircuit
+class CHConductor : public femm::CCircuit
 {
 public:
 

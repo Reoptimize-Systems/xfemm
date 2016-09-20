@@ -16,6 +16,7 @@ if (NOT TARGET femm)
 endif ()
 
 add_library(hsolver STATIC 
+  hmesh.h
   hsolver.cpp
   matprop.cpp
   hspars.cpp

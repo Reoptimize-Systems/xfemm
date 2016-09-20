@@ -21,10 +21,8 @@
 
 #ifndef CCOMPLEX_H
 #define CCOMPLEX_H
+#include "femmconstants.h"
 
-#define PI 3.141592653589793238462643383
-#define SmallNo 1.e-14
-#define DEG 0.01745329251994329576923690768
 
 class CComplex
 {

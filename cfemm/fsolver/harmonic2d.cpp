@@ -43,10 +43,10 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
     CComplex **Mu,*V_sdi,*V_old;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
-    CElement *El;
+    femm::CElement *El;
     int Iter=0;
-    int SDIflag=FALSE;
-    int LinearFlag=TRUE;
+    int SDIflag=false;
+    int LinearFlag=true;
 
     res=0;
 
@@ -75,7 +75,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                 (blockproplist[meshele[i].blk].LamType==2) )
         {
             WarnMessage("On-edge lamination not supported in AC analyses");
-            return FALSE;
+            return false;
         }
     }
 
@@ -165,24 +165,24 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
     // check to see if there are any SDI boundaries...
     // lineproplist[ meshele[i].e[j] ].BdryFormat==0
     for(i=0; i<NumLineProps; i++)
-        if(lineproplist[i].BdryFormat==3) SDIflag=TRUE;
+        if(lineproplist[i].BdryFormat==3) SDIflag=true;
 
-    if(SDIflag==TRUE)
+    if(SDIflag==true)
     {
         // there is an SDI boundary defined; check to see if it is in use
-        SDIflag=FALSE;
+        SDIflag=false;
         for(i=0; i<NumEls; i++)
             for(j=0; j<3; j++)
                 if (lineproplist[meshele[i].e[j]].BdryFormat==3)
                 {
-                    SDIflag=TRUE;
+                    SDIflag=true;
                     printf("Problem has SDI boundaries\n");
                     i=NumEls;
                     j=3;
                 }
     }
 
-    if (SDIflag==TRUE)
+    if (SDIflag==true)
     {
         V_sdi=(CComplex *) calloc(NumNodes+NumCircProps,sizeof(CComplex));
         sdin=2;
@@ -422,7 +422,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                 if (Iter==0)
                 {
                     k=meshele[i].blk;
-                    if (blockproplist[k].BHpoints != 0) LinearFlag=FALSE;
+                    if (blockproplist[k].BHpoints != 0) LinearFlag=false;
                     meshele[i].mu1=Mu[k][0];
                     meshele[i].mu2=Mu[k][1];
                 }
@@ -544,10 +544,10 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
             // add in contribution from point currents;
             for(i=0; i<NumNodes; i++)
-                if(meshnode[i].bc>=0)
+                if(meshnode[i].BoundaryMarker>=0)
                 {
-                    K=0.01*(nodeproplist[meshnode[i].bc].Jr
-                            +I*nodeproplist[meshnode[i].bc].Ji);
+                    K=0.01*(nodeproplist[meshnode[i].BoundaryMarker].Jr
+                            +I*nodeproplist[meshnode[i].BoundaryMarker].Ji);
                     L.b[i]+=(-K);
                 }
 
@@ -561,12 +561,12 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
             // apply fixed boundary conditions at points;
             for(i=0; i<NumNodes; i++)
-                if(meshnode[i].bc >=0)
-                    if((nodeproplist[meshnode[i].bc].Jr==0) &&
-                            (nodeproplist[meshnode[i].bc].Ji==0) && (sdi_iter==0))
+                if(meshnode[i].BoundaryMarker >=0)
+                    if((nodeproplist[meshnode[i].BoundaryMarker].Jr==0) &&
+                            (nodeproplist[meshnode[i].BoundaryMarker].Ji==0) && (sdi_iter==0))
                     {
-                        K= (nodeproplist[meshnode[i].bc].Ar +
-                            I*nodeproplist[meshnode[i].bc].Ai)/c;
+                        K= (nodeproplist[meshnode[i].BoundaryMarker].Ar +
+                            I*nodeproplist[meshnode[i].BoundaryMarker].Ai)/c;
                         L.SetValue(i,K);
                     }
 
@@ -635,7 +635,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                         }
                 }
 
-            if ((SDIflag==TRUE) && (sdi_iter==1)) for(i=0; i<NumEls; i++)
+            if ((SDIflag==true) && (sdi_iter==1)) for(i=0; i<NumEls; i++)
                     for(j=0; j<3; j++)
                     {
                         k=j+1;
@@ -661,7 +661,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
             }
 
             // solve the problem;
-            if (SDIflag==FALSE) for(j=0; j<NumNodes+NumCircProps; j++) V_old[j]=L.V[j];
+            if (SDIflag==false) for(j=0; j<NumNodes+NumCircProps; j++) V_old[j]=L.V[j];
             else
             {
                 if(sdi_iter==0)
@@ -679,7 +679,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                 L.Precision=std::min(1.e-4,0.001*res);
                 if (L.Precision<Precision) L.Precision=Precision;
             }
-            if (L.PBCGSolveMod(Iter+sdi_iter)==FALSE) return FALSE;
+            if (L.PBCGSolveMod(Iter+sdi_iter)==false) return false;
 
             if(sdi_iter==1)
                 for (i=0; i<NumNodes+NumCircProps; i++)
@@ -687,7 +687,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
         } //end of SDI loop;
 
-        if (LinearFlag==FALSE)
+        if (LinearFlag==false)
         {
 
             for(j=0,x=0,y=0; j<NumNodes; j++)
@@ -696,7 +696,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                 y+=Re(L.V[j]*conj(L.V[j]));
             }
 
-            if (y==0) LinearFlag=TRUE;
+            if (y==0) LinearFlag=true;
             else
             {
                 lastres=res;
@@ -730,12 +730,12 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
         // nonlinear iteration has to have a looser tolerance
         // than the linear solver--otherwise, things can't ever
         // converge.  Arbitrarily choose 100*tolerance.
-        if((res<100.*Precision) && Iter>0) LinearFlag=TRUE;
+        if((res<100.*Precision) && Iter>0) LinearFlag=true;
 
         Iter++;
 
     }
-    while(LinearFlag==FALSE);
+    while(LinearFlag==false);
 
     for (i=0; i<NumNodes; i++) L.b[i]=(L.V[i]*c);	// convert answer back to AMPS
     for (i=0; i<NumCircProps; i++)
@@ -744,7 +744,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
     for(k=0; k<NumBlockProps; k++) free(Mu[k]);
     free(Mu);
     free(V_old);
-    if(SDIflag==TRUE) free(V_sdi);
+    if(SDIflag==true) free(V_sdi);
     if(NumCircProps>0)
     {
         free(CircInt1);
@@ -752,7 +752,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
         free(CircInt3);
     }
 
-    return TRUE;
+    return true;
 }
 
 int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
@@ -772,7 +772,7 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
     {
         //MsgBox("Couldn't open %s.fem\n",PathName);
         printf("Couldn't open %s.fem\n",PathName.c_str());
-        return FALSE;
+        return false;
     }
 
     sprintf(c,"%s.ans",PathName.c_str());
@@ -782,7 +782,7 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
         if (fz != NULL) fclose(fz);
         //MsgBox("Couldn't write to %s.ans\n",PathName.c_str());
         printf("Couldn't write to %s.ans\n",PathName.c_str());
-        return FALSE;
+        return false;
     }
 
     while(fgets(c,1024,fz)!=NULL) fputs(c,fp);
@@ -844,7 +844,7 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
     }
 
     fclose(fp);
-    return TRUE;
+    return true;
 }
 
 

@@ -30,14 +30,6 @@
 #include "mesh.h"
 #include "spars.h"
 
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
 enum LoadMeshErr
 {
   BADFEMFILE,
@@ -71,7 +63,7 @@ public:
 
     // CArrays containing the mesh information
     int	BandWidth;
-    CElement *meshele;
+    femm::CElement *meshele;
 
     int NumNodes;
     int NumEls;
@@ -84,8 +76,8 @@ public:
     int NumCircProps;
     int NumBlockLabels;
 
-    CBoundaryProp	*lineproplist;
-    CCommonPoint	*pbclist;
+    femm::CBoundaryProp	*lineproplist;
+    femm::CCommonPoint	*pbclist;
 
     // string to hold the location of the files
     std::string PathName;

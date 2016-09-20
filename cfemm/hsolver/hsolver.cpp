@@ -35,6 +35,7 @@
 #include <malloc.h>
 #include "lua.h"
 #include "femmcomplex.h"
+#include "femmconstants.h"
 #include "hmesh.h"
 #include "hspars.h"
 #include "fparse.h"
@@ -43,8 +44,6 @@
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
 #endif
-
-#define Ksb 5.67032e-8 // Stefan-Boltzmann Constant
 
 //conversion to internal working units of m
 double units[]={0.0254,0.001,0.01,1,2.54e-5,1.e-6};
@@ -92,12 +91,12 @@ HSolver::~HSolver()
 
 void HSolver::CleanUp()
 {
-	if (meshnode!=NULL)		free(meshnode);
-	if (blockproplist!=NULL) free(blockproplist);
-	if (nodeproplist!=NULL)	 free(nodeproplist);
-	if (circproplist!=NULL)	 free(circproplist);
-	if (labellist!=NULL)	 free(labellist);
-	if (Tprev!=NULL)		 free(Tprev);
+    if (meshnode!=NULL)		 delete[] meshnode;
+    if (blockproplist!=NULL) delete[] blockproplist;
+    if (nodeproplist!=NULL)	 delete[] nodeproplist;
+    if (circproplist!=NULL)	 delete[] circproplist;
+    if (labellist!=NULL)	 delete[] labellist;
+    if (Tprev!=NULL)		 delete[] Tprev;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -114,17 +113,17 @@ int HSolver::LoadProblemFile ()
 	int j,k;
 	char s[1024],q[1024];
 	char *v;
-	CPointProp	  PProp;
+    CHPointProp	  PProp;
 	CHBoundaryProp BProp;
-	CMaterialProp MProp;
-	CConductor	  CProp;
+    CHMaterialProp MProp;
+	CHConductor	  CProp;
 	CBlockLabel   blk;
 
 
 	sprintf(s,"%s.feh",PathName.c_str());
 	if ((fp=fopen(s,"rt"))==NULL){
 		fprintf(stderr,"Couldn't read from specified .feh file\n");
-		return FALSE;
+        return false;
 	}
 
 	// define some defaults
@@ -211,7 +210,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[pointprops]",12)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if (k>0) nodeproplist=(CPointProp *)calloc(k,sizeof(CPointProp));
+            if (k>0) nodeproplist=new CHPointProp[k];
 			q[0]='\0';
 		}
 
@@ -303,7 +302,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[blockprops]",12)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if (k>0) blockproplist=(CMaterialProp *)calloc(k,sizeof(CMaterialProp));
+            if (k>0) blockproplist=new CHMaterialProp[k];
 			q[0]='\0';
 		}
 
@@ -396,7 +395,7 @@ int HSolver::LoadProblemFile ()
 		if( _strnicmp(q,"[conductorprops]",16)==0){
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if(k>0) circproplist=(CConductor *)calloc(k,sizeof(CConductor));
+            if(k>0) circproplist=new CHConductor[k];
 			q[0]='\0';
 		}
 
@@ -436,15 +435,16 @@ int HSolver::LoadProblemFile ()
 			int i;
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-			if (k>0) labellist=(CBlockLabel *)calloc(k, sizeof(CBlockLabel));
+            if (k>0) labellist=new CBlockLabel[k];
 			NumBlockLabels=k;
 			for(i=0;i<k;i++)
 			{
 				fgets(s,1024,fp);
+                int ext=0;
 				sscanf(s,"%lf	%lf	%i	%lf	%i	%i",&blk.x,&blk.y,&blk.BlockType,
-					&blk.MaxArea,&blk.InGroup,&blk.IsExternal);
-				blk.IsDefault  = blk.IsExternal & 2;
-				blk.IsExternal = blk.IsExternal & 1;
+                    &blk.MaxArea,&blk.InGroup,&ext);
+                blk.IsDefault  = ext & 2;
+                blk.IsExternal = ext & 1;
 				blk.BlockType--;
 				labellist[i]=blk;
 			}
@@ -459,11 +459,11 @@ int HSolver::LoadProblemFile ()
 
 int HSolver::LoadPrev()
 {
-	if (strlen(PrevSoln)==0) return TRUE;
+    if (strlen(PrevSoln)==0) return true;
 
 	FILE *fp;
-	double x,y;
-	int k;
+    double x,y;
+    int k;
 	char s[1024],q[256];
 
     if ((fp=fopen(PrevSoln,"rt"))==NULL)
@@ -498,7 +498,7 @@ int HSolver::LoadPrev()
 		return BADELEMENTFILE;
 	}
 
-	Tprev=(double *)calloc(NumNodes,sizeof(double));
+    Tprev=new double[NumNodes];
 
 	for(k=0;k<NumNodes;k++)
 	{
@@ -527,8 +527,8 @@ int HSolver::LoadMesh(bool deleteFiles)
 	sscanf(s,"%i",&k);
 	NumNodes = k;
 
-	meshnode = (CHNode *)calloc(k,sizeof(CHNode));
-	CHNode node;
+    meshnode = new CNode[k];
+    CNode node;
 	for(i = 0; i < k; i++)
 	{
 		fscanf(fp,"%i",&j);
@@ -554,7 +554,7 @@ int HSolver::LoadMesh(bool deleteFiles)
 			j = -1;
 			n = -1;
 		}
-		node.bc = j;
+        node.BoundaryMarker = j;
 		node.InConductor = n;
 
 		// convert all lengths to internal working units of mm
@@ -710,18 +710,18 @@ int HSolver::LoadMesh(bool deleteFiles)
 		{
 			// search through elements to find one containing the line;
 			// set corresponding edge equal to the bc number
-			for(q=0,n=FALSE;q<nmbr[n0];q++)
+            for(q=0,n=false;q<nmbr[n0];q++)
 			{
 				elm=meshele[mbr[n0][q]];
 
-				if ((elm.p[0] == n0) && (elm.p[1] == n1)) {elm.e[0]=j; n=TRUE;}
-				if ((elm.p[0] == n1) && (elm.p[1] == n0)) {elm.e[0]=j; n=TRUE;}
+                if ((elm.p[0] == n0) && (elm.p[1] == n1)) {elm.e[0]=j; n=true;}
+                if ((elm.p[0] == n1) && (elm.p[1] == n0)) {elm.e[0]=j; n=true;}
 
-				if ((elm.p[1] == n0) && (elm.p[2] == n1)) {elm.e[1]=j; n=TRUE;}
-				if ((elm.p[1] == n1) && (elm.p[2] == n0)) {elm.e[1]=j; n=TRUE;}
+                if ((elm.p[1] == n0) && (elm.p[2] == n1)) {elm.e[1]=j; n=true;}
+                if ((elm.p[1] == n1) && (elm.p[2] == n0)) {elm.e[1]=j; n=true;}
 
-				if ((elm.p[2] == n0) && (elm.p[0] == n1)) {elm.e[2]=j; n=TRUE;}
-				if ((elm.p[2] == n1) && (elm.p[0] == n0)) {elm.e[2]=j; n=TRUE;}
+                if ((elm.p[2] == n0) && (elm.p[0] == n1)) {elm.e[2]=j; n=true;}
+                if ((elm.p[2] == n1) && (elm.p[0] == n0)) {elm.e[2]=j; n=true;}
 
 				meshele[mbr[n0][q]]=elm;
 
@@ -788,7 +788,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 	int n[3],ne[3];				// numbers of nodes for a particular element;
 	double a,K,r,z,kludge;
 	double bta,Tinf,Tlast,*Vo;
-	int IsNonlinear=FALSE;
+    int IsNonlinear=false;
 	CElement *El;
 	CComplex kn;
 	int iter=0;
@@ -808,7 +808,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 	for(i=0;i<NumNodes;i++)
 	{
 		if (blockproplist[meshele[i].blk].npts>0){
-			IsNonlinear=TRUE;
+            IsNonlinear=true;
 			i=NumNodes;
 		}
 	}
@@ -824,10 +824,10 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 		for(i=0;i<NumNodes;i++)
 		{
 			L.Q[i] = -2;
-			if(meshnode[i].bc >= 0)
-				if(nodeproplist[meshnode[i].bc].qp == 0)
+            if(meshnode[i].BoundaryMarker >= 0)
+                if(nodeproplist[meshnode[i].BoundaryMarker].qp == 0)
 				{
-					L.V[i] = nodeproplist[meshnode[i].bc].V;
+                    L.V[i] = nodeproplist[meshnode[i].BoundaryMarker].V;
 					L.Q[i] = -1;
 				}
 
@@ -995,7 +995,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 								c1=-c0*lineproplist[El->e[j]].Tinf;
 								break;
 							case 3:
-								IsNonlinear=TRUE;
+                                IsNonlinear=true;
 								bta =lineproplist[El->e[j]].beta;
 								Tinf=lineproplist[El->e[j]].Tinf;
 								Tlast=(Vo[n[j]]+Vo[n[k]])/2.;
@@ -1087,10 +1087,10 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 		// add in contribution from point charge density;
 		for(i=0;i<NumNodes;i++)
 		{
-			if((meshnode[i].bc>=0) && (L.Q[i]==-2))
+            if((meshnode[i].BoundaryMarker>=0) && (L.Q[i]==-2))
 			{
 				if (ProblemType==AXISYMMETRIC) Depth=2.*PI*meshnode[i].x;
-				L.b[i]+=(Depth*nodeproplist[meshnode[i].bc].qp);
+                L.b[i]+=(Depth*nodeproplist[meshnode[i].BoundaryMarker].qp);
 				L.Q[i]=-1;
 			}
 
@@ -1132,12 +1132,12 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 		}
 
 		// solve the problem;
-		if (L.PCGSolve(iter++)==false){
+        if (L.PCGSolve(iter++)==false){
 			free(Vo);
-			return FALSE;
+            return false;
 		}
 
-		if (IsNonlinear == TRUE)
+        if (IsNonlinear == true)
 		{
 			double e1=0;
 			double e2=0;
@@ -1155,7 +1155,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 			if(e2!=0)
 			{
 				// test to see if we have converged.
-				if(sqrt(e1/e2) < Precision*100.) IsNonlinear=FALSE;
+                if(sqrt(e1/e2) < Precision*100.) IsNonlinear=false;
 				prog=(int)  (100.*log10(e1/e2)/(log10(Precision)+2.));
 				if (prog>100) prog=100;
 			//	TheView->m_prog2.SetPos(prog);
@@ -1163,7 +1163,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 			}
 		}
 
-	}while(IsNonlinear == TRUE);
+    }while(IsNonlinear == true);
 
 	// compute total charge on conductors
 	// with a specified voltage
@@ -1172,7 +1172,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 			circproplist[i].q=ChargeOnConductor(i,L);
 
 	free(Vo);
-	return TRUE;
+    return true;
 }
 
 //=========================================================================
@@ -1193,7 +1193,7 @@ int HSolver::WriteResults(CHBigLinProb &L)
 	if(fz==NULL)
     {
 		printf("Couldn't open %s.feh\n", PathName.c_str());
-		return FALSE;
+        return false;
 	}
 
     sprintf(c,"%s.anh",PathName.c_str());
@@ -1201,7 +1201,7 @@ int HSolver::WriteResults(CHBigLinProb &L)
 	if(fp==NULL)
     {
 		printf("Couldn't write to %s.anh",PathName.c_str());
-		return FALSE;
+        return false;
 	}
 
 	while(fgets(c,1024,fz)!=NULL)
@@ -1237,7 +1237,7 @@ int HSolver::WriteResults(CHBigLinProb &L)
     }
 
 	fclose(fp);
-	return TRUE;
+    return true;
 }
 
 //=========================================================================
@@ -1305,7 +1305,7 @@ void HSolver::SortNodes (int* newnum)
     {
         while(newnum[i] != i)
         {
-            CHNode swap;
+            CNode swap;
 
             j = newnum[i];
             n = newnum[j];

@@ -25,27 +25,7 @@
 
 #include "femmcomplex.h"
 
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CNode -- structure that holds information about each mesh point.
-class CNode
-{
-public:
-
-    double x,y;
-    int bc;
-
-private:
-
-};
+namespace femm {
 
 class CMeshline
 {
@@ -69,22 +49,6 @@ public:
 private:
 };
 
-class CBlockLabel
-{
-public:
-
-    double x,y;
-    double MaxArea;
-    int BlockType;
-    int InCircuit;
-    int InMask;
-    int InGroup;
-    int IsExternal;
-    int IsDefault;
-
-private:
-
-};
 
 class CCommonPoint
 {
@@ -115,5 +79,7 @@ public:
 
 private:
 };
+
+} //namespace femm
 
 #endif
