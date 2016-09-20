@@ -33,22 +33,9 @@
 #include "feasolver.h"
 #include "hmesh.h"
 #include "hspars.h"
+#include "CNode.h"
+#include "CBlockLabel.h"
 
-#ifndef muo
-#define muo 1.2566370614359173e-6
-#endif
-
-#ifndef Golden
-#define Golden 0.3819660112501051517954131656
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
 
 class HSolver : public FEASolver
 {
@@ -72,16 +59,16 @@ public:
 	double extRo,extRi,extZo;
 
 	// mesh information
-	CHNode *meshnode;
+    femm::CNode *meshnode;
 
 	// Vector containing previous solution for time-transient analysis
 	double *Tprev;
 
-	CMaterialProp   *blockproplist;
+    CHMaterialProp   *blockproplist;
 	CHBoundaryProp  *lineproplist;
-	CPointProp      *nodeproplist;
-	CConductor      *circproplist;
-	CBlockLabel     *labellist;
+    CHPointProp      *nodeproplist;
+	CHConductor      *circproplist;
+    femm::CBlockLabel     *labellist;
 
 // Operations
 public:

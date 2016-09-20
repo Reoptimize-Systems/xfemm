@@ -629,7 +629,7 @@ int HPProc_interface::getprobleminfo(int nlhs, mxArray *plhs[], int nrhs, const 
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(3), (mwSize)(1), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    outpointer[0] = theHPProc.ProblemType;
+    outpointer[0] = theHPProc.problemType;
     outpointer[1] = theHPProc.Depth;
     outpointer[2] = theHPProc.LengthConv[theHPProc.LengthUnits];
 

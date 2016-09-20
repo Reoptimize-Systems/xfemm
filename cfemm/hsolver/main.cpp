@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 
     theHSolver.PathName = PathName;
 
-    if (theHSolver.LoadProblemFile () != TRUE)
+    if (theHSolver.LoadProblemFile () != true)
     {
         theHSolver.WarnMessage("problem loading .feh file");
         return 1;
@@ -116,14 +116,14 @@ int main(int argc, char** argv)
 
 
 
-    if (theHSolver.LoadPrev()==FALSE)
+    if (theHSolver.LoadPrev()==false)
     {
         printf("Loading previous solution\n");
     }
 
     // renumber using Cuthill-McKee
     printf("renumbering nodes\n");
-    if (theHSolver.Cuthill() != TRUE)
+    if (theHSolver.Cuthill() != true)
     {
         theHSolver.WarnMessage("problem renumbering node points");
         return 3;
@@ -139,13 +139,13 @@ int main(int argc, char** argv)
     CHBigLinProb L;
 
     L.Precision = theHSolver.Precision;
-    if (L.Create(theHSolver.NumNodes+theHSolver.NumCircProps,theHSolver.BandWidth)==FALSE)
+    if (L.Create(theHSolver.NumNodes+theHSolver.NumCircProps,theHSolver.BandWidth)==false)
     {
         theHSolver.WarnMessage("couldn't allocate enough space for matrices");
         return 4;
     }
 
-    if (theHSolver.AnalyzeProblem(L)==FALSE)
+    if (theHSolver.AnalyzeProblem(L)==false)
     {
         theHSolver.WarnMessage("Couldn't solve the problem");
         return 5;
@@ -153,7 +153,7 @@ int main(int argc, char** argv)
 
     printf("Problem solved\n");
 
-    if (theHSolver.WriteResults(L)==FALSE)
+    if (theHSolver.WriteResults(L)==false)
     {
        theHSolver.WarnMessage("couldn't write results to disk");
        return 6;

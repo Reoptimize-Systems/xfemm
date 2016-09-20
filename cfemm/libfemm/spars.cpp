@@ -27,19 +27,6 @@
 
 #define KLUDGE
 
-// replace original windows BOOL type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
 
 CEntry::CEntry()
 {

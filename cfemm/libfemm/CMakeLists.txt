@@ -11,13 +11,44 @@ include_directories(${PROJECT_SOURCE_DIR}/liblua)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/liblua)
 
 add_library(femm OBJECT
+  CArcSegment.cpp
+  CArcSegment.h
+  CBlockLabel.cpp
+  CBlockLabel.h
+  CBoundaryProp.cpp
+  CBoundaryProp.h
+  CCircuit.cpp
+  CCircuit.h
+  CElement.cpp
+  CElement.h
+  CMaterialProp.cpp
+  CMaterialProp.h
+  CMeshNode.cpp
+  CMeshNode.h
+  CNode.cpp
+  CNode.h
+  CPointProp.cpp
+  CPointProp.h
+  CPointVals.cpp
+  CPointVals.h
+  CSegment.cpp
+  CSegment.h
   cspars.cpp
+  cspars.h
   cuthill.cpp
   feasolver.cpp
+  feasolver.h
   femmcomplex.cpp
+  femmcomplex.h
+  femmconstants.h
   fparse.cpp
+  fparse.h
   fullmatrix.cpp
+  fullmatrix.h
+  mesh.h
+  problem.h
   spars.cpp
+  spars.h
   liblua/lapi.cpp
   liblua/lcode.cpp 
   liblua/ldo.cpp  

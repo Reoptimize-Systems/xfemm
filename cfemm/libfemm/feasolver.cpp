@@ -60,33 +60,33 @@ using namespace femm;
 
 FEASolver::FEASolver()
 {
-    Precision = NULL;
-    LengthUnits = NULL;
-    ProblemType = NULL;
+    Precision = 0;
+    LengthUnits = 0;
+    ProblemType = 0;
     DoForceMaxMeshArea = false;
-    Coords = NULL;
-    BandWidth = NULL;
-    NumNodes = NULL;
-    NumEls = NULL;
-    NumBlockProps = NULL;
-    NumPBCs = NULL;
-    NumLineProps = NULL;
-    NumPointProps = NULL;
-    NumCircProps = NULL;
-    NumBlockLabels = NULL;
+    Coords = 0;
+    BandWidth = 0;
+    NumNodes = 0;
+    NumEls = 0;
+    NumBlockProps = 0;
+    NumPBCs = 0;
+    NumLineProps = 0;
+    NumPointProps = 0;
+    NumCircProps = 0;
+    NumBlockLabels = 0;
 
     meshele = NULL;
     lineproplist = NULL;
     pbclist = NULL;
 
-    extRo = extRi = extZo = NULL;
+    extRo = extRi = extZo = 0.0;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
 
     // Initialize Lua
-    bLinehook = FALSE;
+    bLinehook = false;
     bMultiplyDefinedLabels = false;
     lua = lua_open(4096);
     lua_baselibopen(lua);

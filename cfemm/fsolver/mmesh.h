@@ -19,39 +19,20 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#include "mesh.h"
-#include "femmcomplex.h"
-
-// replace original windows BOOL type, which is actually
-// just an int
-//#ifndef BOOL
-//#define BOOL int
-//#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-
 // guard mesh class definitions
 #ifndef MMESH_H
 #define MMESH_H
 
-class CMBlockLabel : public CBlockLabel
+#include "mesh.h"
+#include "femmcomplex.h"
+#include "CBlockLabel.h"
+
+class CMBlockLabel : public femm::CBlockLabel
 {
 public:
-
-    double MagDir;
-    int Turns;
-    char *MagDirFctn;
-
     // used for proximity effect regions only.
     CComplex ProximityMu;
-    int bIsWound;
+    int bIsWound;// TODO: bIsWound == Turns???
 
 private:
 
@@ -59,7 +40,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CBoundaryProp, CPointProp
-class CMaterialProp
+class CMMaterialProp
 {
     // Properties
 public:
@@ -85,9 +66,9 @@ public:
     // Methods
 public:
 
-    CMaterialProp();
-    ~CMaterialProp();
-    CMaterialProp( const CMaterialProp & );
+    CMMaterialProp();
+    ~CMMaterialProp();
+    CMMaterialProp( const CMMaterialProp & );
     void GetSlopes();
     void GetSlopes(double omega);
     CComplex GetH(double B);
@@ -101,7 +82,7 @@ public:
 private:
 };
 
-class CMBoundaryProp : public CBoundaryProp
+class CMBoundaryProp : public femm::CBoundaryProp
 {
 public:
 
@@ -118,7 +99,7 @@ public:
 private:
 };
 
-class CPointProp
+class CMPointProp
 {
 public:
 
@@ -128,7 +109,7 @@ public:
 private:
 };
 
-class CMCircuit : public CCircuit
+class CMCircuit : public femm::CCircuit
 {
 public:
 
