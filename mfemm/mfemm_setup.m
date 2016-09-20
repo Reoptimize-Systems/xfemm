@@ -35,7 +35,7 @@ function varargout = mfemm_setup(varargin)
 % These may be supplied in any order. An example call the mfemm_setup might
 % be:
 %
-%   mfemm_setup ('DoDebug', false, 'ForceAllRecompile', true)
+%   mfemm_setup ('DoDebug', false, 'ForceMexRecompile', true)
 %
 % A large proportion of mfemm's functionality depends on mex interfaces to
 % C++ code. This code must be compiled into mex functions to be accessible

@@ -763,7 +763,7 @@ int FPProc_interface::getprobleminfo(int nlhs, mxArray *plhs[], int nrhs, const 
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(4), (mwSize)(1), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    outpointer[0] = theFPProc.ProblemType;
+    outpointer[0] = theFPProc.problemType;
     outpointer[1] = theFPProc.Frequency;
     outpointer[2] = theFPProc.Depth;
     outpointer[3] = theFPProc.LengthConv[theFPProc.LengthUnits];

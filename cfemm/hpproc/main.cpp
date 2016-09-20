@@ -29,14 +29,6 @@
 #include "hpproc.h"
 #include "femmcomplex.h"
 
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
 using namespace std;
 
 
@@ -51,15 +43,15 @@ int main()
     cout << "HPProc Loaded!" << endl;
 
 
-    int test = testHPProc.OpenDocument("/home/rcrozier/src/xfemm-code/cfemm/hpproc/Test/Temp0.anh");
+    int test = testHPProc.OpenDocument("./test/Temp0.anh");
 
-    if (test==TRUE)
+    if (test==true)
     {
         for(int i=0; i<(int)(testHPProc.blocklist.size()); i++)
         {
-            if (testHPProc.blocklist[i].IsSelected == TRUE)
+            if (testHPProc.blocklist[i].IsSelected == true)
             {
-                testHPProc.blocklist[i].IsSelected = FALSE;
+                testHPProc.blocklist[i].IsSelected = false;
             }
         }
 
@@ -70,7 +62,7 @@ int main()
                 testHPProc.blocklist[0].ToggleSelect();
             }
 
-         //   testHPProc.bHasMask = FALSE;
+         //   testHPProc.bHasMask = false;
         }
 
 

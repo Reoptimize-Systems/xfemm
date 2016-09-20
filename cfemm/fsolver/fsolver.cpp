@@ -33,6 +33,7 @@
 #include "fparse.h"
 #include "fsolver.h"
 #include "mmesh.h"
+#include "CNode.h"
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -46,18 +47,19 @@ using namespace femm;
 
 FSolver::FSolver()
 {
-    Frequency = NULL;
-    Relax = NULL;
-    ACSolver=NULL;
-    NumCircPropsOrig = NULL;
+    Frequency = 0.0;
+    Relax = 0.0;
+    ACSolver=0;
+    NumCircPropsOrig = 0;
 
     meshnode = NULL;
     blockproplist = NULL;
     nodeproplist = NULL;
     circproplist = NULL;
     labellist = NULL;
+    lineproplist = NULL;
 
-    extRo = extRi = extZo = NULL;
+    extRo = extRi = extZo = 0.0;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
@@ -71,39 +73,18 @@ FSolver::~FSolver()
 
 void FSolver::CleanUp()
 {
-    int k;
-
-    if (meshnode!=NULL)
-    {
-        free(meshnode);
-    }
-
-    if (blockproplist!=NULL)
-    {
-        for(k=0; k<NumBlockProps; k++)
-        {
-            if(blockproplist[k].Bdata!=NULL) free(blockproplist[k].Bdata);
-            if(blockproplist[k].Hdata!=NULL) free(blockproplist[k].Hdata);
-            if(blockproplist[k].slope!=NULL) free(blockproplist[k].slope);
-        }
-        free(blockproplist);
-    }
-
-    if (nodeproplist!=NULL)	 free(nodeproplist);
-    if (circproplist!=NULL)     free(circproplist);
-
-    if (labellist!=NULL)
-    {
-        for(k=0; k<NumBlockLabels; k++)
-        {
-            if(labellist[k].MagDirFctn!=NULL)
-            {
-                free(labellist[k].MagDirFctn);
-            }
-        }
-
-        free(labellist);
-    }
+    delete[] meshnode;
+    meshnode = NULL;
+    delete[] blockproplist;
+    blockproplist = NULL;
+    delete[] nodeproplist;
+    nodeproplist = NULL;
+    delete[] circproplist;
+    circproplist = NULL;
+    delete[] lineproplist;
+    lineproplist = NULL;
+    delete[] labellist;
+    labellist = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -120,9 +101,9 @@ int FSolver::LoadProblemFile ()
     int j,k,ic;
     char s[1024],q[1024];
     char *v;
-    CPointProp       PProp;
+    CMPointProp       PProp;
     CMBoundaryProp   BProp;
-    CMaterialProp    MProp;
+    CMMaterialProp    MProp;
     CMCircuit        CProp;
     CMBlockLabel     blk;
 
@@ -130,7 +111,7 @@ int FSolver::LoadProblemFile ()
     if ((fp=fopen(s,"rt"))==NULL)
     {
         printf("Couldn't read from specified .fem file\n");
-        return FALSE;
+        return false;
     }
 
     // define some defaults
@@ -257,7 +238,7 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) nodeproplist=(CPointProp *)calloc(k,sizeof(CPointProp));
+            if (k>0) nodeproplist=new CMPointProp[k];
             q[0] = '\0';
         }
 
@@ -310,7 +291,7 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) lineproplist=(CMBoundaryProp *)calloc(k,sizeof(CMBoundaryProp));
+            if (k>0) lineproplist=new CMBoundaryProp[k];
             q[0] = '\0';
         }
 
@@ -417,7 +398,7 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) blockproplist=(CMaterialProp *)calloc(k,sizeof(CMaterialProp));
+            if (k>0) blockproplist=new CMMaterialProp[k];
             q[0] = '\0';
         }
 
@@ -556,8 +537,8 @@ int FSolver::LoadProblemFile ()
             sscanf(v,"%i",&MProp.BHpoints);
             if (MProp.BHpoints>0)
             {
-                MProp.Hdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
-                MProp.Bdata=(double *)  calloc(MProp.BHpoints,sizeof(double));
+                MProp.Hdata=new CComplex[MProp.BHpoints];
+                MProp.Bdata=new double[MProp.BHpoints];
                 for(j=0; j<MProp.BHpoints; j++)
                 {
                     fgets(s,1024,fp);
@@ -584,7 +565,7 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if(k>0) circproplist=(CMCircuit *)calloc(k,sizeof(CMCircuit));
+            if(k>0) circproplist=new CMCircuit[k];
             q[0] = '\0';
         }
 
@@ -645,10 +626,9 @@ int FSolver::LoadProblemFile ()
         if(_strnicmp(q,"[numblocklabels]",13)==0)
         {
             int i;
-            string str;
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) labellist=(CMBlockLabel *)calloc(k, sizeof(CMBlockLabel));
+            if (k>0) labellist=new CMBlockLabel[k];
             NumBlockLabels=k;
             for(i=0; i<k; i++)
             {
@@ -668,8 +648,7 @@ int FSolver::LoadProblemFile ()
                 blk.InGroup=0;
                 blk.IsExternal=0;
                 blk.IsDefault=0;
-                blk.MagDirFctn=NULL;
-                str.clear();
+                blk.MagDirFctn.clear();
 
                 // scan in data
                 v = ParseDbl(s,&blk.x);
@@ -680,19 +659,15 @@ int FSolver::LoadProblemFile ()
                 v = ParseDbl(v,&blk.MagDir);
                 v = ParseInt(v,&blk.InGroup);
                 v = ParseInt(v,&blk.Turns);
-                v = ParseInt(v,&blk.IsExternal);
-                // second last bit in IsExternal is IsDefault flag, we mask the other bits
+                int extDefault=0;
+                v = ParseInt(v,&extDefault);
+                // second last bit in extDefault flag, we mask the other bits
                 // and take the resulting value, if not zero it will evaluate to true
-                blk.IsDefault  = blk.IsExternal & 2;
-                // last bit in IsExternal is IsExternal flag, we mask the other bits
+                blk.IsDefault  = extDefault & 2;
+                // last bit in extDefault flag, we mask the other bits
                 // and take the resulting value, if not zero it will evaluate to true
-                blk.IsExternal = blk.IsExternal & 1;
-                v = ParseString(v,&str);
-                if (str.length()>0)
-                {
-                    blk.MagDirFctn=(char *)calloc(str.length()+1,sizeof(char));
-                    strcpy(blk.MagDirFctn,str.c_str());
-                }
+                blk.IsExternal = extDefault & 1;
+                v = ParseString(v,&blk.MagDirFctn);
                 blk.BlockType--;
                 blk.InCircuit--;
                 labellist[i]=blk;
@@ -709,7 +684,7 @@ int FSolver::LoadProblemFile ()
 
     fclose(fp);
 
-    if (NumCircProps==0) return TRUE;
+    if (NumCircProps==0) return true;
 
     // Process circuits for serial connections.
     // The program deals with serial "circuits" by making a separate
@@ -765,7 +740,7 @@ int FSolver::LoadProblemFile ()
 //            // it's in the problem region,
 //            if(meshele[i].lbl != k)
 //            {
-//                labellist[meshelem[i].lbl].IsSelected = TRUE;
+//                labellist[meshelem[i].lbl].IsSelected = true;
 //                if (!bMultiplyDefinedLabels)
 //                {
 //
@@ -780,7 +755,7 @@ int FSolver::LoadProblemFile ()
 //        }
 //    }
 
-    return TRUE;
+    return true;
 }
 
 int FSolver::LoadMesh(bool deleteFiles)
@@ -802,7 +777,7 @@ int FSolver::LoadMesh(bool deleteFiles)
     sscanf(s,"%i",&k);
     NumNodes = k;
 
-    meshnode = (CNode *)calloc(k,sizeof(CNode));
+    meshnode = new CNode[k];
     CNode node;
     for(i=0; i<k; i++)
     {
@@ -812,7 +787,7 @@ int FSolver::LoadMesh(bool deleteFiles)
         fscanf(fp,"%i",&j);
         if(j>1) j=j-2;
         else j=-1;
-        node.bc=j;
+        node.BoundaryMarker=j;
 
         // convert all lengths to centimeters (better conditioning this way...)
         node.x *= c[LengthUnits];
@@ -1020,16 +995,16 @@ void FSolver::GetFillFactor(int lbl)
     // the apparent conductivity and permeability for use in
     // post-processing the voltage.
 
-    CMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
+    CMMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
     CMBlockLabel* bl= &labellist[lbl];
     double atot,awire=0,d,o,fill,dd,W,R=0,c1,c2;
     int i,wiretype;
     CComplex ufd,ofd;
 
     if ((abs(bl->Turns)>1) || (blockproplist[labellist[lbl].BlockType].LamType>2))
-        bl->bIsWound=TRUE;
+        bl->bIsWound=true;
     else
-        bl->bIsWound=FALSE;
+        bl->bIsWound=false;
 
     if ((Frequency==0) || (blockproplist[labellist[lbl].BlockType].LamType<3))
     {

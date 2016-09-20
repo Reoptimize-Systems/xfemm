@@ -37,19 +37,11 @@
 #include <cmath>
 #include "hproblem.h"
 #include "femmcomplex.h"
+#include "femmconstants.h"
 #include "fparse.h"
 #include "lua.h"
 #include "lualib.h"
 #include "hpproc.h"
-
-
-#ifndef muo
-#define muo 1.2566370614359173e-6
-#endif
-
-#ifndef Golden
-#define Golden 0.3819660112501051517954131656
-#endif
 
 
 #ifndef _MSC_VER
@@ -110,7 +102,7 @@ HPProc::HPProc()
 	d_LineIntegralPoints=400;
 	Depth=1/0.0254;
 	LengthUnits=0;
-	ProblemType=false;
+    problemType=PLANAR;
 	ProblemNote="Add comments here.";
 	FirstDraw=-1;
 	A_High=0.;
@@ -118,10 +110,10 @@ HPProc::HPProc()
 	A_lb=0.;
 	A_ub=0.;
 	extRo=extRi=extZo=0;
-	Smooth=true;
+    Smooth=true;
 	NumList=NULL;
 	ConList=NULL;
-	bHasMask=false;
+    bHasMask=false;
 	LengthConv=(double *)calloc(6,sizeof(double));
 	LengthConv[0]=0.0254;	//inches
 	LengthConv[1]=0.001;	//millimeters
@@ -129,7 +121,7 @@ HPProc::HPProc()
 	LengthConv[3]=1.;		//meters
 	LengthConv[4]=2.54e-05; //mils
 	LengthConv[5]=1.e-06;	//micrometers
-	Coords=false;
+    Coords=false;
 
 	for(int i=0;i<4;i++)
 		d_PlotBounds[i][0]=d_PlotBounds[i][1]=
@@ -162,7 +154,7 @@ HPProc::~HPProc()
 void HPProc::ClearDocument()
 {
 	//if (!CDocument::OnNewDocument())
-	//	return false;
+    //	return false;
 
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
@@ -191,9 +183,9 @@ void HPProc::ClearDocument()
 
 	// set problem attributes to generic ones;
 	LengthUnits=0;
-	ProblemType=false;
+    problemType=PLANAR;
 	ProblemNote="Add comments here.";
-	bHasMask=false;
+    bHasMask=false;
 	extRo=extRi=extZo=0;
 
 
@@ -238,11 +230,10 @@ bool HPProc::OpenDocument(string pathname)
 {
 
 	FILE *fp;
-	int i,j,k,t;
 	char s[1024],q[1024];
 	char *v;
 	double b;
-	bool flag=false;
+    bool flag=false;
 	CPointProp	  PProp;
 	CBoundaryProp BProp;
 	CMaterialProp MProp;
@@ -271,14 +262,14 @@ bool HPProc::OpenDocument(string pathname)
 //	}
 
 	// define some defaults
-	ProblemType=0;
+    problemType=PLANAR;
 	Coords=0;
 	ProblemNote="";
-	bHasMask=false;
+    bHasMask=false;
 	Depth=-1;
 
 	// parse the file
-	while ((flag==false)&& (fgets(s,1024,fp) != NULL))
+    while ((flag==false)&& (fgets(s,1024,fp) != NULL))
 	{
 		sscanf(s,"%s",q);
 
@@ -321,8 +312,8 @@ bool HPProc::OpenDocument(string pathname)
 		if( _strnicmp(q,"[problemtype]",13)==0){
 			v=StripKey(s);
 			sscanf(v,"%s",q);
-			if( _strnicmp(q,"planar",6)==0) ProblemType=0;
-			if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=1;
+            if( _strnicmp(q,"planar",6)==0) problemType=PLANAR;
+            if( _strnicmp(q,"axisymmetric",3)==0) problemType=AXISYMMETRIC;
 			q[0] = '\0';
 		}
 
@@ -339,20 +330,20 @@ bool HPProc::OpenDocument(string pathname)
 		if (_strnicmp(q,"[comment]",9)==0){
 			v=StripKey(s);
 			// put in carriage returns;
-			k=std::strlen(v);
-			for(i=0;i<k;i++)
+            int k=std::strlen(v);
+            for(int i=0;i<k;i++)
 				if((v[i]=='\\') && (v[i+1]=='n')){
 					v[i]=13;
 					v[i+1]=10;
 				}
 
-			for(i=0;i<k;i++)
+            for(int i=0;i<k;i++)
 				if(v[i]=='\"'){
 					v=v+i+1;
 					i=k;
 				}
 			k=std::strlen(v);
-			if(k>0) for(i=k-1;i>=0;i--){
+            if(k>0) for(int i=k-1;i>=0;i--){
 				if(v[i]=='\"'){
 					v[i]=0;
 					i=-1;
@@ -390,14 +381,14 @@ bool HPProc::OpenDocument(string pathname)
 
 		if( _strnicmp(q,"<pointname>",11)==0){
 			v=StripKey(s);
-			k=std::strlen(v);
-			for(i=0;i<k;i++)
+            int k=std::strlen(v);
+            for(int i=0;i<k;i++)
 				if(v[i]=='\"'){
 					v=v+i+1;
 					i=k;
 				}
 			k=std::strlen(v);
-			if(k>0) for(i=k-1;i>=0;i--){
+            if(k>0) for(int i=k-1;i>=0;i--){
 				if(v[i]=='\"'){
 					v[i]=0;
 					i=-1;
@@ -435,14 +426,14 @@ bool HPProc::OpenDocument(string pathname)
 
 		if( _strnicmp(q,"<bdryname>",10)==0){
 			v=StripKey(s);
-			k=std::strlen(v);
-			for(i=0;i<k;i++)
+            int k=std::strlen(v);
+            for(int i=0;i<k;i++)
 				if(v[i]=='\"'){
 					v=v+i+1;
 					i=k;
 				}
 			k=std::strlen(v);
-			if(k>0) for(i=k-1;i>=0;i--){
+            if(k>0) for(int i=k-1;i>=0;i--){
 				if(v[i]=='\"'){
 					v[i]=0;
 					i=-1;
@@ -507,14 +498,14 @@ bool HPProc::OpenDocument(string pathname)
 
 		if( _strnicmp(q,"<blockname>",10)==0){
 			v=StripKey(s);
-			k=std::strlen(v);
-			for(i=0;i<k;i++)
+            int k=std::strlen(v);
+            for(int i=0;i<k;i++)
 				if(v[i]=='\"'){
 					v=v+i+1;
 					i=k;
 				}
 			k=std::strlen(v);
-			if(k>0) for(i=k-1;i>=0;i--){
+            if(k>0) for(int i=k-1;i>=0;i--){
 				if(v[i]=='\"'){
 					v[i]=0;
 					i=-1;
@@ -555,7 +546,7 @@ bool HPProc::OpenDocument(string pathname)
 			{
 				//MProp.Kn = (CComplex *)realloc(MProp.Kn,MProp.Kn*sizeof(CComplex));
                 //memset(MProp.Kn, 0, MProp.Kn * sizeof(CComplex));
-				for(j=0;j<MProp.npts;j++){
+                for(int j=0;j<MProp.npts;j++){
 					fgets(s,1024,fp);
 					MProp.Kn[j]=0;
 					sscanf(s,"%lf	%lf",&MProp.Kn[j].re,&MProp.Kn[j].im);
@@ -579,14 +570,14 @@ bool HPProc::OpenDocument(string pathname)
 
 		if( _strnicmp(q,"<conductorname>",15)==0){
 			v=StripKey(s);
-			k=std::strlen(v);
-			for(i=0;i<k;i++)
+            int k=std::strlen(v);
+            for(int i=0;i<k;i++)
 				if(v[i]=='\"'){
 					v=v+i+1;
 					i=k;
 				}
 			k=std::strlen(v);
-			if(k>0) for(i=k-1;i>=0;i--){
+            if(k>0) for(int i=k-1;i>=0;i--){
 				if(v[i]=='\"'){
 					v[i]=0;
 					i=-1;
@@ -622,10 +613,12 @@ bool HPProc::OpenDocument(string pathname)
 		// Points list;
 		if(_strnicmp(q,"[numpoints]",11)==0){
 			v=StripKey(s);
+            int k=0;
 			sscanf(v,"%i",&k);
-			for(i=0;i<k;i++)
+            for(int i=0;i<k;i++)
 			{
 				fgets(s,1024,fp);
+                int t=0;
 				sscanf(s,"%lf	%lf	%i	%i	%i\n",&node.x,&node.y,&t,
 					&node.InGroup,&node.InConductor);
 				node.BoundaryMarker=t-1;
@@ -638,12 +631,14 @@ bool HPProc::OpenDocument(string pathname)
 		// read in segment list
 		if(_strnicmp(q,"[numsegments]",13)==0){
 			v=StripKey(s);
-			sscanf(v,"%i",&k);
-			for(i=0;i<k;i++)
+            int k=0;
+            sscanf(v,"%i",&k);
+            for(int i=0;i<k;i++)
 			{
 				fgets(s,1024,fp);
-				sscanf(s,"%i	%i	%lf %i	%i	%i	%i\n",
-					&segm.n0,&segm.n1,&segm.MaxSideLength,&t,&segm.Hidden,
+                int t=0;
+                sscanf(s,"%i	%i	%lf %i	%i	%i	%i\n",
+                    &segm.n0,&segm.n1,&segm.MaxSideLength,&t,(int*)(&segm.Hidden),
 					&segm.InGroup,&segm.InConductor);
 				segm.BoundaryMarker=t-1;
 				segm.InConductor--;
@@ -655,12 +650,14 @@ bool HPProc::OpenDocument(string pathname)
 		// read in arc segment list
 		if(_strnicmp(q,"[numarcsegments]",13)==0){
 			v=StripKey(s);
-			sscanf(v,"%i",&k);
-			for(i=0;i<k;i++)
+            int k=0;
+            sscanf(v,"%i",&k);
+            for(int i=0;i<k;i++)
 			{
 				fgets(s,1024,fp);
-				sscanf(s,"%i	%i	%lf	%lf %i	%i %i %i\n",&asegm.n0,&asegm.n1,
-					&asegm.ArcLength,&asegm.MaxSideLength,&t,&asegm.Hidden,
+                int t=0;
+                sscanf(s,"%i	%i	%lf	%lf %i	%i %i %i\n",&asegm.n0,&asegm.n1,
+                    &asegm.ArcLength,&asegm.MaxSideLength,&t,(int*)(&asegm.Hidden),
 					&asegm.InGroup,&asegm.InConductor);
 				asegm.BoundaryMarker=t-1;
 				asegm.InConductor--;
@@ -673,12 +670,13 @@ bool HPProc::OpenDocument(string pathname)
 		// read in list of holes;
 		if(_strnicmp(q,"[numholes]",13)==0){
 			v=StripKey(s);
-			sscanf(v,"%i",&k);
+            int k=0;
+            sscanf(v,"%i",&k);
 			if(k>0)
 			{
 				blk.BlockType=-1;
 				blk.MaxArea=0;
-				for(i=0;i<k;i++)
+                for(int i=0;i<k;i++)
 				{
 					fgets(s,1024,fp);
 					sscanf(s,"%lf	%lf\n",&blk.x,&blk.y);
@@ -694,12 +692,13 @@ bool HPProc::OpenDocument(string pathname)
 		// read in regional attributes
 		if(_strnicmp(q,"[numblocklabels]",13)==0){
 			v=StripKey(s);
-			sscanf(v,"%i",&k);
-			for(i=0;i<k;i++)
+            int k=0;
+            sscanf(v,"%i",&k);
+            for(int i=0;i<k;i++)
 			{
 				fgets(s,1024,fp);
 				sscanf(s,"%lf	%lf	%i	%lf	%i	%i\n",&blk.x,&blk.y,
-					&blk.BlockType,&blk.MaxArea, &blk.InGroup, &blk.IsExternal);
+                    &blk.BlockType,&blk.MaxArea, &blk.InGroup, (int*)(&blk.IsExternal));
 				blk.IsDefault  = blk.IsExternal & 2;
 				blk.IsExternal = blk.IsExternal & 1;
 				if (blk.MaxArea<0) blk.MaxArea=0;
@@ -711,12 +710,12 @@ bool HPProc::OpenDocument(string pathname)
 		}
 
 		if(_strnicmp(q,"[solution]",10)==0){
-			flag=true;
+            flag=true;
 			q[0] = '\0';
 		}
 	}
 
-	if (flag == false)
+    if (flag == false)
     {
         // The flag was never set to true during the while loop.
         // This means the "[solution]" string was never
@@ -737,33 +736,42 @@ bool HPProc::OpenDocument(string pathname)
     }
 
 	// read in meshnodes;
-	fscanf(fp,"%i\n",&k);
-	meshnode.resize(k);
-	for(i=0;i<k;i++)
-	{
-		fgets(s,1024,fp);
-		sscanf(s,"%lf	%lf	%lf	%i",&mnode.x,&mnode.y,&mnode.T,&mnode.Q);
-		meshnode[i]=mnode;
-	}
+    {
+        int k=0;
+        fscanf(fp,"%i\n",&k);
+        meshnode.resize(k);
+        for(int i=0;i<k;i++)
+        {
+            fgets(s,1024,fp);
+            sscanf(s,"%lf	%lf	%lf	%i",&mnode.x,&mnode.y,&mnode.T,(int*)(&mnode.Q));
+            meshnode[i]=mnode;
+        }
+    }
 
 	// read in elements;
-	fscanf(fp,"%i\n",&k);
-	meshelem.resize(k);
-	for(i=0;i<k;i++)
-	{
-		fgets(s,1024,fp);
-		sscanf(s,"%i	%i	%i	%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
-		elm.blk=blocklist[elm.lbl].BlockType;
-		meshelem[i]=elm;
-	}
+    {
+        int k=0;
+        fscanf(fp,"%i\n",&k);
+        meshelem.resize(k);
+        for(int i=0;i<k;i++)
+        {
+            fgets(s,1024,fp);
+            sscanf(s,"%i	%i	%i	%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
+            elm.blk=blocklist[elm.lbl].BlockType;
+            meshelem[i]=elm;
+        }
+    }
 
 	// read in circuit data;
-	fscanf(fp,"%i\n",&k);
-	for(i=0;i<k;i++)
-	{
-		fgets(s,1024,fp);
-		sscanf(s,"%lf	%lf",&circproplist[i].V,&circproplist[i].q);
-	}
+    {
+        int k=0;
+        fscanf(fp,"%i\n",&k);
+        for(int i=0;i<k;i++)
+        {
+            fgets(s,1024,fp);
+            sscanf(s,"%lf	%lf",&circproplist[i].V,&circproplist[i].q);
+        }
+    }
 
 	fclose(fp);
 
@@ -771,10 +779,11 @@ bool HPProc::OpenDocument(string pathname)
 	if(Depth==-1) Depth=1; else Depth*=LengthConv[LengthUnits];
 
 	// element centroids and radii;
-	for(i=0;i<meshelem.size();i++)
+    for(int i=0;i<(int)meshelem.size();i++)
 	{
 		meshelem[i].ctr=Ctr(i);
-		for(j=0,meshelem[i].rsqr=0;j<3;j++)
+        int j;
+        for(j=0, meshelem[i].rsqr=0; j<3; j++)
 		{
 			b=sqr(meshnode[meshelem[i].p[j]].x-meshelem[i].ctr.re)+
 			  sqr(meshnode[meshelem[i].p[j]].y-meshelem[i].ctr.im);
@@ -783,11 +792,11 @@ bool HPProc::OpenDocument(string pathname)
 	}
 
 	// Find flux density in each element;
-	for(i=0;i<meshelem.size();i++) GetElementD(i);
+    for(int i=0;i<(int)meshelem.size();i++) GetElementD(i);
 
 	// Find extreme values of A;
 	A_Low=meshnode[0].T; A_High=meshnode[0].T;
-	for(i=1;i<meshnode.size();i++)
+    for(int i=1;i<(int)meshnode.size();i++)
 	{
 		if (meshnode[i].T>A_High) A_High=meshnode[i].T;
 		if (meshnode[i].T<A_Low)  A_Low =meshnode[i].T;
@@ -801,31 +810,33 @@ bool HPProc::OpenDocument(string pathname)
 	NumList=(int *)calloc(meshnode.size(),sizeof(int));
 	ConList=(int **)calloc(meshnode.size(),sizeof(int *));
 	// find out number of connections to each node;
-	for(i=0;i<meshelem.size();i++)
-		for(j=0;j<3;j++)
+    for(int i=0;i<(int)meshelem.size();i++)
+        for(int j=0;j<3;j++)
 			NumList[meshelem[i].p[j]]++;
 	// allocate space for connections lists;
-	for(i=0;i<meshnode.size();i++)
+    for(int i=0;i<(int)meshnode.size();i++)
 		ConList[i]=(int *)calloc(NumList[i],sizeof(int));
 	// build list;
-	for(i=0;i<meshnode.size();i++) NumList[i]=0;
-	for(i=0;i<meshelem.size();i++)
-		for(j=0;j<3;j++){
-			k=meshelem[i].p[j];
-			ConList[k][NumList[k]]=i;
-			NumList[k]++;
-		}
+    for(int i=0;i<(int)meshnode.size();i++) NumList[i]=0;
+    for(int i=0;i<(int)meshelem.size();i++)
+    {
+        for(int j=0;j<3;j++){
+            int k=meshelem[i].p[j];
+            ConList[k][NumList[k]]=i;
+            NumList[k]++;
+        }
+    }
 
 	// sort each connection list so that the elements are
 	// arranged in a counter-clockwise order
 	CComplex u0,u1;
 	int swa;
-	bool flg;
-	for(i=0;i<meshnode.size();i++)
+    for(int i=0;i<(int)meshnode.size();i++)
 	{
-		for(j=0;j<NumList[i];j++)
+        for(int j=0;j<NumList[i];j++)
 		{
-			for(k=0,flg=false;k<NumList[i]-j-1;k++)
+            bool flg=false;
+            for(int k=0,flg=false;k<NumList[i]-j-1;k++)
 			{
 				u0=meshelem[ConList[i][k]].ctr  -meshnode[i].CC();
 				u1=meshelem[ConList[i][k+1]].ctr-meshnode[i].CC();
@@ -834,7 +845,7 @@ bool HPProc::OpenDocument(string pathname)
 					swa=ConList[i][k];
 					ConList[i][k]=ConList[i][k+1];
 					ConList[i][k+1]=swa;
-					flg=true;
+                    flg=true;
 				}
 			}
 			if(!flg) j=NumList[i];
@@ -847,24 +858,29 @@ bool HPProc::OpenDocument(string pathname)
 	PlotBounds[0][0]=d_PlotBounds[0][0];
 	PlotBounds[0][1]=d_PlotBounds[0][1];
 
-	for(i=0;i<meshelem.size();i++) GetNodalD(meshelem[i].d,i);
+    for(int i=0;i<(int)meshelem.size();i++) GetNodalD(meshelem[i].d,i);
 
 	// Find extreme values of D and E;
-	i=0; while(blocklist[meshelem[i].lbl].IsExternal) i++;
-	d_PlotBounds[1][0]=abs(D(i));
-	d_PlotBounds[1][1]=d_PlotBounds[1][0];
-	d_PlotBounds[2][0]=abs(E(0));
-	d_PlotBounds[2][1]=d_PlotBounds[2][0];
-	for(i=0;i<meshelem.size();i++)
-	if(!blocklist[meshelem[i].lbl].IsExternal){
-			b=abs(D(i));
-			if(b>d_PlotBounds[1][1]) d_PlotBounds[1][1]=b;
-			if(b<d_PlotBounds[1][0]) d_PlotBounds[1][0]=b;
+    {
+        int i=0;
+        while(blocklist[meshelem[i].lbl].IsExternal) i++;
+        d_PlotBounds[1][0]=abs(D(i));
+        d_PlotBounds[1][1]=d_PlotBounds[1][0];
+        d_PlotBounds[2][0]=abs(E(0));
+        d_PlotBounds[2][1]=d_PlotBounds[2][0];
+    }
+    for(int i=0;i<(int)meshelem.size();i++)
+    {
+        if(!blocklist[meshelem[i].lbl].IsExternal){
+            b=abs(D(i));
+            if(b>d_PlotBounds[1][1]) d_PlotBounds[1][1]=b;
+            if(b<d_PlotBounds[1][0]) d_PlotBounds[1][0]=b;
 
-			b=abs(E(i));
-			if(b>d_PlotBounds[2][1]) d_PlotBounds[2][1]=b;
-			if(b<d_PlotBounds[2][0]) d_PlotBounds[2][0]=b;
-	}
+            b=abs(E(i));
+            if(b>d_PlotBounds[2][1]) d_PlotBounds[2][1]=b;
+            if(b<d_PlotBounds[2][0]) d_PlotBounds[2][0]=b;
+        }
+    }
 	PlotBounds[1][0]=d_PlotBounds[1][0];
 	PlotBounds[1][1]=d_PlotBounds[1][1];
 	PlotBounds[2][0]=d_PlotBounds[2][0];
@@ -881,13 +897,14 @@ bool HPProc::OpenDocument(string pathname)
 	// Check to see if any regions are multiply defined
 	// (i.e. tagged by more than one block label). If so,
 	// display an error message and mark the problem blocks.
-	for(k=0,bMultiplyDefinedLabels=false;k<blocklist.size();k++)
-	{
+    for(int k=0,bMultiplyDefinedLabels=false;k<(int)blocklist.size();k++)
+    {
+        int i=0;
 		if((i=InTriangle(blocklist[k].x,blocklist[k].y))>=0)
 		{
 			if(meshelem[i].lbl!=k)
 			{
-				blocklist[meshelem[i].lbl].IsSelected=TRUE;
+                blocklist[meshelem[i].lbl].IsSelected=true;
 				if (!bMultiplyDefinedLabels)
 				{
 					string msg;
@@ -896,16 +913,16 @@ bool HPProc::OpenDocument(string pathname)
 					msg+="problematic regions will appear as selected in\n";
 					msg+="the initial view.";
 					WarnMessage(msg.c_str());
-					bMultiplyDefinedLabels=true;
+                    bMultiplyDefinedLabels=true;
 				}
 			}
 		}
 	}
 
 
-	FirstDraw=true;
+    FirstDraw=true;
 
-	return true;
+    return true;
 }
 
 int HPProc::InTriangle(double x, double y)
@@ -961,15 +978,16 @@ bool HPProc::GetPointValues(double x, double y, CPointVals &u)
 {
 	int k;
 	k=InTriangle(x,y);
-	if (k<0) return false;
+    if (k<0) return false;
 	GetPointValues(x,y,k,u);
-	return true;
+    return true;
 }
 
 bool HPProc::GetPointValues(double x, double y, int k, CPointVals &u)
 {
 	int i,n[3];
-	double a[3],b[3],c[3],da,ravg;
+    double a[3],b[3],c[3],da;
+    // double ravg;
 
 	for(i=0;i<3;i++) n[i]=meshelem[k].p[i];
 	a[0]=meshnode[n[1]].x * meshnode[n[2]].y - meshnode[n[2]].x * meshnode[n[1]].y;
@@ -982,8 +1000,8 @@ bool HPProc::GetPointValues(double x, double y, int k, CPointVals &u)
 	c[1]=meshnode[n[0]].x - meshnode[n[2]].x;
 	c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
 	da=(b[0]*c[1]-b[1]*c[0]);
-	ravg=LengthConv[LengthUnits]*
-		(meshnode[n[0]].x + meshnode[n[1]].x + meshnode[n[2]].x)/3.;
+    //ravg=LengthConv[LengthUnits]*
+    //	(meshnode[n[0]].x + meshnode[n[1]].x + meshnode[n[2]].x)/3.;
 
 	GetPointD(x,y,u.F,meshelem[k]);
 
@@ -996,7 +1014,7 @@ bool HPProc::GetPointValues(double x, double y, int k, CPointVals &u)
 	u.G.re = u.F.re/(u.K.re);
 	u.G.im = u.F.im/(u.K.im);
 
-	return true;
+    return true;
 }
 
 void HPProc::GetPointD(double x, double y, CComplex &D, CElement &elm)
@@ -1008,7 +1026,7 @@ void HPProc::GetPointD(double x, double y, CComplex &D, CElement &elm)
     char buffer [50]; sprintf(buffer, "In GetPointD Smooth is: %i \n", Smooth);
     WarnMessage (buffer);
 #endif
-	if(Smooth==false){
+    if(Smooth==false){
 		D=elm.D;
 		return;
 	}
@@ -1036,14 +1054,14 @@ bool HPProc::IsSameMaterial(int e1, int e2)
 	b2=meshelem[e2].blk;
 
 	// Are the same material trivially if they are the same block type
-	if (b1==b2) return true;
+    if (b1==b2) return true;
 
 	// If the materials are linear and have the same Kx and Ky, we
 	// can say that they are the same material;
 	if ((blockproplist[b1].Kx==blockproplist[b2].Kx) &&
 		(blockproplist[b1].Ky==blockproplist[b2].Ky) &&
 		(blockproplist[b1].npts==0) &&
-		(blockproplist[b2].npts==0)) return true;
+        (blockproplist[b2].npts==0)) return true;
 
 	// If the materials are nonlinear and have all of the same T-k points,
 	// they are the same material;
@@ -1054,13 +1072,13 @@ bool HPProc::IsSameMaterial(int e1, int e2)
 			{
 				if ((blockproplist[b1].Kn[k].re!=blockproplist[b2].Kn[k].re) ||
 					(blockproplist[b1].Kn[k].im!=blockproplist[b2].Kn[k].im))
-					return false;
+                    return false;
 			}
-			return true;
+            return true;
 		}
 	}
 
-	return false;
+    return false;
 }
 
 void HPProc::GetNodalD(CComplex *d, int N)
@@ -1076,7 +1094,7 @@ void HPProc::GetNodalD(CComplex *d, int N)
 	{
 		j=meshelem[N].p[i];
 		lf=rt=-1;
-		flag=false;
+        flag=false;
 		for(eos=0;eos<NumList[j];eos++) if(ConList[j][eos]==N) break;
 
 		// scan ccw
@@ -1142,28 +1160,28 @@ void HPProc::GetNodalD(CComplex *d, int N)
 			// The node of interest is at the end of a conductor; not much to
 			// do but punt;
 			d[i]=meshelem[N].D;
-			flag=true;
+            flag=true;
 		}
 		else if ((rt!=-1) && (meshnode[j].Q!=-2) && (lf==-1))
 		{
 			// Another instance of a node at the
 			// end of a conductor; punt!
 			d[i]=meshelem[N].D;
-			flag=true;
+            flag=true;
 		}
 		else if ((lf!=-1) && (meshnode[j].Q!=-2) && (rt==-1))
 		{
 			// Another instance of a node at the
 			// end of a conductor; punt!
 			d[i]=meshelem[N].D;
-			flag=true;
+            flag=true;
 		}
 		else if((lf==-1) && (rt==-1) && (meshnode[j].Q!=-2))
 		{
 			// The node of interest is an isolated charge. Again, not much to
 			// do but punt;
 			d[i]=meshelem[N].D;
-			flag=true;
+            flag=true;
 		}
 		else if((lf!=-1) && (rt!=-1) && (meshnode[j].Q!=-2))
 		{
@@ -1178,11 +1196,11 @@ void HPProc::GetNodalD(CComplex *d, int N)
 			{
 				// if the angle is greater than 10 degrees, punt;
 				d[i]=meshelem[N].D;
-				flag=true;
+                flag=true;
 			}
 		}
 
-		if(flag==false)
+        if(flag==false)
 		{
 			// The nominal case.
 			// Fit a plane through the nodes in the list to solve for E.
@@ -1264,14 +1282,13 @@ void HPProc::GetElementD(int k)
 
 int HPProc::ClosestNode(double x, double y)
 {
-	int i,j;
 	double d0,d1;
 
 	if(nodelist.size()==0) return -1;
 
-	j=0;
+    int j=0;
 	d0=nodelist[0].GetDistance(x,y);
-	for(i=0;i<nodelist.size();i++){
+    for(int i=0;i<(int)nodelist.size();i++){
 		d1=nodelist[i].GetDistance(x,y);
 		if(d1<d0){
 			d0=d1;
@@ -1441,16 +1458,16 @@ bool HPProc::InTriangleTest(double x, double y, int i)
 	double z;
 	bool InFlag;
 
-	if(i<0) return false;
+    if(i<0) return false;
 
-	for(j=0,InFlag=true;((j<3) && (InFlag==true));j++)
+    for(j=0,InFlag=true;((j<3) && (InFlag==true));j++)
 	{
 		k=j+1; if(k==3) k=0;
 		z=(meshnode[meshelem[i].p[k]].x-meshnode[meshelem[i].p[j]].x)*
 		  (y-meshnode[meshelem[i].p[j]].y) -
 		  (meshnode[meshelem[i].p[k]].y-meshnode[meshelem[i].p[j]].y)*
 		  (x-meshnode[meshelem[i].p[j]].x);
-		if(z<0) InFlag=false;
+        if(z<0) InFlag=false;
 	}
 
 	return InFlag;
@@ -1531,20 +1548,20 @@ CComplex HPProc::HenrotteVector(int k)
 
 CComplex HPProc::BlockIntegral(int inttype)
 {
-	int i,k;
 	CComplex c,z;
 	double T;
 	double a,R;
 	double r[3];
 
-	for(i=0,z=0;i<meshelem.size();i++)
+    z=0;
+    for(int i=0;i<(int)meshelem.size();i++)
 	{
-		if(blocklist[meshelem[i].lbl].IsSelected==true)
+        if(blocklist[meshelem[i].lbl].IsSelected==true)
 		{
 			// compute some useful quantities employed by most integrals...
 			a=ElmArea(i)*pow(LengthConv[LengthUnits],2.);
-			if(ProblemType==1){
-				for(k=0;k<3;k++)
+            if(problemType==1){
+                for(int k=0;k<3;k++)
 					r[k]=meshnode[meshelem[i].p[k]].x*LengthConv[LengthUnits];
 				R=(r[0]+r[1]+r[2])/3.;
 			}
@@ -1553,8 +1570,9 @@ CComplex HPProc::BlockIntegral(int inttype)
 			switch(inttype)
 			{
 				case 0: // T
-					if(ProblemType==1) a*=(2.*PI*R); else a*=Depth;
-					for (T=0,k=0;k<3;k++)
+                    if(problemType==1) a*=(2.*PI*R); else a*=Depth;
+                    T=0;
+                    for (int k=0;k<3;k++)
 						T+=meshnode[meshelem[i].p[k]].T/3.;
 					z+=a*T;
 					break;
@@ -1564,17 +1582,17 @@ CComplex HPProc::BlockIntegral(int inttype)
 					break;
 
 				case 2: // volume
-					if(ProblemType==1) a*=(2.*PI*R); else a*=Depth;
+                    if(problemType==1) a*=(2.*PI*R); else a*=Depth;
 					z+=a;
 					break;
 
 				case 3: // F
-					if(ProblemType==1) a*=(2.*PI*R); else a*=Depth;
-					z+=a*D(i);
+                    if(problemType==1) a*=(2.*PI*R); else a*=Depth;
+                    z+=a*D(i);
 					break;
 
 				case 4: // G
-					if(ProblemType==1) a*=(2.*PI*R); else a*=Depth;
+                    if(problemType==1) a*=(2.*PI*R); else a*=Depth;
 					z+=a*E(i);
 					break;
 
@@ -1616,16 +1634,15 @@ void HPProc::LineIntegral(int inttype, double *z)
 		CComplex n,t,pt;
 		CPointVals v;
 		double dz,u,d,Fn;
-		int i,j,k,m,elm;
 		int NumPlotPoints=d_LineIntegralPoints;
 		bool flag;
 
 		z[0]=0;
 		z[1]=0;
-		for(k=1;k<contour.size();k++)
+        for(int k=1;k<(int)contour.size();k++)
 		{
 			dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
-			for(i=0,elm=-1;i<NumPlotPoints;i++)
+            for(int i=0,elm=-1;i<NumPlotPoints;i++)
 			{
 				u=(((double) i)+0.5)/((double) NumPlotPoints);
 				pt=contour[k-1] + u*(contour[k] - contour[k-1]);
@@ -1635,30 +1652,30 @@ void HPProc::LineIntegral(int inttype, double *z)
 				pt+=n*1.e-06;
 
 				if (elm<0) elm=InTriangle(pt.re,pt.im);
-				else if (InTriangleTest(pt.re,pt.im,elm)==false)
+                else if (InTriangleTest(pt.re,pt.im,elm)==false)
 				{
-					flag=false;
-					for(j=0;j<3;j++)
-						for(m=0;m<NumList[meshelem[elm].p[j]];m++)
+                    flag=false;
+                    for(int j=0;j<3;j++)
+                        for(int m=0;m<NumList[meshelem[elm].p[j]];m++)
 						{
 							elm=ConList[meshelem[elm].p[j]][m];
-							if (InTriangleTest(pt.re,pt.im,elm)==true)
+                            if (InTriangleTest(pt.re,pt.im,elm)==true)
 							{
-								flag=true;
+                                flag=true;
 								m=100;
 								j=3;
 							}
 						}
-					if (flag==false) elm=InTriangle(pt.re,pt.im);
+                    if (flag==false) elm=InTriangle(pt.re,pt.im);
 				}
 				if(elm>=0)
 					flag=GetPointValues(pt.re,pt.im,elm,v);
-				else flag=false;
+                else flag=false;
 
-				if(flag==true){
+                if(flag==true){
 					Fn = Re(v.F/n);
 
-					if (ProblemType==AXISYMMETRIC)
+                    if (problemType==AXISYMMETRIC)
 						d=2.*PI*pt.re*sq(LengthConv[LengthUnits]);
 					else
 						d=Depth*LengthConv[LengthUnits];
@@ -1679,7 +1696,7 @@ void HPProc::LineIntegral(int inttype, double *z)
 			z[0]+=abs(contour[i+1]-contour[i]);
 		z[0]*=LengthConv[LengthUnits];
 
-		if(ProblemType==1){
+        if(problemType==1){
 			for(i=0,z[1]=0;i<k-1;i++)
 				z[1]+=(PI*(contour[i].re+contour[i+1].re)*
 						abs(contour[i+1]-contour[i]));
@@ -1695,43 +1712,42 @@ void HPProc::LineIntegral(int inttype, double *z)
 		CComplex pt;
 		CPointVals v;
 		double dz,u,d;
-		int i,j,k,m,elm;
 		int NumPlotPoints=d_LineIntegralPoints;
 		bool flag;
 
 		z[0]=0;
 		z[1]=0;
-		for(k=1;k<contour.size();k++)
+        for(int k=1;k<(int)contour.size();k++)
 		{
 			dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
-			for(i=0,elm=-1;i<NumPlotPoints;i++)
+            for(int i=0,elm=-1;i<NumPlotPoints;i++)
 			{
 				u=(((double) i)+0.5)/((double) NumPlotPoints);
 				pt=contour[k-1] + u*(contour[k] - contour[k-1]);
 
 				if (elm<0) elm=InTriangle(pt.re,pt.im);
-				else if (InTriangleTest(pt.re,pt.im,elm)==false)
+                else if (InTriangleTest(pt.re,pt.im,elm)==false)
 				{
-					flag=false;
-					for(j=0;j<3;j++)
-						for(m=0;m<NumList[meshelem[elm].p[j]];m++)
+                    flag=false;
+                    for(int j=0;j<3;j++)
+                        for(int m=0;m<NumList[meshelem[elm].p[j]];m++)
 						{
 							elm=ConList[meshelem[elm].p[j]][m];
-							if (InTriangleTest(pt.re,pt.im,elm)==true)
+                            if (InTriangleTest(pt.re,pt.im,elm)==true)
 							{
-								flag=true;
+                                flag=true;
 								m=100;
 								j=3;
 							}
 						}
-					if (flag==false) elm=InTriangle(pt.re,pt.im);
+                    if (flag==false) elm=InTriangle(pt.re,pt.im);
 				}
 				if(elm>=0)
 					flag=GetPointValues(pt.re,pt.im,elm,v);
-				else flag=false;
+                else flag=false;
 
-				if(flag==true){
-					if (ProblemType==AXISYMMETRIC)
+                if(flag==true){
+                    if (problemType==AXISYMMETRIC)
 						d=2.*PI*pt.re*sq(LengthConv[LengthUnits]);
 					else
 						d=Depth*LengthConv[LengthUnits];
@@ -1751,13 +1767,12 @@ void HPProc::LineIntegral(int inttype, double *z)
 int HPProc::ClosestArcSegment(double x, double y)
 {
 	double d0,d1;
-	int i,j;
+    int j=0;
 
 	if(arclist.size()==0) return -1;
 
-	j=0;
 	d0=ShortestDistanceFromArc(CComplex(x,y),arclist[0]);
-	for(i=0;i<arclist.size();i++){
+    for(int i=0;i<(int)arclist.size();i++){
 		d1=ShortestDistanceFromArc(CComplex(x,y),arclist[i]);
 		if(d1<d0){
 			d0=d1;
@@ -1928,7 +1943,7 @@ CComplex HPProc::e(int k, int i)
 	double aecf=1;
 	CComplex kn;
 
-	if((ProblemType) && (blocklist[meshelem[k].lbl].IsExternal))
+    if((problemType) && (blocklist[meshelem[k].lbl].IsExternal))
 	{
 		// correct for axisymmetric external region
 		double x=meshnode[meshelem[k].p[i]].x;
@@ -1972,13 +1987,12 @@ double HPProc::ShortestDistance(double p, double q, int segm)
 int HPProc::ClosestSegment(double x, double y)
 {
 	double d0,d1;
-	int i,j;
+    int j=0;
 
 	if(linelist.size()==0) return -1;
 
-	j=0;
 	d0=ShortestDistance(x,y,0);
-	for(i=0;i<linelist.size();i++){
+    for(int i=0;i<(int)linelist.size();i++){
 		d1=ShortestDistance(x,y,i);
 		if(d1<d0){
 			d0=d1;
@@ -2000,7 +2014,7 @@ double HPProc::AECF(int k, CComplex p)
 {
 	// Correction factor for a point within the element, rather than
 	// for the center of the element.
-	if (!ProblemType) return 1.; // no correction for planar problems
+    if (!problemType) return 1.; // no correction for planar problems
 	if (!blocklist[meshelem[k].lbl].IsExternal) return 1; // only need to correct for external regions
 	double r=abs(p-I*extZo);
 	if (r==0) return AECF(k);
@@ -2015,7 +2029,7 @@ double HPProc::AECF(int k)
 	// designed to have a permeability that varies with position in a
 	// continuous way.
 
-	if (!ProblemType) return 1.; // no correction for planar problems
+    if (!problemType) return 1.; // no correction for planar problems
 	if (!blocklist[meshelem[k].lbl].IsExternal) return 1; // only need to correct for external regions
 
 	double r=abs(meshelem[k].ctr-I*extZo);
@@ -2024,13 +2038,12 @@ double HPProc::AECF(int k)
 
 void HPProc::FindBoundaryEdges()
 {
-  int i, j;
   static int plus1mod3[3] = {1, 2, 0};
   static int minus1mod3[3] = {2, 0, 1};
 
   // Init all elements' neigh to be unfinished.
-  for(i = 0; i < meshelem.size(); i ++) {
-    for(j = 0; j < 3; j ++)
+  for(int i = 0; i < (int)meshelem.size(); i ++) {
+    for(int j = 0; j < 3; j ++)
 	  meshelem[i].n[j] = 0;
   }
 
@@ -2039,8 +2052,8 @@ void HPProc::FindBoundaryEdges()
   bool done;
 
   // Loop all elements, to find and set there neighs.
-  for(i = 0; i < meshelem.size(); i ++) {
-    for(j = 0; j < 3; j ++) {
+  for(int i = 0; i < (int)meshelem.size(); i ++) {
+    for(int j = 0; j < 3; j ++) {
       if(meshelem[i].n[j] == 0) {
         // Get this edge's org and dest node index,
         orgi = meshelem[i].p[plus1mod3[j]];
