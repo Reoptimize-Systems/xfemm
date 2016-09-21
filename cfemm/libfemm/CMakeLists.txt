@@ -46,7 +46,7 @@ add_library(femm OBJECT
   fullmatrix.cpp
   fullmatrix.h
   mesh.h
-  problem.h
+  #problem.h
   spars.cpp
   spars.h
   liblua/lapi.cpp

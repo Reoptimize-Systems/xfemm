@@ -79,13 +79,24 @@ function varargout = mfemm_setup(varargin)
     Inputs.DoDebug = false;
     Inputs.Verbose = false;
     Inputs.RunTests = false;
+    Inputs.CrossBuildW64 = false;
     
     Inputs = mfemmdeps.parseoptions (Inputs, varargin);
+    
+     if Inputs.CrossBuildW64
+        thismexext = 'mexw64';
+    else
+        thismexext = mexext ();
+    end
 
     % make architecture specific directory for mex files if it doesn't
     % already exist
     warning off MATLAB:MKDIR:DirectoryExists
-    mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_' computer('arch')]);
+    if Inputs.CrossBuildW64
+        mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_', 'win64_cross_build']);
+    else
+        mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_' computer('arch')]);
+    end
     mkdir (mexdir);
     warning on MATLAB:MKDIR:DirectoryExists
     
@@ -115,7 +126,7 @@ function varargout = mfemm_setup(varargin)
         if Inputs.ForceMexRecompile
             % run make clean for all projects to force complete
             % recompilation
-            delete (fullfile (mexdir, ['*.', mexext]));
+            delete (fullfile (mexdir, ['*.', thismexext]));
             for ind = 1:numel(makefilenames)
                 mfemmdeps.mmake ('clean', makefilenames{ind})
             end
@@ -124,7 +135,11 @@ function varargout = mfemm_setup(varargin)
         % now invoke mmake for all files
         ws = warning( 'off', 'MATLAB:mex:GccVersion');
         for ind = 1:numel(makefilenames)
-            mfemmdeps.mmake ('', makefilenames{ind})
+            if Inputs.CrossBuildW64
+                mfemmdeps.mmake ('', makefilenames{ind}, 'DoCrossBuildWin64', true, 'FcnMakeFileArgs', {'DoCrossBuildWin64', true, 'Verbose', true})
+            else
+                mfemmdeps.mmake ('', makefilenames{ind})
+            end
         end
         warning (ws);
         for ind = 1:numel(makefilenames)
@@ -137,10 +152,10 @@ function varargout = mfemm_setup(varargin)
                         'fpproc_interface_mex', ... 
                         'mexhsolver', ...
                         'hpproc_interface_mex'};
-                    
-         for ind = 1:numel(mexfilenames)
-             movefile ([mexfilenames{ind}, '.',  mexext()], mexdir);
-         end
+         
+        for ind = 1:numel(mexfilenames)            
+            movefile ([mexfilenames{ind}, '.',  thismexext], mexdir);
+        end
          
          % force a path refresh
          rehash ()
@@ -178,10 +193,65 @@ function varargout = mfemm_setup(varargin)
         run (fullfile (thisfilepath, 'testing', 'Test_fpproc.m'));
         
     end
+    
+    % print message about adding files to the path (octave currently
+    % doesn't support displaying help in subfunctions)
+    if ~isoctave
+        
+        fprintf(1, '\n\n');
+        help mfemm_setup>addedtopathmsg
 
+        % display some output 
+        fprintf (1, '\n');
+        help mfemm_setup>printxfemmusermessage
+    
+    end
+    
+end
+
+function addedtopathmsg ()
+% mfemm_setup has added the directories containing mfiles for mfemm to the
+% search path. This change woill not be saved when you close Matlab/Octave.
+% You will need to have these directories on the path in future for mfemm
+% to work when you restart Matlab/Octave. You can add them again by using
+% the 'Set path' dialog in Matlab, or using the 'addpath' command, or by
+% rerunning mfemm_setup, which calls addpath internally to do this.
+% mfemm_setup will not recompile the mex functions if they already exist
+% and will just modify your path.
+%
+% If you open the 'Set path' dialog now, you could also save the changes
+% that have just been made.
+%
+% Run the command 'help path' for more information on the path. In general
+% you can save changes to the Matlab path that persist across sessions
+% using the 'Set path' dialog, or you can make a startup.m file which runs
+% every time Matlab starts (.octaverc in Octave) containing the addpath
+% commands.
+%
 
 end
 
+function printxfemmusermessage ()
+% --------    NOTE TO USERS  --------
+% 
+% If you use xfemm, particularly for industrial work, but also academic, it
+% will be greatly appreciated if you could write an email stating this and
+% how it has supported your work. This is a low-cost way to ensure further
+% development and maintenance will continue! Contact the authors on the
+% discussion forum, or you will find an email address in the source files.
+% 
+% If you wish to cite xfemm in your work, please use the following:
+% 
+% Crozier, R, Mueller, M., "A New MATLAB and Octave Interface to a
+% Popular Magnetics Finite Element Code", Proceedings of the 22nd 
+% International Conference on Electric Machines (ICEM 2016), September 
+% 2016.
+% 
+% We would also suggest you cite the original FEMM program.
+% 
+% ----------------------------------
+
+end
 
 function t = isoctave()
 % ISOCTAVE.M

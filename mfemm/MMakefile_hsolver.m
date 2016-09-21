@@ -1,19 +1,22 @@
-function [rules,vars] = MMakefile_hsolver ()
+function [rules,vars] = MMakefile_hsolver (varargin)
 
 %     mfemmdeps.getmfilepath (mfilename);
 
-    if ispc
-        trilibraryflag = '-DCPU86';
-    else
-        trilibraryflag = '-DLINUX';
-    end
+%     if ispc
+%         trilibraryflag = '-DCPU86';
+%     else
+%         trilibraryflag = '-DLINUX';
+%     end
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/hsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+%     vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/hsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    vars.MEXFLAGS = '${MEXFLAGS} -I"../cfemm/hsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
     if isunix && ~mfemmdeps.isoctave ()
         vars.OPTIMFLAGS = ['-O2'];
         vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
     end
+    
+    vars.LDFLAGS = '${LDFLAGS} -lstdc++';
 
     vars.OBJS = { ...
       ... % liblua
@@ -62,7 +65,7 @@ function [rules,vars] = MMakefile_hsolver ()
     %     mex $^ -output $@
     rules(1).target = {'mexhsolver.${MEX_EXT}'};
     rules(1).deps = vars.OBJS;
-    rules(1).commands = 'mex ${MEXFLAGS} $^ -output $@';
+    rules(1).commands = 'mex ${MEXFLAGS} $^ dummy.cpp -output $@';
     
     % created the following using:
     % clc
