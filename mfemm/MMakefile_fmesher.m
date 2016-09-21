@@ -1,21 +1,50 @@
-function [rules,vars] = MMakefile_fmesher ()
+function [rules,vars] = MMakefile_fmesher (varargin)
 
+    options.DoCrossBuildWin64 = false;
+    options.Verbose = false;
+    
+    options = mfemmdeps.parse_pv_pairs (options, varargin);
+
+    if isunix || mfemmdeps.isoctave
+        ismscompiler = false;
+    else
+        cc = mex.getCompilerConfigurations ('C');
+        if strncmpi (cc.Manufacturer, 'Microsoft', 9)
+            ismscompiler = true;
+        else
+            ismscompiler = false;
+        end
+    end
+    
     thisfilepath = mfemmdeps.getmfilepath (mfilename);
     
     thisfilepath = strrep (thisfilepath, '\', '/');
 
-    if ispc
+    if ispc || options.DoCrossBuildWin64
         trilibraryflag = '-DCPU86';
     else
         trilibraryflag = '-DLINUX';
     end
+    
+    vars.LDFLAGS = '${LDFLAGS} -lstdc++';
 
     % flags that will be passed direct to mex
     vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fmesher" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    
+    if options.Verbose
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -v'];
+    end
+    
     if isunix && ~mfemmdeps.isoctave ()
         vars.OPTIMFLAGS = ['-O2'];
         vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
     end
+    
+    if ~ismscompiler
+        vars.CXXFLAGS = '${CXXFLAGS} -fpermissive';
+        vars.CFLAGS = '${CFLAGS} -fpermissive';
+    end
+%     vars.
     
     cfemmpath = [thisfilepath, '/..', '/cfemm'];
     fmesherpath = [cfemmpath, '/fmesher']; 
@@ -69,7 +98,7 @@ function [rules,vars] = MMakefile_fmesher ()
     %     mex $^ -output $@
     rules(1).target = {'mexfmesher.${MEX_EXT}'};
     rules(1).deps = vars.OBJS;
-    rules(1).commands = 'mex ${MEXFLAGS} $^ -output $@';
+    rules(1).commands = 'mex ${MEXFLAGS} $^ dummy.cpp -output $@';
     
     % created the following using:
     % clc
@@ -195,5 +224,11 @@ function [rules,vars] = MMakefile_fmesher ()
     rules(4).target = 'clean';
     rules(4).commands = [ rules(3).commands, ...
                          {'try; delete(''*.${MEX_EXT}''); catch; end;'}];
+                     
+    % mexfmesher.${MEX_EXT}: ${OBJS}
+    %     mex $^ -output $@
+%     rules(1).target = {'crossw64'};
+%     rules(1).deps = vars.OBJS;
+%     rules(1).commands = 'mex ${MEXFLAGS} $^ -output mexfmesher.mexw64';
 
 end
