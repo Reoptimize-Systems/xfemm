@@ -60,10 +60,16 @@ class CMeshNode
 	public:
 		CMeshNode();
 
-		double x,y,T;
+        double x,y;
+        double T;  ///< temperature at the node
 		double msk;
 		int xs,ys;
-		bool Q,IsSelected;
+        /**
+         * @brief Q boundary flag
+         * Indicates whether the node lies on a boundary, or in a conductor, or none.
+         */
+        int Q;
+        bool IsSelected;
 
 		double GetDistance(double xo, double yo);
 		CComplex CC();
