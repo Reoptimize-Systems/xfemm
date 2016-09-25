@@ -33,6 +33,18 @@ checks=
 checkdir=`mktemp -d -t xfemm_check_XXXXXX`
 checkdir=`readlink -f "$checkdir"`
 
+run()
+{
+	echo "$*" >> log.txt
+	"$@"
+	local retval="$?"
+	if [[ "$retval" -ne 0 ]]
+	then
+		echo "cd '$PWD' ; $@" >&2
+	fi
+	return $retval
+}
+
 init_check()
 {
 	mkdir "$checkdir/$1"
@@ -45,7 +57,7 @@ check_fmesher()
 {
 	prefix="$1"
 	init_check fmesher
-	$bindir/fmesher test/Temp.fem > test/fmesher.out || return 1
+	run $bindir/fmesher test/Temp.fem > test/fmesher.out || return 1
 	diff -wq test/fmesher.out.check test/fmesher.out || return 1
 }
 
@@ -55,7 +67,7 @@ check_fpproc()
 	prefix="$1"
 	echo "$prefix only checking for crashes"
 	init_check fpproc
-	$bindir/fpproc-test > test/fpproc-test.out || return 1
+	run $bindir/fpproc-test > test/fpproc-test.out || return 1
 }
 
 checks="$checks check_fsolver"
@@ -63,7 +75,7 @@ check_fsolver()
 {
 	prefix="$1"
 	init_check fsolver
-	$bindir/fsolver test/Temp > test/fsolver.out || return 1
+	run $bindir/fsolver test/Temp > test/fsolver.out || return 1
 	diff -wq test/Temp.ans.check test/Temp.ans || return 1
 }
 
@@ -72,7 +84,7 @@ check_hpproc()
 {
 	prefix="$1"
 	init_check hpproc
-	$bindir/hpproc-test > test/hpproc-test.out || return 1
+	run $bindir/hpproc-test > test/hpproc-test.out || return 1
 	diff -wq test/hpproc-test.out.check test/hpproc-test.out
 }
 
@@ -84,8 +96,8 @@ check_hsolver()
 	for f in Temp0 #Temp1
 	do
 		echo "$prefix $f"
-		$bindir/fmesher test/$f.feh > test/$f.fmesher.out || return 1
-		$bindir/hsolver test/$f > test/$f.hsolver.out || return 1
+		run $bindir/fmesher test/$f.feh > test/$f.fmesher.out || return 1
+		run $bindir/hsolver test/$f > test/$f.hsolver.out || return 1
 		diff -wq test/$f.anh.check test/$f.anh || return 1
 	done
 }
@@ -98,7 +110,7 @@ check_hsolver()
 #	for f in `ls test/*.lua`
 #	do
 #		echo "$prefix $f"
-#		$bindir/femmcli --lua-script=$f > $f.out 2>$f.err || return 1
+#		run $bindir/femmcli --lua-script=$f > $f.out 2>$f.err || return 1
 #		diff -wq $f.out.check $f.out || return 1
 #	done
 #}
