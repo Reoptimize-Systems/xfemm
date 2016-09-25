@@ -172,28 +172,6 @@ class CMaterialProp
     private:
 };
 
-class CBoundaryProp
-{
-    public:
-
-        CBoundaryProp();
-
-        string BdryName;
-        int BdryFormat;            // type of boundary condition we are applying
-                                // 0 = constant value of A
-                                // 1 = Small skin depth eddy current BC
-                                // 2 = Mixed BC
-
-        double A0,A1,A2,phi;    // set value of A for BdryFormat=0;
-
-        double Mu,Sig;            // material properties necessary to apply
-                                // eddy current BC
-
-        CComplex c0,c1;            // coefficients for mixed BC
-
-    private:
-};
-
 class CPointProp
 {
     public:

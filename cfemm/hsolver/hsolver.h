@@ -35,6 +35,7 @@
 #include "hspars.h"
 #include "CNode.h"
 #include "CBlockLabel.h"
+#include "CBoundaryProp.h"
 
 
 class HSolver : public FEASolver
@@ -65,7 +66,7 @@ public:
 	double *Tprev;
 
     CHMaterialProp   *blockproplist;
-	CHBoundaryProp  *lineproplist;
+    femm::CHBoundaryProp  *lineproplist;
     CHPointProp      *nodeproplist;
 	CHConductor      *circproplist;
     femm::CBlockLabel     *labellist;

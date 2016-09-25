@@ -253,7 +253,7 @@ bool FPProc::OpenDocument(string pathname)
     double zr,zi;
     bool flag = false;
     CPointProp    PProp;
-    CBoundaryProp BProp;
+    CMBoundaryProp BProp;
     CMaterialProp MProp;
     CCircuit      CProp;
     CNode         node;

@@ -26,6 +26,7 @@
 #include "mesh.h"
 #include "femmcomplex.h"
 #include "CBlockLabel.h"
+#include "CBoundaryProp.h"
 
 class CMBlockLabel : public femm::CBlockLabel
 {
@@ -78,23 +79,6 @@ public:
     void GetBHProps(double B, CComplex &v, CComplex &dv);
     void GetBHProps(double B, double &v, double &dv);
     CComplex LaminatedBH(double omega, int i);
-
-private:
-};
-
-class CMBoundaryProp : public femm::CBoundaryProp
-{
-public:
-
-    double A0,A1,A2,phi;	// set value of A for BdryFormat=0;
-
-    double Mu,Sig;			// material properties necessary to apply
-    // eddy current BC
-
-    CComplex c0,c1;			// coefficients for mixed BC
-
-    // TO DO:  ``flux pipe?'' and ''line currents''
-    // Line currents might be redundant, since we already have magnetization.
 
 private:
 };

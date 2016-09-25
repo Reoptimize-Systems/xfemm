@@ -235,7 +235,7 @@ bool HPProc::OpenDocument(string pathname)
 	double b;
     bool flag=false;
 	CPointProp	  PProp;
-	CBoundaryProp BProp;
+    CHBoundaryProp BProp;
 	CMaterialProp MProp;
 	CCircuit      CProp;
 	CNode		node;

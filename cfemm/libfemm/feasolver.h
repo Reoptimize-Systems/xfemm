@@ -29,6 +29,7 @@
 #include <string>
 #include "mesh.h"
 #include "spars.h"
+#include "CBoundaryProp.h"
 
 enum LoadMeshErr
 {

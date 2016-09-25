@@ -159,25 +159,6 @@ class CMaterialProp
 	private:
 };
 
-class CBoundaryProp
-{
-	public:
-
-		CBoundaryProp();
-
-		string BdryName;
-		string InConductor;
-		int BdryFormat;
-
-		double Tset;			// Fixed value of temperature for BdryFormat=0;
-		double Tinf;			// External temperature for convection or radiation
-		double qs;				// Heat flux;
-		double beta;			// radiosity coefficient
-		double h;				// Heat transfer coefficient
-
-	private:
-};
-
 class CPointProp
 {
 	public:

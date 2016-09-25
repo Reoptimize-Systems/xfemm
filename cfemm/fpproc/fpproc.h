@@ -7,7 +7,7 @@
 #include "femmcomplex.h"
 #include "problem.h"
 #include "fparse.h"
-//#include "luaconsoledlg.h"
+#include "CBoundaryProp.h"
 
 // extern CFemmApp theApp; //<DP>
 
@@ -82,7 +82,7 @@ public:
 
     // lists of properties
     std::vector< CMaterialProp > blockproplist;
-    std::vector< CBoundaryProp > lineproplist;
+    std::vector< femm::CMBoundaryProp > lineproplist;
     std::vector< CPointProp >    nodeproplist;
     std::vector< CCircuit >      circproplist;
 
