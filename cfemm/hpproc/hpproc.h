@@ -31,7 +31,7 @@
 #include "femmcomplex.h"
 #include "hproblem.h"
 #include "fparse.h"
-//#include "luaconsoledlg.h"
+#include "CBoundaryProp.h"
 
 using namespace HPProcdata;
 
@@ -87,7 +87,7 @@ public:
 
 	// lists of properties
 	std::vector< CMaterialProp > 	blockproplist;
-	std::vector< CBoundaryProp > 	lineproplist;
+    std::vector< femm::CHBoundaryProp > 	lineproplist;
 	std::vector< CPointProp > 		nodeproplist;
 	std::vector< CCircuit > 		circproplist;
 

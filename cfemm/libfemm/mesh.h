@@ -59,18 +59,6 @@ private:
 };
 
 
-class CBoundaryProp
-{
-public:
-
-    int BdryFormat;			// type of boundary condition we are applying
-    // 0 = constant value of A
-    // 1 = Small skin depth eddy current BC
-    // 2 = Mixed BC
-
-private:
-};
-
 class CCircuit
 {
 public:

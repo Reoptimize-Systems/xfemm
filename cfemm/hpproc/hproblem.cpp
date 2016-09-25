@@ -158,13 +158,6 @@ CMaterialProp::CMaterialProp()
 		qv=0;
 }
 
-CBoundaryProp::CBoundaryProp()
-{
-		BdryName="New Boundary";
-		BdryFormat=0;
-		Tset=Tinf=h=beta=qs=0;
-		InConductor="<None>";
-}
 
 CComplex CMaterialProp::GetK(double t)
 {

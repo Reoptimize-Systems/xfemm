@@ -15,10 +15,12 @@ CBoundaryProp::CBoundaryProp()
     BdryName = "New Boundary";
 
     BdryFormat = 0;    // type of boundary condition we are applying
-    // 0 = constant value of A
-    // 1 = Small skin depth eddy current BC
-    // 2 = Mixed BC
 
+}
+
+CMBoundaryProp::CMBoundaryProp()
+    : CBoundaryProp()
+{
     // set value of A for BdryFormat = 0;
     A0 = 0.;
     A1 = 0.;
@@ -30,4 +32,15 @@ CBoundaryProp::CBoundaryProp()
     // coefficients for mixed BC
     c0 = 0.;
     c1 = 0.;
+}
+
+CHBoundaryProp::CHBoundaryProp()
+    : CBoundaryProp(),
+      Tset(0.0),
+      Tinf(0.0),
+      qs(0.0),
+      beta(0.0),
+      h(0.0)
+{
+
 }

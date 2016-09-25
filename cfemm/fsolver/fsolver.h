@@ -51,7 +51,7 @@ public:
     int NumCircPropsOrig;
 
     CMMaterialProp  *blockproplist;
-    CMBoundaryProp  *lineproplist;
+    femm::CMBoundaryProp  *lineproplist;
     CMPointProp      *nodeproplist;
     CMCircuit       *circproplist;
     CMBlockLabel    *labellist;
