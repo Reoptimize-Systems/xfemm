@@ -114,20 +114,20 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                 {
                     circproplist[i].Case=1;
                     if(CircInt1[i]==0.) circproplist[i].J=0.;
-                    else circproplist[i].J=0.01*(circproplist[i].Amps_re -
+                    else circproplist[i].J=0.01*(circproplist[i].Amps.re -
                                                      CircInt3[i])/CircInt1[i];
                 }
                 else
                 {
                     circproplist[i].Case=0;
-                    circproplist[i].dV=-0.01*(circproplist[i].Amps_re -
+                    circproplist[i].dV=-0.01*(circproplist[i].Amps.re -
                                               CircInt3[i])/CircInt2[i];
                 }
             }
             else
             {
                 circproplist[i].Case=0;
-                circproplist[i].dV=circproplist[i].dVolts_re;
+                circproplist[i].dV=circproplist[i].dVolts.re;
             }
         }
     }

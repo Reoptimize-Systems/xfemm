@@ -55,7 +55,6 @@ FSolver::FSolver()
     meshnode = NULL;
     blockproplist = NULL;
     nodeproplist = NULL;
-    circproplist = NULL;
     labellist = NULL;
     lineproplist = NULL;
 
@@ -79,8 +78,7 @@ void FSolver::CleanUp()
     blockproplist = NULL;
     delete[] nodeproplist;
     nodeproplist = NULL;
-    delete[] circproplist;
-    circproplist = NULL;
+    circproplist.clear();
     delete[] lineproplist;
     lineproplist = NULL;
     delete[] labellist;
@@ -565,16 +563,16 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if(k>0) circproplist=new CMCircuit[k];
+            if(k>0) circproplist.reserve(k);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<begincircuit>",14)==0)
         {
-            CProp.dVolts_re=0.;
-            CProp.dVolts_im=0.;
-            CProp.Amps_re=0.;
-            CProp.Amps_im=0.;
+            CProp.dVolts.re=0.;
+            CProp.dVolts.im=0.;
+            CProp.Amps.re=0.;
+            CProp.Amps.im=0.;
             CProp.CircType=0;
             q[0] = '\0';
         }
@@ -582,28 +580,28 @@ int FSolver::LoadProblemFile ()
         if( _strnicmp(q,"<voltgradient_re>",17)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&CProp.dVolts_re);
+            sscanf(v,"%lf",&CProp.dVolts.re);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<voltgradient_im>",17)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&CProp.dVolts_im);
+            sscanf(v,"%lf",&CProp.dVolts.im);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<totalamps_re>",14)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&CProp.Amps_re);
+            sscanf(v,"%lf",&CProp.Amps.re);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<totalamps_im>",14)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&CProp.Amps_im);
+            sscanf(v,"%lf",&CProp.Amps.im);
             q[0] = '\0';
         }
 
@@ -616,7 +614,7 @@ int FSolver::LoadProblemFile ()
 
         if( _strnicmp(q,"<endcircuit>",12)==0)
         {
-            circproplist[NumCircProps]=CProp;
+            circproplist.push_back(CProp);
             NumCircProps++;
             q[0] = '\0';
         }
@@ -694,14 +692,11 @@ int FSolver::LoadProblemFile ()
     // parallel connected.
 
     // first, make enough space for all possible circuits;
-    CMCircuit *temp=(CMCircuit *)calloc(NumCircProps+NumBlockLabels,sizeof(CMCircuit));
-    for(k=0; k<NumCircProps; k++)
+    circproplist.resize(NumCircProps+NumBlockLabels);
+    for(int k=0; k<NumCircProps; k++)
     {
-        temp[k]=circproplist[k];
-        temp[k].OrigCirc=-1;
+        circproplist[k].OrigCirc=-1;
     }
-    free(circproplist);
-    circproplist=temp;
     NumCircPropsOrig=NumCircProps;
 
     // now, go through the block label list and make a new "circuit"
@@ -715,8 +710,8 @@ int FSolver::LoadProblemFile ()
             {
                 ncirc=circproplist[ic];
                 ncirc.OrigCirc=ic;
-                ncirc.Amps_im*=labellist[k].Turns;
-                ncirc.Amps_re*=labellist[k].Turns;
+                ncirc.Amps.im*=labellist[k].Turns;
+                ncirc.Amps.re*=labellist[k].Turns;
                 circproplist[NumCircProps]=ncirc;
                 labellist[k].InCircuit=NumCircProps;
                 NumCircProps++;

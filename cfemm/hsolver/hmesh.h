@@ -31,6 +31,7 @@
 #include "mesh.h"
 #include "femmcomplex.h"
 #include "CBoundaryProp.h"
+#include "CCircuit.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

@@ -134,7 +134,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
                     circproplist[i].Case=1;
                     if (CircInt1[i]==0.) circproplist[i].J=0.;
                     else circproplist[i].J=0.01*(
-                                                   (circproplist[i].Amps_re+I*circproplist[i].Amps_im) -
+                                                   (circproplist[i].Amps.re+I*circproplist[i].Amps.im) -
                                                    CircInt3[i])/CircInt1[i];
                 }
                 else
@@ -148,8 +148,8 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
             {
                 // case where voltage gradient is specified a priori...
                 circproplist[i].Case=0;
-                circproplist[i].dV=circproplist[i].dVolts_re +
-                                   I*circproplist[i].dVolts_im;
+                circproplist[i].dV=circproplist[i].dVolts.re +
+                                   I*circproplist[i].dVolts.im;
             }
         }
     }
@@ -640,8 +640,8 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
             for(i=0; i<NumCircProps; i++)
                 if (circproplist[i].Case==2)
                 {
-                    L.b[NumNodes+i]+=2.*0.01*(circproplist[i].Amps_re +
-                                              I*circproplist[i].Amps_im);
+                    L.b[NumNodes+i]+=2.*0.01*(circproplist[i].Amps.re +
+                                              I*circproplist[i].Amps.im);
                 }
 
             // apply fixed boundary conditions at points;
