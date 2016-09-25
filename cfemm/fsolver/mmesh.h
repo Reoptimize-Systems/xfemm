@@ -27,6 +27,7 @@
 #include "femmcomplex.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
+#include "CCircuit.h"
 
 class CMBlockLabel : public femm::CBlockLabel
 {
@@ -96,9 +97,17 @@ private:
 class CMCircuit : public femm::CCircuit
 {
 public:
+    CMCircuit()
+        : femm::CCircuit(),
+          dVolts(),
+          OrigCirc(0),
+          J(),
+          dV(),
+          Case(0)
+    {
+    }
 
-    double dVolts_re, dVolts_im;
-    double Amps_re, Amps_im;
+    CComplex dVolts;
     int OrigCirc;
 
     // some member variables used to store some results

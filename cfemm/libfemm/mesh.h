@@ -59,15 +59,6 @@ private:
 };
 
 
-class CCircuit
-{
-public:
-
-    int CircType;
-
-private:
-};
-
 } //namespace femm
 
 #endif

@@ -27,6 +27,7 @@
 #define FSOLVER_H
 
 #include <string>
+#include <vector>
 #include "feasolver.h"
 #include "mmesh.h"
 #include "cspars.h"
@@ -53,7 +54,7 @@ public:
     CMMaterialProp  *blockproplist;
     femm::CMBoundaryProp  *lineproplist;
     CMPointProp      *nodeproplist;
-    CMCircuit       *circproplist;
+    std::vector<CMCircuit> circproplist;
     CMBlockLabel    *labellist;
 
 // Operations
