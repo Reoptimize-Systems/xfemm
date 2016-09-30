@@ -26,25 +26,6 @@ class CMeshNode
     private:
 
 };
-/////////////////////////////////////////////////////////////////////////////
-// CSegment -- structure that holds information about lines joining control pts
-
-class CSegment
-{
-    public:
-        CSegment();
-
-        int n0,n1;
-        double MaxSideLength;
-        bool IsSelected;
-        bool Hidden;
-        int BoundaryMarker;
-
-        void ToggleSelect();
-
-    private:
-
-};
 
 class CArcSegment
 {

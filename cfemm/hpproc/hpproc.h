@@ -33,6 +33,7 @@
 #include "fparse.h"
 #include "CBoundaryProp.h"
 #include "CNode.h"
+#include "CSegment.h"
 
 using namespace HPProcdata;
 
@@ -74,7 +75,7 @@ public:
 
 	// lists of nodes, segments, and block labels
     std::vector< femm::CSolverNode >             nodelist;
-	std::vector< CSegment >       	 linelist;
+    std::vector< femm::CSolverSegment >       	 linelist;
 	std::vector< CBlockLabel > 		 blocklist;
 	std::vector< CArcSegment > 		 arclist;
 

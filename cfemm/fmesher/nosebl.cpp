@@ -35,37 +35,6 @@ namespace femm
 
 //*************************************************************************//
 //                                                                         //
-//                         CSegment definitions                            //
-//                                                                         //
-//*************************************************************************//
-
-
-CSegment::CSegment()
-{
-    n0 = 0;
-    n1 = 0;
-    IsSelected = 0;
-    Hidden = false;
-    MaxSideLength = -1;
-    BoundaryMarker = "<None>";
-    InConductor="<None>";
-    InGroup = 0;
-}
-
-void CSegment::ToggleSelect()
-{
-    if (IsSelected!=0)
-    {
-        IsSelected=0;
-    }
-    else
-    {
-        IsSelected = 1;
-    }
-}
-
-//*************************************************************************//
-//                                                                         //
 //                       CArcSegment definitions                           //
 //                                                                         //
 //*************************************************************************//
@@ -75,7 +44,7 @@ CArcSegment::CArcSegment()
 {
     n0 = 0;
     n1 = 0;
-    IsSelected = 0;
+    selectFlag = 0;
     Hidden = false;
     ArcLength = 90.;
     MaxSideLength = 10.;
@@ -87,13 +56,13 @@ CArcSegment::CArcSegment()
 
 void CArcSegment::ToggleSelect()
 {
-    if (IsSelected!=0)
+    if (selectFlag!=0)
     {
-        IsSelected=0;
+        selectFlag=0;
     }
     else
     {
-        IsSelected = 1;
+        selectFlag = 1;
     }
 }
 
@@ -109,7 +78,7 @@ CBlockLabel::CBlockLabel()
     x = 0.;
     y = 0.;
     MaxArea = 0.;
-    IsSelected = 0;
+    selectFlag = 0;
     BlockType = "<None>";
     InGroup = 0;
 
@@ -120,13 +89,13 @@ CBlockLabel::CBlockLabel()
 
 void CBlockLabel::ToggleSelect()
 {
-    if (IsSelected!=0)
+    if (selectFlag!=0)
     {
-        IsSelected=0;
+        selectFlag=0;
     }
     else
     {
-        IsSelected = 1;
+        selectFlag = 1;
     }
 }
 

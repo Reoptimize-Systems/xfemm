@@ -1,6 +1,9 @@
 // fpproc.h : interface of the FPProc class
 //
 /////////////////////////////////////////////////////////////////////////////
+#ifndef FPPROC_H
+#define FPPROC_H
+
 #include <vector>
 #include "lua.h"
 #include "luadebug.h"
@@ -9,6 +12,7 @@
 #include "fparse.h"
 #include "CBoundaryProp.h"
 #include "CNode.h"
+#include "CSegment.h"
 
 // extern CFemmApp theApp; //<DP>
 
@@ -22,8 +26,6 @@
 
 using namespace FPProcdata;
 
-#ifndef FPPROC_H
-#define FPPROC_H
 
 class FPProc
 {
@@ -69,7 +71,7 @@ public:
 
     // lists of nodes, segments, and block labels
     std::vector< femm::CSolverNode >       nodelist;
-    std::vector< CSegment >    linelist;
+    std::vector< femm::CSolverSegment >    linelist;
     std::vector< CArcSegment > arclist;
     std::vector< CBlockLabel > blocklist;
 
