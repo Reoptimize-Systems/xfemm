@@ -26,6 +26,28 @@
 namespace femm
 {
 
+/////////////////////////////////////////////////////////////////////////////
+// CNode -- class that holds information about each control point.
+
+class CNode
+{
+public:
+    CNode();
+
+    double x,y;
+    int xs,ys;
+    int IsSelected;
+    std::string BoundaryMarker;
+    std::string InConductor;
+    int InGroup;
+
+    double GetDistance(double xo, double yo);
+    CComplex CC();
+    void ToggleSelect();
+
+private:
+
+};
 
 /////////////////////////////////////////////////////////////////////////////
 // CSegment -- class that holds information about lines joining control pts

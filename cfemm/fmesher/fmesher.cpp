@@ -822,7 +822,7 @@ int FMesher::LoadFEMFile (string PathName)
                         }
                         else if (t<= (int)nodeproplist.size())
                         {
-                            node.BoundaryMarker = t-1;
+                            node.BoundaryMarker = nodeproplist[t-1].PointName;
                         }
 
                         break;
@@ -836,7 +836,7 @@ int FMesher::LoadFEMFile (string PathName)
                         }
                         else if (t<= (int)nodeproplist.size())
                         {
-                            node.BoundaryMarker = t-1;
+                            node.BoundaryMarker = nodeproplist[t-1].PointName;
                         }
 
                         v = ParseInt(v,&node.InGroup);
@@ -848,7 +848,7 @@ int FMesher::LoadFEMFile (string PathName)
                         }
         				else if(t <= (int)circproplist.size())
 		        		{
-                            node.InConductor = t-1;
+				            node.InConductor = circproplist[t-1].CircName;
                         }
 
                         break;
@@ -1141,14 +1141,14 @@ bool FMesher::SaveFEMFile(string PathName)
     for(i=0; i<nodelist.size(); i++)
     {
         for(j=0,t=0; j<nodeproplist.size(); j++)
-            if(j==nodelist[i].BoundaryMarker) t=j+1;
+            if(nodeproplist[j].PointName==nodelist[i].BoundaryMarker) t=j+1;
         fprintf(fp,"%.17g\t%.17g\t%i\t%i",nodelist[i].x,nodelist[i].y,t,
                 nodelist[i].InGroup);
 
         if (filetype == F_TYPE_HEATFLOW)
         {
             for (j=0,t=0; j<circproplist.size (); j++)
-                if (j==nodelist[i].InConductor) t=j+1;
+                if (circproplist[j].CircName==nodelist[i].InConductor) t=j+1;
 
             fprintf(fp,"\t%i",t);
         }
