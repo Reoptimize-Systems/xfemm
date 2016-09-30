@@ -277,11 +277,11 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     //CStdString s;
     string plyname;
     std::vector < CMesherNode >       nodelst;
-    std::vector < CSegment >    linelst;
+    std::vector < CMesherSegment >    linelst;
     std::vector < CArcSegment > arclst;
     std::vector < CBlockLabel > blocklst;
     CMesherNode node;
-    CSegment segm;
+    CMesherSegment segm;
     // structures to hold the iinput and output of triangulaye call
     char CommandLine[512];
     struct triangulateio in, out;
@@ -762,13 +762,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     //string s;
     string plyname;
     std::vector < CMesherNode >             nodelst;
-    std::vector < CSegment >          linelst;
+    std::vector < CMesherSegment >          linelst;
     std::vector < CArcSegment >       arclst;
     std::vector < CBlockLabel >       blocklst;
     std::vector < CPeriodicBoundary > pbclst;
     std::vector < CCommonPoint >      ptlst;
     CMesherNode node;
-    CSegment segm;
+    CMesherSegment segm;
     CPeriodicBoundary pbc;
     CCommonPoint pt;
     char CommandLine[512];
@@ -799,11 +799,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input segments
     for(i=0; i<linelist.size(); i++)
     {
-        // abuse the IsSelected flag to carry a notation
+        // abuse the selectFlag flag to carry a notation
         // of which line or arc in the input geometry a
         // particular segment is associated with
         segm = linelist[i];
-        segm.IsSelected = i;
+        segm.selectFlag = i;
         a0.Set(nodelist[linelist[i].n0].x, nodelist[linelist[i].n0].y);
         a1.Set(nodelist[linelist[i].n1].x, nodelist[linelist[i].n1].y);
 
@@ -895,7 +895,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input arc segments
     for(i=0;i<arclist.size();i++)
     {
-        segm.IsSelected=i+linelist.size();
+        segm.selectFlag=i+linelist.size();
         a2.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
         k=(int) ceil(arclist[i].ArcLength/arclist[i].MaxSideLength);
         segm.BoundaryMarker=arclist[i].BoundaryMarker;
@@ -960,7 +960,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i    1\n",linelst.size());
 //    for(i=0;i<linelst.size();i++)
 //    {
-//        t=-(linelst[i].IsSelected+2);
+//        t=-(linelst[i].selectFlag+2);
 //        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i].n0,linelst[i].n1,t);
 //    }
 
@@ -1082,7 +1082,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // construct the segment marker list
     for(i=0; i < linelst.size(); i++)
     {
-        t = -(linelst[i].IsSelected+2);
+        t = -(linelst[i].selectFlag+2);
 
         in.segmentmarkerlist[i] = t;
     }
@@ -1258,7 +1258,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
     fgets(instring,1024,fp);
     sscanf(instring,"%i",&k);
-    UnselectAll();    // abuse IsSelected again to keep a
+    UnselectAll();    // abuse selectFlag again to keep a
                     // tally of how many subsegments each
                     // entity is sliced into.
 
@@ -1302,10 +1302,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             {
                 // deal with segments
 
-                // increment IsSelected for the segment which the edge we are
+                // increment selectFlag for the segment which the edge we are
                 // examining is a part of to get a tally of how many edges
                 // are a part of the segment/boundary
-                linelist[j].IsSelected++;
+                linelist[j].selectFlag++;
                 // check if the end n0 of the segment is the same node as the
                 // end n1 of the edge, or if the end n1 of the segment is the
                 // same node and end n0 of the edge. If so, flip the direction
@@ -1326,7 +1326,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 // normal is on.
 
                 j=j-linelist.size();
-                arclist[j].IsSelected++;
+                arclist[j].selectFlag++;
                 if((arclist[j].n0==n1) || (arclist[j].n1==n0))
                     arclist[j].NormalDirection=false;
                 if((arclist[j].n0==n0) || (arclist[j].n1==n1))
@@ -1384,7 +1384,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // length of the boundary divided by the number
             // of elements that were created in the first
             // attempt at meshing
-            linelist[i].MaxSideLength = LineLength(i) / ((double) linelist[i].IsSelected);
+            linelist[i].MaxSideLength = LineLength(i) / ((double) linelist[i].selectFlag);
         }
     }
 
@@ -1400,7 +1400,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // its properties.
             char kludge[32];
 
-            arclist[i].MaxSideLength = arclist[i].ArcLength/((double) arclist[i].IsSelected);
+            arclist[i].MaxSideLength = arclist[i].ArcLength/((double) arclist[i].selectFlag);
 
             sprintf(kludge,"%.1e",arclist[i].MaxSideLength);
 
@@ -1553,7 +1553,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // write out new poly and write out adjacent
     // boundary nodes in a separate .pbc file.
 
-    // kludge things a bit and use IsSelected to denote
+    // kludge things a bit and use selectFlag to denote
     // whether or not a line or arc has already been processed.
     UnselectAll();
     nodelst.clear();
@@ -1574,8 +1574,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             s0=pbclst[n].seg[0];
             s1=pbclst[n].seg[1];
-            linelist[s0].IsSelected=1;
-            linelist[s1].IsSelected=1;
+            linelist[s0].selectFlag=1;
+            linelist[s1].selectFlag=1;
 
             // make it so that first point on first line
             // maps to first point on second line...
@@ -1685,8 +1685,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             s0 = pbclst[n].seg[0];
             s1 = pbclst[n].seg[1];
-            arclist[s0].IsSelected = 1;
-            arclist[s1].IsSelected = 1;
+            arclist[s0].selectFlag = 1;
+            arclist[s1].selectFlag = 1;
 
             k = (int) ceil(arclist[s0].ArcLength/arclist[s0].MaxSideLength);
             segm.BoundaryMarker = arclist[s0].BoundaryMarker;
@@ -1805,7 +1805,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // discretize input segments
     for(i=0;i<linelist.size();i++)
-    if(linelist[i].IsSelected==0){
+    if(linelist[i].selectFlag==0){
 
         a0.Set(nodelist[linelist[i].n0].x,nodelist[linelist[i].n0].y);
         a1.Set(nodelist[linelist[i].n1].x,nodelist[linelist[i].n1].y);
@@ -1891,7 +1891,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input arc segments
     for(i=0;i<arclist.size();i++)
     {
-        if(arclist[i].IsSelected==0)
+        if(arclist[i].selectFlag==0)
         {
             a2.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
             k=(int) ceil(arclist[i].ArcLength/arclist[i].MaxSideLength);

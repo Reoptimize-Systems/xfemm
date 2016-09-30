@@ -78,6 +78,7 @@ public:
 
     std::string BoundaryMarker;
     std::string InConductor;
+    int selectFlag;
 };
 
 }

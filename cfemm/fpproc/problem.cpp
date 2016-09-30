@@ -31,29 +31,6 @@ double CMeshNode::GetDistance(double xo, double yo)
     return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
 }
 
-//////////////////////        CSegment        /////////////////////////////
-
-// CSegment construction
-CSegment::CSegment()
-{
-    n0 = 0;
-    n1 = 0;
-    IsSelected = false;
-    BoundaryMarker = -1;
-}
-
-void CSegment::ToggleSelect()
-{
-    if (IsSelected==true)
-    {
-        IsSelected = false;
-    }
-    else
-    {
-        IsSelected = true;
-    }
-}
-
 //////////////////////       CArcSegment      /////////////////////////////
 
 // CArcSegment construction

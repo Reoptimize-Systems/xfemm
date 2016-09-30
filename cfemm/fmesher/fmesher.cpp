@@ -121,10 +121,10 @@ void FMesher::UnselectAll()
 {
     unsigned int i;
 
-    for(i=0; i < nodelist.size(); i++) nodelist[i].IsSelected=0;
-    for(i=0; i < linelist.size(); i++) linelist[i].IsSelected=0;
-    for(i=0; i < blocklist.size(); i++) blocklist[i].IsSelected=0;
-    for(i=0; i < arclist.size(); i++) arclist[i].IsSelected=0;
+    for(i=0; i < nodelist.size(); i++) nodelist[i].selectFlag=0;
+    for(i=0; i < linelist.size(); i++) linelist[i].selectFlag=0;
+    for(i=0; i < blocklist.size(); i++) blocklist[i].selectFlag=0;
+    for(i=0; i < arclist.size(); i++) arclist[i].selectFlag=0;
 }
 
 
@@ -159,7 +159,7 @@ void FMesher::GetCircle(CArcSegment &arc, CComplex &c, double &R)
 }
 
 
-int FMesher::GetLineArcIntersection(CSegment &seg, CArcSegment &arc, CComplex *p)
+int FMesher::GetLineArcIntersection(CMesherSegment &seg, CArcSegment &arc, CComplex *p)
 {
     CComplex p0,p1,a0,a1,t,v,c;
     double d,l,R,z,tta;
@@ -509,7 +509,7 @@ int FMesher::LoadFEMFile (string PathName)
     CBoundaryProp BProp;
     CCircuit	  CProp;
     CMesherNode		node;
-    CSegment	segm;
+    CMesherSegment	segm;
     CArcSegment asegm;
     CBlockLabel blk;
 
@@ -1360,7 +1360,7 @@ void FMesher::Undo()
     unsigned int i;
 
     std::vector < CMesherNode >       tempnodelist;
-    std::vector < CSegment >    templinelist;
+    std::vector < CMesherSegment >    templinelist;
     std::vector < CArcSegment > temparclist;
     std::vector < CBlockLabel > tempblocklist;
 
@@ -1945,7 +1945,7 @@ void FMesher::Undo()
 //bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
 //{
 //	int i,j,k;
-//	CSegment segm;
+//	CMesherSegment segm;
 //	CArcSegment newarc;
 //	CComplex c,p[2];
 //	std::vector < CComplex > newnodes;
@@ -2088,7 +2088,7 @@ void FMesher::Undo()
 //{
 //	int i,k;
 //	CMesherNode pt;
-//	CSegment segm;
+//	CMesherSegment segm;
 //	CArcSegment asegm;
 //	CComplex c,a0,a1,a2;
 //	double R;
@@ -2146,12 +2146,12 @@ void FMesher::Undo()
 //	return AddSegment(n0,n1,NULL,tol);
 //}
 
-//bool FMesher::AddSegment(int n0, int n1, CSegment *parsegm, double tol)
+//bool FMesher::AddSegment(int n0, int n1, CMesherSegment *parsegm, double tol)
 //{
 //	int i,j,k;
 //	double xi,yi,t;
 //	CComplex p[2];
-//	CSegment segm;
+//	CMesherSegment segm;
 //	std::vector < CComplex > newnodes;
 //
 //	newnodes.clear();

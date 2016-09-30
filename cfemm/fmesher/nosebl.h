@@ -28,28 +28,6 @@ namespace femm
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CSegment -- class that holds information about lines joining control pts
-
-class CSegment
-{
-public:
-    CSegment();
-
-    int n0,n1;
-    int IsSelected;
-    bool Hidden;
-    double MaxSideLength;
-    std::string BoundaryMarker;
-    std::string InConductor;
-    int InGroup;
-
-    void ToggleSelect();
-
-private:
-
-};
-
-/////////////////////////////////////////////////////////////////////////////
 // CArcSegment -- class that holds information about arcs joining control pts
 
 class CArcSegment
@@ -59,7 +37,7 @@ public:
 
     int n0,n1;
     bool NormalDirection;
-    int IsSelected;
+    int selectFlag;
     bool Hidden;
     double MaxSideLength,ArcLength;
     std::string BoundaryMarker;
@@ -82,7 +60,7 @@ public:
     // common properties
     double x,y;
     double MaxArea;
-    int IsSelected;
+    int selectFlag;
     std::string BlockType;
     int InGroup;
 

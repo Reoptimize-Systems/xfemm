@@ -2,7 +2,6 @@
 #define FEMM_CSEGMENT_H
 
 #include <string>
-#include "femmcomplex.h"
 
 namespace femm {
 // CSegment -- structure that holds information about lines joining control pts
@@ -13,7 +12,7 @@ namespace femm {
  *
  * The official .FEM file format description states:
  * \verbatim
- * int   - number of the start poin
+ * int   - number of the start point
  * int   - number of the end point
  * float - mesh size factor (-1 = auto)
  * int   - number of the boundary property, 1-indexed
@@ -29,16 +28,32 @@ class CSegment
         // start and end points:
         int n0,n1;
         double MaxSideLength; ///< mesh size factor
-        int BoundaryMarker;   ///< boundary property number, 0-indexed
+        // BoundaryMarker: see child classes
         bool Hidden;          ///< hide in postprocessor
         int InGroup;          ///< group number
-        int InConductor;      ///< additional property for hpproc
 
         bool IsSelected;
         void ToggleSelect();
 
     private:
 
+};
+
+class CSolverSegment : public CSegment
+{
+public:
+    CSolverSegment();
+    int BoundaryMarker;   ///< boundary property number, 0-indexed
+    int InConductor;      ///< additional property for hpproc
+};
+
+class CMesherSegment : public CSegment
+{
+public:
+    CMesherSegment();
+    std::string BoundaryMarker;   ///< boundary property number, 0-indexed
+    std::string InConductor;      ///< additional property for hpproc
+    int selectFlag;
 };
 
 }

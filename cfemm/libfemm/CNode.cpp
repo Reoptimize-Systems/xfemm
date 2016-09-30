@@ -47,5 +47,6 @@ CMesherNode::CMesherNode()
     : CNode()
     , BoundaryMarker("<None>")
     , InConductor("<None>")
+    , selectFlag(0)
 {
 }

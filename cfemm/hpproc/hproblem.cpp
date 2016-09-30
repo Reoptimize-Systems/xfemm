@@ -58,24 +58,6 @@ double CMeshNode::GetDistance(double xo, double yo)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CSegment construction
-
-CSegment::CSegment()
-{
-	n0=0;
-	n1=0;
-	IsSelected=false;
-	BoundaryMarker=-1;
-	InConductor=-1;
-	InGroup=0;
-}
-
-void CSegment::ToggleSelect()
-{
-	if (IsSelected==true) IsSelected=false;
-	else IsSelected=true;
-}
-/////////////////////////////////////////////////////////////////////////////
 // CArcSegment construction
 
 CArcSegment::CArcSegment()
