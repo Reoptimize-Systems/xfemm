@@ -27,15 +27,6 @@
 
 namespace femm {
 
-class CMeshline
-{
-public:
-
-    int n0,n1;
-
-private:
-};
-
 class CElement
 {
 public:
