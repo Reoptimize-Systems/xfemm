@@ -10,24 +10,6 @@ namespace FPProcdata{
 
 using std::string;
 
-class CNode
-{
-    public:
-        CNode();
-
-        double x,y;
-        int xs,ys;
-        bool IsSelected;
-        int BoundaryMarker;
-
-        double GetDistance(double xo, double yo);
-        CComplex CC();
-        void ToggleSelect();
-
-    private:
-
-};
-
 class CMeshNode
 {
     public:

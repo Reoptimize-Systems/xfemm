@@ -73,7 +73,7 @@ public:
 	bool bHasMask;
 
 	// lists of nodes, segments, and block labels
-    std::vector< femm::CNode >             nodelist;
+    std::vector< femm::CSolverNode >             nodelist;
 	std::vector< CSegment >       	 linelist;
 	std::vector< CBlockLabel > 		 blocklist;
 	std::vector< CArcSegment > 		 arclist;

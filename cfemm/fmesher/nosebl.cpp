@@ -35,45 +35,6 @@ namespace femm
 
 //*************************************************************************//
 //                                                                         //
-//                           CNode definitions                             //
-//                                                                         //
-//*************************************************************************//
-
-
-CNode::CNode()
-{
-    x = 0.;
-    y = 0.;
-    IsSelected = 0;
-    InGroup = 0;
-    BoundaryMarker = "<None>";
-    InConductor="<None>";
-}
-
-double CNode::GetDistance(double xo, double yo)
-{
-    return std::sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
-}
-
-CComplex CNode::CC()
-{
-    return CComplex(x,y);
-}
-
-void CNode::ToggleSelect()
-{
-    if (IsSelected!=0)
-    {
-        IsSelected=0;
-    }
-    else
-    {
-        IsSelected = 1;
-    }
-}
-
-//*************************************************************************//
-//                                                                         //
 //                         CSegment definitions                            //
 //                                                                         //
 //*************************************************************************//

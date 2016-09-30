@@ -508,7 +508,7 @@ int FMesher::LoadFEMFile (string PathName)
     CPointProp	  PProp;
     CBoundaryProp BProp;
     CCircuit	  CProp;
-    CNode		node;
+    CMesherNode		node;
     CSegment	segm;
     CArcSegment asegm;
     CBlockLabel blk;
@@ -1263,7 +1263,7 @@ bool FMesher::LoadMesh(string PathName)
     fgets(s,1024,fp);
     sscanf(s,"%i",&k);
     meshnode.resize(k);
-    CNode node;
+    CMesherNode node;
     for(i=0; i<k; i++)
     {
         fgets(s,1024,fp);
@@ -1359,7 +1359,7 @@ void FMesher::Undo()
 {
     unsigned int i;
 
-    std::vector < CNode >       tempnodelist;
+    std::vector < CMesherNode >       tempnodelist;
     std::vector < CSegment >    templinelist;
     std::vector < CArcSegment > temparclist;
     std::vector < CBlockLabel > tempblocklist;
@@ -2087,7 +2087,7 @@ void FMesher::Undo()
 //bool FMesher::AddNode(double x, double y, double d)
 //{
 //	int i,k;
-//	CNode pt;
+//	CMesherNode pt;
 //	CSegment segm;
 //	CArcSegment asegm;
 //	CComplex c,a0,a1,a2;

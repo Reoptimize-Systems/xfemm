@@ -276,11 +276,11 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     CComplex a0,a1,a2,c;
     //CStdString s;
     string plyname;
-    std::vector < CNode >       nodelst;
+    std::vector < CMesherNode >       nodelst;
     std::vector < CSegment >    linelst;
     std::vector < CArcSegment > arclst;
     std::vector < CBlockLabel > blocklst;
-    CNode node;
+    CMesherNode node;
     CSegment segm;
     // structures to hold the iinput and output of triangulaye call
     char CommandLine[512];
@@ -761,13 +761,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     char instring[1024];
     //string s;
     string plyname;
-    std::vector < CNode >             nodelst;
+    std::vector < CMesherNode >             nodelst;
     std::vector < CSegment >          linelst;
     std::vector < CArcSegment >       arclst;
     std::vector < CBlockLabel >       blocklst;
     std::vector < CPeriodicBoundary > pbclst;
     std::vector < CCommonPoint >      ptlst;
-    CNode node;
+    CMesherNode node;
     CSegment segm;
     CPeriodicBoundary pbc;
     CCommonPoint pt;
@@ -1570,7 +1570,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         if (pbclst[n].nseg != 0) // if this pbc is a line segment...
         {
             int s0,s1;
-            CNode node0,node1;
+            CMesherNode node0,node1;
 
             s0=pbclst[n].seg[0];
             s1=pbclst[n].seg[1];
@@ -1679,7 +1679,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             int s0,s1;
             int p0[2],p1[2];
-            CNode node0,node1;
+            CMesherNode node0,node1;
             CComplex bgn0,bgn1,c0,c1,d0,d1;
             double r0,r1;
 
