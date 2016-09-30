@@ -32,6 +32,7 @@
 #include "fparse.h"
 #include "intpoint.h"
 #include "femmconstants.h"
+#include "CCommonPoint.h"
 //extern "C" {
 #include "triangle.h"
 //}
@@ -2002,7 +2003,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fclose(fp);
 
     // Make sure to prune out any duplications in the ptlst
-    for(k=0;k<ptlst.size();k++) ptlst[k].Order();
+    for(k=0;k<ptlst.size();k++) ptlst[k].sortXY();
     k=0;
     while((k+1) < ptlst.size())
     {

@@ -188,17 +188,6 @@ public:
 private:
 };
 
-class CCommonPoint
-{
-public:
-
-    CCommonPoint();
-    void Order();
-
-    int x,y,t;
-
-private:
-};
 
 } // namespace femm
 

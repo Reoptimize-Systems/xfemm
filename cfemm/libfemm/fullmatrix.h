@@ -18,9 +18,11 @@
    By: Richard Crozier
    Contact: richard.crozier@yahoo.co.uk
 */
-
 #ifndef FULLMATRIX_H
 #define FULLMATRIX_H
+
+class CComplex;
+
 class CFullMatrix{
 
 	public:
