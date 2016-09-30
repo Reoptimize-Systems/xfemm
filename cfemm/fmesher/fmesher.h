@@ -30,6 +30,8 @@
 #include "intpoint.h"
 #include "triangle.h"
 
+#include "CNode.h"
+
 #ifndef LineFraction
 #define LineFraction 500.0
 #endif
@@ -87,13 +89,13 @@ public:
 	std::string BinDir;
 
 	// lists of nodes, segments, and block labels
-	std::vector< femm::CNode >       nodelist;
+    std::vector< femm::CMesherNode >       nodelist;
 	std::vector< femm::CSegment >    linelist;
 	std::vector< femm::CArcSegment > arclist;
 	std::vector< femm::CBlockLabel > blocklist;
 
 	// lists of nodes, segments, and block labels for undo purposes...
-	std::vector< femm::CNode >       undonodelist;
+    std::vector< femm::CMesherNode >       undonodelist;
 	std::vector< femm::CSegment >    undolinelist;
 	std::vector< femm::CArcSegment > undoarclist;
 	std::vector< femm::CBlockLabel > undoblocklist;
@@ -101,7 +103,7 @@ public:
 	// vectors containing the mesh information
 	std::vector< myPoint >      meshline;
 	std::vector< myPoint >      greymeshline;
-	std::vector< femm::CNode >	meshnode;
+    std::vector< femm::CMesherNode >	meshnode;
 
 	// lists of properties
 	std::vector< femm::CBoundaryProp > lineproplist;

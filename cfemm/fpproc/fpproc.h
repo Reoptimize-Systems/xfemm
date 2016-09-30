@@ -8,6 +8,7 @@
 #include "problem.h"
 #include "fparse.h"
 #include "CBoundaryProp.h"
+#include "CNode.h"
 
 // extern CFemmApp theApp; //<DP>
 
@@ -67,7 +68,7 @@ public:
     bool bHasMask;
 
     // lists of nodes, segments, and block labels
-    std::vector< CNode >       nodelist;
+    std::vector< femm::CSolverNode >       nodelist;
     std::vector< CSegment >    linelist;
     std::vector< CArcSegment > arclist;
     std::vector< CBlockLabel > blocklist;

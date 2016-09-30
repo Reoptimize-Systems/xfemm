@@ -60,7 +60,7 @@ public:
 	double extRo,extRi,extZo;
 
 	// mesh information
-    femm::CNode *meshnode;
+    femm::CSolverNode *meshnode;
 
 	// Vector containing previous solution for time-transient analysis
 	double *Tprev;

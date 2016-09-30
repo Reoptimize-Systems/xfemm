@@ -772,8 +772,8 @@ int FSolver::LoadMesh(bool deleteFiles)
     sscanf(s,"%i",&k);
     NumNodes = k;
 
-    meshnode = new CNode[k];
-    CNode node;
+    meshnode = new CSolverNode[k];
+    CSolverNode node;
     for(i=0; i<k; i++)
     {
         fscanf(fp,"%i",&j);
@@ -1184,7 +1184,7 @@ void FSolver::SortNodes (int* newnum)
     {
         while(newnum[i] != i)
         {
-            CNode swap;
+            CSolverNode swap;
 
             j = newnum[i];
             n = newnum[j];

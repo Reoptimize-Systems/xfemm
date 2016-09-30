@@ -13,12 +13,10 @@ using namespace femm;
 
 // CNode construction
 femm::CNode::CNode()
-    : x(0.),
-      y(0.),
-      IsSelected(false),
-      BoundaryMarker(-1),
-      InGroup(0),
-      InConductor(-1)
+    : x(0.)
+    , y(0.)
+    , InGroup(0)
+    , IsSelected(false)
 {
 }
 
@@ -35,4 +33,19 @@ double femm::CNode::GetDistance(double xo, double yo)
 void femm::CNode::ToggleSelect()
 {
     IsSelected = ! IsSelected;
+}
+
+CSolverNode::CSolverNode()
+    : CNode()
+    , BoundaryMarker(-1)
+    , InConductor(-1)
+{
+}
+
+
+CMesherNode::CMesherNode()
+    : CNode()
+    , BoundaryMarker("<None>")
+    , InConductor("<None>")
+{
 }

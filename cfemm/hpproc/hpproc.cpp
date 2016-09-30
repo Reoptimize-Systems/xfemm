@@ -73,6 +73,7 @@ static char THIS_FILE[] = __FILE__;
 
 //using namespace std;
 using namespace femm;
+using std::string;
 
 // HPProc construction/destruction
 
@@ -238,7 +239,7 @@ bool HPProc::OpenDocument(string pathname)
     CHBoundaryProp BProp;
 	CMaterialProp MProp;
 	CCircuit      CProp;
-	CNode		node;
+    CSolverNode		node;
 	CSegment	segm;
 	CArcSegment asegm;
 	CElement	elm;

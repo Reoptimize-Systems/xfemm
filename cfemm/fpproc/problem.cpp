@@ -8,38 +8,6 @@
 #define ElementsPerSkinDepth 10
 
 using namespace std;
-//////////////////////          CNode         /////////////////////////////
-
-// CNode construction
-CNode::CNode()
-{
-    x=0.;
-    y=0.;
-    IsSelected=false;
-    BoundaryMarker=-1;
-}
-
-CComplex CNode::CC()
-{
-    return (x+I*y);
-}
-
-double CNode::GetDistance(double xo, double yo)
-{
-    return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
-}
-
-void CNode::ToggleSelect()
-{
-    if (IsSelected==true)
-    {
-        IsSelected = false;
-    }
-    else
-    {
-        IsSelected = true;
-    }
-}
 
 //////////////////////       CMeshNode        /////////////////////////////
 
