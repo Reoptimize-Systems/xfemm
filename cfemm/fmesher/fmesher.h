@@ -32,6 +32,7 @@
 
 #include "CNode.h"
 #include "CSegment.h"
+#include "CArcSegment.h"
 
 #ifndef LineFraction
 #define LineFraction 500.0
@@ -92,13 +93,13 @@ public:
 	// lists of nodes, segments, and block labels
     std::vector< femm::CMesherNode >       nodelist;
     std::vector< femm::CMesherSegment >    linelist;
-	std::vector< femm::CArcSegment > arclist;
+    std::vector< femm::CMesherArcSegment > arclist;
 	std::vector< femm::CBlockLabel > blocklist;
 
 	// lists of nodes, segments, and block labels for undo purposes...
     std::vector< femm::CMesherNode >       undonodelist;
     std::vector< femm::CMesherSegment >    undolinelist;
-	std::vector< femm::CArcSegment > undoarclist;
+    std::vector< femm::CMesherArcSegment > undoarclist;
 	std::vector< femm::CBlockLabel > undoblocklist;
 
 	// vectors containing the mesh information
@@ -130,10 +131,10 @@ public:
 	int ClosestSegment(double x, double y);
 	bool GetIntersection(int n0, int n1, int segm, double *xi, double *yi);
 	int ClosestArcSegment(double x, double y);
-	void GetCircle(femm::CArcSegment &asegm,CComplex &c, double &R);
-    int GetLineArcIntersection(femm::CMesherSegment &seg, femm::CArcSegment &arc, CComplex *p);
-	int GetArcArcIntersection(femm::CArcSegment &arc1, femm::CArcSegment &arc2, CComplex *p);
-	double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
+    void GetCircle(femm::CMesherArcSegment &asegm,CComplex &c, double &R);
+    int GetLineArcIntersection(femm::CMesherSegment &seg, femm::CMesherArcSegment &arc, CComplex *p);
+    int GetArcArcIntersection(femm::CMesherArcSegment &arc1, femm::CMesherArcSegment &arc2, CComplex *p);
+    double ShortestDistanceFromArc(CComplex p, femm::CMesherArcSegment &arc);
 
 	double LineLength(int i);
 

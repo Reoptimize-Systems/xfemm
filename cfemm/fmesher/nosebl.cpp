@@ -35,39 +35,6 @@ namespace femm
 
 //*************************************************************************//
 //                                                                         //
-//                       CArcSegment definitions                           //
-//                                                                         //
-//*************************************************************************//
-
-
-CArcSegment::CArcSegment()
-{
-    n0 = 0;
-    n1 = 0;
-    selectFlag = 0;
-    Hidden = false;
-    ArcLength = 90.;
-    MaxSideLength = 10.;
-    BoundaryMarker = "<None>";
-    InConductor="<None>";
-    InGroup = 0;
-    NormalDirection = true;
-}
-
-void CArcSegment::ToggleSelect()
-{
-    if (selectFlag!=0)
-    {
-        selectFlag=0;
-    }
-    else
-    {
-        selectFlag = 1;
-    }
-}
-
-//*************************************************************************//
-//                                                                         //
 //                       CBlockLabel definitions                           //
 //                                                                         //
 //*************************************************************************//

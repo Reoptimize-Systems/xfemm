@@ -128,7 +128,7 @@ void FMesher::UnselectAll()
 }
 
 
-void FMesher::GetCircle(CArcSegment &arc, CComplex &c, double &R)
+void FMesher::GetCircle(CMesherArcSegment &arc, CComplex &c, double &R)
 {
     CComplex a0,a1,t;
     double d,tta;
@@ -159,7 +159,7 @@ void FMesher::GetCircle(CArcSegment &arc, CComplex &c, double &R)
 }
 
 
-int FMesher::GetLineArcIntersection(CMesherSegment &seg, CArcSegment &arc, CComplex *p)
+int FMesher::GetLineArcIntersection(CMesherSegment &seg, CMesherArcSegment &arc, CComplex *p)
 {
     CComplex p0,p1,a0,a1,t,v,c;
     double d,l,R,z,tta;
@@ -209,7 +209,7 @@ int FMesher::GetLineArcIntersection(CMesherSegment &seg, CArcSegment &arc, CComp
 
 }
 
-int FMesher::GetArcArcIntersection(CArcSegment &arc0, CArcSegment &arc1, CComplex *p)
+int FMesher::GetArcArcIntersection(CMesherArcSegment &arc0, CMesherArcSegment &arc1, CComplex *p)
 {
     CComplex a0,a1,t,c0,c1;
     double d,l,R0,R1,z0,z1,c,tta0,tta1;
@@ -305,7 +305,7 @@ int FMesher::ClosestBlockLabel(double x, double y)
     return j;
 }
 
-double FMesher::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
+double FMesher::ShortestDistanceFromArc(CComplex p, CMesherArcSegment &arc)
 {
     double R,d,l,z;
     CComplex a0,a1,c,t;
@@ -510,7 +510,7 @@ int FMesher::LoadFEMFile (string PathName)
     CCircuit	  CProp;
     CMesherNode		node;
     CMesherSegment	segm;
-    CArcSegment asegm;
+    CMesherArcSegment asegm;
     CBlockLabel blk;
 
     if ((fp=fopen(PathName.c_str(),"rt"))==NULL)
@@ -1361,7 +1361,7 @@ void FMesher::Undo()
 
     std::vector < CMesherNode >       tempnodelist;
     std::vector < CMesherSegment >    templinelist;
-    std::vector < CArcSegment > temparclist;
+    std::vector < CMesherArcSegment > temparclist;
     std::vector < CBlockLabel > tempblocklist;
 
     tempnodelist.clear();
@@ -1531,7 +1531,7 @@ void FMesher::Undo()
 //		{
 //			CComplex c,u,p0,p1,q,p[4],v[8],i1[8],i2[8];
 //			double rc,b,R[4],phi;
-//			CArcSegment ar;
+//			CMesherArcSegment ar;
 //			int j,m;
 //
 //			// inherit the boundary condition from the arc so that
@@ -1631,7 +1631,7 @@ void FMesher::Undo()
 //		{
 //			CComplex p0,p1,p2;
 //			double phi,len;
-//			CArcSegment ar;
+//			CMesherArcSegment ar;
 //
 //			if (linelist[seg[0]].n0==n) p1=nodelist[linelist[seg[0]].n1].CC();
 //			else p1=nodelist[linelist[seg[0]].n0].CC();
@@ -1693,7 +1693,7 @@ void FMesher::Undo()
 //			int j;
 //			CComplex c0,c1,c2,p[8],i1[8],i2[8];
 //			double a[8],b[8],c,d[8],x[8],r0,r1,r2,phi;
-//			CArcSegment ar;
+//			CMesherArcSegment ar;
 //
 //			r0=r;
 //			GetCircle(arclist[arc[0]],c1,r1);
@@ -1942,11 +1942,11 @@ void FMesher::Undo()
 //}
 
 
-//bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
+//bool FMesher::AddArcSegment(CMesherArcSegment &asegm, double tol)
 //{
 //	int i,j,k;
 //	CMesherSegment segm;
-//	CArcSegment newarc;
+//	CMesherArcSegment newarc;
 //	CComplex c,p[2];
 //	std::vector < CComplex > newnodes;
 //	double R,d,dmin,t;
@@ -2089,7 +2089,7 @@ void FMesher::Undo()
 //	int i,k;
 //	CMesherNode pt;
 //	CMesherSegment segm;
-//	CArcSegment asegm;
+//	CMesherArcSegment asegm;
 //	CComplex c,a0,a1,a2;
 //	double R;
 //
