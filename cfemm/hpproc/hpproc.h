@@ -32,6 +32,7 @@
 #include "hproblem.h"
 #include "fparse.h"
 #include "CBoundaryProp.h"
+#include "CNode.h"
 
 using namespace HPProcdata;
 
@@ -53,7 +54,7 @@ public:
 	double *LengthConv;
     femm::ProblemType problemType;
 	bool	Coords;
-	string ProblemNote;
+    std::string ProblemNote;
 	bool	FirstDraw;
 	bool	Smooth;
 	bool	bMultiplyDefinedLabels;
@@ -67,12 +68,12 @@ public:
 
 
 	// Some default behaviors
-	string BinDir;
+    std::string BinDir;
 	int  d_LineIntegralPoints;
 	bool bHasMask;
 
 	// lists of nodes, segments, and block labels
-	std::vector< CNode >             nodelist;
+    std::vector< femm::CNode >             nodelist;
 	std::vector< CSegment >       	 linelist;
 	std::vector< CBlockLabel > 		 blocklist;
 	std::vector< CArcSegment > 		 arclist;
