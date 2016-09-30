@@ -30,6 +30,7 @@
 #include "mesh.h"
 #include "spars.h"
 #include "CBoundaryProp.h"
+#include "CCommonPoint.h"
 
 enum LoadMeshErr
 {
