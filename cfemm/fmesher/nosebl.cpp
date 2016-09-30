@@ -25,6 +25,8 @@
 #include <cmath>
 #include <string>
 #include <cstring>
+#include <utility>
+#include <algorithm>
 #include "nosebl.h"
 
 namespace femm
@@ -232,28 +234,5 @@ CPeriodicBoundary::CPeriodicBoundary()
 }
 
 
-//*************************************************************************//
-//                                                                         //
-//                       CCommonPoint definitions                          //
-//                                                                         //
-//*************************************************************************//
-
-
-CCommonPoint::CCommonPoint()
-{
-    x=y=t=0;
-}
-
-void CCommonPoint::Order()
-{
-    int z;
-
-    if(x>y)
-    {
-        z=y;
-        y=x;
-        x=z;
-    }
-}
 
 } // namespace femme

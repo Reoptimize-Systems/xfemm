@@ -19,6 +19,8 @@ add_library(femm OBJECT
   CBoundaryProp.h
   CCircuit.cpp
   CCircuit.h
+  CCommonPoint.cpp
+  CCommonPoint.h
   CElement.cpp
   CElement.h
   CMaterialProp.cpp
