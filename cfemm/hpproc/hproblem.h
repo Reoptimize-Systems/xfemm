@@ -24,36 +24,13 @@
         richard.crozier@yahoo.co.uk
 */
 
-#include <string>
-#include "femmcomplex.h"
-
 
 #ifndef PROBLEM_H
 #define PROBLEM_H
+#include <string>
+#include "femmcomplex.h"
+
 namespace HPProcdata{
-/////////////////////////////////////////////////////////////////////////////
-// CNode -- structure that holds information about each control point.
-
-using std::string;
-
-class CNode
-{
-	public:
-		CNode();
-
-		double x,y;
-		int xs,ys;
-		bool IsSelected;
-		int BoundaryMarker;
-		int InGroup,InConductor;
-
-		double GetDistance(double xo, double yo);
-		CComplex CC();
-		void ToggleSelect();
-
-	private:
-
-};
 
 class CMeshNode
 {
@@ -143,7 +120,7 @@ class CMaterialProp
 {
 	public:
 
-		string BlockName;
+        std::string BlockName;
 		double Kx,Ky;		// thermal conductivity for linear (possibly anisotropic) regions
 		double Kt;			// volumetric heat capacity
 		double qv;			// volume heat generation
@@ -165,8 +142,8 @@ class CPointProp
 
 		CPointProp();
 
-		string PointName;
-		string InConductor;
+        std::string PointName;
+        std::string InConductor;
 		double V,qp;
 
 	private:
@@ -178,7 +155,7 @@ class CCircuit
 
 		CCircuit();
 
-		string CircName;
+        std::string CircName;
 		double V,q;
 		int		CircType;
 
