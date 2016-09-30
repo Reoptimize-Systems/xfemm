@@ -837,7 +837,7 @@ bool HPProc::OpenDocument(string pathname)
         for(int j=0;j<NumList[i];j++)
 		{
             bool flg=false;
-            for(int k=0,flg=false;k<NumList[i]-j-1;k++)
+            for(int k=0;k<NumList[i]-j-1;k++)
 			{
 				u0=meshelem[ConList[i][k]].ctr  -meshnode[i].CC();
 				u1=meshelem[ConList[i][k+1]].ctr-meshnode[i].CC();
