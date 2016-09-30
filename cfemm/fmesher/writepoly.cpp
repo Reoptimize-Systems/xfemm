@@ -525,7 +525,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     for(i=0;i<nodelst.size();i++)
     {
         for(j=0,t=0;j<nodeproplist.size ();j++)
-                if(nodeproplist[j].PointName==nodelst[i].BoundaryMarker) t = j + 2;
+                if(j==nodelst[i].BoundaryMarker) t = j + 2;
 
         if (filetype == F_TYPE_HEATFLOW)
         {
@@ -533,7 +533,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             for(j = 0; j < circproplist.size (); j++)
             {
                 // add the conductor numer using a mask
-                if(circproplist[j].CircName == nodelst[i].InConductor) t += ((j+1) * 0x10000);
+                if(j== nodelst[i].InConductor) t += ((j+1) * 0x10000);
             }
         }
 
@@ -2087,13 +2087,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     for(i=0;i<nodelst.size ();i++)
     {
         for(j=0,t=0; j < nodeproplist.size (); j++)
-                if(nodeproplist[j].PointName == nodelst[i].BoundaryMarker) t = j + 2;
+                if(j== nodelst[i].BoundaryMarker) t = j + 2;
 
         if (filetype == F_TYPE_HEATFLOW)
         {
             // include conductor number;
             for(j=0; j < circproplist.size (); j++)
-                if(circproplist[j].CircName == nodelst[i].InConductor) t += ((j+1) * 0x10000);
+                if(j== nodelst[i].InConductor) t += ((j+1) * 0x10000);
         }
 
         in.pointmarkerlist[i] = t;
