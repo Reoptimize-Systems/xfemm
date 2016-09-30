@@ -28,28 +28,6 @@ namespace femm
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CArcSegment -- class that holds information about arcs joining control pts
-
-class CArcSegment
-{
-public:
-    CArcSegment();
-
-    int n0,n1;
-    bool NormalDirection;
-    int selectFlag;
-    bool Hidden;
-    double MaxSideLength,ArcLength;
-    std::string BoundaryMarker;
-    std::string InConductor;
-    int InGroup;
-
-    void ToggleSelect();
-
-private:
-
-};
-/////////////////////////////////////////////////////////////////////////////
 // CBlockLabel -- class that holds block label information
 
 class CBlockLabel

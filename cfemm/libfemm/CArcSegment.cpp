@@ -13,13 +13,14 @@ using namespace femm;
 
 // CArcSegment construction
 CArcSegment::CArcSegment()
+    : n0(0)
+    , n1(0)
+    , ArcLength(90.)
+    , MaxSideLength(-1)
+    , Hidden(false)
+    , InGroup(0)
+    , IsSelected(false)
 {
-    n0=0;
-    n1=0;
-    IsSelected=false;
-    MaxSideLength=-1;
-    ArcLength=90.;
-    BoundaryMarker=-1;
 }
 
 void CArcSegment::ToggleSelect()
@@ -27,3 +28,19 @@ void CArcSegment::ToggleSelect()
     IsSelected = !IsSelected;
 }
 
+
+CMesherArcSegment::CMesherArcSegment()
+    : CArcSegment()
+    , BoundaryMarker("<None>")
+    , InConductor("<None>")
+    , selectFlag(0)
+    , NormalDirection(true)
+{
+}
+
+CSolverArcSegment::CSolverArcSegment()
+    : CArcSegment()
+    , BoundaryMarker(-1)
+    , InConductor(-1)
+{
+}

@@ -30,16 +30,34 @@ class CArcSegment
         int n0,n1;
         double ArcLength; ///< arc angle
         double MaxSideLength; ///< max segment
-        int BoundaryMarker; ///< boundary property number, 0-indexed
+        // BoundaryMarker: see inheriting classes
         bool Hidden; ///< hide in postproc
         int InGroup; ///< number of group
-        int InConductor; ///< additional property for hpproc
 
         bool IsSelected;
         void ToggleSelect();
 
     private:
 
+};
+
+class CMesherArcSegment : public CArcSegment
+{
+public:
+    CMesherArcSegment();
+    std::string BoundaryMarker; ///< boundary property name
+    std::string InConductor;  ///< conductor name
+
+    int selectFlag;
+    bool NormalDirection;
+};
+
+class CSolverArcSegment : public CArcSegment
+{
+public:
+    CSolverArcSegment();
+    int BoundaryMarker; ///< boundary property number, 0-indexed
+    int InConductor; ///< additional property for hpproc
 };
 
 }
