@@ -41,15 +41,6 @@ private:
 };
 
 
-class CCommonPoint
-{
-public:
-    int x,y,t;
-
-private:
-};
-
-
 } //namespace femm
 
 #endif
