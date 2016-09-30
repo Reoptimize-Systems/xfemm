@@ -26,11 +26,9 @@
 
 #include <string>
 #include "nosebl.h"
+#include "femmcomplex.h"
 #include "intpoint.h"
 #include "triangle.h"
-
-#include "femmcomplex.h"
-#include "CNode.h"
 
 #ifndef LineFraction
 #define LineFraction 500.0
