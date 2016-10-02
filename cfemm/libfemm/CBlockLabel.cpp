@@ -13,17 +13,15 @@ using namespace femm;
 
 // CBlockLabel construction
 CBlockLabel::CBlockLabel()
+    : x(0.)
+    , y(0.)
+    , MaxArea(0.)
+    , MagDir(0.0)
+    , InGroup(0)
+    , Turns(1)
+    , IsExternal(false)
+    , IsSelected(false)
 {
-    x=0.;
-    y=0.;
-    BlockType=-1;
-    MaxArea=0.;
-    InCircuit=0;
-    MagDir=0.0;
-    InGroup=0;
-    Turns=1;
-    IsExternal=false;
-    IsSelected=false;
 }
 
 void CBlockLabel::ToggleSelect()
@@ -37,3 +35,17 @@ double CBlockLabel::GetDistance(double xo, double yo)
 }
 
 
+
+CSolverBlockLabel::CSolverBlockLabel()
+    : CBlockLabel()
+    , BlockType(-1)
+    , InCircuit(0)
+{
+}
+
+CMesherBlockLabel::CMesherBlockLabel()
+    : CBlockLabel()
+    , BlockType("<None>")
+    , InCircuit("<None>")
+{
+}

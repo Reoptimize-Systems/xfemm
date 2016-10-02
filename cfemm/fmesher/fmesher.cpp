@@ -511,7 +511,7 @@ int FMesher::LoadFEMFile (string PathName)
     CMesherNode		node;
     CMesherSegment	segm;
     CMesherArcSegment asegm;
-    CBlockLabel blk;
+    CMesherBlockLabel blk;
 
     if ((fp=fopen(PathName.c_str(),"rt"))==NULL)
     {
@@ -1362,7 +1362,7 @@ void FMesher::Undo()
     std::vector < CMesherNode >       tempnodelist;
     std::vector < CMesherSegment >    templinelist;
     std::vector < CMesherArcSegment > temparclist;
-    std::vector < CBlockLabel > tempblocklist;
+    std::vector < CMesherBlockLabel > tempblocklist;
 
     tempnodelist.clear();
     templinelist.clear();
@@ -2075,7 +2075,7 @@ void FMesher::Undo()
 //
 //	// if all is OK, add point in to the node list...
 //	if(AddFlag==true){
-//		CBlockLabel pt;
+//		CMesherBlockLabel pt;
 //		pt.x=x; pt.y=y;
 //		blocklist.push_back(pt);
 //	}

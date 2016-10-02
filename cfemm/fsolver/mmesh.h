@@ -29,7 +29,7 @@
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
 
-class CMBlockLabel : public femm::CBlockLabel
+class CMBlockLabel : public femm::CSolverBlockLabel
 {
 public:
     // used for proximity effect regions only.

@@ -69,7 +69,7 @@ public:
     femm::CHBoundaryProp  *lineproplist;
     CHPointProp      *nodeproplist;
 	CHConductor      *circproplist;
-    femm::CBlockLabel     *labellist;
+    femm::CSolverBlockLabel     *labellist;
 
 // Operations
 public:

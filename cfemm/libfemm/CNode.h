@@ -54,7 +54,7 @@ private:
 
 
 /**
- * @brief The CMNode class
+ * @brief The CSolverNode class
  * Specialization of the CNode class for the solvers.
  * In solvers, \c BoundaryMarker and \c InConductor are indices referring to nodes/properties/circuits.
  */
