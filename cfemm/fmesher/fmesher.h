@@ -30,9 +30,10 @@
 #include "intpoint.h"
 #include "triangle.h"
 
+#include "CArcSegment.h"
+#include "CBlockLabel.h"
 #include "CNode.h"
 #include "CSegment.h"
-#include "CArcSegment.h"
 
 #ifndef LineFraction
 #define LineFraction 500.0
@@ -94,13 +95,13 @@ public:
     std::vector< femm::CMesherNode >       nodelist;
     std::vector< femm::CMesherSegment >    linelist;
     std::vector< femm::CMesherArcSegment > arclist;
-	std::vector< femm::CBlockLabel > blocklist;
+    std::vector< femm::CMesherBlockLabel > blocklist;
 
 	// lists of nodes, segments, and block labels for undo purposes...
     std::vector< femm::CMesherNode >       undonodelist;
     std::vector< femm::CMesherSegment >    undolinelist;
     std::vector< femm::CMesherArcSegment > undoarclist;
-	std::vector< femm::CBlockLabel > undoblocklist;
+    std::vector< femm::CMesherBlockLabel > undoblocklist;
 
 	// vectors containing the mesh information
 	std::vector< myPoint >      meshline;

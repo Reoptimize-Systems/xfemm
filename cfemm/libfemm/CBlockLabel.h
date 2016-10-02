@@ -42,29 +42,56 @@ namespace femm {
  */
 class CBlockLabel
 {
-    public:
-        CBlockLabel();
+public:
+    CBlockLabel();
 
-        double x,y;
-        int BlockType;   ///< number of block type (region)
-        double MaxArea;  ///< desired mesh size
-        int InCircuit;   ///< number of associated circuit (0-indexed)
-        double MagDir;   ///< magnetization direction (\c deg)
-        int InGroup;     ///< number of the group
-        int    Turns;    ///< number of turns
-        bool IsExternal; ///< is located in external region
+    double x,y;
+    double MaxArea;  ///< desired mesh size
+    double MagDir;   ///< magnetization direction (\c deg)
+    int InGroup;     ///< number of the group
+    int    Turns;    ///< number of turns
+    bool IsExternal; ///< is located in external region
 
-        std::string MagDirFctn; ///< additional property for fpproc
-        bool IsDefault;  ///< additional property for hpproc
+    std::string MagDirFctn; ///< additional property for fpproc
+    bool IsDefault;  ///< additional property for hpproc
 
-        bool IsSelected;
-        void ToggleSelect();
-        double GetDistance(double xo, double yo);
+    bool IsSelected;
+    void ToggleSelect();
+    double GetDistance(double xo, double yo);
 
-    private:
+private:
 
 };
 
+/**
+ * @brief The CSolverBlockLabel class
+ * Specialization of the CBlockLabel class for the solvers.
+ * In the fmesher, \c BlockType and \c InCircuit are indices referring to nodes/properties/circuits.
+ */
+class CSolverBlockLabel : public CBlockLabel
+{
+public:
+    CSolverBlockLabel();
+
+    int BlockType;   ///< number of block type (region)
+    int InCircuit;   ///< number of associated circuit (0-indexed)
+};
+
+/**
+ * @brief The CMesherBlockLabel class
+ * Specialization of the CBlockLabel class for the mesher.
+ * In the fmesher, \c BlockType and \c InCircuit are holding the name of the referred object.
+ */
+class CMesherBlockLabel : public CBlockLabel
+{
+public:
+    CMesherBlockLabel();
+
+    std::string BlockType;
+    // problem specific properties
+    std::string InCircuit;
+    int selectFlag;
+};
 }
 #endif
 

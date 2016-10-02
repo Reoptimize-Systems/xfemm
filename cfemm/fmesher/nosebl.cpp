@@ -35,45 +35,6 @@ namespace femm
 
 //*************************************************************************//
 //                                                                         //
-//                       CBlockLabel definitions                           //
-//                                                                         //
-//*************************************************************************//
-
-CBlockLabel::CBlockLabel()
-{
-    // common properties
-    x = 0.;
-    y = 0.;
-    MaxArea = 0.;
-    selectFlag = 0;
-    BlockType = "<None>";
-    InGroup = 0;
-
-    // problem specific properties
-    InCircuit = "<None>";
-
-}
-
-void CBlockLabel::ToggleSelect()
-{
-    if (selectFlag!=0)
-    {
-        selectFlag=0;
-    }
-    else
-    {
-        selectFlag = 1;
-    }
-}
-
-double CBlockLabel::GetDistance(double xo, double yo)
-{
-    return std::sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
-}
-
-
-//*************************************************************************//
-//                                                                         //
 //                      CBoundaryProp definitions                          //
 //                                                                         //
 //*************************************************************************//

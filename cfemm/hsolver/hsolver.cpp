@@ -117,7 +117,7 @@ int HSolver::LoadProblemFile ()
 	CHBoundaryProp BProp;
     CHMaterialProp MProp;
 	CHConductor	  CProp;
-	CBlockLabel   blk;
+    CSolverBlockLabel   blk;
 
 
 	sprintf(s,"%s.feh",PathName.c_str());
@@ -435,7 +435,7 @@ int HSolver::LoadProblemFile ()
 			int i;
 			v=StripKey(s);
 			sscanf(v,"%i",&k);
-            if (k>0) labellist=new CBlockLabel[k];
+            if (k>0) labellist=new CSolverBlockLabel[k];
 			NumBlockLabels=k;
 			for(i=0;i<k;i++)
 			{

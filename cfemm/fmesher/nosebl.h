@@ -28,31 +28,6 @@ namespace femm
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CBlockLabel -- class that holds block label information
-
-class CBlockLabel
-{
-public:
-    CBlockLabel();
-
-    // common properties
-    double x,y;
-    double MaxArea;
-    int selectFlag;
-    std::string BlockType;
-    int InGroup;
-
-    // problem specific properties
-    std::string InCircuit;
-
-    void ToggleSelect();
-    double GetDistance(double xo, double yo);
-
-private:
-
-};
-
-/////////////////////////////////////////////////////////////////////////////
 // CBoundaryProp -- class that holds information about boundary conditions
 
 class CBoundaryProp
