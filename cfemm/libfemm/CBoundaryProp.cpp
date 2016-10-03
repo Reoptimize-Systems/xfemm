@@ -11,11 +11,9 @@
 using namespace femm;
 
 CBoundaryProp::CBoundaryProp()
+    : BdryName("New Boundary")
+    , BdryFormat(0)
 {
-    BdryName = "New Boundary";
-
-    BdryFormat = 0;    // type of boundary condition we are applying
-
 }
 
 CMBoundaryProp::CMBoundaryProp()
