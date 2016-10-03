@@ -25,7 +25,6 @@
 
 #include "mesh.h"
 #include "femmcomplex.h"
-#include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
 

@@ -32,6 +32,7 @@
 #include "hproblem.h"
 #include "fparse.h"
 #include "CArcSegment.h"
+#include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CMeshNode.h"
 #include "CNode.h"
@@ -78,7 +79,7 @@ public:
 	// lists of nodes, segments, and block labels
     std::vector< femm::CSolverNode >             nodelist;
     std::vector< femm::CSolverSegment >       	 linelist;
-	std::vector< CBlockLabel > 		 blocklist;
+    std::vector< femm::CSolverBlockLabel > 		 blocklist;
     std::vector< femm::CSolverArcSegment > 		 arclist;
 
 	// CArrays containing the mesh information

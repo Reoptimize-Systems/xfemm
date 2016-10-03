@@ -36,32 +36,6 @@
 
 using namespace std;
 
-/////////////////////////////////////////////////////////////////////////////
-// CNode construction
-
-CBlockLabel::CBlockLabel()
-{
-	x=0.;
-	y=0.;
-	MaxArea=0.;
-	IsSelected=false;
-	InGroup=0;
-	BlockType=-1;
-	IsExternal=false;
-	IsDefault=false;
-}
-
-void CBlockLabel::ToggleSelect()
-{
-	if (IsSelected==true) IsSelected=false;
-	else IsSelected=true;
-}
-
-double CBlockLabel::GetDistance(double xo, double yo)
-{
-	return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
-}
-
 CMaterialProp::CMaterialProp()
 {
 		BlockName="New Material";
