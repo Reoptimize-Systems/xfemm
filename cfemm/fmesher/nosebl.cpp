@@ -32,17 +32,6 @@
 namespace femm
 {
 
-
-//                                                                         //
-//                        CPointProp definitions                           //
-//                                                                         //
-//*************************************************************************//
-
-CPointProp::CPointProp()
-{
-    PointName = "New Point Property";
-}
-
 //*************************************************************************//
 //                                                                         //
 //                         CCircuit definitions                            //

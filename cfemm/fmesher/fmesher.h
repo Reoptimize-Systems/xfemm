@@ -34,6 +34,7 @@
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CNode.h"
+#include "CPointProp.h"
 #include "CSegment.h"
 
 #ifndef LineFraction

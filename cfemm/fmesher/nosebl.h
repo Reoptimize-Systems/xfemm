@@ -28,20 +28,6 @@ namespace femm
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CPointProp -- class that holds information about point properties
-
-class CPointProp
-{
-public:
-
-    CPointProp();
-
-    std::string PointName;
-
-private:
-};
-
-/////////////////////////////////////////////////////////////////////////////
 // CCircuit -- class that holds information about boundary conditions
 
 class CCircuit
