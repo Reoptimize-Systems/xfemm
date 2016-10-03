@@ -42,7 +42,8 @@ public:
     CComplex *slope;
     double H_c;				// magnetization, A/m
     double Theta_m;			// orientation of magnetization, degrees
-    double Jr,Ji;			// applied current density, MA/m^2
+    //double Jr,Ji;			// applied current density, MA/m^2
+    CComplex J;
     double Cduct;		    // conductivity of the material, MS/m
     double Lam_d;			// lamination thickness, mm
     double Theta_hn;		// hysteresis angle, degrees
@@ -72,15 +73,6 @@ public:
 private:
 };
 
-class CMPointProp
-{
-public:
-
-    double Jr,Ji; // applied point current, A
-    double Ar,Ai; // prescribed nodal value;
-
-private:
-};
 
 class CMCircuit : public femm::CCircuit
 {

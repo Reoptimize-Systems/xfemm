@@ -99,7 +99,7 @@ int FSolver::LoadProblemFile ()
     int j,k,ic;
     char s[1024],q[1024];
     char *v;
-    CMPointProp       PProp;
+    CPointProp       PProp;
     CMBoundaryProp   BProp;
     CMMaterialProp    MProp;
     CMCircuit        CProp;
@@ -236,44 +236,44 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) nodeproplist=new CMPointProp[k];
+            if (k>0) nodeproplist=new CPointProp[k];
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<beginpoint>",11)==0)
         {
-            PProp.Jr=0.;
-            PProp.Ji=0.;
-            PProp.Ar=0.;
-            PProp.Ai=0.;
+            PProp.J.re=0.;
+            PProp.J.im=0.;
+            PProp.A.re=0.;
+            PProp.A.im=0.;
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_re>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&PProp.Ar);
+            sscanf(v,"%lf",&PProp.A.re);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_im>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&PProp.Ai);
+            sscanf(v,"%lf",&PProp.A.im);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_re>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&PProp.Jr);
+            sscanf(v,"%lf",&PProp.J.re);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_im>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&PProp.Ji);
+            sscanf(v,"%lf",&PProp.J.im);
             q[0] = '\0';
         }
 
@@ -405,8 +405,8 @@ int FSolver::LoadProblemFile ()
             MProp.mu_x=1.;
             MProp.mu_y=1.;            // permeabilities, relative
             MProp.H_c=0.;                // magnetization, A/m
-            MProp.Jr=0.;
-            MProp.Ji=0.;                // applied current density, MA/m^2
+            MProp.J.re=0.;
+            MProp.J.im=0.;                // applied current density, MA/m^2
             MProp.Cduct=0.;            // conductivity of the material, MS/m
             MProp.Lam_d=0.;            // lamination thickness, mm
             MProp.Theta_hn=0.;            // hysteresis angle, degrees
@@ -454,14 +454,14 @@ int FSolver::LoadProblemFile ()
         if( _strnicmp(q,"<J_re>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Jr);
+            sscanf(v,"%lf",&MProp.J.re);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<J_im>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Ji);
+            sscanf(v,"%lf",&MProp.J.im);
             q[0] = '\0';
         }
 

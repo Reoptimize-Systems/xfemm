@@ -53,8 +53,8 @@ CMMaterialProp::CMMaterialProp()
     LamType=0;            // type of lamination;
     WireD=0;            // strand diameter, mm
     NStrands=0;            // number of strands per wire
-    Jr = 0;
-    Ji = 0;			// applied current density, MA/m^2
+    J.re = 0;
+    J.im = 0;			// applied current density, MA/m^2
 
     slope=NULL;
     Bdata=NULL;
@@ -77,8 +77,7 @@ CMMaterialProp::CMMaterialProp( const CMMaterialProp &other )
     LamType = other.LamType;    // type of lamination;
     WireD = other.WireD;        // strand diameter, mm
     NStrands = other.NStrands;  // number of strands per wire
-    Jr  = other.Jr;
-    Ji  = other.Ji;			// applied current density, MA/m^2
+    J  = other.J;			// applied current density, MA/m^2
 
     BHpoints = other.BHpoints;
 
