@@ -13,10 +13,8 @@ using namespace femm;
 
 CPointProp::CPointProp()
     : PointName ( "New Point Property")
-    , Jr(0.)
-    , Ji(0.)
-    , Ar(0.)
-    , Ai(0.)
+    , J()
+    , A()
 {
 }
 

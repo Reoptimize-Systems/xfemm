@@ -18,10 +18,8 @@ class CPointProp
 
         // <PointName>
         std::string PointName;
-        // <I_re>, <I_im>
-        double Jr,Ji;            // applied point current, A
-        // <A_re>, <A_im>, magnetic vector potential
-        double Ar,Ai;                // prescribed nodal value;
+        CComplex J;   ///< \brief J: applied point current \code<I_re>, <I_im>\endcode
+        CComplex A;   ///< \brief A, magnetic vector potential \code<A_re>, <A_im>\endcode
 
     private:
 };
