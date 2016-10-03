@@ -158,7 +158,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
                     CircInt2[labellist[El->lbl].InCircuit] += a * Cduct;
 
-                    CircInt3[labellist[El->lbl].InCircuit] += blockproplist[El->blk].Jr * a * 100.;
+                    CircInt3[labellist[El->lbl].InCircuit] += blockproplist[El->blk].J.re * a * 100.;
                 }
             }
         }
@@ -358,7 +358,7 @@ int FSolver::Static2D(CBigLinProb &L)
                         t = 0;
                     }
 
-                    K = -(blockproplist[El->blk].Jr+t)*a/3.;
+                    K = -(blockproplist[El->blk].J.re+t)*a/3.;
 
                     be[j]+=K;
                 }
@@ -624,7 +624,7 @@ int FSolver::Static2D(CBigLinProb &L)
             {
                 if(meshnode[i].BoundaryMarker>=0)
                 {
-                    L.b[i]+=(0.01*nodeproplist[meshnode[i].BoundaryMarker].Jr);
+                    L.b[i]+=(0.01*nodeproplist[meshnode[i].BoundaryMarker].J.re);
                 }
             }
 
@@ -633,10 +633,10 @@ int FSolver::Static2D(CBigLinProb &L)
             {
                 if(meshnode[i].BoundaryMarker >=0)
                 {
-                    if((nodeproplist[meshnode[i].BoundaryMarker].Jr==0) &&
-                            (nodeproplist[meshnode[i].BoundaryMarker].Ji==0) && (sdi_iter==0))
+                    if((nodeproplist[meshnode[i].BoundaryMarker].J.re==0) &&
+                            (nodeproplist[meshnode[i].BoundaryMarker].J.im==0) && (sdi_iter==0))
                     {
-                        L.SetValue(i,nodeproplist[meshnode[i].BoundaryMarker].Ar / c);
+                        L.SetValue(i,nodeproplist[meshnode[i].BoundaryMarker].A.re / c);
                     }
                 }
             }

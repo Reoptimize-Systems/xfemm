@@ -102,7 +102,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                         100.*a*Cduct/r;
 
                     CircInt3[labellist[El->lbl].InCircuit]+=
-                        blockproplist[El->blk].Jr*a*100.;
+                        blockproplist[El->blk].J.re*a*100.;
                 }
         }
 
@@ -352,7 +352,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                             t=-100.*circproplist[k].dV.Re()*blockproplist[El->blk].Cduct/R;
                     }
                     else t=0;
-                    K=-2.*R*(blockproplist[El->blk].Jr+t)*a/3.;
+                    K=-2.*R*(blockproplist[El->blk].J.re+t)*a/3.;
                     be[j]+=K;
                 }
 
@@ -583,7 +583,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                 if(meshnode[i].BoundaryMarker>=0)
                 {
                     r=meshnode[i].x;
-                    L.b[i]+=(0.01*nodeproplist[meshnode[i].BoundaryMarker].Jr*2.*r);
+                    L.b[i]+=(0.01*nodeproplist[meshnode[i].BoundaryMarker].J.re*2.*r);
                 }
 
             // apply fixed boundary conditions at points;
@@ -591,9 +591,9 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
             {
                 if(fabs(meshnode[i].x)<(units[LengthUnits]*1.e-06)) L.SetValue(i,0.);
                 else if(meshnode[i].BoundaryMarker >=0)
-                    if((nodeproplist[meshnode[i].BoundaryMarker].Jr==0) &&
-                            (nodeproplist[meshnode[i].BoundaryMarker].Ji==0) && (sdi_iter==0))
-                        L.SetValue(i,nodeproplist[meshnode[i].BoundaryMarker].Ar/c);
+                    if((nodeproplist[meshnode[i].BoundaryMarker].J.re==0) &&
+                            (nodeproplist[meshnode[i].BoundaryMarker].J.im==0) && (sdi_iter==0))
+                        L.SetValue(i,nodeproplist[meshnode[i].BoundaryMarker].A.re/c);
             }
 
             // apply fixed boundary conditions along segments;

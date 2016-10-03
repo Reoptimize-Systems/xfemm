@@ -123,7 +123,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
                     // integral of applied J over current;
                     CircInt3[labellist[El->lbl].InCircuit]+=
-                        (blockproplist[El->blk].Jr+I*blockproplist[El->blk].Ji)*a*100.;
+                        (blockproplist[El->blk].J.re+I*blockproplist[El->blk].J.im)*a*100.;
                 }
         }
 
@@ -389,7 +389,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                         if(circproplist[k].Case==0)
                             Jv=-circproplist[k].dV*blockproplist[El->blk].Cduct;
                     }
-                    K=-(blockproplist[El->blk].Jr+I*blockproplist[El->blk].Ji+Jv)*a/3.;
+                    K=-(blockproplist[El->blk].J.re+I*blockproplist[El->blk].J.im+Jv)*a/3.;
                     be[j]+=K;
 
                     if(labellist[El->lbl].InCircuit>=0)
@@ -546,8 +546,8 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
             for(i=0; i<NumNodes; i++)
                 if(meshnode[i].BoundaryMarker>=0)
                 {
-                    K=0.01*(nodeproplist[meshnode[i].BoundaryMarker].Jr
-                            +I*nodeproplist[meshnode[i].BoundaryMarker].Ji);
+                    K=0.01*(nodeproplist[meshnode[i].BoundaryMarker].J.re
+                            +I*nodeproplist[meshnode[i].BoundaryMarker].J.im);
                     L.b[i]+=(-K);
                 }
 
@@ -562,11 +562,11 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
             // apply fixed boundary conditions at points;
             for(i=0; i<NumNodes; i++)
                 if(meshnode[i].BoundaryMarker >=0)
-                    if((nodeproplist[meshnode[i].BoundaryMarker].Jr==0) &&
-                            (nodeproplist[meshnode[i].BoundaryMarker].Ji==0) && (sdi_iter==0))
+                    if((nodeproplist[meshnode[i].BoundaryMarker].J.re==0) &&
+                            (nodeproplist[meshnode[i].BoundaryMarker].J.im==0) && (sdi_iter==0))
                     {
-                        K= (nodeproplist[meshnode[i].BoundaryMarker].Ar +
-                            I*nodeproplist[meshnode[i].BoundaryMarker].Ai)/c;
+                        K= (nodeproplist[meshnode[i].BoundaryMarker].A.re +
+                            I*nodeproplist[meshnode[i].BoundaryMarker].A.im)/c;
                         L.SetValue(i,K);
                     }
 
