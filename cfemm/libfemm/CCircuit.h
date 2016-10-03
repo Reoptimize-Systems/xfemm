@@ -17,16 +17,6 @@ class CCircuit
 
         /// \verbatim <circuitName> \endverbatim
         std::string CircName;
-        /**
-         * @brief Amps
-         * Circuit current.
-         *
-         * Unit: \c A
-         * \verbatim
-         * <TotalAmpsre> <TotalAmpsim>
-         * \endverbatim
-         */
-        CComplex  Amps;
 
         /**
          * @brief CircType
@@ -38,6 +28,16 @@ class CCircuit
          */
         int        CircType;
 
+        /**
+         * @brief Amps
+         * Circuit current.
+         *
+         * Unit: \c A
+         * \verbatim
+         * <TotalAmpsre> <TotalAmpsim>
+         * \endverbatim
+         */
+        CComplex  Amps;
     private:
 
 };
