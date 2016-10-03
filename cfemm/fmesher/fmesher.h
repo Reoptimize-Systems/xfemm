@@ -32,6 +32,7 @@
 
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
+#include "CBoundaryProp.h"
 #include "CNode.h"
 #include "CSegment.h"
 

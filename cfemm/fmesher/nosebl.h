@@ -28,27 +28,6 @@ namespace femm
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CBoundaryProp -- class that holds information about boundary conditions
-
-class CBoundaryProp
-{
-public:
-
-    CBoundaryProp();
-
-    std::string BdryName;
-    int BdryFormat;            // type of boundary condition we are applying
-    // 0 = constant value
-    // 1 = Small skin depth eddy current BC
-    // 2 = Mixed BC
-    // 3 = SDI
-    // 4 = Periodic
-    // 5 = Antiperiodic
-
-private:
-};
-
-/////////////////////////////////////////////////////////////////////////////
 // CPointProp -- class that holds information about point properties
 
 class CPointProp
