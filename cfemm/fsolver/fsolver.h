@@ -31,6 +31,7 @@
 #include "feasolver.h"
 #include "mmesh.h"
 #include "cspars.h"
+#include "CBlockLabel.h"
 #include "CNode.h"
 
 class FSolver : public FEASolver
@@ -55,7 +56,7 @@ public:
     femm::CMBoundaryProp  *lineproplist;
     CMPointProp      *nodeproplist;
     std::vector<CMCircuit> circproplist;
-    CMBlockLabel    *labellist;
+    femm::CMBlockLabel    *labellist;
 
 // Operations
 public:
