@@ -92,6 +92,19 @@ public:
     std::string InCircuit;
     int selectFlag;
 };
+
+class CMBlockLabel : public CSolverBlockLabel
+{
+public:
+    CMBlockLabel();
+
+    // used for proximity effect regions only.
+    CComplex ProximityMu;
+    bool bIsWound; ///< true, if Turns>1, but also in some other conditions; set by \c FSolver::GetFillFactor()
+
+private:
+
+};
 }
 #endif
 

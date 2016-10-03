@@ -29,17 +29,6 @@
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
 
-class CMBlockLabel : public femm::CSolverBlockLabel
-{
-public:
-    // used for proximity effect regions only.
-    CComplex ProximityMu;
-    int bIsWound;// TODO: bIsWound == Turns???
-
-private:
-
-};
-
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CBoundaryProp, CPointProp
 class CMMaterialProp

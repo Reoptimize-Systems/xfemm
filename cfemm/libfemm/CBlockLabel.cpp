@@ -49,3 +49,10 @@ CMesherBlockLabel::CMesherBlockLabel()
     , InCircuit("<None>")
 {
 }
+
+CMBlockLabel::CMBlockLabel()
+    : CSolverBlockLabel()
+    , ProximityMu(0)
+    , bIsWound(false)
+{
+}
