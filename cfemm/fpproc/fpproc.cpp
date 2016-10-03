@@ -258,7 +258,7 @@ bool FPProc::OpenDocument(string pathname)
     CCircuit      CProp;
     CSolverNode         node;
     CSolverSegment      segm;
-    CArcSegment   asegm;
+    CSolverArcSegment   asegm;
     CElement      elm;
     CBlockLabel   blk;
     CMeshNode     mnode;
@@ -3707,7 +3707,7 @@ int FPProc::ClosestArcSegment(double x, double y)
     return j;
 }
 
-void FPProc::GetCircle(CArcSegment &arc,CComplex &c, double &R)
+void FPProc::GetCircle(CSolverArcSegment &arc,CComplex &c, double &R)
 {
     CComplex a0,a1,t;
     double d,tta;
@@ -3723,7 +3723,7 @@ void FPProc::GetCircle(CArcSegment &arc,CComplex &c, double &R)
     c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
 }
 
-double FPProc::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
+double FPProc::ShortestDistanceFromArc(CComplex p, CSolverArcSegment &arc)
 {
     double R,d,l,z;
     CComplex a0,a1,c,t;

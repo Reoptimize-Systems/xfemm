@@ -10,6 +10,7 @@
 #include "femmcomplex.h"
 #include "problem.h"
 #include "fparse.h"
+#include "CArcSegment.h"
 #include "CBoundaryProp.h"
 #include "CNode.h"
 #include "CSegment.h"
@@ -72,7 +73,7 @@ public:
     // lists of nodes, segments, and block labels
     std::vector< femm::CSolverNode >       nodelist;
     std::vector< femm::CSolverSegment >    linelist;
-    std::vector< CArcSegment > arclist;
+    std::vector< femm::CSolverArcSegment > arclist;
     std::vector< CBlockLabel > blocklist;
 
     // vectors containing the mesh information
@@ -120,8 +121,8 @@ public:
     CComplex BlockIntegral(int inttype);
     void LineIntegral(int inttype, CComplex *z);
     int ClosestArcSegment(double x, double y);
-    void GetCircle(CArcSegment &asegm,CComplex &c, double &R);
-    double ShortestDistanceFromArc(CComplex p, CArcSegment &arc);
+    void GetCircle(femm::CSolverArcSegment &asegm,CComplex &c, double &R);
+    double ShortestDistanceFromArc(CComplex p, femm::CSolverArcSegment &arc);
     double ShortestDistanceFromSegment(double p, double q, int segm);
     CComplex GetJA(int k,CComplex *J,CComplex *A);
     CComplex PlnInt(double a, CComplex *u, CComplex *v);

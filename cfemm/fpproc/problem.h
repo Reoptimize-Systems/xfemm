@@ -27,22 +27,6 @@ class CMeshNode
 
 };
 
-class CArcSegment
-{
-    public:
-        CArcSegment();
-
-        int n0,n1;
-        bool IsSelected;
-        bool Hidden;
-        double MaxSideLength,ArcLength;
-        int BoundaryMarker;
-
-        void ToggleSelect();
-
-    private:
-
-};
 /////////////////////////////////////////////////////////////////////////////
 // CBlockLabel -- structure that holds block label information
 
