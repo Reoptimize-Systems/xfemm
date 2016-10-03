@@ -33,6 +33,7 @@
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
+#include "CCircuit.h"
 #include "CNode.h"
 #include "CPointProp.h"
 #include "CSegment.h"

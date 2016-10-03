@@ -28,22 +28,6 @@ namespace femm
 
 
 /////////////////////////////////////////////////////////////////////////////
-// CCircuit -- class that holds information about boundary conditions
-
-class CCircuit
-{
-public:
-
-    CCircuit();
-
-    std::string CircName;
-    int        CircType;
-
-private:
-
-};
-
-/////////////////////////////////////////////////////////////////////////////
 // CPeriodicBoundary -- class that holds information on periodic boundaries
 
 class CPeriodicBoundary

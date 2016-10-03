@@ -10,8 +10,8 @@
 
 using namespace femm;
 CCircuit::CCircuit()
+    : CircName("New Circuit")
+    , CircType(0)
+    , Amps()
 {
-    CircName = "New Circuit";
-    CircType = 0;
-    Amps = 0.;
 }
