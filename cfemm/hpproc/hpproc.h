@@ -33,6 +33,7 @@
 #include "fparse.h"
 #include "CArcSegment.h"
 #include "CBoundaryProp.h"
+#include "CMeshNode.h"
 #include "CNode.h"
 #include "CSegment.h"
 
@@ -81,7 +82,7 @@ public:
     std::vector< femm::CSolverArcSegment > 		 arclist;
 
 	// CArrays containing the mesh information
-	std::vector< CMeshNode >			meshnode;
+    std::vector< femm::CHMeshNode >			meshnode;
 	std::vector< CElement >				meshelem;
 
 	// List of elements connected to each node;

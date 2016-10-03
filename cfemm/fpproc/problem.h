@@ -5,27 +5,9 @@
 #include "femmcomplex.h"
 
 namespace FPProcdata{
-/////////////////////////////////////////////////////////////////////////////
-// CNode -- structure that holds information about each control point.
 
 using std::string;
 
-class CMeshNode
-{
-    public:
-        CMeshNode();
-
-        double x,y;
-        CComplex A;
-        double msk;
-        int xs,ys;
-
-        double GetDistance(double xo, double yo);
-        CComplex CC();
-
-    private:
-
-};
 
 /////////////////////////////////////////////////////////////////////////////
 // CBlockLabel -- structure that holds block label information
