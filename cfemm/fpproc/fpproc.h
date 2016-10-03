@@ -12,6 +12,7 @@
 #include "fparse.h"
 #include "CArcSegment.h"
 #include "CBoundaryProp.h"
+#include "CMeshNode.h"
 #include "CNode.h"
 #include "CSegment.h"
 
@@ -77,7 +78,7 @@ public:
     std::vector< CBlockLabel > blocklist;
 
     // vectors containing the mesh information
-    std::vector< CMeshNode >  meshnode;
+    std::vector< femm::CMeshNode >  meshnode;
     std::vector< CElement >   meshelem;
 
     // List of elements connected to each node;
@@ -94,7 +95,7 @@ public:
     std::vector< CComplex > contour;
 
     // stuff that PTLOC needs
-    std::vector< CMeshNode >  *pmeshnode;
+    std::vector< femm::CMeshNode >  *pmeshnode;
     std::vector< CElement >   *pmeshelem;
 
 //    TriEdge recenttri;

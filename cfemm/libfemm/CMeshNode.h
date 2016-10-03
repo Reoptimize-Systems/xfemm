@@ -22,5 +22,18 @@ class CMeshNode
     private:
 
 };
+
+class CHMeshNode : public CMeshNode
+{
+public:
+    CHMeshNode();
+
+    double T;  ///< temperature at the node
+    /**
+     * @brief Q boundary flag
+     * Indicates whether the node lies on a boundary, or in a conductor, or none.
+     */
+    int Q;
+};
 }
 #endif

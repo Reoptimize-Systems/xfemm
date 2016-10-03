@@ -244,7 +244,7 @@ bool HPProc::OpenDocument(string pathname)
     CSolverArcSegment asegm;
 	CElement	elm;
 	CBlockLabel blk;
-	CMeshNode	mnode;
+    CHMeshNode	mnode;
 	//CPoint		mline;
 
 	// clear out all the document data and set defaults to standard values

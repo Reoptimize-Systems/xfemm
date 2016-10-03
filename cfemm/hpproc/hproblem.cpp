@@ -37,27 +37,6 @@
 using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
-// CMeshNode construction
-
-CMeshNode::CMeshNode()
-{
-	x=y=T=0;
-	Q=false;
-	msk=0;
-	IsSelected=false;
-}
-
-CComplex CMeshNode::CC()
-{
-	return (x+I*y);
-}
-
-double CMeshNode::GetDistance(double xo, double yo)
-{
-	return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
-}
-
-/////////////////////////////////////////////////////////////////////////////
 // CNode construction
 
 CBlockLabel::CBlockLabel()
