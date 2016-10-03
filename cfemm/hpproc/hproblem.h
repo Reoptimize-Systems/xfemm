@@ -33,30 +33,6 @@
 namespace HPProcdata{
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CBlockLabel -- structure that holds block label information
-
-class CBlockLabel
-{
-	public:
-		CBlockLabel();
-
-		double x,y;
-		double MaxArea;
-		double MagDir;
-		bool IsSelected;
-		int BlockType;
-		int InGroup;
-		bool IsExternal;
-		bool IsDefault;
-
-		void ToggleSelect();
-		double GetDistance(double xo, double yo);
-
-	private:
-
-};
-
 class CMaterialProp
 {
 	public:
