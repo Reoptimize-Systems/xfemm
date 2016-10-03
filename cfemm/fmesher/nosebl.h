@@ -27,9 +27,9 @@ namespace femm
 {
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CPeriodicBoundary -- class that holds information on periodic boundaries
-
+/**
+ * \brief CPeriodicBoundary class holds information on periodic boundaries
+ */
 class CPeriodicBoundary
 {
 public:
