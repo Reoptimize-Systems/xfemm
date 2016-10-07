@@ -9,19 +9,6 @@ namespace FPProcdata{
 using std::string;
 
 
-class CPointProp
-{
-    public:
-
-        CPointProp();
-
-        string PointName;
-        double Jr,Ji;            // applied point current, A
-        double Ar,Ai;                // prescribed nodal value;
-
-    private:
-};
-
 class CCircuit
 {
     public:
