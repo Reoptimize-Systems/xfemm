@@ -411,10 +411,10 @@ bool FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<beginpoint>",11)==0)
         {
             PProp.PointName="New Point Property";
-            PProp.Jr=0.;
-            PProp.Ji=0.;
-            PProp.Ar=0.;
-            PProp.Ai=0.;
+            PProp.J.re=0.;
+            PProp.J.im=0.;
+            PProp.A.re=0.;
+            PProp.A.im=0.;
             q[0] = '\0';
         }
 
@@ -444,28 +444,28 @@ bool FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<A_re>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&PProp.Ar);
+            sscanf(v,"%lf",&PProp.A.re);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<A_im>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&PProp.Ai);
+            sscanf(v,"%lf",&PProp.A.im);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_re>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&PProp.Jr);
+            sscanf(v,"%lf",&PProp.J.re);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<I_im>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&PProp.Ji);
+            sscanf(v,"%lf",&PProp.J.im);
             q[0] = '\0';
         }
 
@@ -2184,8 +2184,8 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
                 if (abs(p-(nodelist[j].x+nodelist[j].y*I))<1.e-08)
                     if(nodelist[j].BoundaryMarker>=0)
                     {
-                        if ((nodeproplist[nodelist[j].BoundaryMarker].Jr!=0) ||
-                                (nodeproplist[nodelist[j].BoundaryMarker].Ji!=0))
+                        if ((nodeproplist[nodelist[j].BoundaryMarker].J.re!=0) ||
+                                (nodeproplist[nodelist[j].BoundaryMarker].J.im!=0))
                         {
                             b1[i]=elm.B1;
                             b2[i]=elm.B2;
