@@ -9,39 +9,6 @@ namespace FPProcdata{
 using std::string;
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CBlockLabel -- structure that holds block label information
-
-class CBlockLabel
-{
-    public:
-        CBlockLabel();
-
-        double x,y;
-        double MaxArea;
-        double MagDir;
-        string MagDirFctn;
-        int    Turns;
-        bool IsSelected;
-        int InCircuit;
-        int BlockType;
-        int InGroup;
-        bool IsExternal;
-
-        int Case;
-        CComplex  J,dVolts;
-
-        // attributes used to keep track of wound coil properties...
-        double FillFactor;
-        CComplex o,mu;
-
-        void ToggleSelect();
-        double GetDistance(double xo, double yo);
-
-    private:
-
-};
-
 class CMaterialProp
 {
     public:

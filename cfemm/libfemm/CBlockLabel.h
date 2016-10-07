@@ -98,9 +98,18 @@ class CMBlockLabel : public CSolverBlockLabel
 public:
     CMBlockLabel();
 
+    //---- fsolver attributes:
     // used for proximity effect regions only.
     CComplex ProximityMu;
     bool bIsWound; ///< true, if Turns>1, but also in some other conditions; set by \c FSolver::GetFillFactor()
+
+    //---- fpproc attributes:
+    std::string MagDirFctn;
+    int Case;
+    CComplex  J,dVolts;
+    // attributes used to keep track of wound coil properties...
+    double FillFactor;
+    CComplex o,mu;
 
 private:
 

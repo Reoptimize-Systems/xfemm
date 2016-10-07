@@ -9,46 +9,6 @@
 
 using namespace std;
 
-//////////////////////       CBlockLabel      /////////////////////////////
-
-// CBlockLabel construction
-CBlockLabel::CBlockLabel()
-{
-    x=0.;
-    y=0.;
-    MaxArea=0.;
-    IsSelected=false;
-    InGroup=0;
-    InCircuit=0;
-    BlockType=-1;
-    IsExternal=false;
-
-    Case=0;
-    dVolts=0.;
-    J=0.;
-    FillFactor=1;
-    o=0.;
-    mu=0.;
-}
-
-void CBlockLabel::ToggleSelect()
-{
-    if (IsSelected==true)
-    {
-        IsSelected = false;
-    }
-    else
-    {
-        IsSelected = true;
-    }
-}
-
-double CBlockLabel::GetDistance(double xo, double yo)
-{
-    return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
-}
-
-
 //////////////////////      CMaterialProp     /////////////////////////////
 CMaterialProp::CMaterialProp()
 {
