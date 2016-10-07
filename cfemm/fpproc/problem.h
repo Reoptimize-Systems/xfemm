@@ -9,20 +9,6 @@ namespace FPProcdata{
 using std::string;
 
 
-class CCircuit
-{
-    public:
-
-        CCircuit();
-
-        string CircName;
-        CComplex  Amps;
-        int        CircType;
-
-    private:
-
-};
-
 class CElement
 {
     public:
