@@ -14,6 +14,7 @@
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
+#include "CElement.h"
 #include "CMaterialProp.h"
 #include "CMeshNode.h"
 #include "CNode.h"
@@ -83,7 +84,7 @@ public:
 
     // vectors containing the mesh information
     std::vector< femm::CMeshNode >  meshnode;
-    std::vector< CElement >   meshelem;
+    std::vector< femm::CElement >   meshelem;
 
     // List of elements connected to each node;
     int *NumList;
@@ -100,7 +101,7 @@ public:
 
     // stuff that PTLOC needs
     std::vector< femm::CMeshNode >  *pmeshnode;
-    std::vector< CElement >   *pmeshelem;
+    std::vector< femm::CElement >   *pmeshelem;
 
 //    TriEdge recenttri;
 //    int samples;
@@ -114,15 +115,15 @@ public:
     bool GetPointValues(double x, double y, CPointVals &u);
     bool GetPointValues(double x, double y, int k, CPointVals &u);
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
-    void GetElementB(CElement &elm);
+    void GetElementB(femm::CElement &elm);
     void OnReload();
     void FindBoundaryEdges();
     int ClosestNode(double x, double y);
     CComplex Ctr(int i);
     double ElmArea(int i);
-    double ElmArea(CElement *elm);
-    void GetPointB(double x, double y, CComplex &B1, CComplex &B2, CElement &elm);
-    void GetNodalB(CComplex *b1, CComplex *b2,CElement &elm);
+    double ElmArea(femm::CElement *elm);
+    void GetPointB(double x, double y, CComplex &B1, CComplex &B2, femm::CElement &elm);
+    void GetNodalB(CComplex *b1, CComplex *b2,femm::CElement &elm);
     CComplex BlockIntegral(int inttype);
     void LineIntegral(int inttype, CComplex *z);
     int ClosestArcSegment(double x, double y);
