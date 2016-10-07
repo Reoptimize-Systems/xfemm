@@ -11,7 +11,6 @@
 #include <cmath>
 // include the boost format lib to get nicer string handling capabilies
 //#include "boost/format.hpp"
-#include "problem.h"
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "fparse.h"

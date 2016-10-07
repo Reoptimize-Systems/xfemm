@@ -11,11 +11,11 @@
 #include <cmath>
 #include "mex.h"
 #include "fpproc.h"
-#include "problem.h"
 #include "fpproc_interface.h"
 
 
 using namespace std;
+using femm::CPointVals;
 
 void FPProcInterfaceWarning(const char* warningmsg)
 {

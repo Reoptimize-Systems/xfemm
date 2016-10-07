@@ -17,7 +17,6 @@ endif ()
 add_library(fpproc STATIC 
   fpproc.cpp    
   makemask.cpp
-  problem.cpp
   $<TARGET_OBJECTS:femm>
   )
 
