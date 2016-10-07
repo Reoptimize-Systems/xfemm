@@ -9,22 +9,6 @@ namespace FPProcdata{
 using std::string;
 
 
-class CElement
-{
-    public:
-
-        int p[3];
-        int blk,lbl;
-        CComplex B1,B2;
-        CComplex b1[3],b2[3];
-        double magdir;
-        CComplex ctr;
-        double rsqr;
-        int n[3];  // 3 ints to store elem's neighbouring elements
-
-    private:
-};
-
 class CPointVals
 {
     public:
