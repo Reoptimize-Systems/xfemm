@@ -127,7 +127,7 @@ void CMaterialProp::GetSlopes(double omega)
             for(k=1,bn[i]=0;k<=i;k++)
             {
                 bn[i]+=Re((4.*(Hdata[k]*Bdata[k-1] -
-                        Hdata[k-1]*Bdata[k])*(-cos((Hdata[k-1]*PI)/(2.*Hdata[i])) +
+                           Hdata[k-1]*Bdata[k])*(-cos((Hdata[k-1]*PI)/(2.*Hdata[i])) +
                         cos((Hdata[k]*PI)/(2.*Hdata[i]))) + (-Bdata[k-1] +
                         Bdata[k])*((Hdata[k-1] - Hdata[k])*PI +
                         Hdata[i]*(-sin((Hdata[k-1]*PI)/Hdata[i]) +
@@ -430,13 +430,13 @@ CComplex CMaterialProp::GetdHdB(double B)
 
     for(i=0;i<BHpoints-1;i++)
         if((b>=Bdata[i]) && (b<=Bdata[i+1])){
-        l=(Bdata[i+1]-Bdata[i]);
-        z=(b-Bdata[i])/l;
-        h=6.*z*(z-1.)*Hdata[i]/l +
-                (1.-4.*z+3.*z*z)*slope[i] +
-                6.*z*(1.-z)*Hdata[i+1]/l +
-                z*(3.*z-2.)*slope[i+1];
-        return h;
+            l=(Bdata[i+1]-Bdata[i]);
+            z=(b-Bdata[i])/l;
+            h=6.*z*(z-1.)*Hdata[i]/l +
+                    (1.-4.*z+3.*z*z)*slope[i] +
+                    6.*z*(1.-z)*Hdata[i+1]/l +
+                    z*(3.*z-2.)*slope[i+1];
+            return h;
         }
 
     return CComplex(0);
@@ -462,14 +462,14 @@ CComplex CMaterialProp::GetH(CComplex x)
 
     for(i=0;i<BHpoints-1;i++)
         if((b>=Bdata[i]) && (b<=Bdata[i+1])){
-        l=Bdata[i+1]-Bdata[i];
-        z=(b-Bdata[i])/l;
-        z2=z*z;
-        h=(1.-3.*z2+2.*z2*z)*Hdata[i] +
-                z*(1.-2.*z+z2)*l*slope[i] +
-                z2*(3.-2.*z)*Hdata[i+1] +
-                z2*(z-1.)*l*slope[i+1];
-        return p*h;
+            l=Bdata[i+1]-Bdata[i];
+            z=(b-Bdata[i])/l;
+            z2=z*z;
+            h=(1.-3.*z2+2.*z2*z)*Hdata[i] +
+                    z*(1.-2.*z+z2)*l*slope[i] +
+                    z2*(3.-2.*z)*Hdata[i+1] +
+                    z2*(z-1.)*l*slope[i+1];
+            return p*h;
         }
 
     return 0;
@@ -529,7 +529,7 @@ double CMaterialProp::GetEnergy(double x)
             dh0=Re(slope[i]);
             dh1=Re(slope[i+1]);
             nrg += ((b0 - b1)*((b0 - b1)*(dh0 - dh1) -
-                    6.*(h0 + h1)))/12.;
+                               6.*(h0 + h1)))/12.;
         }
     }
 
@@ -653,7 +653,7 @@ double CMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
 }
 
 void CMaterialProp::GetMu(CComplex b1, CComplex b2,
-        CComplex &mu1, CComplex &mu2)
+                          CComplex &mu1, CComplex &mu2)
 {
     // gets the permeability, given a flux density
     // version for frequency!=0
