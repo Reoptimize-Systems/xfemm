@@ -8,7 +8,6 @@
 #include "lua.h"
 #include "luadebug.h"
 #include "femmcomplex.h"
-#include "problem.h"
 #include "fparse.h"
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
@@ -19,6 +18,7 @@
 #include "CMeshNode.h"
 #include "CNode.h"
 #include "CPointProp.h"
+#include "CPointVals.h"
 #include "CSegment.h"
 
 // extern CFemmApp theApp; //<DP>
@@ -31,8 +31,7 @@
 //#define AXISYMMETRIC 1
 //#endif
 
-using namespace FPProcdata;
-
+using std::string;
 
 class FPProc
 {
@@ -112,8 +111,8 @@ public:
     // member functions
     int InTriangle(double x, double y);
     bool InTriangleTest(double x, double y, int i);
-    bool GetPointValues(double x, double y, CPointVals &u);
-    bool GetPointValues(double x, double y, int k, CPointVals &u);
+    bool GetPointValues(double x, double y, femm::CPointVals &u);
+    bool GetPointValues(double x, double y, int k, femm::CPointVals &u);
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
     void GetElementB(femm::CElement &elm);
     void OnReload();

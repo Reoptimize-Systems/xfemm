@@ -2,7 +2,6 @@
 #include <string>
 #include <cmath>
 #include "fpproc.h"
-#include "problem.h"
 //#include "femm.h"
 //#include "xyplot.h"
 //#include "femmviewDoc.h"
