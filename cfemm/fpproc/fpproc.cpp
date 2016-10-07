@@ -260,7 +260,7 @@ bool FPProc::OpenDocument(string pathname)
     CSolverSegment      segm;
     CSolverArcSegment   asegm;
     CElement      elm;
-    CBlockLabel   blk;
+    CMBlockLabel   blk;
     CMeshNode     mnode;
     //CPoint        mline;
 
@@ -3921,7 +3921,7 @@ void FPProc::GetFillFactor(int lbl)
     // post-processing the voltage.
 
     CMaterialProp* bp= &blockproplist[blocklist[lbl].BlockType];
-    CBlockLabel* bl= &blocklist[lbl];
+    CMBlockLabel* bl= &blocklist[lbl];
     double lc=LengthConv[LengthUnits]*LengthConv[LengthUnits];
     double atot,awire,w,d,o,fill,dd,W,R,c1,c2,c3,c4;
     atot=awire=w=d=o=fill=dd=W=R=c1=c2=c3=c4=0;

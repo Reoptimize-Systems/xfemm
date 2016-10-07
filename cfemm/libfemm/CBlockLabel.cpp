@@ -54,5 +54,12 @@ CMBlockLabel::CMBlockLabel()
     : CSolverBlockLabel()
     , ProximityMu(0)
     , bIsWound(false)
+    , MagDirFctn()
+    , Case(0)
+    , J(0.)
+    , dVolts(0.)
+    , FillFactor(1)
+    , o(0.)
+    , mu(0.)
 {
 }
