@@ -603,8 +603,7 @@ bool FPProc::OpenDocument(string pathname)
             MProp.mu_x=1.;
             MProp.mu_y=1.;            // permeabilities, relative
             MProp.H_c=0.;                // magnetization, A/m
-            MProp.Jr=0.;
-            MProp.Ji=0.;                // applied current density, MA/m^2
+            MProp.J=0.;                // applied current density, MA/m^2
             MProp.Cduct=0.;            // conductivity of the material, MS/m
             MProp.Lam_d=0.;            // lamination thickness, mm
             MProp.Theta_hn=0.;            // hysteresis angle, degrees
@@ -665,14 +664,14 @@ bool FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<J_re>",6)==0)
         {
             v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Jr);
+            sscanf(v,"%lf",&MProp.J.re);
             q[0] = '\0';
         }
 
         if( _strnicmp(q,"<J_im>",6)==0)
         {
             v=StripKey(s);
-            if (Frequency!=0) sscanf(v,"%lf",&MProp.Ji);
+            if (Frequency!=0) sscanf(v,"%lf",&MProp.J.im);
             q[0] = '\0';
         }
 
@@ -1681,7 +1680,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
         u.H1 = u.B1/(Re(u.mu1)*muo);
         u.H2 = u.B2/(Re(u.mu2)*muo);
         u.Je = 0;
-        u.Js = blockproplist[meshelem[k].blk].Jr;
+        u.Js = blockproplist[meshelem[k].blk].J.re;
         lbl  = meshelem[k].lbl;
         j = blocklist[lbl].InCircuit;
         if(j>=0)
@@ -1818,8 +1817,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
         u.H1 = u.B1/(u.mu1*muo);
         u.H2 = u.B2/(u.mu2*muo);
 
-        u.Js=blockproplist[meshelem[k].blk].Jr +
-             I*blockproplist[meshelem[k].blk].Ji;
+        u.Js=blockproplist[meshelem[k].blk].J;
         lbl=meshelem[k].lbl;
         j=blocklist[lbl].InCircuit;
         if(j>=0)
@@ -2712,8 +2710,8 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
     if(problemType==AXISYMMETRIC) r = Re(Ctr(k))*LengthConv[LengthUnits];
 
     // contribution from explicitly specified J
-    for(i=0; i<3; i++) J[i]=blockproplist[blk].Jr+I*blockproplist[blk].Ji;
-    Javg=blockproplist[blk].Jr+I*blockproplist[blk].Ji;
+    for(i=0; i<3; i++) J[i]=blockproplist[blk].J;
+    Javg=blockproplist[blk].J;
 
     c=blockproplist[blk].Cduct;
     if ((blockproplist[blk].Lam_d!=0) && (blockproplist[blk].LamType==0)) c=0;

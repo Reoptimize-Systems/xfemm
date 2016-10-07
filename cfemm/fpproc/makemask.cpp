@@ -118,7 +118,7 @@ bool FPProc::MakeMask()
 		if(blockproplist[i].BHpoints!=0) k=1;
 		if(blockproplist[i].LamType!=0) k=1;
 		if(blockproplist[i].H_c!=0) k=1;
-		if((blockproplist[i].Jr!=0) || (blockproplist[i].Ji!=0)) k=1;
+        if((blockproplist[i].J.re!=0) || (blockproplist[i].J.im!=0)) k=1;
 		if(blockproplist[i].Cduct!=0) k=1;
 		if((blockproplist[i].Theta_hn!=0) ||
 		   (blockproplist[i].Theta_hx!=0) ||

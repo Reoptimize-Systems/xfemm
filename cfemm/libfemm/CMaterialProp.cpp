@@ -22,8 +22,7 @@ CMaterialProp::CMaterialProp()
     slope=NULL;
     H_c=0.;                // magnetization, A/m
     Nrg=0.;
-    Jr=0.;
-    Ji=0.;                // applied current density, MA/m^2
+    J=0.;
     Cduct=0.;            // conductivity of the material, MS/m
     Lam_d=0.;            // lamination thickness, mm
     Theta_hn=0.;        // hysteresis angle, degrees
@@ -72,8 +71,7 @@ CMaterialProp::CMaterialProp( const CMaterialProp& other )
 
     H_c = other.H_c;                // magnetization, A/m
     Nrg = other.Nrg;
-    Jr = other.Jr;
-    Ji = other.Ji;                // applied current density, MA/m^2
+    J = other.J;
     Cduct = other.Cduct;            // conductivity of the material, MS/m
     Lam_d = other.Lam_d;            // lamination thickness, mm
     Theta_hn = other.Theta_hn;        // hysteresis angle, degrees

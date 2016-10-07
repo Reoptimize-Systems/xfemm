@@ -50,7 +50,7 @@ public:
     double LamFill;         // lamination fill factor, dimensionless;
     double H_c;             // magnetization, A/m
     double Nrg;
-    double Jr,Ji;           // applied current density, MA/m^2
+    CComplex J;             // applied current density, MA/m^2
     double Cduct;           // conductivity of the material, MS/m
     double Lam_d;           // lamination thickness, mm
     double Theta_hn;        // hysteresis angle, degrees
