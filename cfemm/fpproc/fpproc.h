@@ -13,6 +13,7 @@
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
+#include "CCircuit.h"
 #include "CMaterialProp.h"
 #include "CMeshNode.h"
 #include "CNode.h"
@@ -92,7 +93,7 @@ public:
     std::vector< femm::CMaterialProp > blockproplist;
     std::vector< femm::CMBoundaryProp > lineproplist;
     std::vector< femm::CPointProp >    nodeproplist;
-    std::vector< CCircuit >      circproplist;
+    std::vector< femm::CCircuit >      circproplist;
 
     // list of points in a user-defined contour;
     std::vector< CComplex > contour;
