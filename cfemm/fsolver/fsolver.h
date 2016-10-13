@@ -32,6 +32,7 @@
 #include "mmesh.h"
 #include "cspars.h"
 #include "CBlockLabel.h"
+#include "CCircuit.h"
 #include "CNode.h"
 #include "CPointProp.h"
 
@@ -56,7 +57,7 @@ public:
     CMMaterialProp  *blockproplist;
     femm::CMBoundaryProp  *lineproplist;
     femm::CPointProp      *nodeproplist;
-    std::vector<CMCircuit> circproplist;
+    std::vector<femm::CMCircuit> circproplist;
     femm::CMBlockLabel    *labellist;
 
 // Operations

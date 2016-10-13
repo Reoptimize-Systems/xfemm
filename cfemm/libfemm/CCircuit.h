@@ -41,5 +41,25 @@ class CCircuit
     private:
 
 };
+
+/**
+ * @brief The CMCircuit class specializes a CCircuit for the fsolver component.
+ */
+class CMCircuit : public femm::CCircuit
+{
+public:
+    CMCircuit();
+
+    CComplex dVolts;
+    int OrigCirc;
+
+    // some member variables used to store some results
+    CComplex J;
+    CComplex dV;
+    int Case;
+
+private:
+};
+
 }
 #endif
