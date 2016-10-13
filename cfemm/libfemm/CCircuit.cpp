@@ -15,3 +15,13 @@ CCircuit::CCircuit()
     , Amps()
 {
 }
+
+CMCircuit::CMCircuit()
+    : CCircuit(),
+      dVolts(),
+      OrigCirc(0),
+      J(),
+      dV(),
+      Case(0)
+{
+}

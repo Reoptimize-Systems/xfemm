@@ -25,8 +25,7 @@
 
 #include "mesh.h"
 #include "femmcomplex.h"
-#include "CBoundaryProp.h"
-#include "CCircuit.h"
+#include "CMaterialProp.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CBoundaryProp, CPointProp
@@ -73,29 +72,5 @@ public:
 private:
 };
 
-
-class CMCircuit : public femm::CCircuit
-{
-public:
-    CMCircuit()
-        : femm::CCircuit(),
-          dVolts(),
-          OrigCirc(0),
-          J(),
-          dV(),
-          Case(0)
-    {
-    }
-
-    CComplex dVolts;
-    int OrigCirc;
-
-    // some member variables used to store some results
-    CComplex J;
-    CComplex dV;
-    int Case;
-
-private:
-};
 
 #endif
