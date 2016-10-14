@@ -10,16 +10,16 @@ class CMaterialProp
 public:
 
     CMaterialProp();
-    ~CMaterialProp();
+    virtual ~CMaterialProp();
     // copy constructor
     CMaterialProp( const CMaterialProp& other );
 
-    void GetSlopes(double omega);
-    CComplex LaminatedBH(double w, int i);
+    virtual void GetSlopes(double omega=0.);
+    virtual CComplex LaminatedBH(double w, int i);
 
     double GetH(double b);
     CComplex GetH(CComplex b);            // ``raw'' results
-    CComplex GetdHdB(double B);
+    virtual CComplex GetdHdB(double B);
     double GetB(double h);
 
     void GetMu(double b1,double b2,double &mu1, double &mu2);
