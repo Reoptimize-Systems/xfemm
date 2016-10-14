@@ -92,8 +92,6 @@ class CElement
 		double rsqr;
 		int n[3];  // Add 3 ints to store elem's neigh.
 
-		CComplex E();
-
 	private:
 };
 
