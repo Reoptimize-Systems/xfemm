@@ -27,47 +27,25 @@
 #include "femmcomplex.h"
 #include "CMaterialProp.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// Classes that hold property data:  CMaterialProp, CBoundaryProp, CPointProp
-class CMMaterialProp
+class CMMaterialProp : public femm::CMaterialProp
 {
     // Properties
 public:
 
-    double mu_x,mu_y;		// permeabilities, relative
-    int BHpoints;
-    double   *Bdata;
-    CComplex *Hdata;
-    CComplex *slope;
-    double H_c;				// magnetization, A/m
     double Theta_m;			// orientation of magnetization, degrees
-    //double Jr,Ji;			// applied current density, MA/m^2
-    CComplex J;
-    double Cduct;		    // conductivity of the material, MS/m
-    double Lam_d;			// lamination thickness, mm
-    double Theta_hn;		// hysteresis angle, degrees
-    double Theta_hx;		// hysteresis angle, degrees
-    double Theta_hy;		// hysteresis angle, degrees
-    int LamType;			// lamination type/orientation
-    double LamFill;			// lamination fill factor;
-    double WireD;			// strand diameter, mm
-    int NStrands;			// number of strands per wire
 
     // Methods
 public:
 
     CMMaterialProp();
-    ~CMMaterialProp();
+    virtual ~CMMaterialProp();
     CMMaterialProp( const CMMaterialProp & );
-    void GetSlopes();
-    void GetSlopes(double omega);
-    CComplex GetH(double B);
-    CComplex GetdHdB(double B);
+    CComplex GetH(double B); // ill-matched override
     CComplex Get_dvB2(double B);
     CComplex Get_v(double B);
     void GetBHProps(double B, CComplex &v, CComplex &dv);
     void GetBHProps(double B, double &v, double &dv);
-    CComplex LaminatedBH(double omega, int i);
+    virtual CComplex LaminatedBH(double omega, int i) override;
 
 private:
 };
