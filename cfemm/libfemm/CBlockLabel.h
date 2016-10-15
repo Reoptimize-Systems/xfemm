@@ -93,10 +93,10 @@ public:
     int selectFlag;
 };
 
-class CMBlockLabel : public CSolverBlockLabel
+class CMSolverBlockLabel : public CSolverBlockLabel
 {
 public:
-    CMBlockLabel();
+    CMSolverBlockLabel();
 
     //---- fsolver attributes:
     // used for proximity effect regions only.

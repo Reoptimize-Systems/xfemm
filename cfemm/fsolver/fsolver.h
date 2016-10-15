@@ -58,7 +58,7 @@ public:
     femm::CMBoundaryProp  *lineproplist;
     femm::CPointProp      *nodeproplist;
     std::vector<femm::CMCircuit> circproplist;
-    femm::CMBlockLabel    *labellist;
+    femm::CMSolverBlockLabel    *labellist;
 
 // Operations
 public:
