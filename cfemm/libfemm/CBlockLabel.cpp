@@ -50,7 +50,7 @@ CMesherBlockLabel::CMesherBlockLabel()
 {
 }
 
-CMBlockLabel::CMBlockLabel()
+CMSolverBlockLabel::CMSolverBlockLabel()
     : CSolverBlockLabel()
     , ProximityMu(0)
     , bIsWound(false)

@@ -79,7 +79,7 @@ public:
     std::vector< femm::CSolverNode >       nodelist;
     std::vector< femm::CSolverSegment >    linelist;
     std::vector< femm::CSolverArcSegment > arclist;
-    std::vector< femm::CMBlockLabel > blocklist;
+    std::vector< femm::CMSolverBlockLabel > blocklist;
 
     // vectors containing the mesh information
     std::vector< femm::CMeshNode >  meshnode;

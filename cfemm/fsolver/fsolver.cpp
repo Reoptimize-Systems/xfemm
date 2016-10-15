@@ -104,7 +104,7 @@ int FSolver::LoadProblemFile ()
     CMBoundaryProp   BProp;
     CMMaterialProp    MProp;
     CMCircuit        CProp;
-    CMBlockLabel     blk;
+    CMSolverBlockLabel     blk;
 
     sprintf(s,"%s.fem", PathName.c_str() );
     if ((fp=fopen(s,"rt"))==NULL)
@@ -627,7 +627,7 @@ int FSolver::LoadProblemFile ()
             int i;
             v=StripKey(s);
             sscanf(v,"%i",&k);
-            if (k>0) labellist=new CMBlockLabel[k];
+            if (k>0) labellist=new CMSolverBlockLabel[k];
             NumBlockLabels=k;
             for(i=0; i<k; i++)
             {
@@ -992,7 +992,7 @@ void FSolver::GetFillFactor(int lbl)
     // post-processing the voltage.
 
     CMMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
-    CMBlockLabel* bl= &labellist[lbl];
+    CMSolverBlockLabel* bl= &labellist[lbl];
     double atot,awire=0,d,o,fill,dd,W,R=0,c1,c2;
     int i,wiretype;
     CComplex ufd,ofd;
