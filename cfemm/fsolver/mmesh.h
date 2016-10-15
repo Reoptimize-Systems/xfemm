@@ -27,6 +27,8 @@
 #include "femmcomplex.h"
 #include "CMaterialProp.h"
 
+namespace fsolver {
+
 class CMMaterialProp : public femm::CMaterialProp
 {
     // Properties
@@ -49,6 +51,8 @@ public:
 
 private:
 };
+
+}
 
 
 #endif

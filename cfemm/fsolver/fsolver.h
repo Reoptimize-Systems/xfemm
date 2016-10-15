@@ -54,7 +54,7 @@ public:
     femm::CSolverNode *meshnode;
     int NumCircPropsOrig;
 
-    CMMaterialProp  *blockproplist;
+    fsolver::CMMaterialProp  *blockproplist;
     femm::CMBoundaryProp  *lineproplist;
     femm::CPointProp      *nodeproplist;
     std::vector<femm::CMCircuit> circproplist;
