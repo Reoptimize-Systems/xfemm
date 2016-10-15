@@ -29,6 +29,7 @@
 
 #define ElementsPerSkinDepth 10
 
+using fsolver::CMMaterialProp;
 
 CMMaterialProp::~CMMaterialProp()
 {

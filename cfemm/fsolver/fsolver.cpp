@@ -41,6 +41,7 @@
 
 using namespace std;
 using namespace femm;
+using fsolver::CMMaterialProp;
 
 /////////////////////////////////////////////////////////////////////////////
 // FSolver construction/destruction
