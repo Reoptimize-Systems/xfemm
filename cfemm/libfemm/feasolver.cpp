@@ -64,7 +64,7 @@ FEASolver::FEASolver()
     LengthUnits = 0;
     ProblemType = PLANAR;
     DoForceMaxMeshArea = false;
-    Coords = 0;
+    Coords = CART;
     BandWidth = 0;
     NumNodes = 0;
     NumEls = 0;

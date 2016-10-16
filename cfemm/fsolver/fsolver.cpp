@@ -118,7 +118,7 @@ int FSolver::LoadProblemFile ()
     Precision=1.e-08;
     Relax=1.;
     ProblemType=PLANAR;
-    Coords=0;
+    Coords=CART;
     NumPointProps=0;
     NumLineProps=0;
     NumBlockProps=0;
@@ -205,8 +205,8 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%s",q);
-            if ( _strnicmp(q,"cartesian",4)==0) Coords=0;
-            if ( _strnicmp(q,"polar",5)==0) Coords=1;
+            if ( _strnicmp(q,"cartesian",4)==0) Coords=CART;
+            if ( _strnicmp(q,"polar",5)==0) Coords=POLAR;
             q[0] = '\0';
         }
 

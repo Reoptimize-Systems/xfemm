@@ -57,8 +57,8 @@ public:
     double  Precision;
     int		LengthUnits;
     int		ACSolver;
-    femm::ProblemType     ProblemType;
-    int	    Coords;
+    femm::ProblemType ProblemType;
+    femm::CoordsType  Coords;
     bool    DoForceMaxMeshArea;
     bool    bMultiplyDefinedLabels;
 
