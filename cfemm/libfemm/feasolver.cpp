@@ -62,7 +62,7 @@ FEASolver::FEASolver()
 {
     Precision = 0;
     LengthUnits = 0;
-    ProblemType = 0;
+    ProblemType = PLANAR;
     DoForceMaxMeshArea = false;
     Coords = 0;
     BandWidth = 0;
