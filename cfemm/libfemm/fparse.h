@@ -10,7 +10,7 @@ namespace femm
 enum ProblemType { PLANAR = 0, AXISYMMETRIC = 1};
 
 // define an enum for the coordinate system type of a problem
-enum CoordsType { CART, POLAR };
+enum CoordsType { CART = 0, POLAR = 1 };
 
 // Unit "lfac" for lengths
 enum LengthUnit {
