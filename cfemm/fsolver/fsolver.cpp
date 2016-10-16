@@ -181,12 +181,12 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%s",q);
-            if( _strnicmp(q,"inches",6)==0) LengthUnits=0;
-            else if( _strnicmp(q,"millimeters",11)==0) LengthUnits=1;
-            else if( _strnicmp(q,"centimeters",1)==0) LengthUnits=2;
-            else if( _strnicmp(q,"mils",4)==0) LengthUnits=4;
-            else if( _strnicmp(q,"microns",6)==0) LengthUnits=5;
-            else if( _strnicmp(q,"meters",6)==0) LengthUnits=3;
+            if( _strnicmp(q,"inches",6)==0) LengthUnits=LengthInches;
+            else if( _strnicmp(q,"millimeters",11)==0) LengthUnits=LengthMillimeters;
+            else if( _strnicmp(q,"centimeters",1)==0) LengthUnits=LengthCentimeters;
+            else if( _strnicmp(q,"mils",4)==0) LengthUnits=LengthMils;
+            else if( _strnicmp(q,"microns",6)==0) LengthUnits=LengthMicrometers;
+            else if( _strnicmp(q,"meters",6)==0) LengthUnits=LengthMeters;
             q[0] = '\0';
         }
 
@@ -760,7 +760,6 @@ int FSolver::LoadMesh(bool deleteFiles)
     char infile[256];
     FILE *fp;
     char s[1024];
-    double c[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
 
 
     //read meshnodes;
@@ -786,8 +785,8 @@ int FSolver::LoadMesh(bool deleteFiles)
         node.BoundaryMarker=j;
 
         // convert all lengths to centimeters (better conditioning this way...)
-        node.x *= c[LengthUnits];
-        node.y *= c[LengthUnits];
+        node.x *= 100 * LengthConv[LengthUnits];
+        node.y *= 100 * LengthConv[LengthUnits];
 
         meshnode[i] = node;
     }

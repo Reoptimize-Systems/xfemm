@@ -61,7 +61,7 @@ using namespace femm;
 FEASolver::FEASolver()
 {
     Precision = 0;
-    LengthUnits = 0;
+    LengthUnits = LengthInches;
     ProblemType = PLANAR;
     DoForceMaxMeshArea = false;
     Coords = CART;

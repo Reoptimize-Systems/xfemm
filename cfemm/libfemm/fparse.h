@@ -22,6 +22,7 @@ enum LengthUnit {
     LengthMicrometers = 5
 };
 
+// Conversion table to meters:
 const double LengthConv[6] =
 {
     0.0254,   //inches

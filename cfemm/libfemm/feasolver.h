@@ -55,7 +55,7 @@ public:
 
     // General problem attributes
     double  Precision;
-    int		LengthUnits;
+    femm::LengthUnit  LengthUnits;
     int		ACSolver;
     femm::ProblemType ProblemType;
     femm::CoordsType  Coords;
