@@ -38,7 +38,14 @@
 #include "CBoundaryProp.h"
 
 
-class HSolver : public FEASolver
+class HSolver : public FEASolver<
+        CHPointProp
+        , femm::CHBoundaryProp
+        , CHMaterialProp
+        , CHConductor
+        , femm::CMSolverBlockLabel
+        , femm::CSolverNode
+        >
 {
 
 // Attributes

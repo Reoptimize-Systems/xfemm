@@ -30,7 +30,15 @@
 //#include "spars.h"
 #include "feasolver.h"
 
-int FEASolver::SortElements()
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::SortElements()
 {
     // Comb Sort -- see http://en.wikipedia.org/wiki/Comb_sort
     int *Score;
@@ -79,7 +87,15 @@ int FEASolver::SortElements()
     return true;
 }
 
-int FEASolver::Cuthill(bool deletefiles)
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::Cuthill(bool deletefiles)
 {
 
     FILE *fp;

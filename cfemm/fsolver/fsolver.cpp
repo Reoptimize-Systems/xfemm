@@ -27,13 +27,25 @@
 #include <stdlib.h>
 #include <cstring>
 #include <malloc.h>
-#include "lua.h"
 #include "femmcomplex.h"
 #include "spars.h"
 #include "fparse.h"
 #include "fsolver.h"
 #include "mmesh.h"
 #include "CNode.h"
+#include "lua.h"
+
+// template instantiation:
+#include "../libfemm/feasolver.cpp"
+#include "../libfemm/cuthill.cpp"
+template class FEASolver<
+        femm::CPointProp
+        , femm::CMBoundaryProp
+        , fsolver::CMMaterialProp
+        , femm::CMCircuit
+        , femm::CMSolverBlockLabel
+        , femm::CSolverNode
+        >;
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -43,6 +55,19 @@ using namespace std;
 using namespace femm;
 using fsolver::CMMaterialProp;
 
+extern lua_State *lua; // the main lua object
+
+extern void lua_baselibopen (lua_State *L);
+extern void lua_iolibopen (lua_State *L);
+extern void lua_strlibopen (lua_State *L);
+extern void lua_mathlibopen (lua_State *L);
+extern void lua_dblibopen (lua_State *L);
+extern int bLinehook;
+extern int lua_byebye;
+
+lua_State *lua;
+int bLinehook;
+int lua_byebye;
 /////////////////////////////////////////////////////////////////////////////
 // FSolver construction/destruction
 
@@ -64,10 +89,20 @@ FSolver::FSolver()
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
+
+    // Initialize Lua
+    bLinehook = false;
+    bMultiplyDefinedLabels = false;
+    lua = lua_open(4096);
+    lua_baselibopen(lua);
+    lua_strlibopen(lua);
+    lua_mathlibopen(lua);
+    lua_iolibopen(lua);
 }
 
 FSolver::~FSolver()
 {
+    lua_close(lua);
     CleanUp();
 }
 

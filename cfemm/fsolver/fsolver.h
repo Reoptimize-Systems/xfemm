@@ -36,7 +36,14 @@
 #include "CNode.h"
 #include "CPointProp.h"
 
-class FSolver : public FEASolver
+class FSolver : public FEASolver<
+        femm::CPointProp
+        , femm::CMBoundaryProp
+        , fsolver::CMMaterialProp
+        , femm::CMCircuit
+        , femm::CMSolverBlockLabel
+        , femm::CSolverNode
+        >
 {
 
 // Attributes
