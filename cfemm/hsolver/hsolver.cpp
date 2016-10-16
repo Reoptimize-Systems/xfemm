@@ -33,13 +33,25 @@
 #include <stdlib.h>
 #include <cstring>
 #include <malloc.h>
-#include "lua.h"
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "hmesh.h"
 #include "hspars.h"
 #include "fparse.h"
 #include "hsolver.h"
+#include "lua.h"
+
+// template instantiation:
+#include "../libfemm/feasolver.cpp"
+#include "../libfemm/cuthill.cpp"
+template class FEASolver<
+        CHPointProp
+        , femm::CHBoundaryProp
+        , CHMaterialProp
+        , CHConductor
+        , femm::CMSolverBlockLabel
+        , femm::CSolverNode
+        >;
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -49,18 +61,19 @@
 double units[]={0.0254,0.001,0.01,1,2.54e-5,1.e-6};
 double sq(double x){ return x*x; }
 
-//extern void lua_baselibopen (lua_State *L);
-//extern void lua_iolibopen (lua_State *L);
-//extern void lua_strlibopen (lua_State *L);
-//extern void lua_mathlibopen (lua_State *L);
-//extern void lua_dblibopen (lua_State *L);
-//extern lua_State *lua; // the main lua object
-//extern int bLinehook;
-//extern int lua_byebye;
-//
-//lua_State *lua;
-//int bLinehook;
-//int lua_byebye;
+extern lua_State *lua; // the main lua object
+
+extern void lua_baselibopen (lua_State *L);
+extern void lua_iolibopen (lua_State *L);
+extern void lua_strlibopen (lua_State *L);
+extern void lua_mathlibopen (lua_State *L);
+extern void lua_dblibopen (lua_State *L);
+extern int bLinehook;
+extern int lua_byebye;
+
+lua_State *lua;
+int bLinehook;
+int lua_byebye;
 
 using namespace std;
 using namespace femm;
@@ -82,10 +95,19 @@ HSolver::HSolver()
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
 
+    // Initialize Lua
+    bLinehook = false;
+    bMultiplyDefinedLabels = false;
+    lua = lua_open(4096);
+    lua_baselibopen(lua);
+    lua_strlibopen(lua);
+    lua_mathlibopen(lua);
+    lua_iolibopen(lua);
 }
 
 HSolver::~HSolver()
 {
+    lua_close(lua);
     CleanUp();
 }
 

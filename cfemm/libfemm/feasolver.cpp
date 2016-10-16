@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <cstring>
 #include <malloc.h>
-#include "lua.h"
 #include "femmcomplex.h"
 #include "mesh.h"
 #include "spars.h"
@@ -38,27 +37,21 @@
 #define _strnicmp strncasecmp
 #endif
 
-extern lua_State *lua; // the main lua object
-
-extern void lua_baselibopen (lua_State *L);
-extern void lua_iolibopen (lua_State *L);
-extern void lua_strlibopen (lua_State *L);
-extern void lua_mathlibopen (lua_State *L);
-extern void lua_dblibopen (lua_State *L);
-extern int bLinehook;
-extern int lua_byebye;
-
-lua_State *lua;
-int bLinehook;
-int lua_byebye;
-
 using namespace std;
 using namespace femm;
 
 /////////////////////////////////////////////////////////////////////////////
 // FEASolver construction/destruction
 
-FEASolver::FEASolver()
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::FEASolver()
 {
     Precision = 0;
     LengthUnits = LengthInches;
@@ -76,7 +69,6 @@ FEASolver::FEASolver()
     NumBlockLabels = 0;
 
     meshele = NULL;
-    lineproplist = NULL;
     pbclist = NULL;
 
     extRo = extRi = extZo = 0.0;
@@ -84,26 +76,18 @@ FEASolver::FEASolver()
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
-
-    // Initialize Lua
-    bLinehook = false;
-    bMultiplyDefinedLabels = false;
-    lua = lua_open(4096);
-    lua_baselibopen(lua);
-    lua_strlibopen(lua);
-    lua_mathlibopen(lua);
-    lua_iolibopen(lua);
 }
 
-FEASolver::~FEASolver()
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::~FEASolver()
 {
-
-    lua_close(lua);
-
-    if (lineproplist != NULL)
-    {
-        free(lineproplist);
-    }
 
     if (meshele != NULL)
     {

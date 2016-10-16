@@ -44,6 +44,13 @@ enum LoadMeshErr
   MISSINGMATPROPS
 };
 
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
 class FEASolver
 {
 
@@ -51,7 +58,7 @@ class FEASolver
 public:
 
     FEASolver();
-    ~FEASolver();
+    virtual ~FEASolver();
 
     // General problem attributes
     double  Precision;
@@ -80,12 +87,17 @@ public:
     int NumCircProps;
     int NumBlockLabels;
 
-    femm::CBoundaryProp	*lineproplist;
     femm::CCommonPoint	*pbclist;
 
     // string to hold the location of the files
     std::string PathName;
 
+    //std::vector< PointPropT > nodeProps;
+    //std::vector< BoundaryPropT > lineProps;
+    //std::vector< BlockPropT > blockProps;
+    //std::vector< CircuitPropT > circProps;
+    //std::vector< BlockLabelT > labels;
+    //std::vector< NodeT > nodes;
 // Operations
 public:
 
