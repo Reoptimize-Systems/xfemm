@@ -27,6 +27,8 @@
 #define FEASOLVER_H
 
 #include <string>
+
+#include "fparse.h"
 #include "mesh.h"
 #include "spars.h"
 #include "CBoundaryProp.h"
@@ -55,7 +57,7 @@ public:
     double  Precision;
     int		LengthUnits;
     int		ACSolver;
-    int     ProblemType;
+    femm::ProblemType     ProblemType;
     int	    Coords;
     bool    DoForceMaxMeshArea;
     bool    bMultiplyDefinedLabels;

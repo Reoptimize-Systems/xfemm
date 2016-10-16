@@ -117,7 +117,7 @@ int FSolver::LoadProblemFile ()
     Frequency=0.;
     Precision=1.e-08;
     Relax=1.;
-    ProblemType=0;
+    ProblemType=PLANAR;
     Coords=0;
     NumPointProps=0;
     NumLineProps=0;
@@ -195,8 +195,8 @@ int FSolver::LoadProblemFile ()
         {
             v=StripKey(s);
             sscanf(v,"%s",q);
-            if( _strnicmp(q,"planar",6)==0) ProblemType=0;
-            if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=1;
+            if( _strnicmp(q,"planar",6)==0) ProblemType=PLANAR;
+            if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=AXISYMMETRIC;
             q[0] = '\0';
         }
 

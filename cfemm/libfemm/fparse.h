@@ -7,7 +7,7 @@ namespace femm
 {
 
 // define an enum for the problem type
-enum ProblemType { PLANAR, AXISYMMETRIC };
+enum ProblemType { PLANAR = 0, AXISYMMETRIC = 1};
 
 // define an enum for the coordinate system type of a problem
 enum CoordsType { CART, POLAR };
