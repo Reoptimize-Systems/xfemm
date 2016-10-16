@@ -48,7 +48,6 @@ public:
     // General problem attributes
     double  Frequency;
     double  Relax;
-    int		ACSolver;
 
     // mesh information
     femm::CSolverNode *meshnode;
