@@ -38,91 +38,90 @@ CMBoundaryProp::CMBoundaryProp()
     c1 = 0.;
 }
 
-CMBoundaryProp *CMBoundaryProp::fromStream(std::istream &input, std::ostream &err)
+CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err)
 {
-    CMBoundaryProp *prop = NULL;
+    CMBoundaryProp prop;
 
     if( parseToken(input, "<beginbdry>", err) )
     {
         string token;
-        prop = new CMBoundaryProp;
         while (input.good() && token != "<endbdry>")
         {
             nextToken(input,&token);
             if( token == "<bdrytype>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->BdryFormat;
+                input >> prop.BdryFormat;
                 continue;
             }
 
             if( token == "<mu_ssd>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Mu;
+                input >> prop.Mu;
                 continue;
             }
 
             if( token == "<sigma_ssd>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Sig;
+                input >> prop.Sig;
                 continue;
             }
 
             if( token == "<a_0>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->A0;
+                input >> prop.A0;
                 continue;
             }
 
             if( token == "<a_1>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->A1;
+                input >> prop.A1;
                 continue;
             }
 
             if( token == "<a_2>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->A2;
+                input >> prop.A2;
                 continue;
             }
 
             if( token == "<phi>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->phi;
+                input >> prop.phi;
                 continue;
             }
 
             if( token == "<c0>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->c0.re;
+                input >> prop.c0.re;
                 continue;
             }
 
             if( token == "<c1>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->c1.re;
+                input >> prop.c1.re;
                 continue;
             }
 
             if( token == "<c0i>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->c0.im;
+                input >> prop.c0.im;
                 continue;
             }
 
             if( token == "<c1i>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->c1.im;
+                input >> prop.c1.im;
                 continue;
             }
             err << "\nUnexpected token: "<<token;
@@ -142,3 +141,64 @@ CHBoundaryProp::CHBoundaryProp()
 {
 
 }
+
+CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
+{
+    CHBoundaryProp prop;
+
+    if( parseToken(input, "<beginbdry>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endbdry>")
+        {
+            nextToken(input,&token);
+            if( token == "<bdrytype>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.BdryFormat;
+                continue;
+            }
+
+            if( token == "<tset>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.Tset;
+                continue;
+            }
+
+            if( token == "<qs>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.qs;
+                continue;
+            }
+
+            if( token == "<beta>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.beta;
+                continue;
+            }
+
+            if( token == "<h>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.h;
+                continue;
+            }
+
+            if( token == "<tinf>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.Tinf;
+                continue;
+            }
+
+            err << "\nUnexpected token: "<<token;
+        }
+    }
+
+    return prop;
+}
+
+

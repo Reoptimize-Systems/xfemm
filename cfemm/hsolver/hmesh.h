@@ -33,6 +33,8 @@
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
 
+#include <iostream>
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CHBoundaryProp, CPointProp
@@ -58,12 +60,26 @@ public:
     CHMaterialProp( const CHMaterialProp & );
     CComplex GetK(double t);
 
+    /**
+     * @brief fromStream constructs a CHMaterialProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHMaterialProp
+     */
+    static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 
 class CHPointProp
 {
 public:
+    /**
+     * @brief fromStream constructs a CHPointProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHPointProp
+     */
+    static CHPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     double V,qp;
 
@@ -74,9 +90,35 @@ class CHConductor : public femm::CCircuit
 {
 public:
 
-    double V,q;
+    /**
+     * @brief V thermal conductivity(?)
+     *
+     * Unit: ?
+     * \verbatim
+     * <tc>
+     * \endverbatim
+     */
+    double V;
+    /**
+     * @brief q
+     *
+     * Unit: ?
+     * \verbatim
+     * <qc>
+     * \endverbatim
+     */
+    double q;
 
+    /**
+     * @brief fromStream constructs a CHConductor from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHConductor
+     */
+    static CHConductor fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 
 #endif
+
+

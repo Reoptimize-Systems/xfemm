@@ -22,9 +22,6 @@ CMaterialProp::CMaterialProp()
     mu_x=1.;
     mu_y=1.;            // permeabilities, relative
     BHpoints=0;
-    Bdata=NULL;
-    Hdata=NULL;
-    slope=NULL;
     H_c=0.;                // magnetization, A/m
     Nrg=0.;
     J=0.;
@@ -41,9 +38,6 @@ CMaterialProp::CMaterialProp()
 
 CMaterialProp::~CMaterialProp()
 {
-    if (Bdata!=NULL)    free(Bdata);
-    if (Hdata!=NULL)    free(Hdata);
-    if (slope!=NULL)    free(slope);
 }
 
 CMaterialProp::CMaterialProp( const CMaterialProp& other )
@@ -53,26 +47,11 @@ CMaterialProp::CMaterialProp( const CMaterialProp& other )
     mu_y = other.mu_y;            // permeabilities, relative
     BHpoints = other.BHpoints;
 
-    if (BHpoints == 0)
-    {
-        Bdata = NULL;
-        Hdata = NULL;
-        slope = NULL;
-    }
-    else
-    {
-        // we must do a deep copy of the data
-        Hdata=(CComplex *)calloc(other.BHpoints,sizeof(CComplex));
-        Bdata=(double *)calloc(other.BHpoints,sizeof(double));
-        slope=(CComplex *)calloc(other.BHpoints,sizeof(CComplex));
-
-        for(int i=0; i < BHpoints; i++)
-        {
-            Bdata[i] = other.Bdata[i];
-            Hdata[i] = other.Hdata[i];
-            slope[i] = other.slope[i];
-        }
-    }
+    if (other.BHpoints != other.Bdata.size())
+        std::cerr << "Size difference:" << other.BHpoints << " vs " << other.Bdata.size() << std::endl;
+    Bdata = other.Bdata;
+    Hdata = other.Hdata;
+    slope = other.slope;
 
     H_c = other.H_c;                // magnetization, A/m
     Nrg = other.Nrg;
@@ -91,7 +70,7 @@ CMaterialProp::CMaterialProp( const CMaterialProp& other )
 void CMaterialProp::GetSlopes(double omega)
 {
     if (BHpoints==0) return; // catch trivial case;
-    if (slope!=NULL) return; // already have computed the slopes;
+    if (!slope.empty()) return; // already have computed the slopes;
 
     int i,k;
     bool CurveOK=false;
@@ -105,7 +84,7 @@ void CMaterialProp::GetSlopes(double omega)
     L.Create(BHpoints);
     bn   =(double *)  calloc(BHpoints,sizeof(double));
     hn   =(CComplex *)calloc(BHpoints,sizeof(CComplex));
-    slope=(CComplex *)calloc(BHpoints,sizeof(CComplex));
+    slope.reserve(BHpoints);
 
 
     // strip off some info that we can use during the first
@@ -190,7 +169,7 @@ void CMaterialProp::GetSlopes(double omega)
         }
 
         L.GaussSolve();
-        for(i=0;i<BHpoints;i++) slope[i]=L.b[i];
+        for(i=0;i<BHpoints;i++) slope.push_back(L.b[i]);
 
         // now, test to see if there are any "bad" segments in there.
         // it is probably sufficient to do this test just on the
@@ -655,147 +634,6 @@ double CMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
     return DoEnergy(b1,b2);
 }
 
-// FIXME: implementation for CMMaterialProp; may need some adjustment
-CMaterialProp *CMaterialProp::fromStream(istream &input, ostream &err)
-{
-    CMaterialProp *prop = NULL;
-
-    if( parseToken(input, "<beginblock>", err) )
-    {
-        string token;
-        prop = new CMaterialProp;
-        while (input.good() && token != "<endblock>")
-        {
-            nextToken(input,&token);
-
-            if( token == "<mu_x>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->mu_x;
-                continue;
-            }
-
-            if( token == "<mu_y>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->mu_y;
-                continue;
-            }
-
-            if( token == "<h_c>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->H_c;
-                continue;
-            }
-
-            //if( token == "<h_cangle>" )
-            //{
-            //    expectChar(input, '=', err);
-            //    input >> prop->Theta_m;
-            //    continue;
-            //}
-
-            if( token == "<j_re>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->J.re;
-                continue;
-            }
-
-            if( token == "<j_im>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->J.im;
-                continue;
-            }
-
-            if( token == "<sigma>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->Cduct;
-                continue;
-            }
-
-            if( token == "<phi_h>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->Theta_hn;
-                continue;
-            }
-
-
-            if( token == "<phi_hx>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->Theta_hx;
-                continue;
-            }
-
-            if( token == "<phi_hy>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->Theta_hy;
-                continue;
-            }
-
-            if( token == "<d_lam>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->Lam_d;
-                continue;
-            }
-
-            if( token == "<lamfill>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->LamFill;
-                continue;
-            }
-
-            if( token == "<wired>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->WireD;
-                continue;
-            }
-
-            if( token == "<lamtype>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->LamType;
-                continue;
-            }
-
-            if( token == "<nstrands>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->NStrands;
-                continue;
-            }
-
-            if( token == "<bhpoints>" )
-            {
-                expectChar(input, '=', err);
-                input >> prop->BHpoints;
-                if (prop->BHpoints > 0)
-                {
-                    prop->Hdata=new CComplex[prop->BHpoints];
-                    prop->Bdata=new double[prop->BHpoints];
-                    for(int i=0; i<prop->BHpoints; i++)
-                    {
-                        input >> prop->Bdata[i] >> prop->Hdata[i].re;
-                        prop->Hdata[i].im=0;
-                    }
-                }
-                continue;
-            }
-            err << "\nUnexpected token: "<<token;
-        }
-    }
-
-    return prop;
-}
 
 
 void CMaterialProp::GetMu(CComplex b1, CComplex b2,

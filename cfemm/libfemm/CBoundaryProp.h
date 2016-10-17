@@ -128,9 +128,9 @@ public:
      * @brief fromStream constructs a CMBoundaryProp from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
-     * @return a CMBoundaryProp, or NULL
+     * @return a CMBoundaryProp
      */
-    static CMBoundaryProp *fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
 
 private:
 };
@@ -150,6 +150,13 @@ public:
     double beta;			// radiosity coefficient
     double h;				// Heat transfer coefficient
 
+    /**
+     * @brief fromStream constructs a CHBoundaryProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHBoundaryProp
+     */
+    static CHBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 

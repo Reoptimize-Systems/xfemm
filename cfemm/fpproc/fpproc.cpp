@@ -746,16 +746,16 @@ bool FPProc::OpenDocument(string pathname)
             {
                 //MProp.Hdata = (CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
                 //MProp.Bdata =   (double *)calloc(MProp.BHpoints,sizeof(double));
-                MProp.Hdata = (CComplex *)realloc(MProp.Hdata,MProp.BHpoints*sizeof(CComplex));
-                MProp.Bdata = (double *)realloc(MProp.Bdata,MProp.BHpoints*sizeof(double));
-                // reset the contents of the B and H data arrays to all zeros
-                memset(MProp.Hdata, 0, MProp.BHpoints * sizeof(CComplex));
-                memset(MProp.Bdata, 0, MProp.BHpoints * sizeof(double));
+                MProp.Hdata.reserve(MProp.BHpoints);
+                MProp.Bdata.reserve(MProp.BHpoints);
                 for(j=0; j<MProp.BHpoints; j++)
                 {
                     fgets(s,1024,fp);
-                    MProp.Hdata[j]=0;
-                    sscanf(s,"%lf\t%lf",&MProp.Bdata[j],&MProp.Hdata[j].re);
+                    double b;
+                    CComplex h;
+                    sscanf(s,"%lf\t%lf",&b,&h.re);
+                    MProp.Hdata.push_back(h);
+                    MProp.Bdata.push_back(b);
                 }
             }
             q[0] = '\0';
@@ -772,12 +772,9 @@ bool FPProc::OpenDocument(string pathname)
 
             // reinitialise the material property, and free allocated memory
             MProp.BHpoints=0;
-            if (MProp.Bdata != NULL) free(MProp.Bdata);
-            MProp.Bdata = NULL;
-            if (MProp.Hdata != NULL) free(MProp.Hdata);
-            MProp.Hdata = NULL;
-            if (MProp.slope != NULL) free(MProp.slope);
-            MProp.slope = NULL;
+            MProp.Bdata.clear();
+            MProp.Hdata.clear();
+            MProp.slope.clear();
             q[0] = '\0';
         }
 
@@ -988,10 +985,10 @@ bool FPProc::OpenDocument(string pathname)
         }
     }
 
-    // ensure memory is freed
-    if (MProp.Bdata != NULL) free(MProp.Bdata);
-    if (MProp.Hdata != NULL) free(MProp.Hdata);
-    if (MProp.slope != NULL) free(MProp.slope);
+    // ensure memory is freed now
+    MProp.Bdata.clear();
+    MProp.Hdata.clear();
+    MProp.slope.clear();
 
     if (flag == false)
     {

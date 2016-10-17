@@ -33,14 +33,13 @@ CMCircuit::CMCircuit()
 {
 }
 
-CMCircuit *CMCircuit::fromStream(std::istream &input, std::ostream &err)
+CMCircuit CMCircuit::fromStream(std::istream &input, std::ostream &err)
 {
-    CMCircuit *prop = NULL;
+    CMCircuit prop;
 
     if( parseToken(input, "<begincircuit>", err) )
     {
         string token;
-        prop = new CMCircuit;
         while (input.good() && token != "<endcircuit>")
         {
             nextToken(input, &token);
@@ -48,35 +47,35 @@ CMCircuit *CMCircuit::fromStream(std::istream &input, std::ostream &err)
             if( token == "<voltgradient_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->dVolts.re;
+                input >> prop.dVolts.re;
                 continue;
             }
 
             if( token == "<voltgradient_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->dVolts.im;
+                input >> prop.dVolts.im;
                 continue;
             }
 
             if( token == "<totalamps_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Amps.re;
+                input >> prop.Amps.re;
                 continue;
             }
 
             if( token == "<totalamps_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Amps.im;
+                input >> prop.Amps.im;
                 continue;
             }
 
             if( token == "<circuittype>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->CircType;
+                input >> prop.CircType;
                 continue;
             }
             err << "\nUnexpected token: "<<token;

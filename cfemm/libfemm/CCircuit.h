@@ -63,9 +63,9 @@ public:
      * @brief fromStream constructs a CMCircuit from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
-     * @return a CMCircuit, or NULL
+     * @return a CMCircuit
      */
-    static CMCircuit *fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMCircuit fromStream( std::istream &input, std::ostream &err = std::cerr );
 
 private:
 };

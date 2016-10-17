@@ -22,6 +22,14 @@
 // fsolver.cpp : implementation of the FSolver class
 //
 
+#include "CNode.h"
+#include "femmcomplex.h"
+#include "fparse.h"
+#include "fsolver.h"
+#include "lua.h"
+#include "mmesh.h"
+#include "spars.h"
+
 #include <algorithm>
 #include <ctype.h>
 #include <fstream>
@@ -29,17 +37,10 @@
 #include <iostream>
 #include <malloc.h>
 #include <math.h>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include <sstream>
-#include "femmcomplex.h"
-#include "spars.h"
-#include "fparse.h"
-#include "fsolver.h"
-#include "mmesh.h"
-#include "CNode.h"
-#include "lua.h"
 
 // template instantiation:
 #include "../libfemm/feasolver.cpp"
@@ -85,10 +86,6 @@ FSolver::FSolver()
     NumCircPropsOrig = 0;
 
     meshnode = NULL;
-    blockproplist = NULL;
-    nodeproplist = NULL;
-    labellist = NULL;
-    lineproplist = NULL;
 
     extRo = extRi = extZo = 0.0;
 
@@ -114,17 +111,9 @@ FSolver::~FSolver()
 
 void FSolver::CleanUp()
 {
+    FEASolver_type::CleanUp();
     delete[] meshnode;
     meshnode = NULL;
-    delete[] blockproplist;
-    blockproplist = NULL;
-    delete[] nodeproplist;
-    nodeproplist = NULL;
-    circproplist.clear();
-    delete[] lineproplist;
-    lineproplist = NULL;
-    delete[] labellist;
-    labellist = NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -135,271 +124,22 @@ void FSolver::MsgBox(const char* message)
     printf("%s\n", message);
 }
 
-int FSolver::LoadProblemFile ()
+bool FSolver::LoadProblemFile ()
 {
-    std::ifstream input;
-    std::stringstream msgStream;
-    msgStream >> noskipws; // don't discard whitespace from message stream
-    int k,ic;
-    char s[1024];
-
-    sprintf(s,"%s.fem", PathName.c_str() );
-    input.open(s, std::ifstream::in);
-    if (!input.is_open())
-    {
-        printf("Couldn't read from specified .fem file\n");
-        return false;
-    }
-
     // define some defaults
-    Frequency=0.;
-    Precision=1.e-08;
     Relax=1.;
-    ProblemType=PLANAR;
-    Coords=CART;
-    NumPointProps=0;
-    NumLineProps=0;
-    NumBlockProps=0;
-    NumCircProps=0;
-    ACSolver=0;
-    DoForceMaxMeshArea = false;
 
     // parse the file
+    if (!FEASolver_type::LoadProblemFile())
+        return false;
 
-    string token;
-    while (input.good())
+    // do some precomputations
+    for( vector<BlockProp_type>::iterator propIt = blockproplist.begin()
+         ; propIt != blockproplist.end()
+         ; ++propIt)
     {
-        input >> token;
-        // transform token to lower case
-        transform(token.begin(), token.end(), token.begin(), ::tolower);
-
-        // Frequency of the problem
-        if(token == "[frequency]")
-        {
-            expectChar(input, '=',msgStream);
-            input >> Frequency;
-            continue;
-        }
-
-        // Precision
-        if( token == "[precision]")
-        {
-            expectChar(input, '=', msgStream);
-            input >> Precision;
-            continue;
-        }
-
-        // AC Solver Type
-        if( token == "[acsolver]")
-        {
-            expectChar(input, '=', msgStream);
-            input >> ACSolver;
-            continue;
-        }
-
-        // Option to force use of default max mesh, overriding
-        // user choice
-        if( token == "[forcemaxmesh]")
-        {
-            expectChar(input, '=', msgStream);
-            input >> DoForceMaxMeshArea;
-            continue;
-        }
-
-        // Units of length used by the problem
-        if( token == "[lengthunits]")
-        {
-            expectChar(input, '=', msgStream);
-            input >> token;
-            transform(token.begin(), token.end(), token.begin(), ::tolower);
-
-            if( token == "inches" ) LengthUnits=LengthInches;
-            else if( token == "millimeters" ) LengthUnits=LengthMillimeters;
-            else if( token == "centimeters" ) LengthUnits=LengthCentimeters;
-            else if( token == "mils" ) LengthUnits=LengthMils;
-            else if( token == "microns" ) LengthUnits=LengthMicrometers;
-            else if( token == "meters" ) LengthUnits=LengthMeters;
-            continue;
-        }
-
-        // Problem Type (planar or axisymmetric)
-        if( token == "[problemtype]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> token;
-            transform(token.begin(), token.end(), token.begin(), ::tolower);
-
-            if( token == "planar" ) ProblemType=PLANAR;
-            if( token == "axisymmetric" ) ProblemType=AXISYMMETRIC;
-            continue;
-        }
-
-        // Coordinates (cartesian or polar)
-        if( token == "[coordinates]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> token;
-            transform(token.begin(), token.end(), token.begin(), ::tolower);
-
-            if ( token == "cartesian" ) Coords=CART;
-            if ( token == "polar" ) Coords=POLAR;
-            continue;
-        }
-
-        // properties for axisymmetric external region
-        if( token == "[extzo]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> extZo;
-            continue;
-        }
-
-        if( token == "[extro]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> extRo;
-            continue;
-        }
-
-        if( token == "[extri]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> extRi;
-            continue;
-        }
-
-        // Point Properties
-        if( token == "[pointprops]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> k;
-            if (k>0) nodeproplist=new CPointProp[k];
-            while (input.good() && NumPointProps < k)
-            {
-                CPointProp *next = CPointProp::fromStream(input, msgStream);
-                if (!next)
-                    break;
-                nodeproplist[NumPointProps] = *next;
-                NumPointProps++;
-            }
-            // message will be printed after parsing is done
-            if (NumPointProps != k)
-            {
-                msgStream << "\nExpected "<<k<<" PointProps, but got " << NumPointProps;
-                break; // stop parsing
-            }
-            continue;
-        }
-
-
-        // Boundary Properties;
-        if( token == "[bdryprops]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> k;
-            if (k>0) lineproplist=new CMBoundaryProp[k];
-
-            while (input.good() && NumLineProps < k)
-            {
-                CMBoundaryProp *next = CMBoundaryProp::fromStream(input, msgStream);
-                if (!next)
-                    break;
-                lineproplist[NumLineProps] = *next;
-                NumLineProps++;
-            }
-            // message will be printed after parsing is done
-            if (NumLineProps != k)
-            {
-                msgStream << "\nExpected "<<k<<" BoundaryProps, but got " << NumLineProps;
-                break; // stop parsing
-            }
-            continue;
-        }
-
-
-        // Block Properties;
-        if( token == "[blockprops]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> k;
-            if (k>0) blockproplist=new CMMaterialProp[k];
-
-            while (input.good() && NumBlockProps < k)
-            {
-                CMMaterialProp *next = CMMaterialProp::fromStream(input, msgStream);
-                if (!next)
-                    break;
-                blockproplist[NumBlockProps] = *next;
-                blockproplist[NumBlockProps].GetSlopes(Frequency*2.*PI);
-                NumBlockProps++;
-            }
-            // message will be printed after parsing is done
-            if (NumBlockProps != k)
-            {
-                msgStream << "\nExpected "<<k<<" BlockProps, but got " << NumLineProps;
-                break; // stop parsing
-            }
-            continue;
-        }
-
-        // Circuit Properties
-        if( token == "[circuitprops]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> k;
-            if(k>0) circproplist.reserve(k);
-
-            while (input.good() && NumCircProps < k)
-            {
-                CMCircuit *next = CMCircuit::fromStream(input, msgStream);
-                if (!next)
-                    break;
-                circproplist.push_back(*next);
-                NumCircProps++;
-            }
-            // message will be printed after parsing is done
-            if (NumCircProps != k)
-            {
-                msgStream << "\nExpected "<<k<<" CircuitProps, but got " << NumCircProps;
-                break; // stop parsing
-            }
-            continue;
-        }
-
-
-        // read in regional attributes
-        if(token == "[numblocklabels]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> k;
-            if (k>0) labellist=new CMSolverBlockLabel[k];
-            NumBlockLabels=k;
-            for(int i=0; i<k; i++)
-            {
-                CMSolverBlockLabel *blk = CMSolverBlockLabel::fromStream(input,msgStream);
-
-                labellist[i]=*blk;
-            }
-            continue;
-        }
-        // fall-through; token was not used
-        // -> ignore rest of line
-        //input.getline(s,1024);
-        //std::cerr << "**unused: " <<token << " " << s << std::endl;
+        propIt->GetSlopes(Frequency*2.*PI);
     }
-    if (input.bad())
-    {
-        string msg = "Parse error while reading input file " + PathName + ".fem!\n";
-        msg += "Last token was: " + token +"\n";
-        if (!msgStream.str().empty())
-        {
-            msgStream >> msg;
-            msg += "\n";
-        }
-        WarnMessage(msg.c_str());
-    }
-
-    input.close();
 
     if (NumCircProps==0) return true;
 
@@ -421,10 +161,10 @@ int FSolver::LoadProblemFile ()
     // now, go through the block label list and make a new "circuit"
     // for every block label that is an element of a "serial" circuit.
     CMCircuit ncirc;
-    for(k=0; k<NumBlockLabels; k++)
+    for(int k=0; k<NumBlockLabels; k++)
         if(labellist[k].InCircuit>=0)
         {
-            ic=labellist[k].InCircuit;
+            int ic=labellist[k].InCircuit;
             if(circproplist[ic].CircType==1)
             {
                 ncirc=circproplist[ic];
@@ -438,7 +178,7 @@ int FSolver::LoadProblemFile ()
         }
 
     // now, all "circuits" look like parallel circuits, so
-    for(k=0; k<NumCircProps; k++)
+    for(int k=0; k<NumCircProps; k++)
         if(circproplist[k].CircType==1) circproplist[k].CircType=0;
 
 //    // Check to see if any regions are multiply defined
@@ -449,12 +189,12 @@ int FSolver::LoadProblemFile ()
 //        // test if the label is inside the meshed region, by attempting to find
 //        // which triangle it is in, if it's outside the problem region it will
 //        // be ignored anyway
-//        if((i = InTriangle(labellist[k].x,labellist[k].y)) >= 0)
+//        if((i = InTriangle(labels[k].x,labels[k].y)) >= 0)
 //        {
 //            // it's in the problem region,
 //            if(meshele[i].lbl != k)
 //            {
-//                labellist[meshelem[i].lbl].IsSelected = true;
+//                labels[meshelem[i].lbl].IsSelected = true;
 //                if (!bMultiplyDefinedLabels)
 //                {
 //
@@ -520,7 +260,7 @@ int FSolver::LoadMesh(bool deleteFiles)
     sscanf(s,"%i",&k);
     NumPBCs = k;
 
-    if (k!=0) pbclist = (CCommonPoint *)calloc(k,sizeof(CCommonPoint));
+    if (k!=0) pbclist.reserve(k);
     CCommonPoint pbc;
     for(i=0; i<k; i++)
     {
@@ -528,7 +268,7 @@ int FSolver::LoadMesh(bool deleteFiles)
         fscanf(fp,"%i",&pbc.x);
         fscanf(fp,"%i",&pbc.y);
         fscanf(fp,"%i",&pbc.t);
-        pbclist[i] = pbc;
+        pbclist.push_back(pbc);
     }
     fclose(fp);
 
@@ -542,7 +282,7 @@ int FSolver::LoadMesh(bool deleteFiles)
     sscanf(s,"%i",&k);
     NumEls = k;
 
-    meshele = (CElement *)calloc(k,sizeof(CElement));
+    meshele.reserve(k);
     CElement elm;
 
     // get the default label for unlabelled blocks
@@ -594,7 +334,7 @@ int FSolver::LoadMesh(bool deleteFiles)
         // look up block type out of the list of block labels
         elm.blk = labellist[elm.lbl].BlockType;
 
-        meshele[i] = elm;
+        meshele.push_back(elm);
     }
     fclose(fp);
 
@@ -794,85 +534,6 @@ void FSolver::GetFillFactor(int lbl)
 
 
 }
-/*
-void FSolver::GetFillFactor(int lbl)
-{
-	// Get the fill factor associated with a stranded and
-	// current-carrying region.  For AC problems, also compute
-	// the apparent conductivity and permeability for use in
-	// post-processing the voltage.
-
-	CMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
-	CMBlockLabel* bl= &labellist[lbl];
-	double atot,awire,r,FillFactor;
-	int i,wiretype;
-	CComplex ufd;
-	double W=2.*PI*Frequency;
-
-	if ((Frequency==0) || (blockproplist[labellist[lbl].BlockType].LamType<3))
-	{
-		bl->ProximityMu=0;
-		return;
-	}
-
-	wiretype=bp->LamType-3;
-	// wiretype = 0 for magnet wire
-	// wiretype = 1 for stranded but non-litz wire
-	// wiretype = 2 for litz wire
-	// wiretype = 3 for rectangular wire
-	r=bp->WireD*0.0005;
-
-	for(i=0,atot=0;i<NumEls;i++)
-		  if(meshele[i].lbl==lbl) atot+=ElmArea(i);
-
-	awire=PI*r*r;
-	if (wiretype==3) awire*=(4./PI); // if rectangular wire;
-	awire*=((double) bp->NStrands);
-	awire*=((double) bl->Turns);
-
-	if (atot==0) return;
-	FillFactor=fabs(awire/atot);
-
-	double w,d,h,o,fill,dd;
-
-	// if stranded but non-litz, use an effective wire radius that
-	// gives the same cross-section as total stranded area
-	if (wiretype==1) r*=sqrt((double) bp->NStrands);
-
-	if (wiretype!=3){
-		d=r*sqrt(3.);
-		h=PI/sqrt(3.)*r;
-		w=r*sqrt(PI/(2.*sqrt(3.)*FillFactor));
-		dd=sqrt(3.)*w;
-	}
-	else{
-		d=2.*r;
-		h=2.*r;
-		w=r/sqrt(FillFactor);
-		dd=2.*w;
-	}
-	o=bp->Cduct*(h/w)*5.e5; // conductivity in S/m
-	fill=d/dd; //fill for purposes of equivalent foil analysis
-
-	// At this point, sanity-check the fill factor;
-	if (fill>1)
-	{
-		CStdString mymsg;
-		mymsg.Format("Block label at (%g,%g) has a fill factor",bl->x,bl->y);
-		mymsg +=     "greater than the theoretical maximum.  Couldn't solve the problem.";
-		WarnMessage(mymsg.c_str());
-		exit(5);
-	}
-
-	// effective permeability for the equivalent foil.  Note that this is
-	// the same equation as effective permeability of a lamination...
-	if (o!=0) ufd=muo*tanh(sqrt(I*W*o*muo)*d/2.)/(sqrt(I*W*o*muo)*d/2.);
-	else ufd=0;
-
-	// relative complex permeability
-	bl->ProximityMu=(fill*ufd+(1.-fill)*muo)/muo;
-}
-*/
 
 double FSolver::ElmArea(int i)
 {
