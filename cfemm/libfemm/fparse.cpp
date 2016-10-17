@@ -1,6 +1,11 @@
+#include "fparse.h"
+
 #include <string>
 #include <cstring>
 #include <cstdio>
+#include <fstream>
+#include <ios>
+#include <iostream>
 
 using namespace std;
 
@@ -141,6 +146,40 @@ char *ParseString(char *t, string *s)
 void PrintWarningMsg(const char* message)
 {
     printf("%s", message);
+}
+
+bool expectChar(istream &input, char c, const string msg)
+{
+    input >> std::ws;
+    if ( input.peek() == c )
+    {
+        input.ignore();
+        return true;
+    }
+    if (!msg.empty())
+    {
+        std::cerr << "Expected " << (int)c << "(" <<c
+                  <<"), but got " << input.peek()
+                 << "\nContext: " << msg << std::endl;
+    }
+    return false;
+}
+
+void ParseString(istream &input, string *s)
+{
+    char c;
+    if (!expectChar(input, '"'))
+    {
+        // in some places the string is optional -> don't throw an error
+        return;
+    }
+
+    input >> c;
+    while( input.good() && c != '"')
+    {
+        s->push_back(c);
+        input >> c;
+    }
 }
 
 }
