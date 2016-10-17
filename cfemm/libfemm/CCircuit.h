@@ -1,8 +1,9 @@
 #ifndef FEMM_CCIRCUIT_H
 #define FEMM_CCIRCUIT_H
 
-#include <string>
 #include "femmcomplex.h"
+#include <iostream>
+#include <string>
 
 namespace femm {
 /**
@@ -57,6 +58,14 @@ public:
     CComplex J;
     CComplex dV;
     int Case;
+
+    /**
+     * @brief fromStream constructs a CMCircuit from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CMCircuit, or NULL
+     */
+    static CMCircuit *fromStream( std::istream &input, std::ostream &err = std::cerr );
 
 private:
 };

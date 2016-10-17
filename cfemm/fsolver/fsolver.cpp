@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <sstream>
 #include "femmcomplex.h"
 #include "spars.h"
 #include "fparse.h"
@@ -137,13 +138,10 @@ void FSolver::MsgBox(const char* message)
 int FSolver::LoadProblemFile ()
 {
     std::ifstream input;
-    int j,k,ic;
+    std::stringstream msgStream;
+    msgStream >> noskipws; // don't discard whitespace from message stream
+    int k,ic;
     char s[1024];
-    CPointProp       PProp;
-    CMBoundaryProp   BProp;
-    CMMaterialProp    MProp;
-    CMCircuit        CProp;
-    CMSolverBlockLabel     blk;
 
     sprintf(s,"%s.fem", PathName.c_str() );
     input.open(s, std::ifstream::in);
@@ -178,7 +176,7 @@ int FSolver::LoadProblemFile ()
         // Frequency of the problem
         if(token == "[frequency]")
         {
-            expectChar(input, '=', "frequency");
+            expectChar(input, '=',msgStream);
             input >> Frequency;
             continue;
         }
@@ -186,7 +184,7 @@ int FSolver::LoadProblemFile ()
         // Precision
         if( token == "[precision]")
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> Precision;
             continue;
         }
@@ -194,7 +192,7 @@ int FSolver::LoadProblemFile ()
         // AC Solver Type
         if( token == "[acsolver]")
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> ACSolver;
             continue;
         }
@@ -203,7 +201,7 @@ int FSolver::LoadProblemFile ()
         // user choice
         if( token == "[forcemaxmesh]")
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> DoForceMaxMeshArea;
             continue;
         }
@@ -211,7 +209,7 @@ int FSolver::LoadProblemFile ()
         // Units of length used by the problem
         if( token == "[lengthunits]")
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> token;
             transform(token.begin(), token.end(), token.begin(), ::tolower);
 
@@ -227,7 +225,7 @@ int FSolver::LoadProblemFile ()
         // Problem Type (planar or axisymmetric)
         if( token == "[problemtype]" )
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> token;
             transform(token.begin(), token.end(), token.begin(), ::tolower);
 
@@ -239,7 +237,7 @@ int FSolver::LoadProblemFile ()
         // Coordinates (cartesian or polar)
         if( token == "[coordinates]" )
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> token;
             transform(token.begin(), token.end(), token.begin(), ::tolower);
 
@@ -251,21 +249,21 @@ int FSolver::LoadProblemFile ()
         // properties for axisymmetric external region
         if( token == "[extzo]" )
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> extZo;
             continue;
         }
 
         if( token == "[extro]" )
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> extRo;
             continue;
         }
 
         if( token == "[extri]" )
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> extRi;
             continue;
         }
@@ -273,387 +271,98 @@ int FSolver::LoadProblemFile ()
         // Point Properties
         if( token == "[pointprops]" )
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> k;
             if (k>0) nodeproplist=new CPointProp[k];
-            continue;
-        }
-
-        if( token == "<beginpoint>" )
-        {
-            PProp.J.re=0.;
-            PProp.J.im=0.;
-            PProp.A.re=0.;
-            PProp.A.im=0.;
-            continue;
-        }
-
-        if( token == "<a_re>" )
-        {
-            expectChar(input, '=');
-            input >> PProp.A.re;
-            continue;
-        }
-
-        if( token == "<a_im>" )
-        {
-            expectChar(input, '=');
-            input >> PProp.A.im;
-            continue;
-        }
-
-        if( token == "<i_re>" )
-        {
-            expectChar(input, '=');
-            input >> PProp.J.re;
-            continue;
-        }
-
-        if( token == "<i_im>" )
-        {
-            expectChar(input, '=');
-            input >> PProp.J.im;
-            continue;
-        }
-
-        if( token == "<endpoint>" )
-        {
-            nodeproplist[NumPointProps]=PProp;
-            NumPointProps++;
-            continue;
-        }
-
-        // Boundary Properties;
-        if( token == "[bdryprops]" )
-        {
-            expectChar(input, '=');
-            input >> k;
-            if (k>0) lineproplist=new CMBoundaryProp[k];
-            continue;
-        }
-
-        if( token == "<beginbdry>" )
-        {
-            BProp.BdryFormat=0;
-            BProp.A0=0.;
-            BProp.A1=0.;
-            BProp.A2=0.;
-            BProp.phi=0.;
-            BProp.Mu=0.;
-            BProp.Sig=0.;
-            BProp.c0=0.;
-            BProp.c1=0.;
-            continue;
-        }
-
-        if( token == "<bdrytype>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.BdryFormat;
-            continue;
-        }
-
-        if( token == "<mu_ssd>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.Mu;
-            continue;
-        }
-
-        if( token == "<sigma_ssd>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.Sig;
-            continue;
-        }
-
-        if( token == "<a_0>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.A0;
-            continue;
-        }
-
-        if( token == "<a_1>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.A1;
-            continue;
-        }
-
-        if( token == "<a_2>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.A2;
-            continue;
-        }
-
-        if( token == "<phi>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.phi;
-            continue;
-        }
-
-        if( token == "<c0>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.c0.re;
-            continue;
-        }
-
-        if( token == "<c1>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.c1.re;
-            continue;
-        }
-
-        if( token == "<c0i>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.c0.im;
-            continue;
-        }
-
-        if( token == "<c1i>" )
-        {
-            expectChar(input, '=');
-            input >> BProp.c1.im;
-            continue;
-        }
-
-        if( token == "<endbdry>" )
-        {
-            lineproplist[NumLineProps]=BProp;
-            NumLineProps++;
-            continue;
-        }
-
-        // Block Properties;
-        if( token == "[blockprops]" )
-        {
-            expectChar(input, '=');
-            input >> k;
-            if (k>0) blockproplist=new CMMaterialProp[k];
-            continue;
-        }
-
-        if( token == "<beginblock>" )
-        {
-            MProp.mu_x=1.;
-            MProp.mu_y=1.;            // permeabilities, relative
-            MProp.H_c=0.;                // magnetization, A/m
-            MProp.J.re=0.;
-            MProp.J.im=0.;                // applied current density, MA/m^2
-            MProp.Cduct=0.;            // conductivity of the material, MS/m
-            MProp.Lam_d=0.;            // lamination thickness, mm
-            MProp.Theta_hn=0.;            // hysteresis angle, degrees
-            MProp.Theta_hx=0.;            // hysteresis angle, degrees
-            MProp.Theta_hy=0.;            // hysteresis angle, degrees
-            MProp.Theta_m=0.;            // magnetization direction, degrees;
-            MProp.LamFill=1.;            // lamination fill factor;
-            MProp.LamType=0;            // type of lamination;
-            MProp.NStrands=0;
-            MProp.WireD=0;
-            MProp.BHpoints=0;
-            MProp.Bdata=NULL;
-            MProp.Hdata=NULL;
-            continue;
-        }
-
-        if( token == "<mu_x>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.mu_x;
-            continue;
-        }
-
-        if( token == "<mu_y>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.mu_y;
-            continue;
-        }
-
-        if( token == "<h_c>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.H_c;
-            continue;
-        }
-
-        if( token == "<h_cangle>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.Theta_m;
-            continue;
-        }
-
-        if( token == "<j_re>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.J.re;
-            continue;
-        }
-
-        if( token == "<j_im>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.J.im;
-            continue;
-        }
-
-        if( token == "<sigma>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.Cduct;
-            continue;
-        }
-
-        if( token == "<phi_h>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.Theta_hn;
-            continue;
-        }
-
-
-        if( token == "<phi_hx>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.Theta_hx;
-            continue;
-        }
-
-        if( token == "<phi_hy>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.Theta_hy;
-            continue;
-        }
-
-        if( token == "<d_lam>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.Lam_d;
-            continue;
-        }
-
-        if( token == "<lamfill>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.LamFill;
-            continue;
-        }
-
-        if( token == "<wired>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.WireD;
-            continue;
-        }
-
-        if( token == "<lamtype>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.LamType;
-            continue;
-        }
-
-        if( token == "<nstrands>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.NStrands;
-            continue;
-        }
-
-        if( token == "<bhpoints>" )
-        {
-            expectChar(input, '=');
-            input >> MProp.BHpoints;
-            if (MProp.BHpoints>0)
+            while (input.good() && NumPointProps < k)
             {
-                MProp.Hdata=new CComplex[MProp.BHpoints];
-                MProp.Bdata=new double[MProp.BHpoints];
-                for(j=0; j<MProp.BHpoints; j++)
-                {
-                    input >> MProp.Bdata[j] >> MProp.Hdata[j].re;
-                    MProp.Hdata[j].im=0;
-                }
+                CPointProp *next = CPointProp::fromStream(input, msgStream);
+                if (!next)
+                    break;
+                nodeproplist[NumPointProps] = *next;
+                NumPointProps++;
+            }
+            // message will be printed after parsing is done
+            if (NumPointProps != k)
+            {
+                msgStream << "\nExpected "<<k<<" PointProps, but got " << NumPointProps;
+                break; // stop parsing
             }
             continue;
         }
 
-        if( token == "<endblock>" )
+
+        // Boundary Properties;
+        if( token == "[bdryprops]" )
         {
-            blockproplist[NumBlockProps]=MProp;
-            blockproplist[NumBlockProps].GetSlopes(Frequency*2.*PI);
-            NumBlockProps++;
-            MProp.BHpoints=0;
-            MProp.Bdata=NULL;
-            MProp.Hdata=NULL;
+            expectChar(input, '=', msgStream);
+            input >> k;
+            if (k>0) lineproplist=new CMBoundaryProp[k];
+
+            while (input.good() && NumLineProps < k)
+            {
+                CMBoundaryProp *next = CMBoundaryProp::fromStream(input, msgStream);
+                if (!next)
+                    break;
+                lineproplist[NumLineProps] = *next;
+                NumLineProps++;
+            }
+            // message will be printed after parsing is done
+            if (NumLineProps != k)
+            {
+                msgStream << "\nExpected "<<k<<" BoundaryProps, but got " << NumLineProps;
+                break; // stop parsing
+            }
+            continue;
+        }
+
+
+        // Block Properties;
+        if( token == "[blockprops]" )
+        {
+            expectChar(input, '=', msgStream);
+            input >> k;
+            if (k>0) blockproplist=new CMMaterialProp[k];
+
+            while (input.good() && NumBlockProps < k)
+            {
+                CMMaterialProp *next = CMMaterialProp::fromStream(input, msgStream);
+                if (!next)
+                    break;
+                blockproplist[NumBlockProps] = *next;
+                blockproplist[NumBlockProps].GetSlopes(Frequency*2.*PI);
+                NumBlockProps++;
+            }
+            // message will be printed after parsing is done
+            if (NumBlockProps != k)
+            {
+                msgStream << "\nExpected "<<k<<" BlockProps, but got " << NumLineProps;
+                break; // stop parsing
+            }
             continue;
         }
 
         // Circuit Properties
         if( token == "[circuitprops]" )
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> k;
             if(k>0) circproplist.reserve(k);
-            continue;
-        }
 
-        if( token == "<begincircuit>" )
-        {
-            CProp.dVolts.re=0.;
-            CProp.dVolts.im=0.;
-            CProp.Amps.re=0.;
-            CProp.Amps.im=0.;
-            CProp.CircType=0;
-            continue;
-        }
-
-        if( token == "<voltgradient_re>" )
-        {
-            expectChar(input, '=');
-            input >> CProp.dVolts.re;
-            continue;
-        }
-
-        if( token == "<voltgradient_im>" )
-        {
-            expectChar(input, '=');
-            input >> CProp.dVolts.im;
-            continue;
-        }
-
-        if( token == "<totalamps_re>" )
-        {
-            expectChar(input, '=');
-            input >> CProp.Amps.re;
-            continue;
-        }
-
-        if( token == "<totalamps_im>" )
-        {
-            expectChar(input, '=');
-            input >> CProp.Amps.im;
-            continue;
-        }
-
-        if( token == "<circuittype>" )
-        {
-            expectChar(input, '=');
-            input >> CProp.CircType;
-            continue;
-        }
-
-        if( token == "<endcircuit>" )
-        {
-            circproplist.push_back(CProp);
-            NumCircProps++;
+            while (input.good() && NumCircProps < k)
+            {
+                CMCircuit *next = CMCircuit::fromStream(input, msgStream);
+                if (!next)
+                    break;
+                circproplist.push_back(*next);
+                NumCircProps++;
+            }
+            // message will be printed after parsing is done
+            if (NumCircProps != k)
+            {
+                msgStream << "\nExpected "<<k<<" CircuitProps, but got " << NumCircProps;
+                break; // stop parsing
+            }
             continue;
         }
 
@@ -661,50 +370,15 @@ int FSolver::LoadProblemFile ()
         // read in regional attributes
         if(token == "[numblocklabels]" )
         {
-            expectChar(input, '=');
+            expectChar(input, '=', msgStream);
             input >> k;
             if (k>0) labellist=new CMSolverBlockLabel[k];
             NumBlockLabels=k;
             for(int i=0; i<k; i++)
             {
-                //some defaults
-                blk.x=0;
-                blk.y=0;
-                blk.BlockType=0;
-                blk.MaxArea=0.;
-                blk.MagDir=0.;
-                blk.Turns=1;
-                blk.InCircuit=0;
-                blk.InGroup=0;
-                blk.IsExternal=0;
-                blk.IsDefault=0;
-                blk.MagDirFctn.clear();
+                CMSolverBlockLabel *blk = CMSolverBlockLabel::fromStream(input,msgStream);
 
-                // scan in data
-                input >> blk.x;
-                input >> blk.y;
-                input >> blk.BlockType;
-                input >> blk.MaxArea;
-                input >> blk.InCircuit;
-                input >> blk.MagDir;
-                input >> blk.InGroup;
-                input >> blk.Turns;
-
-                int extDefault;
-                input >> extDefault;
-                // second last bit in extDefault flag, we mask the other bits
-                // and take the resulting value, if not zero it will evaluate to true
-                blk.IsDefault  = extDefault & 2;
-                // last bit in extDefault flag, we mask the other bits
-                // and take the resulting value, if not zero it will evaluate to true
-                blk.IsExternal = extDefault & 1;
-
-                // MagDirFctn is an extra field not formally described in the .fem file format spec
-                ParseString(input, &blk.MagDirFctn);
-
-                blk.BlockType--;
-                blk.InCircuit--;
-                labellist[i]=blk;
+                labellist[i]=*blk;
             }
             continue;
         }
@@ -715,15 +389,15 @@ int FSolver::LoadProblemFile ()
     }
     if (input.bad())
     {
-        std::cerr << "Parse error while reading input file " << PathName << ".fem!";
-        std::cerr << "Last token was: " << token;
+        string msg = "Parse error while reading input file " + PathName + ".fem!\n";
+        msg += "Last token was: " + token +"\n";
+        if (!msgStream.str().empty())
+        {
+            msgStream >> msg;
+            msg += "\n";
+        }
+        WarnMessage(msg.c_str());
     }
-
-    // need to set these so that valid BH data doesn't get wiped
-    // by the destructor of MProp
-    MProp.BHpoints = 0;
-    MProp.Bdata = NULL;
-    MProp.Hdata = NULL;
 
     input.close();
 

@@ -61,16 +61,24 @@ public:
     virtual ~FEASolver();
 
     // General problem attributes
-    double  Precision;
-    femm::LengthUnit  LengthUnits;
+    double FileFormat; ///< \brief format version of the file
+    double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
+    double Precision;  ///< \brief Computing precision within FEMM
+    double MinAngle;   ///< \brief angle restriction for triangulation [deg]
+    double Depth;      ///< \brief typical length in z-direction [lfac]
+    femm::LengthUnit  LengthUnits;  ///< \brief Unit for lengths. Also referred to as \em lfac.
+    femm::CoordsType  Coords;  ///< \brief definition of the coordinate system
+    femm::ProblemType ProblemType; ///< \brief The 2D problem is either planar or axisymmetric
+    // axisymmetric external region parameters
+    double extZo;  ///< \brief center of exterior [lfac], only valid for axisymmetric problems
+    double extRo;  ///< \brief radius of exterior [lfac], only valid for axisymmetric problems
+    double extRi;  ///< \brief radius of interior [lfac], only valid for axisymmetric problems
+    std::string comment; ///< \brief Problem description
+
     int		ACSolver;
-    femm::ProblemType ProblemType;
-    femm::CoordsType  Coords;
     bool    DoForceMaxMeshArea;
     bool    bMultiplyDefinedLabels;
 
-    // axisymmetric external region parameters
-    double  extRo,extRi,extZo;
 
     // CArrays containing the mesh information
     int	BandWidth;

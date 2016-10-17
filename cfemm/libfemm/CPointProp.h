@@ -2,6 +2,7 @@
 #define FEMM_CCPOINTPROP_H
 
 #include <string>
+#include <iostream>
 #include "femmcomplex.h"
 
 namespace femm {
@@ -21,6 +22,13 @@ public:
     CComplex J;   ///< \brief J: applied point current \code<I_re>, <I_im>\endcode
     CComplex A;   ///< \brief A, magnetic vector potential \code<A_re>, <A_im>\endcode
 
+    /**
+     * @brief fromStream constructs a CPointProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CPointProp, or NULL
+     */
+    static CPointProp *fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 

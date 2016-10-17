@@ -2,6 +2,7 @@
 #define FEMM_CMATERIALPROP_H
 
 #include <string>
+#include <iostream>
 #include "femmcomplex.h"
 
 namespace femm {
@@ -61,6 +62,13 @@ public:
 
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
+    /**
+     * @brief fromStream constructs a CMaterialProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CMaterialProp, or NULL
+     */
+    static CMaterialProp *fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 

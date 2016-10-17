@@ -2,6 +2,7 @@
 #define FEMM_CBOUNDARYPROP_H
 
 #include <string>
+#include <iostream>
 #include "femmcomplex.h"
 
 namespace femm {
@@ -122,6 +123,14 @@ public:
      * \endverbatim
      */
     CComplex c1;
+
+    /**
+     * @brief fromStream constructs a CMBoundaryProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CMBoundaryProp, or NULL
+     */
+    static CMBoundaryProp *fromStream( std::istream &input, std::ostream &err = std::cerr );
 
 private:
 };

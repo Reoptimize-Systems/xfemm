@@ -1,10 +1,15 @@
 #include "CMaterialProp.h"
 
-#include <cstdlib>
-#include <cmath>
 #include "fullmatrix.h"
 #include "femmcomplex.h"
 #include "femmconstants.h"
+#include "fparse.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <ctype.h>
+#include <istream>
 
 #define ElementsPerSkinDepth 10
 
@@ -649,6 +654,149 @@ double CMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
 {
     return DoEnergy(b1,b2);
 }
+
+// FIXME: implementation for CMMaterialProp; may need some adjustment
+CMaterialProp *CMaterialProp::fromStream(istream &input, ostream &err)
+{
+    CMaterialProp *prop = NULL;
+
+    if( parseToken(input, "<beginblock>", err) )
+    {
+        string token;
+        prop = new CMaterialProp;
+        while (input.good() && token != "<endblock>")
+        {
+            nextToken(input,&token);
+
+            if( token == "<mu_x>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->mu_x;
+                continue;
+            }
+
+            if( token == "<mu_y>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->mu_y;
+                continue;
+            }
+
+            if( token == "<h_c>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->H_c;
+                continue;
+            }
+
+            //if( token == "<h_cangle>" )
+            //{
+            //    expectChar(input, '=', err);
+            //    input >> prop->Theta_m;
+            //    continue;
+            //}
+
+            if( token == "<j_re>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->J.re;
+                continue;
+            }
+
+            if( token == "<j_im>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->J.im;
+                continue;
+            }
+
+            if( token == "<sigma>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->Cduct;
+                continue;
+            }
+
+            if( token == "<phi_h>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->Theta_hn;
+                continue;
+            }
+
+
+            if( token == "<phi_hx>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->Theta_hx;
+                continue;
+            }
+
+            if( token == "<phi_hy>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->Theta_hy;
+                continue;
+            }
+
+            if( token == "<d_lam>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->Lam_d;
+                continue;
+            }
+
+            if( token == "<lamfill>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->LamFill;
+                continue;
+            }
+
+            if( token == "<wired>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->WireD;
+                continue;
+            }
+
+            if( token == "<lamtype>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->LamType;
+                continue;
+            }
+
+            if( token == "<nstrands>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->NStrands;
+                continue;
+            }
+
+            if( token == "<bhpoints>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->BHpoints;
+                if (prop->BHpoints > 0)
+                {
+                    prop->Hdata=new CComplex[prop->BHpoints];
+                    prop->Bdata=new double[prop->BHpoints];
+                    for(int i=0; i<prop->BHpoints; i++)
+                    {
+                        input >> prop->Bdata[i] >> prop->Hdata[i].re;
+                        prop->Hdata[i].im=0;
+                    }
+                }
+                continue;
+            }
+            err << "\nUnexpected token: "<<token;
+        }
+    }
+
+    return prop;
+}
+
 
 void CMaterialProp::GetMu(CComplex b1, CComplex b2,
                           CComplex &mu1, CComplex &mu2)
