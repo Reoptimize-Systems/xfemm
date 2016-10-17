@@ -26,13 +26,14 @@
 #ifndef FEASOLVER_H
 #define FEASOLVER_H
 
-#include <string>
-
 #include "fparse.h"
 #include "mesh.h"
 #include "spars.h"
 #include "CBoundaryProp.h"
 #include "CCommonPoint.h"
+
+#include <string>
+#include <vector>
 
 enum LoadMeshErr
 {
@@ -56,6 +57,13 @@ class FEASolver
 
 // Attributes
 public:
+    using FEASolver_type = FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>;
+    using PointProp_type = PointPropT;
+    using BoundaryProp_type = BoundaryPropT;
+    using BlockProp_type = BlockPropT;
+    using CircuitProp_type = CircuitPropT;
+    using BlockLabel_type = BlockLabelT;
+    using Node_type = NodeT;
 
     FEASolver();
     virtual ~FEASolver();
@@ -82,7 +90,7 @@ public:
 
     // CArrays containing the mesh information
     int	BandWidth;
-    femm::CElement *meshele;
+    std::vector<femm::CElement> meshele;
 
     int NumNodes;
     int NumEls;
@@ -95,28 +103,29 @@ public:
     int NumCircProps;
     int NumBlockLabels;
 
-    femm::CCommonPoint	*pbclist;
+    std::vector<femm::CCommonPoint>	pbclist;
 
     // string to hold the location of the files
     std::string PathName;
 
-    //std::vector< PointPropT > nodeProps;
-    //std::vector< BoundaryPropT > lineProps;
-    //std::vector< BlockPropT > blockProps;
-    //std::vector< CircuitPropT > circProps;
-    //std::vector< BlockLabelT > labels;
-    //std::vector< NodeT > nodes;
+    std::vector< PointPropT > nodeproplist;
+    std::vector< BoundaryPropT > lineproplist;
+    std::vector< BlockPropT > blockproplist;
+    std::vector< CircuitPropT > circproplist;
+    std::vector< BlockLabelT > labellist;
+    std::vector< NodeT > nodes;
 // Operations
 public:
 
     virtual int LoadMesh(bool deleteFiles=true) = 0;
-    virtual int LoadProblemFile () = 0;
+    bool LoadProblemFile ();
     int Cuthill(bool deleteFiles=true);
     int SortElements();
 
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
 
+    virtual void CleanUp();
 private:
 
     virtual void SortNodes (int* newnum) = 0;

@@ -26,9 +26,9 @@ public:
      * @brief fromStream constructs a CPointProp from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
-     * @return a CPointProp, or NULL
+     * @return a CPointProp
      */
-    static CPointProp *fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 

@@ -59,17 +59,12 @@ public:
     femm::CSolverNode *meshnode;
     int NumCircPropsOrig;
 
-    fsolver::CMMaterialProp  *blockproplist;
-    femm::CMBoundaryProp  *lineproplist;
-    femm::CPointProp      *nodeproplist;
-    std::vector<femm::CMCircuit> circproplist;
-    femm::CMSolverBlockLabel    *labellist;
 
 // Operations
 public:
 
     int LoadMesh(bool deleteFiles=true);
-    int LoadProblemFile ();
+    bool LoadProblemFile();
     int Static2D(CBigLinProb &L);
     int WriteStatic2D(CBigLinProb &L);
     int Harmonic2D(CBigComplexLinProb &L);
@@ -82,7 +77,7 @@ public:
 private:
 
     void MsgBox(const char* message);
-    void CleanUp();
+    virtual void CleanUp() override;
 
     // override parent class virtual method
     void SortNodes (int* newnum);

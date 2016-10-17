@@ -596,14 +596,14 @@ int HSolver::LoadMesh(bool deleteFiles)
 	sscanf(s,"%i",&k);
 	NumPBCs=k;
 
-	if (k!=0) pbclist=(CCommonPoint *)calloc(k,sizeof(CCommonPoint));
+    if (k!=0) pbclist.reserve(k);
 	CCommonPoint pbc;
 	for(i=0;i<k;i++){
 		fscanf(fp,"%i",&j);
 		fscanf(fp,"%i",&pbc.x);
 		fscanf(fp,"%i",&pbc.y);
 		fscanf(fp,"%i",&pbc.t);
-		pbclist[i]=pbc;
+        pbclist.push_back(pbc);
 	}
 	fclose(fp);
 
@@ -615,7 +615,7 @@ int HSolver::LoadMesh(bool deleteFiles)
 	fgets(s,1024,fp);
 	sscanf(s,"%i",&k); NumEls=k;
 
-	meshele=(CElement *)calloc(k,sizeof(CElement));
+    meshele.reserve(k);
 	CElement elm;
 
 	int defaultLabel;
@@ -655,7 +655,7 @@ int HSolver::LoadMesh(bool deleteFiles)
 		// look up block type out of the list of block labels
 		elm.blk=labellist[elm.lbl].BlockType;
 
-		meshele[i]=elm;
+        meshele.push_back(elm);
 	}
 	fclose(fp);
 

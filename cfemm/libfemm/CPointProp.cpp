@@ -5,9 +5,7 @@
 #include "femmconstants.h"
 #include "fparse.h"
 
-#include <algorithm>
-#include <ctype.h>
-#include <istream>
+#include <iostream>
 
 #define ElementsPerSkinDepth 10
 
@@ -21,14 +19,13 @@ CPointProp::CPointProp()
 {
 }
 
-CPointProp *CPointProp::fromStream(istream &input, ostream &err)
+CPointProp CPointProp::fromStream(istream &input, ostream &err)
 {
-    CPointProp *prop = NULL;
+    CPointProp prop;
 
     if( parseToken(input, "<beginpoint>", err) )
     {
         string token;
-        prop = new CPointProp;
         while (input.good() && token != "<endpoint>")
         {
             nextToken(input, &token);
@@ -36,28 +33,28 @@ CPointProp *CPointProp::fromStream(istream &input, ostream &err)
             if( token == "<a_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->A.re;
+                input >> prop.A.re;
                 continue;
             }
 
             if( token == "<a_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->A.im;
+                input >> prop.A.im;
                 continue;
             }
 
             if( token == "<i_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->J.re;
+                input >> prop.J.re;
                 continue;
             }
 
             if( token == "<i_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->J.im;
+                input >> prop.J.im;
                 continue;
             }
             err << "\nUnexpected token: "<<token;

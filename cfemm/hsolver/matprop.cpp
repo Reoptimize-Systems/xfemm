@@ -1,5 +1,11 @@
 
 #include "hmesh.h"
+#include "fparse.h"
+
+#include <string>
+#include <iostream>
+using std::string;
+using namespace femm;
 
 CHMaterialProp::CHMaterialProp()
 {
@@ -50,6 +56,143 @@ CComplex CHMaterialProp::GetK(double t)
 		}
 	}
 
-	return (Kx+I*Ky);
+    return (Kx+I*Ky);
 }
 
+CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err)
+{
+    CHMaterialProp prop;
+
+    if( parseToken(input, "<beginblock>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endblock>")
+        {
+            nextToken(input,&token);
+
+            if( token == "<kx>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.Kx;
+                continue;
+            }
+
+            if( token == "<Ky>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.Ky;
+                continue;
+            }
+
+            if( token == "<Kt>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.Kt;
+                continue;
+            }
+
+            if( token == "<qv>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.qv;
+                continue;
+            }
+
+            if( token == "<tkpoints>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.npts;
+                if (prop.npts > 0)
+                {
+                    // FIXME: make Kn variable size
+                    if (prop.npts>128)
+                    {
+                        err << "MaterialProp exceeds maximum size! File a bug report...";
+                        prop.npts = 128;
+                    }
+                    for(int i=0; i<prop.npts; i++)
+                    {
+                        input >> prop.Kn[i].re >> prop.Kn[i].im;
+                    }
+                }
+                continue;
+            }
+            err << "\nUnexpected token: "<<token;
+        }
+    }
+
+    return prop;
+}
+
+
+
+
+CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
+{
+    CHPointProp prop;
+
+    if( parseToken(input, "<beginpoint>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endpoint>")
+        {
+            nextToken(input, &token);
+
+            if( token == "<tp>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.V;
+                continue;
+            }
+
+            if( token == "<qp>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.qp;
+                continue;
+            }
+            err << "\nUnexpected token: "<<token;
+        }
+    }
+
+    return prop;
+}
+
+CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
+{
+    CHConductor prop;
+
+    if( parseToken(input, "<beginconductor>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endconductor>")
+        {
+            nextToken(input, &token);
+
+            if( token == "<tc>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.V;
+                continue;
+            }
+
+            if( token == "<qc>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.q;
+                continue;
+            }
+
+            if( token == "<conductortype>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop.CircType;
+                continue;
+            }
+
+            err << "\nUnexpected token: "<<token;
+        }
+    }
+
+    return prop;
+}

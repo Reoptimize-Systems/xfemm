@@ -273,15 +273,14 @@ CComplex CMMaterialProp::LaminatedBH(double w, int i)
     return mu;
 }
 
-fsolver::CMMaterialProp *CMMaterialProp::fromStream(std::istream &input, std::ostream &err)
+fsolver::CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ostream &err)
 {
     using namespace femm;
-    CMMaterialProp *prop = NULL;
+    CMMaterialProp prop;
 
     if( parseToken(input, "<beginblock>", err) )
     {
         string token;
-        prop = new CMMaterialProp;
         while (input.good() && token != "<endblock>")
         {
             nextToken(input,&token);
@@ -289,56 +288,56 @@ fsolver::CMMaterialProp *CMMaterialProp::fromStream(std::istream &input, std::os
             if( token == "<mu_x>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->mu_x;
+                input >> prop.mu_x;
                 continue;
             }
 
             if( token == "<mu_y>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->mu_y;
+                input >> prop.mu_y;
                 continue;
             }
 
             if( token == "<h_c>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->H_c;
+                input >> prop.H_c;
                 continue;
             }
 
             if( token == "<h_cangle>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Theta_m;
+                input >> prop.Theta_m;
                 continue;
             }
 
             if( token == "<j_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->J.re;
+                input >> prop.J.re;
                 continue;
             }
 
             if( token == "<j_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->J.im;
+                input >> prop.J.im;
                 continue;
             }
 
             if( token == "<sigma>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Cduct;
+                input >> prop.Cduct;
                 continue;
             }
 
             if( token == "<phi_h>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Theta_hn;
+                input >> prop.Theta_hn;
                 continue;
             }
 
@@ -346,64 +345,67 @@ fsolver::CMMaterialProp *CMMaterialProp::fromStream(std::istream &input, std::os
             if( token == "<phi_hx>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Theta_hx;
+                input >> prop.Theta_hx;
                 continue;
             }
 
             if( token == "<phi_hy>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Theta_hy;
+                input >> prop.Theta_hy;
                 continue;
             }
 
             if( token == "<d_lam>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->Lam_d;
+                input >> prop.Lam_d;
                 continue;
             }
 
             if( token == "<lamfill>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->LamFill;
+                input >> prop.LamFill;
                 continue;
             }
 
             if( token == "<wired>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->WireD;
+                input >> prop.WireD;
                 continue;
             }
 
             if( token == "<lamtype>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->LamType;
+                input >> prop.LamType;
                 continue;
             }
 
             if( token == "<nstrands>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->NStrands;
+                input >> prop.NStrands;
                 continue;
             }
 
             if( token == "<bhpoints>" )
             {
                 expectChar(input, '=', err);
-                input >> prop->BHpoints;
-                if (prop->BHpoints > 0)
+                input >> prop.BHpoints;
+                if (prop.BHpoints > 0)
                 {
-                    prop->Hdata=new CComplex[prop->BHpoints];
-                    prop->Bdata=new double[prop->BHpoints];
-                    for(int i=0; i<prop->BHpoints; i++)
+                    prop.Hdata.reserve(prop.BHpoints);
+                    prop.Bdata.reserve(prop.BHpoints);
+                    for(int i=0; i<prop.BHpoints; i++)
                     {
-                        input >> prop->Bdata[i] >> prop->Hdata[i].re;
-                        prop->Hdata[i].im=0;
+                        double b;
+                        CComplex h;
+                        input >> b >> h.re;
+                        prop.Bdata.push_back(b);
+                        prop.Hdata.push_back(h);
                     }
                 }
                 continue;

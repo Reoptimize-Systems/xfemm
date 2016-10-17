@@ -53,9 +53,9 @@ public:
      * @brief fromStream constructs a CMaterialProp from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
-     * @return a CMaterialProp, or NULL
+     * @return a CMaterialProp
      */
-    static CMMaterialProp *fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 

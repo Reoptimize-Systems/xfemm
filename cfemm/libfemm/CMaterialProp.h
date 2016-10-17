@@ -1,9 +1,10 @@
 #ifndef FEMM_CMATERIALPROP_H
 #define FEMM_CMATERIALPROP_H
 
-#include <string>
-#include <iostream>
 #include "femmcomplex.h"
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace femm {
 class CMaterialProp
@@ -40,9 +41,9 @@ public:
     std::string BlockName;
     double mu_x,mu_y;       // permeabilities, relative
     int BHpoints;           // number of points in the BH curve...
-    double   *Bdata;
-    CComplex *Hdata;        // entries in B-H curve;
-    CComplex *slope;        // slopes used in interpolation
+    std::vector<double>   Bdata;
+    std::vector<CComplex> Hdata;        // entries in B-H curve;
+    std::vector<CComplex> slope;        // slopes used in interpolation
     // of BHdata
     int    LamType;         // flag that tells how block is laminated;
     //  0 = not laminated or laminated in plane;
@@ -62,13 +63,6 @@ public:
 
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
-    /**
-     * @brief fromStream constructs a CMaterialProp from an input stream (usually an input file stream)
-     * @param input
-     * @param err output stream for error messages
-     * @return a CMaterialProp, or NULL
-     */
-    static CMaterialProp *fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 
