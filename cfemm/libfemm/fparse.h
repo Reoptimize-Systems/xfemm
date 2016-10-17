@@ -2,7 +2,7 @@
 #define FEMM_FPARSE_H
 
 #include <string>
-
+#include <istream>
 namespace femm
 {
 
@@ -39,6 +39,8 @@ char *ParseDbl(char *t, double *f);
 char *ParseInt(char *t, int *f);
 char *ParseString(char *t, std::string *s);
 std::string string_format(const std::string &fmt, ...);
+bool expectChar(std::istream &input, char c, const std::string msg = "");
+void ParseString(std::istream &input, std::string *s);
 
 // declare a default warning message function
 void PrintWarningMsg(const char* message);

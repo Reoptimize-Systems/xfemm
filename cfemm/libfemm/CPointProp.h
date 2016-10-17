@@ -12,16 +12,16 @@ namespace femm {
  */
 class CPointProp
 {
-    public:
+public:
 
-        CPointProp();
+    CPointProp();
 
-        // <PointName>
-        std::string PointName;
-        CComplex J;   ///< \brief J: applied point current \code<I_re>, <I_im>\endcode
-        CComplex A;   ///< \brief A, magnetic vector potential \code<A_re>, <A_im>\endcode
+    // <PointName>
+    std::string PointName;
+    CComplex J;   ///< \brief J: applied point current \code<I_re>, <I_im>\endcode
+    CComplex A;   ///< \brief A, magnetic vector potential \code<A_re>, <A_im>\endcode
 
-    private:
+private:
 };
 
 }

@@ -22,11 +22,16 @@
 // fsolver.cpp : implementation of the FSolver class
 //
 
+#include <algorithm>
+#include <ctype.h>
+#include <fstream>
+#include <ios>
+#include <iostream>
+#include <malloc.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstring>
-#include <malloc.h>
+#include <string>
 #include "femmcomplex.h"
 #include "spars.h"
 #include "fparse.h"
@@ -131,10 +136,9 @@ void FSolver::MsgBox(const char* message)
 
 int FSolver::LoadProblemFile ()
 {
-    FILE *fp;
+    std::ifstream input;
     int j,k,ic;
-    char s[1024],q[1024];
-    char *v;
+    char s[1024];
     CPointProp       PProp;
     CMBoundaryProp   BProp;
     CMMaterialProp    MProp;
@@ -142,7 +146,8 @@ int FSolver::LoadProblemFile ()
     CMSolverBlockLabel     blk;
 
     sprintf(s,"%s.fem", PathName.c_str() );
-    if ((fp=fopen(s,"rt"))==NULL)
+    input.open(s, std::ifstream::in);
+    if (!input.is_open())
     {
         printf("Couldn't read from specified .fem file\n");
         return false;
@@ -163,173 +168,171 @@ int FSolver::LoadProblemFile ()
 
     // parse the file
 
-    while (fgets(s,1024,fp)!=NULL)
+    string token;
+    while (input.good())
     {
-        sscanf(s,"%s",q);
+        input >> token;
+        // transform token to lower case
+        transform(token.begin(), token.end(), token.begin(), ::tolower);
 
         // Frequency of the problem
-        if( _strnicmp(q,"[frequency]",11)==0)
+        if(token == "[frequency]")
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&Frequency);
-            q[0] = '\0';
+            expectChar(input, '=', "frequency");
+            input >> Frequency;
+            continue;
         }
 
         // Precision
-        if( _strnicmp(q,"[precision]",11)==0)
+        if( token == "[precision]")
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&Precision);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> Precision;
+            continue;
         }
 
         // AC Solver Type
-        if( _strnicmp(q,"[acsolver]",8)==0)
+        if( token == "[acsolver]")
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&ACSolver);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> ACSolver;
+            continue;
         }
 
         // Option to force use of default max mesh, overriding
         // user choice
-        if( _strnicmp(q,"[forcemaxmesh]",13)==0)
+        if( token == "[forcemaxmesh]")
         {
-            int temp = 0;
-            v = StripKey(s);
-            sscanf(v,"%i",&temp);
-            q[0] = '\0';
-            // 0 == do not override user mesh choice
-            // not 0 == do override user mesh choice
-            if (temp == 0)
-            {
-                DoForceMaxMeshArea = false;
-            }
-            else
-            {
-                DoForceMaxMeshArea = true;
-            }
+            expectChar(input, '=');
+            input >> DoForceMaxMeshArea;
+            continue;
         }
 
         // Units of length used by the problem
-        if( _strnicmp(q,"[lengthunits]",13)==0)
+        if( token == "[lengthunits]")
         {
-            v=StripKey(s);
-            sscanf(v,"%s",q);
-            if( _strnicmp(q,"inches",6)==0) LengthUnits=LengthInches;
-            else if( _strnicmp(q,"millimeters",11)==0) LengthUnits=LengthMillimeters;
-            else if( _strnicmp(q,"centimeters",1)==0) LengthUnits=LengthCentimeters;
-            else if( _strnicmp(q,"mils",4)==0) LengthUnits=LengthMils;
-            else if( _strnicmp(q,"microns",6)==0) LengthUnits=LengthMicrometers;
-            else if( _strnicmp(q,"meters",6)==0) LengthUnits=LengthMeters;
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> token;
+            transform(token.begin(), token.end(), token.begin(), ::tolower);
+
+            if( token == "inches" ) LengthUnits=LengthInches;
+            else if( token == "millimeters" ) LengthUnits=LengthMillimeters;
+            else if( token == "centimeters" ) LengthUnits=LengthCentimeters;
+            else if( token == "mils" ) LengthUnits=LengthMils;
+            else if( token == "microns" ) LengthUnits=LengthMicrometers;
+            else if( token == "meters" ) LengthUnits=LengthMeters;
+            continue;
         }
 
         // Problem Type (planar or axisymmetric)
-        if( _strnicmp(q,"[problemtype]",13)==0)
+        if( token == "[problemtype]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%s",q);
-            if( _strnicmp(q,"planar",6)==0) ProblemType=PLANAR;
-            if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=AXISYMMETRIC;
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> token;
+            transform(token.begin(), token.end(), token.begin(), ::tolower);
+
+            if( token == "planar" ) ProblemType=PLANAR;
+            if( token == "axisymmetric" ) ProblemType=AXISYMMETRIC;
+            continue;
         }
 
         // Coordinates (cartesian or polar)
-        if( _strnicmp(q,"[coordinates]",13)==0)
+        if( token == "[coordinates]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%s",q);
-            if ( _strnicmp(q,"cartesian",4)==0) Coords=CART;
-            if ( _strnicmp(q,"polar",5)==0) Coords=POLAR;
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> token;
+            transform(token.begin(), token.end(), token.begin(), ::tolower);
+
+            if ( token == "cartesian" ) Coords=CART;
+            if ( token == "polar" ) Coords=POLAR;
+            continue;
         }
 
         // properties for axisymmetric external region
-        if( _strnicmp(q,"[extzo]",7)==0)
+        if( token == "[extzo]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&extZo);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> extZo;
+            continue;
         }
 
-        if( _strnicmp(q,"[extro]",7)==0)
+        if( token == "[extro]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&extRo);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> extRo;
+            continue;
         }
 
-        if( _strnicmp(q,"[extri]",7)==0)
+        if( token == "[extri]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&extRi);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> extRi;
+            continue;
         }
 
         // Point Properties
-        if( _strnicmp(q,"[pointprops]",12)==0)
+        if( token == "[pointprops]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&k);
+            expectChar(input, '=');
+            input >> k;
             if (k>0) nodeproplist=new CPointProp[k];
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<beginpoint>",11)==0)
+        if( token == "<beginpoint>" )
         {
             PProp.J.re=0.;
             PProp.J.im=0.;
             PProp.A.re=0.;
             PProp.A.im=0.;
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<A_re>",6)==0)
+        if( token == "<a_re>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&PProp.A.re);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> PProp.A.re;
+            continue;
         }
 
-        if( _strnicmp(q,"<A_im>",6)==0)
+        if( token == "<a_im>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&PProp.A.im);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> PProp.A.im;
+            continue;
         }
 
-        if( _strnicmp(q,"<I_re>",6)==0)
+        if( token == "<i_re>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&PProp.J.re);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> PProp.J.re;
+            continue;
         }
 
-        if( _strnicmp(q,"<I_im>",6)==0)
+        if( token == "<i_im>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&PProp.J.im);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> PProp.J.im;
+            continue;
         }
 
-        if( _strnicmp(q,"<endpoint>",9)==0)
+        if( token == "<endpoint>" )
         {
             nodeproplist[NumPointProps]=PProp;
             NumPointProps++;
-            q[0] = '\0';
+            continue;
         }
 
         // Boundary Properties;
-        if( _strnicmp(q,"[bdryprops]",11)==0)
+        if( token == "[bdryprops]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&k);
+            expectChar(input, '=');
+            input >> k;
             if (k>0) lineproplist=new CMBoundaryProp[k];
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<beginbdry>",11)==0)
+        if( token == "<beginbdry>" )
         {
             BProp.BdryFormat=0;
             BProp.A0=0.;
@@ -340,103 +343,103 @@ int FSolver::LoadProblemFile ()
             BProp.Sig=0.;
             BProp.c0=0.;
             BProp.c1=0.;
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<bdrytype>",10)==0)
+        if( token == "<bdrytype>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&BProp.BdryFormat);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.BdryFormat;
+            continue;
         }
 
-        if( _strnicmp(q,"<mu_ssd>",8)==0)
+        if( token == "<mu_ssd>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.Mu);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.Mu;
+            continue;
         }
 
-        if( _strnicmp(q,"<sigma_ssd>",11)==0)
+        if( token == "<sigma_ssd>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.Sig);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.Sig;
+            continue;
         }
 
-        if( _strnicmp(q,"<A_0>",5)==0)
+        if( token == "<a_0>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.A0);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.A0;
+            continue;
         }
 
-        if( _strnicmp(q,"<A_1>",5)==0)
+        if( token == "<a_1>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.A1);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.A1;
+            continue;
         }
 
-        if( _strnicmp(q,"<A_2>",5)==0)
+        if( token == "<a_2>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.A2);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.A2;
+            continue;
         }
 
-        if( _strnicmp(q,"<phi>",5)==0)
+        if( token == "<phi>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.phi);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.phi;
+            continue;
         }
 
-        if( _strnicmp(q,"<c0>",4)==0)
+        if( token == "<c0>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.c0.re);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.c0.re;
+            continue;
         }
 
-        if( _strnicmp(q,"<c1>",4)==0)
+        if( token == "<c1>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.c1.re);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.c1.re;
+            continue;
         }
 
-        if( _strnicmp(q,"<c0i>",5)==0)
+        if( token == "<c0i>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.c0.im);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.c0.im;
+            continue;
         }
 
-        if( _strnicmp(q,"<c1i>",5)==0)
+        if( token == "<c1i>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&BProp.c1.im);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> BProp.c1.im;
+            continue;
         }
 
-        if( _strnicmp(q,"<endbdry>",9)==0)
+        if( token == "<endbdry>" )
         {
             lineproplist[NumLineProps]=BProp;
             NumLineProps++;
-            q[0] = '\0';
+            continue;
         }
 
         // Block Properties;
-        if( _strnicmp(q,"[blockprops]",12)==0)
+        if( token == "[blockprops]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&k);
+            expectChar(input, '=');
+            input >> k;
             if (k>0) blockproplist=new CMMaterialProp[k];
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<beginblock>",12)==0)
+        if( token == "<beginblock>" )
         {
             MProp.mu_x=1.;
             MProp.mu_y=1.;            // permeabilities, relative
@@ -456,134 +459,133 @@ int FSolver::LoadProblemFile ()
             MProp.BHpoints=0;
             MProp.Bdata=NULL;
             MProp.Hdata=NULL;
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<mu_x>",6)==0)
+        if( token == "<mu_x>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.mu_x);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.mu_x;
+            continue;
         }
 
-        if( _strnicmp(q,"<mu_y>",6)==0)
+        if( token == "<mu_y>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.mu_y);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.mu_y;
+            continue;
         }
 
-        if( _strnicmp(q,"<H_c>",5)==0)
+        if( token == "<h_c>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.H_c);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.H_c;
+            continue;
         }
 
-        if( _strnicmp(q,"<H_cAngle>",10)==0)
+        if( token == "<h_cangle>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Theta_m);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.Theta_m;
+            continue;
         }
 
-        if( _strnicmp(q,"<J_re>",6)==0)
+        if( token == "<j_re>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.J.re);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.J.re;
+            continue;
         }
 
-        if( _strnicmp(q,"<J_im>",6)==0)
+        if( token == "<j_im>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.J.im);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.J.im;
+            continue;
         }
 
-        if( _strnicmp(q,"<sigma>",7)==0)
+        if( token == "<sigma>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Cduct);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.Cduct;
+            continue;
         }
 
-        if( _strnicmp(q,"<phi_h>",7)==0)
+        if( token == "<phi_h>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Theta_hn);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.Theta_hn;
+            continue;
         }
 
 
-        if( _strnicmp(q,"<phi_hx>",7)==0)
+        if( token == "<phi_hx>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Theta_hx);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.Theta_hx;
+            continue;
         }
 
-        if( _strnicmp(q,"<phi_hy>",8)==0)
+        if( token == "<phi_hy>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Theta_hy);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.Theta_hy;
+            continue;
         }
 
-        if( _strnicmp(q,"<d_lam>",7)==0)
+        if( token == "<d_lam>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.Lam_d);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.Lam_d;
+            continue;
         }
 
-        if( _strnicmp(q,"<LamFill>",8)==0)
+        if( token == "<lamfill>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.LamFill);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.LamFill;
+            continue;
         }
 
-        if( _strnicmp(q,"<WireD>",7)==0)
+        if( token == "<wired>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&MProp.WireD);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.WireD;
+            continue;
         }
 
-        if( _strnicmp(q,"<LamType>",9)==0)
+        if( token == "<lamtype>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&MProp.LamType);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.LamType;
+            continue;
         }
 
-        if( _strnicmp(q,"<NStrands>",10)==0)
+        if( token == "<nstrands>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&MProp.NStrands);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> MProp.NStrands;
+            continue;
         }
 
-        if( _strnicmp(q,"<BHPoints>",10)==0)
+        if( token == "<bhpoints>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&MProp.BHpoints);
+            expectChar(input, '=');
+            input >> MProp.BHpoints;
             if (MProp.BHpoints>0)
             {
                 MProp.Hdata=new CComplex[MProp.BHpoints];
                 MProp.Bdata=new double[MProp.BHpoints];
                 for(j=0; j<MProp.BHpoints; j++)
                 {
-                    fgets(s,1024,fp);
-                    sscanf(s,"%lf\t%lf",&MProp.Bdata[j],&MProp.Hdata[j].re);
+                    input >> MProp.Bdata[j] >> MProp.Hdata[j].re;
                     MProp.Hdata[j].im=0;
                 }
             }
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<endblock>",9)==0)
+        if( token == "<endblock>" )
         {
             blockproplist[NumBlockProps]=MProp;
             blockproplist[NumBlockProps].GetSlopes(Frequency*2.*PI);
@@ -591,86 +593,80 @@ int FSolver::LoadProblemFile ()
             MProp.BHpoints=0;
             MProp.Bdata=NULL;
             MProp.Hdata=NULL;
-            q[0] = '\0';
+            continue;
         }
 
         // Circuit Properties
-        if( _strnicmp(q,"[circuitprops]",15)==0)
+        if( token == "[circuitprops]" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&k);
+            expectChar(input, '=');
+            input >> k;
             if(k>0) circproplist.reserve(k);
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<begincircuit>",14)==0)
+        if( token == "<begincircuit>" )
         {
             CProp.dVolts.re=0.;
             CProp.dVolts.im=0.;
             CProp.Amps.re=0.;
             CProp.Amps.im=0.;
             CProp.CircType=0;
-            q[0] = '\0';
+            continue;
         }
 
-        if( _strnicmp(q,"<voltgradient_re>",17)==0)
+        if( token == "<voltgradient_re>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&CProp.dVolts.re);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> CProp.dVolts.re;
+            continue;
         }
 
-        if( _strnicmp(q,"<voltgradient_im>",17)==0)
+        if( token == "<voltgradient_im>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&CProp.dVolts.im);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> CProp.dVolts.im;
+            continue;
         }
 
-        if( _strnicmp(q,"<totalamps_re>",14)==0)
+        if( token == "<totalamps_re>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&CProp.Amps.re);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> CProp.Amps.re;
+            continue;
         }
 
-        if( _strnicmp(q,"<totalamps_im>",14)==0)
+        if( token == "<totalamps_im>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%lf",&CProp.Amps.im);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> CProp.Amps.im;
+            continue;
         }
 
-        if( _strnicmp(q,"<circuittype>",13)==0)
+        if( token == "<circuittype>" )
         {
-            v=StripKey(s);
-            sscanf(v,"%i",&CProp.CircType);
-            q[0] = '\0';
+            expectChar(input, '=');
+            input >> CProp.CircType;
+            continue;
         }
 
-        if( _strnicmp(q,"<endcircuit>",12)==0)
+        if( token == "<endcircuit>" )
         {
             circproplist.push_back(CProp);
             NumCircProps++;
-            q[0] = '\0';
+            continue;
         }
 
 
         // read in regional attributes
-        if(_strnicmp(q,"[numblocklabels]",13)==0)
+        if(token == "[numblocklabels]" )
         {
-            int i;
-            v=StripKey(s);
-            sscanf(v,"%i",&k);
+            expectChar(input, '=');
+            input >> k;
             if (k>0) labellist=new CMSolverBlockLabel[k];
             NumBlockLabels=k;
-            for(i=0; i<k; i++)
+            for(int i=0; i<k; i++)
             {
-                fgets(s,1024,fp);
-
-//sscanf(s,"%lf%lf	%i	%lf	%i	%lf	%i	%i	%i",&blk.x,&blk.y,&blk.BlockType,&blk.MaxArea,
-//					&blk.InCircuit,&blk.MagDir,&blk.InGroup,&blk.Turns,&blk.IsExternal);
-
                 //some defaults
                 blk.x=0;
                 blk.y=0;
@@ -685,29 +681,42 @@ int FSolver::LoadProblemFile ()
                 blk.MagDirFctn.clear();
 
                 // scan in data
-                v = ParseDbl(s,&blk.x);
-                v = ParseDbl(v,&blk.y);
-                v = ParseInt(v,&blk.BlockType);
-                v = ParseDbl(v,&blk.MaxArea);
-                v = ParseInt(v,&blk.InCircuit);
-                v = ParseDbl(v,&blk.MagDir);
-                v = ParseInt(v,&blk.InGroup);
-                v = ParseInt(v,&blk.Turns);
-                int extDefault=0;
-                v = ParseInt(v,&extDefault);
+                input >> blk.x;
+                input >> blk.y;
+                input >> blk.BlockType;
+                input >> blk.MaxArea;
+                input >> blk.InCircuit;
+                input >> blk.MagDir;
+                input >> blk.InGroup;
+                input >> blk.Turns;
+
+                int extDefault;
+                input >> extDefault;
                 // second last bit in extDefault flag, we mask the other bits
                 // and take the resulting value, if not zero it will evaluate to true
                 blk.IsDefault  = extDefault & 2;
                 // last bit in extDefault flag, we mask the other bits
                 // and take the resulting value, if not zero it will evaluate to true
                 blk.IsExternal = extDefault & 1;
-                v = ParseString(v,&blk.MagDirFctn);
+
+                // MagDirFctn is an extra field not formally described in the .fem file format spec
+                ParseString(input, &blk.MagDirFctn);
+
                 blk.BlockType--;
                 blk.InCircuit--;
                 labellist[i]=blk;
             }
-            q[0] = '\0';
+            continue;
         }
+        // fall-through; token was not used
+        // -> ignore rest of line
+        //input.getline(s,1024);
+        //std::cerr << "**unused: " <<token << " " << s << std::endl;
+    }
+    if (input.bad())
+    {
+        std::cerr << "Parse error while reading input file " << PathName << ".fem!";
+        std::cerr << "Last token was: " << token;
     }
 
     // need to set these so that valid BH data doesn't get wiped
@@ -716,7 +725,7 @@ int FSolver::LoadProblemFile ()
     MProp.Bdata = NULL;
     MProp.Hdata = NULL;
 
-    fclose(fp);
+    input.close();
 
     if (NumCircProps==0) return true;
 
