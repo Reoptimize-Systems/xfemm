@@ -53,7 +53,6 @@ public:
     ~FSolver();
 
     // General problem attributes
-    double  Frequency;
     double  Relax;
 
     // mesh information
@@ -79,8 +78,6 @@ public:
     int HarmonicAxisymmetric(CBigComplexLinProb &L);
     void GetFillFactor(int lbl);
     double ElmArea(int i);
-    // pointer to function to call when issuing warning messages
-    void (*WarnMessage)(const char*);
 
 private:
 

@@ -49,6 +49,13 @@ public:
     void GetBHProps(double B, double &v, double &dv);
     virtual CComplex LaminatedBH(double omega, int i) override;
 
+    /**
+     * @brief fromStream constructs a CMaterialProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CMaterialProp, or NULL
+     */
+    static CMMaterialProp *fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 };
 

@@ -1,11 +1,13 @@
 #include "fparse.h"
 
+#include <algorithm>
 #include <string>
 #include <cstring>
 #include <cstdio>
 #include <fstream>
 #include <ios>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -148,7 +150,7 @@ void PrintWarningMsg(const char* message)
     printf("%s", message);
 }
 
-bool expectChar(istream &input, char c, const string msg)
+bool expectChar(istream &input, char c,  std::ostream &err)
 {
     input >> std::ws;
     if ( input.peek() == c )
@@ -156,19 +158,37 @@ bool expectChar(istream &input, char c, const string msg)
         input.ignore();
         return true;
     }
-    if (!msg.empty())
-    {
-        std::cerr << "Expected " << (int)c << "(" <<c
-                  <<"), but got " << input.peek()
-                 << "\nContext: " << msg << std::endl;
-    }
+    err << "Expected char code" << (int)c
+        << "(" << c << "), but got " << input.peek();
     return false;
+}
+
+bool parseToken(std::istream &input, const std::string str, std::ostream &err)
+{
+    string token;
+
+    nextToken(input, &token);
+    if ( token != str )
+    {
+        err << "Expected token " <<str<< ", but got " <<token;
+        return false;
+    }
+    return true;
+}
+
+void nextToken(istream &input, string *token)
+{
+    input >> *token;
+    // transform token to lower case
+    transform(token->begin(), token->end(), token->begin(), ::tolower);
 }
 
 void ParseString(istream &input, string *s)
 {
     char c;
-    if (!expectChar(input, '"'))
+    // use dummy stream to suppress output
+    std::stringstream dummy;
+    if (!expectChar(input, '"', dummy))
     {
         // in some places the string is optional -> don't throw an error
         return;
@@ -177,7 +197,9 @@ void ParseString(istream &input, string *s)
     input >> c;
     while( input.good() && c != '"')
     {
-        s->push_back(c);
+        // in case somebody just wants to skip the string literal, a NULL string may be passed
+        if (s)
+            s->push_back(c);
         input >> c;
     }
 }

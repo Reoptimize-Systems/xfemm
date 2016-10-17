@@ -1,8 +1,9 @@
 #ifndef FEMM_CBLOCKLABEL_H
 #define FEMM_CBLOCKLABEL_H
 
-#include <string>
 #include "femmcomplex.h"
+#include <iostream>
+#include <string>
 
 namespace femm {
 
@@ -75,6 +76,18 @@ public:
 
     int BlockType;   ///< number of block type (region)
     int InCircuit;   ///< number of associated circuit (0-indexed)
+
+    /**
+     * @brief fromStream constructs a CSolverBlockLabel from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CSolverBlockLabel
+     */
+    static CSolverBlockLabel *fromStream( std::istream &input, std::ostream &err = std::cerr );
+
+protected:
+    /// \brief initFromStream is used in subclasses which have the same on-disk representation
+    void initFromStream(std::istream &input, std::ostream &);
 };
 
 /**
@@ -111,6 +124,13 @@ public:
     double FillFactor;
     CComplex o,mu;
 
+    /**
+     * @brief fromStream constructs a CMSolverBlockLabel from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CMSolverBlockLabel
+     */
+    static CMSolverBlockLabel *fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 
 };

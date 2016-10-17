@@ -1,13 +1,19 @@
 #include "CBoundaryProp.h"
 
-#include <cstdlib>
-#include <cmath>
 #include "fullmatrix.h"
 #include "femmcomplex.h"
 #include "femmconstants.h"
+#include "fparse.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <ctype.h>
+#include <istream>
 
 #define ElementsPerSkinDepth 10
 
+using namespace std;
 using namespace femm;
 
 CBoundaryProp::CBoundaryProp()
@@ -30,6 +36,100 @@ CMBoundaryProp::CMBoundaryProp()
     // coefficients for mixed BC
     c0 = 0.;
     c1 = 0.;
+}
+
+CMBoundaryProp *CMBoundaryProp::fromStream(std::istream &input, std::ostream &err)
+{
+    CMBoundaryProp *prop = NULL;
+
+    if( parseToken(input, "<beginbdry>", err) )
+    {
+        string token;
+        prop = new CMBoundaryProp;
+        while (input.good() && token != "<endbdry>")
+        {
+            nextToken(input,&token);
+            if( token == "<bdrytype>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->BdryFormat;
+                continue;
+            }
+
+            if( token == "<mu_ssd>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->Mu;
+                continue;
+            }
+
+            if( token == "<sigma_ssd>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->Sig;
+                continue;
+            }
+
+            if( token == "<a_0>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->A0;
+                continue;
+            }
+
+            if( token == "<a_1>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->A1;
+                continue;
+            }
+
+            if( token == "<a_2>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->A2;
+                continue;
+            }
+
+            if( token == "<phi>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->phi;
+                continue;
+            }
+
+            if( token == "<c0>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->c0.re;
+                continue;
+            }
+
+            if( token == "<c1>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->c1.re;
+                continue;
+            }
+
+            if( token == "<c0i>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->c0.im;
+                continue;
+            }
+
+            if( token == "<c1i>" )
+            {
+                expectChar(input, '=', err);
+                input >> prop->c1.im;
+                continue;
+            }
+            err << "\nUnexpected token: "<<token;
+        }
+    }
+
+    return prop;
 }
 
 CHBoundaryProp::CHBoundaryProp()

@@ -1,10 +1,13 @@
 #include "CBlockLabel.h"
 
-#include <cstdlib>
-#include <cmath>
 #include "fullmatrix.h"
 #include "femmcomplex.h"
 #include "femmconstants.h"
+#include "fparse.h"
+
+#include <cmath>
+#include <ctype.h>
+#include <istream>
 
 #define ElementsPerSkinDepth 10
 
@@ -43,6 +46,41 @@ CSolverBlockLabel::CSolverBlockLabel()
 {
 }
 
+CSolverBlockLabel *CSolverBlockLabel::fromStream(istream &input, ostream &err)
+{
+    CSolverBlockLabel *prop = new CSolverBlockLabel;
+    prop->initFromStream(input,err);
+
+    return prop;
+}
+
+void CSolverBlockLabel::initFromStream(istream &input, ostream &)
+{
+    // scan in data
+    input >> x;
+    input >> y;
+    input >> BlockType;
+    BlockType--;
+    input >> MaxArea;
+    input >> InCircuit;
+    InCircuit--;
+    input >> MagDir;
+    input >> InGroup;
+    input >> Turns;
+
+    int extDefault;
+    input >> extDefault;
+    // second last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    IsDefault  = extDefault & 2;
+    // last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    IsExternal = extDefault & 1;
+
+    // MagDirFctn is an extra field not formally described in the .fem file format spec
+    ParseString(input, &MagDirFctn);
+}
+
 CMesherBlockLabel::CMesherBlockLabel()
     : CBlockLabel()
     , BlockType("<None>")
@@ -62,4 +100,13 @@ CMSolverBlockLabel::CMSolverBlockLabel()
     , o(0.)
     , mu(0.)
 {
+}
+
+CMSolverBlockLabel *CMSolverBlockLabel::fromStream(istream &input, ostream &err)
+{
+    CMSolverBlockLabel *prop = new CMSolverBlockLabel;
+
+    prop->initFromStream(input,err);
+
+    return prop;
 }
