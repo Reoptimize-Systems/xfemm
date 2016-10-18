@@ -66,6 +66,7 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     options.PlotNodes = true;
     options.InitialViewPort = [];
     options.HighlightSegments = [];
+    options.HighlightNodes = [];
     options.ShowSegmentDirections = false;
     options.ProblemStruct = [];
     options.FindGeomProblems = false;
@@ -184,6 +185,17 @@ function makefemmplot(hax,options,w,h)
                         'PlotNodes', false, ...
                         'UserData', 'mfemm', ...
                         'LineSpec', {'Color', 'red', 'LineWidth', 2});
+    end
+    
+    if ~isempty (options.HighlightNodes)
+        hold all
+        scatter (nodes(options.HighlightNodes+1,1), nodes(options.HighlightNodes+1,2), ...
+                       100, ... % marker areas
+                       'Marker', 'square', ...
+                       'MarkerFaceColor', [0.5, 0.5, 0.5] ...
+                       ...'MarkerFaceAlpha', 3/8 ...
+                       );
+        hold off
     end
 
     arclinks = getarclinks_mfemm(FemmProblem);
@@ -421,6 +433,16 @@ function plotblocklabel(w, h, maxtriarea, BlockLabel, options)
               BlockLabel.MagDirFctn, ...
               'UserData', 'mfemm', ...
               options.LabelText{:} );
+    end
+    
+    if isfield (BlockLabel , 'InCircuit') && ~isempty (BlockLabel.InCircuit)
+        
+        text( BlockLabel.Coords(1) - 1.025*(labeld/2), ...
+              BlockLabel.Coords(2) - 1.25*labeld, ...
+              sprintf ('%s : %d', BlockLabel.InCircuit, BlockLabel.Turns), ...
+              'UserData', 'mfemm', ...
+              options.LabelText{:} );
+        
     end
 
     hold off
