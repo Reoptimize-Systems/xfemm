@@ -101,6 +101,19 @@ template< class PointPropT
 void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
 ::CleanUp()
 {
+    // define some defaults
+    ACSolver=0;
+    Coords=CART;
+    Depth=-1;
+    DoForceMaxMeshArea = false;
+    Frequency=0.;
+    NumBlockProps=0;
+    NumCircProps=0;
+    NumLineProps=0;
+    NumPointProps=0;
+    Precision=1.e-08;
+    ProblemType=PLANAR;
+
     nodeproplist.clear();
     lineproplist.clear();
     blockproplist.clear();
@@ -119,15 +132,13 @@ template< class PointPropT
           , class NodeT
           >
 bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
-::LoadProblemFile()
+::LoadProblemFile(std::string &file)
 {
     std::ifstream input;
     std::stringstream msgStream;
     msgStream >> noskipws; // don't discard whitespace from message stream
-    char s[1024];
 
-    sprintf(s,"%s.fem", PathName.c_str() );
-    input.open(s, std::ifstream::in);
+    input.open(file.c_str(), std::ifstream::in);
     if (!input.is_open())
     {
         printf("Couldn't read from specified .fem file\n");
@@ -135,16 +146,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     }
 
     // define some defaults
-    Frequency=0.;
-    Precision=1.e-08;
-    ProblemType=PLANAR;
-    Coords=CART;
-    NumPointProps=0;
-    NumLineProps=0;
-    NumBlockProps=0;
-    NumCircProps=0;
-    ACSolver=0;
-    DoForceMaxMeshArea = false;
+    CleanUp();
 
     // parse the file
 
@@ -153,8 +155,16 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     {
         nextToken(input, &token);
 
+        // Depth for 2D planar problems;
+        if( token == "[depth]")
+        {
+            expectChar(input, '=',msgStream);
+            input >> Depth;
+            continue;
+        }
+
         // Frequency of the problem
-        if(token == "[frequency]")
+        if( token == "[frequency]")
         {
             expectChar(input, '=',msgStream);
             input >> Frequency;
@@ -245,6 +255,20 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             continue;
         }
 
+        if( token == "[prevsoln]" )
+        {
+            expectChar(input, '=', msgStream);
+            ParseString(input,&previousSolutionFile);
+            continue;
+        }
+
+        if( token == "[dt]" )
+        {
+            expectChar(input, '=', msgStream);
+            input >> dT;
+            continue;
+        }
+
         // Point Properties
         if( token == "[pointprops]" )
         {
@@ -316,7 +340,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         }
 
         // Circuit Properties
-        if( token == "[circuitprops]" )
+        if( token == "[circuitprops]" || token == "[conductorprops]")
         {
             expectChar(input, '=', msgStream);
             int k;
@@ -349,15 +373,15 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             NumBlockLabels=k;
             for(int i=0; i<k; i++)
             {
-                // FIXME: *blk leaks
-                BlockLabelT *blk = BlockLabelT::fromStream(input,msgStream);
+                BlockLabelT blk = BlockLabelT::fromStream(input,msgStream);
 
-                labellist.push_back(*blk);
+                labellist.push_back(blk);
             }
             continue;
         }
         // fall-through; token was not used
         // -> ignore rest of line
+        //char s[1024];
         //input.getline(s,1024);
         //std::cerr << "**unused: " <<token << " " << s << std::endl;
     }
@@ -365,13 +389,13 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     {
         string msg = "Parse error while reading input file " + PathName + ".fem!\n";
         msg += "Last token was: " + token +"\n";
-        if (!msgStream.str().empty())
-        {
-            msgStream >> msg;
-            msg += "\n";
-        }
         WarnMessage(msg.c_str());
         return false;
+    }
+    if (!msgStream.str().empty())
+    {
+        msgStream << "\n";
+        WarnMessage(msgStream.str().c_str());
     }
 
     return true;

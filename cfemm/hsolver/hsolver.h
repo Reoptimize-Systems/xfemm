@@ -43,7 +43,7 @@ class HSolver : public FEASolver<
         , femm::CHBoundaryProp
         , CHMaterialProp
         , CHConductor
-        , femm::CMSolverBlockLabel
+        , femm::CSolverBlockLabel
         , femm::CSolverNode
         >
 {
@@ -54,17 +54,6 @@ public:
 	HSolver();
 	~HSolver();
 
-    // General problem attributes
-	double  Precision;
-	double  Depth;
-	int		LengthUnits;
-	int    ProblemType;
-	int	Coords;
-	double	dT;
-	char *PrevSoln;
-
-	// Axisymmetric external region parameters
-	double extRo,extRi,extZo;
 
 	// mesh information
     femm::CSolverNode *meshnode;
@@ -72,18 +61,13 @@ public:
 	// Vector containing previous solution for time-transient analysis
 	double *Tprev;
 
-    CHMaterialProp   *blockproplist;
-    femm::CHBoundaryProp  *lineproplist;
-    CHPointProp      *nodeproplist;
-	CHConductor      *circproplist;
-    femm::CSolverBlockLabel     *labellist;
 
 // Operations
 public:
 
     int LoadMesh(bool deleteFiles=true);
     int LoadPrev();
-	int LoadProblemFile();
+    bool LoadProblemFile();
     double ChargeOnConductor(int OnConductor, CHBigLinProb &L);
 	int WriteResults(CHBigLinProb &L);
     int AnalyzeProblem(CHBigLinProb &L);

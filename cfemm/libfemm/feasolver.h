@@ -83,6 +83,9 @@ public:
     double extRi;  ///< \brief radius of interior [lfac], only valid for axisymmetric problems
     std::string comment; ///< \brief Problem description
 
+    double	dT; ///< \brief delta T used by hsolver \verbatim[dT]\endverbatim
+    std::string previousSolutionFile; ///< \brief name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
+
     int		ACSolver;
     bool    DoForceMaxMeshArea;
     bool    bMultiplyDefinedLabels;
@@ -118,7 +121,6 @@ public:
 public:
 
     virtual int LoadMesh(bool deleteFiles=true) = 0;
-    bool LoadProblemFile ();
     int Cuthill(bool deleteFiles=true);
     int SortElements();
 
@@ -126,6 +128,8 @@ public:
     void (*WarnMessage)(const char*);
 
     virtual void CleanUp();
+protected:
+    bool LoadProblemFile(std::string &file);
 private:
 
     virtual void SortNodes (int* newnum) = 0;

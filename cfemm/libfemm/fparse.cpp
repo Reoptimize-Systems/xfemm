@@ -158,7 +158,7 @@ bool expectChar(istream &input, char c,  std::ostream &err)
         input.ignore();
         return true;
     }
-    err << "Expected char code" << (int)c
+    err << "Expected char code " << (int)c
         << "(" << c << "), but got " << input.peek();
     return false;
 }

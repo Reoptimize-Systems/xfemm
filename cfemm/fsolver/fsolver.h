@@ -76,7 +76,6 @@ public:
 
 private:
 
-    void MsgBox(const char* message);
     virtual void CleanUp() override;
 
     // override parent class virtual method

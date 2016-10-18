@@ -46,39 +46,28 @@ CSolverBlockLabel::CSolverBlockLabel()
 {
 }
 
-CSolverBlockLabel *CSolverBlockLabel::fromStream(istream &input, ostream &err)
+CSolverBlockLabel CSolverBlockLabel::fromStream(istream &input, ostream &)
 {
-    CSolverBlockLabel *prop = new CSolverBlockLabel;
-    prop->initFromStream(input,err);
+    CSolverBlockLabel prop;
 
-    return prop;
-}
-
-void CSolverBlockLabel::initFromStream(istream &input, ostream &)
-{
     // scan in data
-    input >> x;
-    input >> y;
-    input >> BlockType;
-    BlockType--;
-    input >> MaxArea;
-    input >> InCircuit;
-    InCircuit--;
-    input >> MagDir;
-    input >> InGroup;
-    input >> Turns;
+    input >> prop.x;
+    input >> prop.y;
+    input >> prop.BlockType;
+    prop.BlockType--;
+    input >> prop.MaxArea;
+    input >> prop.InGroup;
 
     int extDefault;
     input >> extDefault;
     // second last bit in extDefault flag, we mask the other bits
     // and take the resulting value, if not zero it will evaluate to true
-    IsDefault  = extDefault & 2;
+    prop.IsDefault  = extDefault & 2;
     // last bit in extDefault flag, we mask the other bits
     // and take the resulting value, if not zero it will evaluate to true
-    IsExternal = extDefault & 1;
+    prop.IsExternal = extDefault & 1;
 
-    // MagDirFctn is an extra field not formally described in the .fem file format spec
-    ParseString(input, &MagDirFctn);
+    return prop;
 }
 
 CMesherBlockLabel::CMesherBlockLabel()
@@ -102,11 +91,33 @@ CMSolverBlockLabel::CMSolverBlockLabel()
 {
 }
 
-CMSolverBlockLabel *CMSolverBlockLabel::fromStream(istream &input, ostream &err)
+CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
 {
-    CMSolverBlockLabel *prop = new CMSolverBlockLabel;
+    CMSolverBlockLabel prop;
 
-    prop->initFromStream(input,err);
+    // scan in data
+    input >> prop.x;
+    input >> prop.y;
+    input >> prop.BlockType;
+    prop.BlockType--;
+    input >> prop.MaxArea;
+    input >> prop.InCircuit;
+    prop.InCircuit--;
+    input >> prop.MagDir;
+    input >> prop.InGroup;
+    input >> prop.Turns;
+
+    int extDefault;
+    input >> extDefault;
+    // second last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    prop.IsDefault  = extDefault & 2;
+    // last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    prop.IsExternal = extDefault & 1;
+
+    // MagDirFctn is an extra field not formally described in the .fem file format spec
+    ParseString(input, &prop.MagDirFctn);
 
     return prop;
 }
