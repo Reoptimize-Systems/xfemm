@@ -124,7 +124,16 @@ CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err
                 input >> prop.c1.im;
                 continue;
             }
-            err << "\nUnexpected token: "<<token;
+
+            if( token == "<bdryname>" )
+            {
+                expectChar(input, '=', err);
+                ParseString(input, &prop.BdryName);
+                continue;
+            }
+
+            if ( token != "<endbdry>")
+                err << "\nUnexpected token: "<<token;
         }
     }
 
@@ -194,7 +203,15 @@ CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
                 continue;
             }
 
-            err << "\nUnexpected token: "<<token;
+            if( token == "<bdryname>" )
+            {
+                expectChar(input, '=', err);
+                ParseString(input, &prop.BdryName);
+                continue;
+            }
+
+            if ( token != "<endbdry>")
+                err << "\nUnexpected token: "<<token;
         }
     }
 

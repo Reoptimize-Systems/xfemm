@@ -77,14 +77,14 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
                 continue;
             }
 
-            if( token == "<Ky>" )
+            if( token == "<ky>" )
             {
                 expectChar(input, '=', err);
                 input >> prop.Ky;
                 continue;
             }
 
-            if( token == "<Kt>" )
+            if( token == "<kt>" )
             {
                 expectChar(input, '=', err);
                 input >> prop.Kt;
@@ -95,6 +95,13 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
             {
                 expectChar(input, '=', err);
                 input >> prop.qv;
+                continue;
+            }
+
+            if( token == "<blockname>" )
+            {
+                expectChar(input, '=', err);
+                ParseString(input, &prop.name);
                 continue;
             }
 
@@ -117,7 +124,8 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
                 }
                 continue;
             }
-            err << "\nUnexpected token: "<<token;
+            if( token != "<endblock>")
+                err << "\nUnexpected token: "<<token;
         }
     }
 

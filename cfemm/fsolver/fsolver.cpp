@@ -119,18 +119,14 @@ void FSolver::CleanUp()
 /////////////////////////////////////////////////////////////////////////////
 // FSolver commands
 
-void FSolver::MsgBox(const char* message)
-{
-    printf("%s\n", message);
-}
-
 bool FSolver::LoadProblemFile ()
 {
     // define some defaults
     Relax=1.;
 
     // parse the file
-    if (!FEASolver_type::LoadProblemFile())
+    std::string femFile = PathName+".fem";
+    if (!FEASolver_type::LoadProblemFile(femFile))
         return false;
 
     // do some precomputations

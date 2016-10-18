@@ -49,7 +49,7 @@ template class FEASolver<
         , femm::CHBoundaryProp
         , CHMaterialProp
         , CHConductor
-        , femm::CMSolverBlockLabel
+        , femm::CSolverBlockLabel
         , femm::CSolverNode
         >;
 
@@ -86,10 +86,6 @@ HSolver::HSolver()
 {
 	meshnode=NULL;
 	Tprev=NULL;
-	blockproplist=NULL;
-	nodeproplist=NULL;
-	circproplist=NULL;
-	labellist=NULL;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
@@ -113,11 +109,8 @@ HSolver::~HSolver()
 
 void HSolver::CleanUp()
 {
+    FEASolver_type::CleanUp();
     if (meshnode!=NULL)		 delete[] meshnode;
-    if (blockproplist!=NULL) delete[] blockproplist;
-    if (nodeproplist!=NULL)	 delete[] nodeproplist;
-    if (circproplist!=NULL)	 delete[] circproplist;
-    if (labellist!=NULL)	 delete[] labellist;
     if (Tprev!=NULL)		 delete[] Tprev;
 }
 
@@ -129,366 +122,24 @@ void HSolver::MsgBox(const char* message)
     printf("%s\n", message);
 }
 
-int HSolver::LoadProblemFile ()
+bool HSolver::LoadProblemFile ()
 {
-	FILE *fp;
-	int j,k;
-	char s[1024],q[1024];
-	char *v;
-    CHPointProp	  PProp;
-	CHBoundaryProp BProp;
-    CHMaterialProp MProp;
-	CHConductor	  CProp;
-    CSolverBlockLabel   blk;
+    std::string fehFile = PathName+".feh";
 
+    return FEASolver_type::LoadProblemFile(fehFile);
 
-	sprintf(s,"%s.feh",PathName.c_str());
-	if ((fp=fopen(s,"rt"))==NULL){
-		fprintf(stderr,"Couldn't read from specified .feh file\n");
-        return false;
-	}
-
-	// define some defaults
-	Precision=1.e-08;
-	Depth=-1;
-	ProblemType=0;
-	Coords=0;
-	NumPointProps=0;
-	NumLineProps=0;
-	NumBlockProps=0;
-	NumCircProps=0;
-
-	// parse the file
-
-	while (fgets(s,1024,fp)!=NULL)
-	{
-		sscanf(s,"%s",q);
-
-		// Precision
-		if( _strnicmp(q,"[precision]",11)==0){
-			v=StripKey(s);
-			sscanf(v,"%lf",&Precision);
-			q[0]='\0';
-		}
-
-		// Units of length used by the problem
-		if( _strnicmp(q,"[lengthunits]",13)==0){
-			v=StripKey(s);
-			sscanf(v,"%s",q);
-			if( _strnicmp(q,"inches",6)==0) LengthUnits=0;
-			else if( _strnicmp(q,"millimeters",11)==0) LengthUnits=1;
-			else if( _strnicmp(q,"centimeters",1)==0) LengthUnits=2;
-			else if( _strnicmp(q,"mils",4)==0) LengthUnits=4;
-			else if( _strnicmp(q,"microns",6)==0) LengthUnits=5;
-			else if( _strnicmp(q,"meters",6)==0) LengthUnits=3;
-			q[0]='\0';
-		}
-
-		// Depth for 2D planar problems;
-		if( _strnicmp(q,"[depth]",7)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&Depth);
-		   q[0]='\0';
-		}
-
-		// Problem Type (planar or axisymmetric)
-		if( _strnicmp(q,"[problemtype]",13)==0){
-			v=StripKey(s);
-			sscanf(v,"%s",q);
-			if( _strnicmp(q,"planar",6)==0) ProblemType=0;
-			if( _strnicmp(q,"axisymmetric",3)==0) ProblemType=1;
-			q[0]='\0';
-		}
-
-		// Coordinates (cartesian or polar)
-		if( _strnicmp(q,"[coordinates]",13)==0){
-			v=StripKey(s);
-			sscanf(v,"%s",q);
-			if ( _strnicmp(q,"cartesian",4)==0) Coords=0;
-			if ( _strnicmp(q,"polar",5)==0) Coords=1;
-			q[0]='\0';
-		}
-
-		// properties for axisymmetric external region
-		if( _strnicmp(q,"[extzo]",7)==0){
-			v=StripKey(s);
-			sscanf(v,"%lf",&extZo);
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"[extro]",7)==0){
-			v=StripKey(s);
-			sscanf(v,"%lf",&extRo);
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"[extri]",7)==0){
-			v=StripKey(s);
-			sscanf(v,"%lf",&extRi);
-			q[0]='\0';
-		}
-
-		// Point Properties
-		if( _strnicmp(q,"[pointprops]",12)==0){
-			v=StripKey(s);
-			sscanf(v,"%i",&k);
-            if (k>0) nodeproplist=new CHPointProp[k];
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<beginpoint>",11)==0){
-			PProp.V=0;
-			PProp.qp=0;
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<tp>",4)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&PProp.V);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<qp>",4)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&PProp.qp);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<endpoint>",9)==0){
-			nodeproplist[NumPointProps]=PProp;
-			NumPointProps++;
-			q[0]='\0';
-		}
-
-		// Boundary Properties;
-		if( _strnicmp(q,"[bdryprops]",11)==0){
-			v=StripKey(s);
-			sscanf(v,"%i",&k);
-			if (k>0) lineproplist=(CHBoundaryProp *)calloc(k,sizeof(CHBoundaryProp));
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<beginbdry>",11)==0){
-			BProp.BdryFormat=0;
-			BProp.Tset=0;
-			BProp.Tinf=0;
-			BProp.qs=0;
-			BProp.beta=0;
-			BProp.h=0;
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<bdrytype>",10)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%i",&BProp.BdryFormat);
-		   q[0]='\0';
-		}
-
-        if( _strnicmp(q,"<Tset>",6)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&BProp.Tset);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<qs>",4)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&BProp.qs);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<beta>",6)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&BProp.beta);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<h>",3)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&BProp.h);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<Tinf>",6)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&BProp.Tinf);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<endbdry>",9)==0){
-			lineproplist[NumLineProps]=BProp;
-			NumLineProps++;
-			q[0]='\0';
-		}
-
-		// Block Properties;
-		if( _strnicmp(q,"[blockprops]",12)==0){
-			v=StripKey(s);
-			sscanf(v,"%i",&k);
-            if (k>0) blockproplist=new CHMaterialProp[k];
-			q[0]='\0';
-		}
-
-        // timestep
-        if( _strnicmp(q,"[dt]",4)==0){
-            v=StripKey(s);
-            sscanf(v,"%lf",&dT);
-            q[0]='\0';
-        }
-
-        // Previous Solution File
-        if( _strnicmp(q,"[prevsoln]",10)==0){
-			int i;
-            v=StripKey(s);
-
-            // have to do this carefully to accept a filename with spaces
-            k=(int) strlen(v);
-            for(i=0;i<k;i++)
-                if(v[i]=='\"'){
-                    v=v+i+1;
-                    i=k;
-                }
-
-            k=(int) strlen(v);
-            if(k>0) for(i=k-1;i>=0;i--){
-                if(v[i]=='\"'){
-                    v[i]=0;
-                    i=-1;
-                }
-            }
-            PrevSoln = (char *) calloc(k,sizeof(char));
-            strcpy(PrevSoln, v);
-            q[0]='\0';
-        }
-
-		if( _strnicmp(q,"<beginblock>",12)==0){
-			MProp.Kx=1;
-			MProp.Ky=1;			// permittivity, relative
-			MProp.Kt=0;
-			MProp.qv=0;			// charge density, C/m^3
-			MProp.npts=0;
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<Kx>",6)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&MProp.Kx);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<Ky>",6)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&MProp.Ky);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<Kt>",6)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&MProp.Kt);
-		   MProp.Kt*=1.e6;
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<qv>",5)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&MProp.qv);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<TKPoints>",10)==0){
-			v=StripKey(s);
-			sscanf(v,"%i",&MProp.npts);
-			if (MProp.npts>0)
-			{
-				for(j=0;j<MProp.npts;j++){
-					fgets(s,1024,fp);
-					sscanf(s,"%lf	%lf",&MProp.Kn[j].re,&MProp.Kn[j].im);
-				}
-			}
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<endblock>",9)==0){
-			blockproplist[NumBlockProps]=MProp;
-			NumBlockProps++;
-			q[0]='\0';
-		}
-
-		// Conductor Properties
-		if( _strnicmp(q,"[conductorprops]",16)==0){
-			v=StripKey(s);
-			sscanf(v,"%i",&k);
-            if(k>0) circproplist=new CHConductor[k];
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<beginconductor>",16)==0){
-			CProp.V=0;
-			CProp.q=0;
-			CProp.CircType=0;
-			q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<tc>",4)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&CProp.V);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<qc>",4)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%lf",&CProp.q);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<conductortype>",15)==0){
-		   v=StripKey(s);
-		   sscanf(v,"%i",&CProp.CircType);
-		   q[0]='\0';
-		}
-
-		if( _strnicmp(q,"<endconductor>",14)==0){
-			circproplist[NumCircProps]=CProp;
-			NumCircProps++;
-			q[0]='\0';
-		}
-
-		// read in regional attributes
-		if(_strnicmp(q,"[numblocklabels]",13)==0){
-			int i;
-			v=StripKey(s);
-			sscanf(v,"%i",&k);
-            if (k>0) labellist=new CSolverBlockLabel[k];
-			NumBlockLabels=k;
-			for(i=0;i<k;i++)
-			{
-				fgets(s,1024,fp);
-                int ext=0;
-				sscanf(s,"%lf	%lf	%i	%lf	%i	%i",&blk.x,&blk.y,&blk.BlockType,
-                    &blk.MaxArea,&blk.InGroup,&ext);
-                blk.IsDefault  = ext & 2;
-                blk.IsExternal = ext & 1;
-				blk.BlockType--;
-				labellist[i]=blk;
-			}
-			q[0]='\0';
-		}
-	}
-
-	fclose(fp);
-
-	return 1;
 }
 
 int HSolver::LoadPrev()
 {
-    if (strlen(PrevSoln)==0) return true;
+    if (previousSolutionFile.empty()) return true;
 
 	FILE *fp;
     double x,y;
     int k;
 	char s[1024],q[256];
 
-    if ((fp=fopen(PrevSoln,"rt"))==NULL)
+    if ((fp=fopen(previousSolutionFile.c_str(),"rt"))==NULL)
 	{
 		return BADELEMENTFILE;
 	}

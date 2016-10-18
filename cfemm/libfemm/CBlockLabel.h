@@ -83,11 +83,7 @@ public:
      * @param err output stream for error messages
      * @return a CSolverBlockLabel
      */
-    static CSolverBlockLabel *fromStream( std::istream &input, std::ostream &err = std::cerr );
-
-protected:
-    /// \brief initFromStream is used in subclasses which have the same on-disk representation
-    void initFromStream(std::istream &input, std::ostream &);
+    static CSolverBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
 };
 
 /**
@@ -130,10 +126,12 @@ public:
      * @param err output stream for error messages
      * @return a CMSolverBlockLabel
      */
-    static CMSolverBlockLabel *fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMSolverBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
 private:
 
 };
+
+
 }
 #endif
 

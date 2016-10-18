@@ -34,7 +34,7 @@
 #include "CCircuit.h"
 
 #include <iostream>
-
+#include <string>
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CHBoundaryProp, CPointProp
@@ -43,6 +43,7 @@ class CHMaterialProp
     // Properties
 public:
 
+    std::string name;
    	double Kx,Ky;		// thermal conductivity for linear (possibly anisotropic) regions
 	double Kt;			// volumetric heat capacity
 	double qv;			// volume heat generation
