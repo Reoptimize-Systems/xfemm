@@ -106,7 +106,6 @@ void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     Coords=CART;
     Depth=-1;
     DoForceMaxMeshArea = false;
-    Frequency=0.;
     NumBlockProps=0;
     NumCircProps=0;
     NumLineProps=0;
@@ -135,8 +134,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
 ::LoadProblemFile(std::string &file)
 {
     std::ifstream input;
-    std::stringstream msgStream;
-    msgStream >> noskipws; // don't discard whitespace from message stream
+    std::stringstream err;
+    err >> noskipws; // don't discard whitespace from message stream
 
     input.open(file.c_str(), std::ifstream::in);
     if (!input.is_open())
@@ -158,23 +157,15 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // Depth for 2D planar problems;
         if( token == "[depth]")
         {
-            expectChar(input, '=',msgStream);
+            expectChar(input, '=',err);
             input >> Depth;
-            continue;
-        }
-
-        // Frequency of the problem
-        if( token == "[frequency]")
-        {
-            expectChar(input, '=',msgStream);
-            input >> Frequency;
             continue;
         }
 
         // Precision
         if( token == "[precision]")
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             input >> Precision;
             continue;
         }
@@ -182,7 +173,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // AC Solver Type
         if( token == "[acsolver]")
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             input >> ACSolver;
             continue;
         }
@@ -191,7 +182,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // user choice
         if( token == "[forcemaxmesh]")
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             input >> DoForceMaxMeshArea;
             continue;
         }
@@ -199,7 +190,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // Units of length used by the problem
         if( token == "[lengthunits]")
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             nextToken(input, &token);
 
             if( token == "inches" ) LengthUnits=LengthInches;
@@ -214,7 +205,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // Problem Type (planar or axisymmetric)
         if( token == "[problemtype]" )
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             nextToken(input, &token);
 
             if( token == "planar" ) ProblemType=PLANAR;
@@ -225,7 +216,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // Coordinates (cartesian or polar)
         if( token == "[coordinates]" )
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             nextToken(input, &token);
 
             if ( token == "cartesian" ) Coords=CART;
@@ -236,36 +227,22 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // properties for axisymmetric external region
         if( token == "[extzo]" )
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             input >> extZo;
             continue;
         }
 
         if( token == "[extro]" )
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             input >> extRo;
             continue;
         }
 
         if( token == "[extri]" )
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             input >> extRi;
-            continue;
-        }
-
-        if( token == "[prevsoln]" )
-        {
-            expectChar(input, '=', msgStream);
-            ParseString(input,&previousSolutionFile);
-            continue;
-        }
-
-        if( token == "[dt]" )
-        {
-            expectChar(input, '=', msgStream);
-            input >> dT;
             continue;
         }
 
@@ -273,19 +250,19 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         if( token == "[pointprops]" )
         {
             int k;
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             input >> k;
             if (k>0) nodeproplist.reserve(k);
             while (input.good() && NumPointProps < k)
             {
-                PointPropT next = PointPropT::fromStream(input, msgStream);
+                PointPropT next = PointPropT::fromStream(input, err);
                 nodeproplist.push_back(next);
                 NumPointProps++;
             }
             // message will be printed after parsing is done
             if (NumPointProps != k)
             {
-                msgStream << "\nExpected "<<k<<" PointProps, but got " << NumPointProps;
+                err << "\nExpected "<<k<<" PointProps, but got " << NumPointProps;
                 break; // stop parsing
             }
             continue;
@@ -295,21 +272,21 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // Boundary Properties;
         if( token == "[bdryprops]" )
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             int k;
             input >> k;
             if (k>0) lineproplist.reserve(k);
 
             while (input.good() && NumLineProps < k)
             {
-                BoundaryPropT next = BoundaryPropT::fromStream(input, msgStream);
+                BoundaryPropT next = BoundaryPropT::fromStream(input, err);
                 lineproplist.push_back(next);
                 NumLineProps++;
             }
             // message will be printed after parsing is done
             if (NumLineProps != k)
             {
-                msgStream << "\nExpected "<<k<<" BoundaryProps, but got " << NumLineProps;
+                err << "\nExpected "<<k<<" BoundaryProps, but got " << NumLineProps;
                 break; // stop parsing
             }
             continue;
@@ -319,21 +296,21 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // Block Properties;
         if( token == "[blockprops]" )
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             int k;
             input >> k;
             if (k>0) blockproplist.reserve(k);
 
             while (input.good() && NumBlockProps < k)
             {
-                BlockPropT next = BlockPropT::fromStream(input, msgStream);
+                BlockPropT next = BlockPropT::fromStream(input, err);
                 blockproplist.push_back(next);
                 NumBlockProps++;
             }
             // message will be printed after parsing is done
             if (NumBlockProps != k)
             {
-                msgStream << "\nExpected "<<k<<" BlockProps, but got " << NumBlockProps;
+                err << "\nExpected "<<k<<" BlockProps, but got " << NumBlockProps;
                 break; // stop parsing
             }
             continue;
@@ -342,21 +319,21 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // Circuit Properties
         if( token == "[circuitprops]" || token == "[conductorprops]")
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             int k;
             input >> k;
             if(k>0) circproplist.reserve(k);
 
             while (input.good() && NumCircProps < k)
             {
-                CircuitPropT next = CircuitPropT::fromStream(input, msgStream);
+                CircuitPropT next = CircuitPropT::fromStream(input, err);
                 circproplist.push_back(next);
                 NumCircProps++;
             }
             // message will be printed after parsing is done
             if (NumCircProps != k)
             {
-                msgStream << "\nExpected "<<k<<" CircuitProps, but got " << NumCircProps;
+                err << "\nExpected "<<k<<" CircuitProps, but got " << NumCircProps;
                 break; // stop parsing
             }
             continue;
@@ -366,20 +343,24 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // read in regional attributes
         if(token == "[numblocklabels]" )
         {
-            expectChar(input, '=', msgStream);
+            expectChar(input, '=', err);
             int k;
             input >> k;
             if (k>0) labellist.reserve(k);
             NumBlockLabels=k;
             for(int i=0; i<k; i++)
             {
-                BlockLabelT blk = BlockLabelT::fromStream(input,msgStream);
+                BlockLabelT blk = BlockLabelT::fromStream(input,err);
 
                 labellist.push_back(blk);
             }
             continue;
         }
         // fall-through; token was not used
+        if (!handleToken(token, input, err))
+        {
+            err << "\nUnknown token: " << token;
+        }
         // -> ignore rest of line
         //char s[1024];
         //input.getline(s,1024);
@@ -392,13 +373,27 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         WarnMessage(msg.c_str());
         return false;
     }
-    if (!msgStream.str().empty())
+    if (!err.str().empty())
     {
-        msgStream << "\n";
-        WarnMessage(msgStream.str().c_str());
+        err << "\n";
+        WarnMessage(err.str().c_str());
     }
 
     return true;
+}
+
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::handleToken(const string &, istream &, ostream &)
+{
+    // token not handled
+    return false;
 }
 
 

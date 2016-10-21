@@ -70,7 +70,6 @@ public:
 
     // General problem attributes
     double FileFormat; ///< \brief format version of the file
-    double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
     double Precision;  ///< \brief Computing precision within FEMM
     double MinAngle;   ///< \brief angle restriction for triangulation [deg]
     double Depth;      ///< \brief typical length in z-direction [lfac]
@@ -82,9 +81,6 @@ public:
     double extRo;  ///< \brief radius of exterior [lfac], only valid for axisymmetric problems
     double extRi;  ///< \brief radius of interior [lfac], only valid for axisymmetric problems
     std::string comment; ///< \brief Problem description
-
-    double	dT; ///< \brief delta T used by hsolver \verbatim[dT]\endverbatim
-    std::string previousSolutionFile; ///< \brief name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
 
     int		ACSolver;
     bool    DoForceMaxMeshArea;
@@ -130,6 +126,19 @@ public:
     virtual void CleanUp();
 protected:
     bool LoadProblemFile(std::string &file);
+    /**
+     * @brief handleToken is called by LoadProblemFile() when a token is encountered that it can not handle.
+     *
+     * Classes subclassing FeaSolver can override this method to handle problem-specific problem file entries.
+     * If a token is understood, this method should read its remaining text from the input stream and then return \c true.
+     * If a token is not understood, the method must not change the position in the input stream, and must return \c false.
+     *
+     * @param token the token in question
+     * @param input input stream
+     * @param err output stream for error messages
+     * @return \c false, if the token is not handled. \c true, if it is handled
+     */
+    virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err);
 private:
 
     virtual void SortNodes (int* newnum) = 0;

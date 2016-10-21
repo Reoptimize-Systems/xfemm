@@ -87,8 +87,6 @@ FSolver::FSolver()
 
     meshnode = NULL;
 
-    extRo = extRi = extZo = 0.0;
-
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
@@ -570,4 +568,17 @@ void FSolver::SortNodes (int* newnum)
             meshnode[i] = swap;
         }
     }
+}
+
+bool FSolver::handleToken(const string &token, istream &input, ostream &err)
+{
+    // Frequency of the problem
+    if( token == "[frequency]")
+    {
+        expectChar(input, '=',err);
+        input >> Frequency;
+        return true;
+    }
+
+    return false;
 }

@@ -990,3 +990,21 @@ void HSolver::SortNodes (int* newnum)
         }
     }
 }
+
+bool HSolver::handleToken(const string &token, istream &input, ostream &err)
+{
+    if( token == "[prevsoln]" )
+    {
+        expectChar(input, '=', err);
+        ParseString(input,&previousSolutionFile);
+        return true;
+    }
+
+    if( token == "[dt]" )
+    {
+        expectChar(input, '=', err);
+        input >> dT;
+        return true;
+    }
+    return false;
+}
