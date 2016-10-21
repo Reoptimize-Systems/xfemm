@@ -8,10 +8,12 @@ using std::string;
 using namespace femm;
 
 CHMaterialProp::CHMaterialProp()
+    : Kx(1)
+    , Ky(1)
+    , Kt(0)
+    , qv(0)
+    , npts(0)
 {
-    Kx=Ky=1;
-    Kt=0;
-    qv=0;
 }
 
 CHMaterialProp::~CHMaterialProp()
