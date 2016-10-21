@@ -53,6 +53,12 @@ public:
     ~FSolver();
 
     // General problem attributes
+    double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
+    // axisymmetric external region parameters
+    double extZo;  ///< \brief center of exterior [lfac], only valid for axisymmetric problems
+    double extRo;  ///< \brief radius of exterior [lfac], only valid for axisymmetric problems
+    double extRi;  ///< \brief radius of interior [lfac], only valid for axisymmetric problems
+
     double  Relax;
 
     // mesh information
@@ -81,6 +87,7 @@ private:
     // override parent class virtual method
     void SortNodes (int* newnum);
 
+    bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 };
 
 /////////////////////////////////////////////////////////////////////////////

@@ -55,7 +55,11 @@ public:
 	~HSolver();
 
 
-	// mesh information
+    // General problem attributes
+    double	dT; ///< \brief delta T used by hsolver \verbatim[dT]\endverbatim
+    std::string previousSolutionFile; ///< \brief name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
+
+    // mesh information
     femm::CSolverNode *meshnode;
 
 	// Vector containing previous solution for time-transient analysis
@@ -81,6 +85,7 @@ private:
     // override parent class virtual method
     void SortNodes (int* newnum);
 
+    virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 };
 
 #endif
