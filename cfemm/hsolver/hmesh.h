@@ -88,6 +88,8 @@ public:
 
     double V,qp;
 
+    // FIXME: subclass CPointProp and mark this as override:
+    virtual void toStream( std::ostream &out ) const;
 private:
 };
 

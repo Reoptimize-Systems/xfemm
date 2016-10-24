@@ -193,6 +193,14 @@ CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
     return prop;
 }
 
+void CHPointProp::toStream(std::ostream &out) const
+{
+    out << "<BeginPoint>\n";
+    out << "<Tp> = " << V << "\n";
+    out << "<qp> = " << qp << "\n";
+    out << "<EndPoint>\n";
+}
+
 CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
 {
     CHConductor prop;

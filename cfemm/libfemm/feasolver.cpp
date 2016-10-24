@@ -396,5 +396,56 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     return false;
 }
 
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::toStream(ostream &os) const
+{
+    os << "[Format] = " << FileFormat << "\n";
+    os << "[Precision] = " << Precision << "\n";
+    os << "[MinAngle] = " << MinAngle << "\n";
+    os << "[Depth] = " << Depth << "\n";
+    os << "[LengthUnits] = " << (int)LengthUnits << "\n";
+    os << "[ProblemType] = " << (int)ProblemType << "\n";
+    os << "[Coordinates] = " << (int)Coords << "\n";
+    os << "[Comment] = \"" << comment <<"\"\n";
+
+    os << "[PointProps] = " << nodeproplist.size() <<"\n";
+    for( const auto &prop: nodeproplist)
+    {
+        prop.toStream(os);
+    }
+
+    os << "[BdryProps] = " << lineproplist.size() <<"\n";
+    for( const auto &prop: lineproplist)
+    {
+        prop.toStream(os);
+    }
+
+    os << "[BlockProps] = " << blockproplist.size() <<"\n";
+    for( const auto &prop: blockproplist)
+    {
+        prop.toStream(os);
+    }
+
+    // FIXME: get section header from CircuitPropT
+    os << "[ConductorProps] = " << circproplist.size() <<"\n";
+    for( const auto &prop: circproplist)
+    {
+        prop.toStream(os);
+    }
+
+    os << "[NumBlockLabels] = " << labellist.size() <<"\n";
+    for( const auto &prop: labellist)
+    {
+        prop.toStream(os);
+    }
+}
+
 
 
