@@ -139,6 +139,12 @@ protected:
      * @return \c false, if the token is not handled. \c true, if it is handled
      */
     virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err);
+
+    /**
+     * @brief toStream serialize the problem data and insert it to \p os
+     * @param os
+     */
+    virtual void toStream( std::ostream &os) const;
 private:
 
     virtual void SortNodes (int* newnum) = 0;
