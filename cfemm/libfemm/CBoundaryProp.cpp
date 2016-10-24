@@ -6,6 +6,7 @@
 #include "fparse.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <ctype.h>
@@ -20,6 +21,12 @@ CBoundaryProp::CBoundaryProp()
     : BdryName("New Boundary")
     , BdryFormat(0)
 {
+}
+
+void CBoundaryProp::toStream(ostream &out) const
+{
+    out << "CBoundaryProp without toStream implementation!\n";
+    assert(false && "BoundaryProp without toStream");
 }
 
 CMBoundaryProp::CMBoundaryProp()
@@ -140,6 +147,24 @@ CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err
     return prop;
 }
 
+void CMBoundaryProp::toStream(ostream &out) const
+{
+    out << "<BeginBdry>\n";
+    out << "<BdryType> = " << BdryFormat << "\n";
+    out << "<Mu_ssd> = " << Mu << "\n";
+    out << "<Sigma_ssd> = " << Sig << "\n";
+    out << "<A_0> = " << A0 << "\n";
+    out << "<A_1> = " << A1 << "\n";
+    out << "<A_2> = " << A2 << "\n";
+    out << "<Phi> = " << phi << "\n";
+    out << "<c0> = " << c0.re << "\n";
+    out << "<c1> = " << c1.re << "\n";
+    out << "<c0i> = " << c0.im << "\n";
+    out << "<c1i> = " << c1.im << "\n";
+    out << "<BdryName> = \"" << BdryName << "\"\n";
+    out << "<EndBdry>\n";
+}
+
 CHBoundaryProp::CHBoundaryProp()
     : CBoundaryProp(),
       Tset(0.0),
@@ -218,4 +243,23 @@ CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
     return prop;
 }
 
+void CHBoundaryProp::toStream(ostream &out) const
+{
+    out << "<BeginBdry>\n";
+    out << "<BdryType> = " << BdryFormat << "\n";
+    out << "<Tset> = " << Tset << "\n";
+    out << "<qs> = " << qs << "\n";
+    out << "<beta> = " << beta << "\n";
+    out << "<h> = " << h << "\n";
+    out << "<Tinf> = " << Tinf << "\n";
+    out << "<BdryName> = \"" << BdryName << "\"\n";
+    out << "<EndBdry>\n";
+}
 
+
+
+ostream &operator<<(ostream &os, const CBoundaryProp &prop)
+{
+    prop.toStream(os);
+    return os;
+}

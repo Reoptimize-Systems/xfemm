@@ -57,10 +57,27 @@ CPointProp CPointProp::fromStream(istream &input, ostream &err)
                 input >> prop.J.im;
                 continue;
             }
-            err << "\nUnexpected token: "<<token;
+            if ( token != "<endpoint>" )
+                err << "\nUnexpected token: "<<token;
         }
     }
 
     return prop;
 }
 
+void CPointProp::toStream(ostream &out) const
+{
+    out << "<BeginPoint>\n";
+    out << "<A_re> = " << A.re << "\n";
+    out << "<A_im> = " << A.im << "\n";
+    out << "<I_re> = " << J.re << "\n";
+    out << "<I_im> = " << J.im << "\n";
+    out << "<EndPoint>\n";
+}
+
+
+ostream &operator<<(ostream &os, const CPointProp &prop)
+{
+    prop.toStream(os);
+    return os;
+}

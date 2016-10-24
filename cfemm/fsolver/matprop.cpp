@@ -410,9 +410,39 @@ fsolver::CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ost
                 }
                 continue;
             }
+            if (token != "<endblock>")
             err << "\nUnexpected token: "<<token;
         }
     }
 
     return prop;
+}
+
+void CMMaterialProp::toStream(ostream &out) const
+{
+    out << "<BeginBlock>\n";
+    out << "<Mu_x> = " << mu_x << "\n";
+    out << "<Mu_y> = " << mu_y << "\n";
+    out << "<H_c> = " << H_c << "\n";
+    out << "<H_cangle> = " << Theta_m << "\n";
+    out << "<J_re> = " << J.re << "\n";
+    out << "<J_im> = " << J.im << "\n";
+    out << "<Sigma> = " << Cduct << "\n";
+    out << "<Phi_h> = " << Theta_hn << "\n";
+    out << "<Phi_hx> = " << Theta_hx << "\n";
+    out << "<Phi_hy> = " << Theta_hy << "\n";
+    out << "<d_lam> = " << Lam_d << "\n";
+    out << "<LamFill> = " << LamFill << "\n";
+    out << "<WireD> = " << WireD << "\n";
+    out << "<LamType> = " << LamType << "\n";
+    out << "<NStrands> = " << NStrands << "\n";
+    out << "<BHPoints> = " << BHpoints << "\n";
+    if (BHpoints > 0)
+    {
+        for(int i=0; i<BHpoints; i++)
+        {
+            out << Bdata.at(i) << Hdata.at(i).re << "\n";
+        }
+    }
+    out << "<EndBlock>\n";
 }

@@ -5,6 +5,7 @@
 #include "femmconstants.h"
 #include "fparse.h"
 
+#include <cassert>
 #include <cmath>
 #include <ctype.h>
 #include <istream>
@@ -35,6 +36,12 @@ void CBlockLabel::ToggleSelect()
 double CBlockLabel::GetDistance(double xo, double yo)
 {
     return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
+}
+
+void CBlockLabel::toStream(ostream &out) const
+{
+    out << "CBlockLabel without toStream implementation!\n";
+    assert(false && "CBlockLabel without toStream");
 }
 
 
@@ -68,6 +75,17 @@ CSolverBlockLabel CSolverBlockLabel::fromStream(istream &input, ostream &)
     prop.IsExternal = extDefault & 1;
 
     return prop;
+}
+
+void CSolverBlockLabel::toStream(ostream &out) const
+{
+    int extDefault = 0;
+    if (IsExternal)
+        extDefault |= 0x01;
+    if (IsDefault)
+        extDefault |= 0x02;
+
+    out << x << y << (BlockType+1) << MaxArea << InGroup << extDefault <<"\n";
 }
 
 CMesherBlockLabel::CMesherBlockLabel()
@@ -120,4 +138,24 @@ CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
     ParseString(input, &prop.MagDirFctn);
 
     return prop;
+}
+
+void CMSolverBlockLabel::toStream(ostream &out) const
+{
+    int extDefault = 0;
+    if (IsExternal)
+        extDefault |= 0x01;
+    if (IsDefault)
+        extDefault |= 0x02;
+
+    out << x << y << (BlockType+1) << MaxArea << (InCircuit+1) << MagDir << InGroup << Turns << extDefault;
+    if (!MagDirFctn.empty())
+        out << "\"" << MagDirFctn << "\"";
+    out << "\n";
+}
+
+ostream &operator<<(ostream &os, const CBlockLabel &lbl)
+{
+    lbl.toStream(os);
+    return os;
 }

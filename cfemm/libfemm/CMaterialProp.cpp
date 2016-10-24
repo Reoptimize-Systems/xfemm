@@ -6,6 +6,7 @@
 #include "fparse.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <ctype.h>
@@ -634,6 +635,12 @@ double CMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
     return DoEnergy(b1,b2);
 }
 
+void CMaterialProp::toStream(ostream &out) const
+{
+    out << "CMaterialProp without toStream implementation!\n";
+    assert(false && "CMaterialProp without toStream");
+}
+
 
 
 void CMaterialProp::GetMu(CComplex b1, CComplex b2,
@@ -753,3 +760,9 @@ void CMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
     return;
 }
 
+
+ostream &operator<<(ostream &os, const CMaterialProp &prop)
+{
+    prop.toStream(os);
+    return os;
+}

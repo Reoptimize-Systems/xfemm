@@ -29,8 +29,23 @@ public:
      * @return a CPointProp
      */
     static CPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    /**
+     * @brief toStream serializes the data and inserts it into \p out.
+     * This virtual method is called by the \c operator<<() and
+     * needs to be overridden by any subclass.
+     *
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const;
 private:
 };
 
+/**
+ * @brief operator << serializes the data in \prop and inserts it into \p os
+ * @param os
+ * @param prop
+ * @return \p os
+ */
+std::ostream& operator<< (std::ostream& os, const CPointProp& prop);
 }
 #endif

@@ -134,7 +134,32 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
     return prop;
 }
 
+void CHMaterialProp::toStream(std::ostream &out) const
+{
+    out << "<BeginBlock>\n";
+    out << "<Kx> = " << Kx << "\n";
+    out << "<Ky> = " << Ky << "\n";
+    out << "<Kt> = " << Kt << "\n";
+    out << "<qv> = " << qv << "\n";
+    if (!name.empty())
+        out << "<BlockName> = \"" << name << "\"\n";
+    out << "<TKPoints> = " << npts << "\n";
+    if (npts > 0)
+    {
+        for(int i=0; i<npts; i++)
+        {
+            out << Kn[i].re << Kn[i].im << "\n";
+        }
+    }
+    out << "<EndBlock>\n";
+}
 
+
+std::ostream &operator<<(std::ostream &os, const CHMaterialProp &prop)
+{
+    prop.toStream(os);
+    return os;
+}
 
 
 CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
@@ -200,9 +225,21 @@ CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
                 continue;
             }
 
-            err << "\nUnexpected token: "<<token;
+            if ( token != "<endconductor>")
+                err << "\nUnexpected token: "<<token;
         }
     }
 
     return prop;
+}
+
+void CHConductor::toStream(std::ostream &out) const
+{
+    out << "<BeginConductor>\n";
+    out << "<Tc>" << V << "\n";
+    out << "<qc>" << q << "\n";
+    out << "<ConductorType>" << CircType << "\n";
+    if (!CircName.empty())
+        out << "<ConductorName> =\"" << CircName << "\"\n";
+    out << "<EndConductor>\n";
 }
