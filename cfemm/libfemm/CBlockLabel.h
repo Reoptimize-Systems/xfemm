@@ -60,9 +60,28 @@ public:
     void ToggleSelect();
     double GetDistance(double xo, double yo);
 
+    /**
+     * @brief toStream serializes the data and inserts it into \p out.
+     * This virtual method is called by the \c operator<<() and
+     * needs to be overridden by any subclass.
+     *
+     * Unless \c NDEBUG is defined, this dummy implementation in the base class will call \c assert(false).
+     *
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const;
 private:
 
 };
+
+/**
+ * @brief operator << serializes the data in \lbl and inserts it into \p os
+ * @param os
+ * @param lbl
+ * @return \p os
+ */
+std::ostream& operator<< (std::ostream& os, const CBlockLabel& lbl);
+
 
 /**
  * @brief The CSolverBlockLabel class
@@ -84,6 +103,7 @@ public:
      * @return a CSolverBlockLabel
      */
     static CSolverBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
 };
 
 /**
@@ -127,6 +147,7 @@ public:
      * @return a CMSolverBlockLabel
      */
     static CMSolverBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
 private:
 
 };

@@ -56,6 +56,7 @@ public:
      * @return a CMaterialProp
      */
     static CMMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
 private:
 };
 

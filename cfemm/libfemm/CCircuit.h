@@ -12,24 +12,31 @@ namespace femm {
  */
 class CCircuit
 {
-    public:
+public:
 
-        CCircuit();
+    CCircuit();
 
-        /// \verbatim <circuitName> \endverbatim
-        std::string CircName;
+    /// \verbatim <circuitName> \endverbatim
+    std::string CircName;
 
-        /**
+    /**
          * @brief CircType
          * \verbatim
          * <type>
          * 0 = parallel
          * 1 = series
          * \endverbatim
+         *
+         * Heat flow problems:
+         * \verbatim
+         * <type>
+         * 0 = total heat flow
+         * 1 = fixed temperature
+         * \endverbatim
          */
-        int        CircType;
+    int CircType;
 
-        /**
+    /**
          * @brief Amps
          * Circuit current.
          *
@@ -38,10 +45,30 @@ class CCircuit
          * <TotalAmpsre> <TotalAmpsim>
          * \endverbatim
          */
-        CComplex  Amps;
-    private:
+    CComplex  Amps;
+
+    /**
+     * @brief toStream serializes the data and inserts it into \p out.
+     * This virtual method is called by the \c operator<<() and
+     * needs to be overridden by any subclass.
+     *
+     * Unless \c NDEBUG is defined, this dummy implementation in the base class will call \c assert(false).
+     *
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const;
+private:
 
 };
+
+/**
+ * @brief operator << serializes the data in \prop and inserts it into \p os
+ * @param os
+ * @param prop
+ * @return \p os
+ */
+std::ostream& operator<< (std::ostream& os, const CCircuit& prop);
+
 
 /**
  * @brief The CMCircuit class specializes a CCircuit for the fsolver component.
@@ -66,6 +93,7 @@ public:
      * @return a CMCircuit
      */
     static CMCircuit fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
 
 private:
 };

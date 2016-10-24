@@ -34,7 +34,26 @@ public:
      * \endverbatim
      */
     int BdryFormat;
+
+    /**
+     * @brief toStream serializes the data and inserts it into \p out.
+     * This virtual method is called by the \c operator<<() and
+     * needs to be overridden by any subclass.
+     *
+     * Unless \c NDEBUG is defined, this dummy implementation in the base class will call \c assert(false).
+     *
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const;
 };
+
+/**
+ * @brief operator << serializes the data in \prop and inserts it into \p os
+ * @param os
+ * @param prop
+ * @return \p os
+ */
+std::ostream& operator<< (std::ostream& os, const CBoundaryProp& prop);
 
 /**
  * @brief The CMBoundaryProp class holds BoundaryProp data for magnetics problems.
@@ -131,6 +150,7 @@ public:
      * @return a CMBoundaryProp
      */
     static CMBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
 
 private:
 };
@@ -157,6 +177,7 @@ public:
      * @return a CHBoundaryProp
      */
     static CHBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
 private:
 };
 

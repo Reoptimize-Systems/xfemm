@@ -68,8 +68,12 @@ public:
      * @return a CHMaterialProp
      */
     static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    // FIXME: subclass CMaterialProp and mark this as override:
+    virtual void toStream( std::ostream &out ) const;
 private:
 };
+// FIXME: subclass CMaterialProp and remove this:
+std::ostream& operator<< (std::ostream& os, const CHMaterialProp& prop);
 
 class CHPointProp
 {
@@ -117,6 +121,7 @@ public:
      * @return a CHConductor
      */
     static CHConductor fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
 private:
 };
 

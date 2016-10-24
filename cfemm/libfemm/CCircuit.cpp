@@ -6,6 +6,7 @@
 #include "fparse.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <ctype.h>
@@ -21,6 +22,12 @@ CCircuit::CCircuit()
     , CircType(0)
     , Amps()
 {
+}
+
+void CCircuit::toStream(ostream &out) const
+{
+    out << "CCircuit without toStream implementation!\n";
+    assert(false && "Circuit without toStream");
 }
 
 CMCircuit::CMCircuit()
@@ -78,9 +85,29 @@ CMCircuit CMCircuit::fromStream(std::istream &input, std::ostream &err)
                 input >> prop.CircType;
                 continue;
             }
-            err << "\nUnexpected token: "<<token;
+            if (token != "<endcircuit>")
+                err << "\nUnexpected token: "<<token;
         }
     }
 
     return prop;
+}
+
+void CMCircuit::toStream(ostream &out) const
+{
+    out << "<BeginCircuit>\n";
+    out << "<Voltgradient_re> = " << dVolts.re << "\n";
+    out << "<Voltgradient_im> = " << dVolts.im << "\n";
+    out << "<TotalAmps_re> = " << Amps.re << "\n";
+    out << "<TotalAmps_im> = " << Amps.im << "\n";
+    out << "<CircuitType> = " << CircType << "\n";
+    if (!CircName.empty())
+        out << "<CircuitName> =\"" << CircName << "\"\n";
+    out << "<EndCircuit>\n";
+}
+
+ostream &operator<<(ostream &os, const CCircuit &prop)
+{
+    prop.toStream(os);
+    return os;
 }
