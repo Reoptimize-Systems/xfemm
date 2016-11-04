@@ -135,7 +135,7 @@ CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
     prop.IsExternal = extDefault & 1;
 
     // MagDirFctn is an extra field not formally described in the .fem file format spec
-    ParseString(input, &prop.MagDirFctn);
+    parseString(input, &prop.MagDirFctn);
 
     return prop;
 }

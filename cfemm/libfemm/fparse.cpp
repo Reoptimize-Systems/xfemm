@@ -107,7 +107,7 @@ char *ParseInt(char *t, int *f)
     return v;
 }
 
-char *ParseString(char *t, string *s)
+char *parseString(char *t, string *s)
 {
     if (t==NULL) return NULL;
     if (std::strlen(t)==0) return t;
@@ -186,15 +186,19 @@ void nextToken(istream &input, string *token)
 #endif
 }
 
-void ParseString(istream &input, string *s)
+void parseString(istream &input, string *s)
 {
-    char c;
     // use dummy stream to suppress output
     std::stringstream dummy;
-    if (!expectChar(input, '"', dummy))
+    parseString(input, s, dummy);
+}
+bool parseString(istream &input, string *s, ostream &err)
+{
+    char c;
+    if (!expectChar(input, '"', err))
     {
-        // in some places the string is optional -> don't throw an error
-        return;
+        err << "Error: Invalid begin of string literal!\n";
+        return false;
     }
 
     input >> c;
@@ -205,6 +209,8 @@ void ParseString(istream &input, string *s)
             s->push_back(c);
         input >> c;
     }
+    // a valid string ends with the delimiter:
+    return (c == '"');
 }
 
 bool parseValue(istream &input, double &val, ostream &err)

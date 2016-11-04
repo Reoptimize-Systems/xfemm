@@ -6,8 +6,6 @@
 #include <algorithm>
 #include <locale>
 
-#define DEBUG_PARSER
-
 namespace femm
 {
 
@@ -42,7 +40,7 @@ const double LengthConv[6] =
 char* StripKey(char *c);
 char *ParseDbl(char *t, double *f);
 char *ParseInt(char *t, int *f);
-char *ParseString(char *t, std::string *s);
+char *parseString(char *t, std::string *s);
 std::string string_format(const std::string &fmt, ...);
 bool expectChar(std::istream &input, const char c, std::ostream &err = std::cerr);
 /**
@@ -56,13 +54,24 @@ bool expectChar(std::istream &input, const char c, std::ostream &err = std::cerr
 bool expectToken(std::istream &input, const std::string str, std::ostream &err = std::cerr);
 void nextToken(std::istream &input, std::string *token);
 /**
- * @brief ParseString reads a string literal (using the delimiter '"') from input.
+ * @brief parseString reads a string literal (using the delimiter '"') from input.
  * If the next token of the input stream is not a delimiter,
  * the stream position and string \c s remain unchanged.
+ * Use this variant (the one without an \p err parameter) when a string is optional.
  * @param input
  * @param s a string.
  */
-void ParseString(std::istream &input, std::string *s);
+void parseString(std::istream &input, std::string *s);
+/**
+ * @brief parseString reads a string literal (using the delimiter '"') from input.
+ * If the next token of the input stream is not a delimiter,
+ * the stream position and string \c s remain unchanged and an error message is printed to \p err.
+ * @param input
+ * @param s
+ * @param err
+ * @return \c true, if a string literal was read, \c false otherwise.
+ */
+bool parseString(std::istream &input, std::string *s, std::ostream &err);
 /**
  * @brief parseValue reads a double value from input.
  * All characters until the end of line are consumed.
