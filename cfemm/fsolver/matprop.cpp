@@ -411,7 +411,7 @@ fsolver::CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ost
                 continue;
             }
             if (token != "<endblock>")
-            err << "\nUnexpected token: "<<token;
+                err << "CMMaterialProp: unexpected token: "<<token << "\n";
         }
     }
 
