@@ -285,59 +285,66 @@ fsolver::CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ost
         {
             nextToken(input,&token);
 
+            if( token == "<blockname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &prop.BlockName, err);
+                continue;
+            }
+
             if( token == "<mu_x>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.mu_x;
+                parseValue(input, prop.mu_x, err);
                 continue;
             }
 
             if( token == "<mu_y>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.mu_y;
+                parseValue(input, prop.mu_y, err);
                 continue;
             }
 
             if( token == "<h_c>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.H_c;
+                parseValue(input, prop.H_c, err);
                 continue;
             }
 
             if( token == "<h_cangle>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Theta_m;
+                parseValue(input, prop.Theta_m, err);
                 continue;
             }
 
             if( token == "<j_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.J.re;
+                parseValue(input, prop.J.re, err);
                 continue;
             }
 
             if( token == "<j_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.J.im;
+                parseValue(input, prop.J.im, err);
                 continue;
             }
 
             if( token == "<sigma>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Cduct;
+                parseValue(input, prop.Cduct, err);
                 continue;
             }
 
             if( token == "<phi_h>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Theta_hn;
+                parseValue(input, prop.Theta_hn, err);
                 continue;
             }
 
@@ -345,56 +352,56 @@ fsolver::CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ost
             if( token == "<phi_hx>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Theta_hx;
+                parseValue(input, prop.Theta_hx, err);
                 continue;
             }
 
             if( token == "<phi_hy>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Theta_hy;
+                parseValue(input, prop.Theta_hy, err);
                 continue;
             }
 
             if( token == "<d_lam>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Lam_d;
+                parseValue(input, prop.Lam_d, err);
                 continue;
             }
 
             if( token == "<lamfill>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.LamFill;
+                parseValue(input, prop.LamFill, err);
                 continue;
             }
 
             if( token == "<wired>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.WireD;
+                parseValue(input, prop.WireD, err);
                 continue;
             }
 
             if( token == "<lamtype>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.LamType;
+                parseValue(input, prop.LamType, err);
                 continue;
             }
 
             if( token == "<nstrands>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.NStrands;
+                parseValue(input, prop.NStrands, err);
                 continue;
             }
 
             if( token == "<bhpoints>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.BHpoints;
+                parseValue(input, prop.BHpoints, err);
                 if (prop.BHpoints > 0)
                 {
                     prop.Hdata.reserve(prop.BHpoints);
