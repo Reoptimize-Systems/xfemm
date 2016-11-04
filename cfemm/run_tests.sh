@@ -35,12 +35,14 @@ checkdir=`readlink -f "$checkdir"`
 
 run()
 {
-	echo "$*" >> log.txt
-	"$@"
-	local retval="$?"
+	echo "Running: $*" >> log.txt
+	"$@" |tee -a log.txt
+	# tee swallows the exit value from the command, so we have to consult PIPESTATUS
+	local retval=${PIPESTATUS[0]}
 	if [[ "$retval" -ne 0 ]]
 	then
 		echo "cd '$PWD' ; $@" >&2
+		echo "Check file $PWD/log.txt" >&2
 	fi
 	return $retval
 }
