@@ -421,7 +421,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     }
     if (input.fail() || ! input.eof())
     {
-        string msg = "Parse error while reading input file " + PathName + ".fem!\n";
+        string msg = "Parse error while reading input file " + file + "!\n";
         msg += "Last token was: " + token +"\n";
         msg += err.str();
         WarnMessage(msg.c_str());
