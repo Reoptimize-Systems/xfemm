@@ -1004,7 +1004,7 @@ bool HSolver::handleToken(const string &token, istream &input, ostream &err)
     if( token == "[dt]" )
     {
         expectChar(input, '=', err);
-        input >> dT;
+        parseValue(input, dT, err);
         return true;
     }
     return false;

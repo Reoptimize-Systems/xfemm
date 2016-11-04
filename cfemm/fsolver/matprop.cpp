@@ -278,7 +278,7 @@ fsolver::CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ost
     using namespace femm;
     CMMaterialProp prop;
 
-    if( parseToken(input, "<beginblock>", err) )
+    if( expectToken(input, "<beginblock>", err) )
     {
         string token;
         while (input.good() && token != "<endblock>")

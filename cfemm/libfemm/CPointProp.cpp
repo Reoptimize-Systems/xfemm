@@ -23,7 +23,7 @@ CPointProp CPointProp::fromStream(istream &input, ostream &err)
 {
     CPointProp prop;
 
-    if( parseToken(input, "<beginpoint>", err) )
+    if( expectToken(input, "<beginpoint>", err) )
     {
         string token;
         while (input.good() && token != "<endpoint>")

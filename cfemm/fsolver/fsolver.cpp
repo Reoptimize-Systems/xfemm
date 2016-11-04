@@ -576,7 +576,7 @@ bool FSolver::handleToken(const string &token, istream &input, ostream &err)
     if( token == "[frequency]")
     {
         expectChar(input, '=',err);
-        input >> Frequency;
+        parseValue(input, Frequency, err);
         return true;
     }
 

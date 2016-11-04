@@ -48,17 +48,43 @@ bool expectChar(std::istream &input, const char c, std::ostream &err = std::cerr
  * @param err output stream for error messages
  * @return \c true, if the token was found, \c false otherwise
  */
-bool parseToken(std::istream &input, const std::string str, std::ostream &err = std::cerr);
+bool expectToken(std::istream &input, const std::string str, std::ostream &err = std::cerr);
 void nextToken(std::istream &input, std::string *token);
 /**
- * @brief ParseString
- * Read a string literal (using the delimiter '"') from input.
+ * @brief ParseString reads a string literal (using the delimiter '"') from input.
  * If the next token of the input stream is not a delimiter,
  * the stream position and string \c s remain unchanged.
  * @param input
  * @param s a string.
  */
 void ParseString(std::istream &input, std::string *s);
+/**
+ * @brief parseValue reads a double value from input.
+ * All characters until the end of line are consumed.
+ * @param input
+ * @param val
+ * @param err
+ * @return \c true, if the conversion worked, \c false otherwise
+ */
+bool parseValue(std::istream &input, double &val, std::ostream &err = std::cerr);
+/**
+ * @brief parseValue reads an int value from input.
+ * All characters until the end of line are consumed.
+ * @param input
+ * @param val
+ * @param err
+ * @return \c true, if the conversion worked, \c false otherwise
+ */
+bool parseValue(std::istream &input, int &val, std::ostream &err = std::cerr);
+/**
+ * @brief parseValue reads a bool value from input.
+ * All characters until the end of line are consumed.
+ * @param input
+ * @param val
+ * @param err
+ * @return \c true, if the conversion worked, \c false otherwise
+ */
+bool parseValue(std::istream &input, bool &val, std::ostream &err = std::cerr);
 
 // declare a default warning message function
 void PrintWarningMsg(const char* message);

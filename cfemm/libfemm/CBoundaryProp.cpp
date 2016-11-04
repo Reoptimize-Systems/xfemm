@@ -49,7 +49,7 @@ CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err
 {
     CMBoundaryProp prop;
 
-    if( parseToken(input, "<beginbdry>", err) )
+    if( expectToken(input, "<beginbdry>", err) )
     {
         string token;
         while (input.good() && token != "<endbdry>")
@@ -180,7 +180,7 @@ CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
 {
     CHBoundaryProp prop;
 
-    if( parseToken(input, "<beginbdry>", err) )
+    if( expectToken(input, "<beginbdry>", err) )
     {
         string token;
         while (input.good() && token != "<endbdry>")

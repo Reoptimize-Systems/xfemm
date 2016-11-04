@@ -44,7 +44,7 @@ CMCircuit CMCircuit::fromStream(std::istream &input, std::ostream &err)
 {
     CMCircuit prop;
 
-    if( parseToken(input, "<begincircuit>", err) )
+    if( expectToken(input, "<begincircuit>", err) )
     {
         string token;
         while (input.good() && token != "<endcircuit>")
