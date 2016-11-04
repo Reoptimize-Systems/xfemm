@@ -390,18 +390,16 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         {
             err << "Unknown token: " << token << "\n";
         }
-        // -> ignore rest of line
-        //char s[1024];
-        //input.getline(s,1024);
-        //std::cerr << "**unused: " <<token << " " << s << std::endl;
     }
-    if (input.bad())
+    if (input.fail() || ! input.eof())
     {
         string msg = "Parse error while reading input file " + PathName + ".fem!\n";
         msg += "Last token was: " + token +"\n";
+        msg += err.str();
         WarnMessage(msg.c_str());
         return false;
     }
+
     if (!err.str().empty())
     {
         WarnMessage(err.str().c_str());

@@ -181,6 +181,9 @@ void nextToken(istream &input, string *token)
     input >> *token;
     // transform token to lower case
     transform(token->begin(), token->end(), token->begin(), ::tolower);
+#ifdef DEBUG_PARSER
+    std::cerr << "Read token: " << *token << "\n";
+#endif
 }
 
 void ParseString(istream &input, string *s)
@@ -209,12 +212,13 @@ bool parseValue(istream &input, double &val, ostream &err)
     std::string valueString;
     // read rest of the line into a string:
     std::getline(input, valueString);
+    trim(valueString);
 
     try {
         std::string::size_type sz;
         val = std::stod(valueString, &sz);
-#ifdef DEBUG
-        std::cerr << valueString << " ==> " << val << std::endl;
+#ifdef DEBUG_PARSER
+        std::cerr << "parsing "<< valueString << " as " << val << " (" << sz << " chars)\n";
 #endif
         if (sz != valueString.size())
         {
@@ -237,12 +241,13 @@ bool parseValue(istream &input, int &val, ostream &err)
     std::string valueString;
     // read rest of the line into a string:
     std::getline(input, valueString);
+    trim(valueString);
 
     try {
         std::string::size_type sz;
         val = std::stoi(valueString, &sz);
-#ifdef DEBUG
-        std::cerr << valueString << " ==> " << val << std::endl;
+#ifdef DEBUG_PARSER
+        std::cerr << "parsing "<< valueString << " as " << val << " (" << sz << " chars)\n";
 #endif
         if (sz != valueString.size())
         {
