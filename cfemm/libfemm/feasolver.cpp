@@ -42,6 +42,8 @@
 #define _strnicmp strncasecmp
 #endif
 
+#define STOP_ON_UNKNOWN_TOKEN
+
 using namespace std;
 using namespace femm;
 
@@ -411,6 +413,10 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         if (!handleToken(token, input, err))
         {
             err << "Unknown token: " << token << "\n";
+#ifdef STOP_ON_UNKNOWN_TOKEN
+            // stop parsing:
+            break;
+#endif
         }
     }
     if (input.fail() || ! input.eof())
