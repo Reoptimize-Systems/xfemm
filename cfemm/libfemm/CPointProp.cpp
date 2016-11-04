@@ -33,28 +33,28 @@ CPointProp CPointProp::fromStream(istream &input, ostream &err)
             if( token == "<a_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.A.re;
+                parseValue(input, prop.A.re, err);
                 continue;
             }
 
             if( token == "<a_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.A.im;
+                parseValue(input, prop.A.im, err);
                 continue;
             }
 
             if( token == "<i_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.J.re;
+                parseValue(input, prop.J.re, err);
                 continue;
             }
 
             if( token == "<i_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.J.im;
+                parseValue(input, prop.J.im, err);
                 continue;
             }
             if ( token != "<endpoint>" )

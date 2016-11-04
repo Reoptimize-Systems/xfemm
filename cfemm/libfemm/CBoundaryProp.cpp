@@ -58,77 +58,77 @@ CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err
             if( token == "<bdrytype>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.BdryFormat;
+                parseValue(input, prop.BdryFormat, err);
                 continue;
             }
 
             if( token == "<mu_ssd>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Mu;
+                parseValue(input, prop.Mu, err);
                 continue;
             }
 
             if( token == "<sigma_ssd>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Sig;
+                parseValue(input, prop.Sig, err);
                 continue;
             }
 
             if( token == "<a_0>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.A0;
+                parseValue(input, prop.A0, err);
                 continue;
             }
 
             if( token == "<a_1>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.A1;
+                parseValue(input, prop.A1, err);
                 continue;
             }
 
             if( token == "<a_2>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.A2;
+                parseValue(input, prop.A2, err);
                 continue;
             }
 
             if( token == "<phi>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.phi;
+                parseValue(input, prop.phi, err);
                 continue;
             }
 
             if( token == "<c0>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.c0.re;
+                parseValue(input, prop.c0.re, err);
                 continue;
             }
 
             if( token == "<c1>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.c1.re;
+                parseValue(input, prop.c1.re, err);
                 continue;
             }
 
             if( token == "<c0i>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.c0.im;
+                parseValue(input, prop.c0.im, err);
                 continue;
             }
 
             if( token == "<c1i>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.c1.im;
+                parseValue(input, prop.c1.im, err);
                 continue;
             }
 
@@ -189,42 +189,42 @@ CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
             if( token == "<bdrytype>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.BdryFormat;
+                parseValue(input, prop.BdryFormat, err);
                 continue;
             }
 
             if( token == "<tset>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Tset;
+                parseValue(input, prop.Tset, err);
                 continue;
             }
 
             if( token == "<qs>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.qs;
+                parseValue(input, prop.qs, err);
                 continue;
             }
 
             if( token == "<beta>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.beta;
+                parseValue(input, prop.beta, err);
                 continue;
             }
 
             if( token == "<h>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.h;
+                parseValue(input, prop.h, err);
                 continue;
             }
 
             if( token == "<tinf>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Tinf;
+                parseValue(input, prop.Tinf, err);
                 continue;
             }
 

@@ -75,28 +75,28 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
             if( token == "<kx>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Kx;
+                parseValue(input, prop.Kx, err);
                 continue;
             }
 
             if( token == "<ky>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Ky;
+                parseValue(input, prop.Ky, err);
                 continue;
             }
 
             if( token == "<kt>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Kt;
+                parseValue(input, prop.Kt, err);
                 continue;
             }
 
             if( token == "<qv>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.qv;
+                parseValue(input, prop.qv, err);
                 continue;
             }
 
@@ -110,7 +110,7 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
             if( token == "<tkpoints>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.npts;
+                parseValue(input, prop.npts, err);
                 if (prop.npts > 0)
                 {
                     // FIXME: make Kn variable size
@@ -176,14 +176,14 @@ CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
             if( token == "<tp>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.V;
+                parseValue(input, prop.V, err);
                 continue;
             }
 
             if( token == "<qp>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.qp;
+                parseValue(input, prop.qp, err);
                 continue;
             }
             if (token != "<endpoint>")
@@ -216,21 +216,21 @@ CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
             if( token == "<tc>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.V;
+                parseValue(input, prop.V, err);
                 continue;
             }
 
             if( token == "<qc>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.q;
+                parseValue(input, prop.q, err);
                 continue;
             }
 
             if( token == "<conductortype>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.CircType;
+                parseValue(input, prop.CircType, err);
                 continue;
             }
 

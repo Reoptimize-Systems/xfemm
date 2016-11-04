@@ -51,38 +51,45 @@ CMCircuit CMCircuit::fromStream(std::istream &input, std::ostream &err)
         {
             nextToken(input, &token);
 
+            if( token == "<circuitname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &prop.CircName, err);
+                continue;
+            }
+
             if( token == "<voltgradient_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.dVolts.re;
+                parseValue(input, prop.dVolts.re, err);
                 continue;
             }
 
             if( token == "<voltgradient_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.dVolts.im;
+                parseValue(input, prop.dVolts.im, err);
                 continue;
             }
 
             if( token == "<totalamps_re>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Amps.re;
+                parseValue(input, prop.Amps.re, err);
                 continue;
             }
 
             if( token == "<totalamps_im>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.Amps.im;
+                parseValue(input, prop.Amps.im, err);
                 continue;
             }
 
             if( token == "<circuittype>" )
             {
                 expectChar(input, '=', err);
-                input >> prop.CircType;
+                parseValue(input, prop.CircType, err);
                 continue;
             }
             if (token != "<endcircuit>")
