@@ -127,7 +127,7 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
                 continue;
             }
             if( token != "<endblock>")
-                err << "\nUnexpected token: "<<token;
+                err << "CHMaterialProp: unexpected token: "<<token << "\n";
         }
     }
 
@@ -186,7 +186,8 @@ CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
                 input >> prop.qp;
                 continue;
             }
-            err << "\nUnexpected token: "<<token;
+            if (token != "<endpoint>")
+                err << "CHPointProp: unexpected token: "<<token << "\n";
         }
     }
 
@@ -234,7 +235,7 @@ CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
             }
 
             if ( token != "<endconductor>")
-                err << "\nUnexpected token: "<<token;
+                err << "CHConductor: unexpected token: "<<token << "\n";
         }
     }
 

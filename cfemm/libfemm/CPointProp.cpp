@@ -58,7 +58,7 @@ CPointProp CPointProp::fromStream(istream &input, ostream &err)
                 continue;
             }
             if ( token != "<endpoint>" )
-                err << "\nUnexpected token: "<<token;
+                err << "CPointProp: unexpected token: "<<token << "\n";
         }
     }
 

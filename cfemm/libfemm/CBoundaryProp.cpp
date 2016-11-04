@@ -140,7 +140,7 @@ CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err
             }
 
             if ( token != "<endbdry>")
-                err << "\nUnexpected token: "<<token;
+                err << "CMBoundaryProp: unexpected token: "<<token << "\n";
         }
     }
 
@@ -236,7 +236,7 @@ CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
             }
 
             if ( token != "<endbdry>")
-                err << "\nUnexpected token: "<<token;
+                err << "CHBoundaryProp: unexpected token: "<<token << "\n";
         }
     }
 

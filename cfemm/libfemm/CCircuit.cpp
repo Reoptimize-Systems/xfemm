@@ -86,7 +86,7 @@ CMCircuit CMCircuit::fromStream(std::istream &input, std::ostream &err)
                 continue;
             }
             if (token != "<endcircuit>")
-                err << "\nUnexpected token: "<<token;
+                err << "CMCircuit: unexpected token: "<<token << "\n";
         }
     }
 
