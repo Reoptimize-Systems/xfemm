@@ -57,23 +57,39 @@ template< class PointPropT
           >
 FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
 ::FEASolver()
+    : FileFormat(-1)
+    , Precision(1.e-08)
+    , MinAngle(0.)
+    , Depth(-1)
+    , LengthUnits(LengthInches)
+    , Coords(CART)
+    , ProblemType(PLANAR)
+    , extZo(0.0)
+    , extRo(0.0)
+    , extRi(0.0)
+    , comment()
+    , ACSolver(0)
+    , DoForceMaxMeshArea(false)
+    , bMultiplyDefinedLabels(false)
+    , BandWidth(0)
+    , meshele()
+    , NumNodes(0)
+    , NumEls(0)
+    , NumBlockProps(0)
+    , NumPBCs(0)
+    , NumLineProps(0)
+    , NumPointProps(0)
+    , NumCircProps(0)
+    , NumBlockLabels(0)
+    , pbclist()
+    , PathName()
+    , nodeproplist()
+    , lineproplist()
+    , blockproplist()
+    , circproplist()
+    , labellist()
+    , nodes()
 {
-    Precision = 0;
-    LengthUnits = LengthInches;
-    ProblemType = PLANAR;
-    DoForceMaxMeshArea = false;
-    Coords = CART;
-    BandWidth = 0;
-    NumNodes = 0;
-    NumEls = 0;
-    NumBlockProps = 0;
-    NumPBCs = 0;
-    NumLineProps = 0;
-    NumPointProps = 0;
-    NumCircProps = 0;
-    NumBlockLabels = 0;
-
-    extRo = extRi = extZo = 0.0;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
@@ -101,17 +117,32 @@ template< class PointPropT
 void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
 ::CleanUp()
 {
-    // define some defaults
-    ACSolver=0;
-    Coords=CART;
-    Depth=-1;
+    FileFormat = -1;
+    Precision = 1.e-08;
+    MinAngle = 0.;
+    Depth = -1;
+    LengthUnits = LengthInches;
+    Coords = CART;
+    ProblemType = PLANAR;
+    extZo = 0.0;
+    extRo = 0.0;
+    extRi = 0.0;
+    comment.clear();
+    ACSolver = 0;
     DoForceMaxMeshArea = false;
-    NumBlockProps=0;
-    NumCircProps=0;
-    NumLineProps=0;
-    NumPointProps=0;
-    Precision=1.e-08;
-    ProblemType=PLANAR;
+    bMultiplyDefinedLabels = false;
+    BandWidth = 0;
+    meshele.clear();
+    NumNodes = 0;
+    NumEls = 0;
+    NumBlockProps = 0;
+    NumPBCs = 0;
+    NumLineProps = 0;
+    NumPointProps = 0;
+    NumCircProps = 0;
+    NumBlockLabels = 0;
+    pbclist.clear();
+    PathName.clear();
 
     nodeproplist.clear();
     lineproplist.clear();
@@ -119,8 +150,6 @@ void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     circproplist.clear();
     labellist.clear();
     nodes.clear();
-    meshele.clear();
-    pbclist.clear();
 }
 
 template< class PointPropT
@@ -262,7 +291,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             // message will be printed after parsing is done
             if (NumPointProps != k)
             {
-                err << "\nExpected "<<k<<" PointProps, but got " << NumPointProps;
+                err << "Expected "<<k<<" PointProps, but got " << NumPointProps << "\n";
                 break; // stop parsing
             }
             continue;
@@ -286,7 +315,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             // message will be printed after parsing is done
             if (NumLineProps != k)
             {
-                err << "\nExpected "<<k<<" BoundaryProps, but got " << NumLineProps;
+                err << "Expected "<<k<<" BoundaryProps, but got " << NumLineProps << "\n";
                 break; // stop parsing
             }
             continue;
@@ -310,7 +339,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             // message will be printed after parsing is done
             if (NumBlockProps != k)
             {
-                err << "\nExpected "<<k<<" BlockProps, but got " << NumBlockProps;
+                err << "Expected "<<k<<" BlockProps, but got " << NumBlockProps << "\n";
                 break; // stop parsing
             }
             continue;
@@ -333,7 +362,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             // message will be printed after parsing is done
             if (NumCircProps != k)
             {
-                err << "\nExpected "<<k<<" CircuitProps, but got " << NumCircProps;
+                err << "Expected "<<k<<" CircuitProps, but got " << NumCircProps << "\n";
                 break; // stop parsing
             }
             continue;
@@ -359,7 +388,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         // fall-through; token was not used
         if (!handleToken(token, input, err))
         {
-            err << "\nUnknown token: " << token;
+            err << "Unknown token: " << token << "\n";
         }
         // -> ignore rest of line
         //char s[1024];
@@ -375,7 +404,6 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     }
     if (!err.str().empty())
     {
-        err << "\n";
         WarnMessage(err.str().c_str());
     }
 
