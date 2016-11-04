@@ -54,11 +54,6 @@ public:
 
     // General problem attributes
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
-    // axisymmetric external region parameters
-    double extZo;  ///< \brief center of exterior [lfac], only valid for axisymmetric problems
-    double extRo;  ///< \brief radius of exterior [lfac], only valid for axisymmetric problems
-    double extRi;  ///< \brief radius of interior [lfac], only valid for axisymmetric problems
-
     double  Relax;
 
     // mesh information
