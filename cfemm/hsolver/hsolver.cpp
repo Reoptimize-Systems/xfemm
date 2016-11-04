@@ -127,7 +127,8 @@ bool HSolver::LoadProblemFile ()
     std::string fehFile = PathName+".feh";
 
     bool ret = FEASolver_type::LoadProblemFile(fehFile);
-    toStream(std::cerr);
+    // print file for debugging:
+    //toStream(std::cerr);
     return ret;
 }
 
