@@ -65,7 +65,7 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
 {
     CHMaterialProp prop;
 
-    if( parseToken(input, "<beginblock>", err) )
+    if( expectToken(input, "<beginblock>", err) )
     {
         string token;
         while (input.good() && token != "<endblock>")
@@ -166,7 +166,7 @@ CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
 {
     CHPointProp prop;
 
-    if( parseToken(input, "<beginpoint>", err) )
+    if( expectToken(input, "<beginpoint>", err) )
     {
         string token;
         while (input.good() && token != "<endpoint>")
@@ -205,7 +205,7 @@ CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
 {
     CHConductor prop;
 
-    if( parseToken(input, "<beginconductor>", err) )
+    if( expectToken(input, "<beginconductor>", err) )
     {
         string token;
         while (input.good() && token != "<endconductor>")

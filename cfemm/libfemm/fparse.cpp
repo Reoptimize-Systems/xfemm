@@ -163,7 +163,7 @@ bool expectChar(istream &input, char c,  std::ostream &err)
     return false;
 }
 
-bool parseToken(std::istream &input, const std::string str, std::ostream &err)
+bool expectToken(std::istream &input, const std::string str, std::ostream &err)
 {
     string token;
 
@@ -202,6 +202,76 @@ void ParseString(istream &input, string *s)
             s->push_back(c);
         input >> c;
     }
+}
+
+bool parseValue(istream &input, double &val, ostream &err)
+{
+    std::string valueString;
+    // read rest of the line into a string:
+    std::getline(input, valueString);
+
+    try {
+        std::string::size_type sz;
+        val = std::stod(valueString, &sz);
+#ifdef DEBUG
+        std::cerr << valueString << " ==> " << val << std::endl;
+#endif
+        if (sz != valueString.size())
+        {
+            err << "Warning: trailing characters: '" << valueString.substr(sz) << "'\n";
+        }
+    } catch (std::invalid_argument e)
+    {
+        err << "Could not convert '" << valueString << "' to double: " << e.what() << "\n";
+        return false;
+    } catch (std::out_of_range e)
+    {
+        err << "Value out of range when converting '" << valueString << "' to double: " << e.what() << "\n";
+        return false;
+    }
+    return true;
+}
+
+bool parseValue(istream &input, int &val, ostream &err)
+{
+    std::string valueString;
+    // read rest of the line into a string:
+    std::getline(input, valueString);
+
+    try {
+        std::string::size_type sz;
+        val = std::stoi(valueString, &sz);
+#ifdef DEBUG
+        std::cerr << valueString << " ==> " << val << std::endl;
+#endif
+        if (sz != valueString.size())
+        {
+            err << "Warning: trailing characters: '" << valueString.substr(sz) << "'\n";
+        }
+    } catch (std::invalid_argument e)
+    {
+        err << "Could not convert '" << valueString << "' to int: " << e.what() << "\n";
+        return false;
+    } catch (std::out_of_range e)
+    {
+        err << "Value out of range when converting '" << valueString << "' to int: " << e.what() << "\n";
+        return false;
+    }
+    return true;
+}
+
+bool parseValue(istream &input, bool &val, ostream &err)
+{
+    int i=0;
+    if (! parseValue(input, i, err))
+        return false;
+
+    if ( i != 0 && i != 1)
+    {
+        err << "Warning: bool out of range: " << i << "\n";
+    }
+    val = i;
+    return true;
 }
 
 }

@@ -158,7 +158,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         if( token == "[depth]")
         {
             expectChar(input, '=',err);
-            input >> Depth;
+            parseValue(input, Depth, err);
             continue;
         }
 
@@ -166,7 +166,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         if( token == "[precision]")
         {
             expectChar(input, '=', err);
-            input >> Precision;
+            parseValue(input, Precision, err);
             continue;
         }
 
@@ -174,7 +174,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         if( token == "[acsolver]")
         {
             expectChar(input, '=', err);
-            input >> ACSolver;
+            parseValue(input, ACSolver, err);
             continue;
         }
 
@@ -183,7 +183,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         if( token == "[forcemaxmesh]")
         {
             expectChar(input, '=', err);
-            input >> DoForceMaxMeshArea;
+            parseValue(input, DoForceMaxMeshArea, err);
             continue;
         }
 
@@ -228,21 +228,21 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         if( token == "[extzo]" )
         {
             expectChar(input, '=', err);
-            input >> extZo;
+            parseValue(input, extZo, err);
             continue;
         }
 
         if( token == "[extro]" )
         {
             expectChar(input, '=', err);
-            input >> extRo;
+            parseValue(input, extRo, err);
             continue;
         }
 
         if( token == "[extri]" )
         {
             expectChar(input, '=', err);
-            input >> extRi;
+            parseValue(input, extRi, err);
             continue;
         }
 
@@ -251,7 +251,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         {
             int k;
             expectChar(input, '=', err);
-            input >> k;
+            parseValue(input, k, err);
             if (k>0) nodeproplist.reserve(k);
             while (input.good() && NumPointProps < k)
             {
@@ -274,7 +274,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         {
             expectChar(input, '=', err);
             int k;
-            input >> k;
+            parseValue(input, k, err);
             if (k>0) lineproplist.reserve(k);
 
             while (input.good() && NumLineProps < k)
@@ -298,7 +298,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         {
             expectChar(input, '=', err);
             int k;
-            input >> k;
+            parseValue(input, k, err);
             if (k>0) blockproplist.reserve(k);
 
             while (input.good() && NumBlockProps < k)
@@ -321,7 +321,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         {
             expectChar(input, '=', err);
             int k;
-            input >> k;
+            parseValue(input, k, err);
             if(k>0) circproplist.reserve(k);
 
             while (input.good() && NumCircProps < k)
@@ -345,7 +345,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         {
             expectChar(input, '=', err);
             int k;
-            input >> k;
+            parseValue(input, k, err);
             if (k>0) labellist.reserve(k);
             NumBlockLabels=k;
             for(int i=0; i<k; i++)
