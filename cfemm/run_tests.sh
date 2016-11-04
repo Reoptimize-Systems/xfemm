@@ -58,7 +58,7 @@ check_fmesher()
 	prefix="$1"
 	init_check fmesher
 	run $bindir/fmesher test/Temp.fem > test/fmesher.out || return 1
-	diff -wq test/fmesher.out.check test/fmesher.out || return 1
+	diff -wq "$PWD/"test/fmesher.out.check "$PWD/"test/fmesher.out || return 1
 }
 
 checks="$checks check_fpproc"
@@ -76,7 +76,7 @@ check_fsolver()
 	prefix="$1"
 	init_check fsolver
 	run $bindir/fsolver test/Temp > test/fsolver.out || return 1
-	diff -wq test/Temp.ans.check test/Temp.ans || return 1
+	diff -wq "$PWD/"test/Temp.ans.check "$PWD/"test/Temp.ans || return 1
 }
 
 checks="$checks check_hpproc"
@@ -85,7 +85,7 @@ check_hpproc()
 	prefix="$1"
 	init_check hpproc
 	run $bindir/hpproc-test > test/hpproc-test.out || return 1
-	diff -wq test/hpproc-test.out.check test/hpproc-test.out
+	diff -wq "$PWD/"test/hpproc-test.out.check "$PWD/"test/hpproc-test.out
 }
 
 checks="$checks check_hsolver"
@@ -98,7 +98,7 @@ check_hsolver()
 		echo "$prefix $f"
 		run $bindir/fmesher test/$f.feh > test/$f.fmesher.out || return 1
 		run $bindir/hsolver test/$f > test/$f.hsolver.out || return 1
-		diff -wq test/$f.anh.check test/$f.anh || return 1
+		diff -wq "$PWD/"test/$f.anh.check "$PWD/"test/$f.anh || return 1
 	done
 }
 
