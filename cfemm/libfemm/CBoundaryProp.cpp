@@ -135,7 +135,7 @@ CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err
             if( token == "<bdryname>" )
             {
                 expectChar(input, '=', err);
-                ParseString(input, &prop.BdryName);
+                parseString(input, &prop.BdryName);
                 continue;
             }
 
@@ -231,7 +231,7 @@ CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
             if( token == "<bdryname>" )
             {
                 expectChar(input, '=', err);
-                ParseString(input, &prop.BdryName);
+                parseString(input, &prop.BdryName);
                 continue;
             }
 

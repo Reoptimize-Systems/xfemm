@@ -997,7 +997,7 @@ bool HSolver::handleToken(const string &token, istream &input, ostream &err)
     if( token == "[prevsoln]" )
     {
         expectChar(input, '=', err);
-        ParseString(input,&previousSolutionFile);
+        parseString(input,&previousSolutionFile);
         return true;
     }
 

@@ -183,11 +183,10 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     {
         nextToken(input, &token);
 
-        // Depth for 2D planar problems;
-        if( token == "[depth]")
+        if( token == "[format]")
         {
             expectChar(input, '=',err);
-            parseValue(input, Depth, err);
+            parseValue(input, FileFormat, err);
             continue;
         }
 
@@ -199,20 +198,18 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             continue;
         }
 
-        // AC Solver Type
-        if( token == "[acsolver]")
+        if( token == "[minangle]")
         {
-            expectChar(input, '=', err);
-            parseValue(input, ACSolver, err);
+            expectChar(input, '=',err);
+            parseValue(input, MinAngle, err);
             continue;
         }
 
-        // Option to force use of default max mesh, overriding
-        // user choice
-        if( token == "[forcemaxmesh]")
+        // Depth for 2D planar problems;
+        if( token == "[depth]")
         {
-            expectChar(input, '=', err);
-            parseValue(input, DoForceMaxMeshArea, err);
+            expectChar(input, '=',err);
+            parseValue(input, Depth, err);
             continue;
         }
 
@@ -231,17 +228,6 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             continue;
         }
 
-        // Problem Type (planar or axisymmetric)
-        if( token == "[problemtype]" )
-        {
-            expectChar(input, '=', err);
-            nextToken(input, &token);
-
-            if( token == "planar" ) ProblemType=PLANAR;
-            if( token == "axisymmetric" ) ProblemType=AXISYMMETRIC;
-            continue;
-        }
-
         // Coordinates (cartesian or polar)
         if( token == "[coordinates]" )
         {
@@ -250,6 +236,17 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
 
             if ( token == "cartesian" ) Coords=CART;
             if ( token == "polar" ) Coords=POLAR;
+            continue;
+        }
+
+        // Problem Type (planar or axisymmetric)
+        if( token == "[problemtype]" )
+        {
+            expectChar(input, '=', err);
+            nextToken(input, &token);
+
+            if( token == "planar" ) ProblemType=PLANAR;
+            if( token == "axisymmetric" ) ProblemType=AXISYMMETRIC;
             continue;
         }
 
@@ -272,6 +269,31 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         {
             expectChar(input, '=', err);
             parseValue(input, extRi, err);
+            continue;
+        }
+
+
+        if( token == "[comment]" )
+        {
+            expectChar(input, '=', err);
+            parseString(input, &comment, err);
+            continue;
+        }
+
+        // AC Solver Type
+        if( token == "[acsolver]")
+        {
+            expectChar(input, '=', err);
+            parseValue(input, ACSolver, err);
+            continue;
+        }
+
+        // Option to force use of default max mesh, overriding
+        // user choice
+        if( token == "[forcemaxmesh]")
+        {
+            expectChar(input, '=', err);
+            parseValue(input, DoForceMaxMeshArea, err);
             continue;
         }
 

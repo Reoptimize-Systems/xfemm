@@ -967,7 +967,7 @@ bool FPProc::OpenDocument(string pathname)
                     blk.IsExternal = true;
                 }
 
-                v=ParseString(v,&blk.MagDirFctn);
+                v=parseString(v,&blk.MagDirFctn);
 
                 if (blk.MaxArea<0) blk.MaxArea=0;
                 else blk.MaxArea=PI*blk.MaxArea*blk.MaxArea/4.;

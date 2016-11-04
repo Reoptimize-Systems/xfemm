@@ -103,7 +103,7 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
             if( token == "<blockname>" )
             {
                 expectChar(input, '=', err);
-                ParseString(input, &prop.name);
+                parseString(input, &prop.name);
                 continue;
             }
 
