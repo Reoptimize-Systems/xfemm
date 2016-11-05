@@ -131,7 +131,6 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
         }
     }
 
-    std::cerr << "Name is "<< prop.name << " and Ky is " <<prop.Ky<<"\n";
     return prop;
 }
 
