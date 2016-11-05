@@ -218,7 +218,7 @@ int FSolver::LoadMesh(bool deleteFiles)
     sprintf(infile,"%s.node",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL)
     {
-        return BADELEMENTFILE;
+        return BADNODEFILE;
     }
     fgets(s,1024,fp);
     sscanf(s,"%i",&k);
