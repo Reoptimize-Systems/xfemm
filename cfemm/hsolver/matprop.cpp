@@ -24,7 +24,7 @@ CHMaterialProp::~CHMaterialProp()
 CHMaterialProp::CHMaterialProp( const CHMaterialProp & other)
 {
     Kx = other.Kx;
-    Ky = other.Kx;
+    Ky = other.Ky;
 	Kt = other.Kt;  // volumetric heat capacity
 	qv = other.qv;  // volume heat generation
 
