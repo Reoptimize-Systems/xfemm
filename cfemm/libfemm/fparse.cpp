@@ -178,6 +178,7 @@ bool expectToken(std::istream &input, const std::string str, std::ostream &err)
 
 void nextToken(istream &input, string *token)
 {
+    token->clear();
     input >> *token;
     // transform token to lower case
     transform(token->begin(), token->end(), token->begin(), ::tolower);

@@ -9,6 +9,7 @@
 #include <cmath>
 #include <ctype.h>
 #include <istream>
+#include <sstream>
 
 #define ElementsPerSkinDepth 10
 
@@ -111,22 +112,31 @@ CMSolverBlockLabel::CMSolverBlockLabel()
 
 CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
 {
-    CMSolverBlockLabel prop;
+    std::string line;
+    // read whole line to prevent reading from the next line if a line is malformed/too short
+    std::getline(input, line);
+    trim(line);
+    std::istringstream inputStream(line);
 
+#ifdef DEBUG_PARSING
+    std::cerr << "Reading line: " << line <<"\n";
+#endif
+
+    CMSolverBlockLabel prop;
     // scan in data
-    input >> prop.x;
-    input >> prop.y;
-    input >> prop.BlockType;
+    inputStream >> prop.x;
+    inputStream >> prop.y;
+    inputStream >> prop.BlockType;
     prop.BlockType--;
-    input >> prop.MaxArea;
-    input >> prop.InCircuit;
+    inputStream >> prop.MaxArea;
+    inputStream >> prop.InCircuit;
     prop.InCircuit--;
-    input >> prop.MagDir;
-    input >> prop.InGroup;
-    input >> prop.Turns;
+    inputStream >> prop.MagDir;
+    inputStream >> prop.InGroup;
+    inputStream >> prop.Turns;
 
     int extDefault;
-    input >> extDefault;
+    inputStream >> extDefault;
     // second last bit in extDefault flag, we mask the other bits
     // and take the resulting value, if not zero it will evaluate to true
     prop.IsDefault  = extDefault & 2;
@@ -135,7 +145,7 @@ CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
     prop.IsExternal = extDefault & 1;
 
     // MagDirFctn is an extra field not formally described in the .fem file format spec
-    parseString(input, &prop.MagDirFctn);
+    parseString(inputStream, &prop.MagDirFctn);
 
     return prop;
 }
