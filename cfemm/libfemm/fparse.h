@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <locale>
 
-//#define DEBUG_PARSER
+#define DEBUG_PARSER
 namespace femm
 {
 
@@ -60,7 +60,7 @@ void nextToken(std::istream &input, std::string *token);
  * the stream position and string \c s remain unchanged.
  * Use this variant (the one without an \p err parameter) when a string is optional.
  * @param input
- * @param s a string.
+ * @param s the result string. May be null, will be cleared.
  */
 void parseString(std::istream &input, std::string *s);
 /**
@@ -68,7 +68,7 @@ void parseString(std::istream &input, std::string *s);
  * If the next token of the input stream is not a delimiter,
  * the stream position and string \c s remain unchanged and an error message is printed to \p err.
  * @param input
- * @param s
+ * @param s the result string. May be null, will be cleared.
  * @param err
  * @return \c true, if a string literal was read, \c false otherwise.
  */

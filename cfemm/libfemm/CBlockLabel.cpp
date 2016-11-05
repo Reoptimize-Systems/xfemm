@@ -86,7 +86,7 @@ void CSolverBlockLabel::toStream(ostream &out) const
     if (IsDefault)
         extDefault |= 0x02;
 
-    out << x << y << (BlockType+1) << MaxArea << InGroup << extDefault <<"\n";
+    out << x << " " << y << " " << (BlockType+1) << " " << MaxArea << " " << InGroup << " " << extDefault <<"\n";
 }
 
 CMesherBlockLabel::CMesherBlockLabel()
