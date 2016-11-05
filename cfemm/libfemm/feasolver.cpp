@@ -181,7 +181,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     // parse the file
 
     string token;
-    while (input.good())
+    while (input.good() && !token.empty())
     {
         nextToken(input, &token);
 
@@ -397,11 +397,9 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         if(token == "[numblocklabels]" )
         {
             expectChar(input, '=', err);
-            int k;
-            parseValue(input, k, err);
-            if (k>0) labellist.reserve(k);
-            NumBlockLabels=k;
-            for(int i=0; i<k; i++)
+            parseValue(input, NumBlockLabels, err);
+            if (NumBlockLabels>0) labellist.reserve(NumBlockLabels);
+            for(int i=0; i<NumBlockLabels; i++)
             {
                 BlockLabelT blk = BlockLabelT::fromStream(input,err);
 
@@ -409,6 +407,24 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             }
             continue;
         }
+
+        if(token == "[numpoints]"
+                || token == "[numsegments]"
+                || token == "[numarcsegments]"
+                || token == "[numholes]"
+                )
+        {
+            expectChar(input, '=', err);
+            // the nodes in the .fem file seem to be unused, and
+            // the original femm code does not even read them here
+            // -> just skip the lines here:
+            int i;
+            parseValue(input, i, err);
+            for (std::string line; i>0; i--)
+                std::getline(input,line);
+            continue;
+        }
+
         // fall-through; token was not used
         if (!handleToken(token, input, err))
         {
@@ -419,7 +435,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
 #endif
         }
     }
-    if (input.fail() || ! input.eof())
+    if (input.fail() )
     {
         string msg = "Parse error while reading input file " + file + "!\n";
         msg += "Last token was: " + token +"\n";
