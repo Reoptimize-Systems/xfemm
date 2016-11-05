@@ -184,6 +184,10 @@ void nextToken(istream &input, string *token)
     transform(token->begin(), token->end(), token->begin(), ::tolower);
 #ifdef DEBUG_PARSER
     std::cerr << "Read token: " << *token << "\n";
+    if (input.eof())
+        std::cerr << "Stream is eof\n";
+    if (input.good())
+        std::cerr << "Stream is good\n";
 #endif
 }
 
