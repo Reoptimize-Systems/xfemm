@@ -186,8 +186,6 @@ void nextToken(istream &input, string *token)
     std::cerr << "Read token: " << *token << "\n";
     if (input.eof())
         std::cerr << "Stream is eof\n";
-    if (input.good())
-        std::cerr << "Stream is good\n";
 #endif
 }
 
@@ -199,6 +197,8 @@ void parseString(istream &input, string *s)
 }
 bool parseString(istream &input, string *s, ostream &err)
 {
+    if (s)
+        s->clear();
     char c;
     if (!expectChar(input, '"', err))
     {
@@ -206,6 +206,8 @@ bool parseString(istream &input, string *s, ostream &err)
         return false;
     }
 
+    ios_base::fmtflags streamFlags = input.flags();
+    input >> noskipws;
     input >> c;
     while( input.good() && c != '"')
     {
@@ -214,6 +216,11 @@ bool parseString(istream &input, string *s, ostream &err)
             s->push_back(c);
         input >> c;
     }
+    // restore flags
+    input.flags(streamFlags);
+#ifdef DEBUG_PARSER
+    std::cerr << "parsing String "<< *s <<"\n";
+#endif
     // a valid string ends with the delimiter:
     return (c == '"');
 }

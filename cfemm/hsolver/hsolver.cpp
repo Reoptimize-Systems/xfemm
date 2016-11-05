@@ -128,7 +128,10 @@ bool HSolver::LoadProblemFile ()
 
     bool ret = FEASolver_type::LoadProblemFile(fehFile);
     // print file for debugging:
-    //toStream(std::cerr);
+    std::ofstream parsedFile (PathName +".feh.parsed");
+    parsedFile.width(5);
+    parsedFile.precision(18);
+    toStream(parsedFile);
     return ret;
 }
 

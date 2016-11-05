@@ -103,7 +103,7 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
             if( token == "<blockname>" )
             {
                 expectChar(input, '=', err);
-                parseString(input, &prop.name);
+                parseString(input, &(prop.name), err);
                 continue;
             }
 
@@ -131,27 +131,28 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
         }
     }
 
+    std::cerr << "Name is "<< prop.name << " and Ky is " <<prop.Ky<<"\n";
     return prop;
 }
 
 void CHMaterialProp::toStream(std::ostream &out) const
 {
-    out << "<BeginBlock>\n";
-    out << "<Kx> = " << Kx << "\n";
-    out << "<Ky> = " << Ky << "\n";
-    out << "<Kt> = " << Kt << "\n";
-    out << "<qv> = " << qv << "\n";
+    out << "  <BeginBlock>\n";
+    out << "    <Kx> = " << Kx << "\n";
+    out << "    <Ky> = " << Ky << "\n";
+    out << "    <Kt> = " << Kt << "\n";
+    out << "    <qv> = " << qv << "\n";
     if (!name.empty())
-        out << "<BlockName> = \"" << name << "\"\n";
-    out << "<TKPoints> = " << npts << "\n";
+        out << "    <BlockName> = \"" << name << "\"\n";
+    out << "    <TKPoints> = " << npts << "\n";
     if (npts > 0)
     {
         for(int i=0; i<npts; i++)
         {
-            out << Kn[i].re << Kn[i].im << "\n";
+            out << "      " << Kn[i].re << " " << Kn[i].im << "\n";
         }
     }
-    out << "<EndBlock>\n";
+    out << "  <EndBlock>\n";
 }
 
 
