@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 
     if (theFSolver.LoadProblemFile () != true)
     {
-        theFSolver.WarnMessage("problem loading .fem file");
+        theFSolver.WarnMessage("problem loading .fem file\n");
         return 1;
     }
 

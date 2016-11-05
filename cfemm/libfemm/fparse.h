@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <locale>
 
-#define DEBUG_PARSER
+//#define DEBUG_PARSER
 namespace femm
 {
 
