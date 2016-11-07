@@ -17,11 +17,10 @@ endif ()
 add_library(hpproc STATIC 
   hpproc.cpp    
   hproblem.cpp
-  $<TARGET_OBJECTS:femm>
   )
 
 add_executable(hpproc-test
   main.cpp
   )
 
-target_link_libraries(hpproc-test hpproc)
+target_link_libraries(hpproc-test hpproc femm)

@@ -23,7 +23,6 @@ add_library(fsolver STATIC
   mmesh.h
   static2d.cpp
   staticaxi.cpp
-  $<TARGET_OBJECTS:femm>
   )
 
 add_executable(fsolver-bin
@@ -33,4 +32,4 @@ add_executable(fsolver-bin
 set_target_properties(fsolver-bin
   PROPERTIES OUTPUT_NAME fsolver)
 
-target_link_libraries(fsolver-bin fsolver)
+target_link_libraries(fsolver-bin fsolver femm)

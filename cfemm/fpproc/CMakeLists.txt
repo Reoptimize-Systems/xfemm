@@ -17,11 +17,10 @@ endif ()
 add_library(fpproc STATIC 
   fpproc.cpp    
   makemask.cpp
-  $<TARGET_OBJECTS:femm>
   )
 
 add_executable(fpproc-test
   main.cpp
   )
 
-target_link_libraries(fpproc-test fpproc)
+target_link_libraries(fpproc-test fpproc femm)
