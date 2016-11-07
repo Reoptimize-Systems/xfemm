@@ -37,7 +37,6 @@
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 
-
 class HSolver : public FEASolver<
         CHPointProp
         , femm::CHBoundaryProp
@@ -86,6 +85,7 @@ private:
     void SortNodes (int* newnum);
 
     virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
+
 };
 
 #endif

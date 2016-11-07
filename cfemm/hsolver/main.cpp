@@ -38,7 +38,6 @@
 
 //using namespace std;
 
-//#include "lua.h"
 
 int main(int argc, char** argv)
 {
