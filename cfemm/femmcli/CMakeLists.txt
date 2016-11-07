@@ -1,8 +1,6 @@
 cmake_minimum_required (VERSION 2.8.8)
 project (femmcli)
 
-set (CMAKE_CXX_STANDARD 11)
-
 add_definitions(-DDEBUG_FEMMLUA)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64") 
