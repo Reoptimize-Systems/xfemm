@@ -21,6 +21,7 @@ add_library(hsolver STATIC
   matprop.cpp
   hspars.cpp
   )
+target_link_libraries(hsolver femm)
 
 add_executable(hsolver-bin
   main.cpp
@@ -29,4 +30,4 @@ add_executable(hsolver-bin
 set_target_properties(hsolver-bin
   PROPERTIES OUTPUT_NAME hsolver)
 
-target_link_libraries(hsolver-bin hsolver femm)
+target_link_libraries(hsolver-bin hsolver)

@@ -24,6 +24,7 @@ add_library(fsolver STATIC
   static2d.cpp
   staticaxi.cpp
   )
+target_link_libraries(fsolver femm)
 
 add_executable(fsolver-bin
   main.cpp
@@ -32,4 +33,4 @@ add_executable(fsolver-bin
 set_target_properties(fsolver-bin
   PROPERTIES OUTPUT_NAME fsolver)
 
-target_link_libraries(fsolver-bin fsolver femm)
+target_link_libraries(fsolver-bin fsolver)

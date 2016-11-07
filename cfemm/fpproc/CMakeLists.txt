@@ -18,9 +18,10 @@ add_library(fpproc STATIC
   fpproc.cpp    
   makemask.cpp
   )
+target_link_libraries(fpproc femm)
 
 add_executable(fpproc-test
   main.cpp
   )
 
-target_link_libraries(fpproc-test fpproc femm)
+target_link_libraries(fpproc-test fpproc)
