@@ -77,6 +77,7 @@ add_library(femm OBJECT
   liblua/lzio.cpp
   LuaInstance.cpp
   LuaBaseCommands.cpp
+  stringTools.h
   )
 
 

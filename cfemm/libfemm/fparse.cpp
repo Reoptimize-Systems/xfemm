@@ -1,5 +1,7 @@
 #include "fparse.h"
 
+#include "stringTools.h"
+
 #include <algorithm>
 #include <string>
 #include <cstring>
