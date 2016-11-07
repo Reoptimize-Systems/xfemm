@@ -28,6 +28,7 @@
 #include "spars.h"
 #include "fsolver.h"
 #include "lua.h"
+#include "LuaInstance.h"
 //#include "boost/format.hpp"
 
 #ifdef _MSC_VER
@@ -39,8 +40,6 @@
   #define SNPRINTF std::snprintf
   #endif
 #endif
-
-extern lua_State *lua;
 
 int FSolver::StaticAxisymmetric(CBigLinProb &L)
 {
@@ -375,8 +374,9 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                     SNPRINTF(magbuff, sizeof magbuff, "r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s",
                                  (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn.c_str()));
                     str = magbuff;
+                    lua_State *lua = theLua->getLuaState();
                     top1=lua_gettop(lua);
-                    if(lua_dostring(lua,str.c_str())!=0)
+                    if(theLua->doString(str)!=0)
                     {
                         //MsgBox("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn);
                         printf("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn.c_str());

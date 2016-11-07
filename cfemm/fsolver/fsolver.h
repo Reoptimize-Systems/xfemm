@@ -36,6 +36,10 @@
 #include "CNode.h"
 #include "CPointProp.h"
 
+namespace femm {
+class LuaInstance;
+}
+
 class FSolver : public FEASolver<
         femm::CPointProp
         , femm::CMBoundaryProp
@@ -83,6 +87,8 @@ private:
     void SortNodes (int* newnum);
 
     bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
+
+    femm::LuaInstance *theLua;
 };
 
 /////////////////////////////////////////////////////////////////////////////

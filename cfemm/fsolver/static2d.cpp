@@ -28,26 +28,20 @@
 #include "mesh.h"
 #include "spars.h"
 #include "fsolver.h"
+#include "lua.h"
+#include "LuaInstance.h"
 //#include "boost/format.hpp"
 
 #ifdef _MSC_VER
-#include "liblua/lua.h"
-#include "liblua/lualib.h"
-#include "liblua/lauxlib.h"
   #ifndef SNPRINTF
   #define SNPRINTF _snprintf
   #endif
 #else
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
   #ifndef SNPRINTF
   #define SNPRINTF std::snprintf
   #endif
 #endif
 
-// declare the lua_state type *lua is declared globally in fsolver.cpp
-extern lua_State *lua;
 
 int FSolver::Static2D(CBigLinProb &L)
 {
@@ -386,8 +380,9 @@ int FSolver::Static2D(CBigLinProb &L)
                     SNPRINTF(magbuff, sizeof magbuff, "x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s",
                                   (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn.c_str()));
                     str = magbuff;
+                    lua_State * lua = theLua->getLuaState();
                     top1 = lua_gettop(lua);
-                    if((lua_error_code = lua_dostring(lua,str.c_str())) != 0)
+                    if((lua_error_code = theLua->doString(str)) != 0)
                     {
                         /*
                         		if (lua_error_code==LUA_ERRRUN)
