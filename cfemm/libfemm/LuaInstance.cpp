@@ -60,7 +60,7 @@ femm::LuaInstance::~LuaInstance()
     lua_close(lua);
 }
 
-int femm::LuaInstance::doBuffer(const std::__cxx11::string &luaString, const std::__cxx11::string &chunkName, LuaStackMode mode)
+int femm::LuaInstance::doBuffer(const std::string &luaString, const std::string &chunkName, LuaStackMode mode)
 {
     int stackTop = lua_gettop(lua);
     int result = lua_dobuffer(lua, luaString.c_str(), luaString.size(), chunkName.c_str());
@@ -72,7 +72,7 @@ int femm::LuaInstance::doBuffer(const std::__cxx11::string &luaString, const std
     return result;
 }
 
-int femm::LuaInstance::doFile(const std::__cxx11::string &filename, femm::LuaInstance::LuaStackMode mode)
+int femm::LuaInstance::doFile(const std::string &filename, femm::LuaInstance::LuaStackMode mode)
 {
     int stackTop = lua_gettop(lua);
     int result = lua_dofile(lua, filename.c_str());
@@ -84,7 +84,7 @@ int femm::LuaInstance::doFile(const std::__cxx11::string &filename, femm::LuaIns
     return result;
 }
 
-int femm::LuaInstance::doString(const std::__cxx11::string &luaString, femm::LuaInstance::LuaStackMode mode)
+int femm::LuaInstance::doString(const std::string &luaString, femm::LuaInstance::LuaStackMode mode)
 {
     int stackTop = lua_gettop(lua);
     int result = lua_dostring(lua, luaString.c_str());
