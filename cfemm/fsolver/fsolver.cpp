@@ -26,7 +26,7 @@
 #include "femmcomplex.h"
 #include "fparse.h"
 #include "fsolver.h"
-#include "lua.h"
+#include "LuaInstance.h"
 #include "mmesh.h"
 #include "spars.h"
 
@@ -62,23 +62,11 @@ using namespace std;
 using namespace femm;
 using fsolver::CMMaterialProp;
 
-extern lua_State *lua; // the main lua object
-
-extern void lua_baselibopen (lua_State *L);
-extern void lua_iolibopen (lua_State *L);
-extern void lua_strlibopen (lua_State *L);
-extern void lua_mathlibopen (lua_State *L);
-extern void lua_dblibopen (lua_State *L);
-extern int bLinehook;
-extern int lua_byebye;
-
-lua_State *lua;
-int bLinehook;
-int lua_byebye;
 /////////////////////////////////////////////////////////////////////////////
 // FSolver construction/destruction
 
 FSolver::FSolver()
+    : theLua(new LuaInstance)
 {
     Frequency = 0.0;
     Relax = 0.0;
@@ -91,19 +79,12 @@ FSolver::FSolver()
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
 
-    // Initialize Lua
-    bLinehook = false;
     bMultiplyDefinedLabels = false;
-    lua = lua_open(4096);
-    lua_baselibopen(lua);
-    lua_strlibopen(lua);
-    lua_mathlibopen(lua);
-    lua_iolibopen(lua);
 }
 
 FSolver::~FSolver()
 {
-    lua_close(lua);
+    delete theLua;
     CleanUp();
 }
 

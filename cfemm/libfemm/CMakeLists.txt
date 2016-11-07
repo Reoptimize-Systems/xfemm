@@ -75,6 +75,8 @@ add_library(femm OBJECT
   liblua/lstrlib.cpp
   liblua/ltm.cpp   
   liblua/lzio.cpp
+  LuaInstance.cpp
+  LuaBaseCommands.cpp
   )
 
 
