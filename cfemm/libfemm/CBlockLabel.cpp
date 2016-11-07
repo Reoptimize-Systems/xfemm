@@ -4,6 +4,7 @@
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "fparse.h"
+#include "stringTools.h"
 
 #include <cassert>
 #include <cmath>

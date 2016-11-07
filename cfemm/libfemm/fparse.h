@@ -104,24 +104,5 @@ bool parseValue(std::istream &input, bool &val, std::ostream &err = std::cerr);
 // declare a default warning message function
 void PrintWarningMsg(const char* message);
 
-// taken from https://stackoverflow.com/posts/217605/revisions :
-// trim from start (in place)
-inline void ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-                                    std::not1(std::ptr_fun<int, int>(std::isspace))));
-}
-
-// trim from end (in place)
-inline void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(),
-                         std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-}
-
-// trim from both ends (in place)
-inline void trim(std::string &s) {
-    ltrim(s);
-    rtrim(s);
-}
-
 }
 #endif
