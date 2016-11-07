@@ -18,9 +18,10 @@ add_library(hpproc STATIC
   hpproc.cpp    
   hproblem.cpp
   )
+target_link_libraries(hpproc femm)
 
 add_executable(hpproc-test
   main.cpp
   )
 
-target_link_libraries(hpproc-test hpproc femm)
+target_link_libraries(hpproc-test hpproc)
