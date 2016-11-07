@@ -10,7 +10,7 @@ message("PROJECT_SOURCE_DIR points to " ${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/liblua)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/liblua)
 
-add_library(femm OBJECT
+add_library(femm
   CArcSegment.cpp
   CArcSegment.h
   CBlockLabel.cpp

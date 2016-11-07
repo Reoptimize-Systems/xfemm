@@ -22,7 +22,6 @@ add_library(fmesher STATIC
   nosebl.cpp  
   triangle.c  
   writepoly.cpp
-  $<TARGET_OBJECTS:femm>
   )
 
 add_executable(fmesher-bin
@@ -32,4 +31,4 @@ add_executable(fmesher-bin
 set_target_properties(fmesher-bin
   PROPERTIES OUTPUT_NAME fmesher)
 
-target_link_libraries(fmesher-bin fmesher)
+target_link_libraries(fmesher-bin fmesher femm)
