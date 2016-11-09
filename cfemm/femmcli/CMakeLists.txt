@@ -22,5 +22,5 @@ add_executable(femmcli-bin
 set_target_properties(femmcli-bin
   PROPERTIES OUTPUT_NAME femmcli)
 
-target_link_libraries(femmcli-bin femm)
+target_link_libraries(femmcli-bin femm fsolver)
 # vi:expandtab:tabstop=2 shiftwidth=2:
