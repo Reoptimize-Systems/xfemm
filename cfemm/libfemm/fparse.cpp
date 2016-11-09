@@ -183,8 +183,7 @@ void nextToken(istream &input, string *token)
 {
     token->clear();
     input >> *token;
-    // transform token to lower case
-    transform(token->begin(), token->end(), token->begin(), ::tolower);
+    to_lower(*token);
 #ifdef DEBUG_PARSER
     std::cerr << "Read token: " << *token << "\n";
     if (input.eof())

@@ -13,6 +13,11 @@
 
 namespace femm
 {
+inline void to_lower(std::string &s)
+{
+    // transform s to lower case
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
 
 // taken from https://stackoverflow.com/posts/217605/revisions :
 // trim from start (in place)
