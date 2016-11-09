@@ -104,18 +104,18 @@ check_hsolver()
 	done
 }
 
-#checks="$checks check_femmcli"
-#check_femmcli()
-#{
-#	prefix="$1"
-#	init_check femmcli
-#	for f in `ls test/*.lua`
-#	do
-#		echo "$prefix $f"
-#		run $bindir/femmcli --lua-script=$f > $f.out 2>$f.err || return 1
-#		diff -wq $f.out.check $f.out || return 1
-#	done
-#}
+checks="$checks check_femmcli"
+check_femmcli()
+{
+	prefix="$1"
+	init_check femmcli
+	for f in `ls test/*.lua`
+	do
+		echo "$prefix $f"
+		run $bindir/femmcli --lua-script=$f > $f.out 2>$f.err || return 1
+		diff -wq $f.out.check $f.out || return 1
+	done
+}
 
 for arg
 do
