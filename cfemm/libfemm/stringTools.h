@@ -41,5 +41,11 @@ inline bool ends_with(std::string const & value, std::string const & ending)
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+inline bool begins_with(std::string const & value, std::string const & beginning)
+{
+    if (beginning.size() > value.size())
+         return false;
+    return std::equal(beginning.begin(), beginning.end(), value.begin());
+}
 }
 #endif
