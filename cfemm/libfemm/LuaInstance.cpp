@@ -15,8 +15,8 @@
 
 #include "LuaInstance.h"
 
-#include <femmcomplex.h>
-#include <femmversion.h>
+#include "femmcomplex.h"
+#include "femmversion.h"
 
 #include <lua.h>
 #include <lualib.h>
