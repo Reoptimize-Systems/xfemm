@@ -10,11 +10,6 @@ endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
 include_directories(../libfemm/liblua)
 include_directories(../libfemm)
 
-if (NOT TARGET femm)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libfemm ${CMAKE_CURRENT_BINARY_DIR}/libfemm)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libfemm/liblua ${CMAKE_CURRENT_BINARY_DIR}/libfemm/liblua)
-endif ()
-
 add_library(hsolver STATIC 
   hmesh.h
   hsolver.cpp
