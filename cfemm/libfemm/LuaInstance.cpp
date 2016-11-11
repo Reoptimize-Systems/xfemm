@@ -213,12 +213,23 @@ int femm::LuaInstance::luaGetCompatibilityMode(lua_State *L)
 
 /**
  * @brief femm::LuaInstance::luaTrace prints info on the stack frame.
+ * \verbatim
+ * trace()
+ * trace(int bt) ... bt=1 for full backtrace
+ * \endverbatim
  * @param L
  * @return 0
  */
 int femm::LuaInstance::luaTrace(lua_State *L)
 {
-    luaStackInfo(L, CurrentFrameInfo);
+    StackInfoMode mode = CurrentFrameInfo;
+    if (lua_gettop(L)!=0)
+    {
+        if (1 == lua_tonumber(L,1).Re())
+            mode = FullStackInfo;
+    }
+    // startLevel=1 to omit trace function itself
+    luaStackInfo(L, 1, mode);
     return 0;
 }
 
@@ -226,23 +237,24 @@ int femm::LuaInstance::luaTrace(lua_State *L)
  * @brief femm::LuaInstance::luaStackInfo
  * Prints information about the call stack
  * @param L the lua state
+ * @param level start level of stack trace (use 0 for current stack frame, 1 for the one above that, ...)
  * @param info what information to print
  */
-void femm::LuaInstance::luaStackInfo(lua_State *L, femm::LuaInstance::StackInfoMode info)
+void femm::LuaInstance::luaStackInfo(lua_State *L, int level, femm::LuaInstance::StackInfoMode info)
 {
-    int i=0;
     do {
         lua_Debug ar; // activation record
         // collect frame info for current frame
-        if (!lua_getstack(L,i,&ar))
+        if (!lua_getstack(L,level,&ar))
             break;
-        // fill ar fields from collected information
-        lua_getinfo(L, "lnS", &ar);
         // padding for info
-        std::cerr << std::string(' ',i);
+        std::cout.width(level);
+        std::cout << ' ';
+        // force event to a sane value:
+        ar.event = "";
         // print info
         luaStackHook(L, &ar);
-        i++;
+        level++;
     } while (info == FullStackInfo);
 }
 
@@ -255,16 +267,23 @@ void femm::LuaInstance::luaStackHook(lua_State *L, lua_Debug *ar)
 {
     assert(ar);
     // fill ar fields from collected information
-    lua_getinfo(L, "nS", ar);
-    std::cerr << ar->namewhat << " " << ar->what;
+    lua_getinfo(L, "lnS", ar);
+    if (ar->currentline != -1)
+    {
+        std::cout.width(9);
+        std::cout << std::left << ar->currentline << " ";
+    }
+    if (ar->namewhat[0] != '\0')
+        std::cout << ar->namewhat << " ";
+    std::cout << ar->what;
     if (ar->name)
-        std::cerr << " " << ar->name << "()";
-    if (ar->event)
-        std::cerr << " " << ar->event;
-    std::cerr << " [" << ar->short_src;
+        std::cout << " " << ar->name << "()";
+    if (ar->event && ar->event[0] != '\0' )
+        std::cout << " " << ar->event;
+    std::cout << " [" << ar->short_src;
     if (ar->linedefined != -1)
-        std::cerr << ":" << ar->linedefined;
-    std::cerr << "]\n";
+        std::cout << ":" << ar->linedefined;
+    std::cout << "]\n";
 }
 
 // vi:expandtab:tabstop=4 shiftwidth=4:

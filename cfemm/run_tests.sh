@@ -95,13 +95,15 @@ check_hsolver()
 {
 	prefix="$1"
 	init_check hsolver
+	local retval=0
 	for f in Temp0 #Temp1
 	do
 		echo "$prefix $f"
-		run $bindir/fmesher test/$f.feh > test/$f.fmesher.out || return 1
-		run $bindir/hsolver test/$f > test/$f.hsolver.out || return 1
-		diff -wq "$PWD/"test/$f.anh.check "$PWD/"test/$f.anh || return 1
+		run $bindir/fmesher test/$f.feh > test/$f.fmesher.out || retval=1
+		run $bindir/hsolver test/$f > test/$f.hsolver.out || retval=1
+		diff -wq "$PWD/"test/$f.anh.check "$PWD/"test/$f.anh || retval=1
 	done
+	return $retval
 }
 
 checks="$checks check_femmcli"
@@ -109,12 +111,14 @@ check_femmcli()
 {
 	prefix="$1"
 	init_check femmcli
+	local retval=0
 	for f in `ls test/*.lua`
 	do
 		echo "$prefix $f"
-		run $bindir/femmcli --lua-script=$f > $f.out 2>$f.err || return 1
-		diff -wq $f.out.check $f.out || return 1
+		run $bindir/femmcli --quiet --lua-script=$f > $f.out || retval=1
+		diff -wq $f.out.check $f.out || retval=1
 	done
+	return $retval
 }
 
 for arg

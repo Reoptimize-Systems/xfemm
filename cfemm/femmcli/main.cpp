@@ -27,6 +27,11 @@
 
 using namespace femm;
 
+/**
+ * @brief quiet if true, reduce commandline-output
+ */
+bool quiet = false;
+
 enum OperationMode { NoOperation, LuaMode, SolverMode };
 
 /**
@@ -68,7 +73,10 @@ int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool 
     switch(err)
     {
         case 0:
-            std::cerr << "No errors\n";
+            if (!quiet)
+            {
+                std::cerr << "No errors\n";
+            }
             break;
         case LUA_ERRRUN:
             std::cerr << "Error running chunk\n";
@@ -307,6 +315,11 @@ int main(int argc, char ** argv)
         if (arg == "--lua-enable-tracing" )
         {
             luaTrace = true;
+            continue;
+        }
+        if (arg == "-q" || arg == "--quiet")
+        {
+            quiet = true;
             continue;
         }
         if (arg == "-h" || arg == "--help")

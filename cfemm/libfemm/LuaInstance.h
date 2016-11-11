@@ -119,7 +119,7 @@ private:
     static int luaSetCompatibilityMode(lua_State *L);
     static int luaGetCompatibilityMode(lua_State *L);
     static int luaTrace(lua_State *L);
-    static void luaStackInfo(lua_State *L, StackInfoMode info );
+    static void luaStackInfo(lua_State *L, int startLevel, StackInfoMode info );
     static void luaStackHook(lua_State *L, lua_Debug *ar);
 };
 
