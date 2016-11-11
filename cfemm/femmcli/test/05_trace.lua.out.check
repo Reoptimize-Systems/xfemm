@@ -1,0 +1,4 @@
+ 12        main [file `test/05_trace.lua':0]
+ 9         global Lua FUN() [file `test/05_trace.lua':8]
+  13        main [file `test/05_trace.lua':0]
+SUCCESS
