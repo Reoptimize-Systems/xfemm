@@ -322,12 +322,12 @@ int main(int argc, char ** argv)
             quiet = true;
             continue;
         }
-        if (arg == "-h" || arg == "--help")
-        {
-            std::cout << "Usage: " << exe << " (--lua-script=<file.lua>|--solve-file=<file.feX>)\n";
-            return 0;
-        }
-        std::cerr << "Unknown argument: " << arg << std::endl;
+        // unhandled argument -> print usage and exit
+        if (arg != "-h" && arg != "--help")
+            std::cerr << "Unknown argument: " << arg << std::endl;
+        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-enable-tracing] --lua-script=<file.lua>\n";
+        std::cout << "       " << exe << " --solve-file=<file.feX>\n";
+        return 1;
     }
     if (inputFile.empty())
     {
