@@ -11,6 +11,7 @@
 #include "fsolver.h"
 #include "LuaBaseCommands.h"
 #include "LuaInstance.h"
+#include "LuaMagneticsCommands.h"
 #include "stringTools.h"
 
 #include <cassert>
@@ -35,12 +36,13 @@ enum OperationMode { NoOperation, LuaMode, SolverMode };
  * @param luaInit a lua file containing initialization code
  * @return the result of lua_dostring()
  */
-int execLuaFile( const std::string &inputFile, const std::string &luaInit)
+int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace)
 {
     // initialize interpreter
     LuaInstance li;
     LuaBaseCommands::registerCommands(li);
-    //LuaMagneticsCommands::registerCommands(li);
+    LuaMagneticsCommands::registerCommands(li);
+    li.enableTracing(luaTrace);
     // canned initialization
     if (!luaInit.empty())
     {
@@ -279,6 +281,7 @@ int main(int argc, char ** argv)
     OperationMode opMode { NoOperation };
     std::string inputFile;
     std::string luaInit { exeDir + "init.lua" };
+    bool luaTrace = false;
 
     for(int i=1; i<argc; i++)
     {
@@ -301,6 +304,11 @@ int main(int argc, char ** argv)
             std::cerr << "Using custom init.lua: " << luaInit << std::endl;
             continue;
         }
+        if (arg == "--lua-enable-tracing" )
+        {
+            luaTrace = true;
+            continue;
+        }
         if (arg == "-h" || arg == "--help")
         {
             std::cout << "Usage: " << exe << " (--lua-script=<file.lua>|--solve-file=<file.feX>)\n";
@@ -320,7 +328,7 @@ int main(int argc, char ** argv)
             assert(false); // already covered by inputFile.empty()
             break;
         case LuaMode:
-            exitCode = execLuaFile(inputFile, luaInit);
+            exitCode = execLuaFile(inputFile, luaInit, luaTrace);
             break;
         case SolverMode:
             exitCode = solveFile(inputFile);
