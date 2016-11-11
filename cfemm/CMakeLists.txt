@@ -10,10 +10,26 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EXTRA_CMAKE_CXX_FLAGS} ${GCC_WARNING_F
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "${CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS} ${EXTRA_CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS}")
 
+# disable assert for release versions
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DNDEBUG")
+
 # set the output directories
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
+macro(add_flag _flag _docstring)
+  option(${_flag} ${_docstring} OFF)
+  if (${_flag})
+      message(STATUS "Enabling ${_flag}")
+    add_definitions(-D${_flag})
+  endif()
+endmacro()
+add_flag(DEBUG_FEMMLUA "Enable debug output for lua interface")
+add_flag(DEBUG_FEMMCLI "Enable debug output for femmcli")
+add_flag(DEBUG_PARSER "Enable debug output for parser functions")
+
 
 add_subdirectory(libfemm)
 add_subdirectory(femmcli)

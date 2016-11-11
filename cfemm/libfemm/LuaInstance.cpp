@@ -137,7 +137,7 @@ lua_State *femm::LuaInstance::getLuaState() const
 void femm::LuaInstance::addFunction(const char *name, lua_CFunction fun)
 {
     lua_register(lua, name, fun);
-    debug << "Registered function " << name << std::endl;
+    //debug << "Registered function " << name << std::endl;
 }
 
 /**
