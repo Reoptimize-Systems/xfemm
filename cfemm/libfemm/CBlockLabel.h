@@ -75,7 +75,7 @@ private:
 };
 
 /**
- * @brief operator << serializes the data in \lbl and inserts it into \p os
+ * @brief operator << serializes the data in \p lbl and inserts it into \p os
  * @param os
  * @param lbl
  * @return \p os

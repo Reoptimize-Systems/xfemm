@@ -65,7 +65,7 @@ void femm::LuaBaseCommands::registerCommands(LuaInstance &li)
  * @brief Print an error message.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_endapp()
  */
 int femm::LuaBaseCommands::luaError(lua_State *L)
@@ -80,7 +80,7 @@ int femm::LuaBaseCommands::luaError(lua_State *L)
  * @brief Dummy-function for compatibility.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_endapp()
  */
 int femm::LuaBaseCommands::luaExit(lua_State *)
@@ -93,7 +93,7 @@ int femm::LuaBaseCommands::luaExit(lua_State *)
  * @brief Dummy-function for compatibility.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_hidepointprops()
  */
 int femm::LuaBaseCommands::luaHidePointProps(lua_State *)
@@ -107,7 +107,7 @@ int femm::LuaBaseCommands::luaHidePointProps(lua_State *)
  * Usually, this would go to a messagebox, but since this is a text implementation, print it to stdout.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_messagebox()
  */
 int femm::LuaBaseCommands::luaMessageBox(lua_State *L)
@@ -120,7 +120,7 @@ int femm::LuaBaseCommands::luaMessageBox(lua_State *L)
  * @brief Create new document
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_newdocument()
  */
 int femm::LuaBaseCommands::luaNewDocument(lua_State *L)
@@ -143,7 +143,7 @@ int femm::LuaBaseCommands::luaNewDocument(lua_State *L)
  * @brief Open a document
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:luaOpenDocument()
  */
 int femm::LuaBaseCommands::luaOpenDocument(lua_State *L)
@@ -158,7 +158,7 @@ int femm::LuaBaseCommands::luaOpenDocument(lua_State *L)
  * @brief Dummy-function for compatibility.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_afxpause()
  */
 int femm::LuaBaseCommands::luaPause(lua_State *)
@@ -170,7 +170,7 @@ int femm::LuaBaseCommands::luaPause(lua_State *)
 /**
  * @brief Dummy-function for compatibility.
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  */
 int femm::LuaBaseCommands::luaShowConsole(lua_State *)
 {
@@ -181,7 +181,7 @@ int femm::LuaBaseCommands::luaShowConsole(lua_State *)
  * @brief Dummy-function for compatibility.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_showpointprops()
  */
 int femm::LuaBaseCommands::luaShowPointProps(lua_State *)
@@ -194,7 +194,7 @@ int femm::LuaBaseCommands::luaShowPointProps(lua_State *)
  * @brief Set/Change working Directory.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_setcurrentdirectory()
  */
 int femm::LuaBaseCommands::luaSetWorkingDirectory(lua_State *L)
@@ -215,7 +215,7 @@ int femm::LuaBaseCommands::luaSetWorkingDirectory(lua_State *L)
  * @brief Dummy-function for compatibility.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_makeplot()
  */
 int femm::LuaBaseCommands::luaMakePlot(lua_State *)
