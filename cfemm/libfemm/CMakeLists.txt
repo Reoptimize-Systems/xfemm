@@ -77,6 +77,7 @@ add_library(femm
   liblua/lzio.cpp
   LuaInstance.cpp
   LuaBaseCommands.cpp
+  LuaMagneticsCommands.cpp
   stringTools.h
   )
 

@@ -20,7 +20,9 @@
 
 #include <lua.h>
 #include <lualib.h>
+#include <luadebug.h>
 
+#include <cassert>
 #include <string>
 #include <iostream>
 
@@ -53,6 +55,7 @@ femm::LuaInstance::LuaInstance(int stackSize)
     addFunction("setcompatibilitymode",luaSetCompatibilityMode);
     addFunction("getcompatibilitymode",luaGetCompatibilityMode);
     addFunction("femmVersion",luaFemmVersion);
+    addFunction("trace",luaTrace);
 }
 
 femm::LuaInstance::~LuaInstance()
@@ -100,6 +103,16 @@ int femm::LuaInstance::doString(const std::string &luaString, femm::LuaInstance:
 bool femm::LuaInstance::compatibilityMode() const
 {
     return compatMode;
+}
+
+void femm::LuaInstance::enableTracing(bool enable)
+{
+    if (enable)
+    {
+        lua_setcallhook(lua, luaStackHook);
+    } else {
+        lua_setcallhook(lua, nullptr);
+    }
 }
 
 /**
@@ -196,6 +209,62 @@ int femm::LuaInstance::luaGetCompatibilityMode(lua_State *L)
     CComplex compatMode = (me->compatibilityMode()) ? 1.0 : 0.0;
     lua_pushnumber(L, compatMode);
     return 1;
+}
+
+/**
+ * @brief femm::LuaInstance::luaTrace prints info on the stack frame.
+ * @param L
+ * @return 0
+ */
+int femm::LuaInstance::luaTrace(lua_State *L)
+{
+    luaStackInfo(L, CurrentFrameInfo);
+    return 0;
+}
+
+/**
+ * @brief femm::LuaInstance::luaStackInfo
+ * Prints information about the call stack
+ * @param L the lua state
+ * @param info what information to print
+ */
+void femm::LuaInstance::luaStackInfo(lua_State *L, femm::LuaInstance::StackInfoMode info)
+{
+    int i=0;
+    do {
+        lua_Debug ar; // activation record
+        // collect frame info for current frame
+        if (!lua_getstack(L,i,&ar))
+            break;
+        // fill ar fields from collected information
+        lua_getinfo(L, "lnS", &ar);
+        // padding for info
+        std::cerr << std::string(' ',i);
+        // print info
+        luaStackHook(L, &ar);
+        i++;
+    } while (info == FullStackInfo);
+}
+
+/**
+ * @brief femm::LuaInstance::luaStackHook prints info on the given activation record (aka stack frame).
+ * @param L
+ * @param ar
+ */
+void femm::LuaInstance::luaStackHook(lua_State *L, lua_Debug *ar)
+{
+    assert(ar);
+    // fill ar fields from collected information
+    lua_getinfo(L, "nS", ar);
+    std::cerr << ar->namewhat << " " << ar->what;
+    if (ar->name)
+        std::cerr << " " << ar->name << "()";
+    if (ar->event)
+        std::cerr << " " << ar->event;
+    std::cerr << " [" << ar->short_src;
+    if (ar->linedefined != -1)
+        std::cerr << ":" << ar->linedefined;
+    std::cerr << "]\n";
 }
 
 // vi:expandtab:tabstop=4 shiftwidth=4:

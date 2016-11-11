@@ -49,6 +49,8 @@ void femm::LuaBaseCommands::registerCommands(LuaInstance &li)
     li.addFunction("newdocument",luaNewDocument);
     li.addFunction("new_document",luaNewDocument);
 
+    li.addFunction("showconsole"  ,luaShowConsole);
+    li.addFunction("show_console"  ,luaShowConsole);
     li.addFunction("showpointprops"  ,luaShowPointProps);
     li.addFunction("hidepointprops"  ,luaHidePointProps);
     li.addFunction("show_point_props",luaShowPointProps);
@@ -162,6 +164,16 @@ int femm::LuaBaseCommands::luaOpenDocument(lua_State *L)
 int femm::LuaBaseCommands::luaPause(lua_State *)
 {
     debug << "NOP: luaPause" << std::endl;
+    return 0;
+}
+
+/**
+ * @brief Dummy-function for compatibility.
+ * @return 0
+ * \ingroup common
+ */
+int femm::LuaBaseCommands::luaShowConsole(lua_State *)
+{
     return 0;
 }
 

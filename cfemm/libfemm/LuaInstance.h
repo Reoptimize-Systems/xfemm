@@ -19,6 +19,8 @@
 #include <lua.h>
 #include <string>
 
+struct lua_Debug;
+
 namespace femm
 {
 
@@ -41,6 +43,13 @@ public:
      * UnsafeStack allows Lua commands to leave items on the stack for the next command.
      */
     enum LuaStackMode { SafeStack, UnsafeStack };
+
+    /**
+     * @brief The StackInfoMode enum
+     * Carries information whether the LuaStackInfo method should only examine the
+     * current stack frame, or the full stack frame.
+     */
+    enum StackInfoMode { CurrentFrameInfo, FullStackInfo };
     /**
      * @brief LuaInstance constructor
      * Create a Lua instance and initialize it, adding the Lua standard libraries and the CComplex data type.
@@ -92,6 +101,13 @@ public:
      */
     bool compatibilityMode() const;
 
+    /**
+     * @brief enableTracing
+     * Enable or disable lua function call tracing.
+     * @param enable
+     */
+    void enableTracing(bool enable);
+
 private:
     lua_State *lua;
     bool compatMode;
@@ -102,6 +118,9 @@ private:
     static int luaFemmVersion(lua_State *L);
     static int luaSetCompatibilityMode(lua_State *L);
     static int luaGetCompatibilityMode(lua_State *L);
+    static int luaTrace(lua_State *L);
+    static void luaStackInfo(lua_State *L, StackInfoMode info );
+    static void luaStackHook(lua_State *L, lua_Debug *ar);
 };
 
 } /* namespace FemmLua*/
