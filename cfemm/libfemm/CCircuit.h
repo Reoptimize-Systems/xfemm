@@ -62,7 +62,7 @@ private:
 };
 
 /**
- * @brief operator << serializes the data in \prop and inserts it into \p os
+ * @brief operator << serializes the data in \p prop and inserts it into \p os
  * @param os
  * @param prop
  * @return \p os

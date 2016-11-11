@@ -144,7 +144,7 @@ void femm::LuaInstance::addFunction(const char *name, lua_CFunction fun)
  * @brief Create a Complex number from its 1 or 2 numeric parameters.
  * @param L the Lua state
  * @return 1
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_Complex()
  */
 int femm::LuaInstance::luaComplex(lua_State *L)
@@ -164,10 +164,10 @@ int femm::LuaInstance::luaComplex(lua_State *L)
 
 /**
  * @brief Return the version number of xfemm.
- * \remark{This method does not exist in standard FEMM.}
+ * \remark This method does not exist in standard FEMM.
  * @param L
  * @return 1
- * \ingroup common
+ * \ingroup LuaCommon
  */
 int femm::LuaInstance::luaFemmVersion(lua_State *L)
 {
@@ -180,7 +180,7 @@ int femm::LuaInstance::luaFemmVersion(lua_State *L)
  * @brief Set compatibility mode.
  * @param L
  * @return 0
- * \ingroup common
+ * \ingroup LuaCommon
  * \sa FEMM42/femm.cpp:lua_compatibilitymode()
  */
 int femm::LuaInstance::luaSetCompatibilityMode(lua_State *L)
@@ -197,10 +197,10 @@ int femm::LuaInstance::luaSetCompatibilityMode(lua_State *L)
 
 /**
  * @brief Allow querying state of compatibility mode from Lua code.
- * \remark{This method does not exist in standard FEMM.}
+ * \remark This method does not exist in standard FEMM.
  * @param L
  * @return 1
- * \ingroup common
+ * \ingroup LuaCommon
  */
 int femm::LuaInstance::luaGetCompatibilityMode(lua_State *L)
 {
@@ -212,13 +212,14 @@ int femm::LuaInstance::luaGetCompatibilityMode(lua_State *L)
 }
 
 /**
- * @brief femm::LuaInstance::luaTrace prints info on the stack frame.
+ * @brief Prints info on the stack frame.
  * \verbatim
  * trace()
- * trace(int bt) ... bt=1 for full backtrace
- * \endverbatim
+ * trace(int bt) ->.. bt=1 for full backtrace\endverbatim
+ * \remark This method does not exist in standard FEMM.
  * @param L
  * @return 0
+ * \ingroup LuaCommon
  */
 int femm::LuaInstance::luaTrace(lua_State *L)
 {
@@ -234,8 +235,7 @@ int femm::LuaInstance::luaTrace(lua_State *L)
 }
 
 /**
- * @brief femm::LuaInstance::luaStackInfo
- * Prints information about the call stack
+ * @brief Prints information about the call stack
  * @param L the lua state
  * @param level start level of stack trace (use 0 for current stack frame, 1 for the one above that, ...)
  * @param info what information to print
@@ -259,7 +259,7 @@ void femm::LuaInstance::luaStackInfo(lua_State *L, int level, femm::LuaInstance:
 }
 
 /**
- * @brief femm::LuaInstance::luaStackHook prints info on the given activation record (aka stack frame).
+ * @brief Prints info on the given activation record (aka stack frame).
  * @param L
  * @param ar
  */
