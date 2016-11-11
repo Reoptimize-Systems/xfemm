@@ -119,7 +119,7 @@ CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
     trim(line);
     std::istringstream inputStream(line);
 
-#ifdef DEBUG_PARSING
+#ifdef DEBUG_PARSER
     std::cerr << "Reading line: " << line <<"\n";
 #endif
 
