@@ -16,8 +16,11 @@
 #ifndef LUAINSTANCE_H
 #define LUAINSTANCE_H
 
+#include "FemmState.h"
+
 #include <lua.h>
 #include <string>
+#include <memory>
 
 struct lua_Debug;
 
@@ -58,6 +61,12 @@ public:
     LuaInstance( int stackSize=4096);
 
     ~LuaInstance();
+
+    /**
+     * @brief femmState is a handle on open documents
+     * @return the FemmState
+     */
+    std::shared_ptr<FemmState> femmState() const;
 
     /**
      * @brief Call lua_dobuffer on the given string.
@@ -110,6 +119,7 @@ public:
 
 private:
     lua_State *lua;
+    std::shared_ptr<FemmState> fs;
     bool compatMode;
 
     static LuaInstance* instance( lua_State *L);
