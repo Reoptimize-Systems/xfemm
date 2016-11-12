@@ -125,17 +125,27 @@ int femm::LuaBaseCommands::luaMessageBox(lua_State *L)
  */
 int femm::LuaBaseCommands::luaNewDocument(lua_State *L)
 {
-    // 0 .. magnetics
-    // 1 .. electrostatics
-    // 2 .. heat flow
-    // 3 .. current flow
     int docType = static_cast<int>(lua_tonumber(L,1).Re());
+
     // FIXME IMPLEMENT:
-    // we don't need to handle other docTypes that are used in femm
-    // -> the other types are gui-specific
     // 1. get "CDocTemplate"
     // 2. call [MFC] CDocTemplate::OpenDocumentFile(NULL)
     debug << "NOP: luaNewDocument("<<docType<<")" << std::endl;
+    switch (docType) {
+        case 0: // magnetics
+            break;
+        case 1: // electrostatics
+            break;
+        case 2: // heat flow
+            break;
+        case 3: // current flow
+            break;
+        default:
+            // we don't need to handle other docTypes that are used in femm
+            // -> the other types are gui-specific
+            debug << "document type " << docType << "not supported.\n";
+            break;
+    }
     return 0;
 }
 

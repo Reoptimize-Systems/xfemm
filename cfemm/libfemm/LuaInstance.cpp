@@ -17,6 +17,7 @@
 
 #include "femmcomplex.h"
 #include "femmversion.h"
+#include "FemmState.h"
 
 #include <lua.h>
 #include <lualib.h>
@@ -33,7 +34,8 @@
 #endif
 
 femm::LuaInstance::LuaInstance(int stackSize)
-    : compatMode(false)
+    : fs (std::make_shared<femm::FemmState>())
+    , compatMode(false)
 {
     debug << "Initializing Lua with stacksize = " << stackSize << std::endl;
     lua = lua_open(stackSize);
@@ -61,6 +63,11 @@ femm::LuaInstance::LuaInstance(int stackSize)
 femm::LuaInstance::~LuaInstance()
 {
     lua_close(lua);
+}
+
+std::shared_ptr<femm::FemmState> femm::LuaInstance::femmState() const
+{
+    return fs;
 }
 
 int femm::LuaInstance::doBuffer(const std::string &luaString, const std::string &chunkName, LuaStackMode mode)
