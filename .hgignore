@@ -3,6 +3,7 @@ syntax: glob
 # xfem specific patterns #
 --------------------------
 
+build*/
 release/
 # doxygen output
 cfemm/apidoc/
