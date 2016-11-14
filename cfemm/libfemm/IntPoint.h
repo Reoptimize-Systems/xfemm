@@ -19,34 +19,39 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-// myPoint, replacement for the MFC CPoint class
-#ifndef MYPOINT
-#define MYPOINT
+// IntPoint, replacement for the MFC CPoint class
+#ifndef INTPOINT_H
+#define INTPOINT_H
 
-class myPoint {
+namespace femm {
+
+/**
+ * @brief The IntPoint class is a drop-in replacement for CPoint (as far as the needs of FEMM are concerned).
+ */
+class IntPoint {
 
   public:
 
+    IntPoint ();
 
-
-    myPoint ();
-
-    myPoint (long a, long b);
+    IntPoint (long a, long b);
 
     long x, y;
 
 
-    myPoint operator + (myPoint point);
-    myPoint operator - (myPoint point);
-    void operator += ( myPoint point);
-    void operator -= ( myPoint point);
+    IntPoint operator + (IntPoint point);
+    IntPoint operator - (IntPoint point);
+    void operator += ( IntPoint point);
+    void operator -= ( IntPoint point);
 
-    bool operator == (myPoint point);
-    bool operator != (myPoint point);
+    bool operator == (IntPoint point);
+    bool operator != (IntPoint point);
 
     void Offset(long x, long y);
 
-    void Offset( myPoint point );
+    void Offset( IntPoint point );
 
 };
+
+} //namespace
 #endif

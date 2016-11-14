@@ -31,6 +31,8 @@ add_library(femm
   FemmState.cpp
   fparse.cpp
   fullmatrix.cpp
+  IntPoint.cpp
+  #MagneticsDocument.cpp
   mesh.cpp
   spars.cpp
   liblua/lapi.cpp
