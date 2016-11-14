@@ -30,7 +30,7 @@
 #include <cstring>
 #include "fparse.h"
 #include "fmesher.h"
-#include "intpoint.h"
+#include "IntPoint.h"
 #include "triangle.h"
 
 //extern void *pFemmeDoc;
@@ -1293,7 +1293,7 @@ bool FMesher::LoadMesh(string PathName)
     fgets(s,1024,fp);
     sscanf(s,"%i",&k);
 
-    myPoint segm;
+    IntPoint segm;
     int n[3],p;
     for(i=0,nl=0; i<k; i++)
     {

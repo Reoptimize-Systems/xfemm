@@ -27,7 +27,7 @@
 #include <string>
 #include "nosebl.h"
 #include "femmcomplex.h"
-#include "intpoint.h"
+#include "IntPoint.h"
 #include "triangle.h"
 
 #include "CArcSegment.h"
@@ -107,8 +107,8 @@ public:
     std::vector< femm::CMesherBlockLabel > undoblocklist;
 
 	// vectors containing the mesh information
-	std::vector< myPoint >      meshline;
-	std::vector< myPoint >      greymeshline;
+	std::vector< IntPoint >      meshline;
+	std::vector< IntPoint >      greymeshline;
     std::vector< femm::CMesherNode >	meshnode;
 
 	// lists of properties

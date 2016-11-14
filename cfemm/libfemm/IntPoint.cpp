@@ -22,37 +22,37 @@
 
 // vectors: overloading operators example
 //#include <stdlib.h>
-#include "intpoint.h"
+#include "IntPoint.h"
 
 //using namespace std;
 
-myPoint::myPoint ()
+femm::IntPoint::IntPoint ()
 {
   x = 0;
   y = 0;
 }
 
-myPoint::myPoint (long a, long b)
+femm::IntPoint::IntPoint (long a, long b)
 {
   x = a;
   y = b;
 }
 
-myPoint myPoint::operator+ (myPoint point) {
-  myPoint temp;
+femm::IntPoint femm::IntPoint::operator+ (femm::IntPoint point) {
+  femm::IntPoint temp;
   temp.x = x + point.x;
   temp.y = y + point.y;
   return (temp);
 }
 
-myPoint myPoint::operator- (myPoint point) {
-  myPoint temp;
+femm::IntPoint femm::IntPoint::operator- (femm::IntPoint point) {
+  femm::IntPoint temp;
   temp.x = x - point.x;
   temp.y = y - point.y;
   return (temp);
 }
 
-bool myPoint::operator==( myPoint point)
+bool femm::IntPoint::operator==( femm::IntPoint point)
 {
 	if ((x == point.x) & (y == point.y))
     {
@@ -64,7 +64,7 @@ bool myPoint::operator==( myPoint point)
     }
 }
 
-bool myPoint::operator!=( myPoint point)
+bool femm::IntPoint::operator!=( femm::IntPoint point)
 {
 	if ((x == point.x) & (y == point.y))
     {
@@ -76,33 +76,27 @@ bool myPoint::operator!=( myPoint point)
     }
 }
 
-void myPoint::operator+=( myPoint point)        // +ve translation
+void femm::IntPoint::operator+=( femm::IntPoint point)        // +ve translation
 {
     x += point.x;
     y += point.y;
 }
 
-void myPoint::operator-=( myPoint point)        // +ve translation
+void femm::IntPoint::operator-=( femm::IntPoint point)        // +ve translation
 {
     x -= point.x;
     y -= point.y;
 }
 
-void myPoint::Offset(long xOffset, long yOffset)
+void femm::IntPoint::Offset(long xOffset, long yOffset)
 {
     x = x + xOffset;
 
     y = y + yOffset;
 }
 
-void myPoint::Offset( myPoint point )
+void femm::IntPoint::Offset( femm::IntPoint point )
 {
     x = x + point.x;
     y = y + point.y;
 }
-
-
-//void Point::Offset(SIZE size )
-//{
-//
-//}

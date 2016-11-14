@@ -30,7 +30,7 @@
 #include <malloc.h>
 #include "fmesher.h"
 #include "fparse.h"
-#include "intpoint.h"
+#include "IntPoint.h"
 #include "femmconstants.h"
 #include "CCommonPoint.h"
 //extern "C" {

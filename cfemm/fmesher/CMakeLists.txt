@@ -13,7 +13,6 @@ include_directories(../libfemm)
 add_library(fmesher STATIC 
   fmesher.cbp 
   fmesher.cpp 
-  intpoint.cpp 
   main.cpp  
   nosebl.cpp  
   triangle.c  
