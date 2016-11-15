@@ -18,11 +18,14 @@
 #define LIBFEMM_CONSTANTS_H
 
 #define DEG 0.01745329251994329576923690768
-#define eo 8.85418781762e-12  // epsilon0; electric permittivity constant (in vacuum)
+#define eo 8.85418781762e-12  ///< epsilon0; electric permittivity constant (in vacuum)
 #define Golden 0.3819660112501051517954131656
-#define Ksb 5.67032e-8 // Stefan-Boltzmann Constant
+#define Ksb 5.67032e-8 ///< Stefan-Boltzmann Constant
 #define muo 1.2566370614359173e-6
 #define PI 3.141592653589793238462643383
 #define SmallNo 1.e-14
+
+#define DEFAULT_MINIMUM_ANGLE 30.0
+#define CLOSE_ENOUGH 1.e-06 ///< preprocessor tolerance
 
 #endif

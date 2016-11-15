@@ -42,19 +42,10 @@
 #define LineFraction 500.0
 #endif
 
-// preprocessor tolerance
-#ifndef CLOSE_ENOUGH
-#define CLOSE_ENOUGH 1.e-06
-#endif
-
 // Default mesh size is the diagonal of the geometry's
 // bounding box divided by BoundingBoxFraction
 #ifndef BoundingBoxFraction
 #define BoundingBoxFraction 100.0
-#endif
-
-#ifndef DEFAULT_MINIMUM_ANGLE
-#define DEFAULT_MINIMUM_ANGLE 30.0
 #endif
 
 #ifndef _MSC_VER

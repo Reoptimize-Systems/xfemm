@@ -48,7 +48,7 @@ CMaterialProp::CMaterialProp( const CMaterialProp& other )
     mu_y = other.mu_y;            // permeabilities, relative
     BHpoints = other.BHpoints;
 
-    if (other.BHpoints != other.Bdata.size())
+    if (other.BHpoints !=(int) other.Bdata.size())
         std::cerr << "Size difference:" << other.BHpoints << " vs " << other.Bdata.size() << std::endl;
     Bdata = other.Bdata;
     Hdata = other.Hdata;
