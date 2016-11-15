@@ -280,7 +280,7 @@ void femm::LuaMagneticsCommands::registerCommands(LuaInstance &li)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addarc()
+ * \femm42{femm/femmeLua.cpp,lua_addarc()}
  */
 int femm::LuaMagneticsCommands::luaAddarc(lua_State *L)
 {
@@ -292,7 +292,7 @@ int femm::LuaMagneticsCommands::luaAddarc(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addbhpoint()
+ * \femm42{femm/femmeLua.cpp,lua_addbhpoint()}
  */
 int femm::LuaMagneticsCommands::luaAddbhpoint(lua_State *L)
 {
@@ -304,7 +304,7 @@ int femm::LuaMagneticsCommands::luaAddbhpoint(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addboundprop()
+ * \femm42{femm/femmeLua.cpp,lua_addboundprop()}
  */
 int femm::LuaMagneticsCommands::luaAddboundprop(lua_State *L)
 {
@@ -316,7 +316,7 @@ int femm::LuaMagneticsCommands::luaAddboundprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addcircuitprop()
+ * \femm42{femm/femmeLua.cpp,lua_addcircuitprop()}
  */
 int femm::LuaMagneticsCommands::luaAddcircuitprop(lua_State *L)
 {
@@ -328,7 +328,7 @@ int femm::LuaMagneticsCommands::luaAddcircuitprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_addcontour()
+ * \femm42{femm/femmviewLua.cpp,lua_addcontour()}
  */
 int femm::LuaMagneticsCommands::luaAddcontour(lua_State *L)
 {
@@ -340,7 +340,7 @@ int femm::LuaMagneticsCommands::luaAddcontour(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addlabel()
+ * \femm42{femm/femmeLua.cpp,lua_addlabel()}
  */
 int femm::LuaMagneticsCommands::luaAddlabel(lua_State *L)
 {
@@ -352,7 +352,7 @@ int femm::LuaMagneticsCommands::luaAddlabel(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addline()
+ * \femm42{femm/femmeLua.cpp,lua_addline()}
  */
 int femm::LuaMagneticsCommands::luaAddline(lua_State *L)
 {
@@ -364,7 +364,7 @@ int femm::LuaMagneticsCommands::luaAddline(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addmatprop()
+ * \femm42{femm/femmeLua.cpp,lua_addmatprop()}
  */
 int femm::LuaMagneticsCommands::luaAddmatprop(lua_State *L)
 {
@@ -376,7 +376,7 @@ int femm::LuaMagneticsCommands::luaAddmatprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addnode()
+ * \femm42{femm/femmeLua.cpp,lua_addnode()}
  */
 int femm::LuaMagneticsCommands::luaAddnode(lua_State *L)
 {
@@ -388,7 +388,7 @@ int femm::LuaMagneticsCommands::luaAddnode(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_addpointprop()
+ * \femm42{femm/femmeLua.cpp,lua_addpointprop()}
  */
 int femm::LuaMagneticsCommands::luaAddpointprop(lua_State *L)
 {
@@ -400,7 +400,7 @@ int femm::LuaMagneticsCommands::luaAddpointprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_analyze()
+ * \femm42{femm/femmeLua.cpp,lua_analyze()}
  */
 int femm::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
@@ -412,7 +412,7 @@ int femm::LuaMagneticsCommands::luaAnalyze(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_attachdefault()
+ * \femm42{femm/femmeLua.cpp,lua_attachdefault()}
  */
 int femm::LuaMagneticsCommands::luaAttachdefault(lua_State *L)
 {
@@ -424,7 +424,7 @@ int femm::LuaMagneticsCommands::luaAttachdefault(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_attachouterspace()
+ * \femm42{femm/femmeLua.cpp,lua_attachouterspace()}
  */
 int femm::LuaMagneticsCommands::luaAttachouterspace(lua_State *L)
 {
@@ -436,7 +436,7 @@ int femm::LuaMagneticsCommands::luaAttachouterspace(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_bendcontour()
+ * \femm42{femm/femmviewLua.cpp,lua_bendcontour()}
  */
 int femm::LuaMagneticsCommands::luaBendcontour(lua_State *L)
 {
@@ -448,7 +448,7 @@ int femm::LuaMagneticsCommands::luaBendcontour(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_blockintegral()
+ * \femm42{femm/femmviewLua.cpp,lua_blockintegral()}
  */
 int femm::LuaMagneticsCommands::luaBlockintegral(lua_State *L)
 {
@@ -460,7 +460,7 @@ int femm::LuaMagneticsCommands::luaBlockintegral(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_clearbhpoints()
+ * \femm42{femm/femmeLua.cpp,lua_clearbhpoints()}
  */
 int femm::LuaMagneticsCommands::luaClearbhpoints(lua_State *L)
 {
@@ -472,7 +472,7 @@ int femm::LuaMagneticsCommands::luaClearbhpoints(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_clearblock()
+ * \femm42{femm/femmviewLua.cpp,lua_clearblock()}
  */
 int femm::LuaMagneticsCommands::luaClearblock(lua_State *L)
 {
@@ -484,7 +484,7 @@ int femm::LuaMagneticsCommands::luaClearblock(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_clearcontour()
+ * \femm42{femm/femmviewLua.cpp,lua_clearcontour()}
  */
 int femm::LuaMagneticsCommands::luaClearcontour(lua_State *L)
 {
@@ -496,7 +496,7 @@ int femm::LuaMagneticsCommands::luaClearcontour(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_clearselected()
+ * \femm42{femm/femmeLua.cpp,lua_clearselected()}
  */
 int femm::LuaMagneticsCommands::luaClearselected(lua_State *L)
 {
@@ -508,7 +508,7 @@ int femm::LuaMagneticsCommands::luaClearselected(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_copy_rotate()
+ * \femm42{femm/femmeLua.cpp,lua_copy_rotate()}
  */
 int femm::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
 {
@@ -520,7 +520,7 @@ int femm::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_copy_translate()
+ * \femm42{femm/femmeLua.cpp,lua_copy_translate()}
  */
 int femm::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
 {
@@ -532,7 +532,7 @@ int femm::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_create_mesh()
+ * \femm42{femm/femmeLua.cpp,lua_create_mesh()}
  */
 int femm::LuaMagneticsCommands::luaCreateMesh(lua_State *L)
 {
@@ -544,7 +544,7 @@ int femm::LuaMagneticsCommands::luaCreateMesh(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_createradius()
+ * \femm42{femm/femmeLua.cpp,lua_createradius()}
  */
 int femm::LuaMagneticsCommands::luaCreateradius(lua_State *L)
 {
@@ -556,7 +556,7 @@ int femm::LuaMagneticsCommands::luaCreateradius(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_defineouterspace()
+ * \femm42{femm/femmeLua.cpp,lua_defineouterspace()}
  */
 int femm::LuaMagneticsCommands::luaDefineouterspace(lua_State *L)
 {
@@ -568,7 +568,7 @@ int femm::LuaMagneticsCommands::luaDefineouterspace(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_delboundprop()
+ * \femm42{femm/femmeLua.cpp,lua_delboundprop()}
  */
 int femm::LuaMagneticsCommands::luaDelboundprop(lua_State *L)
 {
@@ -580,7 +580,7 @@ int femm::LuaMagneticsCommands::luaDelboundprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_delcircuitprop()
+ * \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
  */
 int femm::LuaMagneticsCommands::luaDelcircuitprop(lua_State *L)
 {
@@ -592,7 +592,7 @@ int femm::LuaMagneticsCommands::luaDelcircuitprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_deleteselectedarcsegments()
+ * \femm42{femm/femmeLua.cpp,lua_deleteselectedarcsegments()}
  */
 int femm::LuaMagneticsCommands::luaDeleteselectedarcsegments(lua_State *L)
 {
@@ -604,7 +604,7 @@ int femm::LuaMagneticsCommands::luaDeleteselectedarcsegments(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_deleteselectedlabels()
+ * \femm42{femm/femmeLua.cpp,lua_deleteselectedlabels()}
  */
 int femm::LuaMagneticsCommands::luaDeleteselectedlabels(lua_State *L)
 {
@@ -616,7 +616,7 @@ int femm::LuaMagneticsCommands::luaDeleteselectedlabels(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_deleteselected()
+ * \femm42{femm/femmeLua.cpp,lua_deleteselected()}
  */
 int femm::LuaMagneticsCommands::luaDeleteselected(lua_State *L)
 {
@@ -628,7 +628,7 @@ int femm::LuaMagneticsCommands::luaDeleteselected(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_deleteselectednodes()
+ * \femm42{femm/femmeLua.cpp,lua_deleteselectednodes()}
  */
 int femm::LuaMagneticsCommands::luaDeleteselectednodes(lua_State *L)
 {
@@ -640,7 +640,7 @@ int femm::LuaMagneticsCommands::luaDeleteselectednodes(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_deleteselectedsegments()
+ * \femm42{femm/femmeLua.cpp,lua_deleteselectedsegments()}
  */
 int femm::LuaMagneticsCommands::luaDeleteselectedsegments(lua_State *L)
 {
@@ -652,7 +652,7 @@ int femm::LuaMagneticsCommands::luaDeleteselectedsegments(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_delmatprop()
+ * \femm42{femm/femmeLua.cpp,lua_delmatprop()}
  */
 int femm::LuaMagneticsCommands::luaDelmatprop(lua_State *L)
 {
@@ -664,7 +664,7 @@ int femm::LuaMagneticsCommands::luaDelmatprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_delpointprop()
+ * \femm42{femm/femmeLua.cpp,lua_delpointprop()}
  */
 int femm::LuaMagneticsCommands::luaDelpointprop(lua_State *L)
 {
@@ -676,7 +676,7 @@ int femm::LuaMagneticsCommands::luaDelpointprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_detachdefault()
+ * \femm42{femm/femmeLua.cpp,lua_detachdefault()}
  */
 int femm::LuaMagneticsCommands::luaDetachdefault(lua_State *L)
 {
@@ -688,7 +688,7 @@ int femm::LuaMagneticsCommands::luaDetachdefault(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_detachouterspace()
+ * \femm42{femm/femmeLua.cpp,lua_detachouterspace()}
  */
 int femm::LuaMagneticsCommands::luaDetachouterspace(lua_State *L)
 {
@@ -700,7 +700,7 @@ int femm::LuaMagneticsCommands::luaDetachouterspace(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_exitpost()
+ * \femm42{femm/femmviewLua.cpp,lua_exitpost()}
  */
 int femm::LuaMagneticsCommands::luaExitpost(lua_State *L)
 {
@@ -712,7 +712,7 @@ int femm::LuaMagneticsCommands::luaExitpost(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_exitpre()
+ * \femm42{femm/femmeLua.cpp,lua_exitpre()}
  */
 int femm::LuaMagneticsCommands::luaExitpre(lua_State *L)
 {
@@ -724,7 +724,7 @@ int femm::LuaMagneticsCommands::luaExitpre(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_getboundingbox()
+ * \femm42{femm/femmeLua.cpp,lua_getboundingbox()}
  */
 int femm::LuaMagneticsCommands::luaGetboundingbox(lua_State *L)
 {
@@ -736,7 +736,7 @@ int femm::LuaMagneticsCommands::luaGetboundingbox(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_getcircuitprops()
+ * \femm42{femm/femmviewLua.cpp,lua_getcircuitprops()}
  */
 int femm::LuaMagneticsCommands::luaGetcircuitprops(lua_State *L)
 {
@@ -748,7 +748,7 @@ int femm::LuaMagneticsCommands::luaGetcircuitprops(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_getelement()
+ * \femm42{femm/femmviewLua.cpp,lua_getelement()}
  */
 int femm::LuaMagneticsCommands::luaGetelement(lua_State *L)
 {
@@ -760,7 +760,7 @@ int femm::LuaMagneticsCommands::luaGetelement(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_getmaterial()
+ * \femm42{femm/femmeLua.cpp,lua_getmaterial()}
  */
 int femm::LuaMagneticsCommands::luaGetmaterial(lua_State *L)
 {
@@ -772,7 +772,7 @@ int femm::LuaMagneticsCommands::luaGetmaterial(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_getnode()
+ * \femm42{femm/femmviewLua.cpp,lua_getnode()}
  */
 int femm::LuaMagneticsCommands::luaGetnode(lua_State *L)
 {
@@ -784,7 +784,7 @@ int femm::LuaMagneticsCommands::luaGetnode(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_getpointvals()
+ * \femm42{femm/femmviewLua.cpp,lua_getpointvals()}
  */
 int femm::LuaMagneticsCommands::luaGetpointvals(lua_State *L)
 {
@@ -796,7 +796,7 @@ int femm::LuaMagneticsCommands::luaGetpointvals(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_getprobleminfo()
+ * \femm42{femm/femmeLua.cpp,lua_getprobleminfo()}
  */
 int femm::LuaMagneticsCommands::luaGetprobleminfo(lua_State *L)
 {
@@ -808,7 +808,7 @@ int femm::LuaMagneticsCommands::luaGetprobleminfo(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_gettitle()
+ * \femm42{femm/femmeLua.cpp,lua_gettitle()}
  */
 int femm::LuaMagneticsCommands::luaGettitle(lua_State *L)
 {
@@ -820,7 +820,7 @@ int femm::LuaMagneticsCommands::luaGettitle(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_gradient()
+ * \femm42{femm/femmviewLua.cpp,lua_gradient()}
  */
 int femm::LuaMagneticsCommands::luaGradient(lua_State *L)
 {
@@ -832,7 +832,7 @@ int femm::LuaMagneticsCommands::luaGradient(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_gridsnap()
+ * \femm42{femm/femmeLua.cpp,lua_gridsnap()}
  */
 int femm::LuaMagneticsCommands::luaGridsnap(lua_State *L)
 {
@@ -844,7 +844,7 @@ int femm::LuaMagneticsCommands::luaGridsnap(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_groupselectblock()
+ * \femm42{femm/femmviewLua.cpp,lua_groupselectblock()}
  */
 int femm::LuaMagneticsCommands::luaGroupselectblock(lua_State *L)
 {
@@ -856,7 +856,7 @@ int femm::LuaMagneticsCommands::luaGroupselectblock(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_hidecountour()
+ * \femm42{femm/femmviewLua.cpp,lua_hidecountour()}
  */
 int femm::LuaMagneticsCommands::luaHidecountour(lua_State *L)
 {
@@ -868,7 +868,7 @@ int femm::LuaMagneticsCommands::luaHidecountour(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_hidedensity()
+ * \femm42{femm/femmviewLua.cpp,lua_hidedensity()}
  */
 int femm::LuaMagneticsCommands::luaHidedensity(lua_State *L)
 {
@@ -880,7 +880,7 @@ int femm::LuaMagneticsCommands::luaHidedensity(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_hidegrid()
+ * \femm42{femm/femmeLua.cpp,lua_hidegrid()}
  */
 int femm::LuaMagneticsCommands::luaHidegrid(lua_State *L)
 {
@@ -892,7 +892,7 @@ int femm::LuaMagneticsCommands::luaHidegrid(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_hidemesh()
+ * \femm42{femm/femmviewLua.cpp,lua_hidemesh()}
  */
 int femm::LuaMagneticsCommands::luaHidemesh(lua_State *L)
 {
@@ -904,7 +904,7 @@ int femm::LuaMagneticsCommands::luaHidemesh(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_hidepoints()
+ * \femm42{femm/femmviewLua.cpp,lua_hidepoints()}
  */
 int femm::LuaMagneticsCommands::luaHidepoints(lua_State *L)
 {
@@ -916,7 +916,7 @@ int femm::LuaMagneticsCommands::luaHidepoints(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_lineintegral()
+ * \femm42{femm/femmviewLua.cpp,lua_lineintegral()}
  */
 int femm::LuaMagneticsCommands::luaLineintegral(lua_State *L)
 {
@@ -928,7 +928,7 @@ int femm::LuaMagneticsCommands::luaLineintegral(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_makeplot()
+ * \femm42{femm/femmviewLua.cpp,lua_makeplot()}
  */
 int femm::LuaMagneticsCommands::luaMakeplot(lua_State *L)
 {
@@ -940,7 +940,7 @@ int femm::LuaMagneticsCommands::luaMakeplot(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:luaMaximize()
+ * \femm42{femm/femmeLua.cpp,luaMaximize()}
  */
 int femm::LuaMagneticsCommands::luaMaximize(lua_State *L)
 {
@@ -952,7 +952,7 @@ int femm::LuaMagneticsCommands::luaMaximize(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:luaMinimize()
+ * \femm42{femm/femmeLua.cpp,luaMinimize()}
  */
 int femm::LuaMagneticsCommands::luaMinimize(lua_State *L)
 {
@@ -964,7 +964,7 @@ int femm::LuaMagneticsCommands::luaMinimize(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_mirror()
+ * \femm42{femm/femmeLua.cpp,lua_mirror()}
  */
 int femm::LuaMagneticsCommands::luaMirror(lua_State *L)
 {
@@ -976,7 +976,7 @@ int femm::LuaMagneticsCommands::luaMirror(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_modboundprop()
+ * \femm42{femm/femmeLua.cpp,lua_modboundprop()}
  */
 int femm::LuaMagneticsCommands::luaModboundprop(lua_State *L)
 {
@@ -988,7 +988,7 @@ int femm::LuaMagneticsCommands::luaModboundprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_modcircprop()
+ * \femm42{femm/femmeLua.cpp,lua_modcircprop()}
  */
 int femm::LuaMagneticsCommands::luaModcircprop(lua_State *L)
 {
@@ -1000,7 +1000,7 @@ int femm::LuaMagneticsCommands::luaModcircprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_modmatprop()
+ * \femm42{femm/femmeLua.cpp,lua_modmatprop()}
  */
 int femm::LuaMagneticsCommands::luaModmatprop(lua_State *L)
 {
@@ -1012,7 +1012,7 @@ int femm::LuaMagneticsCommands::luaModmatprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_modpointprop()
+ * \femm42{femm/femmeLua.cpp,lua_modpointprop()}
  */
 int femm::LuaMagneticsCommands::luaModpointprop(lua_State *L)
 {
@@ -1024,7 +1024,7 @@ int femm::LuaMagneticsCommands::luaModpointprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_move_rotate()
+ * \femm42{femm/femmeLua.cpp,lua_move_rotate()}
  */
 int femm::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
 {
@@ -1036,7 +1036,7 @@ int femm::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_move_translate()
+ * \femm42{femm/femmeLua.cpp,lua_move_translate()}
  */
 int femm::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
 {
@@ -1048,7 +1048,7 @@ int femm::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_newdocument()
+ * \femm42{femm/femmeLua.cpp,lua_newdocument()}
  */
 int femm::LuaMagneticsCommands::luaNewdocument(lua_State *L)
 {
@@ -1060,7 +1060,7 @@ int femm::LuaMagneticsCommands::luaNewdocument(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_numelements()
+ * \femm42{femm/femmviewLua.cpp,lua_numelements()}
  */
 int femm::LuaMagneticsCommands::luaNumelements(lua_State *L)
 {
@@ -1072,7 +1072,7 @@ int femm::LuaMagneticsCommands::luaNumelements(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_numnodes()
+ * \femm42{femm/femmviewLua.cpp,lua_numnodes()}
  */
 int femm::LuaMagneticsCommands::luaNumnodes(lua_State *L)
 {
@@ -1084,7 +1084,7 @@ int femm::LuaMagneticsCommands::luaNumnodes(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_previous()
+ * \femm42{femm/femmeLua.cpp,lua_previous()}
  */
 int femm::LuaMagneticsCommands::luaPrevious(lua_State *L)
 {
@@ -1096,7 +1096,7 @@ int femm::LuaMagneticsCommands::luaPrevious(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_prob_def()
+ * \femm42{femm/femmeLua.cpp,lua_prob_def()}
  */
 int femm::LuaMagneticsCommands::luaProbDef(lua_State *L)
 {
@@ -1108,7 +1108,7 @@ int femm::LuaMagneticsCommands::luaProbDef(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_purge_mesh()
+ * \femm42{femm/femmeLua.cpp,lua_purge_mesh()}
  */
 int femm::LuaMagneticsCommands::luaPurgeMesh(lua_State *L)
 {
@@ -1120,7 +1120,7 @@ int femm::LuaMagneticsCommands::luaPurgeMesh(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_readdxf()
+ * \femm42{femm/femmeLua.cpp,lua_readdxf()}
  */
 int femm::LuaMagneticsCommands::luaReaddxf(lua_State *L)
 {
@@ -1132,7 +1132,7 @@ int femm::LuaMagneticsCommands::luaReaddxf(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_refreshview()
+ * \femm42{femm/femmviewLua.cpp,lua_refreshview()}
  */
 int femm::LuaMagneticsCommands::luaRefreshview(lua_State *L)
 {
@@ -1144,7 +1144,7 @@ int femm::LuaMagneticsCommands::luaRefreshview(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_reload()
+ * \femm42{femm/femmviewLua.cpp,lua_reload()}
  */
 int femm::LuaMagneticsCommands::luaReload(lua_State *L)
 {
@@ -1156,7 +1156,7 @@ int femm::LuaMagneticsCommands::luaReload(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:luaResize()
+ * \femm42{femm/femmeLua.cpp,luaResize()}
  */
 int femm::LuaMagneticsCommands::luaResize(lua_State *L)
 {
@@ -1168,7 +1168,7 @@ int femm::LuaMagneticsCommands::luaResize(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:luaRestore()
+ * \femm42{femm/femmeLua.cpp,luaRestore()}
  */
 int femm::LuaMagneticsCommands::luaRestore(lua_State *L)
 {
@@ -1180,7 +1180,7 @@ int femm::LuaMagneticsCommands::luaRestore(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_runpost()
+ * \femm42{femm/femmeLua.cpp,lua_runpost()}
  */
 int femm::LuaMagneticsCommands::luaRunpost(lua_State *L)
 {
@@ -1192,7 +1192,7 @@ int femm::LuaMagneticsCommands::luaRunpost(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_savebitmap()
+ * \femm42{femm/femmeLua.cpp,lua_savebitmap()}
  */
 int femm::LuaMagneticsCommands::luaSavebitmap(lua_State *L)
 {
@@ -1204,7 +1204,7 @@ int femm::LuaMagneticsCommands::luaSavebitmap(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:luaSaveDocument()
+ * \femm42{femm/femmeLua.cpp,luaSaveDocument()}
  */
 int femm::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
 {
@@ -1216,7 +1216,7 @@ int femm::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_savedxf()
+ * \femm42{femm/femmeLua.cpp,lua_savedxf()}
  */
 int femm::LuaMagneticsCommands::luaSavedxf(lua_State *L)
 {
@@ -1228,7 +1228,7 @@ int femm::LuaMagneticsCommands::luaSavedxf(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_saveWMF()
+ * \femm42{femm/femmeLua.cpp,lua_saveWMF()}
  */
 int femm::LuaMagneticsCommands::luaSaveWMF(lua_State *L)
 {
@@ -1240,7 +1240,7 @@ int femm::LuaMagneticsCommands::luaSaveWMF(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_scale()
+ * \femm42{femm/femmeLua.cpp,lua_scale()}
  */
 int femm::LuaMagneticsCommands::luaScale(lua_State *L)
 {
@@ -1252,7 +1252,7 @@ int femm::LuaMagneticsCommands::luaScale(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_selectarcsegment()
+ * \femm42{femm/femmeLua.cpp,lua_selectarcsegment()}
  */
 int femm::LuaMagneticsCommands::luaSelectarcsegment(lua_State *L)
 {
@@ -1264,7 +1264,7 @@ int femm::LuaMagneticsCommands::luaSelectarcsegment(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_selectblock()
+ * \femm42{femm/femmviewLua.cpp,lua_selectblock()}
  */
 int femm::LuaMagneticsCommands::luaSelectblock(lua_State *L)
 {
@@ -1276,7 +1276,7 @@ int femm::LuaMagneticsCommands::luaSelectblock(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_selectcircle()
+ * \femm42{femm/femmeLua.cpp,lua_selectcircle()}
  */
 int femm::LuaMagneticsCommands::luaSelectcircle(lua_State *L)
 {
@@ -1288,7 +1288,7 @@ int femm::LuaMagneticsCommands::luaSelectcircle(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_selectgroup()
+ * \femm42{femm/femmeLua.cpp,lua_selectgroup()}
  */
 int femm::LuaMagneticsCommands::luaSelectgroup(lua_State *L)
 {
@@ -1300,7 +1300,7 @@ int femm::LuaMagneticsCommands::luaSelectgroup(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_selectlabel()
+ * \femm42{femm/femmeLua.cpp,lua_selectlabel()}
  */
 int femm::LuaMagneticsCommands::luaSelectlabel(lua_State *L)
 {
@@ -1312,7 +1312,7 @@ int femm::LuaMagneticsCommands::luaSelectlabel(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_selectline()
+ * \femm42{femm/femmviewLua.cpp,lua_selectline()}
  */
 int femm::LuaMagneticsCommands::luaSelectline(lua_State *L)
 {
@@ -1324,7 +1324,7 @@ int femm::LuaMagneticsCommands::luaSelectline(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_selectnode()
+ * \femm42{femm/femmeLua.cpp,lua_selectnode()}
  */
 int femm::LuaMagneticsCommands::luaSelectnode(lua_State *L)
 {
@@ -1336,7 +1336,7 @@ int femm::LuaMagneticsCommands::luaSelectnode(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_selectrectangle()
+ * \femm42{femm/femmeLua.cpp,lua_selectrectangle()}
  */
 int femm::LuaMagneticsCommands::luaSelectrectangle(lua_State *L)
 {
@@ -1348,7 +1348,7 @@ int femm::LuaMagneticsCommands::luaSelectrectangle(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_selectsegment()
+ * \femm42{femm/femmeLua.cpp,lua_selectsegment()}
  */
 int femm::LuaMagneticsCommands::luaSelectsegment(lua_State *L)
 {
@@ -1360,7 +1360,7 @@ int femm::LuaMagneticsCommands::luaSelectsegment(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_setarcsegmentprop()
+ * \femm42{femm/femmeLua.cpp,lua_setarcsegmentprop()}
  */
 int femm::LuaMagneticsCommands::luaSetarcsegmentprop(lua_State *L)
 {
@@ -1372,7 +1372,7 @@ int femm::LuaMagneticsCommands::luaSetarcsegmentprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_setblockprop()
+ * \femm42{femm/femmeLua.cpp,lua_setblockprop()}
  */
 int femm::LuaMagneticsCommands::luaSetblockprop(lua_State *L)
 {
@@ -1384,7 +1384,7 @@ int femm::LuaMagneticsCommands::luaSetblockprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_seteditmode()
+ * \femm42{femm/femmeLua.cpp,lua_seteditmode()}
  */
 int femm::LuaMagneticsCommands::luaSeteditmode(lua_State *L)
 {
@@ -1396,7 +1396,7 @@ int femm::LuaMagneticsCommands::luaSeteditmode(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_setgrid()
+ * \femm42{femm/femmeLua.cpp,lua_setgrid()}
  */
 int femm::LuaMagneticsCommands::luaSetgrid(lua_State *L)
 {
@@ -1408,7 +1408,7 @@ int femm::LuaMagneticsCommands::luaSetgrid(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_setgroup()
+ * \femm42{femm/femmeLua.cpp,lua_setgroup()}
  */
 int femm::LuaMagneticsCommands::luaSetgroup(lua_State *L)
 {
@@ -1420,7 +1420,7 @@ int femm::LuaMagneticsCommands::luaSetgroup(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_setnodeprop()
+ * \femm42{femm/femmeLua.cpp,lua_setnodeprop()}
  */
 int femm::LuaMagneticsCommands::luaSetnodeprop(lua_State *L)
 {
@@ -1432,7 +1432,7 @@ int femm::LuaMagneticsCommands::luaSetnodeprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_setsegmentprop()
+ * \femm42{femm/femmeLua.cpp,lua_setsegmentprop()}
  */
 int femm::LuaMagneticsCommands::luaSetsegmentprop(lua_State *L)
 {
@@ -1444,7 +1444,7 @@ int femm::LuaMagneticsCommands::luaSetsegmentprop(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_showcountour()
+ * \femm42{femm/femmviewLua.cpp,lua_showcountour()}
  */
 int femm::LuaMagneticsCommands::luaShowcountour(lua_State *L)
 {
@@ -1456,7 +1456,7 @@ int femm::LuaMagneticsCommands::luaShowcountour(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_showdensity()
+ * \femm42{femm/femmviewLua.cpp,lua_showdensity()}
  */
 int femm::LuaMagneticsCommands::luaShowdensity(lua_State *L)
 {
@@ -1468,7 +1468,7 @@ int femm::LuaMagneticsCommands::luaShowdensity(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_showgrid()
+ * \femm42{femm/femmeLua.cpp,lua_showgrid()}
  */
 int femm::LuaMagneticsCommands::luaShowgrid(lua_State *L)
 {
@@ -1480,7 +1480,7 @@ int femm::LuaMagneticsCommands::luaShowgrid(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_show_mesh()
+ * \femm42{femm/femmeLua.cpp,lua_show_mesh()}
  */
 int femm::LuaMagneticsCommands::luaShowMesh(lua_State *L)
 {
@@ -1492,7 +1492,7 @@ int femm::LuaMagneticsCommands::luaShowMesh(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_showmesh()
+ * \femm42{femm/femmviewLua.cpp,lua_showmesh()}
  */
 int femm::LuaMagneticsCommands::luaShowmesh(lua_State *L)
 {
@@ -1504,7 +1504,7 @@ int femm::LuaMagneticsCommands::luaShowmesh(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_shownames()
+ * \femm42{femm/femmeLua.cpp,lua_shownames()}
  */
 int femm::LuaMagneticsCommands::luaShownames(lua_State *L)
 {
@@ -1516,7 +1516,7 @@ int femm::LuaMagneticsCommands::luaShownames(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_showpoints()
+ * \femm42{femm/femmviewLua.cpp,lua_showpoints()}
  */
 int femm::LuaMagneticsCommands::luaShowpoints(lua_State *L)
 {
@@ -1528,7 +1528,7 @@ int femm::LuaMagneticsCommands::luaShowpoints(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_smoothing()
+ * \femm42{femm/femmviewLua.cpp,lua_smoothing()}
  */
 int femm::LuaMagneticsCommands::luaSmoothing(lua_State *L)
 {
@@ -1540,7 +1540,7 @@ int femm::LuaMagneticsCommands::luaSmoothing(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_switchfocus()
+ * \femm42{femm/femmeLua.cpp,lua_switchfocus()}
  */
 int femm::LuaMagneticsCommands::luaSwitchfocus(lua_State *L)
 {
@@ -1552,7 +1552,7 @@ int femm::LuaMagneticsCommands::luaSwitchfocus(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_updatewindow()
+ * \femm42{femm/femmeLua.cpp,lua_updatewindow()}
  */
 int femm::LuaMagneticsCommands::luaUpdatewindow(lua_State *L)
 {
@@ -1564,7 +1564,7 @@ int femm::LuaMagneticsCommands::luaUpdatewindow(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmviewLua.cpp:lua_vectorplot()
+ * \femm42{femm/femmviewLua.cpp,lua_vectorplot()}
  */
 int femm::LuaMagneticsCommands::luaVectorplot(lua_State *L)
 {
@@ -1576,7 +1576,7 @@ int femm::LuaMagneticsCommands::luaVectorplot(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_zoomin()
+ * \femm42{femm/femmeLua.cpp,lua_zoomin()}
  */
 int femm::LuaMagneticsCommands::luaZoomin(lua_State *L)
 {
@@ -1588,7 +1588,7 @@ int femm::LuaMagneticsCommands::luaZoomin(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_zoom()
+ * \femm42{femm/femmeLua.cpp,lua_zoom()}
  */
 int femm::LuaMagneticsCommands::luaZoom(lua_State *L)
 {
@@ -1600,7 +1600,7 @@ int femm::LuaMagneticsCommands::luaZoom(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_zoomnatural()
+ * \femm42{femm/femmeLua.cpp,lua_zoomnatural()}
  */
 int femm::LuaMagneticsCommands::luaZoomnatural(lua_State *L)
 {
@@ -1612,7 +1612,7 @@ int femm::LuaMagneticsCommands::luaZoomnatural(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \sa FEMM42/femmeLua.cpp:lua_zoomout()
+ * \femm42{femm/femmeLua.cpp,lua_zoomout()}
  */
 int femm::LuaMagneticsCommands::luaZoomout(lua_State *L)
 {

@@ -152,7 +152,7 @@ void femm::LuaInstance::addFunction(const char *name, lua_CFunction fun)
  * @param L the Lua state
  * @return 1
  * \ingroup LuaCommon
- * \sa FEMM42/femm.cpp:lua_Complex()
+ * \femm42{femm/femm.cpp,lua_Complex()}
  */
 int femm::LuaInstance::luaComplex(lua_State *L)
 {
@@ -188,7 +188,7 @@ int femm::LuaInstance::luaFemmVersion(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaCommon
- * \sa FEMM42/femm.cpp:lua_compatibilitymode()
+ * \femm42{femm/femm.cpp,lua_compatibilitymode()}
  */
 int femm::LuaInstance::luaSetCompatibilityMode(lua_State *L)
 {
