@@ -211,7 +211,7 @@ end
 
 function addedtopathmsg ()
 % mfemm_setup has added the directories containing mfiles for mfemm to the
-% search path. This change woill not be saved when you close Matlab/Octave.
+% search path. This change will not be saved when you close Matlab/Octave.
 % You will need to have these directories on the path in future for mfemm
 % to work when you restart Matlab/Octave. You can add them again by using
 % the 'Set path' dialog in Matlab, or using the 'addpath' command, or by
