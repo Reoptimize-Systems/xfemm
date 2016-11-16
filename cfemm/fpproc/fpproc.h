@@ -112,6 +112,8 @@ public:
     CComplex Ctr(int i);
     double ElmArea(int i);
     double ElmArea(CElement *elm);
+    double ElmVolume(int i);
+    //double ElmVolume(CElement *elm);
     void GetPointB(double x, double y, CComplex &B1, CComplex &B2, CElement &elm);
     void GetNodalB(CComplex *b1, CComplex *b2,CElement &elm);
     CComplex BlockIntegral(int inttype);

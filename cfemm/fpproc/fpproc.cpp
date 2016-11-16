@@ -2684,6 +2684,29 @@ double FPProc::ElmArea(CElement *elm)
 
 }
 
+double FPProc::ElmVolume(int i)
+{
+    int k;
+    double a, r[3], R;
+            
+    a = ElmArea(i) * pow (LengthConv[LengthUnits], 2.);
+    
+    if (problemType == AXISYMMETRIC)
+    {
+        for (k=0; k<3; k++)
+        {
+            r[k] = meshnode[meshelem[i].p[k]].x * LengthConv[LengthUnits];
+        }
+        R = (r[0] + r[1] + r[2]) / 3.;
+        
+        a *= (2. * PI * R);
+    }
+    else 
+    {
+        a *= Depth;
+    }
+}
+
 CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
 {
     // returns current density with contribution from all sources in
@@ -2840,10 +2863,16 @@ CComplex FPProc::BlockIntegral(int inttype)
     double r[3] = {0, 0, 0};
 
     z=0;
+    y.re = 0.; y.im = 0.;
     for(i=0; i<3; i++) U[i]=1.;
 
-    if(inttype==6) z= BlockIntegral(3) + BlockIntegral(4); //total losses
-    else for(i=0; i<(int)meshelem.size(); i++)
+    if(inttype==6) 
+    {
+        z = BlockIntegral(3) + BlockIntegral(4); //total losses
+    }
+    else
+    {
+        for(i=0; i<(int)meshelem.size(); i++)
         {
             if(blocklist[meshelem[i].lbl].IsSelected==true)
             {
@@ -3136,6 +3165,13 @@ CComplex FPProc::BlockIntegral(int inttype)
 
                     z+=y;
                     break;
+                    
+                case 25: // 2D Shape centroid
+                    
+                    y.re += meshelem[i].ctr.re * a;
+                    y.im += meshelem[i].ctr.im * a;
+                            
+                    break;
 
                 default:
                     break;
@@ -3257,6 +3293,15 @@ CComplex temp;
                 }
             }
         }
+    }
+    
+    if (inttype == 25) // 2D shape centroid
+    {
+        // divide sum of Cx*A and Cy*A by sum of A
+        CComplex temp = BlockIntegral(5);
+        z.re = y.Re() / temp.Re();
+        z.im = y.Im() / temp.Re();
+    }
 
     return z;
 }
