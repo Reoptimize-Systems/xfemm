@@ -706,7 +706,7 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
                           "Block integral failed, no area has been selected");
     }
     
-    if((type<0) || (type>24))
+    if((type<0) || (type>25))
     {
         mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidinttype",
                            "Invalid block integral type selected %d",type);
@@ -720,23 +720,36 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 
     z = theFPProc.BlockIntegral(type);
 
-    if (z.Im() == 0.0)
+    if (type == 25)
     {
+        // 2D block centroid
         /*  set the output pointer to the output matrix */
-        plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(2), mxREAL);
         // get a pointer to the start of the actual output data array
         outpointerRe = mxGetPr(plhs[0]);
         outpointerRe[0] = z.Re();
+        outpointerRe[1] = z.Im();
     }
     else
     {
-        /*  set the output pointer to the output matrix */
-        plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxCOMPLEX);
-        // get a pointer to the start of the actual output data array
-        outpointerRe = mxGetPr(plhs[0]);
-        outpointerIm = mxGetPi(plhs[0]);
-        outpointerRe[0] = z.Re();
-        outpointerIm[0] = z.Im();
+        if (z.Im() == 0.0)
+        {
+            /*  set the output pointer to the output matrix */
+            plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxREAL);
+            // get a pointer to the start of the actual output data array
+            outpointerRe = mxGetPr(plhs[0]);
+            outpointerRe[0] = z.Re();
+        }
+        else
+        {
+            /*  set the output pointer to the output matrix */
+            plhs[0] = mxCreateDoubleMatrix( (mwSize)(1), (mwSize)(1), mxCOMPLEX);
+            // get a pointer to the start of the actual output data array
+            outpointerRe = mxGetPr(plhs[0]);
+            outpointerIm = mxGetPi(plhs[0]);
+            outpointerRe[0] = z.Re();
+            outpointerIm[0] = z.Im();
+        }
     }
 
     return 1;
@@ -1071,6 +1084,66 @@ int FPProc_interface::getareas(int nlhs, mxArray *plhs[], int nrhs, const mxArra
 	return 0;
 }
 
+int FPProc_interface::getvolumes(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+
+    double *p_elmnos, *outpointer;
+    size_t mxrows, nxcols;
+
+    /* check for proper number of arguments */
+    if(nrhs!=3)
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
+                           "One input required.");
+    else if(nlhs > 1)
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                           "Too many output arguments.");
+
+    p_elmnos = mxGetPr(prhs[2]);
+
+    /*  get the dimensions of the matrix input x */
+    mxrows = mxGetM(prhs[2]);
+    nxcols = mxGetN(prhs[2]);
+
+    if (nxcols>1)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
+                           "element nos, must be a column vector.");
+    }
+
+    /*  set the output pointer to the output matrix */
+    plhs[0] = mxCreateDoubleMatrix( (mwSize)mxrows, (mwSize)(1), mxREAL);
+    // get a pointer to the start of the actual output data array
+    outpointer = mxGetPr(plhs[0]);
+
+    int numelms = theFPProc.meshelem.size();
+    int i = 0;
+
+    // check no invalid element numbers have been requested
+    for (i = 0; i < (int)mxrows; i++)
+    {
+        if (std::floor(p_elmnos[i]) < 1.0)
+        {
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
+                               "Element numbers start from 1.");
+        }
+
+        if (std::floor(p_elmnos[i]) > numelms)
+        {
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidelmno",
+                               "Invalid element number (bigger than number of elements).");
+        }
+    }
+
+    for(i=0; i<(int)mxrows; i++)
+    {
+        // copy the element info to the matlab array at the
+        // appropriate locations
+        int n = (int)std::floor(p_elmnos[i]) - 1;
+        outpointer[i] = theFPProc.ElmVolume(n);
+    }
+
+	return 0;
+}
 
 int FPProc_interface::getvertices(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
@@ -1384,6 +1457,70 @@ int FPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
 
 	return 1;
 }
+
+
+int FPProc_interface::getgroupvolumes(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+
+    double *p_gpno, *outpointer;
+    size_t mxrows, nxcols;
+
+    /* check for proper number of arguments */
+    if(nrhs!=3)
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
+                           "One input required.");
+    else if(nlhs > 1)
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                           "Too many output arguments.");
+
+    p_gpno = mxGetPr(prhs[2]);
+
+    /*  get the dimensions of the matrix input x */
+    mxrows = mxGetM(prhs[2]);
+    nxcols = mxGetN(prhs[2]);
+
+    if ((nxcols != 1) | (mxrows != 1))
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidSizeInputs",
+                           "group no, must be a scalar.");
+    }
+
+    int numelms = theFPProc.meshelem.size();
+    int groupno = (int)p_gpno[0];
+    int numingroup = countGroupElements (groupno);
+    int i = 0;
+
+    if (numingroup > 0)
+    {
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)numingroup, (mwSize)(1), mxREAL);
+        // get a pointer to the start of the actual output data array
+        outpointer = mxGetPr(plhs[0]);
+
+        int n = 0;
+
+
+        for(i = 0; i < numelms; i++)
+        {
+            if (theFPProc.blocklist[theFPProc.meshelem[i].lbl].InGroup == groupno)
+            {
+                // copy the element info to the matlab array at the
+                // appropriate locations
+                outpointer[n] = theFPProc.ElmVolume(i);
+
+                n++;
+            }
+        }
+    }
+    else
+    {
+        /*  set the output pointer to the output matrix */
+        plhs[0] = mxCreateDoubleMatrix( (mwSize)(0), (mwSize)(0), mxREAL);
+    }
+
+	return 1;
+}
+
 
 int FPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {

@@ -31,10 +31,12 @@ enum ClassMethods { evNotDefined,
                     getcentroids,
                     numgroupelements,
                     getareas,
+                    getvolumes,
                     getgroupelements,
                     getgroupvertices,
                     getgroupcentroids,
-                    getgroupareas
+                    getgroupareas,
+                    getgroupvolumes
                   };
 
 // Map to associate the command strings with the class
@@ -63,11 +65,13 @@ void Initialize()
     s_mapClassMethodStrs["getvertices"]       = getvertices;
     s_mapClassMethodStrs["getcentroids"]      = getcentroids;
     s_mapClassMethodStrs["getareas"]          = getareas;
+    s_mapClassMethodStrs["getvolumes"]        = getvolumes;
     s_mapClassMethodStrs["numgroupelements"]  = numgroupelements;
     s_mapClassMethodStrs["getgroupelements"]  = getgroupelements;
     s_mapClassMethodStrs["getgroupvertices"]  = getgroupvertices;
     s_mapClassMethodStrs["getgroupcentroids"] = getgroupcentroids;
     s_mapClassMethodStrs["getgroupareas"]     = getgroupareas;
+    s_mapClassMethodStrs["getgroupvolumes"]   = getgroupvolumes;
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -174,6 +178,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	case getareas:
         FPProc_interface_instance->getareas(nlhs, plhs, nrhs, prhs);
         return;
+    case getvolumes:
+        FPProc_interface_instance->getvolumes(nlhs, plhs, nrhs, prhs);
+        return;
     case numgroupelements:
         FPProc_interface_instance->numgroupelements(nlhs, plhs, nrhs, prhs);
         return;    
@@ -188,6 +195,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     case getgroupareas:
         FPProc_interface_instance->getgroupareas(nlhs, plhs, nrhs, prhs);
+        return;
+	case getgroupvolumes:
+        FPProc_interface_instance->getgroupvolumes(nlhs, plhs, nrhs, prhs);
         return;
     default:
         mexErrMsgTxt("Unrecognised class command string.");
