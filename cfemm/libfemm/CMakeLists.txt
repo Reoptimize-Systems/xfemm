@@ -32,7 +32,7 @@ add_library(femm
   fparse.cpp
   fullmatrix.cpp
   IntPoint.cpp
-  #MagneticsDocument.cpp
+  MagneticsDocument.cpp
   mesh.cpp
   spars.cpp
   liblua/lapi.cpp
