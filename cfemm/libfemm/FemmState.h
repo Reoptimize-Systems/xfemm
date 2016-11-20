@@ -16,8 +16,11 @@
 #ifndef FEMMSTATE_H
 #define FEMMSTATE_H
 
+#include <memory>
+
 namespace femm
 {
+class MagneticsDocument;
 
 /**
  * @brief The FemmState class holds the various femm documents.
@@ -31,6 +34,7 @@ class FemmState
 public:
     FemmState();
 
+    std::shared_ptr<MagneticsDocument> magneticsDocument;
 };
 
 } /* namespace */

@@ -122,11 +122,6 @@ void femm::LuaInstance::enableTracing(bool enable)
     }
 }
 
-/**
- * @brief Extract the LuaInstance object from the LuaState
- * @param L
- * @return the LuaInstance, or nullptr if state is not valid.
- */
 femm::LuaInstance *femm::LuaInstance::instance(lua_State *L)
 {
     lua_getregistry(L); //+1

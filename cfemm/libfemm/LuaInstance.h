@@ -117,12 +117,17 @@ public:
      */
     void enableTracing(bool enable);
 
+    /**
+    * @brief Extract the LuaInstance object from the LuaState
+    * @param L
+    * @return the LuaInstance, or nullptr if state is not valid.
+    */
+    static LuaInstance* instance( lua_State *L);
+
 private:
     lua_State *lua;
     std::shared_ptr<FemmState> fs;
     bool compatMode;
-
-    static LuaInstance* instance( lua_State *L);
 
     static int luaComplex(lua_State *L);
     static int luaFemmVersion(lua_State *L);
