@@ -27,7 +27,6 @@
 #include "fparse.h"
 #include "fsolver.h"
 #include "LuaInstance.h"
-#include "mmesh.h"
 #include "spars.h"
 
 #include <algorithm>
@@ -48,7 +47,7 @@
 template class FEASolver<
         femm::CPointProp
         , femm::CMBoundaryProp
-        , fsolver::CMMaterialProp
+        , femm::CMMaterialProp
         , femm::CMCircuit
         , femm::CMSolverBlockLabel
         , femm::CSolverNode
@@ -60,7 +59,6 @@ template class FEASolver<
 
 using namespace std;
 using namespace femm;
-using fsolver::CMMaterialProp;
 
 /////////////////////////////////////////////////////////////////////////////
 // FSolver construction/destruction

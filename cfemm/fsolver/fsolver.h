@@ -29,10 +29,10 @@
 #include <string>
 #include <vector>
 #include "feasolver.h"
-#include "mmesh.h"
 #include "cspars.h"
 #include "CBlockLabel.h"
 #include "CCircuit.h"
+#include "CMaterialProp.h"
 #include "CNode.h"
 #include "CPointProp.h"
 
@@ -43,7 +43,7 @@ class LuaInstance;
 class FSolver : public FEASolver<
         femm::CPointProp
         , femm::CMBoundaryProp
-        , fsolver::CMMaterialProp
+        , femm::CMMaterialProp
         , femm::CMCircuit
         , femm::CMSolverBlockLabel
         , femm::CSolverNode

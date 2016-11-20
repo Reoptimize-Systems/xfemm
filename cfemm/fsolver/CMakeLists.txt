@@ -14,8 +14,6 @@ add_library(fsolver STATIC
   fsolver.cpp
   harmonic2d.cpp
   harmonicaxi.cpp
-  matprop.cpp
-  mmesh.h
   static2d.cpp
   staticaxi.cpp
   )
