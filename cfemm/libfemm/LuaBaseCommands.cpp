@@ -16,6 +16,7 @@
 #include "LuaBaseCommands.h"
 
 #include "LuaInstance.h"
+#include "MagneticsDocument.h"
 
 #include <lua.h>
 
@@ -126,19 +127,19 @@ int femm::LuaBaseCommands::luaMessageBox(lua_State *L)
 int femm::LuaBaseCommands::luaNewDocument(lua_State *L)
 {
     int docType = static_cast<int>(lua_tonumber(L,1).Re());
+    auto femmState = LuaInstance::instance(L)->femmState();
 
     // FIXME IMPLEMENT:
     // 1. get "CDocTemplate"
     // 2. call [MFC] CDocTemplate::OpenDocumentFile(NULL)
-    debug << "NOP: luaNewDocument("<<docType<<")" << std::endl;
     switch (docType) {
         case 0: // magnetics
+            femmState->magneticsDocument = std::make_shared<MagneticsDocument>();
             break;
         case 1: // electrostatics
-            break;
         case 2: // heat flow
-            break;
         case 3: // current flow
+            debug << "NOP: luaNewDocument("<<docType<<")" << std::endl;
             break;
         default:
             // we don't need to handle other docTypes that are used in femm
