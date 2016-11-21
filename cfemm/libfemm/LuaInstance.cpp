@@ -17,7 +17,7 @@
 
 #include "femmcomplex.h"
 #include "femmversion.h"
-#include "FemmState.h"
+#include "FemmStateBase.h"
 
 #include <lua.h>
 #include <lualib.h>
@@ -34,30 +34,17 @@
 #endif
 
 femm::LuaInstance::LuaInstance(int stackSize)
-    : fs (std::make_shared<femm::FemmState>())
+    : fs ()
     , compatMode(false)
 {
-    debug << "Initializing Lua with stacksize = " << stackSize << std::endl;
-    lua = lua_open(stackSize);
+    initializeLua(stackSize);
+}
 
-    // add pointer to this object to Lua_registry[1]
-    lua_getregistry(lua); //+1
-    lua_pushuserdata(lua,this); //+1
-    lua_rawseti(lua,1,1); //-1
-    lua_pop(lua,1); //-1
-
-    // register Lua standard libraries:
-    lua_baselibopen(lua);
-    lua_strlibopen(lua);
-    lua_mathlibopen(lua);
-    lua_iolibopen(lua);
-
-    // register some common Lua functionality
-    addFunction("Complex", luaComplex);
-    addFunction("setcompatibilitymode",luaSetCompatibilityMode);
-    addFunction("getcompatibilitymode",luaGetCompatibilityMode);
-    addFunction("femmVersion",luaFemmVersion);
-    addFunction("trace",luaTrace);
+femm::LuaInstance::LuaInstance(std::shared_ptr<femm::FemmStateBase> state, int stackSize)
+    : fs(state)
+    , compatMode(false)
+{
+    initializeLua(stackSize);
 }
 
 femm::LuaInstance::~LuaInstance()
@@ -65,7 +52,7 @@ femm::LuaInstance::~LuaInstance()
     lua_close(lua);
 }
 
-std::shared_ptr<femm::FemmState> femm::LuaInstance::femmState() const
+std::shared_ptr<femm::FemmStateBase> femm::LuaInstance::femmState() const
 {
     return fs;
 }
@@ -129,6 +116,31 @@ femm::LuaInstance *femm::LuaInstance::instance(lua_State *L)
     void *obj = lua_touserdata(L, -1); //-1
     lua_pop(L,1); //-1
     return static_cast<LuaInstance*>(obj);
+}
+
+void femm::LuaInstance::initializeLua(int stackSize)
+{
+    debug << "Initializing Lua with stacksize = " << stackSize << std::endl;
+    lua = lua_open(stackSize);
+
+    // add pointer to this object to Lua_registry[1]
+    lua_getregistry(lua); //+1
+    lua_pushuserdata(lua,this); //+1
+    lua_rawseti(lua,1,1); //-1
+    lua_pop(lua,1); //-1
+
+    // register Lua standard libraries:
+    lua_baselibopen(lua);
+    lua_strlibopen(lua);
+    lua_mathlibopen(lua);
+    lua_iolibopen(lua);
+
+    // register some common Lua functionality
+    addFunction("Complex", luaComplex);
+    addFunction("setcompatibilitymode",luaSetCompatibilityMode);
+    addFunction("getcompatibilitymode",luaGetCompatibilityMode);
+    addFunction("femmVersion",luaFemmVersion);
+    addFunction("trace",luaTrace);
 }
 
 lua_State *femm::LuaInstance::getLuaState() const

@@ -18,10 +18,12 @@
 
 class lua_State;
 
-namespace femm
-{
-
+namespace femm {
 class LuaInstance;
+}
+
+namespace femmcli
+{
 
 /**
  * LuaMagneticsCommands registers the lua commands related to magnetics.
@@ -35,7 +37,7 @@ public:
      * @brief Register the common command set with the given LuaInstance
      * @param li a LuaInstance
      */
-    static void registerCommands(LuaInstance &li );
+    static void registerCommands(femm::LuaInstance &li );
 
 protected:
 

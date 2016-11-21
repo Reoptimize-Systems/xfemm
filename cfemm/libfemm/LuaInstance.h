@@ -16,7 +16,7 @@
 #ifndef LUAINSTANCE_H
 #define LUAINSTANCE_H
 
-#include "FemmState.h"
+#include "FemmStateBase.h"
 
 #include <lua.h>
 #include <string>
@@ -59,14 +59,21 @@ public:
      * @param stackSize the Lua stack size
      */
     LuaInstance( int stackSize=4096);
+    /**
+     * @brief LuaInstance
+     * Create a Lua instance and initialize it, adding the Lua standard libraries and the CComplex data type.
+     * @param state the state object for use by additional Lua command modules (e.g. LuaMagneticsCommands)
+     * @param stackSize the Lua stack size
+     */
+    LuaInstance( std::shared_ptr<FemmStateBase> state, int stackSize=4096);
 
     ~LuaInstance();
 
     /**
-     * @brief femmState is a handle on open documents
+     * @brief femmState is a handle on open documents and data that is not directly related to lua
      * @return the FemmState
      */
-    std::shared_ptr<FemmState> femmState() const;
+    std::shared_ptr<FemmStateBase> femmState() const;
 
     /**
      * @brief Call lua_dobuffer on the given string.
@@ -126,8 +133,13 @@ public:
 
 private:
     lua_State *lua;
-    std::shared_ptr<FemmState> fs;
+    std::shared_ptr<FemmStateBase> fs;
     bool compatMode;
+
+    /**
+     * @brief initialize lua
+     */
+    void initializeLua(int stackSize);
 
     static int luaComplex(lua_State *L);
     static int luaFemmVersion(lua_State *L);

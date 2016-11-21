@@ -23,7 +23,6 @@
 //
 
 #include "femmcomplex.h"
-#include "mesh.h"
 #include "spars.h"
 #include "fparse.h"
 #include "feasolver.h"
