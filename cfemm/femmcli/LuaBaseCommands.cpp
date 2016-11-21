@@ -15,12 +15,14 @@
 
 #include "LuaBaseCommands.h"
 
+#include "FemmState.h"
 #include "LuaInstance.h"
-#include "MagneticsDocument.h"
+#include "fsolver.h"
 
 #include <lua.h>
 
 #include <iostream>
+#include <memory>
 #include <string>
 #ifdef WIN32
 #include <direct.h> // _chdir
@@ -34,7 +36,9 @@
 #define debug while(false) std::cerr
 #endif
 
-void femm::LuaBaseCommands::registerCommands(LuaInstance &li)
+using namespace femm;
+
+void femmcli::LuaBaseCommands::registerCommands(LuaInstance &li)
 {
     li.addFunction("_ALERT",luaError);
     li.addFunction("messagebox",luaMessageBox);
@@ -69,7 +73,7 @@ void femm::LuaBaseCommands::registerCommands(LuaInstance &li)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_endapp()}
  */
-int femm::LuaBaseCommands::luaError(lua_State *L)
+int femmcli::LuaBaseCommands::luaError(lua_State *L)
 {
     // Somthing went wrong in lua execution
     std::cerr << lua_tostring(L,1) << std::endl;
@@ -84,7 +88,7 @@ int femm::LuaBaseCommands::luaError(lua_State *L)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_endapp()}
  */
-int femm::LuaBaseCommands::luaExit(lua_State *)
+int femmcli::LuaBaseCommands::luaExit(lua_State *)
 {
     debug << "NOP: luaExit" << std::endl;
     return 0;
@@ -97,7 +101,7 @@ int femm::LuaBaseCommands::luaExit(lua_State *)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_hidepointprops()}
  */
-int femm::LuaBaseCommands::luaHidePointProps(lua_State *)
+int femmcli::LuaBaseCommands::luaHidePointProps(lua_State *)
 {
     debug << "NOP: luaHidePointProps" << std::endl;
     return 0;
@@ -111,7 +115,7 @@ int femm::LuaBaseCommands::luaHidePointProps(lua_State *)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_messagebox()}
  */
-int femm::LuaBaseCommands::luaMessageBox(lua_State *L)
+int femmcli::LuaBaseCommands::luaMessageBox(lua_State *L)
 {
     std::cout << "* " << lua_tostring(L,1) << std::endl;
     return 0;
@@ -124,17 +128,17 @@ int femm::LuaBaseCommands::luaMessageBox(lua_State *L)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_newdocument()}
  */
-int femm::LuaBaseCommands::luaNewDocument(lua_State *L)
+int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
 {
     int docType = static_cast<int>(lua_tonumber(L,1).Re());
-    auto femmState = LuaInstance::instance(L)->femmState();
+    auto femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
 
     // FIXME IMPLEMENT:
     // 1. get "CDocTemplate"
     // 2. call [MFC] CDocTemplate::OpenDocumentFile(NULL)
     switch (docType) {
         case 0: // magnetics
-            femmState->magneticsDocument = std::make_shared<MagneticsDocument>();
+            //femmState->magneticsDocument = std::make_shared<MagneticsDocument>();
             break;
         case 1: // electrostatics
         case 2: // heat flow
@@ -157,7 +161,7 @@ int femm::LuaBaseCommands::luaNewDocument(lua_State *L)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,luaOpenDocument()}
  */
-int femm::LuaBaseCommands::luaOpenDocument(lua_State *L)
+int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
 {
     std::string filename = lua_tostring(L,1);
     // FIXME IMPLEMENT
@@ -172,7 +176,7 @@ int femm::LuaBaseCommands::luaOpenDocument(lua_State *L)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_afxpause()}
  */
-int femm::LuaBaseCommands::luaPause(lua_State *)
+int femmcli::LuaBaseCommands::luaPause(lua_State *)
 {
     debug << "NOP: luaPause" << std::endl;
     return 0;
@@ -183,7 +187,7 @@ int femm::LuaBaseCommands::luaPause(lua_State *)
  * @return 0
  * \ingroup LuaCommon
  */
-int femm::LuaBaseCommands::luaShowConsole(lua_State *)
+int femmcli::LuaBaseCommands::luaShowConsole(lua_State *)
 {
     return 0;
 }
@@ -195,7 +199,7 @@ int femm::LuaBaseCommands::luaShowConsole(lua_State *)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_showpointprops()}
  */
-int femm::LuaBaseCommands::luaShowPointProps(lua_State *)
+int femmcli::LuaBaseCommands::luaShowPointProps(lua_State *)
 {
     debug << "NOP: luaShowPointProps" << std::endl;
     return 0;
@@ -208,7 +212,7 @@ int femm::LuaBaseCommands::luaShowPointProps(lua_State *)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_setcurrentdirectory()}
  */
-int femm::LuaBaseCommands::luaSetWorkingDirectory(lua_State *L)
+int femmcli::LuaBaseCommands::luaSetWorkingDirectory(lua_State *L)
 {
     if (lua_gettop(L) != 0)
     {
@@ -229,7 +233,7 @@ int femm::LuaBaseCommands::luaSetWorkingDirectory(lua_State *L)
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,lua_makeplot()}
  */
-int femm::LuaBaseCommands::luaMakePlot(lua_State *)
+int femmcli::LuaBaseCommands::luaMakePlot(lua_State *)
 {
     debug << "NOP: luaMakePlot" << std::endl;
     return 0;

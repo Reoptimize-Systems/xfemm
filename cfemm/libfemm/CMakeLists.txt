@@ -28,12 +28,11 @@ add_library(femm
   cuthill.cpp
   feasolver.cpp
   femmcomplex.cpp
-  FemmState.cpp
+  FemmStateBase.cpp
   fparse.cpp
   fullmatrix.cpp
   IntPoint.cpp
   MagneticsDocument.cpp
-  mesh.cpp
   spars.cpp
   liblua/lapi.cpp
   liblua/lcode.cpp 
@@ -60,8 +59,6 @@ add_library(femm
   liblua/ltm.cpp   
   liblua/lzio.cpp
   LuaInstance.cpp
-  LuaBaseCommands.cpp
-  LuaMagneticsCommands.cpp
   stringTools.cpp
   )
 

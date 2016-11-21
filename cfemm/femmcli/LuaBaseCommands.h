@@ -18,10 +18,12 @@
 
 class lua_State;
 
-namespace femm
-{
-
+namespace femm {
 class LuaInstance;
+}
+
+namespace femmcli
+{
 
 /**
  * LuaBaseCommands registers the common lua commands usually provided by the FEMM UI.
@@ -39,7 +41,7 @@ public:
      * @brief Register the common command set with the given LuaInstance
      * @param li a LuaInstance
      */
-    static void registerCommands(LuaInstance &li );
+    static void registerCommands(femm::LuaInstance &li );
 
 protected:
     static int luaError(lua_State *L);

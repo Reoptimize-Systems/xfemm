@@ -5,7 +5,6 @@
 #include <string.h>
 #include "fsolver.h"
 #include "spars.h"
-#include "mesh.h"
 
 #include "mex.h"
 

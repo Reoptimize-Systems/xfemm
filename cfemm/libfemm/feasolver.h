@@ -27,10 +27,10 @@
 #define FEASOLVER_H
 
 #include "fparse.h"
-#include "mesh.h"
 #include "spars.h"
 #include "CBoundaryProp.h"
 #include "CCommonPoint.h"
+#include "CElement.h"
 
 #include <string>
 #include <vector>

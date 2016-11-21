@@ -28,7 +28,6 @@
 #ifndef HMESH_H
 #define HMESH_H
 
-#include "mesh.h"
 #include "femmcomplex.h"
 #include "CBoundaryProp.h"
 #include "CCircuit.h"

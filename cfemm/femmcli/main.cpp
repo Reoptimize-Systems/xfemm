@@ -9,12 +9,14 @@
 
 #include "feasolver.h"
 #include "fsolver.h"
+#include "FemmState.h"
 #include "LuaBaseCommands.h"
 #include "LuaInstance.h"
 #include "LuaMagneticsCommands.h"
 #include "stringTools.h"
 
 #include <cassert>
+#include <memory>
 #include <iostream>
 #include <string>
 
@@ -25,7 +27,9 @@
 #define debug while(false) std::cerr
 #endif
 
+using namespace std;
 using namespace femm;
+using namespace femmcli;
 
 /**
  * @brief quiet if true, reduce commandline-output
@@ -44,7 +48,8 @@ enum OperationMode { NoOperation, LuaMode, SolverMode };
 int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace)
 {
     // initialize interpreter
-    LuaInstance li;
+    shared_ptr<FemmState> state = make_shared<FemmState>();
+    LuaInstance li(static_pointer_cast<FemmStateBase>(state));
     LuaBaseCommands::registerCommands(li);
     LuaMagneticsCommands::registerCommands(li);
     li.enableTracing(luaTrace);

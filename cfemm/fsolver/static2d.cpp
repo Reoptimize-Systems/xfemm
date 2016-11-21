@@ -25,7 +25,7 @@
 #include <string>
 #include <cstdio>
 #include "femmcomplex.h"
-#include "mesh.h"
+#include "CElement.h"
 #include "spars.h"
 #include "fsolver.h"
 #include "lua.h"

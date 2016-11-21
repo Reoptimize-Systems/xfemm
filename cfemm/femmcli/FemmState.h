@@ -16,25 +16,22 @@
 #ifndef FEMMSTATE_H
 #define FEMMSTATE_H
 
+#include "FemmStateBase.h"
+#include "fsolver.h"
+#include "fpproc.h"
 #include <memory>
 
-namespace femm
+namespace femmcli
 {
-class MagneticsDocument;
 
 /**
  * @brief The FemmState class holds the various femm documents.
- *
- * The lua commands use this class as a document handle, but it
- * can also be useful for outside code that needs to interact with the
- * data that is used in the lua code.
  */
-class FemmState
+class FemmState : public femm::FemmStateBase
 {
 public:
-    FemmState();
-
-    std::shared_ptr<MagneticsDocument> magneticsDocument;
+    std::shared_ptr<FSolver> fSolverDocument;
+    std::shared_ptr<FPProc> fPProcDocument;
 };
 
 } /* namespace */
