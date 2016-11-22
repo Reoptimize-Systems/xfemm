@@ -10,6 +10,7 @@ endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
 include_directories(../libfemm/liblua)
 include_directories(../libfemm)
 
+include_directories(../fmesher)
 include_directories(../fsolver)
 include_directories(../fpproc)
 
@@ -18,7 +19,7 @@ add_library(femmcli STATIC
   LuaBaseCommands.cpp
   LuaMagneticsCommands.cpp
   )
-target_link_libraries(femmcli femm fsolver fpproc)
+target_link_libraries(femmcli femm fmesher fsolver fpproc)
 
 add_executable(femmcli-bin
   main.cpp

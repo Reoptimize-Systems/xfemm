@@ -17,8 +17,11 @@
 #define FEMMSTATE_H
 
 #include "FemmStateBase.h"
+
+#include "fmesher.h"
 #include "fsolver.h"
 #include "fpproc.h"
+
 #include <memory>
 
 namespace femmcli
@@ -30,6 +33,7 @@ namespace femmcli
 class FemmState : public femm::FemmStateBase
 {
 public:
+    std::shared_ptr<fmesher::FMesher> fMesherDocument;
     std::shared_ptr<FSolver> fSolverDocument;
     std::shared_ptr<FPProc> fPProcDocument;
 };
