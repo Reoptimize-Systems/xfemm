@@ -407,9 +407,21 @@ int femmcli::LuaMagneticsCommands::luaAddpointprop(lua_State *)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_analyze()}
  */
-int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *)
+int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    auto mesherDoc = femmState->fMesherDocument;
+
+    int n=lua_gettop(L);
+    if (n>0) n=(int)lua_tonumber(L,1).re;
+    if (n!=0) n=1;
+
+    // CFemmeView::lnu_analyze(n);
+    // ->CFemmeView::OnMenuAnalyze
+
     return 0;
+
 }
 
 /**

@@ -21,6 +21,7 @@
 
 #include <lua.h>
 
+#include <cassert>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -132,13 +133,14 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
 {
     int docType = static_cast<int>(lua_tonumber(L,1).Re());
     auto femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
+    assert(femmState);
 
     // FIXME IMPLEMENT:
     // 1. get "CDocTemplate"
     // 2. call [MFC] CDocTemplate::OpenDocumentFile(NULL)
     switch (docType) {
         case 0: // magnetics
-            //femmState->magneticsDocument = std::make_shared<MagneticsDocument>();
+            femmState->fMesherDocument = std::make_shared<fmesher::FMesher>();
             break;
         case 1: // electrostatics
         case 2: // heat flow
