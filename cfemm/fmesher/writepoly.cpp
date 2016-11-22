@@ -55,6 +55,7 @@
 
 using namespace std;
 using namespace femm;
+using namespace fmesher;
 
 
 double FMesher::LineLength(int i)
