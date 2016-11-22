@@ -23,6 +23,7 @@ void FmesherInterfaceWarning(const char* warningmsg)
 // extern void _main();
 
 using namespace femm;
+using namespace fmesher;
 
 /* the gateway function */
 void mexFunction( int nlhs, mxArray *plhs[],

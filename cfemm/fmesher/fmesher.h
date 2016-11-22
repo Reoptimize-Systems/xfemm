@@ -53,7 +53,7 @@
 #define _strnicmp(s1, s2, n) strncasecmp(s1, s2, (n))
 #endif
 
-namespace femm
+namespace fmesher
 {
 
 // FMesher Class
@@ -98,8 +98,8 @@ public:
     std::vector< femm::CMesherBlockLabel > undoblocklist;
 
 	// vectors containing the mesh information
-	std::vector< IntPoint >      meshline;
-	std::vector< IntPoint >      greymeshline;
+    std::vector< femm::IntPoint >      meshline;
+    std::vector< femm::IntPoint >      greymeshline;
     std::vector< femm::CMesherNode >	meshnode;
 
 	// lists of properties

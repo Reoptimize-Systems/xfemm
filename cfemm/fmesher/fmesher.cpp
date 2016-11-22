@@ -42,6 +42,7 @@
 
 using namespace std;
 using namespace femm;
+using namespace fmesher;
 
 FMesher::FMesher()
 {

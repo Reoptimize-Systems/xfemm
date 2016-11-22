@@ -3,6 +3,7 @@
 #include "fmesher.h"
 
 using namespace femm;
+using namespace fmesher;
 
 int main(int argc, char ** argv)
 {
