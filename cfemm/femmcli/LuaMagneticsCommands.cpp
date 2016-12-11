@@ -22,6 +22,7 @@
 
 #include <lua.h>
 
+#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -406,6 +407,9 @@ int femmcli::LuaMagneticsCommands::luaAddpointprop(lua_State *)
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_analyze()}
+ * \internal
+ * mi_analyze(flag) runs fkern to solve the problem.
+ * Parameter flag (0,1) determines visibility of fkern window.
  */
 int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
@@ -413,9 +417,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     auto mesherDoc = femmState->fMesherDocument;
 
-    int n=lua_gettop(L);
-    if (n>0) n=(int)lua_tonumber(L,1).re;
-    if (n!=0) n=1;
+
 
     // CFemmeView::lnu_analyze(n);
     // ->CFemmeView::OnMenuAnalyze
@@ -1152,9 +1154,90 @@ int femmcli::LuaMagneticsCommands::luaPrevious(lua_State *)
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_prob_def()}
+ * \internal
+ * mi_probdef(frequency,units,type,precision,(depth),(minangle),(acsolver) changes the problem definition.
+ *
+ * Parameters:
+ *  * frequency: number
+ *  * units: "inches", "millimeters", "centimeters", "mils", "meters, and "micrometers"
+ *  * type: "planar", "axi"
+ *  * precision: in scientific notation (e.g. "1E-8")
+ *  * depth: number
+ *  * minangle: number
+ *  * acsolver: number? ... solver type for AC problems
+ *
+ * All parameters except the first are optional.
+ * Only the parameters that are set are changed.
  */
-int femmcli::LuaMagneticsCommands::luaProbDef(lua_State *)
+int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FSolver> solverDoc = femmState->fSolverDocument;
+
+    // argument count
+    int n;
+    n=lua_gettop(L);
+
+    // Frequency
+    double frequency = lua_tonumber(L,1).re;
+    solverDoc->Frequency = std::fabs(frequency);
+    if(n==1) return 0;
+
+    // Length Units
+    std::string units (lua_tostring(L,2));
+    if(units=="inches") solverDoc->LengthUnits = LengthInches;
+    else if(units=="millimeters") solverDoc->LengthUnits = LengthMillimeters;
+    else if(units=="centimeters") solverDoc->LengthUnits = LengthCentimeters;
+    else if(units=="meters") solverDoc->LengthUnits = LengthMeters;
+    else if(units=="mills") solverDoc->LengthUnits = LengthMils;
+    else if(units=="mils") solverDoc->LengthUnits = LengthMils;
+    else if(units=="micrometers") solverDoc->LengthUnits = LengthMicrometers;
+    else
+    {
+        std::string msg  = "Unknown length unit " + units;
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+    if (n==2) return 0;
+
+    // Problem type
+    std::string type (lua_tostring(L,3));
+    if(type=="planar") solverDoc->ProblemType = PLANAR;
+    else if(type=="axi") solverDoc->ProblemType = AXISYMMETRIC;
+    else
+    {
+        std::string msg =  "Unknown problem type " + type;
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+    if (n==3) return 0;
+
+    double precision = lua_tonumber(L,4).re;
+    if (precision < 1.e-16 || precision >1.e-8)
+    {
+        std::string msg = "Invalid Precision " + std::to_string(precision);
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+    solverDoc->Precision = precision;
+    if (n==4) return 0;
+
+    solverDoc->Depth = std::fabs(lua_tonumber(L,5).re);
+    if (n==5) return 0;
+
+    double minAngle = lua_tonumber(L,6).re;
+    if ((minAngle>=1.) && (minAngle<=33.8))
+    {
+        solverDoc->MinAngle = minAngle;
+    }
+    if (n==6) return 0;
+
+    int acSolver = (int)lua_tonumber(L,7).re;
+    if ((acSolver==0) || (acSolver==1))
+    {
+        solverDoc->ACSolver=acSolver;
+    }
     return 0;
 }
 
