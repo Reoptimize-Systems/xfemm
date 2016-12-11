@@ -39,11 +39,11 @@ bool quiet = false;
 enum OperationMode { NoOperation, LuaMode, SolverMode };
 
 /**
- * @brief execLuaFile
- * Execute a Lua File
- * @param inputFile the lua file
- * @param luaInit a lua file containing initialization code
- * @return the result of lua_dostring()
+ * \brief Execute a Lua File
+ * \param inputFile the lua file
+ * \param luaInit a lua file containing initialization code
+ * \param luaTrace enable function tracing for lua
+ * \return the result of lua_dostring()
  */
 int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace)
 {
@@ -106,10 +106,10 @@ int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool 
 }
 
 /**
- * @brief solveFile
+ * \brief solveFile
  * Determines the file type and runs the appropriate solver on the file.
- * @param inputFile
- * @return
+ * \param inputFile
+ * \return
  */
 int solveFile( const std::string &inputFile)
 {
