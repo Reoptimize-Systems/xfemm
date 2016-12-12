@@ -407,20 +407,205 @@ int femmcli::LuaMagneticsCommands::luaAddpointprop(lua_State *)
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_analyze()}
+ *
  * \internal
  * mi_analyze(flag) runs fkern to solve the problem.
  * Parameter flag (0,1) determines visibility of fkern window.
+ *
+ * Implementation notes:
+ *  * \femm42{femm/femmeLua.cpp,lua_analyze()}: extracts thisDoc (=solverDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnu_analyze(flag)
+ *  * \femm42{femm/FemmeView.cpp,CFemmeView::OnMenuAnalyze()}: does the things we do here directly...
  */
 int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     auto mesherDoc = femmState->fMesherDocument;
+    std::shared_ptr<FSolver> solverDoc = femmState->fSolverDocument;
+
+    // check to see if all blocklabels are kosher...
+    if (solverDoc->labellist.size()==0){
+        std::string msg = "No block information has been defined\n"
+                          "Cannot analyze the problem";
+        lua_error(L, msg.c_str());
+        return 0;
+    }
+
+    bool hasMissingBlockProps = false;
+    for(int i=0; i<(int)solverDoc->labellist.size(); i++)
+    {
+        // note(ZaJ): this can be done better by break;ing from the k loop
+        int j=0;
+        for(int k=0; k<solverDoc->(int)blockproplist.size(); k++)
+        {
+            // FIXME: at this point we want a mesher doc, not a solver doc :-|
+            if (solverDoc->labellist[i].BlockType != solverDoc->blockproplist[k].BlockName)
+                j++;
+        }
+        if ((j==solverDoc->blockproplist.size())
+                && (solverDoc->labellist[i].BlockType!="<No Mesh>")
+                )
+        {
+            // FIXME(ZaJ): check effects of OnBlockOp()
+            //if(!hasMissingBlockProps) OnBlockOp();
+            hasMissingBlockProps = true;
+            solverDoc->blocklist[i].IsSelected = true;
+        }
+    }
+
+    if (hasMissingBlockProps)
+    {
+        //InvalidateRect(NULL);
+        std::string ermsg = "Material properties have not\n"
+                            "been defined for all block labels.\n"
+                            "Cannot analyze the problem";
+        lua_error(L,ermsg.c_str());
+        return 0;
+    }
 
 
+    if (solverDoc->ProblemType==AXISYMMETRIC)
+    {
+        // check to see if all of the input points are on r>=0 for axisymmetric problems.
+        for (int k=0; k<solverDoc->nodes.size(); k++)
+        {
+            if (solverDoc->nodes[k].x < -(1.e-6))
+            {
+                //InvalidateRect(NULL);
+                std::string ermsg = "The problem domain must lie in\n"
+                                    "r>=0 for axisymmetric problems.\n"
+                                    "Cannot analyze the problem.";
+                lua_error(L,ermsg.c_str());
+                return 0;
+            }
+        }
 
-    // CFemmeView::lnu_analyze(n);
-    // ->CFemmeView::OnMenuAnalyze
+        // check to see if all block defined to be in an axisymmetric external region are linear.
+        bool hasAnisotropicMaterial = false;
+        bool hasExteriorProps = true;
+        for (int k=0; k<solverDoc->labellist.size(); k++)
+        {
+            if (solverDoc->blocklist[k].IsExternal)
+            {
+                if ((solverDoc->extRo==0) || (solverDoc->extRi==0))
+                    hasExteriorProps = false;
+
+                for(int i=0; i<solverDoc->blockproplist.size(); i++)
+                {
+                    if (solverDoc->labellist[k].BlockType == solverDoc->blockproplist[i].BlockName)
+                    {
+                        if (solverDoc->blockproplist[i].BHpoints!=0)
+                            hasAnisotropicMaterial = true;
+                        else if(solverDoc->blockproplist[i].mu_x != solverDoc->blockproplist[i].mu_y)
+                            hasAnisotropicMaterial = true;
+                    }
+                }
+            }
+        }
+        if (hasAnisotropicMaterial)
+        {
+            //InvalidateRect(NULL);
+            std::string ermsg = "Only linear istropic materials are\n"
+                                "allowed in axisymmetric external regions.\n"
+                                "Cannot analyze the problem";
+            lua_error(L,ermsg.c_str());
+            return 0;
+        }
+
+        if (!hasExteriorProps)
+        {
+            //InvalidateRect(NULL);
+            std::string ermsg = "Some block labels have been specific as placed in\n"
+                                "an axisymmetric exterior region, but no properties\n"
+                                "have been adequately defined for the exterior region\n"
+                                "Cannot analyze the problem";
+            lua_error(L,ermsg.c_str());
+            return 0;
+        }
+    }
+
+    std::string pathName = solverDoc->PathName;
+    if (pathName.empty())
+    {
+        lua_error(L,"A data file must be loaded,\nor the current data must saved.");
+        return 0;
+    }
+    // TODO FIXME CONTINUE HERE
+    if (solverDoc->OnSaveDocument(pathName)==FALSE) return;
+
+    BeginWaitCursor();
+    if (solverDoc->HasPeriodicBC()==TRUE){
+        if (solverDoc->FunnyOnWritePoly()==FALSE){
+            EndWaitCursor();
+            solverDoc->UnselectAll();
+            return;
+        }
+    }
+    else{
+        if (solverDoc->OnWritePoly()==FALSE){
+            EndWaitCursor();
+            return;
+        }
+    }
+    EndWaitCursor();
+
+    char CommandLine[512];
+    CString rootname="\"" + pathName.Left(pathName.ReverseFind('.')) + "\"";
+
+    if(bLinehook==FALSE)
+        sprintf(CommandLine,"\"%sfkn.exe\" %s",BinDir,rootname);
+    else
+        sprintf(CommandLine,"\"%sfkn.exe\" %s bLinehook",BinDir,rootname);
+
+    CString MyPath=pathName.Left(pathName.ReverseFind('\\'));
+
+    STARTUPINFO StartupInfo2 = {0};
+    PROCESS_INFORMATION ProcessInfo2;
+    StartupInfo2.cb = sizeof(STARTUPINFO);
+    if(bLinehook==HiddenLua){
+        StartupInfo2.dwFlags = STARTF_USESHOWWINDOW;
+        //<DP> SHOWNOACTIVATE doesn't steal focus to others </DP>
+        StartupInfo2.wShowWindow =  SW_SHOWNOACTIVATE|SW_MINIMIZE;
+    }
+    if (CreateProcess(NULL,CommandLine, NULL, NULL, FALSE,
+                      0, NULL, MyPath, &StartupInfo2, &ProcessInfo2))
+    {
+        if(bLinehook!=FALSE)
+        {
+            DWORD ExitCode;
+            hProc=ProcessInfo2.hProcess;
+            do{
+                GetExitCodeProcess(ProcessInfo2.hProcess,&ExitCode);
+                ((CFemmApp *)AfxGetApp())->line_hook(lua,NULL);
+                Sleep(1);
+            } while(ExitCode==STILL_ACTIVE);
+            hProc=NULL;
+
+            if (ExitCode==1)
+                MsgBox("Material properties have not been defined for all regions");
+            if (ExitCode==1)
+                MsgBox("Material properties have not been defined for all regions");
+            if (ExitCode==2)
+                MsgBox("problem loading mesh");
+            if (ExitCode==3)
+                MsgBox("problem renumbering node points");
+            if (ExitCode==4)
+                MsgBox("couldn't allocate enough space for matrices");
+            if (ExitCode==5)
+                MsgBox("Couldn't solve the problem");
+            if (ExitCode==6)
+                MsgBox("couldn't write results to disk");
+            if (ExitCode==7)
+                MsgBox("problem loading input file");
+        }
+        CloseHandle(ProcessInfo2.hProcess);
+        CloseHandle(ProcessInfo2.hThread);
+    }
+    else
+    {
+        MsgBox("Problem executing the solver");
+        return;
+    }
 
     return 0;
 
