@@ -34,7 +34,6 @@ add_library(femm
   fparse.cpp
   fullmatrix.cpp
   IntPoint.cpp
-  MagneticsDocument.cpp
   spars.cpp
   liblua/lapi.cpp
   liblua/lcode.cpp 

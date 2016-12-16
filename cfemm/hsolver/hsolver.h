@@ -42,8 +42,8 @@ class HSolver : public FEASolver<
         , femm::CHBoundaryProp
         , CHMaterialProp
         , CHConductor
-        , femm::CSolverBlockLabel
-        , femm::CSolverNode
+        , femm::CBlockLabel
+        , femm::CNode
         >
 {
 
@@ -59,7 +59,7 @@ public:
     std::string previousSolutionFile; ///< \brief name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
 
     // mesh information
-    femm::CSolverNode *meshnode;
+    femm::CNode *meshnode;
 
 	// Vector containing previous solution for time-transient analysis
 	double *Tprev;

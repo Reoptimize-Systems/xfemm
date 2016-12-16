@@ -48,37 +48,12 @@ public:
     CComplex CC();
     void ToggleSelect();
 
-private:
-
-};
-
-
-/**
- * @brief The CSolverNode class
- * Specialization of the CNode class for the solvers.
- * In solvers, \c BoundaryMarker and \c InConductor are indices referring to nodes/properties/circuits.
- */
-class CSolverNode : public CNode
-{
-public:
-    CSolverNode();
     int BoundaryMarker;
     int InConductor;
-};
+    std::string BoundaryMarkerName;
+    std::string InConductorName;
+private:
 
-/**
- * @brief The CMesherNode class
- * Specialization of the CNode class for the mesher.
- * In the fmesher, \c BoundaryMarker and \c InConductor are holding the name of the referred object.
- */
-class CMesherNode : public CNode
-{
-public:
-    CMesherNode();
-
-    std::string BoundaryMarker;
-    std::string InConductor;
-    int selectFlag;
 };
 
 }

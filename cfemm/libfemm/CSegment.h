@@ -22,38 +22,26 @@ namespace femm {
  */
 class CSegment
 {
-    public:
-        CSegment();
-
-        // start and end points:
-        int n0,n1;
-        double MaxSideLength; ///< mesh size factor
-        // BoundaryMarker: see child classes
-        bool Hidden;          ///< hide in postprocessor
-        int InGroup;          ///< group number
-
-        bool IsSelected;
-        void ToggleSelect();
-
-    private:
-
-};
-
-class CSolverSegment : public CSegment
-{
 public:
-    CSolverSegment();
+    CSegment();
+
+    // start and end points:
+    int n0,n1;
+    double MaxSideLength; ///< mesh size factor
+    // BoundaryMarker: see child classes
+    bool Hidden;          ///< hide in postprocessor
+    int InGroup;          ///< group number
+
+    bool IsSelected;
+    void ToggleSelect();
+
     int BoundaryMarker;   ///< boundary property number, 0-indexed
     int InConductor;      ///< additional property for hpproc
-};
+    std::string BoundaryMarkerName;   ///< boundary property name
+    std::string InConductorName;      ///< additional property for hpproc
+    int cnt; ///< used by mesher for internal book keeping
+private:
 
-class CMesherSegment : public CSegment
-{
-public:
-    CMesherSegment();
-    std::string BoundaryMarker;   ///< boundary property number, 0-indexed
-    std::string InConductor;      ///< additional property for hpproc
-    int selectFlag;
 };
 
 }

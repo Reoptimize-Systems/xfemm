@@ -12,6 +12,11 @@ CSegment::CSegment()
     , Hidden(false)
     , InGroup(0)
     , IsSelected(false)
+    , BoundaryMarker(-1)
+    , InConductor(-1)
+    , BoundaryMarkerName("<None>")
+    , InConductorName("<None>")
+    , cnt(0)
 {
 }
 
@@ -20,17 +25,3 @@ void CSegment::ToggleSelect()
     IsSelected = !IsSelected;
 }
 
-CSolverSegment::CSolverSegment()
-    : CSegment()
-    , BoundaryMarker(-1)
-    , InConductor(-1)
-{
-}
-
-CMesherSegment::CMesherSegment()
-    : CSegment()
-    , BoundaryMarker("<None>")
-    , InConductor("<None>")
-    , selectFlag(0)
-{
-}

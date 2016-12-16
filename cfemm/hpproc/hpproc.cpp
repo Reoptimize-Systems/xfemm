@@ -239,11 +239,11 @@ bool HPProc::OpenDocument(string pathname)
     CHBoundaryProp BProp;
 	CMaterialProp MProp;
 	CCircuit      CProp;
-    CSolverNode		node;
-    CSolverSegment	segm;
-    CSolverArcSegment asegm;
+    CNode		node;
+    CSegment	segm;
+    CArcSegment asegm;
 	CElement	elm;
-    CSolverBlockLabel blk;
+    CBlockLabel blk;
     CHMeshNode	mnode;
 	//CPoint		mline;
 
@@ -1784,7 +1784,7 @@ int HPProc::ClosestArcSegment(double x, double y)
 	return j;
 }
 
-void HPProc::GetCircle(CSolverArcSegment &arc,CComplex &c, double &R)
+void HPProc::GetCircle(CArcSegment &arc,CComplex &c, double &R)
 {
 	CComplex a0,a1,t;
 	double d,tta;
@@ -1800,7 +1800,7 @@ void HPProc::GetCircle(CSolverArcSegment &arc,CComplex &c, double &R)
 	c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
 }
 
-double HPProc::ShortestDistanceFromArc(CComplex p, CSolverArcSegment &arc)
+double HPProc::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
 {
 	double R,d,l,z;
 	CComplex a0,a1,c,t;

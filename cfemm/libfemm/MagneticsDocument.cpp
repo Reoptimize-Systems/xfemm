@@ -1564,9 +1564,9 @@ bool MagneticsDocument::OnOpenDocument(std::string lpszPathName)
                 asegm.Hidden = (h!=0);
                 v=ParseInt(v,&asegm.InGroup);
 
-                if(t==0) asegm.BoundaryMarker="";
+                if(t==0) asegm.BoundaryMarkerName="";
                 else if (t<=(int) lineproplist.size())
-                    asegm.BoundaryMarker=lineproplist[t-1].BdryName;
+                    asegm.BoundaryMarkerName=lineproplist[t-1].BdryName;
                 arclist.push_back(asegm);
             }
             q[0]='\0';
@@ -2081,7 +2081,7 @@ bool MagneticsDocument::CreateRadius(int n, double r)
             // inherit the boundary condition from the arc so that
             // we can apply it to the newly created arc later;
             ar.InGroup       =arclist[arc[0]].InGroup;
-            ar.BoundaryMarker=arclist[arc[0]].BoundaryMarker;
+            ar.BoundaryMarkerName=arclist[arc[0]].BoundaryMarker;
 
             // get the center and radius of the circle associated with the arc;
             GetCircle(arclist[arc[0]],c,rc);
@@ -2210,7 +2210,7 @@ bool MagneticsDocument::CreateRadius(int n, double r)
 
             // inherit the boundary condition from one of the segments
             // so that we can apply it to the newly created arc later;
-            ar.BoundaryMarker=linelist[seg[0]].BoundaryMarker;
+            ar.BoundaryMarkerName=linelist[seg[0]].BoundaryMarker;
             ar.InGroup       =linelist[seg[0]].InGroup;
 
             // add new nodes at ends of radius
@@ -2298,7 +2298,7 @@ bool MagneticsDocument::CreateRadius(int n, double r)
 
             // inherit the boundary condition from one of the segments
             // so that we can apply it to the newly created arc later;
-            ar.BoundaryMarker=arclist[arc[0]].BoundaryMarker;
+            ar.BoundaryMarkerName=arclist[arc[0]].BoundaryMarker;
             ar.InGroup=arclist[arc[0]].InGroup;
 
             // add new nodes at ends of radius

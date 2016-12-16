@@ -45,8 +45,8 @@ class FSolver : public FEASolver<
         , femm::CMBoundaryProp
         , femm::CMMaterialProp
         , femm::CMCircuit
-        , femm::CMSolverBlockLabel
-        , femm::CSolverNode
+        , femm::CMBlockLabel
+        , femm::CNode
         >
 {
 
@@ -61,7 +61,7 @@ public:
     double  Relax;
 
     // mesh information
-    femm::CSolverNode *meshnode;
+    femm::CNode *meshnode;
     int NumCircPropsOrig;
 
 

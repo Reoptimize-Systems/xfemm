@@ -48,8 +48,8 @@ template class FEASolver<
         , femm::CHBoundaryProp
         , CHMaterialProp
         , CHConductor
-        , femm::CSolverBlockLabel
-        , femm::CSolverNode
+        , femm::CBlockLabel
+        , femm::CNode
         >;
 
 #ifndef _MSC_VER
@@ -182,8 +182,8 @@ int HSolver::LoadMesh(bool deleteFiles)
 	sscanf(s,"%i",&k);
 	NumNodes = k;
 
-    meshnode = new CSolverNode[k];
-    CSolverNode node;
+    meshnode = new CNode[k];
+    CNode node;
 	for(i = 0; i < k; i++)
 	{
 		fscanf(fp,"%i",&j);
@@ -960,7 +960,7 @@ void HSolver::SortNodes (int* newnum)
     {
         while(newnum[i] != i)
         {
-            CSolverNode swap;
+            CNode swap;
 
             j = newnum[i];
             n = newnum[j];

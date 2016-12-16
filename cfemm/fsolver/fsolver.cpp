@@ -49,8 +49,8 @@ template class FEASolver<
         , femm::CMBoundaryProp
         , femm::CMMaterialProp
         , femm::CMCircuit
-        , femm::CMSolverBlockLabel
-        , femm::CSolverNode
+        , femm::CMBlockLabel
+        , femm::CNode
         >;
 
 #ifndef _MSC_VER
@@ -203,8 +203,8 @@ int FSolver::LoadMesh(bool deleteFiles)
     sscanf(s,"%i",&k);
     NumNodes = k;
 
-    meshnode = new CSolverNode[k];
-    CSolverNode node;
+    meshnode = new CNode[k];
+    CNode node;
     for(i=0; i<k; i++)
     {
         fscanf(fp,"%i",&j);
@@ -422,7 +422,7 @@ void FSolver::GetFillFactor(int lbl)
     // post-processing the voltage.
 
     CMMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
-    CMSolverBlockLabel* bl= &labellist[lbl];
+    CMBlockLabel* bl= &labellist[lbl];
     double atot,awire=0,d,o,fill,dd,W,R=0,c1,c2;
     int i,wiretype;
     CComplex ufd,ofd;
@@ -536,7 +536,7 @@ void FSolver::SortNodes (int* newnum)
     {
         while(newnum[i] != i)
         {
-            CSolverNode swap;
+            CNode swap;
 
             j = newnum[i];
             n = newnum[j];

@@ -93,7 +93,7 @@ bool FMesher::HasPeriodicBC()
         for(j=0,k=-1;j<lineproplist.size();j++)
         {
             if(lineproplist[j].BdryName==
-               linelist[i].BoundaryMarker)
+               linelist[i].BoundaryMarkerName)
             {
                 k=j;
                 break;
@@ -118,7 +118,7 @@ bool FMesher::HasPeriodicBC()
         for(j=0,k=-1;j<lineproplist.size();j++)
         {
             if(lineproplist[j].BdryName==
-               arclist[i].BoundaryMarker)
+               arclist[i].BoundaryMarkerName)
             {
                 k=j;
                 break;
@@ -269,12 +269,12 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     CComplex a0,a1,a2,c;
     //CStdString s;
     string plyname;
-    std::vector < CMesherNode >       nodelst;
-    std::vector < CMesherSegment >    linelst;
+    std::vector < CNode >       nodelst;
+    std::vector < CSegment >    linelst;
     std::vector < CArcSegment > arclst;
     std::vector < CBlockLabel > blocklst;
-    CMesherNode node;
-    CMesherSegment segm;
+    CNode node;
+    CSegment segm;
     // structures to hold the iinput and output of triangulaye call
     char CommandLine[512];
     struct triangulateio in, out;
@@ -382,7 +382,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     {
         a2.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
         k = (unsigned int) std::ceil(arclist[i].ArcLength/arclist[i].MaxSideLength);
-        segm.BoundaryMarker=arclist[i].BoundaryMarker;
+        segm.BoundaryMarkerName=arclist[i].BoundaryMarkerName;
         GetCircle(arclist[i],c,R);
         a1=exp(I*arclist[i].ArcLength*PI/(((double) k)*180.));
 
@@ -426,7 +426,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // write out list of holes;
     for(i=0,j=0;i<blocklist.size();i++)
     {
-        if(blocklist[i].BlockType=="<No Mesh>")
+        if(blocklist[i].BlockTypeName=="<No Mesh>")
         {
             j++;
         }
@@ -458,7 +458,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     else DefaultMeshSize=-1;
 
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockType=="<No Mesh>")
+//        if(blocklist[i].BlockTypeName=="<No Mesh>")
 //        {
 //            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i].x,blocklist[i].y);
 //            k++;
@@ -468,7 +468,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i\n",blocklist.size()-j);
 //
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockType!="<No Mesh>")
+//        if(blocklist[i].BlockTypeName!="<No Mesh>")
 //        {
 //            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i].x,blocklist[i].y);
 //            fprintf(fp,"%i    ",k+1);
@@ -518,7 +518,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     for(i=0;i<nodelst.size();i++)
     {
         for(j=0,t=0;j<nodeproplist.size ();j++)
-                if(nodeproplist[j].PointName==nodelst[i].BoundaryMarker) t = j + 2;
+                if(nodeproplist[j].PointName==nodelst[i].BoundaryMarkerName) t = j + 2;
 
         if (filetype == F_TYPE_HEATFLOW)
         {
@@ -526,7 +526,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             for(j = 0; j < circproplist.size (); j++)
             {
                 // add the conductor numer using a mask
-                if(circproplist[j].CircName == nodelst[i].InConductor) t += ((j+1) * 0x10000);
+                if(circproplist[j].CircName == nodelst[i].InConductorName) t += ((j+1) * 0x10000);
             }
         }
 
@@ -562,7 +562,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     {
         for(j=0,t=0; j < lineproplist.size (); j++)
         {
-                if (lineproplist[j].BdryName == linelst[i].BoundaryMarker)
+                if (lineproplist[j].BdryName == linelst[i].BoundaryMarkerName)
                 {
                     t = -(j+2);
                 }
@@ -573,7 +573,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             // include conductor number;
             for (j=0; j < circproplist.size (); j++)
             {
-                if (circproplist[j].CircName == linelst[i].InConductor)
+                if (circproplist[j].CircName == linelst[i].InConductorName)
                 {
                     t -= ((j+1) * 0x10000);
                 }
@@ -594,7 +594,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     {
         // we search through the block list looking for blocks that have
         // the tag <no mesh>
-        if(blocklist[i].BlockType == "<No Mesh>")
+        if(blocklist[i].BlockTypeName == "<No Mesh>")
         {
             in.holelist[k] = blocklist[i].x;
             in.holelist[k+1] = blocklist[i].y;
@@ -610,7 +610,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
     {
-        if(blocklist[i].BlockType != "<No Mesh>")
+        if(blocklist[i].BlockTypeName != "<No Mesh>")
         {
             in.regionlist[j] = blocklist[i].x;
             in.regionlist[j+1] = blocklist[i].y;
@@ -754,14 +754,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     char instring[1024];
     //string s;
     string plyname;
-    std::vector < CMesherNode >             nodelst;
-    std::vector < CMesherSegment >          linelst;
+    std::vector < CNode >             nodelst;
+    std::vector < CSegment >          linelst;
     std::vector < CArcSegment >       arclst;
     std::vector < CBlockLabel >       blocklst;
     std::vector < CPeriodicBoundary > pbclst;
     std::vector < CCommonPoint >      ptlst;
-    CMesherNode node;
-    CMesherSegment segm;
+    CNode node;
+    CSegment segm;
     CPeriodicBoundary pbc;
     CCommonPoint pt;
     char CommandLine[512];
@@ -792,11 +792,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input segments
     for(i=0; i<linelist.size(); i++)
     {
-        // abuse the selectFlag flag to carry a notation
+        // use the cnt flag to carry a notation
         // of which line or arc in the input geometry a
         // particular segment is associated with
         segm = linelist[i];
-        segm.selectFlag = i;
+        segm.cnt = i;
         a0.Set(nodelist[linelist[i].n0].x, nodelist[linelist[i].n0].y);
         a1.Set(nodelist[linelist[i].n1].x, nodelist[linelist[i].n1].y);
 
@@ -888,10 +888,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input arc segments
     for(i=0;i<arclist.size();i++)
     {
-        segm.selectFlag=i+linelist.size();
+        segm.cnt=i+linelist.size();
         a2.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
         k=(int) ceil(arclist[i].ArcLength/arclist[i].MaxSideLength);
-        segm.BoundaryMarker=arclist[i].BoundaryMarker;
+        segm.BoundaryMarkerName=arclist[i].BoundaryMarkerName;
         GetCircle(arclist[i],c,R);
         a1=exp(I*arclist[i].ArcLength*PI/(((double) k)*180.));
 
@@ -953,14 +953,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i    1\n",linelst.size());
 //    for(i=0;i<linelst.size();i++)
 //    {
-//        t=-(linelst[i].selectFlag+2);
+//        t=-(linelst[i].cnt+2);
 //        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i].n0,linelst[i].n1,t);
 //    }
 
     // write out list of holes;
     for(i=0,j=0;i<blocklist.size();i++)
     {
-        if(blocklist[i].BlockType=="<No Mesh>")
+        if(blocklist[i].BlockTypeName=="<No Mesh>")
         {
             j++;
         }
@@ -992,7 +992,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     else DefaultMeshSize=-1;
 
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockType=="<No Mesh>")
+//        if(blocklist[i].BlockTypeName=="<No Mesh>")
 //        {
 //            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i].x,blocklist[i].y);
 //            k++;
@@ -1002,7 +1002,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i\n",blocklist.size()-j);
 //
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockType!="<No Mesh>")
+//        if(blocklist[i].BlockTypeName!="<No Mesh>")
 //        {
 //            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i].x,blocklist[i].y);
 //            fprintf(fp,"%i    ",k+1);
@@ -1075,7 +1075,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // construct the segment marker list
     for(i=0; i < linelst.size(); i++)
     {
-        t = -(linelst[i].selectFlag+2);
+        t = -(linelst[i].cnt+2);
 
         in.segmentmarkerlist[i] = t;
     }
@@ -1093,7 +1093,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         {
             // we search through the block list looking for blocks that have
             // the tag <no mesh>
-            if(blocklist[i].BlockType == "<No Mesh>")
+            if(blocklist[i].BlockTypeName == "<No Mesh>")
             {
                 //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i].x, blocklist[i].y);
                 in.holelist[k] = blocklist[i].x;
@@ -1115,7 +1115,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
     {
-        if(blocklist[i].BlockType != "<No Mesh>")
+        if(blocklist[i].BlockTypeName != "<No Mesh>")
         {
 
             in.regionlist[j] = blocklist[i].x;
@@ -1251,9 +1251,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
     fgets(instring,1024,fp);
     sscanf(instring,"%i",&k);
-    UnselectAll();    // abuse selectFlag again to keep a
-                    // tally of how many subsegments each
-                    // entity is sliced into.
+    // use cnt again to keep a
+    // tally of how many subsegments each
+    // entity is sliced into.
+    for(i=0; i < arclist.size(); i++) arclist[i].cnt=0;
 
     ptlst.resize(linelist.size()+arclist.size());
 
@@ -1295,10 +1296,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             {
                 // deal with segments
 
-                // increment selectFlag for the segment which the edge we are
+                // increment cnt for the segment which the edge we are
                 // examining is a part of to get a tally of how many edges
                 // are a part of the segment/boundary
-                linelist[j].selectFlag++;
+                linelist[j].cnt++;
                 // check if the end n0 of the segment is the same node as the
                 // end n1 of the edge, or if the end n1 of the segment is the
                 // same node and end n0 of the edge. If so, flip the direction
@@ -1319,7 +1320,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 // normal is on.
 
                 j=j-linelist.size();
-                arclist[j].selectFlag++;
+                arclist[j].cnt++;
                 if((arclist[j].n0==n1) || (arclist[j].n1==n0))
                     arclist[j].NormalDirection=false;
                 if((arclist[j].n0==n0) || (arclist[j].n1==n1))
@@ -1377,7 +1378,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // length of the boundary divided by the number
             // of elements that were created in the first
             // attempt at meshing
-            linelist[i].MaxSideLength = LineLength(i) / ((double) linelist[i].selectFlag);
+            linelist[i].MaxSideLength = LineLength(i) / ((double) linelist[i].cnt);
         }
     }
 
@@ -1393,7 +1394,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // its properties.
             char kludge[32];
 
-            arclist[i].MaxSideLength = arclist[i].ArcLength/((double) arclist[i].selectFlag);
+            arclist[i].MaxSideLength = arclist[i].ArcLength/((double) arclist[i].cnt);
 
             sprintf(kludge,"%.1e",arclist[i].MaxSideLength);
 
@@ -1431,7 +1432,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         for(j=0;j<pbclst.size();j++)
         {
-            if (pbclst[j].BdryName==linelist[i].BoundaryMarker)
+            if (pbclst[j].BdryName==linelist[i].BoundaryMarkerName)
             {
                 // A pbc or apbc can only be applied to 2 segs
                 // at a time.  If it is applied to multiple segs
@@ -1452,7 +1453,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         for(j=0;j<pbclst.size();j++)
         {
-            if (pbclst[j].BdryName==arclist[i].BoundaryMarker)
+            if (pbclst[j].BdryName==arclist[i].BoundaryMarkerName)
             {
                 // A pbc or apbc can only be applied to 2 arcs
                 // at a time.  If it is applied to multiple arcs
@@ -1546,7 +1547,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // write out new poly and write out adjacent
     // boundary nodes in a separate .pbc file.
 
-    // kludge things a bit and use selectFlag to denote
+    // kludge things a bit and use IsSelected to denote
     // whether or not a line or arc has already been processed.
     UnselectAll();
     nodelst.clear();
@@ -1563,12 +1564,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         if (pbclst[n].nseg != 0) // if this pbc is a line segment...
         {
             int s0,s1;
-            CMesherNode node0,node1;
+            CNode node0,node1;
 
             s0=pbclst[n].seg[0];
             s1=pbclst[n].seg[1];
-            linelist[s0].selectFlag=1;
-            linelist[s1].selectFlag=1;
+            linelist[s0].IsSelected=1;
+            linelist[s1].IsSelected=1;
 
             // make it so that first point on first line
             // maps to first point on second line...
@@ -1672,17 +1673,17 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             int s0,s1;
             int p0[2],p1[2];
-            CMesherNode node0,node1;
+            CNode node0,node1;
             CComplex bgn0,bgn1,c0,c1,d0,d1;
             double r0,r1;
 
             s0 = pbclst[n].seg[0];
             s1 = pbclst[n].seg[1];
-            arclist[s0].selectFlag = 1;
-            arclist[s1].selectFlag = 1;
+            arclist[s0].IsSelected = 1;
+            arclist[s1].IsSelected = 1;
 
             k = (int) ceil(arclist[s0].ArcLength/arclist[s0].MaxSideLength);
-            segm.BoundaryMarker = arclist[s0].BoundaryMarker;
+            segm.BoundaryMarkerName = arclist[s0].BoundaryMarkerName;
             GetCircle(arclist[s0],c0,r0);
             GetCircle(arclist[s1],c1,r1);
 
@@ -1798,7 +1799,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // discretize input segments
     for(i=0;i<linelist.size();i++)
-    if(linelist[i].selectFlag==0){
+    if(linelist[i].IsSelected==0){
 
         a0.Set(nodelist[linelist[i].n0].x,nodelist[linelist[i].n0].y);
         a1.Set(nodelist[linelist[i].n1].x,nodelist[linelist[i].n1].y);
@@ -1884,11 +1885,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input arc segments
     for(i=0;i<arclist.size();i++)
     {
-        if(arclist[i].selectFlag==0)
+        if(arclist[i].IsSelected==0)
         {
             a2.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
             k=(int) ceil(arclist[i].ArcLength/arclist[i].MaxSideLength);
-            segm.BoundaryMarker=arclist[i].BoundaryMarker;
+            segm.BoundaryMarkerName=arclist[i].BoundaryMarkerName;
             GetCircle(arclist[i],c,R);
             a1=exp(I*arclist[i].ArcLength*PI/(((double) k)*180.));
 
@@ -1945,7 +1946,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    for(i=0;i<nodelst.size();i++)
 //    {
 //        for(j=0,t=0;j<nodeproplist.size();j++)
-//                if(nodeproplist[j].PointName==nodelst[i].BoundaryMarker) t=j+2;
+//                if(nodeproplist[j].PointName==nodelst[i].BoundaryMarkerName) t=j+2;
 //        fprintf(fp,"%i    %.17g    %.17g    %i\n",i,nodelst[i].x,nodelst[i].y,t);
 //    }
 //
@@ -1954,14 +1955,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    for(i=0;i<linelst.size();i++)
 //    {
 //        for(j=0,t=0;j<lineproplist.size();j++)
-//                if(lineproplist[j].BdryName==linelst[i].BoundaryMarker) t=-(j+2);
+//                if(lineproplist[j].BdryName==linelst[i].BoundaryMarkerName) t=-(j+2);
 //        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i].n0,linelst[i].n1,t);
 //    }
 
     // write out list of holes;
     for(i=0,j=0;i<blocklist.size();i++)
     {
-        if(blocklist[i].BlockType=="<No Mesh>")
+        if(blocklist[i].BlockTypeName=="<No Mesh>")
         {
             j++;
         }
@@ -1974,7 +1975,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     NRegionalAttribs = blocklist.size() - Nholes;
 
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockType=="<No Mesh>")
+//        if(blocklist[i].BlockTypeName=="<No Mesh>")
 //        {
 //            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i].x,blocklist[i].y);
 //            k++;
@@ -1984,7 +1985,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i\n",blocklist.size()-j);
 //
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockType!="<No Mesh>")
+//        if(blocklist[i].BlockTypeName!="<No Mesh>")
 //        {
 //            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i].x,blocklist[i].y);
 //            fprintf(fp,"%i    ",k+1);
@@ -2080,13 +2081,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     for(i=0;i<nodelst.size ();i++)
     {
         for(j=0,t=0; j < nodeproplist.size (); j++)
-                if(nodeproplist[j].PointName == nodelst[i].BoundaryMarker) t = j + 2;
+                if(nodeproplist[j].PointName == nodelst[i].BoundaryMarkerName) t = j + 2;
 
         if (filetype == F_TYPE_HEATFLOW)
         {
             // include conductor number;
             for(j=0; j < circproplist.size (); j++)
-                if(circproplist[j].CircName == nodelst[i].InConductor) t += ((j+1) * 0x10000);
+                if(circproplist[j].CircName == nodelst[i].InConductorName) t += ((j+1) * 0x10000);
         }
 
         in.pointmarkerlist[i] = t;
@@ -2123,13 +2124,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     for(i=0; i < linelst.size (); i++)
     {
         for(j=0,t=0; j < lineproplist.size (); j++)
-                if(lineproplist[j].BdryName==linelst[i].BoundaryMarker) t = -(j+2);
+                if(lineproplist[j].BdryName==linelst[i].BoundaryMarkerName) t = -(j+2);
 
         if (filetype == F_TYPE_HEATFLOW)
         {
             // include conductor number;
             for(j=0; j < circproplist.size (); j++)
-                if(circproplist[j].CircName == linelst[i].InConductor) t -= ((j+1) * 0x10000);
+                if(circproplist[j].CircName == linelst[i].InConductorName) t -= ((j+1) * 0x10000);
         }
 
         in.segmentmarkerlist[i] = t;
@@ -2146,7 +2147,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         // we search through the block list looking for blocks that have
         // the tag <no mesh>
-        if(blocklist[i].BlockType == "<No Mesh>")
+        if(blocklist[i].BlockTypeName == "<No Mesh>")
         {
             in.holelist[k] = blocklist[i].x;
             in.holelist[k+1] = blocklist[i].y;
@@ -2164,7 +2165,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
     {
-        if(blocklist[i].BlockType != "<No Mesh>")
+        if(blocklist[i].BlockTypeName != "<No Mesh>")
         {
 
             in.regionlist[j] = blocklist[i].x;
