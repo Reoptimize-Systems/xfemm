@@ -60,12 +60,22 @@ public:
     void ToggleSelect();
     double GetDistance(double xo, double yo);
 
+    int BlockType;   ///< number of block type (region)
+    int InCircuit;   ///< number of associated circuit (0-indexed)
+    std::string BlockTypeName; ///< name of block type
+    std::string InCircuitName; ///< name of associated circuit
+
+    /**
+     * @brief fromStream constructs a CBlockLabel from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CBlockLabel
+     */
+    static CBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
     /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and
      * needs to be overridden by any subclass.
-     *
-     * Unless \c NDEBUG is defined, this dummy implementation in the base class will call \c assert(false).
      *
      * @param out
      */
@@ -83,49 +93,10 @@ private:
 std::ostream& operator<< (std::ostream& os, const CBlockLabel& lbl);
 
 
-/**
- * @brief The CSolverBlockLabel class
- * Specialization of the CBlockLabel class for the solvers.
- * In the fmesher, \c BlockType and \c InCircuit are indices referring to nodes/properties/circuits.
- */
-class CSolverBlockLabel : public CBlockLabel
+class CMBlockLabel : public CBlockLabel
 {
 public:
-    CSolverBlockLabel();
-
-    int BlockType;   ///< number of block type (region)
-    int InCircuit;   ///< number of associated circuit (0-indexed)
-
-    /**
-     * @brief fromStream constructs a CSolverBlockLabel from an input stream (usually an input file stream)
-     * @param input
-     * @param err output stream for error messages
-     * @return a CSolverBlockLabel
-     */
-    static CSolverBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
-    virtual void toStream( std::ostream &out ) const override;
-};
-
-/**
- * @brief The CMesherBlockLabel class
- * Specialization of the CBlockLabel class for the mesher.
- * In the fmesher, \c BlockType and \c InCircuit are holding the name of the referred object.
- */
-class CMesherBlockLabel : public CBlockLabel
-{
-public:
-    CMesherBlockLabel();
-
-    std::string BlockType;
-    // problem specific properties
-    std::string InCircuit;
-    int selectFlag;
-};
-
-class CMSolverBlockLabel : public CSolverBlockLabel
-{
-public:
-    CMSolverBlockLabel();
+    CMBlockLabel();
 
     //---- fsolver attributes:
     // used for proximity effect regions only.
@@ -146,7 +117,7 @@ public:
      * @param err output stream for error messages
      * @return a CMSolverBlockLabel
      */
-    static CMSolverBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
     virtual void toStream( std::ostream &out ) const override;
 private:
 

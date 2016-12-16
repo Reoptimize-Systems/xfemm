@@ -77,10 +77,10 @@ public:
 	bool bHasMask;
 
 	// lists of nodes, segments, and block labels
-    std::vector< femm::CSolverNode >             nodelist;
-    std::vector< femm::CSolverSegment >       	 linelist;
-    std::vector< femm::CSolverBlockLabel > 		 blocklist;
-    std::vector< femm::CSolverArcSegment > 		 arclist;
+    std::vector< femm::CNode >             nodelist;
+    std::vector< femm::CSegment >       	 linelist;
+    std::vector< femm::CBlockLabel > 		 blocklist;
+    std::vector< femm::CArcSegment > 		 arclist;
 
 	// CArrays containing the mesh information
     std::vector< femm::CHMeshNode >			meshnode;
@@ -116,8 +116,8 @@ public:
 	CComplex BlockIntegral(int inttype);
 	void LineIntegral(int inttype, double *z);
 	int ClosestArcSegment(double x, double y);
-    void GetCircle(femm::CSolverArcSegment &asegm,CComplex &c, double &R);
-    double ShortestDistanceFromArc(CComplex p, femm::CSolverArcSegment &arc);
+    void GetCircle(femm::CArcSegment &asegm,CComplex &c, double &R);
+    double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
 	double ShortestDistanceFromSegment(double p, double q, int segm);
 	double ShortestDistance(double p, double q, int segm);
 	int ClosestSegment(double x, double y);

@@ -20,27 +20,16 @@ CArcSegment::CArcSegment()
     , Hidden(false)
     , InGroup(0)
     , IsSelected(false)
+    , BoundaryMarker(-1)
+    , InConductor(-1)
+    , BoundaryMarkerName("<None>")
+    , InConductorName("<None>")
+    , NormalDirection(true)
+    , cnt(0)
 {
 }
 
 void CArcSegment::ToggleSelect()
 {
     IsSelected = !IsSelected;
-}
-
-
-CMesherArcSegment::CMesherArcSegment()
-    : CArcSegment()
-    , BoundaryMarker("<None>")
-    , InConductor("<None>")
-    , selectFlag(0)
-    , NormalDirection(true)
-{
-}
-
-CSolverArcSegment::CSolverArcSegment()
-    : CArcSegment()
-    , BoundaryMarker(-1)
-    , InConductor(-1)
-{
 }

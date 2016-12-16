@@ -122,14 +122,14 @@ void FMesher::UnselectAll()
 {
     unsigned int i;
 
-    for(i=0; i < nodelist.size(); i++) nodelist[i].selectFlag=0;
-    for(i=0; i < linelist.size(); i++) linelist[i].selectFlag=0;
-    for(i=0; i < blocklist.size(); i++) blocklist[i].selectFlag=0;
-    for(i=0; i < arclist.size(); i++) arclist[i].selectFlag=0;
+    for(i=0; i < nodelist.size(); i++) nodelist[i].IsSelected=0;
+    for(i=0; i < linelist.size(); i++) linelist[i].IsSelected=0;
+    for(i=0; i < blocklist.size(); i++) blocklist[i].IsSelected=0;
+    for(i=0; i < arclist.size(); i++) arclist[i].IsSelected=0;
 }
 
 
-void FMesher::GetCircle(CMesherArcSegment &arc, CComplex &c, double &R)
+void FMesher::GetCircle(CArcSegment &arc, CComplex &c, double &R)
 {
     CComplex a0,a1,t;
     double d,tta;
@@ -160,7 +160,7 @@ void FMesher::GetCircle(CMesherArcSegment &arc, CComplex &c, double &R)
 }
 
 
-int FMesher::GetLineArcIntersection(CMesherSegment &seg, CMesherArcSegment &arc, CComplex *p)
+int FMesher::GetLineArcIntersection(CSegment &seg, CArcSegment &arc, CComplex *p)
 {
     CComplex p0,p1,a0,a1,t,v,c;
     double d,l,R,z,tta;
@@ -210,7 +210,7 @@ int FMesher::GetLineArcIntersection(CMesherSegment &seg, CMesherArcSegment &arc,
 
 }
 
-int FMesher::GetArcArcIntersection(CMesherArcSegment &arc0, CMesherArcSegment &arc1, CComplex *p)
+int FMesher::GetArcArcIntersection(CArcSegment &arc0, CArcSegment &arc1, CComplex *p)
 {
     CComplex a0,a1,t,c0,c1;
     double d,l,R0,R1,z0,z1,c,tta0,tta1;
@@ -306,7 +306,7 @@ int FMesher::ClosestBlockLabel(double x, double y)
     return j;
 }
 
-double FMesher::ShortestDistanceFromArc(CComplex p, CMesherArcSegment &arc)
+double FMesher::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
 {
     double R,d,l,z;
     CComplex a0,a1,c,t;
@@ -509,10 +509,10 @@ int FMesher::LoadFEMFile (string PathName)
     CPointProp	  PProp;
     CBoundaryProp BProp;
     CCircuit	  CProp;
-    CMesherNode		node;
-    CMesherSegment	segm;
-    CMesherArcSegment asegm;
-    CMesherBlockLabel blk;
+    CNode		node;
+    CSegment	segm;
+    CArcSegment asegm;
+    CBlockLabel blk;
 
     if ((fp=fopen(PathName.c_str(),"rt"))==NULL)
     {
@@ -819,11 +819,11 @@ int FMesher::LoadFEMFile (string PathName)
 
                         if (t==0)
                         {
-                            node.BoundaryMarker =" ";
+                            node.BoundaryMarkerName =" ";
                         }
                         else if (t<= (int)nodeproplist.size())
                         {
-                            node.BoundaryMarker = nodeproplist[t-1].PointName;
+                            node.BoundaryMarkerName = nodeproplist[t-1].PointName;
                         }
 
                         break;
@@ -833,11 +833,11 @@ int FMesher::LoadFEMFile (string PathName)
 
                         if (t==0)
                         {
-                            node.BoundaryMarker =" ";
+                            node.BoundaryMarkerName =" ";
                         }
                         else if (t<= (int)nodeproplist.size())
                         {
-                            node.BoundaryMarker = nodeproplist[t-1].PointName;
+                            node.BoundaryMarkerName = nodeproplist[t-1].PointName;
                         }
 
                         v = ParseInt(v,&node.InGroup);
@@ -845,11 +845,11 @@ int FMesher::LoadFEMFile (string PathName)
 
                         if(t==0)
                         {
-                            node.InConductor = "<None>";
+                            node.InConductorName = "<None>";
                         }
         				else if(t <= (int)circproplist.size())
 		        		{
-				            node.InConductor = circproplist[t-1].CircName;
+                            node.InConductorName = circproplist[t-1].CircName;
                         }
 
                         break;
@@ -875,7 +875,7 @@ int FMesher::LoadFEMFile (string PathName)
                 t = 0;
                 segm.Hidden = 0;
                 segm.InGroup = 0;
-                segm.InConductor="<None>";
+                segm.InConductorName="<None>";
 
                 // scan in data
                 v = ParseInt(s,&segm.n0);
@@ -885,11 +885,11 @@ int FMesher::LoadFEMFile (string PathName)
 
                 if (t == 0)
                 {
-                   segm.BoundaryMarker="";
+                   segm.BoundaryMarkerName="";
                 }
                 else if (t<=(int) lineproplist.size())
                 {
-                    segm.BoundaryMarker = lineproplist[t-1].BdryName;
+                    segm.BoundaryMarkerName = lineproplist[t-1].BdryName;
                 }
 
                 int Hidden = 0;
@@ -914,11 +914,11 @@ int FMesher::LoadFEMFile (string PathName)
 
                         if(t==0)
                         {
-                            segm.InConductor = "<None>";
+                            segm.InConductorName = "<None>";
                         }
                         else if(t<=(int) circproplist.size())
                         {
-                            segm.InConductor = circproplist[t-1].CircName;
+                            segm.InConductorName = circproplist[t-1].CircName;
                         }
 
                         break;
@@ -954,11 +954,11 @@ int FMesher::LoadFEMFile (string PathName)
 
                 if(t==0)
                 {
-                    asegm.BoundaryMarker = "";
+                    asegm.BoundaryMarkerName = "";
                 }
                 else if (t <= (int)lineproplist.size())
                 {
-                    asegm.BoundaryMarker = lineproplist[t-1].BdryName;
+                    asegm.BoundaryMarkerName = lineproplist[t-1].BdryName;
                 }
                 t = 0;
 
@@ -990,11 +990,11 @@ int FMesher::LoadFEMFile (string PathName)
 
                         if (t == 0)
                         {
-                            segm.InConductor="<None>";
+                            segm.InConductorName="<None>";
                         }
                         else if(t<=(int) circproplist.size ())
                         {
-                            asegm.InConductor = circproplist[t-1].CircName;
+                            asegm.InConductorName = circproplist[t-1].CircName;
                         }
 
                         break;
@@ -1015,7 +1015,7 @@ int FMesher::LoadFEMFile (string PathName)
             sscanf(v,"%i",&k);
             if (k > 0)
             {
-                blk.BlockType = "<No Mesh>";
+                blk.BlockTypeName = "<No Mesh>";
                 blk.MaxArea = 0;
                 blk.InGroup = 0;
                 for(i=0; i<k; i++)
@@ -1046,9 +1046,9 @@ int FMesher::LoadFEMFile (string PathName)
 
                 //some defaults
                 t = 0;
-                blk.BlockType = "";
+                blk.BlockTypeName = "";
                 blk.MaxArea = 0.;
-                blk.InCircuit = "<None>";
+                blk.InCircuitName = "<None>";
                 blk.InGroup = 0;
 
                 // scan in data
@@ -1142,14 +1142,14 @@ bool FMesher::SaveFEMFile(string PathName)
     for(i=0; i<nodelist.size(); i++)
     {
         for(j=0,t=0; j<nodeproplist.size(); j++)
-            if(nodeproplist[j].PointName==nodelist[i].BoundaryMarker) t=j+1;
+            if(nodeproplist[j].PointName==nodelist[i].BoundaryMarkerName) t=j+1;
         fprintf(fp,"%.17g\t%.17g\t%i\t%i",nodelist[i].x,nodelist[i].y,t,
                 nodelist[i].InGroup);
 
         if (filetype == F_TYPE_HEATFLOW)
         {
             for (j=0,t=0; j<circproplist.size (); j++)
-                if (circproplist[j].CircName==nodelist[i].InConductor) t=j+1;
+                if (circproplist[j].CircName==nodelist[i].InConductorName) t=j+1;
 
             fprintf(fp,"\t%i",t);
         }
@@ -1162,7 +1162,7 @@ bool FMesher::SaveFEMFile(string PathName)
     for(i=0; i<linelist.size(); i++)
     {
         for(j=0,t=0; j<lineproplist.size(); j++)
-            if(lineproplist[j].BdryName==linelist[i].BoundaryMarker) t=j+1;
+            if(lineproplist[j].BdryName==linelist[i].BoundaryMarkerName) t=j+1;
 
         fprintf(fp,"%i\t%i\t",linelist[i].n0,linelist[i].n1);
 
@@ -1181,7 +1181,7 @@ bool FMesher::SaveFEMFile(string PathName)
         {
             for(j=0,t=0;j<circproplist.size ();j++)
             {
-                if(circproplist[j].CircName==linelist[i].InConductor) t = j + 1;
+                if(circproplist[j].CircName==linelist[i].InConductorName) t = j + 1;
             }
             fprintf(fp,"\t%i",t);
         }
@@ -1194,7 +1194,7 @@ bool FMesher::SaveFEMFile(string PathName)
     for(i=0; i<arclist.size(); i++)
     {
         for(j=0,t=0; j<lineproplist.size(); j++)
-            if(lineproplist[j].BdryName==arclist[i].BoundaryMarker) t=j+1;
+            if(lineproplist[j].BdryName==arclist[i].BoundaryMarkerName) t=j+1;
         fprintf(fp,"%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i",arclist[i].n0,arclist[i].n1,
                 arclist[i].ArcLength,arclist[i].MaxSideLength,t,
                 arclist[i].Hidden,arclist[i].InGroup);
@@ -1202,7 +1202,7 @@ bool FMesher::SaveFEMFile(string PathName)
         if (filetype == F_TYPE_HEATFLOW)
         {
             for(j=0,t=0;j<circproplist.size ();j++)
-				if(circproplist[j].CircName==arclist[i].InConductor) t=j+1;
+                if(circproplist[j].CircName==arclist[i].InConductorName) t=j+1;
             fprintf(fp,"\t%i",t);
         }
         fprintf(fp,"\n");
@@ -1211,7 +1211,7 @@ bool FMesher::SaveFEMFile(string PathName)
     // write out list of holes;
     for(i=0,j=0; i<blocklist.size(); i++)
     {
-        if(blocklist[i].BlockType=="<No Mesh>")
+        if(blocklist[i].BlockTypeName=="<No Mesh>")
         {
             j++;
         }
@@ -1220,7 +1220,7 @@ bool FMesher::SaveFEMFile(string PathName)
     fprintf(fp,"[NumHoles] = %i\n",j);
     for(i=0,k=0; i<blocklist.size(); i++)
     {
-        if(blocklist[i].BlockType=="<No Mesh>")
+        if(blocklist[i].BlockTypeName=="<No Mesh>")
         {
             fprintf(fp,"%.17g\t%.17g\t%i\n",blocklist[i].x,blocklist[i].y,
                     blocklist[i].InGroup);
@@ -1264,7 +1264,7 @@ bool FMesher::LoadMesh(string PathName)
     fgets(s,1024,fp);
     sscanf(s,"%i",&k);
     meshnode.resize(k);
-    CMesherNode node;
+    CNode node;
     for(i=0; i<k; i++)
     {
         fgets(s,1024,fp);
@@ -1360,10 +1360,10 @@ void FMesher::Undo()
 {
     unsigned int i;
 
-    std::vector < CMesherNode >       tempnodelist;
-    std::vector < CMesherSegment >    templinelist;
-    std::vector < CMesherArcSegment > temparclist;
-    std::vector < CMesherBlockLabel > tempblocklist;
+    std::vector < CNode >       tempnodelist;
+    std::vector < CSegment >    templinelist;
+    std::vector < CArcSegment > temparclist;
+    std::vector < CBlockLabel > tempblocklist;
 
     tempnodelist.clear();
     templinelist.clear();
@@ -1532,13 +1532,13 @@ void FMesher::Undo()
 //		{
 //			CComplex c,u,p0,p1,q,p[4],v[8],i1[8],i2[8];
 //			double rc,b,R[4],phi;
-//			CMesherArcSegment ar;
+//			CArcSegment ar;
 //			int j,m;
 //
 //			// inherit the boundary condition from the arc so that
 //			// we can apply it to the newly created arc later;
 //			ar.InGroup       =arclist[arc[0]].InGroup;
-//			ar.BoundaryMarker=arclist[arc[0]].BoundaryMarker;
+//			ar.BoundaryMarkerName=arclist[arc[0]].BoundaryMarkerName;
 //
 //			// get the center and radius of the circle associated with the arc;
 //			GetCircle(arclist[arc[0]],c,rc);
@@ -1632,7 +1632,7 @@ void FMesher::Undo()
 //		{
 //			CComplex p0,p1,p2;
 //			double phi,len;
-//			CMesherArcSegment ar;
+//			CArcSegment ar;
 //
 //			if (linelist[seg[0]].n0==n) p1=nodelist[linelist[seg[0]].n1].CC();
 //			else p1=nodelist[linelist[seg[0]].n0].CC();
@@ -1667,7 +1667,7 @@ void FMesher::Undo()
 //
 //			// inherit the boundary condition from one of the segments
 //			// so that we can apply it to the newly created arc later;
-//			ar.BoundaryMarker=linelist[seg[0]].BoundaryMarker;
+//			ar.BoundaryMarkerName=linelist[seg[0]].BoundaryMarkerName;
 //			ar.InGroup       =linelist[seg[0]].InGroup;
 //
 //			// add new nodes at ends of radius
@@ -1694,7 +1694,7 @@ void FMesher::Undo()
 //			int j;
 //			CComplex c0,c1,c2,p[8],i1[8],i2[8];
 //			double a[8],b[8],c,d[8],x[8],r0,r1,r2,phi;
-//			CMesherArcSegment ar;
+//			CArcSegment ar;
 //
 //			r0=r;
 //			GetCircle(arclist[arc[0]],c1,r1);
@@ -1755,7 +1755,7 @@ void FMesher::Undo()
 //
 //			// inherit the boundary condition from one of the segments
 //			// so that we can apply it to the newly created arc later;
-//			ar.BoundaryMarker=arclist[arc[0]].BoundaryMarker;
+//			ar.BoundaryMarkerName=arclist[arc[0]].BoundaryMarkerName;
 //			ar.InGroup=arclist[arc[0]].InGroup;
 //
 //			// add new nodes at ends of radius
@@ -1943,11 +1943,11 @@ void FMesher::Undo()
 //}
 
 
-//bool FMesher::AddArcSegment(CMesherArcSegment &asegm, double tol)
+//bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
 //{
 //	int i,j,k;
-//	CMesherSegment segm;
-//	CMesherArcSegment newarc;
+//	CSegment segm;
+//	CArcSegment newarc;
 //	CComplex c,p[2];
 //	std::vector < CComplex > newnodes;
 //	double R,d,dmin,t;
@@ -2076,7 +2076,7 @@ void FMesher::Undo()
 //
 //	// if all is OK, add point in to the node list...
 //	if(AddFlag==true){
-//		CMesherBlockLabel pt;
+//		CBlockLabel pt;
 //		pt.x=x; pt.y=y;
 //		blocklist.push_back(pt);
 //	}
@@ -2088,9 +2088,9 @@ void FMesher::Undo()
 //bool FMesher::AddNode(double x, double y, double d)
 //{
 //	int i,k;
-//	CMesherNode pt;
-//	CMesherSegment segm;
-//	CMesherArcSegment asegm;
+//	CNode pt;
+//	CSegment segm;
+//	CArcSegment asegm;
 //	CComplex c,a0,a1,a2;
 //	double R;
 //
@@ -2147,12 +2147,12 @@ void FMesher::Undo()
 //	return AddSegment(n0,n1,NULL,tol);
 //}
 
-//bool FMesher::AddSegment(int n0, int n1, CMesherSegment *parsegm, double tol)
+//bool FMesher::AddSegment(int n0, int n1, CSegment *parsegm, double tol)
 //{
 //	int i,j,k;
 //	double xi,yi,t;
 //	CComplex p[2];
-//	CMesherSegment segm;
+//	CSegment segm;
 //	std::vector < CComplex > newnodes;
 //
 //	newnodes.clear();
@@ -2167,7 +2167,7 @@ void FMesher::Undo()
 //	}
 //
 //	// add proposed line to the linelist
-//	 segm.BoundaryMarker="<None>";
+//	 segm.BoundaryMarkerName="<None>";
 //	if (parsegm!=NULL) segm=*parsegm;
 //	segm.IsSelected=0;
 //	segm.n0=n0; segm.n1=n1;
@@ -2305,7 +2305,7 @@ void FMesher::Undo()
 //				nselected++;
 //				zDlg.m_ingroup=blocklist[i].InGroup;
 //			}
-//			else if(blocklist[i].BlockType!=blocklist[k].BlockType)
+//			else if(blocklist[i].BlockTypeName!=blocklist[k].BlockTypeName)
 //				nselected++;
 //			if(cselected==0) cselected++;
 //			else if(blocklist[i].InCircuit!=blocklist[k].InCircuit)
@@ -2328,9 +2328,9 @@ void FMesher::Undo()
 //	zDlg.pcircproplist=&circproplist;
 //
 //	if (nselected==1){
-//		if(blocklist[k].BlockType=="<No Mesh>") zDlg.cursel=1;
+//		if(blocklist[k].BlockTypeName=="<No Mesh>") zDlg.cursel=1;
 //		else for(i=0,zDlg.cursel=0;i<blockproplist.size();i++)
-//			if (blockproplist[i].BlockName==blocklist[k].BlockType)
+//			if (blockproplist[i].BlockName==blocklist[k].BlockTypeName)
 //				zDlg.cursel=i+2;
 //	}
 //	else zDlg.cursel=0;
@@ -2355,9 +2355,9 @@ void FMesher::Undo()
 //				blocklist[i].MagDirFctn=zDlg.m_magdirfctn;
 //				blocklist[i].Turns=zDlg.m_turns;
 //				if (blocklist[i].Turns==0) blocklist[i].Turns++;
-//				if (zDlg.cursel==0) blocklist[i].BlockType="<None>";
-//				else if(zDlg.cursel==1) blocklist[i].BlockType="<No Mesh>";
-//				else blocklist[i].BlockType=blockproplist[zDlg.cursel-2].BlockName;
+//				if (zDlg.cursel==0) blocklist[i].BlockTypeName="<None>";
+//				else if(zDlg.cursel==1) blocklist[i].BlockTypeName="<No Mesh>";
+//				else blocklist[i].BlockTypeName=blockproplist[zDlg.cursel-2].BlockName;
 //				if (zDlg.circsel==0) blocklist[i].InCircuit="<None>";
 //				else blocklist[i].InCircuit=circproplist[zDlg.circsel-1].CircName;
 //				blocklist[i].InGroup=zDlg.m_ingroup;
@@ -2383,7 +2383,7 @@ void FMesher::Undo()
 //				nselected++;
 //				zDlg.m_ingroup=nodelist[i].InGroup;
 //			}
-//			else if(nodelist[i].BoundaryMarker!=nodelist[k].BoundaryMarker)
+//			else if(nodelist[i].BoundaryMarkerName!=nodelist[k].BoundaryMarkerName)
 //				nselected++;
 //			if(nodelist[i].InGroup!=zDlg.m_ingroup) zDlg.m_ingroup=0;
 //			k=i;
@@ -2394,7 +2394,7 @@ void FMesher::Undo()
 //	zDlg.pnodeproplist=&nodeproplist;
 //	if (nselected==1){
 //		for(i=0,zDlg.cursel=0;i<nodeproplist.size();i++)
-//			if (nodeproplist[i].PointName==nodelist[k].BoundaryMarker)
+//			if (nodeproplist[i].PointName==nodelist[k].BoundaryMarkerName)
 //				zDlg.cursel=i+1;
 //	}
 //	else zDlg.cursel=0;
@@ -2403,8 +2403,8 @@ void FMesher::Undo()
 //		for(i=0;i<nodelist.size();i++)
 //		{
 //			if(nodelist[i].IsSelected!=0){
-//				if (zDlg.cursel==0) nodelist[i].BoundaryMarker="<None>";
-//				else nodelist[i].BoundaryMarker=nodeproplist[zDlg.cursel-1].PointName;
+//				if (zDlg.cursel==0) nodelist[i].BoundaryMarkerName="<None>";
+//				else nodelist[i].BoundaryMarkerName=nodeproplist[zDlg.cursel-1].PointName;
 //				nodelist[i].InGroup=zDlg.m_ingroup;
 //			}
 //		}
@@ -2424,7 +2424,7 @@ void FMesher::Undo()
 //				nselected++;
 //				zDlg.m_ingroup=linelist[i].InGroup;
 //			}
-//			else if(linelist[i].BoundaryMarker!=linelist[k].BoundaryMarker)
+//			else if(linelist[i].BoundaryMarkerName!=linelist[k].BoundaryMarkerName)
 //				nselected++;
 //			if(linelist[i].InGroup!=zDlg.m_ingroup) zDlg.m_ingroup=0;
 //			k=i;
@@ -2447,7 +2447,7 @@ void FMesher::Undo()
 //	zDlg.plineproplist=&lineproplist;
 //	if (nselected==1){
 //		for(i=0,zDlg.cursel=0;i<lineproplist.size();i++)
-//			if (lineproplist[i].BdryName==linelist[k].BoundaryMarker)
+//			if (lineproplist[i].BdryName==linelist[k].BoundaryMarkerName)
 //				zDlg.cursel=i+1;
 //	}
 //	else zDlg.cursel=0;
@@ -2472,8 +2472,8 @@ void FMesher::Undo()
 //						linelist[i].MaxSideLength=zDlg.m_linemeshsize;
 //					else zDlg.m_linemeshsize=-1;
 //				}
-//				if (zDlg.cursel==0) linelist[i].BoundaryMarker="<None>";
-//				else linelist[i].BoundaryMarker=lineproplist[zDlg.cursel-1].BdryName;
+//				if (zDlg.cursel==0) linelist[i].BoundaryMarkerName="<None>";
+//				else linelist[i].BoundaryMarkerName=lineproplist[zDlg.cursel-1].BdryName;
 //
 //				linelist[i].Hidden=zDlg.m_hide;
 //				linelist[i].InGroup=zDlg.m_ingroup;
@@ -2497,7 +2497,7 @@ void FMesher::Undo()
 //				nselected++;
 //				zDlg.m_ingroup=arclist[i].InGroup;
 //			}
-//			else if(arclist[i].BoundaryMarker!=arclist[k].BoundaryMarker)
+//			else if(arclist[i].BoundaryMarkerName!=arclist[k].BoundaryMarkerName)
 //				nselected++;
 //			if(arclist[i].InGroup!=zDlg.m_ingroup) zDlg.m_ingroup=0;
 //			k=i;
@@ -2521,7 +2521,7 @@ void FMesher::Undo()
 //	if (nselected==1){
 //		zDlg.m_MaxSeg=ms;
 //		for(i=0,zDlg.cursel=0;i<lineproplist.size();i++)
-//			if (lineproplist[i].BdryName==arclist[k].BoundaryMarker)
+//			if (lineproplist[i].BdryName==arclist[k].BoundaryMarkerName)
 //				zDlg.cursel=i+1;
 //	}
 //	else{
@@ -2533,8 +2533,8 @@ void FMesher::Undo()
 //		for(i=0;i<arclist.size();i++)
 //		{
 //			if(arclist[i].IsSelected!=0){
-//				if (zDlg.cursel==0) arclist[i].BoundaryMarker="<None>";
-//				else arclist[i].BoundaryMarker=lineproplist[zDlg.cursel-1].BdryName;
+//				if (zDlg.cursel==0) arclist[i].BoundaryMarkerName="<None>";
+//				else arclist[i].BoundaryMarkerName=lineproplist[zDlg.cursel-1].BdryName;
 //				arclist[i].MaxSideLength=zDlg.m_MaxSeg;
 //				arclist[i].Hidden=zDlg.m_hide;
 //				arclist[i].InGroup=zDlg.m_ingroup;

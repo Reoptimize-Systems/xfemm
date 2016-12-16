@@ -27,6 +27,10 @@ CBlockLabel::CBlockLabel()
     , Turns(1)
     , IsExternal(false)
     , IsSelected(false)
+    , BlockType(-1)
+    , InCircuit(0)
+    , BlockTypeName("<None>")
+    , InCircuitName("<None>")
 {
 }
 
@@ -40,24 +44,10 @@ double CBlockLabel::GetDistance(double xo, double yo)
     return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
 }
 
-void CBlockLabel::toStream(ostream &out) const
+
+CBlockLabel CBlockLabel::fromStream(istream &input, ostream &)
 {
-    out << "CBlockLabel without toStream implementation!\n";
-    assert(false && "CBlockLabel without toStream");
-}
-
-
-
-CSolverBlockLabel::CSolverBlockLabel()
-    : CBlockLabel()
-    , BlockType(-1)
-    , InCircuit(0)
-{
-}
-
-CSolverBlockLabel CSolverBlockLabel::fromStream(istream &input, ostream &)
-{
-    CSolverBlockLabel prop;
+    CBlockLabel prop;
 
     // scan in data
     input >> prop.x;
@@ -79,7 +69,7 @@ CSolverBlockLabel CSolverBlockLabel::fromStream(istream &input, ostream &)
     return prop;
 }
 
-void CSolverBlockLabel::toStream(ostream &out) const
+void CBlockLabel::toStream(ostream &out) const
 {
     int extDefault = 0;
     if (IsExternal)
@@ -90,15 +80,8 @@ void CSolverBlockLabel::toStream(ostream &out) const
     out << x << " " << y << " " << (BlockType+1) << " " << MaxArea << " " << InGroup << " " << extDefault <<"\n";
 }
 
-CMesherBlockLabel::CMesherBlockLabel()
+CMBlockLabel::CMBlockLabel()
     : CBlockLabel()
-    , BlockType("<None>")
-    , InCircuit("<None>")
-{
-}
-
-CMSolverBlockLabel::CMSolverBlockLabel()
-    : CSolverBlockLabel()
     , ProximityMu(0)
     , bIsWound(false)
     , MagDirFctn()
@@ -111,7 +94,7 @@ CMSolverBlockLabel::CMSolverBlockLabel()
 {
 }
 
-CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
+CMBlockLabel CMBlockLabel::fromStream(istream &input, ostream &)
 {
     std::string line;
     // read whole line to prevent reading from the next line if a line is malformed/too short
@@ -123,7 +106,7 @@ CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
     std::cerr << "Reading line: " << line <<"\n";
 #endif
 
-    CMSolverBlockLabel prop;
+    CMBlockLabel prop;
     // scan in data
     inputStream >> prop.x;
     inputStream >> prop.y;
@@ -151,7 +134,7 @@ CMSolverBlockLabel CMSolverBlockLabel::fromStream(istream &input, ostream &)
     return prop;
 }
 
-void CMSolverBlockLabel::toStream(ostream &out) const
+void CMBlockLabel::toStream(ostream &out) const
 {
     int extDefault = 0;
     if (IsExternal)

@@ -255,11 +255,11 @@ bool FPProc::OpenDocument(string pathname)
     CMBoundaryProp BProp;
     CMaterialProp MProp;
     CCircuit      CProp;
-    CSolverNode         node;
-    CSolverSegment      segm;
-    CSolverArcSegment   asegm;
+    CNode         node;
+    CSegment      segm;
+    CArcSegment   asegm;
     CElement      elm;
-    CMSolverBlockLabel   blk;
+    CMBlockLabel   blk;
     CMeshNode     mnode;
     //CPoint        mline;
 
@@ -3701,7 +3701,7 @@ int FPProc::ClosestArcSegment(double x, double y)
     return j;
 }
 
-void FPProc::GetCircle(CSolverArcSegment &arc,CComplex &c, double &R)
+void FPProc::GetCircle(CArcSegment &arc,CComplex &c, double &R)
 {
     CComplex a0,a1,t;
     double d,tta;
@@ -3717,7 +3717,7 @@ void FPProc::GetCircle(CSolverArcSegment &arc,CComplex &c, double &R)
     c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
 }
 
-double FPProc::ShortestDistanceFromArc(CComplex p, CSolverArcSegment &arc)
+double FPProc::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
 {
     double R,d,l,z;
     CComplex a0,a1,c,t;
@@ -3915,7 +3915,7 @@ void FPProc::GetFillFactor(int lbl)
     // post-processing the voltage.
 
     CMaterialProp* bp= &blockproplist[blocklist[lbl].BlockType];
-    CMSolverBlockLabel* bl= &blocklist[lbl];
+    CMBlockLabel* bl= &blocklist[lbl];
     double lc=LengthConv[LengthUnits]*LengthConv[LengthUnits];
     double atot,awire,w,d,o,fill,dd,W,R,c1,c2,c3,c4;
     atot=awire=w=d=o=fill=dd=W=R=c1=c2=c3=c4=0;

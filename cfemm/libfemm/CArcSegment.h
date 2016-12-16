@@ -23,41 +23,29 @@ namespace femm {
  */
 class CArcSegment
 {
-    public:
-        CArcSegment();
-
-        // start and end point
-        int n0,n1;
-        double ArcLength; ///< arc angle
-        double MaxSideLength; ///< max segment
-        // BoundaryMarker: see inheriting classes
-        bool Hidden; ///< hide in postproc
-        int InGroup; ///< number of group
-
-        bool IsSelected;
-        void ToggleSelect();
-
-    private:
-
-};
-
-class CMesherArcSegment : public CArcSegment
-{
 public:
-    CMesherArcSegment();
-    std::string BoundaryMarker; ///< boundary property name
-    std::string InConductor;  ///< conductor name
+    CArcSegment();
 
-    int selectFlag;
-    bool NormalDirection;
-};
+    // start and end point
+    int n0,n1;
+    double ArcLength; ///< arc angle
+    double MaxSideLength; ///< max segment
+    // BoundaryMarker: see inheriting classes
+    bool Hidden; ///< hide in postproc
+    int InGroup; ///< number of group
 
-class CSolverArcSegment : public CArcSegment
-{
-public:
-    CSolverArcSegment();
+    bool IsSelected;
+    void ToggleSelect();
+
     int BoundaryMarker; ///< boundary property number, 0-indexed
     int InConductor; ///< additional property for hpproc
+    std::string BoundaryMarkerName; ///< boundary property name
+    std::string InConductorName;  ///< conductor name
+
+    bool NormalDirection; ///< mesher-specific property
+    int cnt; ///< used by mesher for internal book keeping
+private:
+
 };
 
 }
