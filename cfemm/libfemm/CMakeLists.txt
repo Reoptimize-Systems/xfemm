@@ -28,6 +28,7 @@ add_library(femm
   cuthill.cpp
   feasolver.cpp
   femmcomplex.cpp
+  FemmProblem.cpp
   FemmReader.cpp
   FemmStateBase.cpp
   fparse.cpp
