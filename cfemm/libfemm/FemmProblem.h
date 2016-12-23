@@ -16,12 +16,24 @@
 #ifndef FEMMPROBLEM_H
 #define FEMMPROBLEM_H
 
+#include "CBlockLabel.h"
+#include "CBoundaryProp.h"
+#include "CCircuit.h"
+#include "CMaterialProp.h"
+#include "CNode.h"
+#include "CPointProp.h"
 #include "fparse.h"
 
 #include <string>
 #include <vector>
 
 namespace femm {
+
+class FemmProblemBase
+{
+public:
+    virtual ~FemmProblemBase();
+};
 
 /**
  * \brief The FemmProblem class holds all data concerning a problem.
@@ -39,7 +51,7 @@ template< class PointPropT
           , class BlockLabelT
           , class NodeT
           >
-class FemmProblem
+class FemmProblem : public FemmProblemBase
 {
 public:
     using FemmProblem_type = FemmProblem<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>;
@@ -105,6 +117,13 @@ public: // data members
     std::vector< BlockLabelT > labellist;
     std::vector< NodeT > nodelist;
 };
+
+using MagneticsProblem = FemmProblem<femm::CPointProp
+        , femm::CMBoundaryProp
+        , femm::CMMaterialProp
+        , femm::CMCircuit
+        , femm::CMBlockLabel
+        , femm::CNode>;
 
 } //namespace
 
