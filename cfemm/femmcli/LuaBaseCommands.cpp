@@ -15,6 +15,7 @@
 
 #include "LuaBaseCommands.h"
 
+#include "FemmProblem.h"
 #include "FemmState.h"
 #include "LuaInstance.h"
 #include "fsolver.h"
@@ -132,7 +133,7 @@ int femmcli::LuaBaseCommands::luaMessageBox(lua_State *L)
 int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
 {
     int docType = static_cast<int>(lua_tonumber(L,1).Re());
-    auto femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
     assert(femmState);
 
     // FIXME IMPLEMENT:
@@ -140,7 +141,7 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
     // 2. call [MFC] CDocTemplate::OpenDocumentFile(NULL)
     switch (docType) {
         case 0: // magnetics
-            femmState->fMesherDocument = std::make_shared<fmesher::FMesher>();
+            femmState->magneticsDocument = std::make_shared<femm::MagneticsProblem>();
             break;
         case 1: // electrostatics
         case 2: // heat flow
