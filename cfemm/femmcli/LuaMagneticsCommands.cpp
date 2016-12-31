@@ -413,18 +413,18 @@ int femmcli::LuaMagneticsCommands::luaAddpointprop(lua_State *)
  * Parameter flag (0,1) determines visibility of fkern window.
  *
  * Implementation notes:
- *  * \femm42{femm/femmeLua.cpp,lua_analyze()}: extracts thisDoc (=solverDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnu_analyze(flag)
+ *  * \femm42{femm/femmeLua.cpp,lua_analyze()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnu_analyze(flag)
  *  * \femm42{femm/FemmeView.cpp,CFemmeView::OnMenuAnalyze()}: does the things we do here directly...
  */
 int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
+#if false
     auto luaInstance = LuaInstance::instance(L);
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    auto mesherDoc = femmState->fMesherDocument;
-    std::shared_ptr<FSolver> solverDoc = femmState->fSolverDocument;
+    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->fMesherDocument;
 
     // check to see if all blocklabels are kosher...
-    if (solverDoc->labellist.size()==0){
+    if (mesherDoc->blocklist.size()==0){
         std::string msg = "No block information has been defined\n"
                           "Cannot analyze the problem";
         lua_error(L, msg.c_str());
@@ -432,24 +432,24 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
 
     bool hasMissingBlockProps = false;
-    for(int i=0; i<(int)solverDoc->labellist.size(); i++)
+    for(int i=0; i<(int)mesherDoc->blocklist.size(); i++)
     {
         // note(ZaJ): this can be done better by break;ing from the k loop
         int j=0;
-        for(int k=0; k<solverDoc->(int)blockproplist.size(); k++)
+        for(int k=0; k<mesherDoc->(int)blockproplist.size(); k++)
         {
             // FIXME: at this point we want a mesher doc, not a solver doc :-|
-            if (solverDoc->labellist[i].BlockType != solverDoc->blockproplist[k].BlockName)
+            if (mesherDoc->blocklist[i].BlockType != mesherDoc->blockproplist[k].BlockName)
                 j++;
         }
-        if ((j==solverDoc->blockproplist.size())
-                && (solverDoc->labellist[i].BlockType!="<No Mesh>")
+        if ((j==mesherDoc->blockproplist.size())
+                && (mesherDoc->blocklist[i].BlockType!="<No Mesh>")
                 )
         {
             // FIXME(ZaJ): check effects of OnBlockOp()
             //if(!hasMissingBlockProps) OnBlockOp();
             hasMissingBlockProps = true;
-            solverDoc->blocklist[i].IsSelected = true;
+            mesherDoc->blocklist[i].IsSelected = true;
         }
     }
 
@@ -464,12 +464,12 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
 
 
-    if (solverDoc->ProblemType==AXISYMMETRIC)
+    if (mesherDoc->ProblemType==AXISYMMETRIC)
     {
         // check to see if all of the input points are on r>=0 for axisymmetric problems.
-        for (int k=0; k<solverDoc->nodes.size(); k++)
+        for (int k=0; k<mesherDoc->nodes.size(); k++)
         {
-            if (solverDoc->nodes[k].x < -(1.e-6))
+            if (mesherDoc->nodes[k].x < -(1.e-6))
             {
                 //InvalidateRect(NULL);
                 std::string ermsg = "The problem domain must lie in\n"
@@ -483,20 +483,20 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         // check to see if all block defined to be in an axisymmetric external region are linear.
         bool hasAnisotropicMaterial = false;
         bool hasExteriorProps = true;
-        for (int k=0; k<solverDoc->labellist.size(); k++)
+        for (int k=0; k<mesherDoc->blocklist.size(); k++)
         {
-            if (solverDoc->blocklist[k].IsExternal)
+            if (mesherDoc->blocklist[k].IsExternal)
             {
-                if ((solverDoc->extRo==0) || (solverDoc->extRi==0))
+                if ((mesherDoc->extRo==0) || (mesherDoc->extRi==0))
                     hasExteriorProps = false;
 
-                for(int i=0; i<solverDoc->blockproplist.size(); i++)
+                for(int i=0; i<mesherDoc->blockproplist.size(); i++)
                 {
-                    if (solverDoc->labellist[k].BlockType == solverDoc->blockproplist[i].BlockName)
+                    if (mesherDoc->blocklist[k].BlockType == mesherDoc->blockproplist[i].BlockName)
                     {
-                        if (solverDoc->blockproplist[i].BHpoints!=0)
+                        if (mesherDoc->blockproplist[i].BHpoints!=0)
                             hasAnisotropicMaterial = true;
-                        else if(solverDoc->blockproplist[i].mu_x != solverDoc->blockproplist[i].mu_y)
+                        else if(mesherDoc->blockproplist[i].mu_x != mesherDoc->blockproplist[i].mu_y)
                             hasAnisotropicMaterial = true;
                     }
                 }
@@ -524,25 +524,26 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         }
     }
 
-    std::string pathName = solverDoc->PathName;
+    std::string pathName = mesherDoc->PathName;
     if (pathName.empty())
     {
         lua_error(L,"A data file must be loaded,\nor the current data must saved.");
         return 0;
     }
     // TODO FIXME CONTINUE HERE
-    if (solverDoc->OnSaveDocument(pathName)==FALSE) return;
+    if (mesherDoc->OnSaveDocument(pathName)==FALSE) return;
+    mesherDoc->
 
     BeginWaitCursor();
-    if (solverDoc->HasPeriodicBC()==TRUE){
-        if (solverDoc->FunnyOnWritePoly()==FALSE){
+    if (mesherDoc->HasPeriodicBC()==TRUE){
+        if (mesherDoc->FunnyOnWritePoly()==FALSE){
             EndWaitCursor();
-            solverDoc->UnselectAll();
+            mesherDoc->UnselectAll();
             return;
         }
     }
     else{
-        if (solverDoc->OnWritePoly()==FALSE){
+        if (mesherDoc->OnWritePoly()==FALSE){
             EndWaitCursor();
             return;
         }
@@ -607,6 +608,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         return;
     }
 
+#endif
     return 0;
 
 }
@@ -1334,7 +1336,7 @@ int femmcli::LuaMagneticsCommands::luaPrevious(lua_State *)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Change problem definition.
  * @param L
  * @return 0
  * \ingroup LuaMM
@@ -1356,9 +1358,10 @@ int femmcli::LuaMagneticsCommands::luaPrevious(lua_State *)
  */
 int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 {
+#ifdef false
     auto luaInstance = LuaInstance::instance(L);
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FSolver> solverDoc = femmState->fSolverDocument;
+    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->fMesherDocument;
 
     // argument count
     int n;
@@ -1366,18 +1369,18 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 
     // Frequency
     double frequency = lua_tonumber(L,1).re;
-    solverDoc->Frequency = std::fabs(frequency);
+    mesherDoc->Frequency = std::fabs(frequency);
     if(n==1) return 0;
 
     // Length Units
     std::string units (lua_tostring(L,2));
-    if(units=="inches") solverDoc->LengthUnits = LengthInches;
-    else if(units=="millimeters") solverDoc->LengthUnits = LengthMillimeters;
-    else if(units=="centimeters") solverDoc->LengthUnits = LengthCentimeters;
-    else if(units=="meters") solverDoc->LengthUnits = LengthMeters;
-    else if(units=="mills") solverDoc->LengthUnits = LengthMils;
-    else if(units=="mils") solverDoc->LengthUnits = LengthMils;
-    else if(units=="micrometers") solverDoc->LengthUnits = LengthMicrometers;
+    if(units=="inches") mesherDoc->LengthUnits = LengthInches;
+    else if(units=="millimeters") mesherDoc->LengthUnits = LengthMillimeters;
+    else if(units=="centimeters") mesherDoc->LengthUnits = LengthCentimeters;
+    else if(units=="meters") mesherDoc->LengthUnits = LengthMeters;
+    else if(units=="mills") mesherDoc->LengthUnits = LengthMils;
+    else if(units=="mils") mesherDoc->LengthUnits = LengthMils;
+    else if(units=="micrometers") mesherDoc->LengthUnits = LengthMicrometers;
     else
     {
         std::string msg  = "Unknown length unit " + units;
@@ -1388,8 +1391,8 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 
     // Problem type
     std::string type (lua_tostring(L,3));
-    if(type=="planar") solverDoc->ProblemType = PLANAR;
-    else if(type=="axi") solverDoc->ProblemType = AXISYMMETRIC;
+    if(type=="planar") mesherDoc->ProblemType = PLANAR;
+    else if(type=="axi") mesherDoc->ProblemType = AXISYMMETRIC;
     else
     {
         std::string msg =  "Unknown problem type " + type;
@@ -1405,24 +1408,25 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
         lua_error(L,msg.c_str());
         return 0;
     }
-    solverDoc->Precision = precision;
+    mesherDoc->Precision = precision;
     if (n==4) return 0;
 
-    solverDoc->Depth = std::fabs(lua_tonumber(L,5).re);
+    mesherDoc->Depth = std::fabs(lua_tonumber(L,5).re);
     if (n==5) return 0;
 
     double minAngle = lua_tonumber(L,6).re;
     if ((minAngle>=1.) && (minAngle<=33.8))
     {
-        solverDoc->MinAngle = minAngle;
+        mesherDoc->MinAngle = minAngle;
     }
     if (n==6) return 0;
 
     int acSolver = (int)lua_tonumber(L,7).re;
     if ((acSolver==0) || (acSolver==1))
     {
-        solverDoc->ACSolver=acSolver;
+        mesherDoc->ACSolver=acSolver;
     }
+#endif
     return 0;
 }
 

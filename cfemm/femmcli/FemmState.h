@@ -18,6 +18,7 @@
 
 #include "FemmStateBase.h"
 
+#include "FemmProblem.h"
 #include "fmesher.h"
 #include "fsolver.h"
 #include "fpproc.h"
@@ -33,9 +34,9 @@ namespace femmcli
 class FemmState : public femm::FemmStateBase
 {
 public:
-    std::shared_ptr<fmesher::FMesher> fMesherDocument;
     std::shared_ptr<FSolver> fSolverDocument;
     std::shared_ptr<FPProc> fPProcDocument;
+    std::shared_ptr<femm::MagneticsProblem> magneticsDocument;
 };
 
 } /* namespace */

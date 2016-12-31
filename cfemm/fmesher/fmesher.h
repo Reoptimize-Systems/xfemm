@@ -37,6 +37,7 @@
 #include "CNode.h"
 #include "CPointProp.h"
 #include "CSegment.h"
+#include "FemmProblem.h"
 
 #ifndef LineFraction
 #define LineFraction 500.0
@@ -78,6 +79,7 @@ public:
     // ... attributes (Frequency, LengthUnits, etc.) here as well,
     // ... because FMesher is the class that matches closest to FemmeDoc in femm42
 
+    femm::FemmProblemBase *problem;
 	// General problem attributes
 	int     filetype;
 	double	MinAngle;
