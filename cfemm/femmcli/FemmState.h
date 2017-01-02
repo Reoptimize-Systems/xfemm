@@ -34,9 +34,17 @@ namespace femmcli
 class FemmState : public femm::FemmStateBase
 {
 public:
-    std::shared_ptr<FSolver> fSolverDocument;
-    std::shared_ptr<FPProc> fPProcDocument;
+    std::shared_ptr<fmesher::FMesher> fMesherDocument;
     std::shared_ptr<femm::MagneticsProblem> magneticsDocument;
+
+    /**
+     * @brief Returns the current FPProc.
+     * If FPProc was not yet initialized, a new FPProc is initialized using the magneticsDocument.
+     * @return
+     */
+    std::shared_ptr<FPProc> getFPProc();
+private:
+    std::shared_ptr<FPProc> theFPProc;
 };
 
 } /* namespace */
