@@ -418,13 +418,12 @@ int femmcli::LuaMagneticsCommands::luaAddpointprop(lua_State *)
  */
 int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
-#if false
     auto luaInstance = LuaInstance::instance(L);
-    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->fMesherDocument;
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::MagneticsProblem> magneticsDoc = femmState->magneticsDocument;
 
     // check to see if all blocklabels are kosher...
-    if (mesherDoc->blocklist.size()==0){
+    if (magneticsDoc->labellist.size()==0){
         std::string msg = "No block information has been defined\n"
                           "Cannot analyze the problem";
         lua_error(L, msg.c_str());
@@ -432,24 +431,24 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
 
     bool hasMissingBlockProps = false;
-    for(int i=0; i<(int)mesherDoc->blocklist.size(); i++)
+    for(int i=0; i<(int)magneticsDoc->labellist.size(); i++)
     {
         // note(ZaJ): this can be done better by break;ing from the k loop
         int j=0;
-        for(int k=0; k<mesherDoc->(int)blockproplist.size(); k++)
+        for(int k=0; k<(int)magneticsDoc->blockproplist.size(); k++)
         {
             // FIXME: at this point we want a mesher doc, not a solver doc :-|
-            if (mesherDoc->blocklist[i].BlockType != mesherDoc->blockproplist[k].BlockName)
+            if (magneticsDoc->labellist[i].BlockTypeName != magneticsDoc->blockproplist[k].BlockName)
                 j++;
         }
-        if ((j==mesherDoc->blockproplist.size())
-                && (mesherDoc->blocklist[i].BlockType!="<No Mesh>")
+        if ((j==(int)magneticsDoc->blockproplist.size())
+                && (magneticsDoc->labellist[i].BlockTypeName!="<No Mesh>")
                 )
         {
             // FIXME(ZaJ): check effects of OnBlockOp()
             //if(!hasMissingBlockProps) OnBlockOp();
             hasMissingBlockProps = true;
-            mesherDoc->blocklist[i].IsSelected = true;
+            magneticsDoc->labellist[i].IsSelected = true;
         }
     }
 
@@ -464,12 +463,12 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
 
 
-    if (mesherDoc->ProblemType==AXISYMMETRIC)
+    if (magneticsDoc->ProblemType==AXISYMMETRIC)
     {
         // check to see if all of the input points are on r>=0 for axisymmetric problems.
-        for (int k=0; k<mesherDoc->nodes.size(); k++)
+        for (int k=0; k<(int)magneticsDoc->nodelist.size(); k++)
         {
-            if (mesherDoc->nodes[k].x < -(1.e-6))
+            if (magneticsDoc->nodelist[k].x < -(1.e-6))
             {
                 //InvalidateRect(NULL);
                 std::string ermsg = "The problem domain must lie in\n"
@@ -483,20 +482,20 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         // check to see if all block defined to be in an axisymmetric external region are linear.
         bool hasAnisotropicMaterial = false;
         bool hasExteriorProps = true;
-        for (int k=0; k<mesherDoc->blocklist.size(); k++)
+        for (int k=0; k<(int)magneticsDoc->labellist.size(); k++)
         {
-            if (mesherDoc->blocklist[k].IsExternal)
+            if (magneticsDoc->labellist[k].IsExternal)
             {
-                if ((mesherDoc->extRo==0) || (mesherDoc->extRi==0))
+                if ((magneticsDoc->extRo==0) || (magneticsDoc->extRi==0))
                     hasExteriorProps = false;
 
-                for(int i=0; i<mesherDoc->blockproplist.size(); i++)
+                for(int i=0; i<(int)magneticsDoc->blockproplist.size(); i++)
                 {
-                    if (mesherDoc->blocklist[k].BlockType == mesherDoc->blockproplist[i].BlockName)
+                    if (magneticsDoc->labellist[k].BlockTypeName == magneticsDoc->blockproplist[i].BlockName)
                     {
-                        if (mesherDoc->blockproplist[i].BHpoints!=0)
+                        if (magneticsDoc->blockproplist[i].BHpoints!=0)
                             hasAnisotropicMaterial = true;
-                        else if(mesherDoc->blockproplist[i].mu_x != mesherDoc->blockproplist[i].mu_y)
+                        else if(magneticsDoc->blockproplist[i].mu_x != magneticsDoc->blockproplist[i].mu_y)
                             hasAnisotropicMaterial = true;
                     }
                 }
@@ -524,32 +523,36 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         }
     }
 
-    std::string pathName = mesherDoc->PathName;
+    // TODO(ZaJ) move data from magneticsDoc to mesherDoc
+    std::string pathName = magneticsDoc->pathName;
     if (pathName.empty())
     {
         lua_error(L,"A data file must be loaded,\nor the current data must saved.");
         return 0;
     }
-    // TODO FIXME CONTINUE HERE
-    if (mesherDoc->OnSaveDocument(pathName)==FALSE) return;
-    mesherDoc->
+    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getFMesher();
+    if (!mesherDoc->SaveFEMFile(pathName))
+        return 0;
 
-    BeginWaitCursor();
-    if (mesherDoc->HasPeriodicBC()==TRUE){
-        if (mesherDoc->FunnyOnWritePoly()==FALSE){
-            EndWaitCursor();
+    //BeginWaitCursor();
+    if (mesherDoc->HasPeriodicBC()){
+        if (!mesherDoc->DoPeriodicBCTriangulation(pathName))
+        {
+            //EndWaitCursor();
             mesherDoc->UnselectAll();
-            return;
+            return 0;
         }
     }
     else{
-        if (mesherDoc->OnWritePoly()==FALSE){
-            EndWaitCursor();
-            return;
+        if (!mesherDoc->DoNonPeriodicBCTriangulation(pathName))
+        {
+            //EndWaitCursor();
+            return 0;
         }
     }
-    EndWaitCursor();
+    //EndWaitCursor();
 
+    // TODO FIXME CONTINUE HERE
     char CommandLine[512];
     CString rootname="\"" + pathName.Left(pathName.ReverseFind('.')) + "\"";
 
@@ -608,7 +611,6 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         return;
     }
 
-#endif
     return 0;
 
 }
