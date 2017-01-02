@@ -16,12 +16,16 @@
 #ifndef FEMMPROBLEM_H
 #define FEMMPROBLEM_H
 
+#include "CArcSegment.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
+#include "CElement.h"
 #include "CMaterialProp.h"
+#include "CMeshNode.h"
 #include "CNode.h"
 #include "CPointProp.h"
+#include "CSegment.h"
 #include "fparse.h"
 
 #include <string>
@@ -50,17 +54,25 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class SegmentT
+          , class ArcSegmentT
+          , class MeshNodeT
+          , class MeshElementT
           >
 class FemmProblem : public FemmProblemBase
 {
 public:
-    using FemmProblem_type = FemmProblem<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>;
+    using FemmProblem_type = FemmProblem<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,SegmentT,ArcSegmentT, MeshNodeT, MeshElementT>;
     using PointProp_type = PointPropT;
     using BoundaryProp_type = BoundaryPropT;
     using BlockProp_type = BlockPropT;
     using CircuitProp_type = CircuitPropT;
     using BlockLabel_type = BlockLabelT;
     using Node_type = NodeT;
+    using Segment_type = SegmentT;
+    using ArcSegment_type = ArcSegmentT;
+    using MeshNode_type = MeshNodeT;
+    using MeshElement_type = MeshElementT;
 
     FemmProblem()
         : FileFormat(-1)
@@ -85,6 +97,10 @@ public:
     , circproplist()
     , labellist()
     , nodelist()
+    , arclist()
+    , solved(false)
+    , meshnodes()
+    , meshelems()
     {}
 
     virtual ~FemmProblem() {}
@@ -116,6 +132,13 @@ public: // data members
     std::vector< CircuitPropT > circproplist;
     std::vector< BlockLabelT > labellist;
     std::vector< NodeT > nodelist;
+    std::vector< SegmentT > linelist;
+    std::vector< ArcSegmentT> arclist;
+
+    bool solved;
+    // vectors containing the mesh information
+    std::vector< MeshNodeT >   meshnodes;
+    std::vector< MeshElementT> meshelems;
 };
 
 using MagneticsProblem = FemmProblem<femm::CPointProp
@@ -123,7 +146,11 @@ using MagneticsProblem = FemmProblem<femm::CPointProp
         , femm::CMMaterialProp
         , femm::CMCircuit
         , femm::CMBlockLabel
-        , femm::CNode>;
+        , femm::CNode
+        , femm::CSegment
+        , femm::CArcSegment
+        , femm::CMeshNode
+        , femm::CElement >;
 
 } //namespace
 
