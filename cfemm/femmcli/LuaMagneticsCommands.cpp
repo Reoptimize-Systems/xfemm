@@ -986,7 +986,7 @@ int femmcli::LuaMagneticsCommands::luaGetnode(lua_State *)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Implements mo_getpointvalues
  * @param L
  * @return 0
  * \ingroup LuaMM
@@ -1000,8 +1000,8 @@ int femmcli::LuaMagneticsCommands::luaGetpointvals(lua_State *L)
     //    return ((CFemmviewDoc *)pFemmviewdoc)->old_lua_getpointvals(L);
 
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    auto magDoc = femmState->fPProcDocument;
-    if (!magDoc)
+    auto fpproc = femmState->getFPProc();
+    if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
         return 0;
@@ -1013,7 +1013,7 @@ int femmcli::LuaMagneticsCommands::luaGetpointvals(lua_State *L)
 
     CPointVals u;
 
-    if(magDoc->GetPointValues(px, py, u))
+    if(fpproc->GetPointValues(px, py, u))
     {
         lua_pushnumber(L,u.A);
         lua_pushnumber(L,u.B1);
@@ -1358,10 +1358,9 @@ int femmcli::LuaMagneticsCommands::luaPrevious(lua_State *)
  */
 int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 {
-#ifdef false
     auto luaInstance = LuaInstance::instance(L);
-    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->fMesherDocument;
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::MagneticsProblem> magDoc = femmState->magneticsDocument;
 
     // argument count
     int n;
@@ -1369,18 +1368,18 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 
     // Frequency
     double frequency = lua_tonumber(L,1).re;
-    mesherDoc->Frequency = std::fabs(frequency);
+    magDoc->Frequency = std::fabs(frequency);
     if(n==1) return 0;
 
     // Length Units
     std::string units (lua_tostring(L,2));
-    if(units=="inches") mesherDoc->LengthUnits = LengthInches;
-    else if(units=="millimeters") mesherDoc->LengthUnits = LengthMillimeters;
-    else if(units=="centimeters") mesherDoc->LengthUnits = LengthCentimeters;
-    else if(units=="meters") mesherDoc->LengthUnits = LengthMeters;
-    else if(units=="mills") mesherDoc->LengthUnits = LengthMils;
-    else if(units=="mils") mesherDoc->LengthUnits = LengthMils;
-    else if(units=="micrometers") mesherDoc->LengthUnits = LengthMicrometers;
+    if(units=="inches") magDoc->LengthUnits = LengthInches;
+    else if(units=="millimeters") magDoc->LengthUnits = LengthMillimeters;
+    else if(units=="centimeters") magDoc->LengthUnits = LengthCentimeters;
+    else if(units=="meters") magDoc->LengthUnits = LengthMeters;
+    else if(units=="mills") magDoc->LengthUnits = LengthMils;
+    else if(units=="mils") magDoc->LengthUnits = LengthMils;
+    else if(units=="micrometers") magDoc->LengthUnits = LengthMicrometers;
     else
     {
         std::string msg  = "Unknown length unit " + units;
@@ -1391,8 +1390,8 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 
     // Problem type
     std::string type (lua_tostring(L,3));
-    if(type=="planar") mesherDoc->ProblemType = PLANAR;
-    else if(type=="axi") mesherDoc->ProblemType = AXISYMMETRIC;
+    if(type=="planar") magDoc->ProblemType = PLANAR;
+    else if(type=="axi") magDoc->ProblemType = AXISYMMETRIC;
     else
     {
         std::string msg =  "Unknown problem type " + type;
@@ -1408,25 +1407,24 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
         lua_error(L,msg.c_str());
         return 0;
     }
-    mesherDoc->Precision = precision;
+    magDoc->Precision = precision;
     if (n==4) return 0;
 
-    mesherDoc->Depth = std::fabs(lua_tonumber(L,5).re);
+    magDoc->Depth = std::fabs(lua_tonumber(L,5).re);
     if (n==5) return 0;
 
     double minAngle = lua_tonumber(L,6).re;
     if ((minAngle>=1.) && (minAngle<=33.8))
     {
-        mesherDoc->MinAngle = minAngle;
+        magDoc->MinAngle = minAngle;
     }
     if (n==6) return 0;
 
     int acSolver = (int)lua_tonumber(L,7).re;
     if ((acSolver==0) || (acSolver==1))
     {
-        mesherDoc->ACSolver=acSolver;
+        magDoc->ACSolver=acSolver;
     }
-#endif
     return 0;
 }
 
