@@ -101,6 +101,7 @@ public:
     , solved(false)
     , meshnodes()
     , meshelems()
+    , pathName()
     {}
 
     virtual ~FemmProblem() {}
@@ -139,6 +140,8 @@ public: // data members
     // vectors containing the mesh information
     std::vector< MeshNodeT >   meshnodes;
     std::vector< MeshElementT> meshelems;
+
+    std::string pathName; ///< \brief pathname of the associated file, if any.
 };
 
 using MagneticsProblem = FemmProblem<femm::CPointProp

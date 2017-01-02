@@ -259,7 +259,15 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
 
 }
 
-// What we do in the normal case is DoNonPeriodicBCTriangulation
+/**
+ * @brief FMesher::DoNonPeriodicBCTriangulation
+ * What we do in the normal case is DoNonPeriodicBCTriangulation
+ * @param PathName
+ * @return
+ *
+ * Original function name:
+ * \femm42{femm/writepoly.cpp:CFemmeDoc::OnWritePoly()}
+ */
 int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 {
     FILE *fp;
@@ -741,8 +749,13 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 }
 
 
-// Call triangle twice to order segments on the boundary properly
-// for periodic or antiperiodic boundary conditions
+/**
+ * \brief Call triangle twice to order segments on the boundary properly
+ * for periodic or antiperiodic boundary conditions
+ *
+ * Original function name:
+ * \femm42{femm/writepoly.cpp:CFemmeDoc::FunnyOnWritePoly()}
+ */
 int FMesher::DoPeriodicBCTriangulation(string PathName)
 {
     FILE *fp;
