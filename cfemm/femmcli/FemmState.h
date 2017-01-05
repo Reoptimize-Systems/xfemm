@@ -34,7 +34,7 @@ namespace femmcli
 class FemmState : public femm::FemmStateBase
 {
 public:
-    std::shared_ptr<femm::MagneticsProblem> magneticsDocument;
+    std::shared_ptr<femm::FemmProblem> femmDocument;
 
     /**
      * @brief Returns the current FPProc.
