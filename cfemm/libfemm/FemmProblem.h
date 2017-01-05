@@ -28,16 +28,11 @@
 #include "CSegment.h"
 #include "fparse.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace femm {
-
-class FemmProblemBase
-{
-public:
-    virtual ~FemmProblemBase();
-};
 
 /**
  * \brief The FemmProblem class holds all data concerning a problem.
@@ -46,65 +41,15 @@ public:
  * This means a little overhead, but memory-wise it shouldn't really hurt...
  *
  * \internal
- * Implementation is in the header file to make things easier with templating.
+ * In contrast to FEMM42 and older XFemm classes we use vectors of pointers, not vectors of objects.
+ * This allows us to use inheritance to have a common data description which can be used for mesher, solver and pproc.
  */
-template< class PointPropT
-          , class BoundaryPropT
-          , class BlockPropT
-          , class CircuitPropT
-          , class BlockLabelT
-          , class NodeT
-          , class SegmentT
-          , class ArcSegmentT
-          , class MeshNodeT
-          , class MeshElementT
-          >
-class FemmProblem : public FemmProblemBase
+class FemmProblem
 {
 public:
-    using FemmProblem_type = FemmProblem<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,SegmentT,ArcSegmentT, MeshNodeT, MeshElementT>;
-    using PointProp_type = PointPropT;
-    using BoundaryProp_type = BoundaryPropT;
-    using BlockProp_type = BlockPropT;
-    using CircuitProp_type = CircuitPropT;
-    using BlockLabel_type = BlockLabelT;
-    using Node_type = NodeT;
-    using Segment_type = SegmentT;
-    using ArcSegment_type = ArcSegmentT;
-    using MeshNode_type = MeshNodeT;
-    using MeshElement_type = MeshElementT;
+    FemmProblem();
 
-    FemmProblem()
-        : FileFormat(-1)
-    , Frequency(0.0)
-    , Precision(1.e-08)
-    , MinAngle(0)
-    , Depth(-1)
-    , LengthUnits(LengthInches)
-    , Coords(CART)
-    , ProblemType(PLANAR)
-    , extZo(0)
-    , extRo(0)
-    , extRi(0)
-    , comment()
-    , ACSolver(0)
-    , dT(0)
-    , PrevSoln()
-    , DoForceMaxMeshArea(false)
-    , nodeproplist()
-    , lineproplist()
-    , blockproplist()
-    , circproplist()
-    , labellist()
-    , nodelist()
-    , arclist()
-    , solved(false)
-    , meshnodes()
-    , meshelems()
-    , pathName()
-    {}
-
-    virtual ~FemmProblem() {}
+    virtual ~FemmProblem();
 
 public: // data members
     double FileFormat; ///< \brief format version of the file
@@ -127,33 +72,22 @@ public: // data members
 
     bool    DoForceMaxMeshArea; ///< \brief Property introduced by xfemm.
 
-    std::vector< PointPropT > nodeproplist;
-    std::vector< BoundaryPropT > lineproplist;
-    std::vector< BlockPropT > blockproplist;
-    std::vector< CircuitPropT > circproplist;
-    std::vector< BlockLabelT > labellist;
-    std::vector< NodeT > nodelist;
-    std::vector< SegmentT > linelist;
-    std::vector< ArcSegmentT> arclist;
+    std::vector< std::shared_ptr<CPointProp>> nodeproplist;
+    std::vector< std::shared_ptr<CBoundaryProp>> lineproplist;
+    std::vector< std::shared_ptr<CMaterialProp>> blockproplist;
+    std::vector< std::shared_ptr<CCircuit>> circproplist;
+    std::vector< std::shared_ptr<CBlockLabel>> labellist;
+    std::vector< std::shared_ptr<CNode>> nodelist;
+    std::vector< std::shared_ptr<CSegment>> linelist;
+    std::vector< std::shared_ptr<CArcSegment>> arclist;
 
     bool solved;
     // vectors containing the mesh information
-    std::vector< MeshNodeT >   meshnodes;
-    std::vector< MeshElementT> meshelems;
+    std::vector< std::shared_ptr<CMeshNode>>   meshnodes;
+    std::vector< std::shared_ptr<CElement>> meshelems;
 
     std::string pathName; ///< \brief pathname of the associated file, if any.
 };
-
-using MagneticsProblem = FemmProblem<femm::CPointProp
-        , femm::CMBoundaryProp
-        , femm::CMMaterialProp
-        , femm::CMCircuit
-        , femm::CMBlockLabel
-        , femm::CNode
-        , femm::CSegment
-        , femm::CArcSegment
-        , femm::CMeshNode
-        , femm::CElement >;
 
 } //namespace
 

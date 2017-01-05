@@ -79,9 +79,9 @@ public:
     // ... attributes (Frequency, LengthUnits, etc.) here as well,
     // ... because FMesher is the class that matches closest to FemmeDoc in femm42
 
-    femm::FemmProblemBase *problem;
+    femm::FemmProblem *problem;
 	// General problem attributes
-	int     filetype;
+    filetypes filetype;
 	double	MinAngle;
 	bool    DoForceMaxMeshArea;
 
@@ -119,9 +119,9 @@ public:
 // Operations
 public:
 
-    static int GetFileType (std::string PathName);
+    static filetypes GetFileType(std::string PathName);
     int LoadFEMFile(std::string PathName);
-    int LoadFEMFile(std::string PathName, int ftype);
+    int LoadFEMFile(std::string PathName, filetypes ftype);
     bool SaveFEMFile(std::string PathName);
     bool WriteTriangulationFiles(const struct triangulateio &out, std::string Pathname);
 

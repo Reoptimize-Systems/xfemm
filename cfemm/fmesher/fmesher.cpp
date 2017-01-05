@@ -22,16 +22,18 @@
 // fmesher.cpp : implementation of FMesher Class
 //
 
-#include <iostream>
-#include <cstdio>
-#include <vector>
-#include <cmath>
-#include <string>
-#include <cstring>
 #include "fparse.h"
 #include "fmesher.h"
 #include "IntPoint.h"
 #include "triangle.h"
+
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <string>
+#include <vector>
 
 //extern void *pFemmeDoc;
 //extern lua_State *lua;
@@ -451,7 +453,7 @@ bool FMesher::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
 }
 
 
-int FMesher::GetFileType (string PathName)
+FMesher::filetypes FMesher::GetFileType (string PathName)
 {
     // find the position of the last '.' in the string
     size_t dotpos = PathName.rfind ('.');
@@ -478,7 +480,7 @@ int FMesher::GetFileType (string PathName)
 
 }
 
-int FMesher::LoadFEMFile (string PathName, int ftype)
+int FMesher::LoadFEMFile (string PathName, filetypes ftype)
 {
     filetype = ftype;
     return LoadFEMFile(PathName);
@@ -853,6 +855,8 @@ int FMesher::LoadFEMFile (string PathName)
                         }
 
                         break;
+                default:
+                    assert(false); // handled at beginning of function
                 }
 
                 nodelist.push_back(node);
@@ -923,6 +927,8 @@ int FMesher::LoadFEMFile (string PathName)
 
                         break;
 
+                default:
+                    assert(false); // handled at beginning of function
                 }
                 linelist.push_back(segm);
             }
@@ -999,6 +1005,8 @@ int FMesher::LoadFEMFile (string PathName)
 
                         break;
 
+                default:
+                    assert(false); // handled at beginning of function
                 }
 
 

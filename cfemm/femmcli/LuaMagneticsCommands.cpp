@@ -420,7 +420,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<femm::MagneticsProblem> magneticsDoc = femmState->magneticsDocument;
+    std::shared_ptr<femm::FemmProblem> magneticsDoc = femmState->femmDocument;
 
     // check to see if all blocklabels are kosher...
     if (magneticsDoc->labellist.size()==0){
@@ -438,17 +438,17 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         for(int k=0; k<(int)magneticsDoc->blockproplist.size(); k++)
         {
             // FIXME: at this point we want a mesher doc, not a solver doc :-|
-            if (magneticsDoc->labellist[i].BlockTypeName != magneticsDoc->blockproplist[k].BlockName)
+            if (magneticsDoc->labellist[i]->BlockTypeName != magneticsDoc->blockproplist[k]->BlockName)
                 j++;
         }
         if ((j==(int)magneticsDoc->blockproplist.size())
-                && (magneticsDoc->labellist[i].BlockTypeName!="<No Mesh>")
+                && (magneticsDoc->labellist[i]->BlockTypeName!="<No Mesh>")
                 )
         {
             // FIXME(ZaJ): check effects of OnBlockOp()
             //if(!hasMissingBlockProps) OnBlockOp();
             hasMissingBlockProps = true;
-            magneticsDoc->labellist[i].IsSelected = true;
+            magneticsDoc->labellist[i]->IsSelected = true;
         }
     }
 
@@ -468,7 +468,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         // check to see if all of the input points are on r>=0 for axisymmetric problems.
         for (int k=0; k<(int)magneticsDoc->nodelist.size(); k++)
         {
-            if (magneticsDoc->nodelist[k].x < -(1.e-6))
+            if (magneticsDoc->nodelist[k]->x < -(1.e-6))
             {
                 //InvalidateRect(NULL);
                 std::string ermsg = "The problem domain must lie in\n"
@@ -484,18 +484,18 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         bool hasExteriorProps = true;
         for (int k=0; k<(int)magneticsDoc->labellist.size(); k++)
         {
-            if (magneticsDoc->labellist[k].IsExternal)
+            if (magneticsDoc->labellist[k]->IsExternal)
             {
                 if ((magneticsDoc->extRo==0) || (magneticsDoc->extRi==0))
                     hasExteriorProps = false;
 
                 for(int i=0; i<(int)magneticsDoc->blockproplist.size(); i++)
                 {
-                    if (magneticsDoc->labellist[k].BlockTypeName == magneticsDoc->blockproplist[i].BlockName)
+                    if (magneticsDoc->labellist[k]->BlockTypeName == magneticsDoc->blockproplist[i]->BlockName)
                     {
-                        if (magneticsDoc->blockproplist[i].BHpoints!=0)
+                        if (magneticsDoc->blockproplist[i]->BHpoints!=0)
                             hasAnisotropicMaterial = true;
-                        else if(magneticsDoc->blockproplist[i].mu_x != magneticsDoc->blockproplist[i].mu_y)
+                        else if(magneticsDoc->blockproplist[i]->mu_x != magneticsDoc->blockproplist[i]->mu_y)
                             hasAnisotropicMaterial = true;
                     }
                 }
@@ -553,9 +553,11 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     //EndWaitCursor();
 
     // TODO FIXME CONTINUE HERE
+#if false
     char CommandLine[512];
     CString rootname="\"" + pathName.Left(pathName.ReverseFind('.')) + "\"";
 
+    // Note(ZaJ): this is the solver:
     if(bLinehook==FALSE)
         sprintf(CommandLine,"\"%sfkn.exe\" %s",BinDir,rootname);
     else
@@ -610,7 +612,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         MsgBox("Problem executing the solver");
         return;
     }
-
+#endif
     return 0;
 
 }
@@ -1362,7 +1364,7 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<femm::MagneticsProblem> magDoc = femmState->magneticsDocument;
+    std::shared_ptr<femm::FemmProblem> magDoc = femmState->femmDocument;
 
     // argument count
     int n;
