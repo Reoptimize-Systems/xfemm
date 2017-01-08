@@ -144,6 +144,15 @@ public:
     // pointer to function to use for triangle to issue warning messages
     int (*TriMessage)(const char * format, ...);
 
+    /**
+     * @brief Add a CNode to the problem description.
+     * If necessary, adjust existing CSegments or CArcSegments.
+     * The method also ensures that a new node can't be put atop of an existing node or a block label.
+     * @param x
+     * @param y
+     * @param d
+     * @return \c true, if the node could be added, \c false otherwise.
+     */
     bool AddNode(double x, double y, double d);
 private:
 
