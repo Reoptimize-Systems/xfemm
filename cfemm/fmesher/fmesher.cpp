@@ -87,8 +87,6 @@ FMesher::FMesher(string PathName)
 
 bool FMesher::Initialize()
 {
-    problem->DoForceMaxMeshArea = false;
-
     // set up some default behaviors
     d_minangle=30.;
 
@@ -96,23 +94,16 @@ bool FMesher::Initialize()
     //initalise_lua();
 
     // clear out all current lines, nodes, and block labels
-    problem->nodelist.clear ();
-    problem->linelist.clear ();
-    problem->arclist.clear ();
-    problem->labellist.clear ();
     undonodelist.clear ();
     undolinelist.clear ();
     undoarclist.clear ();
     undolabellist.clear ();
-    problem->nodeproplist.clear ();
-    problem->lineproplist.clear ();
-//    blockproplist.clear ();
-    problem->circproplist.clear ();
     meshnode.clear ();
     meshline.clear ();
     greymeshline.clear ();
     probdescstrings.clear ();
 
+    problem = std::make_shared<femm::FemmProblem>();
     // set problem attributes to generic ones;
     problem->MinAngle = d_minangle;
 
