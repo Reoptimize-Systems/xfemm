@@ -27,6 +27,7 @@
 #include "IntPoint.h"
 #include "triangle.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -1851,23 +1852,24 @@ void FMesher::Undo()
 //	return flag;
 //}
 
-//bool FMesher::DeleteSelectedSegments()
-//{
-//	int i=0;
-//	bool flag=false;
-//
-//	if (linelist.size() > 0)	do{
-//		if(linelist[i].IsSelected != 0){
-//			linelist.RemoveAt(i,1);
-//			flag=true;
-//		}
-//		else i++;
-//	} while (i<linelist.size());
-//
-//	linelist.FreeExtra();
-//
-//	return flag;
-//}
+bool FMesher::DeleteSelectedSegments()
+{
+    auto &linelist = problem->linelist;
+    size_t oldsize = linelist.size();
+
+    if (!linelist.empty())
+    {
+        // remove selected elements
+        linelist.erase(
+                    std::remove_if(linelist.begin(),linelist.end(),
+                                   [](const auto& segm){ return segm->IsSelected;} ),
+                    linelist.end()
+                    );
+    }
+    linelist.shrink_to_fit();
+
+    return linelist.size() != oldsize;
+}
 
 //bool FMesher::DeleteSelectedArcSegments()
 //{
@@ -2129,107 +2131,107 @@ bool FMesher::AddNode(double x, double y, double d)
     return true;
 }
 
-//bool FMesher::AddSegment(int n0, int n1, double tol)
-//{
-//	return AddSegment(n0,n1,NULL,tol);
-//}
+bool FMesher::AddSegment(int n0, int n1, double tol)
+{
+    return AddSegment(n0,n1,nullptr,tol);
+}
 
-//bool FMesher::AddSegment(int n0, int n1, CSegment *parsegm, double tol)
-//{
-//	int i,j,k;
-//	double xi,yi,t;
-//	CComplex p[2];
-//	CSegment segm;
-//	std::vector < CComplex > newnodes;
-//
-//	newnodes.clear();
-//
-//	// don't add if line is degenerate
-//	if (n0==n1) return false;
-//
-//	// don't add if the line is already in the list;
-//	for(i=0;i<linelist.size();i++){
-//		if ((linelist[i].n0==n0) && (linelist[i].n1==n1)) return false;
-//		if ((linelist[i].n0==n1) && (linelist[i].n1==n0)) return false;
-//	}
-//
-//	// add proposed line to the linelist
-//	 segm.BoundaryMarkerName="<None>";
-//	if (parsegm!=NULL) segm=*parsegm;
-//	segm.IsSelected=0;
-//	segm.n0=n0; segm.n1=n1;
-//
-//	// check to see if there are intersections with segments
-//	for(i=0;i<linelist.size();i++)
-//		if(GetIntersection(n0,n1,i,&xi,&yi)==true)  newnodes.push_back(CComplex(xi,yi));
-//
-//	// check to see if there are intersections with arcs
-//	for(i=0;i<arclist.size();i++){
-//		j=GetLineArcIntersection(segm,arclist[i],p);
-//		if (j>0) for(k=0;k<j;k++) newnodes.push_back(p[k]);
-//	}
-//
-//	// add nodes at intersections
-//	if (tol==0)
-//	{
-//		if (nodelist.size()<2) t=1.e-08;
-//		else{
-//			CComplex p0,p1;
-//			p0=nodelist[0].CC();
-//			p1=p0;
-//			for(i=1;i<nodelist.size();i++)
-//			{
-//				if(nodelist[i].x<p0.re) p0.re=nodelist[i].x;
-//				if(nodelist[i].x>p1.re) p1.re=nodelist[i].x;
-//				if(nodelist[i].y<p0.im) p0.im=nodelist[i].y;
-//				if(nodelist[i].y>p1.im) p1.im=nodelist[i].y;
-//			}
-//			t=abs(p1-p0)*CLOSE_ENOUGH;
-//		}
-//	}
-//	else t=tol;
-//
-//	for(i=0;i<newnodes.size();i++)
-//		AddNode(newnodes[i].re,newnodes[i].im,t);
-//
-//	// Add proposed line segment
-//	linelist.push_back(segm);
-//
-//	// check to see if proposed line passes through other points;
-//    // if so, delete line and create lines that link intermediate points;
-//    // does this by recursive use of AddSegment;
-//	double d,dmin;
-//    UnselectAll();
-//    if (tol==0) dmin=abs(nodelist[n1].CC()-nodelist[n0].CC())*1.e-05;
-//	else dmin=tol;
-//
-//    k=linelist.size()-1;
-//    for(i=0;i<nodelist.size();i++)
-//    {
-//        if( (i!=n0) && (i!=n1) )
-//        {
-//            d=ShortestDistance(nodelist[i].x,nodelist[i].y,k);
-//			if (abs(nodelist[i].CC()-nodelist[n0].CC())<dmin) d=2.*dmin;
-//			if (abs(nodelist[i].CC()-nodelist[n1].CC())<dmin) d=2.*dmin;
-//            if (d<dmin){
-//                linelist[k].ToggleSelect();
-//                DeleteSelectedSegments();
-//				if(parsegm==NULL)
-//				{
-//					AddSegment(n0,i,dmin);
-//					AddSegment(i,n1,dmin);
-//				}
-//				else{
-//					AddSegment(n0,i,&segm,dmin);
-//					AddSegment(i,n1,&segm,dmin);
-//				}
-//                i=nodelist.size();
-//            }
-//        }
-//    }
-//
-//	return true;
-//}
+bool FMesher::AddSegment(int n0, int n1, CSegment *parsegm, double tol)
+{
+    double xi,yi,t;
+    CComplex p[2];
+    CSegment segm;
+    std::vector < CComplex > newnodes;
+
+    // don't add if line is degenerate
+    if (n0==n1) return false;
+
+    // don't add if the line is already in the list;
+    for (int i=0; i<(int)problem->linelist.size(); i++){
+        if ((problem->linelist[i]->n0==n0) && (problem->linelist[i]->n1==n1)) return false;
+        if ((problem->linelist[i]->n0==n1) && (problem->linelist[i]->n1==n0)) return false;
+    }
+
+    // add proposed line to the linelist
+    segm.BoundaryMarkerName="<None>";
+    if (parsegm!=NULL) segm=*parsegm;
+    segm.IsSelected=0;
+    segm.n0=n0; segm.n1=n1;
+
+    // check to see if there are intersections with segments
+    for (int i=0; i<(int)problem->linelist.size(); i++)
+        if(GetIntersection(n0,n1,i,&xi,&yi)) newnodes.push_back(CComplex(xi,yi));
+
+    // check to see if there are intersections with arcs
+    for (int i=0; i<(int)problem->arclist.size(); i++){
+        int j = GetLineArcIntersection(segm,*problem->arclist[i],p);
+        if (j>0)
+            for(int k=0;k<j;k++)
+                newnodes.push_back(p[k]);
+    }
+
+    // add nodes at intersections
+    if (tol==0)
+    {
+        if (problem->nodelist.size()<2)
+            t = 1.e-08;
+        else{
+            CComplex p0,p1;
+            p0 = problem->nodelist[0]->CC();
+            p1 = p0;
+            for (int i=1; i<(int)problem->nodelist.size(); i++)
+            {
+                if(problem->nodelist[i]->x<p0.re) p0.re=problem->nodelist[i]->x;
+                if(problem->nodelist[i]->x>p1.re) p1.re=problem->nodelist[i]->x;
+                if(problem->nodelist[i]->y<p0.im) p0.im=problem->nodelist[i]->y;
+                if(problem->nodelist[i]->y>p1.im) p1.im=problem->nodelist[i]->y;
+            }
+            t=abs(p1-p0)*CLOSE_ENOUGH;
+        }
+    }
+    else t=tol;
+
+    for (int i=0; i<(int)newnodes.size(); i++)
+        AddNode(newnodes[i].re,newnodes[i].im,t);
+
+    // Add proposed line segment
+    problem->linelist.push_back(std::make_unique<CSegment>(segm));
+
+    // check to see if proposed line passes through other points;
+    // if so, delete line and create lines that link intermediate points;
+    // does this by recursive use of AddSegment;
+    double d,dmin;
+    UnselectAll();
+    if (tol==0)
+        dmin = abs(problem->nodelist[n1]->CC()-problem->nodelist[n0]->CC())*1.e-05;
+    else dmin = tol;
+
+    for (int i=0, k=problem->linelist.size()-1; i<(int)problem->nodelist.size(); i++)
+    {
+        if( (i!=n0) && (i!=n1) )
+        {
+            d=ShortestDistance(problem->nodelist[i]->x,problem->nodelist[i]->y,k);
+            if (abs(problem->nodelist[i]->CC()-problem->nodelist[n0]->CC())<dmin) d=2.*dmin;
+            if (abs(problem->nodelist[i]->CC()-problem->nodelist[n1]->CC())<dmin) d=2.*dmin;
+            if (d<dmin){
+                problem->linelist[k]->ToggleSelect();
+                DeleteSelectedSegments();
+                if(parsegm==NULL)
+                {
+                    AddSegment(n0,i,dmin);
+                    AddSegment(i,n1,dmin);
+                }
+                else{
+                    AddSegment(n0,i,&segm,dmin);
+                    AddSegment(i,n1,&segm,dmin);
+                }
+                i=problem->nodelist.size();
+            }
+        }
+    }
+
+    return true;
+}
 
 //void FMesher::OnEditMatprops()
 //{

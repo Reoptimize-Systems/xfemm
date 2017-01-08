@@ -354,14 +354,40 @@ int femmcli::LuaMagneticsCommands::luaAddlabel(lua_State *)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new line segment between two given points.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addline()}
+ *
+ * \internal
+ * mi_addsegment(x1,y1,x2,y2)
+ * Add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)
  */
-int femmcli::LuaMagneticsCommands::luaAddline(lua_State *)
+int femmcli::LuaMagneticsCommands::luaAddline(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+
+    double sx=lua_todouble(L,1);
+    double sy=lua_todouble(L,2);
+
+    double ex=lua_todouble(L,3);
+    double ey=lua_todouble(L,4);
+
+    femmState->getMesher()->AddSegment(
+                femmState->getMesher()->ClosestNode(sx,sy),
+                femmState->getMesher()->ClosestNode(ex,ey));
+
+    //BOOL flag=thisDoc->AddSegment(thisDoc->ClosestNode(sx,sy),thisDoc->ClosestNode(ex,ey));
+    //if(flag==TRUE)
+    //{
+    //    theView->MeshUpToDate=FALSE;
+    //    if(theView->MeshFlag==TRUE) theView->lnu_show_mesh();
+    //    else theView->DrawPSLG();
+    //}
+    //else theView->DrawPSLG();
+
     return 0;
 }
 

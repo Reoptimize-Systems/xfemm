@@ -148,12 +148,40 @@ public:
      * @brief Add a CNode to the problem description.
      * If necessary, adjust existing CSegments or CArcSegments.
      * The method also ensures that a new node can't be put atop of an existing node or a block label.
-     * @param x
-     * @param y
-     * @param d
+     * @param x node position x
+     * @param y node position y
+     * @param d minimum distance to next node or label.
      * @return \c true, if the node could be added, \c false otherwise.
      */
     bool AddNode(double x, double y, double d);
+    /**
+     * @brief Add a line (CSegment) to the problem description
+     * The method checks for intersections, splits existing lines/arcs accordingly,
+     * and adds nodes at intersections as needed.
+     * It is ensured that a new line can not be added twice, and that no degenerate lines are added (with start point == end point)
+     * @param n0 index of start node
+     * @param n1 index of end node
+     * @param tol tolerance, i.e. minimum distance between nodes
+     * @return \c true, if the line could be added, \c false otherwise.
+     */
+    bool AddSegment(int n0, int n1, double tol=0.);
+    /**
+     * @brief Add a line (CSegment) to the problem description
+     * The method checks for intersections, splits existing lines/arcs accordingly,
+     * and adds nodes at intersections as needed.
+     * It is ensured that a new line can not be added twice, and that no degenerate lines are added (with start point == end point)
+     * @param n0 index of start node
+     * @param n1 index of end node
+     * @param parsegm
+     * @param tol tolerance, i.e. minimum distance between nodes
+     * @return \c true, if the line could be added, \c false otherwise.
+     */
+    bool AddSegment(int n0, int n1, femm::CSegment *parsegm, double tol=0.);
+    /**
+     * @brief Delete all selected segments.
+     * @return \c true, if any segments were deleted, \c false otherwise.
+     */
+    bool DeleteSelectedSegments();
 private:
 
 	virtual bool Initialize();
