@@ -1273,7 +1273,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i=0;i<ptlst.size();i++)
     {
-        ptlst[i]->t = 0;
+        ptlst[i] = std::make_unique<CCommonPoint>();
     }
 
     for(i=0;i<k;i++)
