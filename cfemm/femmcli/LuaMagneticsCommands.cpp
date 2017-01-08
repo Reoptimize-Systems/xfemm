@@ -42,8 +42,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addbhpoint", luaAddbhpoint);
     li.addFunction("mi_add_bound_prop", luaAddboundprop);
     li.addFunction("mi_addboundprop", luaAddboundprop);
-    li.addFunction("mi_add_circ_prop", luaAddcircuitprop);
-    li.addFunction("mi_addcircprop", luaAddcircuitprop);
+    li.addFunction("mi_add_circ_prop", luaAddCircuitProp);
+    li.addFunction("mi_addcircprop", luaAddCircuitProp);
     li.addFunction("mo_add_contour", luaAddcontour);
     li.addFunction("mo_addcontour", luaAddcontour);
     li.addFunction("mi_add_block_label", luaAddlabel);
@@ -321,15 +321,38 @@ int femmcli::LuaMagneticsCommands::luaAddboundprop(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new circuit property with a given name.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addcircuitprop()}
+ *
+ * \internal
+ * mi_addcircprop("circuitname", i, circuittype)
+ * Adds a new circuit property with name "circuitname"
  */
-int femmcli::LuaMagneticsCommands::luaAddcircuitprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        //return ((CFemmeDoc *)pFemmeDoc)->old_lua_addcircuitprop(L);
+        lua_error(L,"Compatibility mode for mi_addcircprop is not implemented!");
+        return 0;
+    }
+
+    std::unique_ptr<CCircuit> m = std::make_unique<CCircuit>();
+    int n=lua_gettop(L);
+
+    if (n>0) m->CircName=lua_tostring(L,1);
+    if (n>1) m->Amps=lua_tonumber(L,2);
+    if (n>2) m->CircType=(int) lua_todouble(L,3);
+
+    femmState->femmDocument->circproplist.push_back(std::move(m));
+
     return 0;
 }
 
@@ -1156,11 +1179,15 @@ int femmcli::LuaMagneticsCommands::luaGetnode(lua_State *L)
 }
 
 /**
- * @brief Implements mo_getpointvalues
+ * @brief Get the values for a point.
  * @param L
- * @return 0
+ * @return 0 on error, otherwise 14
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_getpointvals()}
+ *
+ * \internal
+ * mo getpointvalues(X,Y)
+ * Get the values associated with the point at x,y return values in order.
  */
 int femmcli::LuaMagneticsCommands::luaGetpointvals(lua_State *L)
 {
@@ -1911,7 +1938,7 @@ int femmcli::LuaMagneticsCommands::luaSelectline(lua_State *L)
 /**
  * @brief Select the nearest node to given coordinates.
  * @param L
- * @return 0
+ * @return 0 on error, 2 on success
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectnode()}
  *
@@ -1956,7 +1983,7 @@ int femmcli::LuaMagneticsCommands::luaSelectrectangle(lua_State *L)
 /**
  * @brief Select the line closest to a given point.
  * @param L
- * @return 0
+ * @return 0 on error, 4 on success
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectsegment()}
  *
