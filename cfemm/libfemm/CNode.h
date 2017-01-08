@@ -38,6 +38,7 @@ class CNode
 {
 public:
     CNode();
+    CNode(double x, double y);
 
     double x; ///< \brief x x-position of the point or r (axisymmetric)
     double y; ///< \brief x x-position of the point or r (axisymmetric)

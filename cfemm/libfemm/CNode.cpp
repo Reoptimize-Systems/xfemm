@@ -24,6 +24,18 @@ femm::CNode::CNode()
 {
 }
 
+CNode::CNode(double x, double y)
+    : x(x)
+    , y(y)
+    , InGroup(0)
+    , IsSelected(false)
+    , BoundaryMarker(-1)
+    , InConductor(-1)
+    , BoundaryMarkerName("<None>")
+    , InConductorName("<None>")
+{
+}
+
 CComplex femm::CNode::CC()
 {
     return CComplex(x,y);
