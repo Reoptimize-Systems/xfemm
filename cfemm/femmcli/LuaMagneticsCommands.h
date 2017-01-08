@@ -44,7 +44,7 @@ protected:
     static int luaAddarc(lua_State *L);
     static int luaAddbhpoint(lua_State *L);
     static int luaAddboundprop(lua_State *L);
-    static int luaAddcircuitprop(lua_State *L);
+    static int luaAddCircuitProp(lua_State *L);
     static int luaAddcontour(lua_State *L);
     static int luaAddlabel(lua_State *L);
     static int luaAddline(lua_State *L);
