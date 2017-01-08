@@ -126,7 +126,7 @@ protected:
     static int luaSelectblock(lua_State *L);
     static int luaSelectcircle(lua_State *L);
     static int luaSelectgroup(lua_State *L);
-    static int luaSelectlabel(lua_State *L);
+    static int luaSelectBlocklabel(lua_State *L);
     static int luaSelectline(lua_State *L);
     static int luaSelectnode(lua_State *L);
     static int luaSelectrectangle(lua_State *L);
