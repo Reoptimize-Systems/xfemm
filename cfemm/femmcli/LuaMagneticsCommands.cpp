@@ -235,8 +235,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_setgroup", luaSetgroup);
     li.addFunction("mi_set_node_prop", luaSetNodeProp);
     li.addFunction("mi_setnodeprop", luaSetNodeProp);
-    li.addFunction("mi_set_segment_prop", luaSetsegmentprop);
-    li.addFunction("mi_setsegmentprop", luaSetsegmentprop);
+    li.addFunction("mi_set_segment_prop", luaSetSegmentProp);
+    li.addFunction("mi_setsegmentprop", luaSetSegmentProp);
     li.addFunction("mo_show_contour_plot", luaShowcountour);
     li.addFunction("mo_showcontourplot", luaShowcountour);
     li.addFunction("mo_show_density_plot", luaShowdensity);
@@ -1950,14 +1950,52 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set properties for the selected segments.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_setsegmentprop()}
+ *
+ * \internal
+ * mi_setsegmentprop("propname", elementsize, automesh, hide, group)
+ * Set the selected segments to have:
+ * * Boundary property "propname"
+ * * Local element size along segment no greater than elementsize
+ * * automesh:
+ *   0 = mesher defers to the element constraint defined by elementsize,
+ *   1 = mesher automatically chooses mesh size along the selected segments
+ * * hide: 0 = not hidden in post-processor, 1 == hidden in post processor
+ * * A member of group number group
  */
-int femmcli::LuaMagneticsCommands::luaSetsegmentprop(lua_State *)
+int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    std::string propName = lua_tostring(L,1);
+    double elesize = lua_todouble(L,2);
+    bool automesh = (lua_todouble(L,3) != 0);
+    bool hide = (lua_todouble(L,4) != 0);
+    int group = (int) lua_todouble(L,5);
+
+    for (int i=0; i<(int)doc->linelist.size(); i++)
+    {
+        if (doc->linelist[i]->IsSelected)
+        {
+            if (automesh)
+                doc->linelist[i]->MaxSideLength = -1;
+            else{
+                if (elesize>0)
+                    doc->linelist[i]->MaxSideLength = elesize;
+                else elesize = -1;
+            }
+            doc->linelist[i]->BoundaryMarkerName = propName;
+            doc->linelist[i]->Hidden = hide;
+            doc->linelist[i]->InGroup = group;
+        }
+    }
+
     return 0;
 }
 
