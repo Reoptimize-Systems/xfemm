@@ -34,6 +34,13 @@ CBlockLabel::CBlockLabel()
 {
 }
 
+CBlockLabel::CBlockLabel(double X, double Y)
+    :CBlockLabel()
+{
+    x = X;
+    y = Y;
+}
+
 void CBlockLabel::ToggleSelect()
 {
     IsSelected = !IsSelected;

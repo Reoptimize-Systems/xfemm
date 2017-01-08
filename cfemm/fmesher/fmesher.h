@@ -182,6 +182,16 @@ public:
      * @return \c true, if any segments were deleted, \c false otherwise.
      */
     bool DeleteSelectedSegments();
+    /**
+     * @brief Add a block label to the problem description.
+     * The method ensures that a block label can not be added on top
+     * of another label, node or line.
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @param d minimum distance to next node or label.
+     * @return \c true if the label could be added or a block label already exists at that position, \c false otherwise.
+     */
+    bool AddBlockLabel(double x, double y, double d);
 private:
 
 	virtual bool Initialize();
