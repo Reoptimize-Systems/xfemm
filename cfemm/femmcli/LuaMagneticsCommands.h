@@ -137,7 +137,7 @@ protected:
     static int luaSetgrid(lua_State *L);
     static int luaSetgroup(lua_State *L);
     static int luaSetNodeProp(lua_State *L);
-    static int luaSetsegmentprop(lua_State *L);
+    static int luaSetSegmentProp(lua_State *L);
     static int luaShowcountour(lua_State *L);
     static int luaShowdensity(lua_State *L);
     static int luaShowgrid(lua_State *L);
