@@ -136,7 +136,7 @@ protected:
     static int luaSeteditmode(lua_State *L);
     static int luaSetgrid(lua_State *L);
     static int luaSetgroup(lua_State *L);
-    static int luaSetnodeprop(lua_State *L);
+    static int luaSetNodeProp(lua_State *L);
     static int luaSetsegmentprop(lua_State *L);
     static int luaShowcountour(lua_State *L);
     static int luaShowdensity(lua_State *L);

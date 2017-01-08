@@ -233,8 +233,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_setgrid", luaSetgrid);
     li.addFunction("mi_set_group", luaSetgroup);
     li.addFunction("mi_setgroup", luaSetgroup);
-    li.addFunction("mi_set_node_prop", luaSetnodeprop);
-    li.addFunction("mi_setnodeprop", luaSetnodeprop);
+    li.addFunction("mi_set_node_prop", luaSetNodeProp);
+    li.addFunction("mi_setnodeprop", luaSetNodeProp);
     li.addFunction("mi_set_segment_prop", luaSetsegmentprop);
     li.addFunction("mi_setsegmentprop", luaSetsegmentprop);
     li.addFunction("mo_show_contour_plot", luaShowcountour);
@@ -1862,14 +1862,42 @@ int femmcli::LuaMagneticsCommands::luaSetgroup(lua_State *)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set the nodal property for selected nodes.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_setnodeprop()}
+ *
+ * \internal
+ * mi_setnodeprop("propname",groupno)
+ * Set the selected nodes to have the nodal property mi_"propname" and group number groupno.
  */
-int femmcli::LuaMagneticsCommands::luaSetnodeprop(lua_State *)
+int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    std::string nodeprop = lua_tostring(L,1);
+    int groupno=(int) lua_todouble(L,2);
+
+    if (groupno<0)
+    {
+        std::string msg = "Invalid group no " + groupno;
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    // check to see how many (if any) nodes are selected.
+    for(int i=0; i<(int)doc->nodelist.size(); i++)
+    {
+        if(doc->nodelist[i]->IsSelected)
+        {
+            doc->nodelist[i]->InGroup = groupno;
+            doc->nodelist[i]->BoundaryMarkerName = nodeprop;
+        }
+    }
+
     return 0;
 }
 
