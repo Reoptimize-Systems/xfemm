@@ -1746,15 +1746,35 @@ int femmcli::LuaMagneticsCommands::luaSelectline(lua_State *)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Select the nearest node to given coordinates.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectnode()}
+ *
+ * \internal
+ * mi_selectnode(x,y) Select the node closest to (x,y).
+ * Returns the coordinates of the selected node.
  */
-int femmcli::LuaMagneticsCommands::luaSelectnode(lua_State *)
+int femmcli::LuaMagneticsCommands::luaSelectnode(lua_State *L)
 {
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+
+    if(mesher->problem->nodelist.size() == 0)
+        return 0;
+
+    int node = mesher->ClosestNode(mx,my);
+    mesher->problem->nodelist[node]->ToggleSelect();
+
+    lua_pushnumber(L,mesher->problem->nodelist[node]->x);
+    lua_pushnumber(L,mesher->problem->nodelist[node]->y);
+
+    return 2;
 }
 
 /**
