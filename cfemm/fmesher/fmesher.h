@@ -73,15 +73,14 @@ public:
 
     enum loaderrors { F_FILE_OK, F_FILE_UNKNOWN_TYPE, F_FILE_NOT_OPENED, F_FILE_MALFORMED};
 
-    FMesher();
-    FMesher(std::string);
+    explicit FMesher();
+    explicit FMesher(std::string);
+    explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
 
     std::shared_ptr<femm::FemmProblem> problem;
 	// General problem attributes
     filetypes filetype;
 
-	// default behaviors
-	double	d_minangle;
 	bool    Verbose;
 
 	std::string BinDir;
