@@ -2074,62 +2074,60 @@ void FMesher::Undo()
 //}
 
 
-//bool FMesher::AddNode(double x, double y, double d)
-//{
-//	int i,k;
-//	CNode pt;
-//	CSegment segm;
-//	CArcSegment asegm;
-//	CComplex c,a0,a1,a2;
-//	double R;
-//
-//	// test to see if ``too close'' to existing node...
-//	for (i=0;i<nodelist.size();i++)
-//		if(nodelist[i].GetDistance(x,y)<d) return false;
-//
-//	// can't put a node on top of a block label; do same sort of test.
-//	for (i=0;i<blocklist.size();i++)
-//		if(blocklist[i].GetDistance(x,y)<d) return false;
-//
-//	// if all is OK, add point in to the node list...
-//	pt.x=x; pt.y=y;
-//	nodelist.push_back(pt);
-//
-//	// test to see if node is on an existing line; if so,
-//	// break into two lines;
-//	k=linelist.size();
-//	for(i=0;i<k;i++)
-//	{
-//		if (fabs(ShortestDistance(x,y,i))<d)
-//		{
-//			segm=linelist[i];
-//			linelist[i].n1=nodelist.size()-1;
-//			segm.n0=nodelist.size()-1;
-//			linelist.push_back(segm);
-//		}
-//	}
-//
-//	// test to see if node is on an existing arc; if so,
-//	// break into two arcs;
-//	k=arclist.size();
-//	for(i=0;i<k;i++)
-//	{
-//		if (ShortestDistanceFromArc(CComplex(x,y),arclist[i])<d)
-//		{
-//			a0.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
-//			a1.Set(nodelist[arclist[i].n1].x,nodelist[arclist[i].n1].y);
-//			a2.Set(x,y);
-//			GetCircle(arclist[i],c,R);
-//			asegm=arclist[i];
-//			arclist[i].n1=nodelist.size()-1;
-//			arclist[i].ArcLength=arg((a2-c)/(a0-c))*180./PI;
-//			asegm.n0=nodelist.size()-1;
-//			asegm.ArcLength=arg((a1-c)/(a2-c))*180./PI;
-//			arclist.push_back(asegm);
-//		}
-//	}
-//	return true;
-//}
+bool FMesher::AddNode(double x, double y, double d)
+{
+    CComplex c,a0,a1,a2;
+    double R;
+
+    // test to see if ``too close'' to existing node...
+    for (int i=0; i<(int)problem->nodelist.size(); i++)
+        if(problem->nodelist[i]->GetDistance(x,y)<d) return false;
+
+    // can't put a node on top of a block label; do same sort of test.
+    for (int i=0;i<(int)problem->labellist.size();i++)
+        if(problem->labellist[i]->GetDistance(x,y)<d) return false;
+
+    // if all is OK, add point in to the node list...
+    std::unique_ptr<CNode> pt = std::make_unique<CNode>(x,y);
+    problem->nodelist.push_back(std::move(pt));
+
+    // test to see if node is on an existing line; if so,
+    // break into two lines;
+
+    for(int i=0, k=(int)problem->linelist.size(); i<k; i++)
+    {
+        if (fabs(ShortestDistance(x,y,i))<d)
+        {
+            std::unique_ptr<CSegment> segm;
+            segm = std::make_unique<CSegment>(*problem->linelist[i]);
+            problem->linelist[i]->n1=problem->nodelist.size()-1;
+            segm->n0=problem->nodelist.size()-1;
+            problem->linelist.push_back(std::move(segm));
+        }
+    }
+
+    // test to see if node is on an existing arc; if so,
+    // break into two arcs;
+    for(int i=0, k=(int)problem->arclist.size(); i<k; i++)
+    {
+        if (ShortestDistanceFromArc(CComplex(x,y),*problem->arclist[i])<d)
+        {
+            a0.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
+            a1.Set(problem->nodelist[problem->arclist[i]->n1]->x,problem->nodelist[problem->arclist[i]->n1]->y);
+            a2.Set(x,y);
+            GetCircle(*problem->arclist[i],c,R);
+
+            std::unique_ptr<CArcSegment> asegm;
+            asegm = std::make_unique<CArcSegment>(*problem->arclist[i]);
+            problem->arclist[i]->n1 = problem->nodelist.size()-1;
+            problem->arclist[i]->ArcLength = arg((a2-c)/(a0-c))*180./PI;
+            asegm->n0 = problem->nodelist.size()-1;
+            asegm->ArcLength = arg((a1-c)/(a2-c))*180./PI;
+            problem->arclist.push_back(std::move(asegm));
+        }
+    }
+    return true;
+}
 
 //bool FMesher::AddSegment(int n0, int n1, double tol)
 //{
