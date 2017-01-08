@@ -46,6 +46,11 @@ using namespace std;
 using namespace femm;
 using namespace fmesher;
 
+namespace {
+// set up some default behaviors
+constexpr double DEFAULT_MINANGLE=30.;
+}
+
 FMesher::FMesher()
 {
     // initialise the warning message function pointer to
@@ -85,10 +90,17 @@ FMesher::FMesher(string PathName)
     LoadFEMFile(PathName);
 }
 
+FMesher::FMesher(std::shared_ptr<FemmProblem> p)
+    : problem(p)
+    , filetype(F_TYPE_UNKNOWN)
+    , Verbose(true)
+    , WarnMessage(&PrintWarningMsg)
+    , TriMessage(nullptr)
+{
+}
+
 bool FMesher::Initialize()
 {
-    // set up some default behaviors
-    d_minangle=30.;
 
     // fire up lua
     //initalise_lua();
@@ -105,7 +117,7 @@ bool FMesher::Initialize()
 
     problem = std::make_shared<femm::FemmProblem>();
     // set problem attributes to generic ones;
-    problem->MinAngle = d_minangle;
+    problem->MinAngle = DEFAULT_MINANGLE;
 
     return true;
 }
