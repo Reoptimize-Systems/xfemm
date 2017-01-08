@@ -792,14 +792,21 @@ int femmcli::LuaMagneticsCommands::luaClearcontour(lua_State *)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Unselect all selected nodes, blocks, segments and arc segments.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_clearselected()}
+ *
+ * \internal
+ * mi clearselected() Clear all selected nodes, blocks, segments and arc segments.
  */
-int femmcli::LuaMagneticsCommands::luaClearselected(lua_State *)
+int femmcli::LuaMagneticsCommands::luaClearselected(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+
+    femmState->getMesher()->UnselectAll();
     return 0;
 }
 
