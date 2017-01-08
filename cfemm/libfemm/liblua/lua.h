@@ -120,6 +120,7 @@ LUA_API size_t         lua_strlen (lua_State *L, int index);
 LUA_API lua_CFunction  lua_tocfunction (lua_State *L, int index);
 LUA_API void	      *lua_touserdata (lua_State *L, int index);
 LUA_API const void    *lua_topointer (lua_State *L, int index);
+inline LUA_API double  lua_todouble (lua_State *L, int index) { return lua_tonumber(L,index).Re(); }
 
 
 /*
