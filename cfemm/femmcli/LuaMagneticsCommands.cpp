@@ -46,8 +46,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addcircprop", luaAddCircuitProp);
     li.addFunction("mo_add_contour", luaAddcontour);
     li.addFunction("mo_addcontour", luaAddcontour);
-    li.addFunction("mi_add_block_label", luaAddlabel);
-    li.addFunction("mi_addblocklabel", luaAddlabel);
+    li.addFunction("mi_add_block_label", luaAddBlocklabel);
+    li.addFunction("mi_addblocklabel", luaAddBlocklabel);
     li.addFunction("mi_add_segment", luaAddline);
     li.addFunction("mi_addsegment", luaAddline);
     li.addFunction("mi_add_material", luaAddmatprop);
@@ -370,15 +370,52 @@ int femmcli::LuaMagneticsCommands::luaAddcontour(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add new block label at given coordinates.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addlabel()}
+ *
+ * \internal
+ * mi_addblocklabel(x,y)
+ * Add a new block label at (x,y)
  */
-int femmcli::LuaMagneticsCommands::luaAddlabel(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddBlocklabel(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+
+    double d;
+    if (doc->nodelist.size()<2)
+        d = 1.e-08;
+    else{
+        CComplex p0,p1,p2;
+        p0 = doc->nodelist[0]->CC();
+        p1 = p0;
+        for (int i=1; i<(int)doc->nodelist.size(); i++)
+        {
+            p2 = doc->nodelist[i]->CC();
+            if(p2.re<p0.re) p0.re = p2.re;
+            if(p2.re>p1.re) p1.re = p2.re;
+            if(p2.im<p0.im) p0.im = p2.im;
+            if(p2.im>p1.im) p1.im = p2.im;
+        }
+        d = abs(p1-p0)*CLOSE_ENOUGH;
+    }
+    mesher->AddBlockLabel(x,y,d);
+
+    //BOOL flag=thisDoc->AddBlockLabel(x,y,d);
+    //if(flag==TRUE){
+    //    theView->MeshUpToDate=FALSE;
+    //    if(theView->MeshFlag==TRUE) theView->lnu_show_mesh();
+    //    else theView->DrawPSLG();
+    //}
+
     return 0;
 }
 

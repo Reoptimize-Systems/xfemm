@@ -2048,32 +2048,32 @@ bool FMesher::DeleteSelectedSegments()
 //}
 
 
-//bool FMesher::AddBlockLabel(double x, double y, double d)
-//{
-//	int i;
-//	bool AddFlag=true;
-//
-//	// test to see if ``too close'' to existing node...
-//	for (i=0;i<blocklist.size();i++)
-//		if(blocklist[i].GetDistance(x,y)<d) AddFlag=false;
-//
-//	// can't put a block label on top of an existing node...
-//	for (i=0;i<nodelist.size();i++)
-//		if(nodelist[i].GetDistance(x,y)<d) return false;
-//
-//	// can't put a block label on a line, either...
-//	for (i=0;i<linelist.size();i++)
-//		if(ShortestDistance(x,y,i)<d) return false ;
-//
-//	// if all is OK, add point in to the node list...
-//	if(AddFlag==true){
-//		CBlockLabel pt;
-//		pt.x=x; pt.y=y;
-//		blocklist.push_back(pt);
-//	}
-//
-//	return true;
-//}
+bool FMesher::AddBlockLabel(double x, double y, double d)
+{
+    // can't put a block label on top of an existing node...
+    for (int i=0; i<(int)problem->nodelist.size(); i++)
+        if(problem->nodelist[i]->GetDistance(x,y)<d) return false;
+
+    // can't put a block label on a line, either...
+    for (int i=0; i<(int)problem->linelist.size(); i++)
+        if(ShortestDistance(x,y,i)<d) return false;
+
+    // test to see if ``too close'' to existing node...
+    bool exists=false;
+    for (int i=0; i<(int)problem->labellist.size(); i++)
+        if(problem->labellist[i]->GetDistance(x,y)<d) {
+            exists=true;
+            break;
+        }
+
+    // if all is OK, add point in to the node list...
+    if(!exists){
+        std::unique_ptr<CBlockLabel> pt = std::make_unique<CBlockLabel>(x,y);
+        problem->labellist.push_back(std::move(pt));
+    }
+
+    return true;
+}
 
 
 bool FMesher::AddNode(double x, double y, double d)
