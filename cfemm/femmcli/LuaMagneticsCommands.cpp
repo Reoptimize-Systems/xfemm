@@ -217,8 +217,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectnode", luaSelectnode);
     li.addFunction("mi_select_rectangle", luaSelectrectangle);
     li.addFunction("mi_selectrectangle", luaSelectrectangle);
-    li.addFunction("mi_select_segment", luaSelectsegment);
-    li.addFunction("mi_selectsegment", luaSelectsegment);
+    li.addFunction("mi_select_segment", luaSelectSegment);
+    li.addFunction("mi_selectsegment", luaSelectSegment);
     li.addFunction("mi_set_arcsegment_prop", luaSetarcsegmentprop);
     li.addFunction("mi_setarcsegmentprop", luaSetarcsegmentprop);
     li.addFunction("mi_set_block_prop", luaSetblockprop);
@@ -1816,15 +1816,37 @@ int femmcli::LuaMagneticsCommands::luaSelectrectangle(lua_State *)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Select the line closest to a given point.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectsegment()}
+ *
+ * \internal
+ * mi_selectsegment(x,y)
+ * Select the line segment closest to (x,y)
  */
-int femmcli::LuaMagneticsCommands::luaSelectsegment(lua_State *)
+int femmcli::LuaMagneticsCommands::luaSelectSegment(lua_State *L)
 {
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> thisDoc = femmState->femmDocument;
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+
+    if (thisDoc->linelist.empty())
+        return 0;
+
+    int node = femmState->getMesher()->ClosestSegment(mx,my);
+    thisDoc->linelist[node]->ToggleSelect();
+
+    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->x);
+    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->y);
+    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n1]->x);
+    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n1]->y);
+
+    return 4;
 }
 
 /**
