@@ -144,6 +144,7 @@ public:
     // pointer to function to use for triangle to issue warning messages
     int (*TriMessage)(const char * format, ...);
 
+    bool AddNode(double x, double y, double d);
 private:
 
 	virtual bool Initialize();
