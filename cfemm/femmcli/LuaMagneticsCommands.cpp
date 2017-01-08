@@ -366,14 +366,68 @@ int femmcli::LuaMagneticsCommands::luaAddline(lua_State *)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new material property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addmatprop()}
+ *
+ * \internal
+ * mi addmaterial("materialname", mu x, mu y, H c, J, Cduct, Lam d, Phi hmax,
+ *                lam fill, LamType, Phi hx, Phi hy, NStrands, WireD)
+ * Adds a new material called "materialname" with the given material properties.
  */
-int femmcli::LuaMagneticsCommands::luaAddmatprop(lua_State *)
+int femmcli::LuaMagneticsCommands::luaAddmatprop(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        lua_error(L,"Compatibility mode for mi_addmatprop is not implemented!");
+        //return ((CFemmeDoc *)pFemmeDoc)->old_lua_addmatprop(L);
+        return 0;
+    }
+
+    std::unique_ptr<CMaterialProp> m = std::make_unique<CMaterialProp>();
+    int n=lua_gettop(L);
+
+    if (n>0)  m->BlockName = lua_tostring(L,1);
+    if (n>1){
+        m->mu_x=lua_todouble(L,2);
+        m->mu_y=m->mu_x;
+    }
+    if (n>2)  m->mu_y=lua_todouble(L,3);
+    if (n>3)  m->H_c=lua_todouble(L,4);
+    if (n>4)  m->J=lua_tonumber(L,5);
+    if (n>5)  m->Cduct=lua_todouble(L,6);
+    if (n>6)  m->Lam_d=lua_todouble(L,7);
+    if (n>7)  m->Theta_hn=lua_todouble(L,8);
+    if (n>8){
+        m->LamFill=lua_todouble(L,9);
+        if (m->LamFill<=0) m->LamFill=1;
+        if (m->LamFill>1) m->LamFill=1;
+    }
+    if (n>9){
+        m->LamType=(int) lua_todouble(L,10);
+        if (m->LamType<0) m->LamType=0;
+    }
+    if(n>10)
+    {
+        m->Theta_hx=lua_todouble(L,11);
+        m->Theta_hy=lua_todouble(L,12);
+    }
+    else{
+        m->Theta_hx=m->Theta_hn;
+        m->Theta_hy=m->Theta_hn;
+    }
+    if(n>12){
+        m->NStrands=(int) lua_todouble(L,13);
+        m->WireD=lua_todouble(L,14);
+    }
+
+    femmState->femmDocument->blockproplist.push_back(std::move(m));
     return 0;
 }
 
@@ -530,7 +584,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         lua_error(L,"A data file must be loaded,\nor the current data must saved.");
         return 0;
     }
-    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getFMesher();
+    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getMesher();
     if (!mesherDoc->SaveFEMFile(pathName))
         return 0;
 

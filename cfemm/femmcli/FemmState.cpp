@@ -16,12 +16,11 @@ std::shared_ptr<FPProc> femmcli::FemmState::getFPProc()
     return theFPProc;
 }
 
-std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getFMesher()
+std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
 {
-    if (!theFMesher)
+    if (!theFMesher || theFMesher->problem != femmDocument)
     {
-        theFMesher = std::make_shared<fmesher::FMesher>();
+        theFMesher = std::make_shared<fmesher::FMesher>(femmDocument);
     }
-    // TODO: see if we need to invalidate this sometimes.
     return theFMesher;
 }

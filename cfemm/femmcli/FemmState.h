@@ -46,9 +46,14 @@ public:
     /**
      * @brief Returns the current FMesher
      * If FMesher was not yet initialized, a new FMesher is initialized.
+     * The mesher is initialized using the femmDocument as its data handle.
+     *
+     * Note: if FMesher::Initialize is called (e.g. via FMesher::LoadFEMFile),
+     * the mesher generates a new FemmProblem that is not connected to this one.
+     * In this case, calling getMesher generates a new mesher.
      * @return
      */
-    std::shared_ptr<fmesher::FMesher> getFMesher();
+    std::shared_ptr<fmesher::FMesher> getMesher();
 private:
     std::shared_ptr<FPProc> theFPProc;
     std::shared_ptr<fmesher::FMesher> theFMesher;
