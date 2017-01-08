@@ -43,6 +43,8 @@ namespace femm {
  * \internal
  * In contrast to FEMM42 and older XFemm classes we use vectors of pointers, not vectors of objects.
  * This allows us to use inheritance to have a common data description which can be used for mesher, solver and pproc.
+ * Using unique_ptrs makes the pointers a little more of a PITA, but they allow us to have the same
+ * ownership semantics as with objects stored in vectors (i.e. the data is freed when the vector is freed).
  */
 class FemmProblem
 {
@@ -72,19 +74,21 @@ public: // data members
 
     bool    DoForceMaxMeshArea; ///< \brief Property introduced by xfemm.
 
-    std::vector< std::shared_ptr<CPointProp>> nodeproplist;
-    std::vector< std::shared_ptr<CBoundaryProp>> lineproplist;
-    std::vector< std::shared_ptr<CMaterialProp>> blockproplist;
-    std::vector< std::shared_ptr<CCircuit>> circproplist;
-    std::vector< std::shared_ptr<CBlockLabel>> labellist;
-    std::vector< std::shared_ptr<CNode>> nodelist;
-    std::vector< std::shared_ptr<CSegment>> linelist;
-    std::vector< std::shared_ptr<CArcSegment>> arclist;
+    // lists of nodes, segments, and block labels
+    std::vector< std::unique_ptr<CNode>> nodelist;
+    std::vector< std::unique_ptr<CSegment>> linelist;
+    std::vector< std::unique_ptr<CArcSegment>> arclist;
+    std::vector< std::unique_ptr<CBlockLabel>> labellist;
+
+    std::vector< std::unique_ptr<CPointProp>> nodeproplist;
+    std::vector< std::unique_ptr<CBoundaryProp>> lineproplist;
+    std::vector< std::unique_ptr<CMaterialProp>> blockproplist;
+    std::vector< std::unique_ptr<CCircuit>> circproplist;
 
     bool solved;
     // vectors containing the mesh information
-    std::vector< std::shared_ptr<CMeshNode>>   meshnodes;
-    std::vector< std::shared_ptr<CElement>> meshelems;
+    std::vector< std::unique_ptr<CMeshNode>>   meshnodes;
+    std::vector< std::unique_ptr<CElement>> meshelems;
 
     std::string pathName; ///< \brief pathname of the associated file, if any.
 };

@@ -87,7 +87,7 @@ FMesher::FMesher(string PathName)
 
 bool FMesher::Initialize()
 {
-    DoForceMaxMeshArea = false;
+    problem->DoForceMaxMeshArea = false;
 
     // set up some default behaviors
     d_minangle=30.;
@@ -96,25 +96,25 @@ bool FMesher::Initialize()
     //initalise_lua();
 
     // clear out all current lines, nodes, and block labels
-    nodelist.clear ();
-    linelist.clear ();
-    arclist.clear ();
-    blocklist.clear ();
+    problem->nodelist.clear ();
+    problem->linelist.clear ();
+    problem->arclist.clear ();
+    problem->labellist.clear ();
     undonodelist.clear ();
     undolinelist.clear ();
     undoarclist.clear ();
-    undoblocklist.clear ();
-    nodeproplist.clear ();
-    lineproplist.clear ();
+    undolabellist.clear ();
+    problem->nodeproplist.clear ();
+    problem->lineproplist.clear ();
 //    blockproplist.clear ();
-    circproplist.clear ();
+    problem->circproplist.clear ();
     meshnode.clear ();
     meshline.clear ();
     greymeshline.clear ();
     probdescstrings.clear ();
 
     // set problem attributes to generic ones;
-    MinAngle = d_minangle;
+    problem->MinAngle = d_minangle;
 
     return true;
 }
@@ -124,10 +124,10 @@ void FMesher::UnselectAll()
 {
     unsigned int i;
 
-    for(i=0; i < nodelist.size(); i++) nodelist[i].IsSelected=0;
-    for(i=0; i < linelist.size(); i++) linelist[i].IsSelected=0;
-    for(i=0; i < blocklist.size(); i++) blocklist[i].IsSelected=0;
-    for(i=0; i < arclist.size(); i++) arclist[i].IsSelected=0;
+    for(i=0; i < problem->nodelist.size(); i++) problem->nodelist[i]->IsSelected=0;
+    for(i=0; i < problem->linelist.size(); i++) problem->linelist[i]->IsSelected=0;
+    for(i=0; i < problem->labellist.size(); i++) problem->labellist[i]->IsSelected=0;
+    for(i=0; i < problem->arclist.size(); i++) problem->arclist[i]->IsSelected=0;
 }
 
 
@@ -137,8 +137,8 @@ void FMesher::GetCircle(CArcSegment &arc, CComplex &c, double &R)
     double d,tta;
 
     // construct the coordinates of the two points on the circle
-    a0.Set(nodelist[arc.n0].x,nodelist[arc.n0].y);
-    a1.Set(nodelist[arc.n1].x,nodelist[arc.n1].y);
+    a0.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
+    a1.Set(problem->nodelist[arc.n1]->x,problem->nodelist[arc.n1]->y);
 
     // calculate distance between arc endpoints
     d = abs(a1 - a0);
@@ -168,10 +168,10 @@ int FMesher::GetLineArcIntersection(CSegment &seg, CArcSegment &arc, CComplex *p
     double d,l,R,z,tta;
     int i=0;
 
-    p0.Set(nodelist[seg.n0].x,nodelist[seg.n0].y);
-    p1.Set(nodelist[seg.n1].x,nodelist[seg.n1].y);
-    a0.Set(nodelist[arc.n0].x,nodelist[arc.n0].y);
-    a1.Set(nodelist[arc.n1].x,nodelist[arc.n1].y);
+    p0.Set(problem->nodelist[seg.n0]->x,problem->nodelist[seg.n0]->y);
+    p1.Set(problem->nodelist[seg.n1]->x,problem->nodelist[seg.n1]->y);
+    a0.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
+    a1.Set(problem->nodelist[arc.n1]->x,problem->nodelist[arc.n1]->y);
     d=abs(a1-a0);			// distance between arc endpoints
 
     // figure out what the radius of the circle is...
@@ -218,8 +218,8 @@ int FMesher::GetArcArcIntersection(CArcSegment &arc0, CArcSegment &arc1, CComple
     double d,l,R0,R1,z0,z1,c,tta0,tta1;
     int i=0;
 
-    a0.Set(nodelist[arc0.n0].x,nodelist[arc0.n0].y);
-    a1.Set(nodelist[arc1.n0].x,nodelist[arc1.n0].y);
+    a0.Set(problem->nodelist[arc0.n0]->x,problem->nodelist[arc0.n0]->y);
+    a1.Set(problem->nodelist[arc1.n0]->x,problem->nodelist[arc1.n0]->y);
 
     GetCircle(arc1,c1,R1);
     GetCircle(arc0,c0,R0);
@@ -263,16 +263,16 @@ int FMesher::ClosestNode(double x, double y)
     unsigned int i,j;
     double d0,d1;
 
-    if(nodelist.size()==0)
+    if(problem->nodelist.size()==0)
     {
         return -1;
     }
 
     j=0;
-    d0=nodelist[0].GetDistance(x,y);
-    for(i=0; i<nodelist.size(); i++)
+    d0=problem->nodelist[0]->GetDistance(x,y);
+    for(i=0; i<problem->nodelist.size(); i++)
     {
-        d1=nodelist[i].GetDistance(x,y);
+        d1=problem->nodelist[i]->GetDistance(x,y);
         if(d1<d0)
         {
             d0=d1;
@@ -288,16 +288,16 @@ int FMesher::ClosestBlockLabel(double x, double y)
     unsigned int i,j;
     double d0,d1;
 
-    if(blocklist.size()==0)
+    if(problem->labellist.size()==0)
     {
         return -1;
     }
 
     j=0;
-    d0=blocklist[0].GetDistance(x,y);
-    for(i=0; i<blocklist.size(); i++)
+    d0=problem->labellist[0]->GetDistance(x,y);
+    for(i=0; i<problem->labellist.size(); i++)
     {
-        d1=blocklist[i].GetDistance(x,y);
+        d1=problem->labellist[i]->GetDistance(x,y);
         if(d1<d0)
         {
             d0=d1;
@@ -313,8 +313,8 @@ double FMesher::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
     double R,d,l,z;
     CComplex a0,a1,c,t;
 
-    a0.Set(nodelist[arc.n0].x,nodelist[arc.n0].y);
-    a1.Set(nodelist[arc.n1].x,nodelist[arc.n1].y);
+    a0.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
+    a1.Set(problem->nodelist[arc.n1]->x,problem->nodelist[arc.n1]->y);
     GetCircle(arc,c,R);
     d=abs(p-c);
 
@@ -336,10 +336,10 @@ double FMesher::ShortestDistance(double p, double q, int segm)
 {
     double t,x[3],y[3];
 
-    x[0]=nodelist[linelist[segm].n0].x;
-    y[0]=nodelist[linelist[segm].n0].y;
-    x[1]=nodelist[linelist[segm].n1].x;
-    y[1]=nodelist[linelist[segm].n1].y;
+    x[0]=problem->nodelist[problem->linelist[segm]->n0]->x;
+    y[0]=problem->nodelist[problem->linelist[segm]->n0]->y;
+    x[1]=problem->nodelist[problem->linelist[segm]->n1]->x;
+    y[1]=problem->nodelist[problem->linelist[segm]->n1]->y;
 
     t=((p-x[0])*(x[1]-x[0]) + (q-y[0])*(y[1]-y[0]))/
       ((x[1]-x[0])*(x[1]-x[0]) + (y[1]-y[0])*(y[1]-y[0]));
@@ -358,14 +358,14 @@ int FMesher::ClosestSegment(double x, double y)
     double d0,d1;
     unsigned int i,j;
 
-    if(linelist.size()==0)
+    if(problem->linelist.size()==0)
     {
         return -1;
     }
 
     j=0;
     d0=ShortestDistance(x,y,0);
-    for(i=0; i<linelist.size(); i++)
+    for(i=0; i<problem->linelist.size(); i++)
     {
         d1=ShortestDistance(x,y,i);
         if(d1<d0)
@@ -383,16 +383,16 @@ int FMesher::ClosestArcSegment(double x, double y)
     double d0,d1;
     unsigned int i,j;
 
-    if(arclist.size()==0)
+    if(problem->arclist.size()==0)
     {
         return -1;
     }
 
     j=0;
-    d0=ShortestDistanceFromArc(CComplex(x,y),arclist[0]);
-    for(i=0; i<arclist.size(); i++)
+    d0=ShortestDistanceFromArc(CComplex(x,y),*(problem->arclist[0]));
+    for(i=0; i<problem->arclist.size(); i++)
     {
-        d1=ShortestDistanceFromArc(CComplex(x,y),arclist[i]);
+        d1=ShortestDistanceFromArc(CComplex(x,y),*(problem->arclist[i]));
         if(d1<d0)
         {
             d0=d1;
@@ -413,17 +413,17 @@ bool FMesher::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
 
     // Check to see if the two lines have a common endpoint
     // If they do, there can be no other intersection...
-    if (n0==linelist[segm].n0) return false;
-    if (n0==linelist[segm].n1) return false;
-    if (n1==linelist[segm].n0) return false;
-    if (n1==linelist[segm].n1) return false;
+    if (n0==problem->linelist[segm]->n0) return false;
+    if (n0==problem->linelist[segm]->n1) return false;
+    if (n1==problem->linelist[segm]->n0) return false;
+    if (n1==problem->linelist[segm]->n1) return false;
 
     // Get a definition of "real small" based on the lengths
     // of the lines of interest;
-    p0=nodelist[linelist[segm].n0].CC();
-    p1=nodelist[linelist[segm].n1].CC();
-    q0=nodelist[n0].CC();
-    q1=nodelist[n1].CC();
+    p0=problem->nodelist[problem->linelist[segm]->n0]->CC();
+    p1=problem->nodelist[problem->linelist[segm]->n1]->CC();
+    q0=problem->nodelist[n0]->CC();
+    q1=problem->nodelist[n1]->CC();
     ee = (std::min)(abs(p1-p0),abs(q1-q0))*1.0e-8;
 
     // Rotate and scale the prospective line
@@ -445,7 +445,7 @@ bool FMesher::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
     if((x < ee) || (x > (1.0 - ee))) return false;
 
     // return resulting intersection point
-    p0 = (1.0 - z)*nodelist[n0].CC() + z*nodelist[n1].CC();
+    p0 = (1.0 - z)*problem->nodelist[n0]->CC() + z*problem->nodelist[n1]->CC();
     *xi=Re(p0);
     *yi=Im(p0);
 
@@ -551,7 +551,7 @@ int FMesher::LoadFEMFile (string PathName)
         {
             addFileStr (s);
             v = StripKey(s);
-            sscanf(v,"%lf",&MinAngle);
+            sscanf(v,"%lf",&problem->MinAngle);
             q[0] = '\0';
             continue;
         }
@@ -568,11 +568,11 @@ int FMesher::LoadFEMFile (string PathName)
             // not 0 == do override user mesh choice
             if (temp == 0)
             {
-                DoForceMaxMeshArea = false;
+                problem->DoForceMaxMeshArea = false;
             }
             else
             {
-                DoForceMaxMeshArea = true;
+                problem->DoForceMaxMeshArea = true;
             }
             addFileStr (s);
         }
@@ -630,7 +630,7 @@ int FMesher::LoadFEMFile (string PathName)
             }
 
             // add the point property string to the list of strings
-            probdescstrings.push_back (ppropstring);
+            probdescstrings.push_back(ppropstring);
 
             q[0] = '\0';
 
@@ -697,7 +697,7 @@ int FMesher::LoadFEMFile (string PathName)
 
             }
 
-            lineproplist.push_back (BProp);
+            problem->lineproplist.push_back (std::make_unique<femm::CBoundaryProp>(BProp));
 
             q[0] = '\0';
 
@@ -792,7 +792,7 @@ int FMesher::LoadFEMFile (string PathName)
         {
             // add the string to the list of strings to be echoed later
             addFileStr (s);
-            circproplist.push_back(CProp);
+            problem->circproplist.push_back(std::make_unique<femm::CCircuit>(CProp));
             q[0] = '\0';
             continue;
         }
@@ -823,9 +823,9 @@ int FMesher::LoadFEMFile (string PathName)
                         {
                             node.BoundaryMarkerName =" ";
                         }
-                        else if (t<= (int)nodeproplist.size())
+                        else if (t<= (int)problem->nodeproplist.size())
                         {
-                            node.BoundaryMarkerName = nodeproplist[t-1].PointName;
+                            node.BoundaryMarkerName = problem->nodeproplist[t-1]->PointName;
                         }
 
                         break;
@@ -837,9 +837,9 @@ int FMesher::LoadFEMFile (string PathName)
                         {
                             node.BoundaryMarkerName =" ";
                         }
-                        else if (t<= (int)nodeproplist.size())
+                        else if (t<= (int)problem->nodeproplist.size())
                         {
-                            node.BoundaryMarkerName = nodeproplist[t-1].PointName;
+                            node.BoundaryMarkerName = problem->nodeproplist[t-1]->PointName;
                         }
 
                         v = ParseInt(v,&node.InGroup);
@@ -849,9 +849,9 @@ int FMesher::LoadFEMFile (string PathName)
                         {
                             node.InConductorName = "<None>";
                         }
-        				else if(t <= (int)circproplist.size())
+        				else if(t <= (int)problem->circproplist.size())
 		        		{
-                            node.InConductorName = circproplist[t-1].CircName;
+                            node.InConductorName = problem->circproplist[t-1]->CircName;
                         }
 
                         break;
@@ -859,7 +859,7 @@ int FMesher::LoadFEMFile (string PathName)
                     assert(false); // handled at beginning of function
                 }
 
-                nodelist.push_back(node);
+                problem->nodelist.push_back(std::make_unique<femm::CNode>(node));
             }
             q[0] = '\0';
             continue;
@@ -891,9 +891,9 @@ int FMesher::LoadFEMFile (string PathName)
                 {
                    segm.BoundaryMarkerName="";
                 }
-                else if (t<=(int) lineproplist.size())
+                else if (t<=(int) problem->lineproplist.size())
                 {
-                    segm.BoundaryMarkerName = lineproplist[t-1].BdryName;
+                    segm.BoundaryMarkerName = problem->lineproplist[t-1]->BdryName;
                 }
 
                 int Hidden = 0;
@@ -920,9 +920,9 @@ int FMesher::LoadFEMFile (string PathName)
                         {
                             segm.InConductorName = "<None>";
                         }
-                        else if(t<=(int) circproplist.size())
+                        else if(t<=(int) problem->circproplist.size())
                         {
-                            segm.InConductorName = circproplist[t-1].CircName;
+                            segm.InConductorName = problem->circproplist[t-1]->CircName;
                         }
 
                         break;
@@ -930,7 +930,7 @@ int FMesher::LoadFEMFile (string PathName)
                 default:
                     assert(false); // handled at beginning of function
                 }
-                linelist.push_back(segm);
+                problem->linelist.push_back(std::make_unique<femm::CSegment>(segm));
             }
             q[0] = '\0';
             continue;
@@ -962,9 +962,9 @@ int FMesher::LoadFEMFile (string PathName)
                 {
                     asegm.BoundaryMarkerName = "";
                 }
-                else if (t <= (int)lineproplist.size())
+                else if (t <= (int)problem->lineproplist.size())
                 {
-                    asegm.BoundaryMarkerName = lineproplist[t-1].BdryName;
+                    asegm.BoundaryMarkerName = problem->lineproplist[t-1]->BdryName;
                 }
                 t = 0;
 
@@ -998,9 +998,9 @@ int FMesher::LoadFEMFile (string PathName)
                         {
                             segm.InConductorName="<None>";
                         }
-                        else if(t<=(int) circproplist.size ())
+                        else if(t<=(int) problem->circproplist.size ())
                         {
-                            asegm.InConductorName = circproplist[t-1].CircName;
+                            asegm.InConductorName = problem->circproplist[t-1]->CircName;
                         }
 
                         break;
@@ -1010,7 +1010,7 @@ int FMesher::LoadFEMFile (string PathName)
                 }
 
 
-                arclist.push_back(asegm);
+                problem->arclist.push_back(std::make_unique<femm::CArcSegment>(asegm));
             }
             q[0] = '\0';
             continue;
@@ -1033,7 +1033,7 @@ int FMesher::LoadFEMFile (string PathName)
                     v = ParseDbl(v,&blk.y);
                     v = ParseInt(v,&blk.InGroup);
 
-                    blocklist.push_back(blk);
+                    problem->labellist.push_back(std::make_unique<femm::CBlockLabel>(blk));
                 }
             }
             q[0] = '\0';
@@ -1103,7 +1103,7 @@ int FMesher::LoadFEMFile (string PathName)
                         return F_FILE_UNKNOWN_TYPE;
                 }
 
-                blocklist.push_back(blk);
+                problem->labellist.push_back(std::make_unique<femm::CBlockLabel>(blk));
             }
             q[0] = '\0';
             continue;
@@ -1146,18 +1146,18 @@ bool FMesher::SaveFEMFile(string PathName)
     }
 
     // write out node list
-    fprintf(fp,"[NumPoints] = %i\n", (int) nodelist.size());
-    for(i=0; i<nodelist.size(); i++)
+    fprintf(fp,"[NumPoints] = %i\n", (int) problem->nodelist.size());
+    for(i=0; i<problem->nodelist.size(); i++)
     {
-        for(j=0,t=0; j<nodeproplist.size(); j++)
-            if(nodeproplist[j].PointName==nodelist[i].BoundaryMarkerName) t=j+1;
-        fprintf(fp,"%.17g\t%.17g\t%i\t%i",nodelist[i].x,nodelist[i].y,t,
-                nodelist[i].InGroup);
+        for(j=0,t=0; j<problem->nodeproplist.size(); j++)
+            if(problem->nodeproplist[j]->PointName==problem->nodelist[i]->BoundaryMarkerName) t=j+1;
+        fprintf(fp,"%.17g\t%.17g\t%i\t%i",problem->nodelist[i]->x,problem->nodelist[i]->y,t,
+                problem->nodelist[i]->InGroup);
 
         if (filetype == F_TYPE_HEATFLOW)
         {
-            for (j=0,t=0; j<circproplist.size (); j++)
-                if (circproplist[j].CircName==nodelist[i].InConductorName) t=j+1;
+            for (j=0,t=0; j<problem->circproplist.size (); j++)
+                if (problem->circproplist[j]->CircName==problem->nodelist[i]->InConductorName) t=j+1;
 
             fprintf(fp,"\t%i",t);
         }
@@ -1166,30 +1166,30 @@ bool FMesher::SaveFEMFile(string PathName)
     }
 
     // write out segment list
-    fprintf(fp,"[NumSegments] = %i\n", (int) linelist.size());
-    for(i=0; i<linelist.size(); i++)
+    fprintf(fp,"[NumSegments] = %i\n", (int) problem->linelist.size());
+    for(i=0; i<problem->linelist.size(); i++)
     {
-        for(j=0,t=0; j<lineproplist.size(); j++)
-            if(lineproplist[j].BdryName==linelist[i].BoundaryMarkerName) t=j+1;
+        for(j=0,t=0; j<problem->lineproplist.size(); j++)
+            if(problem->lineproplist[j]->BdryName==problem->linelist[i]->BoundaryMarkerName) t=j+1;
 
-        fprintf(fp,"%i\t%i\t",linelist[i].n0,linelist[i].n1);
+        fprintf(fp,"%i\t%i\t",problem->linelist[i]->n0,problem->linelist[i]->n1);
 
-        if(linelist[i].MaxSideLength<0)
+        if(problem->linelist[i]->MaxSideLength<0)
         {
             fprintf(fp,"-1\t");
         }
         else
         {
-            fprintf(fp,"%.17g\t",linelist[i].MaxSideLength);
+            fprintf(fp,"%.17g\t",problem->linelist[i]->MaxSideLength);
         }
 
-        fprintf(fp,"%i\t%i\t%i",t,linelist[i].Hidden,linelist[i].InGroup);
+        fprintf(fp,"%i\t%i\t%i",t,problem->linelist[i]->Hidden,problem->linelist[i]->InGroup);
 
         if (filetype == F_TYPE_HEATFLOW)
         {
-            for(j=0,t=0;j<circproplist.size ();j++)
+            for(j=0,t=0;j<problem->circproplist.size ();j++)
             {
-                if(circproplist[j].CircName==linelist[i].InConductorName) t = j + 1;
+                if(problem->circproplist[j]->CircName==problem->linelist[i]->InConductorName) t = j + 1;
             }
             fprintf(fp,"\t%i",t);
         }
@@ -1198,40 +1198,40 @@ bool FMesher::SaveFEMFile(string PathName)
     }
 
     // write out arc segment list
-    fprintf(fp,"[NumArcSegments] = %i\n", (int) arclist.size());
-    for(i=0; i<arclist.size(); i++)
+    fprintf(fp,"[NumArcSegments] = %i\n", (int) problem->arclist.size());
+    for(i=0; i<problem->arclist.size(); i++)
     {
-        for(j=0,t=0; j<lineproplist.size(); j++)
-            if(lineproplist[j].BdryName==arclist[i].BoundaryMarkerName) t=j+1;
-        fprintf(fp,"%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i",arclist[i].n0,arclist[i].n1,
-                arclist[i].ArcLength,arclist[i].MaxSideLength,t,
-                arclist[i].Hidden,arclist[i].InGroup);
+        for(j=0,t=0; j<problem->lineproplist.size(); j++)
+            if(problem->lineproplist[j]->BdryName==problem->arclist[i]->BoundaryMarkerName) t=j+1;
+        fprintf(fp,"%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i",problem->arclist[i]->n0,problem->arclist[i]->n1,
+                problem->arclist[i]->ArcLength,problem->arclist[i]->MaxSideLength,t,
+                problem->arclist[i]->Hidden,problem->arclist[i]->InGroup);
 
         if (filetype == F_TYPE_HEATFLOW)
         {
-            for(j=0,t=0;j<circproplist.size ();j++)
-                if(circproplist[j].CircName==arclist[i].InConductorName) t=j+1;
+            for(j=0,t=0;j<problem->circproplist.size ();j++)
+                if(problem->circproplist[j]->CircName==problem->arclist[i]->InConductorName) t=j+1;
             fprintf(fp,"\t%i",t);
         }
         fprintf(fp,"\n");
     }
 
     // write out list of holes;
-    for(i=0,j=0; i<blocklist.size(); i++)
+    for(i=0,j=0; i<problem->labellist.size(); i++)
     {
-        if(blocklist[i].BlockTypeName=="<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName=="<No Mesh>")
         {
             j++;
         }
     }
 
     fprintf(fp,"[NumHoles] = %i\n",j);
-    for(i=0,k=0; i<blocklist.size(); i++)
+    for(i=0,k=0; i<problem->labellist.size(); i++)
     {
-        if(blocklist[i].BlockTypeName=="<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName=="<No Mesh>")
         {
-            fprintf(fp,"%.17g\t%.17g\t%i\n",blocklist[i].x,blocklist[i].y,
-                    blocklist[i].InGroup);
+            fprintf(fp,"%.17g\t%.17g\t%i\n",problem->labellist[i]->x,problem->labellist[i]->y,
+                    problem->labellist[i]->InGroup);
             k++;
         }
     }
@@ -1277,7 +1277,7 @@ bool FMesher::LoadMesh(string PathName)
     {
         fgets(s,1024,fp);
         sscanf(s,"%i\t%lf\t%lf",&j,&node.x,&node.y);
-        meshnode[i] = node;
+        meshnode[i] = std::make_unique<CNode>(node);
     }
     fclose(fp);
 
@@ -1319,11 +1319,11 @@ bool FMesher::LoadMesh(string PathName)
 
                 if (j != 0)
                 {
-                    meshline[nl++] = segm;
+                    meshline[nl++] = std::make_unique<femm::IntPoint>(segm);
                 }
                 else
                 {
-                    greymeshline.push_back(segm);
+                    greymeshline.push_back(std::make_unique<femm::IntPoint>(segm));
                 }
             }
         }
@@ -1354,12 +1354,21 @@ void FMesher::UpdateUndo()
     undonodelist.clear();
     undolinelist.clear();
     undoarclist.clear();
-    undoblocklist.clear();
+    undolabellist.clear();
 
-    for(i=0; i<nodelist.size(); i++) undonodelist.push_back(nodelist[i]);
-    for(i=0; i<linelist.size(); i++) undolinelist.push_back(linelist[i]);
-    for(i=0; i<arclist.size(); i++) undoarclist.push_back(arclist[i]);
-    for(i=0; i<blocklist.size(); i++) undoblocklist.push_back(blocklist[i]);
+    // copy each entry
+    for(i=0; i<problem->nodelist.size(); i++)
+        undonodelist.push_back(
+                std::make_unique<CNode>(*problem->nodelist[i]));
+    for(i=0; i<problem->linelist.size(); i++)
+        undolinelist.push_back(
+                    std::make_unique<CSegment>(*problem->linelist[i]));
+    for(i=0; i<problem->arclist.size(); i++)
+        undoarclist.push_back(
+                    std::make_unique<CArcSegment>(*problem->arclist[i]));
+    for(i=0; i<problem->labellist.size(); i++)
+        undolabellist.push_back(
+                    std::make_unique<CBlockLabel>(*problem->labellist[i]));
 
 
 }
@@ -1368,40 +1377,9 @@ void FMesher::Undo()
 {
     unsigned int i;
 
-    std::vector < CNode >       tempnodelist;
-    std::vector < CSegment >    templinelist;
-    std::vector < CArcSegment > temparclist;
-    std::vector < CBlockLabel > tempblocklist;
-
-    tempnodelist.clear();
-    templinelist.clear();
-    temparclist.clear();
-    tempblocklist.clear();
-
-    for(i=0; i<nodelist.size(); i++) tempnodelist.push_back(nodelist[i]);
-    for(i=0; i<linelist.size(); i++) templinelist.push_back(linelist[i]);
-    for(i=0; i<arclist.size(); i++) temparclist.push_back(arclist[i]);
-    for(i=0; i<blocklist.size(); i++) tempblocklist.push_back(blocklist[i]);
-
-    nodelist.clear();
-    linelist.clear();
-    arclist.clear();
-    blocklist.clear();
-
-    for(i=0; i<undonodelist.size(); i++) nodelist.push_back(undonodelist[i]);
-    for(i=0; i<undolinelist.size(); i++) linelist.push_back(undolinelist[i]);
-    for(i=0; i<undoarclist.size(); i++) arclist.push_back(undoarclist[i]);
-    for(i=0; i<undoblocklist.size(); i++) blocklist.push_back(undoblocklist[i]);
-
-    undonodelist.clear();
-    undolinelist.clear();
-    undoarclist.clear();
-    undoblocklist.clear();
-
-    for(i=0; i<tempnodelist.size(); i++) undonodelist.push_back(tempnodelist[i]);
-    for(i=0; i<templinelist.size(); i++) undolinelist.push_back(templinelist[i]);
-    for(i=0; i<temparclist.size(); i++) undoarclist.push_back(temparclist[i]);
-    for(i=0; i<tempblocklist.size(); i++) undoblocklist.push_back(tempblocklist[i]);
+    for(i=0; i<undolinelist.size(); i++) problem->linelist[i].swap(undolinelist[i]);
+    for(i=0; i<undoarclist.size(); i++) problem->arclist[i].swap(undoarclist[i]);
+    for(i=0; i<undolabellist.size(); i++) problem->labellist[i].swap(undolabellist[i]);
 }
 
 //bool FMesher::ScanPreferences()

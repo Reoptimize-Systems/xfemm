@@ -60,8 +60,8 @@ using namespace fmesher;
 
 double FMesher::LineLength(int i)
 {
-    return abs(nodelist[linelist[i].n0].CC()-
-           nodelist[linelist[i].n1].CC());
+    return abs(problem->nodelist[problem->linelist[i]->n0]->CC()-
+           problem->nodelist[problem->linelist[i]->n1]->CC());
 }
 
 
@@ -71,10 +71,10 @@ bool FMesher::HasPeriodicBC()
     unsigned int i,j;
     int k;
 
-    for(i=0;i<lineproplist.size();i++)
+    for(i=0;i<problem->lineproplist.size();i++)
     {
-        if ((lineproplist[i].BdryFormat==4) ||
-            (lineproplist[i].BdryFormat==5))
+        if ((problem->lineproplist[i]->BdryFormat==4) ||
+            (problem->lineproplist[i]->BdryFormat==5))
             flag=true;
     }
     // if flag is false, there can't be any lines
@@ -88,20 +88,20 @@ bool FMesher::HasPeriodicBC()
     flag=false; // reset flag
 
     // first, test the segments
-    for(i=0;i<linelist.size();i++)
+    for(i=0;i<problem->linelist.size();i++)
     {
-        for(j=0,k=-1;j<lineproplist.size();j++)
+        for(j=0,k=-1;j<problem->lineproplist.size();j++)
         {
-            if(lineproplist[j].BdryName==
-               linelist[i].BoundaryMarkerName)
+            if(problem->lineproplist[j]->BdryName==
+               problem->linelist[i]->BoundaryMarkerName)
             {
                 k=j;
                 break;
             }
         }
         if(k>=0){
-            if ((lineproplist[k].BdryFormat==4) ||
-                (lineproplist[k].BdryFormat==5))
+            if ((problem->lineproplist[k]->BdryFormat==4) ||
+                (problem->lineproplist[k]->BdryFormat==5))
             {
                 flag=true;
                 break;
@@ -113,20 +113,20 @@ bool FMesher::HasPeriodicBC()
 
     // If we've gotten this far, we still need to check the
     // arc segments.
-    for(i=0;i<arclist.size();i++)
+    for(i=0;i<problem->arclist.size();i++)
     {
-        for(j=0,k=-1;j<lineproplist.size();j++)
+        for(j=0,k=-1;j<problem->lineproplist.size();j++)
         {
-            if(lineproplist[j].BdryName==
-               arclist[i].BoundaryMarkerName)
+            if(problem->lineproplist[j]->BdryName==
+               problem->arclist[i]->BoundaryMarkerName)
             {
                 k=j;
                 break;
             }
         }
         if(k>=0){
-            if ((lineproplist[k].BdryFormat==4) ||
-                (lineproplist[k].BdryFormat==5))
+            if ((problem->lineproplist[k]->BdryFormat==4) ||
+                (problem->lineproplist[k]->BdryFormat==5))
             {
                 flag=true;
                 break;
@@ -277,10 +277,10 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     CComplex a0,a1,a2,c;
     //CStdString s;
     string plyname;
-    std::vector < CNode >       nodelst;
-    std::vector < CSegment >    linelst;
-    std::vector < CArcSegment > arclst;
-    std::vector < CBlockLabel > blocklst;
+    std::vector < std::unique_ptr<CNode> >       nodelst;
+    std::vector < std::unique_ptr<CSegment> >    linelst;
+    std::vector < std::unique_ptr<CArcSegment> > arclst;
+    std::vector < std::unique_ptr<CBlockLabel> > blocklst;
     CNode node;
     CSegment segm;
     // structures to hold the iinput and output of triangulaye call
@@ -290,35 +290,35 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     nodelst.clear();
     linelst.clear();
     // calculate length used to kludge fine meshing near input node points
-    for (i=0,z=0;i < linelist.size();i++)
+    for (i=0,z=0;i < problem->linelist.size();i++)
     {
-        a0.Set(nodelist[linelist[i].n0].x,nodelist[linelist[i].n0].y);
-        a1.Set(nodelist[linelist[i].n1].x,nodelist[linelist[i].n1].y);
-        z += (abs(a1-a0)/((double) linelist.size()));
+        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
+        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
+        z += (abs(a1-a0)/((double) problem->linelist.size()));
     }
     dL=z/LineFraction;
 
     // copy node list as it is;
-    for(i=0;i<nodelist.size();i++) nodelst.push_back(nodelist[i]);
+    for(i=0;i<problem->nodelist.size();i++) nodelst.push_back(std::make_unique<CNode>(*problem->nodelist[i]));
 
     // discretize input segments
-    for(i=0;i<linelist.size();i++)
+    for(i=0;i<problem->linelist.size();i++)
     {
-        a0.Set(nodelist[linelist[i].n0].x,nodelist[linelist[i].n0].y);
-        a1.Set(nodelist[linelist[i].n1].x,nodelist[linelist[i].n1].y);
-        if (linelist[i].MaxSideLength==-1) k=1;
+        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
+        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
+        if (problem->linelist[i]->MaxSideLength==-1) k=1;
         else{
             z=abs(a1-a0);
-            k=(int) std::ceil(z/linelist[i].MaxSideLength);
+            k=(int) std::ceil(z/problem->linelist[i]->MaxSideLength);
         }
 
         if (k==1) // default condition where discretization on line is not specified
         {
-            if (abs(a1-a0)<(3.*dL)) linelst.push_back(linelist[i]); // line is too short to add extra points
+            if (abs(a1-a0)<(3.*dL)) linelst.push_back(std::make_unique<CSegment>(*problem->linelist[i])); // line is too short to add extra points
             else{
                 // add extra points at a distance of dL from the ends of the line.
                 // this forces Triangle to finely mesh near corners
-                segm=linelist[i];
+                segm=*problem->linelist[i];
                 for(j=0;j<3;j++)
                 {
                     if(j==0)
@@ -326,10 +326,10 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                         a2=a0+dL*(a1-a0)/abs(a1-a0);
                         node.x=a2.re; node.y=a2.im;
                         l=(int) nodelst.size();
-                        nodelst.push_back(node);
-                        segm.n0=linelist[i].n0;
+                        nodelst.push_back(std::make_unique<CNode>(node));
+                        segm.n0=problem->linelist[i]->n0;
                         segm.n1=l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                     if(j==1)
@@ -337,67 +337,67 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                         a2=a1+dL*(a0-a1)/abs(a1-a0);
                         node.x=a2.re; node.y=a2.im;
                         l=(int) nodelst.size();
-                        nodelst.push_back(node);
+                        nodelst.push_back(std::make_unique<CNode>(node));
                         segm.n0=l-1;
                         segm.n1=l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                     if(j==2)
                     {
                         l=(int) nodelst.size()-1;
                         segm.n0=l;
-                        segm.n1=linelist[i].n1;
-                        linelst.push_back(segm);
+                        segm.n1=problem->linelist[i]->n1;
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                 }
             }
         }
         else{
-            segm=linelist[i];
+            segm=*problem->linelist[i];
             for(j=0;j<k;j++)
             {
                 a2=a0+(a1-a0)*((double) (j+1))/((double) k);
                 node.x=a2.re; node.y=a2.im;
                 if(j==0){
                     l=nodelst.size();
-                    nodelst.push_back(node);
-                    segm.n0=linelist[i].n0;
+                    nodelst.push_back(std::make_unique<CNode>(node));
+                    segm.n0=problem->linelist[i]->n0;
                     segm.n1=l;
-                    linelst.push_back(segm);
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else if(j==(k-1))
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
-                    segm.n1=linelist[i].n1;
-                    linelst.push_back(segm);
+                    segm.n1=problem->linelist[i]->n1;
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else{
                     l=nodelst.size();
-                    nodelst.push_back(node);
+                    nodelst.push_back(std::make_unique<CNode>(node));
                     segm.n0=l-1;
                     segm.n1=l;
-                    linelst.push_back(segm);
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
             }
         }
     }
 
     // discretize input arc segments
-    for(i=0;i<arclist.size();i++)
+    for(i=0;i<problem->arclist.size();i++)
     {
-        a2.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
-        k = (unsigned int) std::ceil(arclist[i].ArcLength/arclist[i].MaxSideLength);
-        segm.BoundaryMarkerName=arclist[i].BoundaryMarkerName;
-        GetCircle(arclist[i],c,R);
-        a1=exp(I*arclist[i].ArcLength*PI/(((double) k)*180.));
+        a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
+        k = (unsigned int) std::ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
+        segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
+        GetCircle(*problem->arclist[i],c,R);
+        a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
 
         if(k==1){
-            segm.n0=arclist[i].n0;
-            segm.n1=arclist[i].n1;
-            linelst.push_back(segm);
+            segm.n0=problem->arclist[i]->n0;
+            segm.n1=problem->arclist[i]->n1;
+            linelst.push_back(std::make_unique<CSegment>(segm));
         }
         else for(j=0;j<k;j++)
         {
@@ -405,24 +405,24 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             node.x=a2.re; node.y=a2.im;
             if(j==0){
                 l=nodelst.size();
-                nodelst.push_back(node);
-                segm.n0=arclist[i].n0;
+                nodelst.push_back(std::make_unique<CNode>(node));
+                segm.n0=problem->arclist[i]->n0;
                 segm.n1=l;
-                linelst.push_back(segm);
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else if(j==(k-1))
             {
                 l=nodelst.size()-1;
                 segm.n0=l;
-                segm.n1=arclist[i].n1;
-                linelst.push_back(segm);
+                segm.n1=problem->arclist[i]->n1;
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else{
                 l=nodelst.size();
-                nodelst.push_back(node);
+                nodelst.push_back(std::make_unique<CNode>(node));
                 segm.n0=l-1;
                 segm.n1=l;
-                linelst.push_back(segm);
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
         }
     }
@@ -432,9 +432,9 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     string pn = PathName;
 
     // write out list of holes;
-    for(i=0,j=0;i<blocklist.size();i++)
+    for(i=0,j=0;i<problem->labellist.size();i++)
     {
-        if(blocklist[i].BlockTypeName=="<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName=="<No Mesh>")
         {
             j++;
         }
@@ -443,7 +443,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // store the number of holes
     Nholes = j;
 
-    NRegionalAttribs = blocklist.size() - j;
+    NRegionalAttribs = problem->labellist.size() - j;
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
@@ -452,13 +452,13 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     double DefaultMeshSize;
     if (nodelst.size()>1)
     {
-        xx=nodelst[0].CC(); yy=xx;
+        xx=nodelst[0]->CC(); yy=xx;
         for(k=0;k<nodelst.size();k++)
         {
-            if (nodelst[k].x<Re(xx)) xx.re=nodelst[k].x;
-            if (nodelst[k].y<Im(xx)) xx.im=nodelst[k].y;
-            if (nodelst[k].x>Re(yy)) yy.re=nodelst[k].x;
-            if (nodelst[k].y>Im(yy)) yy.im=nodelst[k].y;
+            if (nodelst[k]->x<Re(xx)) xx.re=nodelst[k]->x;
+            if (nodelst[k]->y<Im(xx)) xx.im=nodelst[k]->y;
+            if (nodelst[k]->x>Re(yy)) yy.re=nodelst[k]->x;
+            if (nodelst[k]->y>Im(yy)) yy.im=nodelst[k]->y;
         }
         absdist = (double)(abs(yy-xx)/BoundingBoxFraction);
         DefaultMeshSize = std::pow(absdist,2);
@@ -466,9 +466,9 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     else DefaultMeshSize=-1;
 
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockTypeName=="<No Mesh>")
+//        if(blocklist[i]->BlockTypeName=="<No Mesh>")
 //        {
-//            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i].x,blocklist[i].y);
+//            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i]->x,blocklist[i]->y);
 //            k++;
 //        }
 //
@@ -476,12 +476,12 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i\n",blocklist.size()-j);
 //
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockTypeName!="<No Mesh>")
+//        if(blocklist[i]->BlockTypeName!="<No Mesh>")
 //        {
-//            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i].x,blocklist[i].y);
+//            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i]->x,blocklist[i]->y);
 //            fprintf(fp,"%i    ",k+1);
-//            if (blocklist[i].MaxArea>0)
-//                fprintf(fp,"%.17g\n",blocklist[i].MaxArea);
+//            if (blocklist[i]->MaxArea>0)
+//                fprintf(fp,"%.17g\n",blocklist[i]->MaxArea);
 //            else fprintf(fp,"-1\n");
 //            k++;
 //        }
@@ -507,8 +507,8 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     for(i=0; i < (unsigned int)(2 * in.numberofpoints - 1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2].x;
-        in.pointlist[i+1] = nodelst[i/2].y;
+        in.pointlist[i] = nodelst[i/2]->x;
+        in.pointlist[i+1] = nodelst[i/2]->y;
     }
 
     in.numberofpointattributes = 0;
@@ -525,16 +525,16 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // write out node marker list
     for(i=0;i<nodelst.size();i++)
     {
-        for(j=0,t=0;j<nodeproplist.size ();j++)
-                if(nodeproplist[j].PointName==nodelst[i].BoundaryMarkerName) t = j + 2;
+        for(j=0,t=0;j<problem->nodeproplist.size ();j++)
+                if(problem->nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName) t = j + 2;
 
         if (filetype == F_TYPE_HEATFLOW)
         {
             // include conductor number;
-            for(j = 0; j < circproplist.size (); j++)
+            for(j = 0; j < problem->circproplist.size (); j++)
             {
                 // add the conductor numer using a mask
-                if(circproplist[j].CircName == nodelst[i].InConductorName) t += ((j+1) * 0x10000);
+                if(problem->circproplist[j]->CircName == nodelst[i]->InConductorName) t += ((j+1) * 0x10000);
             }
         }
 
@@ -557,9 +557,9 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // build the segmentlist
     for(i=0; i < (unsigned int)(2*in.numberofsegments - 1); i = i + 2)
     {
-            in.segmentlist[i] = linelst[i/2].n0;
+            in.segmentlist[i] = linelst[i/2]->n0;
 
-            in.segmentlist[i+1] = linelst[i/2].n1;
+            in.segmentlist[i+1] = linelst[i/2]->n1;
     }
 
     // now build the segment marker list
@@ -568,9 +568,9 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // construct the segment list
     for(i=0;i<linelst.size();i++)
     {
-        for(j=0,t=0; j < lineproplist.size (); j++)
+        for(j=0,t=0; j < problem->lineproplist.size (); j++)
         {
-                if (lineproplist[j].BdryName == linelst[i].BoundaryMarkerName)
+                if (problem->lineproplist[j]->BdryName == linelst[i]->BoundaryMarkerName)
                 {
                     t = -(j+2);
                 }
@@ -579,9 +579,9 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         if (filetype == F_TYPE_HEATFLOW)
         {
             // include conductor number;
-            for (j=0; j < circproplist.size (); j++)
+            for (j=0; j < problem->circproplist.size (); j++)
             {
-                if (circproplist[j].CircName == linelst[i].InConductorName)
+                if (problem->circproplist[j]->CircName == linelst[i]->InConductorName)
                 {
                     t -= ((j+1) * 0x10000);
                 }
@@ -598,14 +598,14 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     }
 
     // Construct the holes array
-    for(i=0, k=0; i < blocklist.size(); i++)
+    for(i=0, k=0; i < problem->labellist.size(); i++)
     {
         // we search through the block list looking for blocks that have
         // the tag <no mesh>
-        if(blocklist[i].BlockTypeName == "<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName == "<No Mesh>")
         {
-            in.holelist[k] = blocklist[i].x;
-            in.holelist[k+1] = blocklist[i].y;
+            in.holelist[k] = problem->labellist[i]->x;
+            in.holelist[k+1] = problem->labellist[i]->y;
             k = k + 2;
         }
     }
@@ -616,17 +616,17 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         return -1;
     }
 
-    for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
+    for(i = 0, j = 0, k = 0; i < problem->labellist.size(); i++)
     {
-        if(blocklist[i].BlockTypeName != "<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName != "<No Mesh>")
         {
-            in.regionlist[j] = blocklist[i].x;
-            in.regionlist[j+1] = blocklist[i].y;
+            in.regionlist[j] = problem->labellist[i]->x;
+            in.regionlist[j+1] = problem->labellist[i]->y;
             in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
 
-//            if (blocklist[i].MaxArea>0 && (blocklist[i].MaxArea<DefaultMeshSize))
+//            if (blocklist[i]->MaxArea>0 && (blocklist[i]->MaxArea<DefaultMeshSize))
 //            {
-//                in.regionlist[j+3] = blocklist[i].MaxArea;  // Area constraint
+//                in.regionlist[j+3] = blocklist[i]->MaxArea;  // Area constraint
 //            }
 //            else
 //            {
@@ -634,12 +634,12 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 //            }
 
             // Area constraint
-            if (blocklist[i].MaxArea <= 0)
+            if (problem->labellist[i]->MaxArea <= 0)
             {
                 // if no mesh size has been specified use the default
                 in.regionlist[j+3] = DefaultMeshSize;
             }
-            else if ((blocklist[i].MaxArea > DefaultMeshSize) && (DoForceMaxMeshArea))
+            else if ((problem->labellist[i]->MaxArea > DefaultMeshSize) && (problem->DoForceMaxMeshArea))
             {
                 // if the user has specied that FEMM should choose an
                 // upper mesh size limit, regardles of their choice,
@@ -650,7 +650,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             else
             {
                 // Use the user's choice of mesh size
-                in.regionlist[j+3] = blocklist[i].MaxArea;
+                in.regionlist[j+3] = problem->labellist[i]->MaxArea;
             }
 
             j = j + 4;
@@ -685,11 +685,11 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     if (Verbose)
     {
-        sprintf(CommandLine, "-pPq%feAazI", MinAngle);
+        sprintf(CommandLine, "-pPq%feAazI", problem->MinAngle);
     }
     else
     {
-        sprintf(CommandLine, "-pPq%feAazQI", MinAngle);
+        sprintf(CommandLine, "-pPq%feAazQI", problem->MinAngle);
     }
 
     tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
@@ -767,12 +767,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     char instring[1024];
     //string s;
     string plyname;
-    std::vector < CNode >             nodelst;
-    std::vector < CSegment >          linelst;
-    std::vector < CArcSegment >       arclst;
-    std::vector < CBlockLabel >       blocklst;
-    std::vector < CPeriodicBoundary > pbclst;
-    std::vector < CCommonPoint >      ptlst;
+    std::vector < std::unique_ptr<CNode> >             nodelst;
+    std::vector < std::unique_ptr<CSegment> >          linelst;
+    std::vector < std::unique_ptr<CArcSegment> >       arclst;
+    std::vector < std::unique_ptr<CBlockLabel> >       blocklst;
+    std::vector < std::unique_ptr<CPeriodicBoundary> > pbclst;
+    std::vector < std::unique_ptr<CCommonPoint> >      ptlst;
     CNode node;
     CSegment segm;
     CPeriodicBoundary pbc;
@@ -788,44 +788,44 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     UpdateUndo();
 
     // calculate length used to kludge fine meshing near input node points
-    for (i=0, z=0; i<linelist.size(); i++)
+    for (i=0, z=0; i<problem->linelist.size(); i++)
     {
-        a0.Set(nodelist[linelist[i].n0].x,nodelist[linelist[i].n0].y);
-        a1.Set(nodelist[linelist[i].n1].x,nodelist[linelist[i].n1].y);
-        z += (abs(a1-a0) / ((double) linelist.size()));
+        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
+        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
+        z += (abs(a1-a0) / ((double) problem->linelist.size()));
     }
     dL = z / LineFraction;
 
     // copy node list as it is;
-    for(i=0; i<nodelist.size(); i++)
+    for(i=0; i<problem->nodelist.size(); i++)
     {
-        nodelst.push_back(nodelist[i]);
+        nodelst.push_back(std::make_unique<CNode>(*problem->nodelist[i]));
     }
 
     // discretize input segments
-    for(i=0; i<linelist.size(); i++)
+    for(i=0; i<problem->linelist.size(); i++)
     {
         // use the cnt flag to carry a notation
         // of which line or arc in the input geometry a
         // particular segment is associated with
-        segm = linelist[i];
+        segm = *problem->linelist[i];
         segm.cnt = i;
-        a0.Set(nodelist[linelist[i].n0].x, nodelist[linelist[i].n0].y);
-        a1.Set(nodelist[linelist[i].n1].x, nodelist[linelist[i].n1].y);
+        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x, problem->nodelist[problem->linelist[i]->n0]->y);
+        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x, problem->nodelist[problem->linelist[i]->n1]->y);
 
-        if (linelist[i].MaxSideLength == -1) {
+        if (problem->linelist[i]->MaxSideLength == -1) {
             k = 1;
         }
         else{
             z = abs(a1-a0);
-            k = (unsigned int) std::ceil(z/linelist[i].MaxSideLength);
+            k = (unsigned int) std::ceil(z/problem->linelist[i]->MaxSideLength);
         }
 
         if (k == 1) // default condition where discretization on line is not specified
         {
             if (abs(a1-a0) < (3. * dL)) {
                 // line is too short to add extra points
-                linelst.push_back(segm);
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else{
                 // add extra points at a distance of dL from the ends of the line.
@@ -838,10 +838,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         node.x = a2.re;
                         node.y = a2.im;
                         l = (int) nodelst.size();
-                        nodelst.push_back(node);
-                        segm.n0 = linelist[i].n0;
+                        nodelst.push_back(std::make_unique<CNode>(node));
+                        segm.n0 = problem->linelist[i]->n0;
                         segm.n1 = l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                     if(j == 1)
@@ -850,18 +850,18 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         node.x = a2.re;
                         node.y = a2.im;
                         l = (int) nodelst.size();
-                        nodelst.push_back(node);
+                        nodelst.push_back(std::make_unique<CNode>(node));
                         segm.n0 = l - 1;
                         segm.n1 = l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                     if(j == 2)
                     {
                         l = (int) nodelst.size() - 1;
                         segm.n0 = l;
-                        segm.n1 = linelist[i].n1;
-                        linelst.push_back(segm);
+                        segm.n1 = problem->linelist[i]->n1;
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                 }
@@ -875,43 +875,43 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 node.y = a2.im;
                 if(j == 0){
                     l=nodelst.size();
-                    nodelst.push_back(node);
-                    segm.n0=linelist[i].n0;
+                    nodelst.push_back(std::make_unique<CNode>(node));
+                    segm.n0=problem->linelist[i]->n0;
                     segm.n1=l;
-                    linelst.push_back(segm);
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else if(j == (k-1))
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
-                    segm.n1=linelist[i].n1;
-                    linelst.push_back(segm);
+                    segm.n1=problem->linelist[i]->n1;
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else{
                     l=nodelst.size();
-                    nodelst.push_back(node);
+                    nodelst.push_back(std::make_unique<CNode>(node));
                     segm.n0=l-1;
                     segm.n1=l;
-                    linelst.push_back(segm);
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
             }
         }
     }
 
     // discretize input arc segments
-    for(i=0;i<arclist.size();i++)
+    for(i=0;i<problem->arclist.size();i++)
     {
-        segm.cnt=i+linelist.size();
-        a2.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
-        k=(int) ceil(arclist[i].ArcLength/arclist[i].MaxSideLength);
-        segm.BoundaryMarkerName=arclist[i].BoundaryMarkerName;
-        GetCircle(arclist[i],c,R);
-        a1=exp(I*arclist[i].ArcLength*PI/(((double) k)*180.));
+        segm.cnt=i+problem->linelist.size();
+        a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
+        k=(int) ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
+        segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
+        GetCircle(*problem->arclist[i],c,R);
+        a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
 
         if(k==1){
-            segm.n0=arclist[i].n0;
-            segm.n1=arclist[i].n1;
-            linelst.push_back(segm);
+            segm.n0=problem->arclist[i]->n0;
+            segm.n1=problem->arclist[i]->n1;
+            linelst.push_back(std::make_unique<CSegment>(segm));
         }
         else for(j=0;j<k;j++)
         {
@@ -919,24 +919,24 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             node.x=a2.re; node.y=a2.im;
             if(j==0){
                 l=nodelst.size();
-                nodelst.push_back(node);
-                segm.n0=arclist[i].n0;
+                nodelst.push_back(std::make_unique<CNode>(node));
+                segm.n0=problem->arclist[i]->n0;
                 segm.n1=l;
-                linelst.push_back(segm);
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else if(j==(k-1))
             {
                 l=nodelst.size()-1;
                 segm.n0=l;
-                segm.n1=arclist[i].n1;
-                linelst.push_back(segm);
+                segm.n1=problem->arclist[i]->n1;
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else{
                 l=nodelst.size();
-                nodelst.push_back(node);
+                nodelst.push_back(std::make_unique<CNode>(node));
                 segm.n0=l-1;
                 segm.n1=l;
-                linelst.push_back(segm);
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
         }
     }
@@ -959,21 +959,21 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    for(i=0;i<nodelst.size();i++)
 //    {
 //        fprintf(fp,"%i    %.17g    %.17g    %i\n",
-//                 i,nodelst[i].x,nodelst[i].y,0);
+//                 i,nodelst[i]->x,nodelst[i]->y,0);
 //    }
 //
 //    // write out segment list
 //    fprintf(fp,"%i    1\n",linelst.size());
 //    for(i=0;i<linelst.size();i++)
 //    {
-//        t=-(linelst[i].cnt+2);
-//        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i].n0,linelst[i].n1,t);
+//        t=-(linelst[i]->cnt+2);
+//        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i]->n0,linelst[i]->n1,t);
 //    }
 
     // write out list of holes;
-    for(i=0,j=0;i<blocklist.size();i++)
+    for(i=0,j=0;i<problem->labellist.size();i++)
     {
-        if(blocklist[i].BlockTypeName=="<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName=="<No Mesh>")
         {
             j++;
         }
@@ -982,7 +982,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i\n",j);
 
     Nholes = j;
-    NRegionalAttribs = blocklist.size() - Nholes;
+    NRegionalAttribs = problem->labellist.size() - Nholes;
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
@@ -991,13 +991,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     double DefaultMeshSize;
     if (nodelst.size()>1)
     {
-        xx=nodelst[0].CC(); yy=xx;
+        xx=nodelst[0]->CC(); yy=xx;
         for(k=0;k<nodelst.size();k++)
         {
-            if (nodelst[k].x<Re(xx)) xx.re=nodelst[k].x;
-            if (nodelst[k].y<Im(xx)) xx.im=nodelst[k].y;
-            if (nodelst[k].x>Re(yy)) yy.re=nodelst[k].x;
-            if (nodelst[k].y>Im(yy)) yy.im=nodelst[k].y;
+            if (nodelst[k]->x<Re(xx)) xx.re=nodelst[k]->x;
+            if (nodelst[k]->y<Im(xx)) xx.im=nodelst[k]->y;
+            if (nodelst[k]->x>Re(yy)) yy.re=nodelst[k]->x;
+            if (nodelst[k]->y>Im(yy)) yy.im=nodelst[k]->y;
         }
         temp = (double)(abs(yy-xx)/BoundingBoxFraction);
         DefaultMeshSize=std::pow(temp,2);
@@ -1005,9 +1005,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     else DefaultMeshSize=-1;
 
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockTypeName=="<No Mesh>")
+//        if(blocklist[i]->BlockTypeName=="<No Mesh>")
 //        {
-//            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i].x,blocklist[i].y);
+//            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i]->x,blocklist[i]->y);
 //            k++;
 //        }
 
@@ -1015,12 +1015,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i\n",blocklist.size()-j);
 //
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockTypeName!="<No Mesh>")
+//        if(blocklist[i]->BlockTypeName!="<No Mesh>")
 //        {
-//            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i].x,blocklist[i].y);
+//            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i]->x,blocklist[i]->y);
 //            fprintf(fp,"%i    ",k+1);
-//            if (blocklist[i].MaxArea>0)
-//                fprintf(fp,"%.17g\n",blocklist[i].MaxArea);
+//            if (blocklist[i]->MaxArea>0)
+//                fprintf(fp,"%.17g\n",blocklist[i]->MaxArea);
 //            else fprintf(fp,"-1\n");
 //            k++;
 //        }
@@ -1039,8 +1039,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i=0; i < (unsigned int)(2 * in.numberofpoints-1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2].x;
-        in.pointlist[i+1] = nodelst[i/2].y;
+        in.pointlist[i] = nodelst[i/2]->x;
+        in.pointlist[i+1] = nodelst[i/2]->y;
     }
 
     in.numberofpointattributes = 0;
@@ -1075,9 +1075,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // build the segmentlist
     for(i=0; i < (unsigned int)(2*in.numberofsegments - 1); i = i + 2)
     {
-            in.segmentlist[i] = linelst[i/2].n0;
+            in.segmentlist[i] = linelst[i/2]->n0;
 
-            in.segmentlist[i+1] = linelst[i/2].n1;
+            in.segmentlist[i+1] = linelst[i/2]->n1;
 
             //PRINTF("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
     }
@@ -1088,7 +1088,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // construct the segment marker list
     for(i=0; i < linelst.size(); i++)
     {
-        t = -(linelst[i].cnt+2);
+        t = -(linelst[i]->cnt+2);
 
         in.segmentmarkerlist[i] = t;
     }
@@ -1102,15 +1102,15 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         }
 
         // Construct the holes array
-        for(i=0, k=0; i < blocklist.size(); i++)
+        for(i=0, k=0; i < problem->labellist.size(); i++)
         {
             // we search through the block list looking for blocks that have
             // the tag <no mesh>
-            if(blocklist[i].BlockTypeName == "<No Mesh>")
+            if(problem->labellist[i]->BlockTypeName == "<No Mesh>")
             {
-                //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i].x, blocklist[i].y);
-                in.holelist[k] = blocklist[i].x;
-                in.holelist[k+1] = blocklist[i].y;
+                //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i]->x, blocklist[i]->y);
+                in.holelist[k] = problem->labellist[i]->x;
+                in.holelist[k+1] = problem->labellist[i]->y;
                 k = k + 2;
             }
         }
@@ -1126,18 +1126,18 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         return -1;
     }
 
-    for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
+    for(i = 0, j = 0, k = 0; i < problem->labellist.size(); i++)
     {
-        if(blocklist[i].BlockTypeName != "<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName != "<No Mesh>")
         {
 
-            in.regionlist[j] = blocklist[i].x;
-            in.regionlist[j+1] = blocklist[i].y;
+            in.regionlist[j] = problem->labellist[i]->x;
+            in.regionlist[j+1] = problem->labellist[i]->y;
             in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
 
-            if (blocklist[i].MaxArea > 0 && (blocklist[i].MaxArea<DefaultMeshSize))
+            if (problem->labellist[i]->MaxArea > 0 && (problem->labellist[i]->MaxArea<DefaultMeshSize))
             {
-                in.regionlist[j+3] = blocklist[i].MaxArea;  // Area constraint
+                in.regionlist[j+3] = problem->labellist[i]->MaxArea;  // Area constraint
             }
             else
             {
@@ -1188,12 +1188,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // See http://www.cs.cmu.edu/~quake/triangle.switch.html for more info
     if (Verbose)
     {
-        sprintf(CommandLine, "-pPq%feAazI", MinAngle);
+        sprintf(CommandLine, "-pPq%feAazI", problem->MinAngle);
     }
     else
     {
         // -Q silences output
-        sprintf(CommandLine, "-pPq%feAazQI", MinAngle);
+        sprintf(CommandLine, "-pPq%feAazQI", problem->MinAngle);
     }
 
     // call triangulate (Triangle as library) to perform the meshing
@@ -1267,13 +1267,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // use cnt again to keep a
     // tally of how many subsegments each
     // entity is sliced into.
-    for(i=0; i < arclist.size(); i++) arclist[i].cnt=0;
+    for(i=0; i < problem->arclist.size(); i++) problem->arclist[i]->cnt=0;
 
-    ptlst.resize(linelist.size()+arclist.size());
+    ptlst.resize(problem->linelist.size()+problem->arclist.size());
 
     for(i=0;i<ptlst.size();i++)
     {
-        ptlst[i].t = 0;
+        ptlst[i]->t = 0;
     }
 
     for(i=0;i<k;i++)
@@ -1292,37 +1292,37 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // store a reference line that we can use to
             // determine whether or not this is a
             // boundary segment w/out re-running triangle.
-            if (ptlst[j].t==0)
+            if (ptlst[j]->t==0)
             {
-                ptlst[j].t=1;
+                ptlst[j]->t=1;
                 if(n0<n1){
-                    ptlst[j].x=n0;
-                    ptlst[j].y=n1;
+                    ptlst[j]->x=n0;
+                    ptlst[j]->y=n1;
                 }
                 else{
-                    ptlst[j].x=n1;
-                    ptlst[j].y=n0;
+                    ptlst[j]->x=n1;
+                    ptlst[j]->y=n0;
                 }
             }
 
-            if(j<linelist.size())
+            if(j<problem->linelist.size())
             {
                 // deal with segments
 
                 // increment cnt for the segment which the edge we are
                 // examining is a part of to get a tally of how many edges
                 // are a part of the segment/boundary
-                linelist[j].cnt++;
+                problem->linelist[j]->cnt++;
                 // check if the end n0 of the segment is the same node as the
                 // end n1 of the edge, or if the end n1 of the segment is the
                 // same node and end n0 of the edge. If so, flip the direction
                 // of the segment
-                if((linelist[j].n0 == n1) || (linelist[j].n1 == n0))
+                if((problem->linelist[j]->n0 == n1) || (problem->linelist[j]->n1 == n0))
                 {
                     // flip the end points of the segment
-                    t = linelist[j].n0;
-                    linelist[j].n0 = linelist[j].n1;
-                    linelist[j].n1 = t;
+                    t = problem->linelist[j]->n0;
+                    problem->linelist[j]->n0 = problem->linelist[j]->n1;
+                    problem->linelist[j]->n1 = t;
                 }
             }
             else{
@@ -1332,12 +1332,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 // a marker which denotes which side the
                 // normal is on.
 
-                j=j-linelist.size();
-                arclist[j].cnt++;
-                if((arclist[j].n0==n1) || (arclist[j].n1==n0))
-                    arclist[j].NormalDirection=false;
-                if((arclist[j].n0==n0) || (arclist[j].n1==n1))
-                    arclist[j].NormalDirection=true;
+                j=j-problem->linelist.size();
+                problem->arclist[j]->cnt++;
+                if((problem->arclist[j]->n0==n1) || (problem->arclist[j]->n1==n0))
+                    problem->arclist[j]->NormalDirection=false;
+                if((problem->arclist[j]->n0==n0) || (problem->arclist[j]->n1==n1))
+                    problem->arclist[j]->NormalDirection=true;
             }
         }
     }
@@ -1375,29 +1375,29 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         // are sides of this node...
         for(j=0;j<ptlst.size();j++)
         {
-            if ((n0==ptlst[j].x) && (n1==ptlst[j].y)) ptlst[j].t--;
-            if ((n0==ptlst[j].x) && (n2==ptlst[j].y)) ptlst[j].t--;
-            if ((n1==ptlst[j].x) && (n2==ptlst[j].y)) ptlst[j].t--;
+            if ((n0==ptlst[j]->x) && (n1==ptlst[j]->y)) ptlst[j]->t--;
+            if ((n0==ptlst[j]->x) && (n2==ptlst[j]->y)) ptlst[j]->t--;
+            if ((n1==ptlst[j]->x) && (n2==ptlst[j]->y)) ptlst[j]->t--;
         }
     }
     fclose(fp);
 
     // impose "new" mesh constraints on bdry arcs and segments....
-    for(i=0; i < linelist.size(); i++)
+    for(i=0; i < problem->linelist.size(); i++)
     {
-        if (ptlst[i].t == 0)
+        if (ptlst[i]->t == 0)
         {
             // simply make the max side length equal to the
             // length of the boundary divided by the number
             // of elements that were created in the first
             // attempt at meshing
-            linelist[i].MaxSideLength = LineLength(i) / ((double) linelist[i].cnt);
+            problem->linelist[i]->MaxSideLength = LineLength(i) / ((double) problem->linelist[i]->cnt);
         }
     }
 
-    for(i=0; i < arclist.size(); i++)
+    for(i=0; i < problem->arclist.size(); i++)
     {
-        if (ptlst[i+linelist.size()].t == 0)
+        if (ptlst[i+problem->linelist.size()]->t == 0)
         {
             // alter maxsidelength, but do it in such
             // a way that it carries only 4 significant
@@ -1407,11 +1407,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // its properties.
             char kludge[32];
 
-            arclist[i].MaxSideLength = arclist[i].ArcLength/((double) arclist[i].cnt);
+            problem->arclist[i]->MaxSideLength = problem->arclist[i]->ArcLength/((double) problem->arclist[i]->cnt);
 
-            sprintf(kludge,"%.1e",arclist[i].MaxSideLength);
+            sprintf(kludge,"%.1e",problem->arclist[i]->MaxSideLength);
 
-            sscanf(kludge,"%lf",&arclist[i].MaxSideLength);
+            sscanf(kludge,"%lf",&problem->arclist[i]->MaxSideLength);
         }
     }
 
@@ -1431,54 +1431,54 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // in a messed up way.
 
     // First, search through defined bc's for periodic ones;
-    for(i=0;i<lineproplist.size();i++)
+    for(i=0;i<problem->lineproplist.size();i++)
     {
-        if ((lineproplist[i].BdryFormat==4) ||
-            (lineproplist[i].BdryFormat==5)){
-            pbc.BdryName=lineproplist[i].BdryName;
-            pbc.BdryFormat=lineproplist[i].BdryFormat-4; // 0 for pbc, 1 for apbc
-            pbclst.push_back(pbc);
+        if ((problem->lineproplist[i]->BdryFormat==4) ||
+            (problem->lineproplist[i]->BdryFormat==5)){
+            pbc.BdryName=problem->lineproplist[i]->BdryName;
+            pbc.BdryFormat=problem->lineproplist[i]->BdryFormat-4; // 0 for pbc, 1 for apbc
+            pbclst.push_back(std::make_unique<CPeriodicBoundary>(pbc));
         }
     }
 
-    for(i=0;i<linelist.size();i++)
+    for(i=0;i<problem->linelist.size();i++)
     {
         for(j=0;j<pbclst.size();j++)
         {
-            if (pbclst[j].BdryName==linelist[i].BoundaryMarkerName)
+            if (pbclst[j]->BdryName==problem->linelist[i]->BoundaryMarkerName)
             {
                 // A pbc or apbc can only be applied to 2 segs
                 // at a time.  If it is applied to multiple segs
                 // at the same time, flag it and kick it out.
-                if (pbclst[j].nseg==2)
+                if (pbclst[j]->nseg==2)
                 {
                     WarnMessage("An (anti)periodic BC is assigned to more than two segments");
                     Undo();  UnselectAll();
                     return -1;
                 }
-                pbclst[j].seg[pbclst[j].nseg]=i;
-                pbclst[j].nseg++;
+                pbclst[j]->seg[pbclst[j]->nseg]=i;
+                pbclst[j]->nseg++;
             }
         }
     }
 
-    for(i=0;i<arclist.size();i++)
+    for(i=0;i<problem->arclist.size();i++)
     {
         for(j=0;j<pbclst.size();j++)
         {
-            if (pbclst[j].BdryName==arclist[i].BoundaryMarkerName)
+            if (pbclst[j]->BdryName==problem->arclist[i]->BoundaryMarkerName)
             {
                 // A pbc or apbc can only be applied to 2 arcs
                 // at a time.  If it is applied to multiple arcs
                 // at the same time, flag it and kick it out.
-                if (pbclst[j].narc==2)
+                if (pbclst[j]->narc==2)
                 {
                     WarnMessage("An (anti)periodic BC is assigned to more than two arcs");
                     Undo();  UnselectAll();
                     return -1;
                 }
-                pbclst[j].seg[pbclst[j].narc]=i;
-                pbclst[j].narc++;
+                pbclst[j]->seg[pbclst[j]->narc]=i;
+                pbclst[j]->narc++;
             }
         }
     }
@@ -1488,7 +1488,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         // check for a bc that is a mix of arcs and segments.
         // this is an error, and it should get flagged.
-        if ((pbclst[j].nseg>0) && (pbclst[j].narc>0))
+        if ((pbclst[j]->nseg>0) && (pbclst[j]->narc>0))
         {
             WarnMessage("Can't mix arcs and segments for (anti)periodic BCs");
             Undo();  UnselectAll();
@@ -1497,7 +1497,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
 
         // remove any periodic BC's that aren't actually in play
-        if((pbclst[j].nseg<2) && (pbclst[j].narc<2)) pbclst.erase(pbclst.begin()+j);
+        if((pbclst[j]->nseg<2) && (pbclst[j]->narc<2)) pbclst.erase(pbclst.begin()+j);
         else j++;
     }
 
@@ -1508,11 +1508,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         // reconcile meshing on the objects.
 
         // for segments:
-        if(pbclst[j].nseg>0){
+        if(pbclst[j]->nseg>0){
 
             // make sure that lines are pretty much the same length
-            if(fabs(LineLength(pbclst[j].seg[0])
-                   -LineLength(pbclst[j].seg[1]))>1.e-06)
+            if(fabs(LineLength(pbclst[j]->seg[0])
+                   -LineLength(pbclst[j]->seg[1]))>1.e-06)
             {
                 WarnMessage("(anti)periodic BCs applied to dissimilar segments");
                 Undo();  UnselectAll();
@@ -1521,24 +1521,24 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             // make sure that both lines have the same spacing
             double len1,len2,len;
-            len1=linelist[pbclst[j].seg[0]].MaxSideLength;
-            len2=linelist[pbclst[j].seg[1]].MaxSideLength;
+            len1=problem->linelist[pbclst[j]->seg[0]]->MaxSideLength;
+            len2=problem->linelist[pbclst[j]->seg[1]]->MaxSideLength;
 
             if(len1<=0) len1=len2;
             if(len2<=0) len2=len1;
             len=(std::min)(len1,len2);
 
-            linelist[pbclst[j].seg[0]].MaxSideLength=len;
-            linelist[pbclst[j].seg[1]].MaxSideLength=len;
+            problem->linelist[pbclst[j]->seg[0]]->MaxSideLength=len;
+            problem->linelist[pbclst[j]->seg[1]]->MaxSideLength=len;
         }
 
         // for arc segments:
-        if(pbclst[j].narc>0){
+        if(pbclst[j]->narc>0){
 
             // make sure that arcs are pretty much the
             // same arc length
-            if(fabs(arclist[pbclst[j].seg[0]].ArcLength
-                   -arclist[pbclst[j].seg[1]].ArcLength)>1.e-06)
+            if(fabs(problem->arclist[pbclst[j]->seg[0]]->ArcLength
+                   -problem->arclist[pbclst[j]->seg[1]]->ArcLength)>1.e-06)
             {
                 WarnMessage("(anti)periodic BCs applied to dissimilar arc segments");
                 Undo();  UnselectAll();
@@ -1547,13 +1547,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             // make sure that both lines have the same spacing
             double len1,len2,len;
-            len1=arclist[pbclst[j].seg[0]].MaxSideLength;
-            len2=arclist[pbclst[j].seg[1]].MaxSideLength;
+            len1=problem->arclist[pbclst[j]->seg[0]]->MaxSideLength;
+            len2=problem->arclist[pbclst[j]->seg[1]]->MaxSideLength;
 
             len=(std::min)(len1,len2);
 
-            arclist[pbclst[j].seg[0]].MaxSideLength=len;
-            arclist[pbclst[j].seg[1]].MaxSideLength=len;
+            problem->arclist[pbclst[j]->seg[0]]->MaxSideLength=len;
+            problem->arclist[pbclst[j]->seg[1]]->MaxSideLength=len;
         }
     }
 
@@ -1567,61 +1567,61 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     linelst.clear();
 
     // first, add in existing nodes
-    for(n=0; n < nodelist.size(); n++)
+    for(n=0; n < problem->nodelist.size(); n++)
     {
-        nodelst.push_back(nodelist[n]);
+        nodelst.push_back(std::make_unique<CNode>(*problem->nodelist[n]));
     }
 
     for(n=0; n<pbclst.size(); n++)
     {
-        if (pbclst[n].nseg != 0) // if this pbc is a line segment...
+        if (pbclst[n]->nseg != 0) // if this pbc is a line segment...
         {
             int s0,s1;
             CNode node0,node1;
 
-            s0=pbclst[n].seg[0];
-            s1=pbclst[n].seg[1];
-            linelist[s0].IsSelected=1;
-            linelist[s1].IsSelected=1;
+            s0=pbclst[n]->seg[0];
+            s1=pbclst[n]->seg[1];
+            problem->linelist[s0]->IsSelected=1;
+            problem->linelist[s1]->IsSelected=1;
 
             // make it so that first point on first line
             // maps to first point on second line...
-            t = linelist[s1].n1;
-            linelist[s1].n1 = linelist[s1].n0;
-            linelist[s1].n0 = t;
+            t = problem->linelist[s1]->n1;
+            problem->linelist[s1]->n1 = problem->linelist[s1]->n0;
+            problem->linelist[s1]->n0 = t;
 
             // store number of sub-segments in k
-            if (linelist[s0].MaxSideLength == -1)
+            if (problem->linelist[s0]->MaxSideLength == -1)
             {
                 k = 1;
             }
             else{
-                a0 = nodelist[linelist[s0].n0].CC();
-                a1 = nodelist[linelist[s0].n1].CC();
-                b0 = nodelist[linelist[s1].n0].CC();
-                b1 = nodelist[linelist[s1].n1].CC();
+                a0 = problem->nodelist[problem->linelist[s0]->n0]->CC();
+                a1 = problem->nodelist[problem->linelist[s0]->n1]->CC();
+                b0 = problem->nodelist[problem->linelist[s1]->n0]->CC();
+                b1 = problem->nodelist[problem->linelist[s1]->n1]->CC();
                 z = abs(a1-a0);
-                k = (int) std::ceil(z/linelist[s0].MaxSideLength);
+                k = (int) std::ceil(z/problem->linelist[s0]->MaxSideLength);
             }
 
             // add segment end points to the list;
-            pt.x = linelist[s0].n0;
-            pt.y = linelist[s1].n0;
-            pt.t = pbclst[n].BdryFormat;
-            ptlst.push_back(pt);
-            pt.x = linelist[s0].n1;
-            pt.y = linelist[s1].n1;
-            pt.t = pbclst[n].BdryFormat;
-            ptlst.push_back(pt);
+            pt.x = problem->linelist[s0]->n0;
+            pt.y = problem->linelist[s1]->n0;
+            pt.t = pbclst[n]->BdryFormat;
+            ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+            pt.x = problem->linelist[s0]->n1;
+            pt.y = problem->linelist[s1]->n1;
+            pt.t = pbclst[n]->BdryFormat;
+            ptlst.push_back(std::make_unique<CCommonPoint>(pt));
 
             if (k == 1){
                 // catch the case in which the line
                 // doesn't get subdivided.
-                linelst.push_back(linelist[s0]);
-                linelst.push_back(linelist[s1]);
+                linelst.push_back(std::make_unique<CSegment>(*problem->linelist[s0]));
+                linelst.push_back(std::make_unique<CSegment>(*problem->linelist[s1]));
             }
             else{
-                segm = linelist[s0];
+                segm = *problem->linelist[s0];
                 for(j=0; j<k; j++)
                 {
                     a2=a0+(a1-a0)*((double) (j+1))/((double) k);
@@ -1630,21 +1630,21 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                     node1.x = b2.re; node1.y = b2.im;
                     if(j==0){
                         l = nodelst.size();
-                        nodelst.push_back(node0);
-                        segm.n0 = linelist[s0].n0;
+                        nodelst.push_back(std::make_unique<CNode>(node0));
+                        segm.n0 = problem->linelist[s0]->n0;
                         segm.n1 = l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                         pt.x = l;
 
                         l = nodelst.size();
-                        nodelst.push_back(node1);
-                        segm.n0 = linelist[s1].n0;
+                        nodelst.push_back(std::make_unique<CNode>(node1));
+                        segm.n0 = problem->linelist[s1]->n0;
                         segm.n1 = l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                         pt.y = l;
 
-                        pt.t = pbclst[n].BdryFormat;
-                        ptlst.push_back(pt);
+                        pt.t = pbclst[n]->BdryFormat;
+                        ptlst.push_back(std::make_unique<CCommonPoint>(pt));
                     }
                     else if(j==(k-1))
                     {
@@ -1652,32 +1652,32 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         // entry associated with this one.
                         l = nodelst.size()-2;
                         segm.n0 = l;
-                        segm.n1 = linelist[s0].n1;
-                        linelst.push_back(segm);
+                        segm.n1 = problem->linelist[s0]->n1;
+                        linelst.push_back(std::make_unique<CSegment>(segm));
 
                         l = nodelst.size()-1;
                         segm.n0 = l;
-                        segm.n1 = linelist[s1].n1;
-                        linelst.push_back(segm);
+                        segm.n1 = problem->linelist[s1]->n1;
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
                     else{
                         l = nodelst.size();
 
-                        nodelst.push_back(node0);
-                        nodelst.push_back(node1);
+                        nodelst.push_back(std::make_unique<CNode>(node0));
+                        nodelst.push_back(std::make_unique<CNode>(node1));
 
                         segm.n0 = l-2;
                         segm.n1 = l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
 
                         segm.n0 = l-1;
                         segm.n1 = l+1;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
 
                         pt.x = l;
                         pt.y = l+1;
-                        pt.t = pbclst[n].BdryFormat;
-                        ptlst.push_back(pt);
+                        pt.t = pbclst[n]->BdryFormat;
+                        ptlst.push_back(std::make_unique<CCommonPoint>(pt));
                     }
                 }
             }
@@ -1690,56 +1690,56 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             CComplex bgn0,bgn1,c0,c1,d0,d1;
             double r0,r1;
 
-            s0 = pbclst[n].seg[0];
-            s1 = pbclst[n].seg[1];
-            arclist[s0].IsSelected = 1;
-            arclist[s1].IsSelected = 1;
+            s0 = pbclst[n]->seg[0];
+            s1 = pbclst[n]->seg[1];
+            problem->arclist[s0]->IsSelected = 1;
+            problem->arclist[s1]->IsSelected = 1;
 
-            k = (int) ceil(arclist[s0].ArcLength/arclist[s0].MaxSideLength);
-            segm.BoundaryMarkerName = arclist[s0].BoundaryMarkerName;
-            GetCircle(arclist[s0],c0,r0);
-            GetCircle(arclist[s1],c1,r1);
+            k = (int) ceil(problem->arclist[s0]->ArcLength/problem->arclist[s0]->MaxSideLength);
+            segm.BoundaryMarkerName = problem->arclist[s0]->BoundaryMarkerName;
+            GetCircle(*problem->arclist[s0],c0,r0);
+            GetCircle(*problem->arclist[s1],c1,r1);
 
-            if (arclist[s0].NormalDirection ==0){
-                bgn0 = nodelist[arclist[s0].n0].CC();
-                d0 = exp(I*arclist[s0].ArcLength*PI/(((double) k)*180.));
-                p0[0] = arclist[s0].n0;
-                p0[1] = arclist[s0].n1;
+            if (problem->arclist[s0]->NormalDirection ==0){
+                bgn0 = problem->nodelist[problem->arclist[s0]->n0]->CC();
+                d0 = exp(I*problem->arclist[s0]->ArcLength*PI/(((double) k)*180.));
+                p0[0] = problem->arclist[s0]->n0;
+                p0[1] = problem->arclist[s0]->n1;
             }
             else{
-                bgn0 = nodelist[arclist[s0].n1].CC();
-                d0 = exp(-I*arclist[s0].ArcLength*PI/(((double) k)*180.));
-                p0[0] = arclist[s0].n1;
-                p0[1] = arclist[s0].n0;
+                bgn0 = problem->nodelist[problem->arclist[s0]->n1]->CC();
+                d0 = exp(-I*problem->arclist[s0]->ArcLength*PI/(((double) k)*180.));
+                p0[0] = problem->arclist[s0]->n1;
+                p0[1] = problem->arclist[s0]->n0;
             }
 
-            if (arclist[s1].NormalDirection!=0){
-                bgn1 = nodelist[arclist[s1].n0].CC();
-                d1 = exp(I*arclist[s1].ArcLength*PI/(((double) k)*180.));
-                p1[0] = arclist[s1].n0;
-                p1[1] = arclist[s1].n1;
+            if (problem->arclist[s1]->NormalDirection!=0){
+                bgn1 = problem->nodelist[problem->arclist[s1]->n0]->CC();
+                d1 = exp(I*problem->arclist[s1]->ArcLength*PI/(((double) k)*180.));
+                p1[0] = problem->arclist[s1]->n0;
+                p1[1] = problem->arclist[s1]->n1;
             }
             else{
-                bgn1 = nodelist[arclist[s1].n1].CC();
-                d1 = exp(-I*arclist[s1].ArcLength*PI/(((double) k)*180.));
-                p1[0] = arclist[s1].n1;
-                p1[1] = arclist[s1].n0;
+                bgn1 = problem->nodelist[problem->arclist[s1]->n1]->CC();
+                d1 = exp(-I*problem->arclist[s1]->ArcLength*PI/(((double) k)*180.));
+                p1[0] = problem->arclist[s1]->n1;
+                p1[1] = problem->arclist[s1]->n0;
             }
 
             // add arc segment end points to the list;
-            pt.x=p0[0]; pt.y=p1[0]; pt.t=pbclst[n].BdryFormat;
-            ptlst.push_back(pt);
-            pt.x=p0[1]; pt.y=p1[1]; pt.t=pbclst[n].BdryFormat;
-            ptlst.push_back(pt);
+            pt.x=p0[0]; pt.y=p1[0]; pt.t=pbclst[n]->BdryFormat;
+            ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+            pt.x=p0[1]; pt.y=p1[1]; pt.t=pbclst[n]->BdryFormat;
+            ptlst.push_back(std::make_unique<CCommonPoint>(pt));
 
             if (k==1){
 
                 // catch the case in which the line
                 // doesn't get subdivided.
                 segm.n0=p0[0]; segm.n1=p0[1];
-                linelst.push_back(segm);
+                linelst.push_back(std::make_unique<CSegment>(segm));
                 segm.n0=p1[0]; segm.n1=p1[1];
-                linelst.push_back(segm);
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else{
                 for(j=0;j<k;j++)
@@ -1752,21 +1752,21 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
                     if(j==0){
                         l=nodelst.size();
-                        nodelst.push_back(node0);
+                        nodelst.push_back(std::make_unique<CNode>(node0));
                         segm.n0=p0[0];
                         segm.n1=l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                         pt.x=l;
 
                         l=nodelst.size();
-                        nodelst.push_back(node1);
+                        nodelst.push_back(std::make_unique<CNode>(node1));
                         segm.n0=p1[0];
                         segm.n1=l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                         pt.y=l;
 
-                        pt.t=pbclst[n].BdryFormat;
-                        ptlst.push_back(pt);
+                        pt.t=pbclst[n]->BdryFormat;
+                        ptlst.push_back(std::make_unique<CCommonPoint>(pt));
                     }
                     else if(j==(k-1))
                     {
@@ -1775,31 +1775,31 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         l=nodelst.size()-2;
                         segm.n0=l;
                         segm.n1=p0[1];
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
 
                         l=nodelst.size()-1;
                         segm.n0=l;
                         segm.n1=p1[1];
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
                     else{
                         l=nodelst.size();
 
-                        nodelst.push_back(node0);
-                        nodelst.push_back(node1);
+                        nodelst.push_back(std::make_unique<CNode>(node0));
+                        nodelst.push_back(std::make_unique<CNode>(node1));
 
                         segm.n0=l-2;
                         segm.n1=l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
 
                         segm.n0=l-1;
                         segm.n1=l+1;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
 
                         pt.x=l;
                         pt.y=l+1;
-                        pt.t=pbclst[n].BdryFormat;
-                        ptlst.push_back(pt);
+                        pt.t=pbclst[n]->BdryFormat;
+                        ptlst.push_back(std::make_unique<CCommonPoint>(pt));
                     }
                 }
 
@@ -1811,22 +1811,22 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // "normal" way and write .poly file.
 
     // discretize input segments
-    for(i=0;i<linelist.size();i++)
-    if(linelist[i].IsSelected==0){
+    for(i=0;i<problem->linelist.size();i++)
+    if(problem->linelist[i]->IsSelected==0){
 
-        a0.Set(nodelist[linelist[i].n0].x,nodelist[linelist[i].n0].y);
-        a1.Set(nodelist[linelist[i].n1].x,nodelist[linelist[i].n1].y);
+        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
+        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
 
-        if (linelist[i].MaxSideLength==-1) k=1;
+        if (problem->linelist[i]->MaxSideLength==-1) k=1;
         else{
             z=abs(a1-a0);
-            k=(int) ceil(z/linelist[i].MaxSideLength);
+            k=(int) ceil(z/problem->linelist[i]->MaxSideLength);
         }
 
-        segm=linelist[i];
+        segm=*problem->linelist[i];
         if (k==1) // default condition where discretization on line is not specified
         {
-            if (abs(a1-a0)<(3.*dL)) linelst.push_back(segm); // line is too short to add extra points
+            if (abs(a1-a0)<(3.*dL)) linelst.push_back(std::make_unique<CSegment>(segm)); // line is too short to add extra points
             else{
                 // add extra points at a distance of dL from the ends of the line.
                 // this forces Triangle to finely mesh near corners
@@ -1837,10 +1837,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         a2=a0+dL*(a1-a0)/abs(a1-a0);
                         node.x=a2.re; node.y=a2.im;
                         l=(int) nodelst.size();
-                        nodelst.push_back(node);
-                        segm.n0=linelist[i].n0;
+                        nodelst.push_back(std::make_unique<CNode>(node));
+                        segm.n0=problem->linelist[i]->n0;
                         segm.n1=l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                     if(j==1)
@@ -1848,18 +1848,18 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         a2=a1+dL*(a0-a1)/abs(a1-a0);
                         node.x=a2.re; node.y=a2.im;
                         l=(int) nodelst.size();
-                        nodelst.push_back(node);
+                        nodelst.push_back(std::make_unique<CNode>(node));
                         segm.n0=l-1;
                         segm.n1=l;
-                        linelst.push_back(segm);
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                     if(j==2)
                     {
                         l=(int) nodelst.size()-1;
                         segm.n0=l;
-                        segm.n1=linelist[i].n1;
-                        linelst.push_back(segm);
+                        segm.n1=problem->linelist[i]->n1;
+                        linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
                 }
@@ -1872,44 +1872,44 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 node.x=a2.re; node.y=a2.im;
                 if(j==0){
                     l=nodelst.size();
-                    nodelst.push_back(node);
-                    segm.n0=linelist[i].n0;
+                    nodelst.push_back(std::make_unique<CNode>(node));
+                    segm.n0=problem->linelist[i]->n0;
                     segm.n1=l;
-                    linelst.push_back(segm);
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else if(j==(k-1))
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
-                    segm.n1=linelist[i].n1;
-                    linelst.push_back(segm);
+                    segm.n1=problem->linelist[i]->n1;
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else{
                     l=nodelst.size();
-                    nodelst.push_back(node);
+                    nodelst.push_back(std::make_unique<CNode>(node));
                     segm.n0=l-1;
                     segm.n1=l;
-                    linelst.push_back(segm);
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
             }
         }
     }
 
     // discretize input arc segments
-    for(i=0;i<arclist.size();i++)
+    for(i=0;i<problem->arclist.size();i++)
     {
-        if(arclist[i].IsSelected==0)
+        if(problem->arclist[i]->IsSelected==0)
         {
-            a2.Set(nodelist[arclist[i].n0].x,nodelist[arclist[i].n0].y);
-            k=(int) ceil(arclist[i].ArcLength/arclist[i].MaxSideLength);
-            segm.BoundaryMarkerName=arclist[i].BoundaryMarkerName;
-            GetCircle(arclist[i],c,R);
-            a1=exp(I*arclist[i].ArcLength*PI/(((double) k)*180.));
+            a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
+            k=(int) ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
+            segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
+            GetCircle(*problem->arclist[i],c,R);
+            a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
 
             if(k==1){
-                segm.n0=arclist[i].n0;
-                segm.n1=arclist[i].n1;
-                linelst.push_back(segm);
+                segm.n0=problem->arclist[i]->n0;
+                segm.n1=problem->arclist[i]->n1;
+                linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else for(j=0;j<k;j++)
             {
@@ -1917,24 +1917,24 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 node.x=a2.re; node.y=a2.im;
                 if(j==0){
                     l=nodelst.size();
-                    nodelst.push_back(node);
-                    segm.n0=arclist[i].n0;
+                    nodelst.push_back(std::make_unique<CNode>(node));
+                    segm.n0=problem->arclist[i]->n0;
                     segm.n1=l;
-                    linelst.push_back(segm);
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else if(j==(k-1))
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
-                    segm.n1=arclist[i].n1;
-                    linelst.push_back(segm);
+                    segm.n1=problem->arclist[i]->n1;
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else{
                     l=nodelst.size();
-                    nodelst.push_back(node);
+                    nodelst.push_back(std::make_unique<CNode>(node));
                     segm.n0=l-1;
                     segm.n1=l;
-                    linelst.push_back(segm);
+                    linelst.push_back(std::make_unique<CSegment>(segm));
                 }
             }
         }
@@ -1959,8 +1959,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    for(i=0;i<nodelst.size();i++)
 //    {
 //        for(j=0,t=0;j<nodeproplist.size();j++)
-//                if(nodeproplist[j].PointName==nodelst[i].BoundaryMarkerName) t=j+2;
-//        fprintf(fp,"%i    %.17g    %.17g    %i\n",i,nodelst[i].x,nodelst[i].y,t);
+//                if(nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName) t=j+2;
+//        fprintf(fp,"%i    %.17g    %.17g    %i\n",i,nodelst[i]->x,nodelst[i]->y,t);
 //    }
 //
 //    // write out segment list
@@ -1968,14 +1968,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    for(i=0;i<linelst.size();i++)
 //    {
 //        for(j=0,t=0;j<lineproplist.size();j++)
-//                if(lineproplist[j].BdryName==linelst[i].BoundaryMarkerName) t=-(j+2);
-//        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i].n0,linelst[i].n1,t);
+//                if(lineproplist[j]->BdryName==linelst[i]->BoundaryMarkerName) t=-(j+2);
+//        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i]->n0,linelst[i]->n1,t);
 //    }
 
     // write out list of holes;
-    for(i=0,j=0;i<blocklist.size();i++)
+    for(i=0,j=0;i<problem->labellist.size();i++)
     {
-        if(blocklist[i].BlockTypeName=="<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName=="<No Mesh>")
         {
             j++;
         }
@@ -1985,12 +1985,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     Nholes = j;
 
-    NRegionalAttribs = blocklist.size() - Nholes;
+    NRegionalAttribs = problem->labellist.size() - Nholes;
 
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockTypeName=="<No Mesh>")
+//        if(blocklist[i]->BlockTypeName=="<No Mesh>")
 //        {
-//            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i].x,blocklist[i].y);
+//            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i]->x,blocklist[i]->y);
 //            k++;
 //        }
 //
@@ -1998,26 +1998,26 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i\n",blocklist.size()-j);
 //
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i].BlockTypeName!="<No Mesh>")
+//        if(blocklist[i]->BlockTypeName!="<No Mesh>")
 //        {
-//            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i].x,blocklist[i].y);
+//            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i]->x,blocklist[i]->y);
 //            fprintf(fp,"%i    ",k+1);
-//            if (blocklist[i].MaxArea>0)
-//                fprintf(fp,"%.17g\n",blocklist[i].MaxArea);
+//            if (blocklist[i]->MaxArea>0)
+//                fprintf(fp,"%.17g\n",blocklist[i]->MaxArea);
 //            else fprintf(fp,"-1\n");
 //            k++;
 //        }
 //    fclose(fp);
 
     // Make sure to prune out any duplications in the ptlst
-    for(k=0;k<ptlst.size();k++) ptlst[k].sortXY();
+    for(k=0;k<ptlst.size();k++) ptlst[k]->sortXY();
     k=0;
     while((k+1) < ptlst.size())
     {
         j=k+1;
         while(j < ptlst.size())
         {
-            if((ptlst[k].x==ptlst[j].x) && (ptlst[k].y==ptlst[j].y))
+            if((ptlst[k]->x==ptlst[j]->x) && (ptlst[k]->y==ptlst[j]->y))
                 ptlst.erase(ptlst.begin()+j);
             else j++;
         }
@@ -2040,10 +2040,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         for(j=k+1;j<ptlst.size();j++)
         {
-            if(ptlst[k].x==ptlst[j].x) n=true;
-            if(ptlst[k].y==ptlst[j].y) n=true;
-            if(ptlst[k].x==ptlst[j].y) n=true;
-            if(ptlst[k].y==ptlst[j].x) n=true;
+            if(ptlst[k]->x==ptlst[j]->x) n=true;
+            if(ptlst[k]->y==ptlst[j]->y) n=true;
+            if(ptlst[k]->x==ptlst[j]->y) n=true;
+            if(ptlst[k]->y==ptlst[j]->x) n=true;
         }
     }
     if (n==true){
@@ -2061,7 +2061,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
     fprintf(fp,"%i\n", (int) ptlst.size());
     for(k=0;k<ptlst.size();k++)
-        fprintf(fp,"%i    %i    %i    %i\n",k,ptlst[k].x,ptlst[k].y,ptlst[k].t);
+        fprintf(fp,"%i    %i    %i    %i\n",k,ptlst[k]->x,ptlst[k]->y,ptlst[k]->t);
     fclose(fp);
 
     // call triangle with -Y flag.
@@ -2075,8 +2075,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i=0; i < (unsigned int)(2 * in.numberofpoints-1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2].x;
-        in.pointlist[i+1] = nodelst[i/2].y;
+        in.pointlist[i] = nodelst[i/2]->x;
+        in.pointlist[i+1] = nodelst[i/2]->y;
     }
 
     in.numberofpointattributes = 0;
@@ -2093,14 +2093,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // write out node marker list
     for(i=0;i<nodelst.size ();i++)
     {
-        for(j=0,t=0; j < nodeproplist.size (); j++)
-                if(nodeproplist[j].PointName == nodelst[i].BoundaryMarkerName) t = j + 2;
+        for(j=0,t=0; j < problem->nodeproplist.size (); j++)
+                if(problem->nodeproplist[j]->PointName == nodelst[i]->BoundaryMarkerName) t = j + 2;
 
         if (filetype == F_TYPE_HEATFLOW)
         {
             // include conductor number;
-            for(j=0; j < circproplist.size (); j++)
-                if(circproplist[j].CircName == nodelst[i].InConductorName) t += ((j+1) * 0x10000);
+            for(j=0; j < problem->circproplist.size (); j++)
+                if(problem->circproplist[j]->CircName == nodelst[i]->InConductorName) t += ((j+1) * 0x10000);
         }
 
         in.pointmarkerlist[i] = t;
@@ -2123,9 +2123,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // build the segmentlist
     for(i=0; i < (unsigned int)(2*in.numberofsegments - 1); i = i + 2)
     {
-            in.segmentlist[i] = linelst[i/2].n0;
+            in.segmentlist[i] = linelst[i/2]->n0;
 
-            in.segmentlist[i+1] = linelst[i/2].n1;
+            in.segmentlist[i+1] = linelst[i/2]->n1;
 
             //PRINTF("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
     }
@@ -2136,14 +2136,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // construct the segment list
     for(i=0; i < linelst.size (); i++)
     {
-        for(j=0,t=0; j < lineproplist.size (); j++)
-                if(lineproplist[j].BdryName==linelst[i].BoundaryMarkerName) t = -(j+2);
+        for(j=0,t=0; j < problem->lineproplist.size (); j++)
+                if(problem->lineproplist[j]->BdryName==linelst[i]->BoundaryMarkerName) t = -(j+2);
 
         if (filetype == F_TYPE_HEATFLOW)
         {
             // include conductor number;
-            for(j=0; j < circproplist.size (); j++)
-                if(circproplist[j].CircName == linelst[i].InConductorName) t -= ((j+1) * 0x10000);
+            for(j=0; j < problem->circproplist.size (); j++)
+                if(problem->circproplist[j]->CircName == linelst[i]->InConductorName) t -= ((j+1) * 0x10000);
         }
 
         in.segmentmarkerlist[i] = t;
@@ -2156,14 +2156,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
 
     // Construct the holes array
-    for(i=0, k=0; i < blocklist.size(); i++)
+    for(i=0, k=0; i < problem->labellist.size(); i++)
     {
         // we search through the block list looking for blocks that have
         // the tag <no mesh>
-        if(blocklist[i].BlockTypeName == "<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName == "<No Mesh>")
         {
-            in.holelist[k] = blocklist[i].x;
-            in.holelist[k+1] = blocklist[i].y;
+            in.holelist[k] = problem->labellist[i]->x;
+            in.holelist[k+1] = problem->labellist[i]->y;
             k = k + 2;
         }
     }
@@ -2176,18 +2176,18 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         return -1;
     }
 
-    for(i = 0, j = 0, k = 0; i < blocklist.size(); i++)
+    for(i = 0, j = 0, k = 0; i < problem->labellist.size(); i++)
     {
-        if(blocklist[i].BlockTypeName != "<No Mesh>")
+        if(problem->labellist[i]->BlockTypeName != "<No Mesh>")
         {
 
-            in.regionlist[j] = blocklist[i].x;
-            in.regionlist[j+1] = blocklist[i].y;
+            in.regionlist[j] = problem->labellist[i]->x;
+            in.regionlist[j+1] = problem->labellist[i]->y;
             in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
 
-            if (blocklist[i].MaxArea>0 && (blocklist[i].MaxArea<DefaultMeshSize))
+            if (problem->labellist[i]->MaxArea>0 && (problem->labellist[i]->MaxArea<DefaultMeshSize))
             {
-                in.regionlist[j+3] = blocklist[i].MaxArea;  // Area constraint
+                in.regionlist[j+3] = problem->labellist[i]->MaxArea;  // Area constraint
             }
             else
             {
@@ -2226,11 +2226,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     if (Verbose)
     {
-        sprintf(CommandLine,"-pPq%feAazIY", MinAngle);
+        sprintf(CommandLine,"-pPq%feAazIY", problem->MinAngle);
     }
     else
     {
-        sprintf(CommandLine,"-pPq%feAazQIY", MinAngle);
+        sprintf(CommandLine,"-pPq%feAazQIY", problem->MinAngle);
     }
 
     tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
@@ -2289,8 +2289,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // Now restore boundary segment discretizations that have
     // been mucked up in the process...
-    for(i=0;i<linelist.size();i++)
-        linelist[i]=undolinelist[i];
+    for(i=0;i<problem->linelist.size();i++)
+        problem->linelist[i]=std::make_unique<CSegment>(*undolinelist[i]);
 
     // and save the latest version of the document to make sure
     // any changes to arc discretization get propagated into

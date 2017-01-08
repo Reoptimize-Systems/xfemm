@@ -22,9 +22,6 @@
 #ifndef FMESHER_H
 #define FMESHER_H
 
-#include <vector>
-
-#include <string>
 #include "nosebl.h"
 #include "femmcomplex.h"
 #include "IntPoint.h"
@@ -38,6 +35,10 @@
 #include "CPointProp.h"
 #include "CSegment.h"
 #include "FemmProblem.h"
+
+#include <memory>
+#include <vector>
+#include <string>
 
 #ifndef LineFraction
 #define LineFraction 500.0
@@ -75,15 +76,9 @@ public:
     FMesher();
     FMesher(std::string);
 
-    // FIXME(ZaJ): it seems that we need the rest of the problem
-    // ... attributes (Frequency, LengthUnits, etc.) here as well,
-    // ... because FMesher is the class that matches closest to FemmeDoc in femm42
-
-    femm::FemmProblem *problem;
+    std::shared_ptr<femm::FemmProblem> problem;
 	// General problem attributes
     filetypes filetype;
-	double	MinAngle;
-	bool    DoForceMaxMeshArea;
 
 	// default behaviors
 	double	d_minangle;
@@ -91,27 +86,16 @@ public:
 
 	std::string BinDir;
 
-	// lists of nodes, segments, and block labels
-    std::vector< femm::CNode >       nodelist;
-    std::vector< femm::CSegment >    linelist;
-    std::vector< femm::CArcSegment > arclist;
-    std::vector< femm::CBlockLabel > blocklist;
-
 	// lists of nodes, segments, and block labels for undo purposes...
-    std::vector< femm::CNode >       undonodelist;
-    std::vector< femm::CSegment >    undolinelist;
-    std::vector< femm::CArcSegment > undoarclist;
-    std::vector< femm::CBlockLabel > undoblocklist;
+    std::vector< std::unique_ptr<femm::CNode> >       undonodelist;
+    std::vector< std::unique_ptr<femm::CSegment> >    undolinelist;
+    std::vector< std::unique_ptr<femm::CArcSegment> > undoarclist;
+    std::vector< std::unique_ptr<femm::CBlockLabel> > undolabellist;
 
 	// vectors containing the mesh information
-    std::vector< femm::IntPoint >      meshline;
-    std::vector< femm::IntPoint >      greymeshline;
-    std::vector< femm::CNode >	meshnode;
-
-	// lists of properties
-	std::vector< femm::CBoundaryProp > lineproplist;
-	std::vector< femm::CPointProp >    nodeproplist;
-	std::vector< femm::CCircuit >      circproplist;
+    std::vector< std::unique_ptr<femm::IntPoint> >      meshline;
+    std::vector< std::unique_ptr<femm::IntPoint> >      greymeshline;
+    std::vector< std::unique_ptr<femm::CNode> >	meshnode;
 
     // used to echo start of input file to output
     std::vector< std::string > probdescstrings;

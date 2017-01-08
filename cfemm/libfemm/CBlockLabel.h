@@ -13,15 +13,15 @@ namespace femm {
  *
  * The official .FEM file format description states for holes:
  * \verbatim
- * float - x-position of the BlcokLabel or r (axisymmetric)
- * float - y-position of the BlcokLabel or z (axisymmetric)
+ * float - x-position of the BlockLabel or r (axisymmetric)
+ * float - y-position of the BlockLabel or z (axisymmetric)
  * int   - number of the group associated with the hole
  * \endverbatim
  *
  * The official .FEM file format description states for BlockLabels:
  * \verbatim
- * float - x-position of the BlcokLabel or r (axisymmetric)
- * float - y-position of the BlcokLabel or z (axisymmetric)
+ * float - x-position of the BlockLabel or r (axisymmetric)
+ * float - y-position of the BlockLabel or z (axisymmetric)
  * int   - number of block type (region)
  * float - desired mesh size
  * int   - number of associated circuit (1-indexed; 0 = no associated circuit)
@@ -33,8 +33,8 @@ namespace femm {
  *
  * hpproc uses a slightly different format:
  * \verbatim
- * float - x-position of the BlcokLabel or r (axisymmetric)
- * float - y-position of the BlcokLabel or z (axisymmetric)
+ * float - x-position of the BlockLabel or r (axisymmetric)
+ * float - y-position of the BlockLabel or z (axisymmetric)
  * int   - number of block type (region)
  * float - desired mesh size
  * int   - number of the group
