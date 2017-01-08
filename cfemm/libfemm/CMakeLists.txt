@@ -35,29 +35,34 @@ add_library(femm
   fullmatrix.cpp
   IntPoint.cpp
   spars.cpp
+  liblua/llimits.h
+  liblua/lopcodes.h
+  liblua/lua.h
+  liblua/luadebug.h
+  liblua/lualib.h
   liblua/lapi.cpp
-  liblua/lcode.cpp 
-  liblua/ldo.cpp  
-  liblua/liolib.cpp  
-  liblua/lmem.cpp   
-  liblua/lstate.cpp  
-  liblua/ltable.cpp 
-  liblua/lundump.cpp
-  liblua/lauxlib.cpp 
-  liblua/ldblib.cpp
-  liblua/lfunc.cpp
-  liblua/llex.cpp    
-  liblua/lobject.cpp
-  liblua/lstring.cpp
-  liblua/ltests.cpp
-  liblua/lvm.cpp
+  liblua/lauxlib.cpp
   liblua/lbaselib.cpp
+  liblua/lcode.cpp
+  liblua/ldblib.cpp
   liblua/ldebug.cpp
-  liblua/lgc.cpp  
-  liblua/lmathlib.cpp 
-  liblua/lparser.cpp 
+  liblua/ldo.cpp
+  liblua/lfunc.cpp
+  liblua/lgc.cpp
+  liblua/liolib.cpp
+  liblua/llex.cpp
+  liblua/lmathlib.cpp
+  liblua/lmem.cpp
+  liblua/lobject.cpp
+  liblua/lparser.cpp
+  liblua/lstate.cpp
+  liblua/lstring.cpp
   liblua/lstrlib.cpp
-  liblua/ltm.cpp   
+  liblua/ltable.cpp
+  liblua/ltests.cpp
+  liblua/ltm.cpp
+  liblua/lundump.cpp
+  liblua/lvm.cpp
   liblua/lzio.cpp
   LuaInstance.cpp
   stringTools.cpp
