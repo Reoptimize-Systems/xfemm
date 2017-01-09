@@ -43,7 +43,7 @@ protected:
 
     static int luaAddArc(lua_State *L);
     static int luaAddbhpoint(lua_State *L);
-    static int luaAddboundprop(lua_State *L);
+    static int luaAddBoundaryProp(lua_State *L);
     static int luaAddCircuitProp(lua_State *L);
     static int luaAddcontour(lua_State *L);
     static int luaAddBlocklabel(lua_State *L);
