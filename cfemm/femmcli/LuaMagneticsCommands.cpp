@@ -219,8 +219,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectrectangle", luaSelectrectangle);
     li.addFunction("mi_select_segment", luaSelectSegment);
     li.addFunction("mi_selectsegment", luaSelectSegment);
-    li.addFunction("mi_set_arcsegment_prop", luaSetarcsegmentprop);
-    li.addFunction("mi_setarcsegmentprop", luaSetarcsegmentprop);
+    li.addFunction("mi_set_arcsegment_prop", luaSetArcsegmentProp);
+    li.addFunction("mi_setarcsegmentprop", luaSetArcsegmentProp);
     li.addFunction("mi_set_block_prop", luaSetBlocklabelProp);
     li.addFunction("mi_setblockprop", luaSetBlocklabelProp);
     li.addFunction("mi_set_edit_mode", luaSeteditmode);
@@ -2130,15 +2130,39 @@ int femmcli::LuaMagneticsCommands::luaSelectSegment(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set properties for selected arc segments
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_setarcsegmentprop()}
+ *
+ * \internal
+ * mi_setarcsegmentprop(maxsegdeg, "propname", hide, group)
  */
-int femmcli::LuaMagneticsCommands::luaSetarcsegmentprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    double maxsegdeg = lua_todouble(L,1);
+    std::string boundprop;
+    if (const char *s=lua_tostring(L,2))
+        boundprop = s;
+    bool hide = (lua_todouble(L,3)!=0);
+    int group = (int) lua_todouble(L,4);
+
+    for (int i=0; i<(int)doc->arclist.size(); i++)
+    {
+        if (doc->arclist[i]->IsSelected)
+        {
+            doc->arclist[i]->BoundaryMarkerName = boundprop;
+            doc->arclist[i]->MaxSideLength = maxsegdeg;
+            doc->arclist[i]->Hidden = hide;
+            doc->arclist[i]->InGroup = group;
+        }
+    }
+
     return 0;
 }
 
