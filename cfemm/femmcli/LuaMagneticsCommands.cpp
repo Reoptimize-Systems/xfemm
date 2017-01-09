@@ -1905,7 +1905,7 @@ int femmcli::LuaMagneticsCommands::luaSelectgroup(lua_State *L)
 
     if(group<0)
     {
-        std::string msg = "Invalid group " + group;
+        std::string msg = "Invalid group " + std::to_string(group);
         lua_error(L,msg.c_str());
         return 0;
     }
@@ -2213,7 +2213,7 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
 
     if (groupno<0)
     {
-        std::string msg = "Invalid group no " + groupno;
+        std::string msg = "Invalid group no " + std::to_string(groupno);
         lua_error(L,msg.c_str());
         return 0;
     }
