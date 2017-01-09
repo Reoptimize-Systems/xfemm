@@ -649,7 +649,7 @@ int femmcli::LuaMagneticsCommands::luaAddpointprop(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Mesh the problem description, save it, and run the solver.
  * @param L
  * @return 0
  * \ingroup LuaMM
@@ -667,10 +667,10 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<femm::FemmProblem> magneticsDoc = femmState->femmDocument;
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
 
     // check to see if all blocklabels are kosher...
-    if (magneticsDoc->labellist.size()==0){
+    if (doc->labellist.size()==0){
         std::string msg = "No block information has been defined\n"
                           "Cannot analyze the problem";
         lua_error(L, msg.c_str());
@@ -678,24 +678,23 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
 
     bool hasMissingBlockProps = false;
-    for(int i=0; i<(int)magneticsDoc->labellist.size(); i++)
+    for(int i=0; i<(int)doc->labellist.size(); i++)
     {
         // note(ZaJ): this can be done better by break;ing from the k loop
         int j=0;
-        for(int k=0; k<(int)magneticsDoc->blockproplist.size(); k++)
+        for(int k=0; k<(int)doc->blockproplist.size(); k++)
         {
-            // FIXME: at this point we want a mesher doc, not a solver doc :-|
-            if (magneticsDoc->labellist[i]->BlockTypeName != magneticsDoc->blockproplist[k]->BlockName)
+            if (doc->labellist[i]->BlockTypeName != doc->blockproplist[k]->BlockName)
                 j++;
         }
-        if ((j==(int)magneticsDoc->blockproplist.size())
-                && (magneticsDoc->labellist[i]->BlockTypeName!="<No Mesh>")
+        if ((j==(int)doc->blockproplist.size())
+                && (doc->labellist[i]->BlockTypeName!="<No Mesh>")
                 )
         {
             // FIXME(ZaJ): check effects of OnBlockOp()
             //if(!hasMissingBlockProps) OnBlockOp();
             hasMissingBlockProps = true;
-            magneticsDoc->labellist[i]->IsSelected = true;
+            doc->labellist[i]->IsSelected = true;
         }
     }
 
@@ -710,12 +709,12 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
 
 
-    if (magneticsDoc->ProblemType==AXISYMMETRIC)
+    if (doc->ProblemType==AXISYMMETRIC)
     {
         // check to see if all of the input points are on r>=0 for axisymmetric problems.
-        for (int k=0; k<(int)magneticsDoc->nodelist.size(); k++)
+        for (int k=0; k<(int)doc->nodelist.size(); k++)
         {
-            if (magneticsDoc->nodelist[k]->x < -(1.e-6))
+            if (doc->nodelist[k]->x < -(1.e-6))
             {
                 //InvalidateRect(NULL);
                 std::string ermsg = "The problem domain must lie in\n"
@@ -729,20 +728,20 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         // check to see if all block defined to be in an axisymmetric external region are linear.
         bool hasAnisotropicMaterial = false;
         bool hasExteriorProps = true;
-        for (int k=0; k<(int)magneticsDoc->labellist.size(); k++)
+        for (int k=0; k<(int)doc->labellist.size(); k++)
         {
-            if (magneticsDoc->labellist[k]->IsExternal)
+            if (doc->labellist[k]->IsExternal)
             {
-                if ((magneticsDoc->extRo==0) || (magneticsDoc->extRi==0))
+                if ((doc->extRo==0) || (doc->extRi==0))
                     hasExteriorProps = false;
 
-                for(int i=0; i<(int)magneticsDoc->blockproplist.size(); i++)
+                for(int i=0; i<(int)doc->blockproplist.size(); i++)
                 {
-                    if (magneticsDoc->labellist[k]->BlockTypeName == magneticsDoc->blockproplist[i]->BlockName)
+                    if (doc->labellist[k]->BlockTypeName == doc->blockproplist[i]->BlockName)
                     {
-                        if (magneticsDoc->blockproplist[i]->BHpoints!=0)
+                        if (doc->blockproplist[i]->BHpoints!=0)
                             hasAnisotropicMaterial = true;
-                        else if(magneticsDoc->blockproplist[i]->mu_x != magneticsDoc->blockproplist[i]->mu_y)
+                        else if(doc->blockproplist[i]->mu_x != doc->blockproplist[i]->mu_y)
                             hasAnisotropicMaterial = true;
                     }
                 }
@@ -770,8 +769,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         }
     }
 
-    // TODO(ZaJ) move data from magneticsDoc to mesherDoc
-    std::string pathName = magneticsDoc->pathName;
+    std::string pathName = doc->pathName;
     if (pathName.empty())
     {
         lua_error(L,"A data file must be loaded,\nor the current data must saved.");
@@ -799,69 +797,45 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
     //EndWaitCursor();
 
-    // TODO FIXME CONTINUE HERE
-#if false
-    char CommandLine[512];
-    CString rootname="\"" + pathName.Left(pathName.ReverseFind('.')) + "\"";
-
-    // Note(ZaJ): this is the solver:
-    if(bLinehook==FALSE)
-        sprintf(CommandLine,"\"%sfkn.exe\" %s",BinDir,rootname);
-    else
-        sprintf(CommandLine,"\"%sfkn.exe\" %s bLinehook",BinDir,rootname);
-
-    CString MyPath=pathName.Left(pathName.ReverseFind('\\'));
-
-    STARTUPINFO StartupInfo2 = {0};
-    PROCESS_INFORMATION ProcessInfo2;
-    StartupInfo2.cb = sizeof(STARTUPINFO);
-    if(bLinehook==HiddenLua){
-        StartupInfo2.dwFlags = STARTF_USESHOWWINDOW;
-        //<DP> SHOWNOACTIVATE doesn't steal focus to others </DP>
-        StartupInfo2.wShowWindow =  SW_SHOWNOACTIVATE|SW_MINIMIZE;
-    }
-    if (CreateProcess(NULL,CommandLine, NULL, NULL, FALSE,
-                      0, NULL, MyPath, &StartupInfo2, &ProcessInfo2))
+    FSolver theFSolver;
+    theFSolver.PathName = pathName;
+    if (!theFSolver.LoadProblemFile())
     {
-        if(bLinehook!=FALSE)
+        lua_error(L, "solver: problem loading input file");
+        return 0;
+    }
+    int err = theFSolver.LoadMesh();
+    if (err != 0)
+    {
+        theFSolver.WarnMessage("problem loading mesh:\n");
+
+        switch (err)
         {
-            DWORD ExitCode;
-            hProc=ProcessInfo2.hProcess;
-            do{
-                GetExitCodeProcess(ProcessInfo2.hProcess,&ExitCode);
-                ((CFemmApp *)AfxGetApp())->line_hook(lua,NULL);
-                Sleep(1);
-            } while(ExitCode==STILL_ACTIVE);
-            hProc=NULL;
-
-            if (ExitCode==1)
-                MsgBox("Material properties have not been defined for all regions");
-            if (ExitCode==1)
-                MsgBox("Material properties have not been defined for all regions");
-            if (ExitCode==2)
-                MsgBox("problem loading mesh");
-            if (ExitCode==3)
-                MsgBox("problem renumbering node points");
-            if (ExitCode==4)
-                MsgBox("couldn't allocate enough space for matrices");
-            if (ExitCode==5)
-                MsgBox("Couldn't solve the problem");
-            if (ExitCode==6)
-                MsgBox("couldn't write results to disk");
-            if (ExitCode==7)
-                MsgBox("problem loading input file");
+        case ( BADEDGEFILE ):
+            lua_error(L,"Could not open .edge file.");
+            break;
+        case ( BADELEMENTFILE ):
+            lua_error(L,"Could not open .ele file.");
+            break;
+        case( BADFEMFILE ):
+            lua_error(L,"Could not open .fem file.");
+            break;
+        case( BADNODEFILE ):
+            lua_error(L,"Could not open .node file.");
+            break;
+        case( BADPBCFILE ):
+            lua_error(L,"Could not open .pbc file.");
+            break;
+        case( MISSINGMATPROPS ):
+            lua_error(L,"Material properties have not been defined for all regions.");
+            break;
+        default:
+            lua_error(L,"AN unknown error occured.");
+            break;
         }
-        CloseHandle(ProcessInfo2.hProcess);
-        CloseHandle(ProcessInfo2.hThread);
+        return 0;
     }
-    else
-    {
-        MsgBox("Problem executing the solver");
-        return;
-    }
-#endif
     return 0;
-
 }
 
 /**
@@ -1867,12 +1841,13 @@ int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
-    int n = lua_gettop(L);
-    if (const char* s=lua_tostring(L,n))
+    if (const char* s=lua_tostring(L,1))
     {
         std::string fname(s);
         doc->pathName = s;
         mesher->SaveFEMFile(s);
+    } else {
+        lua_error(L, "mi_saveas(): no pathname given!");
     }
 
     return 0;
