@@ -41,7 +41,7 @@ public:
 
 protected:
 
-    static int luaAddarc(lua_State *L);
+    static int luaAddArc(lua_State *L);
     static int luaAddbhpoint(lua_State *L);
     static int luaAddboundprop(lua_State *L);
     static int luaAddCircuitProp(lua_State *L);
