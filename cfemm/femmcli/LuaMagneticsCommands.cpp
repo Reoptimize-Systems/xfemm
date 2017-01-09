@@ -201,8 +201,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_save_metafile", luaSaveWMF);
     li.addFunction("mo_savemetafile", luaSaveWMF);
     li.addFunction("mi_scale", luaScale);
-    li.addFunction("mi_select_arcsegment", luaSelectarcsegment);
-    li.addFunction("mi_selectarcsegment", luaSelectarcsegment);
+    li.addFunction("mi_select_arcsegment", luaSelectArcsegment);
+    li.addFunction("mi_selectarcsegment", luaSelectArcsegment);
     li.addFunction("mo_select_block", luaSelectblock);
     li.addFunction("mo_selectblock", luaSelectblock);
     li.addFunction("mi_select_circle", luaSelectcircle);
@@ -1880,16 +1880,38 @@ int femmcli::LuaMagneticsCommands::luaScale(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Select an arc segment near a given point.
  * @param L
- * @return 0
+ * @return 4 on success, 0 otherwise
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectarcsegment()}
+ *
+ * \internal
+ * mi_selectarcsegment(x,y)
+ * Select the arc segment closest to (x,y)
  */
-int femmcli::LuaMagneticsCommands::luaSelectarcsegment(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectArcsegment(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+
+    if (doc->linelist.empty())
+        return 0;
+
+    int node = mesher->ClosestSegment(mx,my);
+    doc->linelist[node]->ToggleSelect();
+
+    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n0]->x);
+    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n0]->y);
+    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n1]->x);
+    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n1]->y);
+
+    return 4;
 }
 
 /**

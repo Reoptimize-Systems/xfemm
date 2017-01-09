@@ -122,7 +122,7 @@ protected:
     static int luaSavedxf(lua_State *L);
     static int luaSaveWMF(lua_State *L);
     static int luaScale(lua_State *L);
-    static int luaSelectarcsegment(lua_State *L);
+    static int luaSelectArcsegment(lua_State *L);
     static int luaSelectblock(lua_State *L);
     static int luaSelectcircle(lua_State *L);
     static int luaSelectgroup(lua_State *L);
