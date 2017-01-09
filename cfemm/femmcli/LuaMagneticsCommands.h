@@ -131,7 +131,7 @@ protected:
     static int luaSelectnode(lua_State *L);
     static int luaSelectrectangle(lua_State *L);
     static int luaSelectSegment(lua_State *L);
-    static int luaSetarcsegmentprop(lua_State *L);
+    static int luaSetArcsegmentProp(lua_State *L);
     static int luaSetBlocklabelProp(lua_State *L);
     static int luaSeteditmode(lua_State *L);
     static int luaSetgrid(lua_State *L);
