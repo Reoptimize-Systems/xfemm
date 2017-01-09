@@ -1850,15 +1850,31 @@ int femmcli::LuaMagneticsCommands::luaSavebitmap(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Save the problem description into the given file.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,luaSaveDocument()}
+ *
+ * \internal
+ * mi_saveas("filename")
+ * Saves the file with name "filename".
  */
 int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if (const char* s=lua_tostring(L,n))
+    {
+        std::string fname(s);
+        doc->pathName = s;
+        mesher->SaveFEMFile(s);
+    }
+
     return 0;
 }
 
