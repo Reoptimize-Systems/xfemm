@@ -1871,23 +1871,24 @@ bool FMesher::DeleteSelectedSegments()
     return linelist.size() != oldsize;
 }
 
-//bool FMesher::DeleteSelectedArcSegments()
-//{
-//	int i=0;
-//	bool flag=false;
-//
-//	if (arclist.size() > 0)	do{
-//		if(arclist[i].IsSelected!=0){
-//			arclist.RemoveAt(i,1);
-//			flag=true;
-//		}
-//		else i++;
-//	} while (i<arclist.size());
-//
-//	arclist.FreeExtra();
-//
-//	return flag;
-//}
+bool FMesher::DeleteSelectedArcSegments()
+{
+    auto &arclist = problem->arclist;
+    size_t oldsize = arclist.size();
+
+    if (!arclist.empty())
+    {
+        // remove selected elements
+        arclist.erase(
+                    std::remove_if(arclist.begin(),arclist.end(),
+                                   [](const auto& arc){ return arc->IsSelected;} ),
+                    arclist.end()
+                    );
+    }
+    arclist.shrink_to_fit();
+
+    return arclist.size() != oldsize;
+}
 
 //bool FMesher::DeleteSelectedNodes()
 //{
@@ -1934,118 +1935,121 @@ bool FMesher::DeleteSelectedSegments()
 //}
 
 
-//bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
-//{
-//	int i,j,k;
-//	CSegment segm;
-//	CArcSegment newarc;
-//	CComplex c,p[2];
-//	std::vector < CComplex > newnodes;
-//	double R,d,dmin,t;
-//
-//	newnodes.clear();
-//
-//	// don't add if line is degenerate
-//	if (asegm.n0==asegm.n1) return false;
-//
-//	// don't add if the arc is already in the list;
-//	for(i=0;i<arclist.size();i++){
-//		if ((arclist[i].n0==asegm.n0) && (arclist[i].n1==asegm.n1) &&
-//			(fabs(arclist[i].ArcLength-asegm.ArcLength)<1.e-02)) return false;
-//		// arcs are ``the same'' if start and end points are the same, and if
-//		// the arc lengths are relatively close (but a lot farther than
-//		// machine precision...
-//	}
-//
-//	// add proposed arc to the linelist
-//	asegm.IsSelected=0;
-//
-//	// check to see if there are intersections
-//	for(i=0;i<linelist.size();i++)
-//	{
-//		j=GetLineArcIntersection(linelist[i],asegm,p);
-//		if(j>0) for(k=0;k<j;k++) newnodes.push_back(p[k]);
-//	}
-//	for(i=0;i<arclist.size();i++)
-//	{
-//		j=GetArcArcIntersection(asegm,arclist[i],p);
-//		if(j>0) for(k=0;k<j;k++) newnodes.push_back(p[k]);
-//	}
-//
-//	// add nodes at intersections
-//	if(tol==0)
-//	{
-//		if (nodelist.size()<2) t=1.e-08;
-//		else{
-//			CComplex p0,p1;
-//			p0=nodelist[0].CC();
-//			p1=p0;
-//			for(i=1;i<nodelist.size();i++)
-//			{
-//				if(nodelist[i].x<p0.re) p0.re=nodelist[i].x;
-//				if(nodelist[i].x>p1.re) p1.re=nodelist[i].x;
-//				if(nodelist[i].y<p0.im) p0.im=nodelist[i].y;
-//				if(nodelist[i].y>p1.im) p1.im=nodelist[i].y;
-//			}
-//			t=abs(p1-p0)*CLOSE_ENOUGH;
-//		}
-//	}
-//	else t=tol;
-//
-//	for(i=0;i<newnodes.size();i++)
-//		AddNode(newnodes[i].re,newnodes[i].im,t);
-//
-//	// add proposed arc segment;
-//	arclist.push_back(asegm);
-//
-//	// check to see if proposed arc passes through other points;
-//    // if so, delete arc and create arcs that link intermediate points;
-//    // does this by recursive use of AddArcSegment;
-//
-//    UnselectAll();
-//	GetCircle(asegm,c,R);
-//    if (tol==0) dmin=fabs(R*PI*asegm.ArcLength/180.)*1.e-05;
-//	else dmin=tol;
-//    k=arclist.size()-1;
-//
-//    for(i=0;i<nodelist.size();i++)
-//    {
-//        if( (i!=asegm.n0) && (i!=asegm.n1) )
-//        {
-//			d=ShortestDistanceFromArc(CComplex(nodelist[i].x,nodelist[i].y),arclist[k]);
-//
-//		//	MsgBox("d=%g dmin=%g",d,dmin);
-//			// what is the purpose of this test?
-//		//	if (abs(nodelist[i].CC()-nodelist[asegm.n0].CC())<2.*dmin) d=2.*dmin;
-//		//	if (abs(nodelist[i].CC()-nodelist[asegm.n1].CC())<2.*dmin) d=2.*dmin;
-//
-//
-//            if (d<dmin){
-//
-//				CComplex a0,a1,a2;
-//				a0.Set(nodelist[asegm.n0].x,nodelist[asegm.n0].y);
-//				a1.Set(nodelist[asegm.n1].x,nodelist[asegm.n1].y);
-//				a2.Set(nodelist[i].x,nodelist[i].y);
-//                arclist[k].ToggleSelect();
-//                DeleteSelectedArcSegments();
-//
-//				newarc=asegm;
-//				newarc.n1=i;
-//				newarc.ArcLength=arg((a2-c)/(a0-c))*180./PI;
-//                AddArcSegment(newarc,dmin);
-//
-//				newarc=asegm;
-//				newarc.n0=i;
-//				newarc.ArcLength=arg((a1-c)/(a2-c))*180./PI;
-//                AddArcSegment(newarc,dmin);
-//
-//                i=nodelist.size();
-//            }
-//        }
-//    }
-//
-//	return true;
-//}
+bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
+{
+    // don't add if line is degenerate
+    if (asegm.n0==asegm.n1)
+        return false;
+
+    // don't add if the arc is already in the list;
+    for(int i=0; i<(int)problem->arclist.size(); i++){
+        if ((problem->arclist[i]->n0==asegm.n0) && (problem->arclist[i]->n1==asegm.n1) &&
+                (fabs(problem->arclist[i]->ArcLength-asegm.ArcLength)<1.e-02)) return false;
+        // arcs are ``the same'' if start and end points are the same, and if
+        // the arc lengths are relatively close (but a lot farther than
+        // machine precision...
+    }
+
+    // add proposed arc to the linelist
+    asegm.IsSelected = 0;
+
+    CComplex p[2];
+    std::vector < CComplex > newnodes;
+    // check to see if there are intersections
+    for(int i=0; i<(int)problem->linelist.size(); i++)
+    {
+        int j = GetLineArcIntersection(*problem->linelist[i],asegm,p);
+        if (j>0)
+            for(int k=0; k<j; k++)
+                newnodes.push_back(p[k]);
+    }
+    for (int i=0; i<(int)problem->arclist.size(); i++)
+    {
+        int j = GetArcArcIntersection(asegm,*problem->arclist[i],p);
+        if (j>0)
+            for(int k=0; k<j; k++)
+                newnodes.push_back(p[k]);
+    }
+
+    // add nodes at intersections
+    double t;
+    if (tol==0)
+    {
+        if (problem->nodelist.size()<2) t=1.e-08;
+        else{
+            CComplex p0,p1;
+            p0 = problem->nodelist[0]->CC();
+            p1 = p0;
+            for (int i=1; i<(int)problem->nodelist.size(); i++)
+            {
+                if(problem->nodelist[i]->x<p0.re) p0.re = problem->nodelist[i]->x;
+                if(problem->nodelist[i]->x>p1.re) p1.re = problem->nodelist[i]->x;
+                if(problem->nodelist[i]->y<p0.im) p0.im = problem->nodelist[i]->y;
+                if(problem->nodelist[i]->y>p1.im) p1.im = problem->nodelist[i]->y;
+            }
+            t = abs(p1-p0)*CLOSE_ENOUGH;
+        }
+    }
+    else t = tol;
+
+    for (int i=0; i<(int)newnodes.size(); i++)
+        AddNode(newnodes[i].re,newnodes[i].im,t);
+
+    // add proposed arc segment;
+    problem->arclist.push_back(std::make_unique<CArcSegment>(asegm));
+
+    // check to see if proposed arc passes through other points;
+    // if so, delete arc and create arcs that link intermediate points;
+    // does this by recursive use of AddArcSegment;
+
+    UnselectAll();
+    CComplex c;
+    double R;
+    GetCircle(asegm,c,R);
+
+    double dmin = tol;
+    if (tol==0)
+        dmin = fabs(R*PI*asegm.ArcLength/180.)*1.e-05;
+
+    int k = (int)problem->arclist.size()-1;
+    for(int i=0; i<(int)problem->nodelist.size(); i++)
+    {
+        if( (i!=asegm.n0) && (i!=asegm.n1) )
+        {
+            double d=ShortestDistanceFromArc(CComplex(problem->nodelist[i]->x,problem->nodelist[i]->y),*problem->arclist[k]);
+
+            //	MsgBox("d=%g dmin=%g",d,dmin);
+            // what is the purpose of this test?
+            //	if (abs(problem->nodelist[i]->CC()-problem->nodelist[asegm.n0]->CC())<2.*dmin) d=2.*dmin;
+            //	if (abs(problem->nodelist[i]->CC()-problem->nodelist[asegm.n1]->CC())<2.*dmin) d=2.*dmin;
+
+
+            if (d<dmin){
+
+                CComplex a0,a1,a2;
+                a0.Set(problem->nodelist[asegm.n0]->x,problem->nodelist[asegm.n0]->y);
+                a1.Set(problem->nodelist[asegm.n1]->x,problem->nodelist[asegm.n1]->y);
+                a2.Set(problem->nodelist[i]->x,problem->nodelist[i]->y);
+                problem->arclist[k]->ToggleSelect();
+                DeleteSelectedArcSegments();
+
+                CArcSegment newarc = asegm;
+                newarc.n1 = i;
+                newarc.ArcLength = arg((a2-c)/(a0-c))*180./PI;
+                AddArcSegment(newarc,dmin);
+
+                newarc = asegm;
+                newarc.n0 = i;
+                newarc.ArcLength = arg((a1-c)/(a2-c))*180./PI;
+                AddArcSegment(newarc,dmin);
+
+                i = problem->nodelist.size();
+            }
+        }
+    }
+
+    return true;
+}
 
 
 bool FMesher::AddBlockLabel(double x, double y, double d)

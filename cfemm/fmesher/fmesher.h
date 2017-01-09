@@ -178,11 +178,6 @@ public:
      */
     bool AddSegment(int n0, int n1, femm::CSegment *parsegm, double tol=0.);
     /**
-     * @brief Delete all selected segments.
-     * @return \c true, if any segments were deleted, \c false otherwise.
-     */
-    bool DeleteSelectedSegments();
-    /**
      * @brief Add a block label to the problem description.
      * The method ensures that a block label can not be added on top
      * of another label, node or line.
@@ -192,6 +187,25 @@ public:
      * @return \c true if the label could be added or a block label already exists at that position, \c false otherwise.
      */
     bool AddBlockLabel(double x, double y, double d);
+    /**
+     * @brief Add an arc segment to the problem description.
+     * This method takes care of intersections with other nodes or lines, and splits the arc segment if necessary.
+     * No degenerate arc segments (with start point == end point) can be added.
+     * @param asegm the proposed arc segment.
+     * @param tol tolerance, i.e. minimum distance between arc segment and nodes
+     * @return \c true if the arc segment could be added, \c false otherwise.
+     */
+    bool AddArcSegment(femm::CArcSegment &asegm, double tol=0.);
+    /**
+     * @brief Delete all selected segments.
+     * @return \c true, if any segments were deleted, \c false otherwise.
+     */
+    bool DeleteSelectedSegments();
+    /**
+     * @brief Delete all selected arc segments
+     * @return \c true, if any segments were deleted, \c false otherwise.
+     */
+    bool DeleteSelectedArcSegments();
 private:
 
 	virtual bool Initialize();
