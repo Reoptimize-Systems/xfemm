@@ -221,8 +221,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectsegment", luaSelectSegment);
     li.addFunction("mi_set_arcsegment_prop", luaSetarcsegmentprop);
     li.addFunction("mi_setarcsegmentprop", luaSetarcsegmentprop);
-    li.addFunction("mi_set_block_prop", luaSetblockprop);
-    li.addFunction("mi_setblockprop", luaSetblockprop);
+    li.addFunction("mi_set_block_prop", luaSetBlocklabelProp);
+    li.addFunction("mi_setblockprop", luaSetBlocklabelProp);
     li.addFunction("mi_set_edit_mode", luaSeteditmode);
     li.addFunction("mi_seteditmode", luaSeteditmode);
     li.addFunction("mo_set_edit_mode", luaSeteditmode);
@@ -2085,15 +2085,68 @@ int femmcli::LuaMagneticsCommands::luaSetarcsegmentprop(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set properties for selected block labels
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_setblockprop()}
+ *
+ * \internal
+ * mi_setblockprop("blockname", automesh, meshsize, "incircuit", magdirection, group, turns)
+ * Set the selected block labels to have the properties
  */
-int femmcli::LuaMagneticsCommands::luaSetblockprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    // default values
+    std::string blocktype = "<None>";
+    bool automesh = true;
+    double meshsize = 0;
+    std::string incircuit = "<None>";
+    double magdirection = 0;
+    std::string magdirfctn;
+    int group = 0;
+    int turns = 1;
+
+    int n=lua_gettop(L);
+
+    if (n>0) blocktype = lua_tostring(L,1);
+    if (n>1) automesh = (lua_todouble(L,2) != 0);
+    if (n>2) meshsize = lua_todouble(L,3);
+    if (n>3) incircuit = lua_tostring(L,4);
+    if (n>4)
+    {
+        if (lua_isnumber(L,5))
+            magdirection = lua_todouble(L,5);
+        else
+            magdirfctn = lua_tostring(L,5);
+    }
+    if (n>5) group = (int) lua_todouble(L,6);
+    if (n>6)
+    {
+        turns = (int) lua_todouble(L,7);
+        if (turns==0) turns = 1;
+    }
+
+    for (int i=0; i<(int) doc->labellist.size(); i++)
+    {
+        if (doc->labellist[i]->IsSelected)
+        {
+            doc->labellist[i]->MaxArea = PI*meshsize*meshsize/4.;
+            doc->labellist[i]->MagDir = magdirection;
+            doc->labellist[i]->BlockTypeName = blocktype;
+            doc->labellist[i]->InCircuitName = incircuit;
+            doc->labellist[i]->InGroup = group;
+            doc->labellist[i]->Turns = turns;
+            doc->labellist[i]->MagDirFctn = magdirfctn;
+            if(automesh)
+                doc->labellist[i]->MaxArea = 0;
+        }
+    }
+
     return 0;
 }
 
