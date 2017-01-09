@@ -40,8 +40,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addarc", luaAddArc);
     li.addFunction("mi_add_bh_point", luaAddbhpoint);
     li.addFunction("mi_addbhpoint", luaAddbhpoint);
-    li.addFunction("mi_add_bound_prop", luaAddboundprop);
-    li.addFunction("mi_addboundprop", luaAddboundprop);
+    li.addFunction("mi_add_bound_prop", luaAddBoundaryProp);
+    li.addFunction("mi_addboundprop", luaAddBoundaryProp);
     li.addFunction("mi_add_circ_prop", luaAddCircuitProp);
     li.addFunction("mi_addcircprop", luaAddCircuitProp);
     li.addFunction("mo_add_contour", luaAddcontour);
@@ -344,15 +344,37 @@ int femmcli::LuaMagneticsCommands::luaAddbhpoint(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new boundary property with a given name.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addboundprop()}
+ *
+ * \internal
+ * mi_addboundprop("propname", A0, A1, A2, Phi, Mu, Sig, c0, c1, BdryFormat)
+ * Adds a new boundary property with name "propname"
  */
-int femmcli::LuaMagneticsCommands::luaAddboundprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddBoundaryProp(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    std::unique_ptr<CMBoundaryProp> m = std::make_unique<CMBoundaryProp>();
+
+    int n=lua_gettop(L);
+    if (n>0) m->BdryName = lua_tostring(L,1);
+    if (n>1) m->A0 = lua_todouble(L,2);
+    if (n>2) m->A1 = lua_todouble(L,3);
+    if (n>3) m->A2 = lua_todouble(L,4);
+    if (n>4) m->phi = lua_todouble(L,5);
+    if (n>5) m->Mu = lua_todouble(L,6);
+    if (n>6) m->Sig = lua_todouble(L,7);
+    if (n>7) m->c0 = lua_tonumber(L,8);
+    if (n>8) m->c1 = lua_tonumber(L,9);
+    if (n>9) m->BdryFormat = (int) lua_todouble(L,10);
+
+    doc->lineproplist.push_back(std::move(m));
     return 0;
 }
 
