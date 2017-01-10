@@ -186,8 +186,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_resize", luaResize);
     li.addFunction("mi_restore", luaRestore);
     li.addFunction("mo_restore", luaRestore);
-    li.addFunction("mi_load_solution", luaRunpost);
-    li.addFunction("mi_loadsolution", luaRunpost);
+    li.addFunction("mi_load_solution", luaLoadSolution);
+    li.addFunction("mi_loadsolution", luaLoadSolution);
     li.addFunction("mi_save_bitmap", luaSavebitmap);
     li.addFunction("mi_savebitmap", luaSavebitmap);
     li.addFunction("mo_save_bitmap", luaSavebitmap);
@@ -804,37 +804,8 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         lua_error(L, "solver: problem loading input file");
         return 0;
     }
-    int err = theFSolver.LoadMesh();
-    if (err != 0)
-    {
-        theFSolver.WarnMessage("problem loading mesh:\n");
-
-        switch (err)
-        {
-        case ( BADEDGEFILE ):
-            lua_error(L,"Could not open .edge file.");
-            break;
-        case ( BADELEMENTFILE ):
-            lua_error(L,"Could not open .ele file.");
-            break;
-        case( BADFEMFILE ):
-            lua_error(L,"Could not open .fem file.");
-            break;
-        case( BADNODEFILE ):
-            lua_error(L,"Could not open .node file.");
-            break;
-        case( BADPBCFILE ):
-            lua_error(L,"Could not open .pbc file.");
-            break;
-        case( MISSINGMATPROPS ):
-            lua_error(L,"Material properties have not been defined for all regions.");
-            break;
-        default:
-            lua_error(L,"AN unknown error occured.");
-            break;
-        }
-        return 0;
-    }
+    //theFSolver.WarnMessage = [&L](const char* msg){ lua_error(L,msg);};
+    theFSolver.runSolver();
     return 0;
 }
 
@@ -1798,15 +1769,29 @@ int femmcli::LuaMagneticsCommands::luaRestore(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Load the solution and run the postprocessor on it.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_runpost()}
+ *
+ * \internal
+ * mi_loadsolution()
+ * Loads and displays the solution corresponding to the current geometry.
  */
-int femmcli::LuaMagneticsCommands::luaRunpost(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    if (doc->pathName.empty())
+    {
+        lua_error(L,"No results to display");
+        return 0;
+    }
+
+    FPProc pproc;
     return 0;
 }
 

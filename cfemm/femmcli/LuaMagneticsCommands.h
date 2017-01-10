@@ -116,7 +116,7 @@ protected:
     static int luaReload(lua_State *L);
     static int luaResize(lua_State *L);
     static int luaRestore(lua_State *L);
-    static int luaRunpost(lua_State *L);
+    static int luaLoadSolution(lua_State *L);
     static int luaSavebitmap(lua_State *L);
     static int luaSaveDocument(lua_State *L);
     static int luaSavedxf(lua_State *L);

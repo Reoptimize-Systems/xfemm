@@ -525,6 +525,139 @@ double FSolver::ElmArea(int i)
 
 }
 
+bool FSolver::runSolver()
+{
+    if (!LoadProblemFile())
+    {
+        WarnMessage("problem loading .fem file\n");
+        return false;
+    }
+
+    // load mesh
+    int err = LoadMesh();
+    if (err != 0)
+    {
+        switch (err)
+        {
+        case ( BADEDGEFILE ):
+            WarnMessage("problem loading mesh:\nCould not open .edge file.\n");
+            break;
+
+        case ( BADELEMENTFILE ):
+            WarnMessage("problem loading mesh:\nCould not open .ele file.\n");
+            break;
+
+        case( BADFEMFILE ):
+            WarnMessage("problem loading mesh:\nCould not open .fem file.\n");
+            break;
+
+        case( BADNODEFILE ):
+            WarnMessage("problem loading mesh:\nCould not open .node file.\n");
+            break;
+
+        case( BADPBCFILE ):
+            WarnMessage("problem loading mesh:\nCould not open .pbc file.\n");
+            break;
+
+        case( MISSINGMATPROPS ):
+            WarnMessage("problem loading mesh:\nMaterial properties have not been defined for all regions.\n");
+            break;
+
+        default:
+            WarnMessage("problem loading mesh:\nAn unknown error occured.\n");
+            break;
+        }
+
+        return false;
+    }
+
+    // renumber using Cuthill-McKee
+    printf("renumbering nodes");
+    if (!Cuthill())
+    {
+        WarnMessage("problem renumbering node points");
+        return false;
+    }
+
+    printf("solving...");
+    printf("Problem Statistics:\n%i nodes\n%i elements\nPrecision: %3.2e\n",
+            NumNodes,NumEls,Precision);
+
+    if (Frequency == 0)
+    {
+        CBigLinProb L;
+        L.Precision = Precision;
+
+        // initialize the problem, allocating the space required to solve it.
+        if (L.Create(NumNodes, BandWidth) == false)
+        {
+            WarnMessage("couldn't allocate enough space for matrices");
+            return false;
+        }
+
+        // Create element matrices and solve the problem;
+        if (ProblemType == false)
+        {
+            if (Static2D(L) == false)
+            {
+                WarnMessage("Couldn't solve the problem");
+                return false;
+            }
+            printf("Static 2-D problem solved");
+        } else {
+            if (StaticAxisymmetric(L) == false)
+            {
+                WarnMessage("Couldn't solve the problem");
+                return false;
+            }
+            printf("Static axisymmetric problem solved\n");
+        }
+
+        if (WriteStatic2D(L) == false)
+        {
+            WarnMessage("couldn't write results to disk");
+            return false;
+        }
+        printf("results written to disk\n");
+    } else {
+        CBigComplexLinProb L;
+        L.Precision = Precision;
+
+        // initialize the problem, allocating the space required to solve it.
+        if (L.Create(NumNodes+NumCircProps, BandWidth, NumNodes) == false)
+        {
+            WarnMessage("couldn't allocate enough space for matrices");
+            return false;
+        }
+
+        // Create element matrices and solve the problem;
+        if (ProblemType == false)
+        {
+            if (Harmonic2D(L) == false)
+            {
+                WarnMessage("Couldn't solve the problem");
+                return false;
+            }
+            printf("Harmonic 2-D problem solved");
+        } else {
+            if (HarmonicAxisymmetric(L) == false)
+            {
+                WarnMessage("Couldn't solve the problem");
+                return false;
+            }
+            printf("Harmonic axisymmetric problem solved");
+        }
+
+        if (WriteHarmonic2D(L)==false)
+        {
+            WarnMessage("couldn't write results to disk");
+            return false;
+        }
+        printf("results written to disk.");
+    }
+    return true;
+}
+
 // SortNodes: sorts mesh nodes based on a new numbering
 void FSolver::SortNodes (int* newnum)
 {

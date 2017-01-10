@@ -79,6 +79,14 @@ public:
     void GetFillFactor(int lbl);
     double ElmArea(int i);
 
+    /**
+     * @brief Solve the problem.
+     * This is basically a convenience function that encompasses all steps as would be normally taken when running the solver with default settings.
+     * Note: You need to set the PathName beforehand.
+     * @return \c true on success, \c false on error.
+     */
+    bool runSolver();
+
 private:
 
     virtual void CleanUp() override;
