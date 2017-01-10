@@ -90,7 +90,8 @@ public: // data members
     std::vector< std::unique_ptr<CMeshNode>>   meshnodes;
     std::vector< std::unique_ptr<CElement>> meshelems;
 
-    std::string pathName; ///< \brief pathname of the associated file, if any.
+    std::string pathName; ///< \brief pathname of the associated (.fem) file, if any.
+    std::string solutionFile; ///< \brief pathname of the associated solution file (.ans), if any.
 };
 
 } //namespace

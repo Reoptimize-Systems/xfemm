@@ -33,4 +33,5 @@ femm::FemmProblem::FemmProblem()
     , meshnodes()
     , meshelems()
     , pathName()
+    , solutionFile()
 {}
