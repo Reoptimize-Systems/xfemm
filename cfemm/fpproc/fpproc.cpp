@@ -269,7 +269,7 @@ bool FPProc::OpenDocument(string pathname)
     // attempt to open the file for reading
     if ((fp = fopen(pathname.c_str(),"rt")) == NULL)
     {
-        WarnMessage("Couldn't read from specified .ans file");
+        WarnMessage("Couldn't read from specified .ans file\n");
         return false;
     }
 
@@ -287,7 +287,7 @@ bool FPProc::OpenDocument(string pathname)
             vers = 10.*vers + 0.5;
             if( ((int) vers)!=40 )
             {
-                WarnMessage("This file is from a different version of FEMM\nRe-analyze the problem using the current version.");
+                WarnMessage("This file is from a different version of FEMM\nRe-analyze the problem using the current version.\n");
                 fclose(fp);
                 return false;
             }
@@ -1445,7 +1445,7 @@ bool FPProc::OpenDocument(string pathname)
                     string msg = "Some regions in the problem have been defined\n";
                     msg += "by more than one block label.  These potentially\n";
                     msg += "problematic regions will appear as selected in\n";
-                    msg += "the initial view.";
+                    msg += "the initial view.\n";
                     WarnMessage(msg.c_str());
                     bMultiplyDefinedLabels = true;
                 }
