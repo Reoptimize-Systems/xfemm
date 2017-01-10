@@ -777,7 +777,10 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
     std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getMesher();
     if (!mesherDoc->SaveFEMFile(pathName))
+    {
+        lua_error(L, "mi_analyze(): Could not save fem file!\n");
         return 0;
+    }
 
     //BeginWaitCursor();
     if (mesherDoc->HasPeriodicBC()){
@@ -785,6 +788,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         {
             //EndWaitCursor();
             mesherDoc->UnselectAll();
+            lua_error(L, "mi_analyze(): Periodic BC triangulation failed!\n");
             return 0;
         }
     }
@@ -792,20 +796,27 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         if (!mesherDoc->DoNonPeriodicBCTriangulation(pathName))
         {
             //EndWaitCursor();
+            lua_error(L, "mi_analyze(): Nonperiodic BC triangulation failed!\n");
             return 0;
         }
     }
     //EndWaitCursor();
 
     FSolver theFSolver;
-    theFSolver.PathName = pathName;
+    // filename.fem -> filename
+    std::size_t dotpos = doc->pathName.find_last_of(".");
+    theFSolver.PathName = doc->pathName.substr(0,dotpos);
     if (!theFSolver.LoadProblemFile())
     {
-        lua_error(L, "solver: problem loading input file");
+        lua_error(L, "mi_analyze(): problem initializing solver!");
         return 0;
     }
     //theFSolver.WarnMessage = [&L](const char* msg){ lua_error(L,msg);};
-    theFSolver.runSolver();
+    theFSolver.WarnMessage = &PrintWarningMsg;
+    if (!theFSolver.runSolver())
+    {
+        lua_error(L, "solver failed.");
+    }
     return 0;
 }
 
@@ -1791,7 +1802,17 @@ int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
         return 0;
     }
 
-    FPProc pproc;
+    std::size_t dotpos = doc->pathName.find_last_of(".");
+    std::string solutionFile = doc->pathName.substr(0,dotpos);
+    solutionFile += ".ans";
+
+    auto fpproc = femmState->getFPProc();
+    if (!fpproc->OpenDocument(solutionFile))
+    {
+        std::string msg = "mi_loadsolution(): error while loading solution file:\n";
+        msg += solutionFile;
+        lua_error(L, msg.c_str());
+    }
     return 0;
 }
 

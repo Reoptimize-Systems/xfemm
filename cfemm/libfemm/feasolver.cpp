@@ -95,6 +95,7 @@ FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
+    PrintMessage = &PrintWarningMsg;
 }
 
 template< class PointPropT

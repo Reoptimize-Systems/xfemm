@@ -91,7 +91,7 @@ public: // data members
     std::vector< std::unique_ptr<CElement>> meshelems;
 
     std::string pathName; ///< \brief pathname of the associated (.fem) file, if any.
-    std::string solutionFile; ///< \brief pathname of the associated solution file (.ans), if any.
+    //std::string solutionFile; ///< \brief pathname of the associated solution file (.ans), if any.
 };
 
 } //namespace
