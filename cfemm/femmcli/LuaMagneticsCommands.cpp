@@ -784,7 +784,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 
     //BeginWaitCursor();
     if (mesherDoc->HasPeriodicBC()){
-        if (!mesherDoc->DoPeriodicBCTriangulation(pathName))
+        if (mesherDoc->DoPeriodicBCTriangulation(pathName) != 0)
         {
             //EndWaitCursor();
             mesherDoc->UnselectAll();
@@ -793,7 +793,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         }
     }
     else{
-        if (!mesherDoc->DoNonPeriodicBCTriangulation(pathName))
+        if (mesherDoc->DoNonPeriodicBCTriangulation(pathName) != 0)
         {
             //EndWaitCursor();
             lua_error(L, "mi_analyze(): Nonperiodic BC triangulation failed!\n");
