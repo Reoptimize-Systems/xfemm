@@ -126,7 +126,13 @@ public:
 	bool LoadMesh(std::string PathName);
 	int DoNonPeriodicBCTriangulation(std::string PathName);
 	int DoPeriodicBCTriangulation(std::string PathName);
-	void UpdateUndo();
+    /**
+     * @brief Create an undo point.
+     */
+    void UpdateUndo();
+    /**
+     * @brief Revert data to the undo point.
+     */
 	void Undo();
 	//bool OldOnOpenDocument(LPCTSTR lpszPathName);
 	bool HasPeriodicBC();
