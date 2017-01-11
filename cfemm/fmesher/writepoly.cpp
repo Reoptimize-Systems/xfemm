@@ -502,6 +502,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
     if (in.pointlist == NULL) {
+        WarnMessage("Point list for triangulation is null!\n");
         return -1;
     }
 
@@ -518,6 +519,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // Initialise the pointmarkerlist
     in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
     if (in.pointmarkerlist == NULL) {
+        WarnMessage("Point marker list for triangulation is null!\n");
         return false;
     }
 
@@ -546,11 +548,13 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // Initialise the segmentlist
     in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
     if (in.segmentlist == NULL) {
+        WarnMessage("Segment list for triangulation is null!\n");
         return -1;
     }
     // Initialise the segmentmarkerlist
     in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
     if (in.segmentmarkerlist == NULL) {
+        WarnMessage("Segment marker list for triangulation is null!\n");
         return -1;
     }
 
@@ -594,6 +598,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     in.numberofholes = Nholes;
     in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
     if (in.holelist == NULL) {
+        WarnMessage("Hole list for triangulation is null!\n");
         return -1;
     }
 
@@ -613,6 +618,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     in.numberofregions = NRegionalAttribs;
     in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
     if (in.regionlist == NULL) {
+        WarnMessage("Region list for triangulation is null!\n");
         return -1;
     }
 
@@ -719,6 +725,8 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         if (out.edgelist != NULL) { free(out.edgelist); }
         if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
+        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
+        WarnMessage(msg.c_str());
         return tristatus;
     }
 
@@ -1034,6 +1042,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
     if (in.pointlist == NULL) {
+        WarnMessage("Point list for triangulation is null!\n");
         return -1;
     }
 
@@ -1050,6 +1059,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // Initialise the pointmarkerlist
     in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
     if (in.pointmarkerlist == NULL) {
+        WarnMessage("Point marker list for triangulation is null!\n");
         return -1;
     }
 
@@ -1064,11 +1074,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // Initialise the segmentlist
     in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
     if (in.segmentlist == NULL) {
+        WarnMessage("Segment list for triangulation is null!\n");
         return -1;
     }
     // Initialise the segmentmarkerlist
     in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
     if (in.segmentmarkerlist == NULL) {
+        WarnMessage("Segment marker list for triangulation is null!\n");
         return -1;
     }
 
@@ -1098,6 +1110,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
         if (in.holelist == NULL) {
+            WarnMessage("Hole list for triangulation is null!\n");
             return -1;
         }
 
@@ -1123,6 +1136,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     in.numberofregions = NRegionalAttribs;
     in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
     if (in.regionlist == NULL) {
+        WarnMessage("Region list for triangulation is null!\n");
         return -1;
     }
 
@@ -1222,6 +1236,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         if (out.edgelist != NULL) { free(out.edgelist); }
         if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
+        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
+        WarnMessage(msg.c_str());
         return tristatus;
     }
 
@@ -2070,6 +2086,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
     if (in.pointlist == NULL) {
+        WarnMessage("Point list for triangulation is null!\n");
         return -1;
     }
 
@@ -2086,6 +2103,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // Initialise the pointmarkerlist
     in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
     if (in.pointmarkerlist == NULL) {
+        WarnMessage("Point marker list for triangulation is null!\n");
         return -1;
     }
 
@@ -2111,12 +2129,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // Initialise the segmentlist
     in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
     if (in.segmentlist == NULL) {
+        WarnMessage("Segment list for triangulation is null!\n");
         return -1;
     }
 
     // Initialise the segmentmarkerlist
     in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
     if (in.segmentmarkerlist == NULL) {
+        WarnMessage("Segment marker list for triangulation is null!\n");
         return -1;
     }
 
@@ -2152,6 +2172,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     in.numberofholes = Nholes;
     in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
     if (in.holelist == NULL) {
+        WarnMessage("Hole list for triangulation is null!\n");
         return -1;
     }
 
@@ -2259,6 +2280,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         if (out.edgelist != NULL) { free(out.edgelist); }
         if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
+        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
+        WarnMessage(msg.c_str());
         return tristatus;
     }
 
