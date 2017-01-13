@@ -305,7 +305,7 @@ int FSolver::LoadMesh(bool deleteFiles)
             }
             return MISSINGMATPROPS;
         }
-        assert(elm.lbl < labellist.size());
+        assert(elm.lbl < (int)labellist.size());
         // look up block type out of the list of block labels
         elm.blk = labellist[elm.lbl].BlockType;
 

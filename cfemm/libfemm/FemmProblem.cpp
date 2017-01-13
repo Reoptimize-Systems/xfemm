@@ -77,8 +77,7 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     }
 
     fem << "[ACSolver] = " << ACSolver <<"\n";
-    fem << "[PrevSoln] = " << PrevSoln <<"\n";
-    fem << "[PrevSoln] = " << PrevSoln <<"\n";
+    fem << "[PrevSoln] = \"" << PrevSoln <<"\"\n";
 
     std::string commentString (comment);
     // escape line-breaks
@@ -223,6 +222,48 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
             numHoles++;
     }
     fem << "[NumHoles] = " << numHoles << "\n";
+    for (const auto &label: labellist)
+    {
+        if(label->BlockTypeName=="<No Mesh>")
+            fem << label->x << " " << label->y << " " << label->InGroup << "\n";
+    }
+
+    fem << "[NumBlockLabels] = " << labellist.size()-numHoles << "\n";
+    for (const auto &label: labellist)
+    {
+        if(label->BlockTypeName!="<No Mesh>")
+        {
+            fem << label->x << " " << label->y;
+            int blockTypeIdx = 0;
+            for (int i=0; i<(int)blockproplist.size(); i++) {
+                if (label->BlockTypeName==blockproplist[i]->BlockName) {
+                    blockTypeIdx = i+1;
+                }
+            }
+            fem << " " << blockTypeIdx;
+            if (label->MaxArea>0) {
+                fem << " " << sqrt(4.*label->MaxArea/PI).Re();
+            } else {
+                fem << " -1";
+            }
+            int circPropIdx = 0;
+            for (int i=0; i<(int)circproplist.size(); i++) {
+                if (label->InCircuitName==circproplist[i]->CircName) {
+                    circPropIdx = i+1;
+                }
+            }
+            fem << " " << circPropIdx
+                << " " << label->MagDir
+                << " " << label->InGroup
+                << " " << label->Turns
+                << " " << (int)label->IsExternal+(int)label->IsDefault;
+            if (!label->MagDirFctn.empty())
+            {
+                fem << "   \"" << label->MagDirFctn << "\"";
+            }
+            fem << "\n";
+        }
+    }
 
     return true;
 }
