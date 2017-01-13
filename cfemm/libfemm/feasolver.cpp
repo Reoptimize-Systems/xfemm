@@ -298,7 +298,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
         {
             expectChar(input, '=', err);
             parseString(input,&previousSolutionFile);
-            return true;
+            continue;
         }
 
         // Option to force use of default max mesh, overriding
@@ -402,7 +402,6 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
             }
             continue;
         }
-
 
         // read in regional attributes
         if(token == "[numblocklabels]" )

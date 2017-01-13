@@ -1180,7 +1180,7 @@ CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ostream &err
 void CMMaterialProp::toStream(ostream &out) const
 {
     out << "  <BeginBlock>\n";
-    out << "    <BlockName> = " << BlockName << "\n";
+    out << "    <BlockName> = \"" << BlockName << "\"\n";
     out << "    <Mu_x> = " << mu_x << "\n";
     out << "    <Mu_y> = " << mu_y << "\n";
     out << "    <H_c> = " << H_c << "\n";
