@@ -31,6 +31,13 @@ namespace femm {
  *
  * \sa FEASolver
  * \sa fmesher::FMesher
+ *
+ * \internal
+ * The functionality of this class is not in FemmProblem, because I didn't want to make
+ * FemmProblem a template class.
+ * However, using a template class for FemmReader allows us a type-checked way of
+ * creating data objects of the correct type. This is also possible using factory methods, but
+ * would require much more boiler-plate code that way.
  */
 template< class PointPropT
           , class BoundaryPropT
