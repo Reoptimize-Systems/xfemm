@@ -28,7 +28,7 @@ int main(int argc, char ** argv)
     }
 
     // attempt to discover the file type from the file name
-    MeshObj.filetype = FMesher::GetFileType (FilePath);
+    MeshObj.problem->filetype = FMesher::GetFileType (FilePath);
 
     int status = MeshObj.LoadFEMFile(FilePath);
 

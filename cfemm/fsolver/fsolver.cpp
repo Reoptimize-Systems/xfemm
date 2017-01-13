@@ -30,6 +30,7 @@
 #include "spars.h"
 
 #include <algorithm>
+#include <cassert>
 #include <ctype.h>
 #include <fstream>
 #include <ios>
@@ -304,6 +305,7 @@ int FSolver::LoadMesh(bool deleteFiles)
             }
             return MISSINGMATPROPS;
         }
+        assert(elm.lbl < labellist.size());
         // look up block type out of the list of block labels
         elm.blk = labellist[elm.lbl].BlockType;
 
