@@ -256,7 +256,7 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
                 << " " << label->MagDir
                 << " " << label->InGroup
                 << " " << label->Turns
-                << " " << (int)label->IsExternal+(int)label->IsDefault;
+                << " " << (((int)label->IsExternal)<<1)+(int)label->IsDefault;
             if (!label->MagDirFctn.empty())
             {
                 fem << "   \"" << label->MagDirFctn << "\"";
