@@ -16,6 +16,8 @@
 #ifndef FEMMREADER_H
 #define FEMMREADER_H
 
+#include "FemmProblem.h"
+
 #include <iostream>
 #include <string>
 
@@ -23,37 +25,36 @@ namespace femm {
 
 /**
  * \brief The FemmReader class implements a parser for the Femm file format.
- * The reader object is tied to the object holding the data (i.e. the data object).
- *
- * Requirements on the ProblemData_type:
- *  * Data members:
- *    * \code std::vector<PointProp_type> nodeproplist\endcode
- *    * \code std::vector<BoundaryProp_type> lineproplist\endcode
- *    * \code std::vector<BlockProp_type> blockproplist\endcode
- *    * \code std::vector<CircuitProp_type> circproplist\endcode
- *    * \code std::vector<BlockLabel_type> labellist\endcode
- *    * \code std::vector<Node_type> nodelist\endcode
- *
- * The referenced data types must be defined (e.g. \code ProblemData_type::PointProp_type\endcode).
- * Obviously, this class must have access to the data members mentioned above (i.e. they either have to be public, or this class is declared as friend).
+ * To allow for subtle differences between different flavors of the file format,
+ * it is possible to define a handler function for tokens not handled by default.
  *
  * \sa FEASolver
  * \sa fmesher::FMesher
  */
-template<class ProblemDataT>
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
 class FemmReader
 {
-
 // Attributes
 public:
-    using ProblemData_type = ProblemDataT;
+    using FemmReader_type = FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>;
+    using PointProp_type = PointPropT;
+    using BoundaryProp_type = BoundaryPropT;
+    using BlockProp_type = BlockPropT;
+    using CircuitProp_type = CircuitPropT;
+    using BlockLabel_type = BlockLabelT;
+    using Node_type = NodeT;
 
     /**
-     * @brief FemmReader constructor.
-     * @param dataObject the object where data is stored.
-     * @param err an output stream where error messages should be written to
+     * @brief FemmReader constructor
+     * @param errorpipe
      */
-    FemmReader( ProblemData_type &dataObject, std::ostream &err = std::cerr);
+    FemmReader(std::ostream &errorpipe);
     virtual ~FemmReader();
 
     /**
@@ -61,16 +62,24 @@ public:
      * @param file
      * @return
      */
-    bool parse(const std::string &file);
+    bool parse(const std::string &file, FemmProblem &problem);
 
     /**
      * @brief setHandleTokenFunction sets a handler function for otherwise unhandled tokens.
      * \see handleToken
      */
     void setHandleTokenFunction(bool (*handlerFun)(const std::string &, std::istream &, std::ostream &));
+    /**
+     * @brief If ignoreUnhandledToken is set, the parser tries to continue if an unknown token is read.
+     * This is mostly for debugging. Normally, every token should be handled (either in FemmReader, or in the handleToken function).
+     * The default value is \c false.
+     * @return the current property value
+     */
+    bool ignoreUnhandledToken() const;
+    void setIgnoreUnhandledToken(bool value);
+
 private:
-    /// \brief Reference to the data object
-    ProblemData_type &m_data;
+    bool m_ignoreUnhandledToken;
     /// \brief Reference to the error message stream
     std::ostream &err;
     /// \see handleTokenDummy
@@ -88,7 +97,20 @@ private:
      * @param err output stream for error messages
      * @return \c false, if the token is not handled. \c true, if it is handled
      */
-    bool handleTokenDummy(const std::string &token, std::istream &input, std::ostream &err) { return false; }
+    static bool handleTokenDummy(const std::string &, std::istream &, std::ostream &) { return false; }
+};
+
+class MagneticsReader : public FemmReader<
+        femm::CPointProp
+        , femm::CMBoundaryProp
+        , femm::CMMaterialProp
+        , femm::CMCircuit
+        , femm::CMBlockLabel
+        , femm::CNode
+        >
+{
+public:
+    MagneticsReader(std::ostream &errorpipe);
 };
 
 } //namespace

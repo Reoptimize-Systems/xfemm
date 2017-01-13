@@ -23,40 +23,48 @@
 #include <sstream>
 #include <string>
 
-// this should normally be defined, but it can be useful for debugging to continue reading after parse errors
-#define STOP_ON_UNKNOWN_TOKEN
 
 using namespace std;
 using namespace femm;
 
-template<class ProblemDataT>
-FemmReader<ProblemDataT>
-::FemmReader(ProblemDataT &dataObject, std::ostream &err)
-    : m_data(dataObject)
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::FemmReader( std::ostream &err)
+    : m_ignoreUnhandledToken(false)
     , err(err)
-    , handleToken(&handleTokenDummy)
+    , handleToken(&FemmReader_type::handleTokenDummy)
 {
 }
 
-template<class ProblemDataT>
-FemmReader<ProblemDataT>
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
 ::~FemmReader()
 {
     // nothing to do
 }
 
-template<class ProblemDataT>
-bool FemmReader<ProblemDataT>
-::parse(const std::string &file)
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::parse(const std::string &file, FemmProblem &problem)
 {
-    // convenience:
-    using PointPropT = typename ProblemData_type::PointProp_type;
-    using BoundaryPropT = typename ProblemData_type::BoundaryProp_type;
-    using BlockPropT = typename ProblemData_type::BlockProp_type;
-    using CircuitPropT = typename ProblemData_type::CircuitProp_type;
-    using BlockLabelT = typename ProblemData_type::BlockLabel_type;
-    //using NodeT = typename ProblemData_type::Node_type;
-
     std::ifstream input;
 
     input.open(file.c_str(), std::ifstream::in);
@@ -79,7 +87,7 @@ bool FemmReader<ProblemDataT>
         if( token == "[format]")
         {
             success &= expectChar(input, '=',err);
-            success &= parseValue(input, m_data.FileFormat, err);
+            success &= parseValue(input, problem.FileFormat, err);
             continue;
         }
 
@@ -87,14 +95,14 @@ bool FemmReader<ProblemDataT>
         if( token == "[precision]")
         {
             success &= expectChar(input, '=', err);
-            success &= parseValue(input, m_data.Precision, err);
+            success &= parseValue(input, problem.Precision, err);
             continue;
         }
 
         if( token == "[minangle]")
         {
             success &= expectChar(input, '=',err);
-            success &= parseValue(input, m_data.MinAngle, err);
+            success &= parseValue(input, problem.MinAngle, err);
             continue;
         }
 
@@ -102,7 +110,7 @@ bool FemmReader<ProblemDataT>
         if( token == "[depth]")
         {
             success &= expectChar(input, '=',err);
-            success &= parseValue(input, m_data.Depth, err);
+            success &= parseValue(input, problem.Depth, err);
             continue;
         }
 
@@ -112,12 +120,12 @@ bool FemmReader<ProblemDataT>
             success &= expectChar(input, '=', err);
             nextToken(input, &token);
 
-            if( token == "inches" ) m_data.LengthUnits=LengthInches;
-            else if( token == "millimeters" ) m_data.LengthUnits=LengthMillimeters;
-            else if( token == "centimeters" ) m_data.LengthUnits=LengthCentimeters;
-            else if( token == "mils" ) m_data.LengthUnits=LengthMils;
-            else if( token == "microns" ) m_data.LengthUnits=LengthMicrometers;
-            else if( token == "meters" ) m_data.LengthUnits=LengthMeters;
+            if( token == "inches" ) problem.LengthUnits=LengthInches;
+            else if( token == "millimeters" ) problem.LengthUnits=LengthMillimeters;
+            else if( token == "centimeters" ) problem.LengthUnits=LengthCentimeters;
+            else if( token == "mils" ) problem.LengthUnits=LengthMils;
+            else if( token == "microns" ) problem.LengthUnits=LengthMicrometers;
+            else if( token == "meters" ) problem.LengthUnits=LengthMeters;
             else err << "Unknown length unit: " << token << "\n";
             continue;
         }
@@ -128,8 +136,8 @@ bool FemmReader<ProblemDataT>
             success &= expectChar(input, '=', err);
             nextToken(input, &token);
 
-            if ( token == "cartesian" ) m_data.Coords=CART;
-            else if ( token == "polar" ) m_data.Coords=POLAR;
+            if ( token == "cartesian" ) problem.Coords=CART;
+            else if ( token == "polar" ) problem.Coords=POLAR;
             else err << "Unknown coordinate type: " << token << "\n";
             continue;
         }
@@ -140,8 +148,8 @@ bool FemmReader<ProblemDataT>
             success &= expectChar(input, '=', err);
             nextToken(input, &token);
 
-            if( token == "planar" ) m_data.ProblemType=PLANAR;
-            else if( token == "axisymmetric" ) m_data.ProblemType=AXISYMMETRIC;
+            if( token == "planar" ) problem.ProblemType=PLANAR;
+            else if( token == "axisymmetric" ) problem.ProblemType=AXISYMMETRIC;
             else err << "Unknown problem type:" << token << "\n";
             continue;
         }
@@ -150,21 +158,21 @@ bool FemmReader<ProblemDataT>
         if( token == "[extzo]" )
         {
             success &= expectChar(input, '=', err);
-            success &= parseValue(input, m_data.extZo, err);
+            success &= parseValue(input, problem.extZo, err);
             continue;
         }
 
         if( token == "[extro]" )
         {
             success &= expectChar(input, '=', err);
-            success &= parseValue(input, m_data.extRo, err);
+            success &= parseValue(input, problem.extRo, err);
             continue;
         }
 
         if( token == "[extri]" )
         {
             success &= expectChar(input, '=', err);
-            success &= parseValue(input, m_data.extRi, err);
+            success &= parseValue(input, problem.extRi, err);
             continue;
         }
 
@@ -172,7 +180,7 @@ bool FemmReader<ProblemDataT>
         if( token == "[comment]" )
         {
             success &= expectChar(input, '=', err);
-            parseString(input, &(m_data.comment), err);
+            parseString(input, &(problem.comment), err);
             continue;
         }
 
@@ -180,7 +188,7 @@ bool FemmReader<ProblemDataT>
         if( token == "[acsolver]")
         {
             success &= expectChar(input, '=', err);
-            success &= parseValue(input, m_data.ACSolver, err);
+            success &= parseValue(input, problem.ACSolver, err);
             continue;
         }
 
@@ -189,7 +197,7 @@ bool FemmReader<ProblemDataT>
         if( token == "[forcemaxmesh]")
         {
             success &= expectChar(input, '=', err);
-            success &= parseValue(input, m_data.DoForceMaxMeshArea, err);
+            success &= parseValue(input, problem.DoForceMaxMeshArea, err);
             continue;
         }
 
@@ -199,18 +207,18 @@ bool FemmReader<ProblemDataT>
             int k;
             success &= expectChar(input, '=', err);
             success &= parseValue(input, k, err);
-            if (k>0) m_data.nodeproplist.reserve(k);
+            if (k>0) problem.nodeproplist.reserve(k);
 
-            while (input.good() && (int)m_data.nodeproplist.size() < k)
+            while (input.good() && (int)problem.nodeproplist.size() < k)
             {
-                PointPropT next = PointPropT::fromStream(input, err);
-                m_data.nodeproplist.push_back(next);
+                std::unique_ptr<PointPropT> next;
+                next = std::make_unique<PointPropT>(std::move(PointPropT::fromStream(input, err)));
+                problem.nodeproplist.push_back(std::move(next));
             }
-            m_data.NumPointProps = m_data.nodeproplist.size();
             // message will be printed after parsing is done
-            if (m_data.NumPointProps != k)
+            if ((int)problem.nodeproplist.size() != k)
             {
-                err << "Expected "<<k<<" PointProps, but got " << m_data.NumPointProps << "\n";
+                err << "Expected "<<k<<" PointProps, but got " << problem.nodeproplist.size() << "\n";
                 break; // stop parsing
             }
             continue;
@@ -223,18 +231,18 @@ bool FemmReader<ProblemDataT>
             success &= expectChar(input, '=', err);
             int k;
             success &= parseValue(input, k, err);
-            if (k>0) m_data.lineproplist.reserve(k);
+            if (k>0) problem.lineproplist.reserve(k);
 
-            while (input.good() && m_data.NumLineProps < k)
+            while (input.good() && (int)problem.lineproplist.size() < k)
             {
-                BoundaryPropT next = BoundaryPropT::fromStream(input, err);
-                m_data.lineproplist.push_back(next);
-                m_data.NumLineProps++;
+                std::unique_ptr<BoundaryPropT> next;
+                next = std::make_unique<BoundaryPropT>(std::move(BoundaryPropT::fromStream(input, err)));
+                problem.lineproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
-            if (m_data.NumLineProps != k)
+            if ((int)problem.lineproplist.size() != k)
             {
-                err << "Expected "<<k<<" BoundaryProps, but got " << m_data.NumLineProps << "\n";
+                err << "Expected "<<k<<" BoundaryProps, but got " << problem.lineproplist.size() << "\n";
                 break; // stop parsing
             }
             continue;
@@ -247,18 +255,18 @@ bool FemmReader<ProblemDataT>
             success &= expectChar(input, '=', err);
             int k;
             success &= parseValue(input, k, err);
-            if (k>0) m_data.blockproplist.reserve(k);
+            if (k>0) problem.blockproplist.reserve(k);
 
-            while (input.good() && m_data.NumBlockProps < k)
+            while (input.good() && (int)problem.blockproplist.size() < k)
             {
-                BlockPropT next = BlockPropT::fromStream(input, err);
-                m_data.blockproplist.push_back(next);
-                m_data.NumBlockProps++;
+                std::unique_ptr<BlockPropT> next;
+                next = std::make_unique<BlockPropT>(std::move(BlockPropT::fromStream(input, err)));
+                problem.blockproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
-            if (m_data.NumBlockProps != k)
+            if ((int)problem.blockproplist.size() != k)
             {
-                err << "Expected "<<k<<" BlockProps, but got " << m_data.NumBlockProps << "\n";
+                err << "Expected "<<k<<" BlockProps, but got " << problem.blockproplist.size() << "\n";
                 break; // stop parsing
             }
             continue;
@@ -270,18 +278,18 @@ bool FemmReader<ProblemDataT>
             success &= expectChar(input, '=', err);
             int k;
             success &= parseValue(input, k, err);
-            if(k>0) m_data.circproplist.reserve(k);
+            if(k>0) problem.circproplist.reserve(k);
 
-            while (input.good() && m_data.NumCircProps < k)
+            while (input.good() && (int)problem.circproplist.size() < k)
             {
-                CircuitPropT next = CircuitPropT::fromStream(input, err);
-                m_data.circproplist.push_back(next);
-                m_data.NumCircProps++;
+                std::unique_ptr<CircuitPropT> next;
+                next = std::make_unique<CircuitPropT>(std::move(CircuitPropT::fromStream(input, err)));
+                problem.circproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
-            if (m_data.NumCircProps != k)
+            if ((int)problem.circproplist.size() != k)
             {
-                err << "Expected "<<k<<" CircuitProps, but got " << m_data.NumCircProps << "\n";
+                err << "Expected "<<k<<" CircuitProps, but got " << problem.circproplist.size() << "\n";
                 break; // stop parsing
             }
             continue;
@@ -294,17 +302,18 @@ bool FemmReader<ProblemDataT>
             success &= expectChar(input, '=', err);
             int k;
             success &= parseValue(input, k, err);
-            if (m_data.NumBlockLabels>0) m_data.labellist.reserve(m_data.NumBlockLabels);
-            while (input.good() && m_data.NumBlockLabels < k)
+            if (k>0) problem.labellist.reserve(k);
+
+            while (input.good() && (int)problem.labellist.size() < k)
             {
-                BlockLabelT blk = BlockLabelT::fromStream(input,err);
-                m_data.labellist.push_back(blk);
-                m_data.NumBlockLabels++;
+                std::unique_ptr<BlockLabelT> next;
+                next = std::make_unique<BlockLabelT>(std::move(BlockLabelT::fromStream(input, err)));
+                problem.labellist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
-            if (m_data.NumBlockLabels != k)
+            if ((int)problem.labellist.size() != k)
             {
-                err << "Expected "<<k<<" BlockLabels, but got " << m_data.NumBlockLabels << "\n";
+                err << "Expected "<<k<<" BlockLabels, but got " << problem.labellist.size() << "\n";
                 break; // stop parsing
             }
             continue;
@@ -333,19 +342,66 @@ bool FemmReader<ProblemDataT>
         {
             err << "Unknown token: " << token << "\n";
             success = false;
-#ifdef STOP_ON_UNKNOWN_TOKEN
-            // stop parsing:
-            break;
-#endif
+            if (!m_ignoreUnhandledToken) {
+                // stop parsing:
+                break;
+            }
         }
     }
     return success;
 }
 
-template<class ProblemDataT>
-void FemmReader<ProblemDataT>
-::setHandleTokenFunction(bool (*handlerFun)(const std::__cxx11::string &, std::istream &, std::ostream &))
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+void FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::setHandleTokenFunction(bool (*handlerFun)(const std::string &, std::istream &, std::ostream &))
 {
     handleToken = handlerFun;
 }
 
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::ignoreUnhandledToken() const
+{
+    return m_ignoreUnhandledToken;
+}
+
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+void FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::setIgnoreUnhandledToken(bool value)
+{
+    m_ignoreUnhandledToken = value;
+}
+
+
+// template instantiation
+template class FemmReader<
+        femm::CPointProp
+        , femm::CMBoundaryProp
+        , femm::CMMaterialProp
+        , femm::CMCircuit
+        , femm::CMBlockLabel
+        , femm::CNode
+        >;
+
+MagneticsReader::MagneticsReader(ostream &errorpipe)
+    : FemmReader_type(errorpipe)
+{
+}

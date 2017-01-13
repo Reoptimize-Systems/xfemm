@@ -46,16 +46,12 @@ public:
 protected:
     static int luaError(lua_State *L);
     static int luaExit(lua_State *L);
-    static int luaHidePointProps(lua_State *L);
     static int luaMessageBox(lua_State *L);
     static int luaNewDocument(lua_State *L);
     static int luaOpenDocument(lua_State *L);
     static int luaPause(lua_State *L);
     static int luaPromptBox(lua_State *L);
-    static int luaShowConsole(lua_State *);
-    static int luaShowPointProps(lua_State *L);
     static int luaSetWorkingDirectory(lua_State *L);
-    static int luaMakePlot(lua_State *L);
 };
 
 } /* namespace FemmLua*/
