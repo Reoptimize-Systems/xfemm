@@ -151,8 +151,8 @@ int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
     {
         femmState->femmDocument = std::make_shared<femm::FemmProblem>(femm::MagneticsFile);
         std::stringstream err;
-        femm::MagneticsReader reader(err);
-        if (!reader.parse(filename, *femmState->femmDocument))
+        femm::MagneticsReader reader(femmState->femmDocument, err);
+        if (!reader.parse(filename))
         {
             std::string msg = "Could not read file " + filename;
             msg += "\nError: " + err.str() + "\n";
