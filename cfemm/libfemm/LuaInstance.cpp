@@ -118,6 +118,11 @@ femm::LuaInstance *femm::LuaInstance::instance(lua_State *L)
     return static_cast<LuaInstance*>(obj);
 }
 
+int femm::LuaInstance::luaNOP(lua_State *)
+{
+    return 0;
+}
+
 void femm::LuaInstance::initializeLua(int stackSize)
 {
     debug << "Initializing Lua with stacksize = " << stackSize << std::endl;

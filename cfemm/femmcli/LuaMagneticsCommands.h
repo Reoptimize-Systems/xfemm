@@ -138,21 +138,7 @@ protected:
     static int luaSetgroup(lua_State *L);
     static int luaSetNodeProp(lua_State *L);
     static int luaSetSegmentProp(lua_State *L);
-    static int luaShowcountour(lua_State *L);
-    static int luaShowdensity(lua_State *L);
-    static int luaShowgrid(lua_State *L);
-    static int luaShowMesh(lua_State *L);
-    static int luaShowmesh(lua_State *L);
-    static int luaShownames(lua_State *L);
-    static int luaShowpoints(lua_State *L);
     static int luaSmoothing(lua_State *L);
-    static int luaSwitchfocus(lua_State *L);
-    static int luaUpdatewindow(lua_State *L);
-    static int luaVectorplot(lua_State *L);
-    static int luaZoomin(lua_State *L);
-    static int luaZoom(lua_State *L);
-    static int luaZoomnatural(lua_State *L);
-    static int luaZoomout(lua_State *L);
 };
 
 } /* namespace FemmLua*/
