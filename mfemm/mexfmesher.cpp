@@ -109,10 +109,10 @@ int nrhs, const mxArray *prhs[])
     MeshObj.TriMessage = &mexPrintf;
 
     // attempt to discover the file type from the file name
-    MeshObj.filetype = FMesher::GetFileType (FilePath);
+	 FileType filetype = FMesher::GetFileType (FilePath);
 
     /*  call the FMesher subroutines */
-    status = MeshObj.LoadFEMFile(FilePath);
+    status = MeshObj.LoadFEMFile(FilePath, filetype);
 
     if (status != FMesher::F_FILE_OK)
     {
