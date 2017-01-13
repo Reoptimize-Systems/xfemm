@@ -237,47 +237,47 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_setnodeprop", luaSetNodeProp);
     li.addFunction("mi_set_segment_prop", luaSetSegmentProp);
     li.addFunction("mi_setsegmentprop", luaSetSegmentProp);
-    li.addFunction("mo_show_contour_plot", luaShowcountour);
-    li.addFunction("mo_showcontourplot", luaShowcountour);
-    li.addFunction("mo_show_density_plot", luaShowdensity);
-    li.addFunction("mo_showdensityplot", luaShowdensity);
-    li.addFunction("mi_show_grid", luaShowgrid);
-    li.addFunction("mi_showgrid", luaShowgrid);
-    li.addFunction("mo_show_grid", luaShowgrid);
-    li.addFunction("mo_showgrid", luaShowgrid);
-    li.addFunction("mi_show_mesh", luaShowMesh);
-    li.addFunction("mi_showmesh", luaShowMesh);
-    li.addFunction("mo_show_mesh", luaShowmesh);
-    li.addFunction("mo_showmesh", luaShowmesh);
-    li.addFunction("mi_show_names", luaShownames);
-    li.addFunction("mi_shownames", luaShownames);
-    li.addFunction("mo_show_names", luaShownames);
-    li.addFunction("mo_shownames", luaShownames);
-    li.addFunction("mo_show_points", luaShowpoints);
-    li.addFunction("mo_showpoints", luaShowpoints);
+    li.addFunction("mo_show_contour_plot", LuaInstance::luaNOP);
+    li.addFunction("mo_showcontourplot", LuaInstance::luaNOP);
+    li.addFunction("mo_show_density_plot", LuaInstance::luaNOP);
+    li.addFunction("mo_showdensityplot", LuaInstance::luaNOP);
+    li.addFunction("mi_show_grid", LuaInstance::luaNOP);
+    li.addFunction("mi_showgrid", LuaInstance::luaNOP);
+    li.addFunction("mo_show_grid", LuaInstance::luaNOP);
+    li.addFunction("mo_showgrid", LuaInstance::luaNOP);
+    li.addFunction("mi_show_mesh", LuaInstance::luaNOP);
+    li.addFunction("mi_showmesh", LuaInstance::luaNOP);
+    li.addFunction("mo_show_mesh", LuaInstance::luaNOP);
+    li.addFunction("mo_showmesh", LuaInstance::luaNOP);
+    li.addFunction("mi_show_names", LuaInstance::luaNOP);
+    li.addFunction("mi_shownames", LuaInstance::luaNOP);
+    li.addFunction("mo_show_names", LuaInstance::luaNOP);
+    li.addFunction("mo_shownames", LuaInstance::luaNOP);
+    li.addFunction("mo_show_points", LuaInstance::luaNOP);
+    li.addFunction("mo_showpoints", LuaInstance::luaNOP);
     li.addFunction("mo_smooth", luaSmoothing);
-    li.addFunction("mi_set_focus", luaSwitchfocus);
-    li.addFunction("mi_setfocus", luaSwitchfocus);
-    li.addFunction("mo_set_focus", luaSwitchfocus);
-    li.addFunction("mo_setfocus", luaSwitchfocus);
-    li.addFunction("mi_refresh_view", luaUpdatewindow);
-    li.addFunction("mi_refreshview", luaUpdatewindow);
-    li.addFunction("mo_show_vector_plot", luaVectorplot);
-    li.addFunction("mo_showvectorplot", luaVectorplot);
-    li.addFunction("mi_zoom_in", luaZoomin);
-    li.addFunction("mi_zoomin", luaZoomin);
-    li.addFunction("mo_zoom_in", luaZoomin);
-    li.addFunction("mo_zoomin", luaZoomin);
-    li.addFunction("mi_zoom", luaZoom);
-    li.addFunction("mo_zoom", luaZoom);
-    li.addFunction("mi_zoom_natural", luaZoomnatural);
-    li.addFunction("mi_zoomnatural", luaZoomnatural);
-    li.addFunction("mo_zoom_natural", luaZoomnatural);
-    li.addFunction("mo_zoomnatural", luaZoomnatural);
-    li.addFunction("mi_zoom_out", luaZoomout);
-    li.addFunction("mi_zoomout", luaZoomout);
-    li.addFunction("mo_zoom_out", luaZoomout);
-    li.addFunction("mo_zoomout", luaZoomout);
+    li.addFunction("mi_set_focus", LuaInstance::luaNOP);
+    li.addFunction("mi_setfocus", LuaInstance::luaNOP);
+    li.addFunction("mo_set_focus", LuaInstance::luaNOP);
+    li.addFunction("mo_setfocus", LuaInstance::luaNOP);
+    li.addFunction("mi_refresh_view", LuaInstance::luaNOP);
+    li.addFunction("mi_refreshview", LuaInstance::luaNOP);
+    li.addFunction("mo_show_vector_plot", LuaInstance::luaNOP);
+    li.addFunction("mo_showvectorplot", LuaInstance::luaNOP);
+    li.addFunction("mi_zoom_in", LuaInstance::luaNOP);
+    li.addFunction("mi_zoomin", LuaInstance::luaNOP);
+    li.addFunction("mo_zoom_in", LuaInstance::luaNOP);
+    li.addFunction("mo_zoomin", LuaInstance::luaNOP);
+    li.addFunction("mi_zoom", LuaInstance::luaNOP);
+    li.addFunction("mo_zoom", LuaInstance::luaNOP);
+    li.addFunction("mi_zoom_natural", LuaInstance::luaNOP);
+    li.addFunction("mi_zoomnatural", LuaInstance::luaNOP);
+    li.addFunction("mo_zoom_natural", LuaInstance::luaNOP);
+    li.addFunction("mo_zoomnatural", LuaInstance::luaNOP);
+    li.addFunction("mi_zoom_out", LuaInstance::luaNOP);
+    li.addFunction("mi_zoomout", LuaInstance::luaNOP);
+    li.addFunction("mo_zoom_out", LuaInstance::luaNOP);
+    li.addFunction("mo_zoomout", LuaInstance::luaNOP);
 }
 
 
@@ -2389,97 +2389,6 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_showcountour()}
- */
-int femmcli::LuaMagneticsCommands::luaShowcountour(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_showdensity()}
- */
-int femmcli::LuaMagneticsCommands::luaShowdensity(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_showgrid()}
- */
-int femmcli::LuaMagneticsCommands::luaShowgrid(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_show_mesh()}
- */
-int femmcli::LuaMagneticsCommands::luaShowMesh(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_showmesh()}
- */
-int femmcli::LuaMagneticsCommands::luaShowmesh(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_shownames()}
- */
-int femmcli::LuaMagneticsCommands::luaShownames(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_showpoints()}
- */
-int femmcli::LuaMagneticsCommands::luaShowpoints(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_smoothing()}
  */
 int femmcli::LuaMagneticsCommands::luaSmoothing(lua_State *L)
@@ -2488,95 +2397,5 @@ int femmcli::LuaMagneticsCommands::luaSmoothing(lua_State *L)
     return 0;
 }
 
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_switchfocus()}
- */
-int femmcli::LuaMagneticsCommands::luaSwitchfocus(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_updatewindow()}
- */
-int femmcli::LuaMagneticsCommands::luaUpdatewindow(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_vectorplot()}
- */
-int femmcli::LuaMagneticsCommands::luaVectorplot(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_zoomin()}
- */
-int femmcli::LuaMagneticsCommands::luaZoomin(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_zoom()}
- */
-int femmcli::LuaMagneticsCommands::luaZoom(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_zoomnatural()}
- */
-int femmcli::LuaMagneticsCommands::luaZoomnatural(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_zoomout()}
- */
-int femmcli::LuaMagneticsCommands::luaZoomout(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
 
 // vi:expandtab:tabstop=4 shiftwidth=4:
