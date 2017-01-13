@@ -530,7 +530,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         for(j=0,t=0;j<problem->nodeproplist.size ();j++)
                 if(problem->nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName) t = j + 2;
 
-        if (filetype == F_TYPE_HEATFLOW)
+        if (problem->filetype == femm::HeatFlowFile)
         {
             // include conductor number;
             for(j = 0; j < problem->circproplist.size (); j++)
@@ -580,7 +580,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                 }
         }
 
-        if (filetype == F_TYPE_HEATFLOW)
+        if (problem->filetype == femm::HeatFlowFile)
         {
             // include conductor number;
             for (j=0; j < problem->circproplist.size (); j++)
@@ -2114,7 +2114,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         for(j=0,t=0; j < problem->nodeproplist.size (); j++)
                 if(problem->nodeproplist[j]->PointName == nodelst[i]->BoundaryMarkerName) t = j + 2;
 
-        if (filetype == F_TYPE_HEATFLOW)
+        if (problem->filetype == femm::HeatFlowFile)
         {
             // include conductor number;
             for(j=0; j < problem->circproplist.size (); j++)
@@ -2159,7 +2159,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         for(j=0,t=0; j < problem->lineproplist.size (); j++)
                 if(problem->lineproplist[j]->BdryName==linelst[i]->BoundaryMarkerName) t = -(j+2);
 
-        if (filetype == F_TYPE_HEATFLOW)
+        if (problem->filetype == femm::HeatFlowFile)
         {
             // include conductor number;
             for(j=0; j < problem->circproplist.size (); j++)

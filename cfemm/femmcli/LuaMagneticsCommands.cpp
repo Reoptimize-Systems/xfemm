@@ -402,7 +402,7 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
         return 0;
     }
 
-    std::unique_ptr<CCircuit> m = std::make_unique<CCircuit>();
+    std::unique_ptr<CMCircuit> m = std::make_unique<CMCircuit>();
     int n=lua_gettop(L);
 
     if (n>0) m->CircName=lua_tostring(L,1);
@@ -540,7 +540,7 @@ int femmcli::LuaMagneticsCommands::luaAddmatprop(lua_State *L)
         return 0;
     }
 
-    std::unique_ptr<CMaterialProp> m = std::make_unique<CMaterialProp>();
+    std::unique_ptr<CMMaterialProp> m = std::make_unique<CMMaterialProp>();
     int n=lua_gettop(L);
 
     if (n>0)
@@ -781,6 +781,8 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         lua_error(L, "mi_analyze(): Could not save fem file!\n");
         return 0;
     }
+    std::string pn = pathName + ".alt";
+    doc->saveFEMFile(pn);
 
     //BeginWaitCursor();
     if (mesherDoc->HasPeriodicBC()){

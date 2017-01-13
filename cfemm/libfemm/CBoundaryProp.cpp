@@ -149,20 +149,20 @@ CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err
 
 void CMBoundaryProp::toStream(ostream &out) const
 {
-    out << "<BeginBdry>\n";
-    out << "<BdryType> = " << BdryFormat << "\n";
-    out << "<Mu_ssd> = " << Mu << "\n";
-    out << "<Sigma_ssd> = " << Sig << "\n";
-    out << "<A_0> = " << A0 << "\n";
-    out << "<A_1> = " << A1 << "\n";
-    out << "<A_2> = " << A2 << "\n";
-    out << "<Phi> = " << phi << "\n";
-    out << "<c0> = " << c0.re << "\n";
-    out << "<c1> = " << c1.re << "\n";
-    out << "<c0i> = " << c0.im << "\n";
-    out << "<c1i> = " << c1.im << "\n";
-    out << "<BdryName> = \"" << BdryName << "\"\n";
-    out << "<EndBdry>\n";
+    out << "  <BeginBdry>\n";
+    out << "    <BdryName> = \"" << BdryName << "\"\n";
+    out << "    <BdryType> = " << BdryFormat << "\n";
+    out << "    <A_0> = " << A0 << "\n";
+    out << "    <A_1> = " << A1 << "\n";
+    out << "    <A_2> = " << A2 << "\n";
+    out << "    <Phi> = " << phi << "\n";
+    out << "    <c0> = " << c0.re << "\n";
+    out << "    <c0i> = " << c0.im << "\n";
+    out << "    <c1> = " << c1.re << "\n";
+    out << "    <c1i> = " << c1.im << "\n";
+    out << "    <Mu_ssd> = " << Mu << "\n";
+    out << "    <Sigma_ssd> = " << Sig << "\n";
+    out << "  <EndBdry>\n";
 }
 
 CHBoundaryProp::CHBoundaryProp()

@@ -33,6 +33,10 @@
 #include <vector>
 
 namespace femm {
+/**
+ * @brief The FileType enum determines how the problem description is written to disc.
+ */
+enum FileType { UnknownFile, MagneticsFile, HeatFlowFile, CurrentFlowFile, ElectrostaticsFile };
 
 /**
  * \brief The FemmProblem class holds all data concerning a problem.
@@ -49,9 +53,17 @@ namespace femm {
 class FemmProblem
 {
 public:
-    FemmProblem();
+    explicit FemmProblem( FileType fileType);
 
     virtual ~FemmProblem();
+
+    /**
+     * @brief saveFEMFile saves the problem description into a .fem file.
+     * If the file type is UnknownFile, the method fails.
+     * @param filename
+     * @return \c true if saving was successful, \c false otherwise
+     */
+    bool saveFEMFile( std::string &filename ) const;
 
 public: // data members
     double FileFormat; ///< \brief format version of the file
@@ -92,6 +104,8 @@ public: // data members
 
     std::string pathName; ///< \brief pathname of the associated (.fem) file, if any.
     //std::string solutionFile; ///< \brief pathname of the associated solution file (.ans), if any.
+
+    FileType filetype;
 };
 
 } //namespace

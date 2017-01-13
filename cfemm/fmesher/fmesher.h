@@ -69,8 +69,6 @@ protected:
 // Attributes
 public:
 
-    enum filetypes { F_TYPE_UNKNOWN, F_TYPE_MAGNETICS, F_TYPE_HEATFLOW };
-
     enum loaderrors { F_FILE_OK, F_FILE_UNKNOWN_TYPE, F_FILE_NOT_OPENED, F_FILE_MALFORMED};
 
     explicit FMesher();
@@ -78,9 +76,6 @@ public:
     explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
 
     std::shared_ptr<femm::FemmProblem> problem;
-	// General problem attributes
-    filetypes filetype;
-
 	bool    Verbose;
 
 	std::string BinDir;
@@ -102,9 +97,9 @@ public:
 // Operations
 public:
 
-    static filetypes GetFileType(std::string PathName);
+    static femm::FileType GetFileType(std::string PathName);
     int LoadFEMFile(std::string PathName);
-    int LoadFEMFile(std::string PathName, filetypes ftype);
+    int LoadFEMFile(std::string PathName, femm::FileType ftype);
     bool SaveFEMFile(std::string PathName);
     bool WriteTriangulationFiles(const struct triangulateio &out, std::string Pathname);
 
@@ -214,7 +209,7 @@ public:
     bool DeleteSelectedArcSegments();
 private:
 
-	virtual bool Initialize();
+    virtual bool Initialize(femm::FileType t);
 	void addFileStr (char * q);
 
 };

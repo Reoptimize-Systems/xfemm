@@ -141,7 +141,7 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
     // 2. call [MFC] CDocTemplate::OpenDocumentFile(NULL)
     switch (docType) {
         case 0: // magnetics
-            femmState->femmDocument = std::make_shared<femm::FemmProblem>();
+            femmState->femmDocument = std::make_shared<femm::FemmProblem>(femm::MagneticsFile);
             break;
         case 1: // electrostatics
         case 2: // heat flow

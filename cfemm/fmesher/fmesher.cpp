@@ -62,12 +62,9 @@ FMesher::FMesher()
 
     Verbose = true;
 
-    filetype = F_TYPE_UNKNOWN;
-
-
     // initialize the problem data structures
     // and default behaviour etc.
-    Initialize();
+    Initialize(femm::UnknownFile);
 
 }
 
@@ -81,26 +78,23 @@ FMesher::FMesher(string PathName)
 
     Verbose = true;
 
-    filetype = F_TYPE_UNKNOWN;
-
 
     // initialize the problem data structures
     // and default behaviour etc.
-    Initialize();
+    Initialize(femm::UnknownFile);
 
     LoadFEMFile(PathName);
 }
 
 FMesher::FMesher(std::shared_ptr<FemmProblem> p)
     : problem(p)
-    , filetype(F_TYPE_UNKNOWN)
     , Verbose(true)
     , WarnMessage(&PrintWarningMsg)
     , TriMessage(nullptr)
 {
 }
 
-bool FMesher::Initialize()
+bool FMesher::Initialize(femm::FileType t)
 {
 
     // fire up lua
@@ -116,7 +110,7 @@ bool FMesher::Initialize()
     greymeshline.clear ();
     probdescstrings.clear ();
 
-    problem = std::make_shared<femm::FemmProblem>();
+    problem = std::make_shared<femm::FemmProblem>(t);
     // set problem attributes to generic ones;
     problem->MinAngle = DEFAULT_MINANGLE;
 
@@ -457,7 +451,7 @@ bool FMesher::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
 }
 
 
-FMesher::filetypes FMesher::GetFileType (string PathName)
+femm::FileType FMesher::GetFileType (string PathName)
 {
     // find the position of the last '.' in the string
     size_t dotpos = PathName.rfind ('.');
@@ -465,47 +459,47 @@ FMesher::filetypes FMesher::GetFileType (string PathName)
     if (dotpos == string::npos)
     {
         // no '.' found
-        return F_TYPE_UNKNOWN;
+        return femm::UnknownFile;
     }
 
     // compare different file extensions and return the appropriate string
     if ( PathName.compare (dotpos, string::npos, ".fem") == 0 )
     {
-        return F_TYPE_MAGNETICS;
+        return femm::MagneticsFile;
     }
     else if ( PathName.compare (dotpos, string::npos, ".feh") == 0 )
     {
-        return F_TYPE_HEATFLOW;
+        return femm::HeatFlowFile;
     }
     else
     {
-        return F_TYPE_UNKNOWN;
+        return femm::UnknownFile;
     }
 
 }
 
-int FMesher::LoadFEMFile (string PathName, filetypes ftype)
+int FMesher::LoadFEMFile (string PathName, femm::FileType ftype)
 {
-    filetype = ftype;
+    problem->filetype = ftype;
     return LoadFEMFile(PathName);
 }
 
 int FMesher::LoadFEMFile (string PathName)
 {
-    switch (filetype)
+    switch (problem->filetype)
     {
-        case F_TYPE_UNKNOWN:
+        case femm::UnknownFile:
             return F_FILE_UNKNOWN_TYPE;
-        case F_TYPE_MAGNETICS:
+        case femm::MagneticsFile:
             break;
-        case F_TYPE_HEATFLOW:
+        case femm::HeatFlowFile:
             break;
         default:
             return F_FILE_UNKNOWN_TYPE;
     }
 
     // make sure old data is cleared out...
-    Initialize();
+    Initialize(problem->filetype);
 
     FILE *fp;
     int i,k,t;
@@ -816,9 +810,9 @@ int FMesher::LoadFEMFile (string PathName)
                 v=ParseDbl(v,&node.y);
                 v=ParseInt(v,&t);
 
-                switch (filetype)
+                switch (problem->filetype)
                 {
-                    case F_TYPE_MAGNETICS:
+                    case femm::MagneticsFile:
 
 
                         v=ParseInt(v,&node.InGroup);
@@ -834,7 +828,7 @@ int FMesher::LoadFEMFile (string PathName)
 
                         break;
 
-                    case F_TYPE_HEATFLOW:
+                    case femm::HeatFlowFile:
 
 
                         if (t==0)
@@ -907,15 +901,15 @@ int FMesher::LoadFEMFile (string PathName)
 
                 v = ParseInt(v,&segm.InGroup);
 
-                switch (filetype)
+                switch (problem->filetype)
                 {
-                    case F_TYPE_MAGNETICS:
+                    case femm::MagneticsFile:
 
                         // nothing to do
 
                         break;
 
-                    case F_TYPE_HEATFLOW:
+                    case femm::HeatFlowFile:
 
                         // get the conductor number
                         v = ParseInt(v,&t);
@@ -978,15 +972,15 @@ int FMesher::LoadFEMFile (string PathName)
 
                 v = ParseInt(v,&asegm.InGroup);
 
-                switch (filetype)
+                switch (problem->filetype)
                 {
-                    case F_TYPE_MAGNETICS:
+                    case femm::MagneticsFile:
 
                         // nothing to do
 
                         break;
 
-                    case F_TYPE_HEATFLOW:
+                    case femm::HeatFlowFile:
 
                         // get conductor number
                         if (v != NULL)
@@ -1085,9 +1079,9 @@ int FMesher::LoadFEMFile (string PathName)
                 int ignoreint = 0;
                 double ignoredbl = 0.0;
 
-                switch (filetype)
+                switch (problem->filetype)
                 {
-                    case F_TYPE_MAGNETICS:
+                    case femm::MagneticsFile:
                         // an int and a double come before the InGroup value
                         v = ParseInt (v,&ignoreint);
 
@@ -1097,7 +1091,7 @@ int FMesher::LoadFEMFile (string PathName)
 
                         break;
 
-                    case F_TYPE_HEATFLOW:
+                    case femm::HeatFlowFile:
                         // The InGroup value is next
                         v = ParseInt (v,&blk.InGroup);
 
@@ -1158,7 +1152,7 @@ bool FMesher::SaveFEMFile(string PathName)
         fprintf(fp,"%.17g\t%.17g\t%i\t%i",problem->nodelist[i]->x,problem->nodelist[i]->y,t,
                 problem->nodelist[i]->InGroup);
 
-        if (filetype == F_TYPE_HEATFLOW)
+        if (problem->filetype == femm::HeatFlowFile)
         {
             for (j=0,t=0; j<problem->circproplist.size (); j++)
                 if (problem->circproplist[j]->CircName==problem->nodelist[i]->InConductorName) t=j+1;
@@ -1189,7 +1183,7 @@ bool FMesher::SaveFEMFile(string PathName)
 
         fprintf(fp,"%i\t%i\t%i",t,problem->linelist[i]->Hidden,problem->linelist[i]->InGroup);
 
-        if (filetype == F_TYPE_HEATFLOW)
+        if (problem->filetype == femm::HeatFlowFile)
         {
             for(j=0,t=0;j<problem->circproplist.size ();j++)
             {
@@ -1211,7 +1205,7 @@ bool FMesher::SaveFEMFile(string PathName)
                 problem->arclist[i]->ArcLength,problem->arclist[i]->MaxSideLength,t,
                 problem->arclist[i]->Hidden,problem->arclist[i]->InGroup);
 
-        if (filetype == F_TYPE_HEATFLOW)
+        if (problem->filetype == femm::HeatFlowFile)
         {
             for(j=0,t=0;j<problem->circproplist.size ();j++)
                 if(problem->circproplist[j]->CircName==problem->arclist[i]->InConductorName) t=j+1;
