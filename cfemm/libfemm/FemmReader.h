@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 
 namespace femm {
 
@@ -54,7 +55,7 @@ public:
      * @brief FemmReader constructor
      * @param errorpipe
      */
-    FemmReader(std::ostream &errorpipe);
+    FemmReader(std::shared_ptr<FemmProblem>problem, std::ostream &errorpipe);
     virtual ~FemmReader();
 
     /**
@@ -62,42 +63,37 @@ public:
      * @param file
      * @return
      */
-    bool parse(const std::string &file, FemmProblem &problem);
+    bool parse(const std::string &file);
 
     /**
-     * @brief setHandleTokenFunction sets a handler function for otherwise unhandled tokens.
-     * \see handleToken
-     */
-    void setHandleTokenFunction(bool (*handlerFun)(const std::string &, std::istream &, std::ostream &));
-    /**
-     * @brief If ignoreUnhandledToken is set, the parser tries to continue if an unknown token is read.
+     * @brief If ignoreUnhandledTokens is set, the parser tries to continue if an unknown token is read.
      * This is mostly for debugging. Normally, every token should be handled (either in FemmReader, or in the handleToken function).
      * The default value is \c false.
      * @return the current property value
      */
-    bool ignoreUnhandledToken() const;
-    void setIgnoreUnhandledToken(bool value);
-
-private:
-    bool m_ignoreUnhandledToken;
-    /// \brief Reference to the error message stream
-    std::ostream &err;
-    /// \see handleTokenDummy
-    bool (*handleToken)(const std::string &, std::istream &, std::ostream &);
-
+    bool ignoreUnhandledTokens() const;
+    void setIgnoreUnhandledTokens(bool value);
+protected:
     /**
-     * @brief handleToken is called by LoadProblemFile() when a token is encountered that it can not handle.
+     * @brief handleToken is called by parse() when a token is encountered that it can not handle.
      *
-     * This function is only a dummy that rejects any token, and is used if no other function is set using setHandleTokenFunction().
+     * \internal
+     * This function is only a dummy that rejects any token, and is overridden in derived classes.
      * If a token is understood, this method should read its remaining text from the input stream and then return \c true.
      * If a token is not understood, the method must not change the position in the input stream, and must return \c false.
      *
-     * @param token the token in question
+     * @param token the current token that was already read from input
      * @param input input stream
      * @param err output stream for error messages
      * @return \c false, if the token is not handled. \c true, if it is handled
      */
-    static bool handleTokenDummy(const std::string &, std::istream &, std::ostream &) { return false; }
+    virtual bool handleToken(const std::string &, std::istream &, std::ostream &) { return false; }
+
+    std::shared_ptr<FemmProblem> problem;
+private:
+    bool ignoreUnhandled;
+    /// \brief Reference to the error message stream
+    std::ostream &err;
 };
 
 class MagneticsReader : public FemmReader<
@@ -110,7 +106,9 @@ class MagneticsReader : public FemmReader<
         >
 {
 public:
-    MagneticsReader(std::ostream &errorpipe);
+    MagneticsReader(std::shared_ptr<FemmProblem> problem, std::ostream &errorpipe);
+protected:
+    bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 };
 
 } //namespace
