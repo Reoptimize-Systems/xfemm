@@ -68,7 +68,7 @@ CPointProp CPointProp::fromStream(istream &input, ostream &err)
 void CPointProp::toStream(ostream &out) const
 {
     out << "  <BeginPoint>\n";
-    out << "    <PointName> = " << PointName << "\n";
+    out << "    <PointName> = \"" << PointName << "\"\n";
     out << "    <I_re> = " << J.re << "\n";
     out << "    <I_im> = " << J.im << "\n";
     out << "    <A_re> = " << A.re << "\n";

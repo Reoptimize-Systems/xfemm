@@ -108,7 +108,6 @@ bool HSolver::LoadProblemFile ()
     std::ofstream parsedFile (PathName +".feh.parsed");
     parsedFile.width(5);
     parsedFile.precision(18);
-    toStream(parsedFile);
     return ret;
 }
 
@@ -975,13 +974,6 @@ void HSolver::SortNodes (int* newnum)
 
 bool HSolver::handleToken(const string &token, istream &input, ostream &err)
 {
-    if( token == "[prevsoln]" )
-    {
-        expectChar(input, '=', err);
-        parseString(input,&previousSolutionFile);
-        return true;
-    }
-
     if( token == "[dt]" )
     {
         expectChar(input, '=', err);

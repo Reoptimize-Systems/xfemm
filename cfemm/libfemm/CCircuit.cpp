@@ -102,15 +102,14 @@ CMCircuit CMCircuit::fromStream(std::istream &input, std::ostream &err)
 
 void CMCircuit::toStream(ostream &out) const
 {
-    out << "<BeginCircuit>\n";
-    out << "<Voltgradient_re> = " << dVolts.re << "\n";
-    out << "<Voltgradient_im> = " << dVolts.im << "\n";
-    out << "<TotalAmps_re> = " << Amps.re << "\n";
-    out << "<TotalAmps_im> = " << Amps.im << "\n";
-    out << "<CircuitType> = " << CircType << "\n";
-    if (!CircName.empty())
-        out << "<CircuitName> =\"" << CircName << "\"\n";
-    out << "<EndCircuit>\n";
+    out << "  <BeginCircuit>\n";
+    out << "    <Voltgradient_re> = " << dVolts.re << "\n";
+    out << "    <Voltgradient_im> = " << dVolts.im << "\n";
+    out << "    <TotalAmps_re> = " << Amps.re << "\n";
+    out << "    <TotalAmps_im> = " << Amps.im << "\n";
+    out << "    <CircuitType> = " << CircType << "\n";
+    out << "    <CircuitName> =\"" << CircName << "\"\n";
+    out << "  <EndCircuit>\n";
 }
 
 ostream &operator<<(ostream &os, const CCircuit &prop)

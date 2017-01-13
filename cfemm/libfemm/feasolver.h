@@ -106,6 +106,7 @@ public:
 
     // string to hold the location of the files
     std::string PathName;
+    std::string previousSolutionFile; ///< \brief name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
 
     std::vector< PointPropT > nodeproplist;
     std::vector< BoundaryPropT > lineproplist;
@@ -141,11 +142,6 @@ protected:
      */
     virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err);
 
-    /**
-     * @brief toStream serialize the problem data and insert it to \p os
-     * @param os
-     */
-    virtual void toStream( std::ostream &os) const;
 private:
 
     virtual void SortNodes (int* newnum) = 0;

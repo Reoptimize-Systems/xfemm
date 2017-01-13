@@ -775,16 +775,14 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         lua_error(L,"A data file must be loaded,\nor the current data must saved.");
         return 0;
     }
-    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getMesher();
-    if (!mesherDoc->SaveFEMFile(pathName))
+    if (!doc->saveFEMFile(pathName))
     {
         lua_error(L, "mi_analyze(): Could not save fem file!\n");
         return 0;
     }
-    std::string pn = pathName + ".alt";
-    doc->saveFEMFile(pn);
 
     //BeginWaitCursor();
+    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getMesher();
     if (mesherDoc->HasPeriodicBC()){
         if (mesherDoc->DoPeriodicBCTriangulation(pathName) != 0)
         {

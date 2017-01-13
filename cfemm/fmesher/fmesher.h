@@ -100,7 +100,7 @@ public:
     static femm::FileType GetFileType(std::string PathName);
     int LoadFEMFile(std::string PathName);
     int LoadFEMFile(std::string PathName, femm::FileType ftype);
-    bool SaveFEMFile(std::string PathName);
+    bool SaveFEMFile(std::string PathName); ///< \deprecated
     bool WriteTriangulationFiles(const struct triangulateio &out, std::string Pathname);
 
     //void downstr(char *s);

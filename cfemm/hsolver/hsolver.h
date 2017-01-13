@@ -56,7 +56,6 @@ public:
 
     // General problem attributes
     double	dT; ///< \brief delta T used by hsolver \verbatim[dT]\endverbatim
-    std::string previousSolutionFile; ///< \brief name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
 
     // mesh information
     femm::CNode *meshnode;
