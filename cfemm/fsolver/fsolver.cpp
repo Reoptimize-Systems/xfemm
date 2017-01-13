@@ -529,12 +529,6 @@ double FSolver::ElmArea(int i)
 
 bool FSolver::runSolver()
 {
-    if (!LoadProblemFile())
-    {
-        WarnMessage("problem loading .fem file\n");
-        return false;
-    }
-
     // load mesh
     int err = LoadMesh();
     if (err != 0)
