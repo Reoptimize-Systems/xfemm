@@ -60,7 +60,7 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           >
-bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
+ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 ::parse(const std::string &file)
 {
     std::ifstream input;
@@ -69,7 +69,7 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
     if (!input.is_open())
     {
         err << "Couldn't read from specified .fem file\n";
-        return false;
+        return F_FILE_NOT_OPENED;
     }
 
     // parse the file
@@ -523,7 +523,7 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
     }
     // resolve text indices
     problem->updateLabelsFromIndex();
-    return success;
+    return success ? F_FILE_OK : F_FILE_MALFORMED;
 }
 
 template< class PointPropT

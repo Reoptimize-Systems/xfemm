@@ -33,7 +33,6 @@
 #include <string.h>
 #include "femmcomplex.h"
 #include "hspars.h"
-#include "hmesh.h"
 #include "hsolver.h"
 
 //using namespace std;

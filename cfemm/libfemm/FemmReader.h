@@ -24,6 +24,8 @@
 
 namespace femm {
 
+enum ParserResult { F_FILE_OK, F_FILE_UNKNOWN_TYPE, F_FILE_NOT_OPENED, F_FILE_MALFORMED};
+
 /**
  * \brief The FemmReader class implements a parser for the Femm file format.
  * To allow for subtle differences between different flavors of the file format,
@@ -68,7 +70,7 @@ public:
      * @param file
      * @return
      */
-    bool parse(const std::string &file);
+    ParserResult parse(const std::string &file);
 
     /**
      * @brief If ignoreUnhandledTokens is set, the parser tries to continue if an unknown token is read.
