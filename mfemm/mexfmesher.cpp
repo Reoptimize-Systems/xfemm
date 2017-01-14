@@ -3,6 +3,7 @@
 #include "fmesher.h"
 // include triangle.h for error code definitions
 #include "triangle.h"
+#include "FemmReader.h"
 
 #include "mex.h"
 
@@ -110,21 +111,32 @@ int nrhs, const mxArray *prhs[])
 
     // attempt to discover the file type from the file name
 	 FileType filetype = FMesher::GetFileType (FilePath);
+	 MeshObj.problem->filetype = filetype;
 
-    /*  call the FMesher subroutines */
-    status = MeshObj.LoadFEMFile(FilePath, filetype);
+	 // depending on the file type, instantiate the appropriate reader
+	 if (filetype == MagneticsFile)
+	 {
+		 MagneticsReader femReader (MeshObj.problem, std::cerr);
+		 status = femReader.parse(FilePath);
+	 } else if (MeshObj.problem->filetype == HeatFlowFile)
+	 {
+		 HeatFlowReader fehReader (MeshObj.problem, std::cerr);
+		 status = fehReader.parse(FilePath);
+	 } else {
+		 status = F_FILE_UNKNOWN_TYPE;
+	 }
 
     if (status != FMesher::F_FILE_OK)
     {
         switch (status)
         {
-            case FMesher::F_FILE_NOT_OPENED:
+            case F_FILE_NOT_OPENED:
                 mexErrMsgIdAndTxt( "MFEMM:fmesher:badfile",
                                   "The input file %s could not be opened.", FilePath.c_str ());
-            case FMesher::F_FILE_MALFORMED:
+            case F_FILE_MALFORMED:
                 mexErrMsgIdAndTxt( "MFEMM:fmesher:malformedfile",
                                   "The input file appears to be malformed and could not be parsed");
-            case FMesher::F_FILE_UNKNOWN_TYPE:
+            case F_FILE_UNKNOWN_TYPE:
                 mexErrMsgIdAndTxt( "MFEMM:fmesher:unknownfiletype",
                                   "The input file problem type could not be determined from its extension.");
             default:

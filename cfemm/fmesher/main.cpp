@@ -30,23 +30,23 @@ int main(int argc, char ** argv)
 
     // attempt to discover the file type from the file name
     MeshObj.problem->filetype = FMesher::GetFileType (FilePath);
-    bool success=false;
+    ParserResult status = F_FILE_UNKNOWN_TYPE;
 
     if (MeshObj.problem->filetype == MagneticsFile)
     {
         MagneticsReader femReader (MeshObj.problem, std::cerr);
-        success = femReader.parse(FilePath);
+        status = femReader.parse(FilePath);
     } else if (MeshObj.problem->filetype == HeatFlowFile)
     {
         HeatFlowReader fehReader (MeshObj.problem, std::cerr);
-        success = fehReader.parse(FilePath);
+        status = fehReader.parse(FilePath);
     } else {
         std::cout << "File type not supported!" << std::endl;
     }
 
-    if (!success)
+    if (status != F_FILE_OK)
     {
-        return -1;
+        return status;
     }
 
     if (MeshObj.HasPeriodicBC() == true)

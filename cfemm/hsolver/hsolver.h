@@ -30,7 +30,6 @@
 #define HSOLVER_H
 
 #include "feasolver.h"
-#include "hmesh.h"
 #include "hspars.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
