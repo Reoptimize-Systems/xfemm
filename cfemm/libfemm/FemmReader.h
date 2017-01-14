@@ -115,19 +115,19 @@ protected:
     bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 };
 
-//class HeatFlowReader : public FemmReader<
-//        femm::CHPointProp
-//        , femm::CHBoundaryProp
-//        , femm::CHMaterialProp
-//        , femm::CHConductor
-//        , femm::CBlockLabel
-//        >
-//{
-//public:
-//    HeatFlowReader(std::shared_ptr<FemmProblem> problem, std::ostream &errorpipe);
-//protected:
-//    bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
-//};
+class HeatFlowReader : public FemmReader<
+        femm::CHPointProp
+        , femm::CHBoundaryProp
+        , femm::CHMaterialProp
+        , femm::CHConductor
+        , femm::CBlockLabel
+        >
+{
+public:
+    HeatFlowReader(std::shared_ptr<FemmProblem> problem, std::ostream &errorpipe);
+protected:
+    bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
+};
 
 } //namespace
 
