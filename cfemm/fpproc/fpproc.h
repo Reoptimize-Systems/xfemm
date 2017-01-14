@@ -90,7 +90,7 @@ public:
     int **ConList;
 
     // lists of properties
-    std::vector< femm::CMaterialProp > blockproplist;
+    std::vector< femm::CMMaterialProp > blockproplist;
     std::vector< femm::CMBoundaryProp > lineproplist;
     std::vector< femm::CMPointProp >    nodeproplist;
     std::vector< femm::CCircuit >      circproplist;

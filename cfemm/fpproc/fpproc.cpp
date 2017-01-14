@@ -253,7 +253,7 @@ bool FPProc::OpenDocument(string pathname)
     bool flag = false;
     CMPointProp    PProp;
     CMBoundaryProp BProp;
-    CMaterialProp MProp;
+    CMMaterialProp MProp;
     CCircuit      CProp;
     CNode         node;
     CSegment      segm;
@@ -3914,7 +3914,7 @@ void FPProc::GetFillFactor(int lbl)
     // the apparent conductivity and permeability for use in
     // post-processing the voltage.
 
-    CMaterialProp* bp= &blockproplist[blocklist[lbl].BlockType];
+    CMMaterialProp* bp= &blockproplist[blocklist[lbl].BlockType];
     CMBlockLabel* bl= &blocklist[lbl];
     double lc=LengthConv[LengthUnits]*LengthConv[LengthUnits];
     double atot,awire,w,d,o,fill,dd,W,R,c1,c2,c3,c4;

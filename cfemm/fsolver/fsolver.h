@@ -43,7 +43,7 @@ class LuaInstance;
 class FSolver : public FEASolver<
         femm::CMPointProp
         , femm::CMBoundaryProp
-        , femm::CMMaterialProp
+        , femm::CMSolverMaterialProp
         , femm::CMCircuit
         , femm::CMBlockLabel
         , femm::CNode

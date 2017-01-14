@@ -104,7 +104,7 @@ private:
 class MagneticsReader : public FemmReader<
         femm::CMPointProp
         , femm::CMBoundaryProp
-        , femm::CMMaterialProp
+        , femm::CMSolverMaterialProp
         , femm::CMCircuit
         , femm::CMBlockLabel
         >

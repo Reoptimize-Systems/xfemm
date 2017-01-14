@@ -48,7 +48,7 @@
 template class FEASolver<
         femm::CMPointProp
         , femm::CMBoundaryProp
-        , femm::CMMaterialProp
+        , femm::CMSolverMaterialProp
         , femm::CMCircuit
         , femm::CMBlockLabel
         , femm::CNode
@@ -423,7 +423,7 @@ void FSolver::GetFillFactor(int lbl)
     // the apparent conductivity and permeability for use in
     // post-processing the voltage.
 
-    CMMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
+    CMSolverMaterialProp* bp= &blockproplist[labellist[lbl].BlockType];
     CMBlockLabel* bl= &labellist[lbl];
     double atot,awire=0,d,o,fill,dd,W,R=0,c1,c2;
     int i,wiretype;

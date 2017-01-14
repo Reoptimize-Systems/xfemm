@@ -30,11 +30,31 @@ namespace femm {
 class CMaterialProp
 {
 public:
-
-    CMaterialProp();
     virtual ~CMaterialProp();
+
+    std::string BlockName;
+    /**
+     * @brief toStream serializes the data and inserts it into \p out.
+     * This virtual method is called by the \c operator<<() and
+     * needs to be overridden by any subclass.
+     *
+     * This base implementation will just invoke assert(false).
+     *
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const;
+protected:
+    CMaterialProp();
+};
+
+class CMMaterialProp : public CMaterialProp
+{
+public:
+
+    CMMaterialProp();
+    virtual ~CMMaterialProp();
     // copy constructor
-    CMaterialProp( const CMaterialProp& other );
+    CMMaterialProp( const CMMaterialProp& other );
 
     virtual void GetSlopes(double omega=0.);
     virtual CComplex LaminatedBH(double w, int i);
@@ -58,7 +78,6 @@ public:
     double DoEnergy(CComplex bx, CComplex by);
     double DoCoEnergy(CComplex b1, CComplex b2);
 
-    std::string BlockName;
     double mu_x,mu_y;       // permeabilities, relative
     int BHpoints;           // number of points in the BH curve...
     std::vector<double>   Bdata;
@@ -84,16 +103,6 @@ public:
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
 
-    /**
-     * @brief toStream serializes the data and inserts it into \p out.
-     * This virtual method is called by the \c operator<<() and
-     * needs to be overridden by any subclass.
-     *
-     * Unless \c NDEBUG is defined, this dummy implementation in the base class will call \c assert(false).
-     *
-     * @param out
-     */
-    virtual void toStream( std::ostream &out ) const;
 private:
 
 };
@@ -104,12 +113,12 @@ private:
  * @param prop
  * @return \p os
  */
-std::ostream& operator<< (std::ostream& os, const CMaterialProp& prop);
+std::ostream& operator<< (std::ostream& os, const CMMaterialProp& prop);
 
 /**
- * @brief The CMMaterialProp class is used in fsolver and MagneticsDocument.
+ * @brief The CMMaterialProp class is used in fsolver.
  */
-class CMMaterialProp : public CMaterialProp
+class CMSolverMaterialProp : public CMMaterialProp
 {
     // Properties
 public:
@@ -119,9 +128,9 @@ public:
     // Methods
 public:
 
-    CMMaterialProp();
-    virtual ~CMMaterialProp();
-    CMMaterialProp( const CMMaterialProp & );
+    CMSolverMaterialProp();
+    virtual ~CMSolverMaterialProp();
+    CMSolverMaterialProp( const CMSolverMaterialProp & );
     CComplex GetH(double B); // ill-matched override
     CComplex Get_dvB2(double B);
     CComplex Get_v(double B);
@@ -135,8 +144,42 @@ public:
      * @param err output stream for error messages
      * @return a CMaterialProp
      */
-    static CMMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMSolverMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
     virtual void toStream( std::ostream &out ) const override;
+private:
+};
+
+class CHMaterialProp : public CMaterialProp
+{
+    // Properties
+public:
+
+    double Kx,Ky;		// thermal conductivity for linear (possibly anisotropic) regions
+    double Kt;			// volumetric heat capacity
+    double qv;			// volume heat generation
+
+    // properties for nonlinear conductivity
+    int npts;			// number of points in the nonlinear conductivity curve
+    CComplex Kn[128];   // here, I'm being _very_ lazy by defining a fixed-length buffer for the
+                        // thermal conductivity data points.
+
+    // Methods
+public:
+
+    CHMaterialProp();
+    ~CHMaterialProp();
+    CHMaterialProp( const CHMaterialProp & );
+    CComplex GetK(double t);
+
+    /**
+     * @brief fromStream constructs a CHMaterialProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHMaterialProp
+     */
+    static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    // FIXME: subclass CMaterialProp and mark this as override:
+    virtual void toStream( std::ostream &out ) const;
 private:
 };
 }
