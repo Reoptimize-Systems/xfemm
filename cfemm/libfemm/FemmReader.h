@@ -44,19 +44,17 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           >
 class FemmReader
 {
 // Attributes
 public:
-    using FemmReader_type = FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>;
+    using FemmReader_type = FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>;
     using PointProp_type = PointPropT;
     using BoundaryProp_type = BoundaryPropT;
     using BlockProp_type = BlockPropT;
     using CircuitProp_type = CircuitPropT;
     using BlockLabel_type = BlockLabelT;
-    using Node_type = NodeT;
 
     /**
      * @brief FemmReader constructor
@@ -109,7 +107,6 @@ class MagneticsReader : public FemmReader<
         , femm::CMMaterialProp
         , femm::CMCircuit
         , femm::CMBlockLabel
-        , femm::CNode
         >
 {
 public:

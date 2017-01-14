@@ -16,6 +16,7 @@
 #include "FemmReader.h"
 
 #include "fparse.h"
+#include "stringTools.h"
 
 #include <fstream>
 #include <ios>
@@ -32,9 +33,8 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           >
-FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 ::FemmReader( std::shared_ptr<FemmProblem> problem, std::ostream &err)
     : problem(problem)
     , ignoreUnhandled(false)
@@ -47,9 +47,8 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           >
-FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 ::~FemmReader()
 {
     // nothing to do
@@ -60,9 +59,8 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           >
-bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 ::parse(const std::string &file)
 {
     std::ifstream input;
@@ -78,7 +76,7 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Nod
 
     string token;
     bool success = true;
-    while (input.good() && success)
+    while (input && success)
     {
         nextToken(input, &token);
         if (input.eof())
@@ -209,10 +207,10 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Nod
             success &= parseValue(input, k, err);
             if (k>0) problem->nodeproplist.reserve(k);
 
-            while (input.good() && (int)problem->nodeproplist.size() < k)
+            while (input && (int)problem->nodeproplist.size() < k)
             {
                 std::unique_ptr<PointPropT> next;
-                next = std::make_unique<PointPropT>(std::move(PointPropT::fromStream(input, err)));
+                next = std::make_unique<PointPropT>(PointPropT::fromStream(input, err));
                 problem->nodeproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -233,10 +231,10 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Nod
             success &= parseValue(input, k, err);
             if (k>0) problem->lineproplist.reserve(k);
 
-            while (input.good() && (int)problem->lineproplist.size() < k)
+            while (input && (int)problem->lineproplist.size() < k)
             {
                 std::unique_ptr<BoundaryPropT> next;
-                next = std::make_unique<BoundaryPropT>(std::move(BoundaryPropT::fromStream(input, err)));
+                next = std::make_unique<BoundaryPropT>(BoundaryPropT::fromStream(input, err));
                 problem->lineproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -257,10 +255,10 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Nod
             success &= parseValue(input, k, err);
             if (k>0) problem->blockproplist.reserve(k);
 
-            while (input.good() && (int)problem->blockproplist.size() < k)
+            while (input && (int)problem->blockproplist.size() < k)
             {
                 std::unique_ptr<BlockPropT> next;
-                next = std::make_unique<BlockPropT>(std::move(BlockPropT::fromStream(input, err)));
+                next = std::make_unique<BlockPropT>(BlockPropT::fromStream(input, err));
                 problem->blockproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -280,10 +278,10 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Nod
             success &= parseValue(input, k, err);
             if(k>0) problem->circproplist.reserve(k);
 
-            while (input.good() && (int)problem->circproplist.size() < k)
+            while (input && (int)problem->circproplist.size() < k)
             {
                 std::unique_ptr<CircuitPropT> next;
-                next = std::make_unique<CircuitPropT>(std::move(CircuitPropT::fromStream(input, err)));
+                next = std::make_unique<CircuitPropT>(CircuitPropT::fromStream(input, err));
                 problem->circproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -302,38 +300,240 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Nod
             success &= expectChar(input, '=', err);
             int k;
             success &= parseValue(input, k, err);
-            if (k>0) problem->labellist.reserve(k);
+            if (k>0) problem->labellist.reserve(problem->labellist.size()+k);
 
-            while (input.good() && (int)problem->labellist.size() < k)
+            // labellist contains both BlockLabels and holes. Therefore we can't use labellist.size:
+            int num=0;
+            while (input && num < k)
             {
                 std::unique_ptr<BlockLabelT> next;
-                next = std::make_unique<BlockLabelT>(std::move(BlockLabelT::fromStream(input, err)));
+                next = std::make_unique<BlockLabelT>(BlockLabelT::fromStream(input, err));
                 problem->labellist.push_back(std::move(next));
+                num++;
             }
             // message will be printed after parsing is done
-            if ((int)problem->labellist.size() != k)
+            if (num != k)
             {
-                err << "Expected "<<k<<" BlockLabels, but got " << problem->labellist.size() << "\n";
+                err << "Expected "<<k<<" BlockLabels, but got " << num << "\n";
+                break; // stop parsing
+            }
+            continue;
+        }
+        if(token == "[numholes]" )
+        {
+            success &= expectChar(input, '=', err);
+            int k;
+            success &= parseValue(input, k, err);
+            if (k>0) problem->labellist.reserve(problem->labellist.size()+k);
+
+            // labellist contains both BlockLabels and holes. Therefore we can't use labellist.size:
+            int num=0;
+            // operate on a line-by-line level;
+            std::string line;
+            while (num < k && getline(input, line))
+            {
+                size_t pos;
+                std::unique_ptr<BlockLabelT> label;
+                label = std::make_unique<BlockLabelT>();
+
+                trim(line);
+                label->x = std::stod(line, &pos);
+                line = line.substr(pos);
+                label->y = std::stod(line, &pos);
+                line = line.substr(pos);
+                label->InGroup = std::stoi(line, &pos);
+
+                problem->labellist.push_back(std::move(label));
+                num++;
+            }
+            // message will be printed after parsing is done
+            if (num != k)
+            {
+                err << "Expected "<<k<<" holes, but got " << num << "\n";
                 break; // stop parsing
             }
             continue;
         }
 
-        if(token == "[numpoints]"
-                || token == "[numsegments]"
-                || token == "[numarcsegments]"
-                || token == "[numholes]"
-                )
+        if (token == "[numpoints]")
         {
             success &= expectChar(input, '=', err);
-            // the nodes in the .fem file seem to be unused, and
-            // the original femm code does not even read them here
-            // -> just skip the lines here:
-            int i;
-            success &= parseValue(input, i, err);
-            for (std::string line; i>0; i--)
-                std::getline(input,line);
-            // FIXME(ZaJ): this will probably need fixing
+            int k;
+            success &= parseValue(input, k, err);
+            if (k>0) problem->nodelist.reserve(k);
+
+            // operate on a line-by-line level;
+            std::string line;
+            while ((int)problem->nodelist.size() < k && getline(input, line))
+            {
+                size_t pos;
+                std::unique_ptr<CNode> node;
+                node = std::make_unique<CNode>();
+
+                trim(line);
+                node->x = std::stod(line, &pos);
+                line = line.substr(pos);
+                node->y = std::stod(line, &pos);
+                line = line.substr(pos);
+                node->BoundaryMarker = std::stoi(line, &pos);
+                line = line.substr(pos);
+
+                if (problem->filetype == femm::HeatFlowFile)
+                {
+                    node->InGroup = std::stoi(line, &pos);
+                    line = line.substr(pos);
+                    node->InConductor = std::stoi(line, &pos);
+                    line = line.substr(pos);
+                }
+                // resolve index to name:
+                // Note(ZaJ): I see no reason why we even need the string based reference in the mesher
+                int bdry = node->BoundaryMarker;
+                if (bdry==0)
+                {
+                    node->BoundaryMarkerName = "";
+                } else if (bdry>0 && bdry <= (int)problem->nodeproplist.size())
+                {
+                    node->BoundaryMarkerName = problem->nodeproplist[bdry-1]->PointName;
+                }
+                int ic = node->InConductor;
+                if (ic>0 && ic <= (int)problem->circproplist.size())
+                {
+                    node->InConductorName = problem->nodeproplist[ic-1]->PointName;
+                }
+
+                problem->nodelist.push_back(std::move(node));
+            }
+            // message will be printed after parsing is done
+            if ((int)problem->nodelist.size() != k)
+            {
+                err << "Expected "<<k<<" points, but got " << problem->nodelist.size() << "\n";
+                break; // stop parsing
+            }
+            continue;
+        }
+        if (token == "[numsegments]")
+        {
+            success &= expectChar(input, '=', err);
+            int k;
+            success &= parseValue(input, k, err);
+            if (k>0) problem->linelist.reserve(k);
+
+            // operate on a line-by-line level;
+            std::string line;
+            while ((int)problem->linelist.size() < k && getline(input, line))
+            {
+                size_t pos;
+                std::unique_ptr<CSegment> segm;
+                segm = std::make_unique<CSegment>();
+
+                trim(line);
+                segm->n0 = std::stoi(line, &pos);
+                line = line.substr(pos);
+                segm->n1 = std::stoi(line, &pos);
+                line = line.substr(pos);
+                segm->MaxSideLength = std::stod(line, &pos);
+                line = line.substr(pos);
+                segm->BoundaryMarker = std::stoi(line, &pos);
+                line = line.substr(pos);
+                segm->Hidden = (0 != std::stoi(line, &pos));
+                line = line.substr(pos);
+                segm->InGroup = std::stoi(line, &pos);
+                line = line.substr(pos);
+                if (problem->filetype == femm::HeatFlowFile)
+                {
+                    segm->InConductor = std::stoi(line, &pos);
+                    line = line.substr(pos);
+                }
+                // resolve index to name:
+                // Note(ZaJ): I see no reason why we even need the string based reference in the mesher
+                int bdry = segm->BoundaryMarker;
+                if (bdry==0)
+                {
+                    segm->BoundaryMarkerName = "";
+                } else if (bdry>0 && bdry <= (int)problem->lineproplist.size())
+                {
+                    segm->BoundaryMarkerName = problem->lineproplist[bdry-1]->BdryName;
+                }
+                int ic = segm->InConductor;
+                if (ic>0 && ic <= (int)problem->circproplist.size())
+                {
+                    segm->InConductorName = problem->circproplist[ic-1]->CircName;
+                }
+
+                problem->linelist.push_back(std::move(segm));
+            }
+            // message will be printed after parsing is done
+            if ((int)problem->linelist.size() != k)
+            {
+                err << "Expected "<<k<<" segments, but got " << problem->linelist.size() << "\n";
+                break; // stop parsing
+            }
+            continue;
+        }
+        if (token == "[numarcsegments]")
+        {
+            success &= expectChar(input, '=', err);
+            int k;
+            success &= parseValue(input, k, err);
+            if (k>0) problem->arclist.reserve(k);
+
+            // operate on a line-by-line level;
+            std::string line;
+            while ((int)problem->arclist.size() < k && getline(input, line))
+            {
+                size_t pos;
+                std::unique_ptr<CArcSegment> asegm;
+                asegm = std::make_unique<CArcSegment>();
+
+                trim(line);
+                asegm->n0 = std::stoi(line, &pos);
+                line = line.substr(pos);
+                asegm->n1 = std::stoi(line, &pos);
+                line = line.substr(pos);
+                asegm->ArcLength = std::stod(line, &pos);
+                line = line.substr(pos);
+                asegm->MaxSideLength = std::stod(line, &pos);
+                line = line.substr(pos);
+                asegm->BoundaryMarker = std::stoi(line, &pos);
+                line = line.substr(pos);
+                asegm->Hidden = (0 != std::stoi(line, &pos));
+                line = line.substr(pos);
+                asegm->InGroup = std::stoi(line, &pos);
+                line = line.substr(pos);
+                if (problem->filetype == femm::HeatFlowFile)
+                {
+                    trim(line);
+                    if (!line.empty())
+                    {
+                        asegm->InConductor = std::stoi(line, &pos);
+                    } else {
+                        asegm->InConductor = 0;
+                    }
+                }
+                // resolve index to name:
+                // Note(ZaJ): I see no reason why we even need the string based reference in the mesher
+                int bdry = asegm->BoundaryMarker;
+                if (bdry==0)
+                {
+                    asegm->BoundaryMarkerName = "";
+                } else if (bdry>0 && bdry <= (int)problem->lineproplist.size())
+                {
+                    asegm->BoundaryMarkerName = problem->lineproplist[bdry-1]->BdryName;
+                }
+                int ic = asegm->InConductor;
+                if (ic>0 && ic <= (int)problem->circproplist.size())
+                {
+                    asegm->InConductorName = problem->circproplist[ic-1]->CircName;
+                }
+
+                problem->arclist.push_back(std::move(asegm));
+            }
+            // message will be printed after parsing is done
+            if ((int)problem->arclist.size() != k)
+            {
+                err << "Expected "<<k<<" arc segments, but got " << problem->arclist.size() << "\n";
+                break; // stop parsing
+            }
             continue;
         }
 
@@ -343,6 +543,10 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Nod
             err << "Unknown token: " << token << "\n";
             success = false;
             if (!ignoreUnhandled) {
+                err << "remaining input:\n";
+                std::string s;
+                while (getline(input,s))
+                    err << s << "\n";
                 // stop parsing:
                 break;
             }
@@ -356,9 +560,8 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           >
-bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 ::ignoreUnhandledTokens() const
 {
     return ignoreUnhandled;
@@ -369,9 +572,8 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           >
-void FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+void FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 ::setIgnoreUnhandledTokens(bool value)
 {
     ignoreUnhandled = value;
@@ -385,7 +587,6 @@ template class FemmReader<
         , femm::CMMaterialProp
         , femm::CMCircuit
         , femm::CMBlockLabel
-        , femm::CNode
         >;
 
 MagneticsReader::MagneticsReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)
