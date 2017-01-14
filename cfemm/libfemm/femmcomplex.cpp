@@ -509,7 +509,7 @@ bool CComplex::operator==(int z){
 	return false;
 }
 
-bool CComplex::operator!=( const CComplex& z){
+bool CComplex::operator!=( const CComplex& z) const {
 	if ((z.re==re) && (z.im==im)) return false;
 	return true;
 }

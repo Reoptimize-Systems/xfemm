@@ -1210,7 +1210,7 @@ void CMSolverMaterialProp::toStream(ostream &out) const
     out << "    <BHPoints> = " << BHpoints << "\n";
     for(int i=0; i<BHpoints; i++)
     {
-        out << "    " << Bdata.at(i) << " " << Hdata.at(i).re << "\n";
+        out << "      " << Bdata.at(i) << "\t" << Hdata.at(i).re << "\n";
     }
     out << "  <EndBlock>\n";
 }
@@ -1356,7 +1356,7 @@ void CHMaterialProp::toStream(std::ostream &out) const
     {
         for(int i=0; i<npts; i++)
         {
-            out << "      " << Kn[i].re << " " << Kn[i].im << "\n";
+            out << "        " << Kn[i].re << "\t" << Kn[i].im << "\n";
         }
     }
     out << "  <EndBlock>\n";

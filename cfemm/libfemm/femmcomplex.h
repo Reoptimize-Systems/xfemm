@@ -104,7 +104,7 @@ public:
     bool operator==(double z);
     bool operator==(int z);
 
-    bool operator!=( const CComplex& z);
+    bool operator!=( const CComplex& z) const;
     bool operator!=(double z);
     bool operator!=(int z);
 

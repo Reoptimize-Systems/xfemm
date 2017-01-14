@@ -127,10 +127,10 @@ CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
 
 void CHPointProp::toStream(std::ostream &out) const
 {
-    out << "<BeginPoint>\n";
-    out << "<Tp> = " << V << "\n";
-    out << "<qp> = " << qp << "\n";
-    out << "<EndPoint>\n";
+    out << "  <BeginPoint>\n";
+    out << "    <Tp> = " << V << "\n";
+    out << "    <qp> = " << qp << "\n";
+    out << "  <EndPoint>\n";
 }
 
 ostream &operator<<(ostream &os, const CMPointProp &prop)

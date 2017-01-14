@@ -116,7 +116,13 @@ check_femmcli()
 	do
 		echo "$prefix $f"
 		run $bindir/femmcli --quiet --lua-script=$f > $f.out || retval=1
-		diff -wq $f.out.check $f.out || retval=1
+		# search for .check files
+		for checkfile in ${f/.lua/}*.check
+		do
+			outfile=${checkfile/.check/}
+			echo "diff -wq '$checkfile' '$outfile'" >> log.txt
+			diff -wq "$checkfile" "$outfile" || retval=1
+		done
 	done
 	return $retval
 }
