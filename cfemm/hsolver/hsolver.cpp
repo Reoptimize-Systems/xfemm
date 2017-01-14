@@ -27,12 +27,6 @@
 // hsolver.cpp : implementation of the HSolver class
 //
 
-
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <cstring>
-#include <malloc.h>
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "hmesh.h"
@@ -40,13 +34,19 @@
 #include "fparse.h"
 #include "hsolver.h"
 
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <cstring>
+#include <malloc.h>
+
 // template instantiation:
 #include "../libfemm/feasolver.cpp"
 #include "../libfemm/cuthill.cpp"
 template class FEASolver<
-        CHPointProp
+        femm::CHPointProp
         , femm::CHBoundaryProp
-        , CHMaterialProp
+        , femm::CHMaterialProp
         , CHConductor
         , femm::CBlockLabel
         , femm::CNode

@@ -29,19 +29,21 @@
 #ifndef HSOLVER_H
 #define HSOLVER_H
 
-#include <string>
 #include "feasolver.h"
 #include "hmesh.h"
 #include "hspars.h"
-#include "CNode.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
+#include "CNode.h"
+#include "CMaterialProp.h"
 #include "CPointProp.h"
+
+#include <string>
 
 class HSolver : public FEASolver<
         femm::CHPointProp
         , femm::CHBoundaryProp
-        , CHMaterialProp
+        , femm::CHMaterialProp
         , CHConductor
         , femm::CBlockLabel
         , femm::CNode

@@ -22,6 +22,7 @@
 
 #include <lua.h>
 
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -540,7 +541,7 @@ int femmcli::LuaMagneticsCommands::luaAddmatprop(lua_State *L)
         return 0;
     }
 
-    std::unique_ptr<CMMaterialProp> m = std::make_unique<CMMaterialProp>();
+    std::unique_ptr<CMSolverMaterialProp> m = std::make_unique<CMSolverMaterialProp>();
     int n=lua_gettop(L);
 
     if (n>0)
@@ -739,9 +740,11 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
                 {
                     if (doc->labellist[k]->BlockTypeName == doc->blockproplist[i]->BlockName)
                     {
-                        if (doc->blockproplist[i]->BHpoints!=0)
+                        CMMaterialProp *prop = dynamic_cast<CMMaterialProp*>(doc->blockproplist[i].get());
+                        assert(prop);
+                        if (prop->BHpoints!=0)
                             hasAnisotropicMaterial = true;
-                        else if(doc->blockproplist[i]->mu_x != doc->blockproplist[i]->mu_y)
+                        else if(prop->mu_x != prop->mu_y)
                             hasAnisotropicMaterial = true;
                     }
                 }

@@ -14,7 +14,6 @@ namespace femm {
 class CPointProp
 {
 public:
-    CPointProp();
     virtual ~CPointProp();
 
     // <PointName>
@@ -28,6 +27,9 @@ public:
      * @param out
      */
     virtual void toStream( std::ostream &out ) const = 0;
+
+protected:
+    CPointProp();
 };
 
 class CMPointProp : public CPointProp

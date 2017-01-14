@@ -548,7 +548,7 @@ void FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 template class FemmReader<
         femm::CMPointProp
         , femm::CMBoundaryProp
-        , femm::CMMaterialProp
+        , femm::CMSolverMaterialProp
         , femm::CMCircuit
         , femm::CMBlockLabel
         >;

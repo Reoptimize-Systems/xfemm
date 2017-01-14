@@ -38,30 +38,49 @@ using namespace std;
 using namespace femm;
 
 CMaterialProp::CMaterialProp()
+    : BlockName("New Material")
 {
-    BlockName = "New Material";
-    mu_x=1.;
-    mu_y=1.;            // permeabilities, relative
-    BHpoints=0;
-    H_c=0.;                // magnetization, A/m
-    Nrg=0.;
-    J=0.;
-    Cduct=0.;            // conductivity of the material, MS/m
-    Lam_d=0.;            // lamination thickness, mm
-    Theta_hn=0.;        // hysteresis angle, degrees
-    Theta_hx=0.;        // hysteresis angle, degrees
-    Theta_hy=0.;        // hysteresis angle, degrees
-    NStrands=0;            // number of strands per wire
-    WireD=0;
-    LamFill=1.;            // lamination fill factor;
-    LamType=0;            // type of lamination;
 }
 
 CMaterialProp::~CMaterialProp()
 {
 }
 
-CMaterialProp::CMaterialProp( const CMaterialProp& other )
+void CMaterialProp::toStream(ostream &) const
+{
+    assert(false && "CMaterialProp without toStream");
+}
+
+CMMaterialProp::CMMaterialProp()
+    : CMaterialProp()
+    , mu_x(1.)
+    , mu_y(1.)
+    , BHpoints(0)
+    , Bdata()
+    , Hdata()
+    , slope()
+    , LamType(0)
+    , LamFill(1.)
+    , H_c(0.)
+    , Nrg(0.)
+    , J(0.)
+    , Cduct(0.)
+    , Lam_d(0.)
+    , Theta_hn(0.)
+    , Theta_hx(0.)
+    , Theta_hy(0.)
+    , NStrands(0)
+    , WireD(0)
+    , mu_fdx()
+    , mu_fdy()
+{
+}
+
+CMMaterialProp::~CMMaterialProp()
+{
+}
+
+CMMaterialProp::CMMaterialProp( const CMMaterialProp& other )
 {
     BlockName = other.BlockName;
     mu_x = other.mu_x;
@@ -88,7 +107,7 @@ CMaterialProp::CMaterialProp( const CMaterialProp& other )
     LamType = other.LamType;            // type of lamination;
 }
 
-void CMaterialProp::GetSlopes(double omega)
+void CMMaterialProp::GetSlopes(double omega)
 {
     if (BHpoints==0) return; // catch trivial case;
     if (!slope.empty()) return; // already have computed the slopes;
@@ -309,7 +328,7 @@ void CMaterialProp::GetSlopes(double omega)
 }
 
 
-CComplex CMaterialProp::LaminatedBH(double w, int i)
+CComplex CMMaterialProp::LaminatedBH(double w, int i)
 {
     int k,n,iter=0;
     CComplex *m0,*m1,*b,*x;
@@ -418,7 +437,7 @@ CComplex CMaterialProp::LaminatedBH(double w, int i)
     return mu;
 }
 
-CComplex CMaterialProp::GetdHdB(double B)
+CComplex CMMaterialProp::GetdHdB(double B)
 {
     double b,z,l;
     CComplex h;
@@ -445,12 +464,12 @@ CComplex CMaterialProp::GetdHdB(double B)
     return CComplex(0);
 }
 
-double CMaterialProp::GetH(double x)
+double CMMaterialProp::GetH(double x)
 {
     return Re(GetH(CComplex(x)));
 }
 
-CComplex CMaterialProp::GetH(CComplex x)
+CComplex CMMaterialProp::GetH(CComplex x)
 {
     double b,z,z2,l;
     CComplex p,h;
@@ -478,7 +497,7 @@ CComplex CMaterialProp::GetH(CComplex x)
     return 0;
 }
 
-double CMaterialProp::GetB(double hc)
+double CMMaterialProp::GetB(double hc)
 {
     if (BHpoints==0) return muo*mu_x*hc;
 
@@ -494,7 +513,7 @@ double CMaterialProp::GetB(double hc)
 }
 
 // GetEnergy for the magnetostatic case
-double CMaterialProp::GetEnergy(double x)
+double CMMaterialProp::GetEnergy(double x)
 {
     double b,z,z2,l,nrg;
     double b0,b1,h0,h1,dh0,dh1;
@@ -547,12 +566,12 @@ double CMaterialProp::GetEnergy(double x)
     return nrg;
 }
 
-double CMaterialProp::GetCoEnergy(double b)
+double CMMaterialProp::GetCoEnergy(double b)
 {
     return (fabs(b)*GetH(b) - GetEnergy(b));
 }
 
-double CMaterialProp::DoEnergy(double b1, double b2)
+double CMMaterialProp::DoEnergy(double b1, double b2)
 {
     // calls the raw routine to get point energy,
     // but deals with the load of special cases that
@@ -610,7 +629,7 @@ double CMaterialProp::DoEnergy(double b1, double b2)
     return nrg;
 }
 
-double CMaterialProp::DoCoEnergy(double b1, double b2)
+double CMMaterialProp::DoCoEnergy(double b1, double b2)
 {
     double nrg,biron,bair;
     nrg=biron=bair = 0;
@@ -637,7 +656,7 @@ double CMaterialProp::DoCoEnergy(double b1, double b2)
 }
 
 
-double CMaterialProp::DoEnergy(CComplex b1, CComplex b2)
+double CMMaterialProp::DoEnergy(CComplex b1, CComplex b2)
 {
     // This one is meant for the frequency!=0 case.
     // Fortunately, there's not so much effort in this case.
@@ -650,20 +669,12 @@ double CMaterialProp::DoEnergy(CComplex b1, CComplex b2)
 
 }
 
-double CMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
+double CMMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
 {
     return DoEnergy(b1,b2);
 }
 
-void CMaterialProp::toStream(ostream &out) const
-{
-    out << "CMaterialProp without toStream implementation!\n";
-    assert(false && "CMaterialProp without toStream");
-}
-
-
-
-void CMaterialProp::GetMu(CComplex b1, CComplex b2,
+void CMMaterialProp::GetMu(CComplex b1, CComplex b2,
                           CComplex &mu1, CComplex &mu2)
 {
     // gets the permeability, given a flux density
@@ -716,7 +727,7 @@ void CMaterialProp::GetMu(CComplex b1, CComplex b2,
 }
 
 
-void CMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
+void CMMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
 {
     // gets the permeability, given a flux density
     //
@@ -781,32 +792,32 @@ void CMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
 }
 
 
-ostream &operator<<(ostream &os, const CMaterialProp &prop)
+ostream &operator<<(ostream &os, const CMMaterialProp &prop)
 {
     prop.toStream(os);
     return os;
 }
 
 
-CMMaterialProp::~CMMaterialProp()
+CMSolverMaterialProp::~CMSolverMaterialProp()
 {
 }
 
 // Constructor
-CMMaterialProp::CMMaterialProp()
-    : CMaterialProp()
+CMSolverMaterialProp::CMSolverMaterialProp()
+    : CMMaterialProp()
 {
     Theta_m=0.;            // magnetization direction, degrees;
 }
 
 // Copy Constructor
-CMMaterialProp::CMMaterialProp( const CMMaterialProp &other )
-    : femm::CMaterialProp( other )
+CMSolverMaterialProp::CMSolverMaterialProp( const CMSolverMaterialProp &other )
+    : femm::CMMaterialProp( other )
 {
     Theta_m = other.Theta_m;    // magnetization direction, degrees;
 }
 
-CComplex CMMaterialProp::GetH(double B)
+CComplex CMSolverMaterialProp::GetH(double B)
 {
     double b,z,z2,l;
     CComplex h;
@@ -836,21 +847,21 @@ CComplex CMMaterialProp::GetH(double B)
 }
 
 
-CComplex CMMaterialProp::Get_v(double B)
+CComplex CMSolverMaterialProp::Get_v(double B)
 {
     if (B==0) return slope[0];
 
     return (GetH(B)/B);
 }
 
-CComplex CMMaterialProp::Get_dvB2(double B)
+CComplex CMSolverMaterialProp::Get_dvB2(double B)
 {
     if (B==0) return 0;
 
     return 0.5*(GetdHdB(B)/(B*B) - GetH(B)/(B*B*B));
 }
 
-void CMMaterialProp::GetBHProps(double B, double &v, double &dv)
+void CMSolverMaterialProp::GetBHProps(double B, double &v, double &dv)
 {
     // version to use in the magnetostatic case in
     // which we know that v and dv ought to be real-valued.
@@ -861,7 +872,7 @@ void CMMaterialProp::GetBHProps(double B, double &v, double &dv)
     dv=Re(dvc);
 }
 
-void CMMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
+void CMSolverMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
 {
     double b,z,z2,l;
     CComplex h,dh;
@@ -915,7 +926,7 @@ void CMMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
 // this can't be immediately merged with femm::CMaterialProp,
 // because this uses the slightly different GetH implementation
 // from fsolver
-CComplex CMMaterialProp::LaminatedBH(double w, int i)
+CComplex CMSolverMaterialProp::LaminatedBH(double w, int i)
 {
     int k,n,iter=0;
     CComplex *m0,*m1,*b,*x;
@@ -1025,10 +1036,10 @@ CComplex CMMaterialProp::LaminatedBH(double w, int i)
     return mu;
 }
 
-CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ostream &err)
+CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::ostream &err)
 {
     using namespace femm;
-    CMMaterialProp prop;
+    CMSolverMaterialProp prop;
 
     if( expectToken(input, "<beginblock>", err) )
     {
@@ -1177,7 +1188,7 @@ CMMaterialProp CMMaterialProp::fromStream(std::istream &input, std::ostream &err
     return prop;
 }
 
-void CMMaterialProp::toStream(ostream &out) const
+void CMSolverMaterialProp::toStream(ostream &out) const
 {
     out << "  <BeginBlock>\n";
     out << "    <BlockName> = \"" << BlockName << "\"\n";
@@ -1200,6 +1211,153 @@ void CMMaterialProp::toStream(ostream &out) const
     for(int i=0; i<BHpoints; i++)
     {
         out << "    " << Bdata.at(i) << " " << Hdata.at(i).re << "\n";
+    }
+    out << "  <EndBlock>\n";
+}
+
+CHMaterialProp::CHMaterialProp()
+    : CMaterialProp()
+    , Kx(1)
+    , Ky(1)
+    , Kt(0)
+    , qv(0)
+    , npts(0)
+{
+}
+
+CHMaterialProp::~CHMaterialProp()
+{
+}
+
+CHMaterialProp::CHMaterialProp( const CHMaterialProp & other)
+{
+    Kx = other.Kx;
+    Ky = other.Ky;
+    Kt = other.Kt;  // volumetric heat capacity
+    qv = other.qv;  // volume heat generation
+
+    // properties for nonlinear conductivity
+    npts = other.npts;			// number of points in the nonlinear conductivity curve
+
+    for (int i = 0; i < npts; i++)
+    {
+        // copy the thermal conductivity data points.
+        Kn[i] = other.Kn[i];
+    }
+}
+
+CComplex CHMaterialProp::GetK(double t)
+{
+    int i,j;
+
+    // Kx returned as real part;
+    // Ky returned as imag part
+
+    if (npts==0) return (Kx+I*Ky);
+    if (npts==1) return (Im(Kn[0])*(1+I));
+    if (t<=Re(Kn[0])) return (Im(Kn[0])*(1+I));
+    if (t>=Re(Kn[npts-1])) return (Im(Kn[npts-1])*(1+I));
+
+    for(i=0,j=1;j<npts;i++,j++)
+    {
+        if((t>=Re(Kn[i])) && (t<=Re(Kn[j])))
+        {
+            return (1+I)*(Im(Kn[i])+Im(Kn[j]-Kn[i])*Re(t-Kn[i])/Re(Kn[j]-Kn[i]));
+        }
+    }
+
+    return (Kx+I*Ky);
+}
+
+CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err)
+{
+    CHMaterialProp prop;
+
+    if( expectToken(input, "<beginblock>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endblock>")
+        {
+            nextToken(input,&token);
+
+            if( token == "<kx>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.Kx, err);
+                continue;
+            }
+
+            if( token == "<ky>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.Ky, err);
+                continue;
+            }
+
+            if( token == "<kt>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.Kt, err);
+                continue;
+            }
+
+            if( token == "<qv>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.qv, err);
+                continue;
+            }
+
+            if( token == "<blockname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &(prop.BlockName), err);
+                continue;
+            }
+
+            if( token == "<tkpoints>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.npts, err);
+                if (prop.npts > 0)
+                {
+                    // FIXME: make Kn variable size
+                    if (prop.npts>128)
+                    {
+                        err << "MaterialProp exceeds maximum size! File a bug report...";
+                        prop.npts = 128;
+                    }
+                    for(int i=0; i<prop.npts; i++)
+                    {
+                        input >> prop.Kn[i].re >> prop.Kn[i].im;
+                    }
+                }
+                continue;
+            }
+            if( token != "<endblock>")
+                err << "CHMaterialProp: unexpected token: "<<token << "\n";
+        }
+    }
+
+    return prop;
+}
+
+void CHMaterialProp::toStream(std::ostream &out) const
+{
+    out << "  <BeginBlock>\n";
+    out << "    <Kx> = " << Kx << "\n";
+    out << "    <Ky> = " << Ky << "\n";
+    out << "    <Kt> = " << Kt << "\n";
+    out << "    <qv> = " << qv << "\n";
+    if (!BlockName.empty())
+        out << "    <BlockName> = \"" << BlockName << "\"\n";
+    out << "    <TKPoints> = " << npts << "\n";
+    if (npts > 0)
+    {
+        for(int i=0; i<npts; i++)
+        {
+            out << "      " << Kn[i].re << " " << Kn[i].im << "\n";
+        }
     }
     out << "  <EndBlock>\n";
 }

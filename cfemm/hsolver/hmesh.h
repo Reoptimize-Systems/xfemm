@@ -37,42 +37,6 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // Classes that hold property data:  CMaterialProp, CHBoundaryProp, CPointProp
-class CHMaterialProp
-{
-    // Properties
-public:
-
-    std::string name;
-   	double Kx,Ky;		// thermal conductivity for linear (possibly anisotropic) regions
-	double Kt;			// volumetric heat capacity
-	double qv;			// volume heat generation
-
-	// properties for nonlinear conductivity
-	int npts;			// number of points in the nonlinear conductivity curve
-	CComplex Kn[128];   // here, I'm being _very_ lazy by defining a fixed-length buffer for the
-	                    // thermal conductivity data points.
-
-    // Methods
-public:
-
-    CHMaterialProp();
-    ~CHMaterialProp();
-    CHMaterialProp( const CHMaterialProp & );
-    CComplex GetK(double t);
-
-    /**
-     * @brief fromStream constructs a CHMaterialProp from an input stream (usually an input file stream)
-     * @param input
-     * @param err output stream for error messages
-     * @return a CHMaterialProp
-     */
-    static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
-    // FIXME: subclass CMaterialProp and mark this as override:
-    virtual void toStream( std::ostream &out ) const;
-private:
-};
-// FIXME: subclass CMaterialProp and remove this:
-std::ostream& operator<< (std::ostream& os, const CHMaterialProp& prop);
 
 class CHConductor : public femm::CCircuit
 {
