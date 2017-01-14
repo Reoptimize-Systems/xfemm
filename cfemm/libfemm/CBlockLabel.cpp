@@ -120,6 +120,10 @@ CMBlockLabel CMBlockLabel::fromStream(istream &input, ostream &)
     inputStream >> prop.BlockType;
     prop.BlockType--;
     inputStream >> prop.MaxArea;
+    if (prop.MaxArea<=0)
+        prop.MaxArea = 0;
+    else
+        prop.MaxArea *= PI * prop.MaxArea / 4.;
     inputStream >> prop.InCircuit;
     prop.InCircuit--;
     inputStream >> prop.MagDir;

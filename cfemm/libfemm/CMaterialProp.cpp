@@ -1184,7 +1184,7 @@ void CMMaterialProp::toStream(ostream &out) const
     out << "    <Mu_x> = " << mu_x << "\n";
     out << "    <Mu_y> = " << mu_y << "\n";
     out << "    <H_c> = " << H_c << "\n";
-    out << "    <H_cangle> = " << Theta_m << "\n";
+    out << "    <H_cAngle> = " << Theta_m << "\n";
     out << "    <J_re> = " << J.re << "\n";
     out << "    <J_im> = " << J.im << "\n";
     out << "    <Sigma> = " << Cduct << "\n";
