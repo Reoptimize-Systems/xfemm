@@ -36,9 +36,10 @@
 #include "CNode.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
+#include "CPointProp.h"
 
 class HSolver : public FEASolver<
-        CHPointProp
+        femm::CHPointProp
         , femm::CHBoundaryProp
         , CHMaterialProp
         , CHConductor

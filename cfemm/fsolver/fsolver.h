@@ -41,7 +41,7 @@ class LuaInstance;
 }
 
 class FSolver : public FEASolver<
-        femm::CPointProp
+        femm::CMPointProp
         , femm::CMBoundaryProp
         , femm::CMMaterialProp
         , femm::CMCircuit

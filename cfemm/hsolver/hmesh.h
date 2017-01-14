@@ -74,24 +74,6 @@ private:
 // FIXME: subclass CMaterialProp and remove this:
 std::ostream& operator<< (std::ostream& os, const CHMaterialProp& prop);
 
-class CHPointProp
-{
-public:
-    /**
-     * @brief fromStream constructs a CHPointProp from an input stream (usually an input file stream)
-     * @param input
-     * @param err output stream for error messages
-     * @return a CHPointProp
-     */
-    static CHPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
-
-    double V,qp;
-
-    // FIXME: subclass CPointProp and mark this as override:
-    virtual void toStream( std::ostream &out ) const;
-private:
-};
-
 class CHConductor : public femm::CCircuit
 {
 public:

@@ -46,7 +46,7 @@
 #include "../libfemm/feasolver.cpp"
 #include "../libfemm/cuthill.cpp"
 template class FEASolver<
-        femm::CPointProp
+        femm::CMPointProp
         , femm::CMBoundaryProp
         , femm::CMMaterialProp
         , femm::CMCircuit

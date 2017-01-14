@@ -14,14 +14,23 @@ using namespace femm;
 
 CPointProp::CPointProp()
     : PointName ( "New Point Property")
+{
+}
+
+CPointProp::~CPointProp()
+{
+}
+
+CMPointProp::CMPointProp()
+    : CPointProp()
     , J()
     , A()
 {
 }
 
-CPointProp CPointProp::fromStream(istream &input, ostream &err)
+CMPointProp CMPointProp::fromStream(istream &input, ostream &err)
 {
-    CPointProp prop;
+    CMPointProp prop;
 
     if( expectToken(input, "<beginpoint>", err) )
     {
@@ -65,7 +74,7 @@ CPointProp CPointProp::fromStream(istream &input, ostream &err)
     return prop;
 }
 
-void CPointProp::toStream(ostream &out) const
+void CMPointProp::toStream(ostream &out) const
 {
     out << "  <BeginPoint>\n";
     out << "    <PointName> = \"" << PointName << "\"\n";
@@ -77,7 +86,54 @@ void CPointProp::toStream(ostream &out) const
 }
 
 
-ostream &operator<<(ostream &os, const CPointProp &prop)
+CHPointProp::CHPointProp()
+    : CPointProp()
+    , V(0)
+    , qp(0)
+{
+}
+
+CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
+{
+    CHPointProp prop;
+
+    if( expectToken(input, "<beginpoint>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endpoint>")
+        {
+            nextToken(input, &token);
+
+            if( token == "<tp>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.V, err);
+                continue;
+            }
+
+            if( token == "<qp>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.qp, err);
+                continue;
+            }
+            if (token != "<endpoint>")
+                err << "CHPointProp: unexpected token: "<<token << "\n";
+        }
+    }
+
+    return prop;
+}
+
+void CHPointProp::toStream(std::ostream &out) const
+{
+    out << "<BeginPoint>\n";
+    out << "<Tp> = " << V << "\n";
+    out << "<qp> = " << qp << "\n";
+    out << "<EndPoint>\n";
+}
+
+ostream &operator<<(ostream &os, const CMPointProp &prop)
 {
     prop.toStream(os);
     return os;
