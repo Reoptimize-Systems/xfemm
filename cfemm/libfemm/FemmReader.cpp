@@ -546,7 +546,7 @@ void FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 
 // template instantiation
 template class FemmReader<
-        femm::CPointProp
+        femm::CMPointProp
         , femm::CMBoundaryProp
         , femm::CMMaterialProp
         , femm::CMCircuit
@@ -570,3 +570,28 @@ bool MagneticsReader::handleToken(const string &token, istream &input, ostream &
 
     return false;
 }
+
+//// template instantiation
+//template class FemmReader<
+//        femm::CHPointProp
+//        , femm::CHBoundaryProp
+//        , femm::CHMaterialProp
+//        , femm::CHConductor
+//        , femm::CBlockLabel
+//        >;
+//
+//HeatFlowReader::HeatFlowReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)
+//    : FemmReader_type(problem, errorpipe)
+//{
+//}
+//
+//bool HeatFlowReader::handleToken(const string &token, istream &input, ostream &err)
+//{
+//    if( token == "[dt]" )
+//    {
+//        expectChar(input, '=', err);
+//        parseValue(input, problem->dT, err);
+//        return true;
+//    }
+//    return false;
+//}

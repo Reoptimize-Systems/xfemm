@@ -92,7 +92,7 @@ public:
     // lists of properties
     std::vector< femm::CMaterialProp > blockproplist;
     std::vector< femm::CMBoundaryProp > lineproplist;
-    std::vector< femm::CPointProp >    nodeproplist;
+    std::vector< femm::CMPointProp >    nodeproplist;
     std::vector< femm::CCircuit >      circproplist;
 
     // list of points in a user-defined contour;

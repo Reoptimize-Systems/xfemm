@@ -162,45 +162,6 @@ std::ostream &operator<<(std::ostream &os, const CHMaterialProp &prop)
 }
 
 
-CHPointProp CHPointProp::fromStream(std::istream &input, std::ostream &err)
-{
-    CHPointProp prop;
-
-    if( expectToken(input, "<beginpoint>", err) )
-    {
-        string token;
-        while (input.good() && token != "<endpoint>")
-        {
-            nextToken(input, &token);
-
-            if( token == "<tp>" )
-            {
-                expectChar(input, '=', err);
-                parseValue(input, prop.V, err);
-                continue;
-            }
-
-            if( token == "<qp>" )
-            {
-                expectChar(input, '=', err);
-                parseValue(input, prop.qp, err);
-                continue;
-            }
-            if (token != "<endpoint>")
-                err << "CHPointProp: unexpected token: "<<token << "\n";
-        }
-    }
-
-    return prop;
-}
-
-void CHPointProp::toStream(std::ostream &out) const
-{
-    out << "<BeginPoint>\n";
-    out << "<Tp> = " << V << "\n";
-    out << "<qp> = " << qp << "\n";
-    out << "<EndPoint>\n";
-}
 
 CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
 {

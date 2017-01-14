@@ -14,11 +14,28 @@ namespace femm {
 class CPointProp
 {
 public:
-
     CPointProp();
+    virtual ~CPointProp();
 
     // <PointName>
     std::string PointName;
+
+    /**
+     * @brief toStream serializes the data and inserts it into \p out.
+     * This virtual method is called by the \c operator<<() and
+     * needs to be overridden by any subclass.
+     *
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const = 0;
+};
+
+class CMPointProp : public CPointProp
+{
+public:
+
+    CMPointProp();
+
     CComplex J;   ///< \brief J: applied point current \code<I_re>, <I_im>\endcode
     CComplex A;   ///< \brief A, magnetic vector potential \code<A_re>, <A_im>\endcode
 
@@ -28,7 +45,7 @@ public:
      * @param err output stream for error messages
      * @return a CPointProp
      */
-    static CPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
     /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and
@@ -36,7 +53,26 @@ public:
      *
      * @param out
      */
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const override;
+private:
+};
+
+class CHPointProp : public CPointProp
+{
+public:
+    CHPointProp();
+    /**
+     * @brief fromStream constructs a CHPointProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHPointProp
+     */
+    static CHPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+
+    double V; ///< \brief Fixed temperature in Kelvin. \code<Tp>\endcode
+    double qp; ///< \brief Point heat generation in Watt per meter. \code<qp>\endcode
+
+    virtual void toStream( std::ostream &out ) const override;
 private:
 };
 
@@ -46,6 +82,6 @@ private:
  * @param prop
  * @return \p os
  */
-std::ostream& operator<< (std::ostream& os, const CPointProp& prop);
+std::ostream& operator<< (std::ostream& os, const CMPointProp& prop);
 }
 #endif
