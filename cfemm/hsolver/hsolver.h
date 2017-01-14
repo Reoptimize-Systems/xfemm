@@ -34,6 +34,7 @@
 #include "hspars.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
+#include "CCircuit.h"
 #include "CNode.h"
 #include "CMaterialProp.h"
 #include "CPointProp.h"
@@ -44,7 +45,7 @@ class HSolver : public FEASolver<
         femm::CHPointProp
         , femm::CHBoundaryProp
         , femm::CHMaterialProp
-        , CHConductor
+        , femm::CHConductor
         , femm::CBlockLabel
         , femm::CNode
         >

@@ -1,3 +1,30 @@
+/*
+   This code is a modified version of an algorithm
+   forming part of the software program Finite
+   Element Method Magnetics (FEMM), authored by
+   David Meeker. The original software code is
+   subject to the Aladdin Free Public Licence
+   version 8, November 18, 1999. For more information
+   on FEMM see www.femm.info. This modified version
+   is not endorsed in any way by the original
+   authors of FEMM.
+
+   This software has been modified to use the C++
+   standard template libraries and remove all Microsoft (TM)
+   MFC dependent code to allow easier reuse across
+   multiple operating system platforms.
+
+   Date Modified: 2017 - 01 - 14
+   By:  Emoke Szelitzky
+        Tibor Szelitzky
+        Richard Crozier
+        Johannes Zarl-Zeril
+   Contact:
+        szelitzkye@gmail.com
+        sztibi82@yahoo.com
+        richard.crozier@yahoo.co.uk
+        johannes@zarl-zierl.at
+*/
 #include "CCircuit.h"
 
 #include "fullmatrix.h"
@@ -20,7 +47,6 @@ using namespace std;
 CCircuit::CCircuit()
     : CircName("New Circuit")
     , CircType(0)
-    , Amps()
 {
 }
 
@@ -31,12 +57,13 @@ void CCircuit::toStream(ostream &out) const
 }
 
 CMCircuit::CMCircuit()
-    : CCircuit(),
-      dVolts(),
-      OrigCirc(0),
-      J(),
-      dV(),
-      Case(0)
+    : CCircuit()
+    , Amps()
+    , dVolts()
+    , OrigCirc(0)
+    , J()
+    , dV()
+    , Case(0)
 {
 }
 
@@ -112,6 +139,63 @@ void CMCircuit::toStream(ostream &out) const
     out << "  <EndCircuit>\n";
 }
 
+CHConductor::CHConductor()
+    : CCircuit()
+    , V(0)
+    , q(0)
+{
+}
+
+CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
+{
+    CHConductor prop;
+
+    if( expectToken(input, "<beginconductor>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endconductor>")
+        {
+            nextToken(input, &token);
+
+            if( token == "<tc>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.V, err);
+                continue;
+            }
+
+            if( token == "<qc>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.q, err);
+                continue;
+            }
+
+            if( token == "<conductortype>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.CircType, err);
+                continue;
+            }
+
+            if ( token != "<endconductor>")
+                err << "CHConductor: unexpected token: "<<token << "\n";
+        }
+    }
+
+    return prop;
+}
+
+void CHConductor::toStream(std::ostream &out) const
+{
+    out << "<BeginConductor>\n";
+    out << "<Tc>" << V << "\n";
+    out << "<qc>" << q << "\n";
+    out << "<ConductorType>" << CircType << "\n";
+    if (!CircName.empty())
+        out << "<ConductorName> =\"" << CircName << "\"\n";
+    out << "<EndConductor>\n";
+}
 ostream &operator<<(ostream &os, const CCircuit &prop)
 {
     prop.toStream(os);
