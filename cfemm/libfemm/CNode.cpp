@@ -1,10 +1,12 @@
 #include "CNode.h"
 
-#include <cstdlib>
-#include <cmath>
 #include "fullmatrix.h"
 #include "femmcomplex.h"
 #include "femmconstants.h"
+#include "fparse.h"
+
+#include <cstdlib>
+#include <cmath>
 
 #define ElementsPerSkinDepth 10
 
@@ -36,6 +38,10 @@ CNode::CNode(double x, double y)
 {
 }
 
+CNode::~CNode()
+{
+}
+
 CComplex femm::CNode::CC()
 {
     return CComplex(x,y);
@@ -50,3 +56,4 @@ void femm::CNode::ToggleSelect()
 {
     IsSelected = ! IsSelected;
 }
+

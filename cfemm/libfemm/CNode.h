@@ -1,8 +1,9 @@
 #ifndef FEMM_CNODE_H
 #define FEMM_CNODE_H
 
-#include <string>
 #include "femmcomplex.h"
+#include <iostream>
+#include <string>
 
 namespace femm {
 
@@ -39,6 +40,7 @@ class CNode
 public:
     CNode();
     CNode(double x, double y);
+    virtual ~CNode();
 
     double x; ///< \brief x x-position of the point or r (axisymmetric)
     double y; ///< \brief x x-position of the point or r (axisymmetric)
@@ -54,7 +56,6 @@ public:
     std::string BoundaryMarkerName;
     std::string InConductorName;
 private:
-
 };
 
 }
