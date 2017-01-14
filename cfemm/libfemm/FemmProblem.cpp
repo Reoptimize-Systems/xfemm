@@ -11,7 +11,6 @@ femm::FemmProblem::~FemmProblem()
 
 bool femm::FemmProblem::saveFEMFile(std::string &filename) const
 {
-    std::cerr << "savin file " << filename <<"\n";
     if ( filetype == UnknownFile )
     {
         // can't save if file type is not set
@@ -77,7 +76,8 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     }
 
     fem << "[ACSolver] = " << ACSolver <<"\n";
-    fem << "[PrevSoln] = \"" << PrevSoln <<"\"\n";
+    if (!PrevSoln.empty())
+        fem << "[PrevSoln] = \"" << PrevSoln <<"\"\n";
 
     std::string commentString (comment);
     // escape line-breaks
@@ -233,18 +233,18 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     {
         if(label->BlockTypeName!="<No Mesh>")
         {
-            fem << label->x << " " << label->y;
+            fem << label->x << "\t" << label->y;
             int blockTypeIdx = 0;
             for (int i=0; i<(int)blockproplist.size(); i++) {
                 if (label->BlockTypeName==blockproplist[i]->BlockName) {
                     blockTypeIdx = i+1;
                 }
             }
-            fem << " " << blockTypeIdx;
+            fem << "\t" << blockTypeIdx;
             if (label->MaxArea>0) {
-                fem << " " << sqrt(4.*label->MaxArea/PI).Re();
+                fem << "\t" << sqrt(4.*label->MaxArea/PI).Re();
             } else {
-                fem << " -1";
+                fem << "\t-1";
             }
             int circPropIdx = 0;
             for (int i=0; i<(int)circproplist.size(); i++) {
@@ -252,14 +252,14 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
                     circPropIdx = i+1;
                 }
             }
-            fem << " " << circPropIdx
-                << " " << label->MagDir
-                << " " << label->InGroup
-                << " " << label->Turns
-                << " " << (((int)label->IsExternal)<<1)+(int)label->IsDefault;
+            fem << "\t" << circPropIdx
+                << "\t" << label->MagDir
+                << "\t" << label->InGroup
+                << "\t" << label->Turns
+                << "\t" << (((int)label->IsExternal)<<1)+(int)label->IsDefault;
             if (!label->MagDirFctn.empty())
             {
-                fem << "   \"" << label->MagDirFctn << "\"";
+                fem << "\t\"" << label->MagDirFctn << "\"";
             }
             fem << "\n";
         }

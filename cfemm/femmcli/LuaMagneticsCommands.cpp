@@ -1851,7 +1851,7 @@ int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
     {
         std::string fname(s);
         doc->pathName = s;
-        mesher->SaveFEMFile(s);
+        doc->saveFEMFile(fname);
     } else {
         lua_error(L, "mi_saveas(): no pathname given!");
     }
