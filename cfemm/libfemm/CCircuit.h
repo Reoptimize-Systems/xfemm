@@ -37,17 +37,6 @@ public:
     int CircType;
 
     /**
-         * @brief Amps
-         * Circuit current.
-         *
-         * Unit: \c A
-         * \verbatim
-         * <TotalAmpsre> <TotalAmpsim>
-         * \endverbatim
-         */
-    CComplex  Amps;
-
-    /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and
      * needs to be overridden by any subclass.
@@ -78,6 +67,17 @@ class CMCircuit : public femm::CCircuit
 public:
     CMCircuit();
 
+    /**
+         * @brief Amps
+         * Circuit current.
+         *
+         * Unit: \c A
+         * \verbatim
+         * <TotalAmpsre> <TotalAmpsim>
+         * \endverbatim
+         */
+    CComplex  Amps;
+
     CComplex dVolts;
     int OrigCirc;
 
@@ -98,5 +98,39 @@ public:
 private:
 };
 
+class CHConductor : public CCircuit
+{
+public:
+    CHConductor();
+
+    /**
+     * @brief V thermal conductivity(?)
+     *
+     * Unit: ?
+     * \verbatim
+     * <tc>
+     * \endverbatim
+     */
+    double V;
+    /**
+     * @brief q
+     *
+     * Unit: ?
+     * \verbatim
+     * <qc>
+     * \endverbatim
+     */
+    double q;
+
+    /**
+     * @brief fromStream constructs a CHConductor from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHConductor
+     */
+    static CHConductor fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
+private:
+};
 }
 #endif

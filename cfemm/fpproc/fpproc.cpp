@@ -254,7 +254,7 @@ bool FPProc::OpenDocument(string pathname)
     CMPointProp    PProp;
     CMBoundaryProp BProp;
     CMMaterialProp MProp;
-    CCircuit      CProp;
+    CMCircuit      CProp;
     CNode         node;
     CSegment      segm;
     CArcSegment   asegm;

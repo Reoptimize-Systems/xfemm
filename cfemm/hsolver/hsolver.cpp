@@ -47,7 +47,7 @@ template class FEASolver<
         femm::CHPointProp
         , femm::CHBoundaryProp
         , femm::CHMaterialProp
-        , CHConductor
+        , femm::CHConductor
         , femm::CBlockLabel
         , femm::CNode
         >;
@@ -104,10 +104,6 @@ bool HSolver::LoadProblemFile ()
     std::string fehFile = PathName+".feh";
 
     bool ret = FEASolver_type::LoadProblemFile(fehFile);
-    // print file for debugging:
-    std::ofstream parsedFile (PathName +".feh.parsed");
-    parsedFile.width(5);
-    parsedFile.precision(18);
     return ret;
 }
 
