@@ -47,14 +47,25 @@ public:
     int InGroup;
     bool IsSelected;
 
-    double GetDistance(double xo, double yo);
-    CComplex CC();
-    void ToggleSelect();
-
     int BoundaryMarker;
     int InConductor;
     std::string BoundaryMarkerName;
     std::string InConductorName;
+
+    double GetDistance(double xo, double yo);
+    CComplex CC();
+    void ToggleSelect();
+
+    /**
+     * @brief hasBoundaryMarker
+     * @return \c true, if the BoundaryMarker is set, \false otherwise
+     */
+    bool hasBoundaryMarker() const;
+    /**
+     * @brief isInConductor
+     * @return \c true, if InConductor is set, \false otherwise
+     */
+    bool isInConductor() const;
 private:
 };
 

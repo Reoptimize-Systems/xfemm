@@ -33,3 +33,13 @@ void CArcSegment::ToggleSelect()
 {
     IsSelected = !IsSelected;
 }
+
+bool CArcSegment::hasBoundaryMarker() const
+{
+    return (BoundaryMarker!=-1);
+}
+
+bool CArcSegment::isInConductor() const
+{
+    return (InConductor!=-1);
+}

@@ -25,3 +25,13 @@ void CSegment::ToggleSelect()
     IsSelected = !IsSelected;
 }
 
+bool CSegment::hasBoundaryMarker() const
+{
+    return (BoundaryMarker!=-1);
+}
+
+bool CSegment::isInConductor() const
+{
+    return (InConductor!=-1);
+}
+

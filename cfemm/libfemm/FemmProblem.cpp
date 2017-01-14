@@ -120,27 +120,27 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     fem << "[NumPoints] = " << nodelist.size() <<"\n";
     for (const auto &node: nodelist)
     {
-        int boundaryMarkerIdx=0;
-        for (int i=0; i<(int)nodeproplist.size(); i++)
-            if (nodeproplist[i]->PointName==node->BoundaryMarkerName)
-            {
-                // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
-                boundaryMarkerIdx=i+1;
-            }
+        //int boundaryMarkerIdx=0;
+        //for (int i=0; i<(int)nodeproplist.size(); i++)
+        //    if (nodeproplist[i]->PointName==node->BoundaryMarkerName)
+        //    {
+        //        // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
+        //        boundaryMarkerIdx=i+1;
+        //    }
 
         fem << node->x << "\t" << node->y
-            << "\t" << boundaryMarkerIdx << "\t" << node->InGroup;
+            << "\t" << node->BoundaryMarker+1 << "\t" << node->InGroup;
 
         if (filetype == HeatFlowFile)
         {
-            int conductorIdx=0;
-            for (int i=0; i<(int)circproplist.size(); i++)
-                if (circproplist[i]->CircName==node->InConductorName)
-                {
-                    // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
-                    conductorIdx=i+1;
-                }
-            fem << "\t" << conductorIdx;
+            //int conductorIdx=0;
+            //for (int i=0; i<(int)circproplist.size(); i++)
+            //    if (circproplist[i]->CircName==node->InConductorName)
+            //    {
+            //        // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
+            //        conductorIdx=i+1;
+            //    }
+            fem << "\t" << node->InConductor+1;
         }
         fem << "\n";
     }
@@ -156,28 +156,28 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
             fem << "\t" << line->MaxSideLength;
         }
 
-        int boundaryMarkerIdx=0;
-        for (int i=0; i<(int)lineproplist.size(); i++)
-            if (lineproplist[i]->BdryName==line->BoundaryMarkerName)
-            {
-                // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
-                boundaryMarkerIdx=i+1;
-            }
+        //int boundaryMarkerIdx=0;
+        //for (int i=0; i<(int)lineproplist.size(); i++)
+        //    if (lineproplist[i]->BdryName==line->BoundaryMarkerName)
+        //    {
+        //        // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
+        //        boundaryMarkerIdx=i+1;
+        //    }
 
-        fem << "\t" << boundaryMarkerIdx
+        fem << "\t" << line->BoundaryMarker+1
             << "\t" << (int)line->Hidden
             << "\t" << line->InGroup;
 
         if (filetype == HeatFlowFile)
         {
-            int conductorIdx=0;
-            for (int i=0; i<(int)circproplist.size(); i++)
-                if (circproplist[i]->CircName==line->InConductorName)
-                {
-                    // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
-                    conductorIdx=i+1;
-                }
-            fem << "\t" << conductorIdx;
+            //int conductorIdx=0;
+            //for (int i=0; i<(int)circproplist.size(); i++)
+            //    if (circproplist[i]->CircName==line->InConductorName)
+            //    {
+            //        // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
+            //        conductorIdx=i+1;
+            //    }
+            fem << "\t" << line->InConductor+1;
         }
         fem << "\n";
     }
@@ -185,31 +185,31 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     fem << "[NumArcSegments] = " << arclist.size() <<"\n";
     for (const auto &arc: arclist)
     {
-        int boundaryMarkerIdx=0;
-        for (int i=0; i<(int)lineproplist.size(); i++)
-            if (lineproplist[i]->BdryName==arc->BoundaryMarkerName)
-            {
-                // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
-                boundaryMarkerIdx=i+1;
-            }
+        //int boundaryMarkerIdx=0;
+        //for (int i=0; i<(int)lineproplist.size(); i++)
+        //    if (lineproplist[i]->BdryName==arc->BoundaryMarkerName)
+        //    {
+        //        // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
+        //        boundaryMarkerIdx=i+1;
+        //    }
 
         fem << arc->n0 << "\t" << arc->n1
             << "\t" << arc->ArcLength << "\t" << arc->MaxSideLength
-            << "\t" << boundaryMarkerIdx
+            << "\t" << arc->BoundaryMarker+1
             << "\t" << (int)arc->Hidden
             << "\t" << arc->InGroup;
 
 
         if (filetype == HeatFlowFile)
         {
-            int conductorIdx=0;
-            for (int i=0; i<(int)circproplist.size(); i++)
-                if (circproplist[i]->CircName==arc->InConductorName)
-                {
-                    // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
-                    conductorIdx=i+1;
-                }
-            fem << "\t" << conductorIdx;
+            //int conductorIdx=0;
+            //for (int i=0; i<(int)circproplist.size(); i++)
+            //    if (circproplist[i]->CircName==arc->InConductorName)
+            //    {
+            //        // Note(ZaJ): if we don't want to save between mesh and solve, we would need to put this in a dedicated method.
+            //        conductorIdx=i+1;
+            //    }
+            fem << "\t" << arc->InConductor+1;
         }
         fem << "\n";
     }
@@ -218,54 +218,62 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     for (const auto &label: labellist)
     {
         // count holes
-        if(label->BlockTypeName=="<No Mesh>")
+        if(!label->hasBlockType())
             numHoles++;
     }
     fem << "[NumHoles] = " << numHoles << "\n";
     for (const auto &label: labellist)
     {
-        if(label->BlockTypeName=="<No Mesh>")
+        if(!label->hasBlockType())
             fem << label->x << " " << label->y << " " << label->InGroup << "\n";
     }
 
     fem << "[NumBlockLabels] = " << labellist.size()-numHoles << "\n";
     for (const auto &label: labellist)
     {
-        if(label->BlockTypeName!="<No Mesh>")
+        if(label->hasBlockType())
         {
-            fem << label->x << "\t" << label->y;
-            int blockTypeIdx = 0;
-            for (int i=0; i<(int)blockproplist.size(); i++) {
-                if (label->BlockTypeName==blockproplist[i]->BlockName) {
-                    blockTypeIdx = i+1;
-                }
-            }
-            fem << "\t" << blockTypeIdx;
-            if (label->MaxArea>0) {
-                fem << "\t" << sqrt(4.*label->MaxArea/PI).Re();
-            } else {
-                fem << "\t-1";
-            }
-            int circPropIdx = 0;
-            for (int i=0; i<(int)circproplist.size(); i++) {
-                if (label->InCircuitName==circproplist[i]->CircName) {
-                    circPropIdx = i+1;
-                }
-            }
-            fem << "\t" << circPropIdx
-                << "\t" << label->MagDir
-                << "\t" << label->InGroup
-                << "\t" << label->Turns
-                << "\t" << (((int)label->IsExternal)<<1)+(int)label->IsDefault;
-            if (!label->MagDirFctn.empty())
-            {
-                fem << "\t\"" << label->MagDirFctn << "\"";
-            }
-            fem << "\n";
+            label->toStream(fem);
         }
     }
 
     return true;
+}
+
+void femm::FemmProblem::updateLabelsFromIndex()
+{
+    // block labels
+    for (auto &label: labellist)
+    {
+        if (label->hasBlockType())
+            label->BlockTypeName = blockproplist[label->BlockType]->BlockName;
+        if (label->isInCircuit())
+            label->InCircuitName = circproplist[label->InCircuit]->CircName;
+    }
+    // points
+    for (auto &node: nodelist)
+    {
+        if ( node->hasBoundaryMarker())
+            node->BoundaryMarkerName = nodeproplist[node->BoundaryMarker]->PointName;
+        if ( node->isInConductor())
+            node->InConductorName = circproplist[node->InConductor]->CircName;
+    }
+    // segments
+    for (auto &segm: linelist)
+    {
+        if (segm->hasBoundaryMarker())
+            segm->BoundaryMarkerName = lineproplist[segm->BoundaryMarker]->BdryName;
+        if (segm->isInConductor())
+            segm->InConductorName = circproplist[segm->InConductor]->CircName;
+    }
+    // arc segments
+    for (auto &asegm: arclist)
+    {
+        if (asegm->hasBoundaryMarker())
+            asegm->BoundaryMarkerName = lineproplist[asegm->BoundaryMarker]->BdryName;
+        if (asegm->isInConductor())
+            asegm->InConductorName = circproplist[asegm->InConductor]->CircName;
+    }
 }
 
 femm::FemmProblem::FemmProblem(FileType ftype)

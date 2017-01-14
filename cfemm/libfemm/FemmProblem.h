@@ -65,6 +65,16 @@ public:
      */
     bool saveFEMFile( std::string &filename ) const;
 
+    /**
+     * @brief Update BoundaryMarkerName and InConductorName textual references from their index.
+     * The .fem file formats store this information as integer index.
+     * The mesher uses text-based lookup, though.
+     * Therefore, the text-based references need to be set if the index based references changed.
+     *
+     * Note: FemmReader::parse() already calls this method.
+     */
+    void updateLabelsFromIndex();
+
 public: // data members
     double FileFormat; ///< \brief format version of the file
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]

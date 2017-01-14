@@ -19,8 +19,8 @@ femm::CNode::CNode()
     , y(0.)
     , InGroup(0)
     , IsSelected(false)
-    , BoundaryMarker(-1)
-    , InConductor(-1)
+    , BoundaryMarker(0)
+    , InConductor(0)
     , BoundaryMarkerName("<None>")
     , InConductorName("<None>")
 {
@@ -55,5 +55,15 @@ double femm::CNode::GetDistance(double xo, double yo)
 void femm::CNode::ToggleSelect()
 {
     IsSelected = ! IsSelected;
+}
+
+bool CNode::hasBoundaryMarker() const
+{
+    return (BoundaryMarker!=-1);
+}
+
+bool CNode::isInConductor() const
+{
+    return (InConductor!=-1);
 }
 
