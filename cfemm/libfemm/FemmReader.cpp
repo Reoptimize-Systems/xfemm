@@ -376,6 +376,8 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
                 node->y = std::stod(line, &pos);
                 line = line.substr(pos);
                 node->BoundaryMarker = std::stoi(line, &pos);
+                // correct for 1-based indexing:
+                node->BoundaryMarker--;
                 line = line.substr(pos);
 
                 if (problem->filetype == femm::HeatFlowFile)
@@ -383,24 +385,10 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
                     node->InGroup = std::stoi(line, &pos);
                     line = line.substr(pos);
                     node->InConductor = std::stoi(line, &pos);
+                    // correct for 1-based indexing:
+                    node->InConductor--;
                     line = line.substr(pos);
                 }
-                // resolve index to name:
-                // Note(ZaJ): I see no reason why we even need the string based reference in the mesher
-                int bdry = node->BoundaryMarker;
-                if (bdry==0)
-                {
-                    node->BoundaryMarkerName = "";
-                } else if (bdry>0 && bdry <= (int)problem->nodeproplist.size())
-                {
-                    node->BoundaryMarkerName = problem->nodeproplist[bdry-1]->PointName;
-                }
-                int ic = node->InConductor;
-                if (ic>0 && ic <= (int)problem->circproplist.size())
-                {
-                    node->InConductorName = problem->nodeproplist[ic-1]->PointName;
-                }
-
                 problem->nodelist.push_back(std::move(node));
             }
             // message will be printed after parsing is done
@@ -434,6 +422,8 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
                 segm->MaxSideLength = std::stod(line, &pos);
                 line = line.substr(pos);
                 segm->BoundaryMarker = std::stoi(line, &pos);
+                // correct for 1-based indexing:
+                segm->BoundaryMarker--;
                 line = line.substr(pos);
                 segm->Hidden = (0 != std::stoi(line, &pos));
                 line = line.substr(pos);
@@ -442,24 +432,10 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
                 if (problem->filetype == femm::HeatFlowFile)
                 {
                     segm->InConductor = std::stoi(line, &pos);
+                    // correct for 1-based indexing:
+                    segm->InConductor--;
                     line = line.substr(pos);
                 }
-                // resolve index to name:
-                // Note(ZaJ): I see no reason why we even need the string based reference in the mesher
-                int bdry = segm->BoundaryMarker;
-                if (bdry==0)
-                {
-                    segm->BoundaryMarkerName = "";
-                } else if (bdry>0 && bdry <= (int)problem->lineproplist.size())
-                {
-                    segm->BoundaryMarkerName = problem->lineproplist[bdry-1]->BdryName;
-                }
-                int ic = segm->InConductor;
-                if (ic>0 && ic <= (int)problem->circproplist.size())
-                {
-                    segm->InConductorName = problem->circproplist[ic-1]->CircName;
-                }
-
                 problem->linelist.push_back(std::move(segm));
             }
             // message will be printed after parsing is done
@@ -495,6 +471,8 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
                 asegm->MaxSideLength = std::stod(line, &pos);
                 line = line.substr(pos);
                 asegm->BoundaryMarker = std::stoi(line, &pos);
+                // correct for 1-based indexing:
+                asegm->BoundaryMarker--;
                 line = line.substr(pos);
                 asegm->Hidden = (0 != std::stoi(line, &pos));
                 line = line.substr(pos);
@@ -506,26 +484,10 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
                     if (!line.empty())
                     {
                         asegm->InConductor = std::stoi(line, &pos);
-                    } else {
-                        asegm->InConductor = 0;
+                        // correct for 1-based indexing:
+                        asegm->InConductor--;
                     }
                 }
-                // resolve index to name:
-                // Note(ZaJ): I see no reason why we even need the string based reference in the mesher
-                int bdry = asegm->BoundaryMarker;
-                if (bdry==0)
-                {
-                    asegm->BoundaryMarkerName = "";
-                } else if (bdry>0 && bdry <= (int)problem->lineproplist.size())
-                {
-                    asegm->BoundaryMarkerName = problem->lineproplist[bdry-1]->BdryName;
-                }
-                int ic = asegm->InConductor;
-                if (ic>0 && ic <= (int)problem->circproplist.size())
-                {
-                    asegm->InConductorName = problem->circproplist[ic-1]->CircName;
-                }
-
                 problem->arclist.push_back(std::move(asegm));
             }
             // message will be printed after parsing is done
@@ -552,6 +514,8 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
             }
         }
     }
+    // resolve text indices
+    problem->updateLabelsFromIndex();
     return success;
 }
 

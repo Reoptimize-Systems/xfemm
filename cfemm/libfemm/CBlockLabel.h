@@ -67,6 +67,17 @@ public:
     std::string InCircuitName; ///< name of associated circuit
 
     /**
+     * @brief hasBlockType
+     * @return \c true, if BlockTypeName is set, \c false otherwise.
+     */
+    bool hasBlockType() const;
+    /**
+     * @brief isInCircuit
+     * @return \c true, if InCircuitName is set, \c false otherwise.
+     */
+    bool isInCircuit() const;
+
+    /**
      * @brief fromStream constructs a CBlockLabel from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages

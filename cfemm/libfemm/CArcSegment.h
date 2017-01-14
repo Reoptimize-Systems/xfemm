@@ -44,6 +44,17 @@ public:
 
     bool NormalDirection; ///< mesher-specific property
     int cnt; ///< used by mesher for internal book keeping
+
+    /**
+     * @brief hasBoundaryMarker
+     * @return \c true, if the BoundaryMarker is set, \false otherwise
+     */
+    bool hasBoundaryMarker() const;
+    /**
+     * @brief isInConductor
+     * @return \c true, if InConductor is set, \false otherwise
+     */
+    bool isInConductor() const;
 private:
 
 };

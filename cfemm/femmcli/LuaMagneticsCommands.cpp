@@ -687,11 +687,11 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
             if (doc->labellist[i]->BlockTypeName != doc->blockproplist[k]->BlockName)
                 j++;
         }
+        // if block type set but not found:
         if ((j==(int)doc->blockproplist.size())
-                && (doc->labellist[i]->BlockTypeName!="<No Mesh>")
+                && (doc->labellist[i]->hasBlockType())
                 )
         {
-            // FIXME(ZaJ): check effects of OnBlockOp()
             //if(!hasMissingBlockProps) OnBlockOp();
             hasMissingBlockProps = true;
             doc->labellist[i]->IsSelected = true;

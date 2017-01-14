@@ -28,8 +28,8 @@ CBlockLabel::CBlockLabel()
     , IsExternal(false)
     , IsSelected(false)
     , BlockType(-1)
-    , InCircuit(0)
-    , BlockTypeName("<None>")
+    , InCircuit(-1)
+    , BlockTypeName("<No Mesh>")
     , InCircuitName("<None>")
 {
 }
@@ -49,6 +49,16 @@ void CBlockLabel::ToggleSelect()
 double CBlockLabel::GetDistance(double xo, double yo)
 {
     return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
+}
+
+bool CBlockLabel::hasBlockType() const
+{
+    return (BlockType!=-1);
+}
+
+bool CBlockLabel::isInCircuit() const
+{
+    return (InCircuit!=-1);
 }
 
 
@@ -153,9 +163,16 @@ void CMBlockLabel::toStream(ostream &out) const
     if (IsDefault)
         extDefault |= 0x02;
 
-    out << x << y << (BlockType+1) << MaxArea << (InCircuit+1) << MagDir << InGroup << Turns << extDefault;
+    out << x << "\t" << y
+        << "\t" << (BlockType+1)
+        << "\t" << sqrt(4.*MaxArea/PI)
+        << "\t" << (InCircuit+1)
+        << "\t" << MagDir
+        << "\t" << InGroup
+        << "\t" << Turns
+        << "\t" << extDefault;
     if (!MagDirFctn.empty())
-        out << "\"" << MagDirFctn << "\"";
+        out << "\t\"" << MagDirFctn << "\"";
     out << "\n";
 }
 

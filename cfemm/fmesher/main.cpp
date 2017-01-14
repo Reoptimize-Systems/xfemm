@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string.h>
 #include "fmesher.h"
+#include "FemmReader.h"
 
 using namespace femm;
 using namespace fmesher;
@@ -29,12 +30,19 @@ int main(int argc, char ** argv)
 
     // attempt to discover the file type from the file name
     MeshObj.problem->filetype = FMesher::GetFileType (FilePath);
+    bool success=false;
 
-    int status = MeshObj.LoadFEMFile(FilePath);
-
-    if (status != FMesher::F_FILE_OK)
+    if (MeshObj.problem->filetype == MagneticsFile)
     {
-        return status;
+        MagneticsReader femReader (MeshObj.problem, std::cerr);
+        success = femReader.parse(FilePath);
+    } else {
+        std::cout << "File type not supported!" << std::endl;
+    }
+
+    if (!success)
+    {
+        return -1;
     }
 
     if (MeshObj.HasPeriodicBC() == true)

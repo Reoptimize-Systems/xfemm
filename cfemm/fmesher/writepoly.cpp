@@ -155,7 +155,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
         // check to see if we are ready to write an edge datafile;
 
         if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            msg = "Couldn't write to specified .edge file";
+            msg = "Couldn't write to specified .edge file\n";
             WarnMessage(msg.c_str());
             return false;
         }
@@ -173,6 +173,8 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
 
         fclose(fp);
 
+    } else {
+        WarnMessage("No edges to write!\n");
     }
 
     // write the .ele file
@@ -434,7 +436,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // write out list of holes;
     for(i=0,j=0;i<problem->labellist.size();i++)
     {
-        if(problem->labellist[i]->BlockTypeName=="<No Mesh>")
+        if(!problem->labellist[i]->hasBlockType())
         {
             j++;
         }
@@ -535,7 +537,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             // include conductor number;
             for(j = 0; j < problem->circproplist.size (); j++)
             {
-                // add the conductor numer using a mask
+                // add the conductor number using a mask
                 if(problem->circproplist[j]->CircName == nodelst[i]->InConductorName) t += ((j+1) * 0x10000);
             }
         }
@@ -607,7 +609,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     {
         // we search through the block list looking for blocks that have
         // the tag <no mesh>
-        if(problem->labellist[i]->BlockTypeName == "<No Mesh>")
+        if(!problem->labellist[i]->hasBlockType())
         {
             in.holelist[k] = problem->labellist[i]->x;
             in.holelist[k+1] = problem->labellist[i]->y;
@@ -624,7 +626,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     for(i = 0, j = 0, k = 0; i < problem->labellist.size(); i++)
     {
-        if(problem->labellist[i]->BlockTypeName != "<No Mesh>")
+        if(problem->labellist[i]->hasBlockType())
         {
             in.regionlist[j] = problem->labellist[i]->x;
             in.regionlist[j+1] = problem->labellist[i]->y;
@@ -981,7 +983,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // write out list of holes;
     for(i=0,j=0;i<problem->labellist.size();i++)
     {
-        if(problem->labellist[i]->BlockTypeName=="<No Mesh>")
+        if(!problem->labellist[i]->hasBlockType())
         {
             j++;
         }
@@ -1119,7 +1121,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         {
             // we search through the block list looking for blocks that have
             // the tag <no mesh>
-            if(problem->labellist[i]->BlockTypeName == "<No Mesh>")
+            if(!problem->labellist[i]->hasBlockType())
             {
                 //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i]->x, blocklist[i]->y);
                 in.holelist[k] = problem->labellist[i]->x;
@@ -1142,7 +1144,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i = 0, j = 0, k = 0; i < problem->labellist.size(); i++)
     {
-        if(problem->labellist[i]->BlockTypeName != "<No Mesh>")
+        if(problem->labellist[i]->hasBlockType())
         {
 
             in.regionlist[j] = problem->labellist[i]->x;
@@ -1274,7 +1276,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // read meshlines;
     plyname = pn.substr(0,pn.find_last_of('.')) + ".edge";
     if((fp=fopen(plyname.c_str(),"rt"))==NULL){
-        WarnMessage("Call to triangle was unsuccessful");
+        WarnMessage("Call to triangle was unsuccessful\n");
         Undo();  UnselectAll();
         return -1;
     }
@@ -1991,7 +1993,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // write out list of holes;
     for(i=0,j=0;i<problem->labellist.size();i++)
     {
-        if(problem->labellist[i]->BlockTypeName=="<No Mesh>")
+        if(!problem->labellist[i]->hasBlockType())
         {
             j++;
         }
@@ -2181,7 +2183,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         // we search through the block list looking for blocks that have
         // the tag <no mesh>
-        if(problem->labellist[i]->BlockTypeName == "<No Mesh>")
+        if(!problem->labellist[i]->hasBlockType())
         {
             in.holelist[k] = problem->labellist[i]->x;
             in.holelist[k+1] = problem->labellist[i]->y;
@@ -2199,7 +2201,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i = 0, j = 0, k = 0; i < problem->labellist.size(); i++)
     {
-        if(problem->labellist[i]->BlockTypeName != "<No Mesh>")
+        if(problem->labellist[i]->hasBlockType())
         {
 
             in.regionlist[j] = problem->labellist[i]->x;
@@ -2318,7 +2320,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // and save the latest version of the document to make sure
     // any changes to arc discretization get propagated into
     // the solution description....
-    SaveFEMFile(pn);
+    //SaveFEMFile(pn);
+    problem->saveFEMFile(pn);
 
     return 0;
 }
