@@ -190,6 +190,13 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
             continue;
         }
 
+        if( token == "[prevsoln]" )
+        {
+            expectChar(input, '=', err);
+            parseString(input,&(problem->PrevSoln));
+            continue;
+        }
+
         // Option to force use of default max mesh, overriding
         // user choice
         if( token == "[forcemaxmesh]")
@@ -571,27 +578,27 @@ bool MagneticsReader::handleToken(const string &token, istream &input, ostream &
     return false;
 }
 
-//// template instantiation
-//template class FemmReader<
-//        femm::CHPointProp
-//        , femm::CHBoundaryProp
-//        , femm::CHMaterialProp
-//        , femm::CHConductor
-//        , femm::CBlockLabel
-//        >;
-//
-//HeatFlowReader::HeatFlowReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)
-//    : FemmReader_type(problem, errorpipe)
-//{
-//}
-//
-//bool HeatFlowReader::handleToken(const string &token, istream &input, ostream &err)
-//{
-//    if( token == "[dt]" )
-//    {
-//        expectChar(input, '=', err);
-//        parseValue(input, problem->dT, err);
-//        return true;
-//    }
-//    return false;
-//}
+// template instantiation
+template class FemmReader<
+        femm::CHPointProp
+        , femm::CHBoundaryProp
+        , femm::CHMaterialProp
+        , femm::CHConductor
+        , femm::CBlockLabel
+        >;
+
+HeatFlowReader::HeatFlowReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)
+    : FemmReader_type(problem, errorpipe)
+{
+}
+
+bool HeatFlowReader::handleToken(const string &token, istream &input, ostream &err)
+{
+    if( token == "[dt]" )
+    {
+        expectChar(input, '=', err);
+        parseValue(input, problem->dT, err);
+        return true;
+    }
+    return false;
+}
