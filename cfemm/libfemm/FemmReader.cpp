@@ -523,6 +523,10 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
     }
     // resolve text indices
     problem->updateLabelsFromIndex();
+    // build initial lookup maps (needed if problem is changed using lua)
+    problem->updateBlockMap();
+    problem->updateCircuitMap();
+
     return success ? F_FILE_OK : F_FILE_MALFORMED;
 }
 

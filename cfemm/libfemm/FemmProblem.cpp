@@ -250,6 +250,25 @@ void femm::FemmProblem::updateLabelsFromIndex()
     }
 }
 
+void femm::FemmProblem::updateBlockMap()
+{
+    int idx=0;
+    blockMap.clear();
+    for (auto &bprop: blockproplist)
+    {
+        blockMap[bprop->BlockName] = idx++;
+    }
+}
+void femm::FemmProblem::updateCircuitMap()
+{
+    int idx=0;
+    circuitMap.clear();
+    for (auto &circuit: circproplist)
+    {
+        circuitMap[circuit->CircName] = idx++;
+    }
+}
+
 femm::FemmProblem::FemmProblem(FileType ftype)
     : FileFormat(-1)
     , Frequency(0.0)
@@ -281,4 +300,6 @@ femm::FemmProblem::FemmProblem(FileType ftype)
     , pathName()
     //, solutionFile()
     , filetype(ftype)
+    , blockMap()
+    , circuitMap()
 {}

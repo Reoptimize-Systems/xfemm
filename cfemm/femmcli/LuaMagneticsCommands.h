@@ -48,7 +48,7 @@ protected:
     static int luaAddcontour(lua_State *L);
     static int luaAddBlocklabel(lua_State *L);
     static int luaAddline(lua_State *L);
-    static int luaAddmatprop(lua_State *L);
+    static int luaAddMatProp(lua_State *L);
     static int luaAddnode(lua_State *L);
     static int luaAddpointprop(lua_State *L);
     static int luaAnalyze(lua_State *L);

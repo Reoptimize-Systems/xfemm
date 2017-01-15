@@ -51,8 +51,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addblocklabel", luaAddBlocklabel);
     li.addFunction("mi_add_segment", luaAddline);
     li.addFunction("mi_addsegment", luaAddline);
-    li.addFunction("mi_add_material", luaAddmatprop);
-    li.addFunction("mi_addmaterial", luaAddmatprop);
+    li.addFunction("mi_add_material", luaAddMatProp);
+    li.addFunction("mi_addmaterial", luaAddMatProp);
     li.addFunction("mi_add_node", luaAddnode);
     li.addFunction("mi_addnode", luaAddnode);
     li.addFunction("mi_add_point_prop", luaAddpointprop);
@@ -411,6 +411,7 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
     if (n>2) m->CircType=(int) lua_todouble(L,3);
 
     femmState->femmDocument->circproplist.push_back(std::move(m));
+    femmState->femmDocument->updateCircuitMap();
 
     return 0;
 }
@@ -528,7 +529,7 @@ int femmcli::LuaMagneticsCommands::luaAddline(lua_State *L)
  *                lam fill, LamType, Phi hx, Phi hy, NStrands, WireD)
  * Adds a new material called "materialname" with the given material properties.
  */
-int femmcli::LuaMagneticsCommands::luaAddmatprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -585,6 +586,7 @@ int femmcli::LuaMagneticsCommands::luaAddmatprop(lua_State *L)
     }
 
     femmState->femmDocument->blockproplist.push_back(std::move(m));
+    femmState->femmDocument->updateBlockMap();
     return 0;
 }
 
@@ -809,13 +811,20 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     // filename.fem -> filename
     std::size_t dotpos = doc->pathName.find_last_of(".");
     theFSolver.PathName = doc->pathName.substr(0,dotpos);
+    theFSolver.WarnMessage = &PrintWarningMsg;
     if (!theFSolver.LoadProblemFile())
     {
         lua_error(L, "mi_analyze(): problem initializing solver!");
         return 0;
     }
-    //theFSolver.WarnMessage = [&L](const char* msg){ lua_error(L,msg);};
-    theFSolver.WarnMessage = &PrintWarningMsg;
+    assert( doc->ACSolver == theFSolver.ACSolver);
+    assert( doc->Frequency == theFSolver.Frequency);
+    assert( doc->lineproplist.size() == theFSolver.lineproplist.size());
+    assert( doc->nodeproplist.size() == theFSolver.nodeproplist.size());
+    assert( doc->blockproplist.size() == theFSolver.blockproplist.size());
+    // this does not hold, because fsolver creates additional circprops
+    // assert( doc->circproplist.size() == theFSolver.circproplist.size());
+    assert( doc->labellist.size() == theFSolver.labellist.size());
     if (!theFSolver.runSolver())
     {
         lua_error(L, "solver failed.");
@@ -2242,7 +2251,9 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
             doc->labellist[i]->MaxArea = PI*meshsize*meshsize/4.;
             doc->labellist[i]->MagDir = magdirection;
             doc->labellist[i]->BlockTypeName = blocktype;
+            doc->labellist[i]->BlockType = doc->blockMap[blocktype];
             doc->labellist[i]->InCircuitName = incircuit;
+            doc->labellist[i]->InCircuit = doc->circuitMap[incircuit];
             doc->labellist[i]->InGroup = group;
             doc->labellist[i]->Turns = turns;
             doc->labellist[i]->MagDirFctn = magdirfctn;
