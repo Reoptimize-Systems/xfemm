@@ -28,6 +28,7 @@
 #include "CSegment.h"
 #include "fparse.h"
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -75,6 +76,17 @@ public:
      */
     void updateLabelsFromIndex();
 
+    /**
+     * @brief Update the blockMap.
+     * Call this function whenever the block properties change (i.e. whenever a new element is added or a BlockName changes).
+     */
+    void updateBlockMap();
+    /**
+     * @brief Update the circuitMap.
+     * Call this function whenever the circuit properties change (i.e. whenever a new element is added or a CircuitName changes).
+     */
+    void updateCircuitMap();
+
 public: // data members
     double FileFormat; ///< \brief format version of the file
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
@@ -115,7 +127,9 @@ public: // data members
     std::string pathName; ///< \brief pathname of the associated (.fem) file, if any.
     //std::string solutionFile; ///< \brief pathname of the associated solution file (.ans), if any.
 
-    FileType filetype;
+    FileType filetype; ///< \brief file type of the problem description.
+    std::map<std::string, int> blockMap; ///< \brief a map from BlockName to block index. \sa updateBlockMap
+    std::map<std::string, int> circuitMap; ///< \brief a map from CircuitName to circuit index. \sa updateCircuitMap
 };
 
 } //namespace
