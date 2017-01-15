@@ -11,7 +11,6 @@ include_directories(../libfemm/liblua)
 include_directories(../libfemm)
 
 add_library(hsolver STATIC 
-  hmesh.h
   hsolver.cpp
   hspars.cpp
   )
