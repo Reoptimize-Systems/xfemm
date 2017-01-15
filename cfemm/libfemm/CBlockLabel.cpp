@@ -72,6 +72,10 @@ CBlockLabel CBlockLabel::fromStream(istream &input, ostream &)
     input >> prop.BlockType;
     prop.BlockType--;
     input >> prop.MaxArea;
+    if (prop.MaxArea<=0)
+        prop.MaxArea = 0;
+    else
+        prop.MaxArea *= PI * prop.MaxArea / 4.;
     input >> prop.InGroup;
 
     int extDefault;
@@ -94,7 +98,7 @@ void CBlockLabel::toStream(ostream &out) const
     if (IsDefault)
         extDefault |= 0x02;
 
-    out << x << " " << y << " " << (BlockType+1) << " " << MaxArea << " " << InGroup << " " << extDefault <<"\n";
+    out << x << "\t" << y << "\t" << (BlockType+1) << "\t" << sqrt(4.*MaxArea/PI) << "\t" << InGroup << "\t" << extDefault <<"\n";
 }
 
 CMBlockLabel::CMBlockLabel()
