@@ -285,6 +285,26 @@ int solveFile( const std::string &inputFile)
     return 1;
 }
 
+/**
+ * @brief splitArg splits a c string into two parts and appends it to two std::strings.
+ * @param cstr the source c string (e.g. "--arg=value")
+ * @param arg an existing string where the first part of cstr (e.g. "--arg") is appended.
+ * @param value an existing string where the second part of cstr (e.g. "value") is appended.
+ */
+void splitArg(const char cstr[], std::string &arg, std::string &value)
+{
+    bool isValue=false;
+    for(const char *c=cstr; *c!=0 ; c++)
+    {
+        if (*c=='=')
+            isValue = true;
+        else if (isValue)
+            value += *c;
+        else
+            arg += *c;
+    }
+}
+
 int main(int argc, char ** argv)
 {
     std::string exe { argv[0] };
@@ -298,22 +318,43 @@ int main(int argc, char ** argv)
 
     for(int i=1; i<argc; i++)
     {
-        const std::string arg { argv[i] };
-        if (arg.substr(0,13) == "--lua-script=")
+        std::string arg;
+        std::string value;
+        splitArg(argv[i],arg,value);
+        bool setInputFile=false;
+        if (arg == "--lua-script")
         {
-            inputFile = arg.substr(13);
             opMode = LuaMode;
-            continue;
+            setInputFile=true;
         }
-        if (arg.substr(0,13) == "--solve-file=")
+        if (arg == "--solve-file")
         {
-            inputFile = arg.substr(13);
             opMode = SolverMode;
+            setInputFile=true;
+        }
+        if (setInputFile)
+        {
+            // allow both "--arg=value" and "--arg value"
+            if (value.empty())
+            {
+                i++;
+                if (i<argc)
+                    inputFile = argv[i];
+            } else {
+                inputFile = value;
+            }
             continue;
         }
-        if (arg.substr(0,11) == "--lua-init=")
+        if (arg == "--lua-init")
         {
-            luaInit = arg.substr(11);
+            if (value.empty())
+            {
+                i++;
+                if (i<argc)
+                    luaInit = argv[i];
+            } else {
+                luaInit = value;
+            }
             std::cerr << "Using custom init.lua: " << luaInit << std::endl;
             continue;
         }
