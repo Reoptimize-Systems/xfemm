@@ -494,32 +494,38 @@ void CComplex::operator=(long z)
 }
 
 //***** Tests ***********************************************
-bool CComplex::operator==( const CComplex& z){
+bool CComplex::operator==( const CComplex& z) const
+{
 	if ((z.im==im) && (z.re==re)) return true;
 	return false;
 }
 
-bool CComplex::operator==(double z){
+bool CComplex::operator==(double z) const
+{
 	if ((z==re) && (im==0)) return true;
 	return false;
 }
 
-bool CComplex::operator==(int z){
+bool CComplex::operator==(int z) const
+{
 	if ((re==(double) z) && (im==0)) return true;
 	return false;
 }
 
-bool CComplex::operator!=( const CComplex& z) const {
+bool CComplex::operator!=( const CComplex& z) const
+{
 	if ((z.re==re) && (z.im==im)) return false;
 	return true;
 }
 
-bool CComplex::operator!=(double z){
+bool CComplex::operator!=(double z) const
+{
 	if ((re!=z) || (im!=0)) return true;
 	return false;
 }
 
-bool CComplex::operator!=(int z){
+bool CComplex::operator!=(int z) const
+{
 	if ((re!=(double) z) || (im!=0)) return true;
 	return false;
 }
@@ -528,32 +534,38 @@ bool CComplex::operator!=(int z){
 
 
 
-bool CComplex::operator<( const CComplex& z){
+bool CComplex::operator<( const CComplex& z) const
+{
 	if (re<z.re) return true;
 	return false;
 }
 
-bool CComplex::operator<(double z){
+bool CComplex::operator<(double z) const
+{
 	if (re<z) return true;
 	return false;
 }
 
-bool CComplex::operator<(int z){
+bool CComplex::operator<(int z) const
+{
 	if (re<(double) z) return true;
 	return false;
 }
 
-bool CComplex::operator>( const CComplex& z){
+bool CComplex::operator>( const CComplex& z) const
+{
 	if (re>z.re) return true;
 	return false;
 }
 
-bool CComplex::operator>(double z){
+bool CComplex::operator>(double z) const
+{
 	if (re>z) return true;
 	return false;
 }
 
-bool CComplex::operator>(int z){
+bool CComplex::operator>(int z) const
+{
 	if (re>(double) z) return true;
 	return false;
 }
@@ -562,32 +574,38 @@ bool CComplex::operator>(int z){
 
 
 
-bool CComplex::operator<=( const CComplex& z){
+bool CComplex::operator<=( const CComplex& z) const
+{
 	if (re<=z.re) return true;
 	return false;
 }
 
-bool CComplex::operator<=(double z){
+bool CComplex::operator<=(double z) const
+{
 	if (re<=z) return true;
 	return false;
 }
 
-bool CComplex::operator<=(int z){
+bool CComplex::operator<=(int z) const
+{
 	if (re<=(double) z) return true;
 	return false;
 }
 
-bool CComplex::operator>=( const CComplex& z){
+bool CComplex::operator>=( const CComplex& z) const
+{
 	if (re>=z.re) return true;
 	return false;
 }
 
-bool CComplex::operator>=(double z){
+bool CComplex::operator>=(double z) const
+{
 	if (re>=z) return true;
 	return false;
 }
 
-bool CComplex::operator>=(int z){
+bool CComplex::operator>=(int z) const
+{
 	if (re>=(double) z) return true;
 	return false;
 }
