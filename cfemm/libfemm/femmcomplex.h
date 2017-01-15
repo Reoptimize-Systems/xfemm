@@ -100,29 +100,29 @@ public:
     void operator=(long z);
 
     //Tests
-    bool operator==( const CComplex& z);
-    bool operator==(double z);
-    bool operator==(int z);
+    bool operator==( const CComplex& z) const;
+    bool operator==(double z) const;
+    bool operator==(int z) const;
 
     bool operator!=( const CComplex& z) const;
-    bool operator!=(double z);
-    bool operator!=(int z);
+    bool operator!=(double z) const;
+    bool operator!=(int z) const;
 
-    bool operator<( const CComplex& z);
-    bool operator<( double z);
-    bool operator<( int z);
+    bool operator<( const CComplex& z) const;
+    bool operator<( double z) const;
+    bool operator<( int z) const;
 
-    bool operator<=( const CComplex& z);
-    bool operator<=( double z);
-    bool operator<=( int z);
+    bool operator<=( const CComplex& z) const;
+    bool operator<=( double z) const;
+    bool operator<=( int z) const;
 
-    bool operator>( const CComplex& z);
-    bool operator>( double z);
-    bool operator>( int z);
+    bool operator>( const CComplex& z) const;
+    bool operator>( double z) const;
+    bool operator>( int z) const;
 
-    bool operator>=( const CComplex& z);
-    bool operator>=( double z);
-    bool operator>=( int z);
+    bool operator>=( const CComplex& z) const;
+    bool operator>=( double z) const;
+    bool operator>=( int z) const;
 
 
 private:
