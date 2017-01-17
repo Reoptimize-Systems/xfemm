@@ -206,33 +206,33 @@ char* CComplex::ToStringAlt(char *s)
 CComplex CComplex::operator+( const CComplex& z )
 {
 	return CComplex(re+z.re,im+z.im);
-};
+}
 
 CComplex CComplex::operator+( int z )
 {
 	return CComplex(re+((double) z),im);
-};
+}
 
 CComplex CComplex::operator+( double z )
 {
 	return CComplex(re+z,im);
-};
+}
 
 void CComplex::operator+=( const CComplex& z)
 {
 	re+=z.re;
 	im+=z.im;
-};
+}
 
 void CComplex::operator+=( double z )
 {
 	re+=z;
-};
+}
 
 void CComplex::operator+=( int z )
 {
 	re+=(double) z;
-};
+}
 
 CComplex operator+( int x, const CComplex& y )
 {
@@ -259,33 +259,33 @@ CComplex CComplex::operator-()
 CComplex CComplex::operator-( const CComplex& z)
 {
 	return CComplex(re-z.re,im-z.im);
-};
+}
 
 CComplex CComplex::operator-( int z )
 {
 	return CComplex(re-((double) z),im);
-};
+}
 
 CComplex CComplex::operator-( double z )
 {
 	return CComplex(re-z,im);
-};
+}
 
 void CComplex::operator-=( const CComplex& z)
 {
 	re-=z.re;
 	im-=z.im;
-};
+}
 
 void CComplex::operator-=( double z )
 {
 	re-=z;
-};
+}
 
 void CComplex::operator-=( int z )
 {
 	re-=(double) z;
-};
+}
 
 CComplex operator-( int x, const CComplex& y )
 {
@@ -311,34 +311,34 @@ CComplex operator-( const CComplex& y )
 CComplex CComplex::operator*( const CComplex& z)
 {
 	return CComplex(re*z.re - im*z.im,re*z.im + im*z.re);
-};
+}
 
 CComplex CComplex::operator*( int z )
 {
 	return CComplex( re*((double) z),im*((double) z) );
-};
+}
 
 CComplex CComplex::operator*( double z )
 {
 	return CComplex(re*z,im*z);
-};
+}
 
 void CComplex::operator*=( const CComplex& z)
 {
 	CComplex x(re*z.re - im*z.im,re*z.im + im*z.re);
 	re=x.re; im=x.im;
-};
+}
 
 void CComplex::operator*=( double z )
 {
 	re*=z; im*=z;
-};
+}
 
 void CComplex::operator*=( int z )
 {
 	re*=(double) z;
 	im*=(double) z;
-};
+}
 
 CComplex operator*( int x, const CComplex& y )
 {
@@ -375,35 +375,35 @@ CComplex CComplex::operator/( const CComplex& z)
 	}
 
 	return *this * y;
-};
+}
 
 
 CComplex CComplex::operator/( int z )
 {
 	return CComplex(re/((double) z),im/((double) z));
-};
+}
 
 CComplex CComplex::operator/( double z )
 {
 	return CComplex(re/z,im/z);
-};
+}
 
 void CComplex::operator/=( const CComplex& z)
 {
 	*this=*this/z;
-};
+}
 
 void CComplex::operator/=( double z )
 {
 	re/=z;
 	im/=z;
-};
+}
 
 void CComplex::operator/=( int z )
 {
 	re/=(double) z;
 	im/=(double) z;
-};
+}
 
 CComplex operator/( int x, const CComplex& z )
 {
