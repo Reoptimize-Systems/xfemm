@@ -33,6 +33,7 @@ namespace femm {
 class CElement
 {
 public:
+    CElement();
 
     int p[3];
     int e[3]; // from feasolver
@@ -44,8 +45,6 @@ public:
     CComplex ctr;  //from fpproc
     double rsqr;  //from fpproc
     int n[3];  //from fpproc; 3 ints to store elem's neighbouring elements
-
-private:
 };
 
 }

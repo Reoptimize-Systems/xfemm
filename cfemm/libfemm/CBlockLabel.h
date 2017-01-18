@@ -49,12 +49,12 @@ public:
 
     double x,y;
     double MaxArea;  ///< desired mesh size
-    double MagDir;   ///< magnetization direction (\c deg)
+    double MagDir;   ///< magnetization direction (\c deg), if constant. \sa MagDirFctn
     int InGroup;     ///< number of the group
     int    Turns;    ///< number of turns
     bool IsExternal; ///< is located in external region
 
-    std::string MagDirFctn; ///< additional property for fpproc
+    std::string MagDirFctn; ///< \brief Lua expression describing magnetization direction
     bool IsDefault;  ///< additional property for hpproc
 
     bool IsSelected;
@@ -77,13 +77,6 @@ public:
      */
     bool isInCircuit() const;
 
-    /**
-     * @brief fromStream constructs a CBlockLabel from an input stream (usually an input file stream)
-     * @param input
-     * @param err output stream for error messages
-     * @return a CBlockLabel
-     */
-    static CBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
     /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and
@@ -116,7 +109,6 @@ public:
     bool bIsWound; ///< true, if Turns>1, but also in some other conditions; set by \c FSolver::GetFillFactor()
 
     //---- fpproc attributes:
-    std::string MagDirFctn;
     int Case;
     CComplex  J,dVolts;
     // attributes used to keep track of wound coil properties...
@@ -130,11 +122,31 @@ public:
      * @return a CMSolverBlockLabel
      */
     static CMBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
-    virtual void toStream( std::ostream &out ) const override;
 private:
 
 };
 
+class CHBlockLabel : public CBlockLabel
+{
+public:
+    CHBlockLabel();
+
+    /**
+     * @brief fromStream constructs a CBlockLabel from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CBlockLabel
+     */
+    static CHBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
+    /**
+     * @brief toStream serializes the data and inserts it into \p out.
+     * This virtual method is called by the \c operator<<() and
+     * needs to be overridden by any subclass.
+     *
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const;
+};
 
 }
 #endif

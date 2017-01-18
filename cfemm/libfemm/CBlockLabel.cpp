@@ -26,6 +26,8 @@ CBlockLabel::CBlockLabel()
     , InGroup(0)
     , Turns(1)
     , IsExternal(false)
+    , MagDirFctn()
+    , IsDefault(false)
     , IsSelected(false)
     , BlockType(-1)
     , InCircuit(-1)
@@ -62,34 +64,6 @@ bool CBlockLabel::isInCircuit() const
 }
 
 
-CBlockLabel CBlockLabel::fromStream(istream &input, ostream &)
-{
-    CBlockLabel prop;
-
-    // scan in data
-    input >> prop.x;
-    input >> prop.y;
-    input >> prop.BlockType;
-    prop.BlockType--;
-    input >> prop.MaxArea;
-    if (prop.MaxArea<=0)
-        prop.MaxArea = 0;
-    else
-        prop.MaxArea *= PI * prop.MaxArea / 4.;
-    input >> prop.InGroup;
-
-    int extDefault;
-    input >> extDefault;
-    // second last bit in extDefault flag, we mask the other bits
-    // and take the resulting value, if not zero it will evaluate to true
-    prop.IsDefault  = extDefault & 2;
-    // last bit in extDefault flag, we mask the other bits
-    // and take the resulting value, if not zero it will evaluate to true
-    prop.IsExternal = extDefault & 1;
-
-    return prop;
-}
-
 void CBlockLabel::toStream(ostream &out) const
 {
     int extDefault = 0;
@@ -98,14 +72,23 @@ void CBlockLabel::toStream(ostream &out) const
     if (IsDefault)
         extDefault |= 0x02;
 
-    out << x << "\t" << y << "\t" << (BlockType+1) << "\t" << sqrt(4.*MaxArea/PI) << "\t" << InGroup << "\t" << extDefault <<"\n";
+    out << x << "\t" << y
+        << "\t" << (BlockType+1)
+        << "\t" << sqrt(4.*MaxArea/PI)
+        << "\t" << (InCircuit+1)
+        << "\t" << MagDir
+        << "\t" << InGroup
+        << "\t" << Turns
+        << "\t" << extDefault;
+    if (!MagDirFctn.empty())
+        out << "\t\"" << MagDirFctn << "\"";
+    out << "\n";
 }
 
 CMBlockLabel::CMBlockLabel()
     : CBlockLabel()
     , ProximityMu(0)
     , bIsWound(false)
-    , MagDirFctn()
     , Case(0)
     , J(0.)
     , dVolts(0.)
@@ -144,7 +127,7 @@ CMBlockLabel CMBlockLabel::fromStream(istream &input, ostream &)
     inputStream >> prop.InGroup;
     inputStream >> prop.Turns;
 
-    int extDefault;
+    int extDefault = 0;
     inputStream >> extDefault;
     // second last bit in extDefault flag, we mask the other bits
     // and take the resulting value, if not zero it will evaluate to true
@@ -159,7 +142,47 @@ CMBlockLabel CMBlockLabel::fromStream(istream &input, ostream &)
     return prop;
 }
 
-void CMBlockLabel::toStream(ostream &out) const
+
+ostream &operator<<(ostream &os, const CBlockLabel &lbl)
+{
+    lbl.toStream(os);
+    return os;
+}
+
+CHBlockLabel::CHBlockLabel()
+    : CBlockLabel()
+{
+}
+
+CHBlockLabel CHBlockLabel::fromStream(istream &input, ostream &)
+{
+    CHBlockLabel prop;
+
+    // scan in data
+    input >> prop.x;
+    input >> prop.y;
+    input >> prop.BlockType;
+    prop.BlockType--;
+    input >> prop.MaxArea;
+    if (prop.MaxArea<=0)
+        prop.MaxArea = 0;
+    else
+        prop.MaxArea *= PI * prop.MaxArea / 4.;
+    input >> prop.InGroup;
+
+    int extDefault;
+    input >> extDefault;
+    // second last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    prop.IsDefault  = extDefault & 2;
+    // last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    prop.IsExternal = extDefault & 1;
+
+    return prop;
+}
+
+void CHBlockLabel::toStream(ostream &out) const
 {
     int extDefault = 0;
     if (IsExternal)
@@ -170,18 +193,7 @@ void CMBlockLabel::toStream(ostream &out) const
     out << x << "\t" << y
         << "\t" << (BlockType+1)
         << "\t" << sqrt(4.*MaxArea/PI)
-        << "\t" << (InCircuit+1)
-        << "\t" << MagDir
         << "\t" << InGroup
-        << "\t" << Turns
-        << "\t" << extDefault;
-    if (!MagDirFctn.empty())
-        out << "\t\"" << MagDirFctn << "\"";
-    out << "\n";
-}
-
-ostream &operator<<(ostream &os, const CBlockLabel &lbl)
-{
-    lbl.toStream(os);
-    return os;
+        << "\t" << extDefault
+        <<"\n";
 }
