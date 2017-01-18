@@ -1409,7 +1409,20 @@ bool FMesher::AddBlockLabel(double x, double y, double d)
 
     // if all is OK, add point in to the node list...
     if(!exists){
-        std::unique_ptr<CBlockLabel> pt = std::make_unique<CBlockLabel>(x,y);
+        std::unique_ptr<CBlockLabel> pt;
+        switch (problem->filetype) {
+        case MagneticsFile:
+            pt = std::make_unique<CMBlockLabel>();
+            break;
+        case HeatFlowFile:
+            pt = std::make_unique<CHBlockLabel>();
+            break;
+        default:
+            assert(false && "Unhandled file type");
+            break;
+        }
+        pt->x = x;
+        pt->y = y;
         problem->labellist.push_back(std::move(pt));
     }
 
