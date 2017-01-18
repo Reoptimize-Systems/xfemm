@@ -588,7 +588,7 @@ template class FemmReader<
         , femm::CHBoundaryProp
         , femm::CHMaterialProp
         , femm::CHConductor
-        , femm::CBlockLabel
+        , femm::CHBlockLabel
         >;
 
 HeatFlowReader::HeatFlowReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)

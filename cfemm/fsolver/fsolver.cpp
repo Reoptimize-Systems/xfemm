@@ -139,6 +139,7 @@ bool FSolver::LoadProblemFile ()
         if(labellist[k].InCircuit>=0)
         {
             int ic=labellist[k].InCircuit;
+            assert(ic < (int)circproplist.size());
             if(circproplist[ic].CircType==1)
             {
                 ncirc=circproplist[ic];

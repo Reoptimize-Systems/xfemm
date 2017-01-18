@@ -122,7 +122,7 @@ class HeatFlowReader : public FemmReader<
         , femm::CHBoundaryProp
         , femm::CHMaterialProp
         , femm::CHConductor
-        , femm::CBlockLabel
+        , femm::CHBlockLabel
         >
 {
 public:
