@@ -70,6 +70,7 @@ protected:
 public:
 
     enum loaderrors { F_FILE_OK, F_FILE_UNKNOWN_TYPE, F_FILE_NOT_OPENED, F_FILE_MALFORMED};
+    enum EditType { EditNodes = 0, EditLines = 1, EditLabels = 2, EditArcs = 3, EditGroup = 4, EditTypeInvalid };
 
     explicit FMesher();
     explicit FMesher(std::string);
@@ -133,8 +134,21 @@ public:
 	double ShortestDistance(double p, double q, int segm);
 
 
-	void EnforcePSLG();	// makes sure that everything is kosher...
-	void EnforcePSLG(double tol);
+    /**
+     * @brief EnforcePSLG
+     * Makes sure that there are no:
+     * 1. no duplicate points
+     * 2. no intersections between line segments, lines and arcs, or arcs
+     * 3. no duplicate block labels
+     * 4. no overlapping lines or arcs.
+     *
+     * @param tol tolerance
+     *
+     * \internal
+     * We do this by cleaning out the various lists, and rebuilding them
+     * using the ``add'' functions that ensure that things come out right.
+     */
+    void EnforcePSLG(double tol=0);
 	void FancyEnforcePSLG(double tol);
 
     // pointer to function to call when issuing warning messages
@@ -153,6 +167,19 @@ public:
      * @return \c true, if the node could be added, \c false otherwise.
      */
     bool AddNode(double x, double y, double d);
+    /**
+     * @brief Add a CNode to the problem description.
+     * If necessary, adjust existing CSegments or CArcSegments.
+     * The method also ensures that a new node can't be put atop of an existing node or a block label.
+     *
+     * In contrast to the AddNode(double,double,double), this signature needs an existing CNode rvalue reference that is invalidated by this call.
+     * Normally, you want to call the other variant.
+     *
+     * @param node the node to add.
+     * @param d minimum distance to next node or label.
+     * @return \c true, if the node could be added, \c false otherwise.
+     */
+    bool AddNode(std::unique_ptr<femm::CNode> &&node, double d);
     /**
      * @brief Add a line (CSegment) to the problem description
      * The method checks for intersections, splits existing lines/arcs accordingly,
@@ -175,7 +202,7 @@ public:
      * @param tol tolerance, i.e. minimum distance between nodes
      * @return \c true, if the line could be added, \c false otherwise.
      */
-    bool AddSegment(int n0, int n1, femm::CSegment *parsegm, double tol=0.);
+    bool AddSegment(int n0, int n1, const femm::CSegment *parsegm, double tol=0.);
     /**
      * @brief Add a block label to the problem description.
      * The method ensures that a block label can not be added on top
@@ -187,6 +214,19 @@ public:
      */
     bool AddBlockLabel(double x, double y, double d);
     /**
+     * @brief Add a block label to the problem description.
+     * The method ensures that a block label can not be added on top
+     * of another label, node or line.
+     *
+     * In contrast to the AddBlockLabel(double,double,double), this signature needs an existing CBlockLabel rvalue reference that is invalidated by this call.
+     * Normally, you want to call the other variant.
+     *
+     * @param label the label to add
+     * @param d minimum distance to next node or label.
+     * @return \c true if the label could be added or a block label already exists at that position, \c false otherwise.
+     */
+    bool AddBlockLabel(std::unique_ptr<femm::CBlockLabel> &&label, double d);
+    /**
      * @brief Add an arc segment to the problem description.
      * This method takes care of intersections with other nodes or lines, and splits the arc segment if necessary.
      * No degenerate arc segments (with start point == end point) can be added.
@@ -195,6 +235,14 @@ public:
      * @return \c true if the arc segment could be added, \c false otherwise.
      */
     bool AddArcSegment(femm::CArcSegment &asegm, double tol=0.);
+
+    /**
+     * @brief Translate the selected objects of the requested type.
+     * @param dx
+     * @param dy
+     * @param selector
+     */
+    void TranslateMove(double dx, double dy, EditType selector);
     /**
      * @brief Delete all selected segments.
      * @return \c true, if any segments were deleted, \c false otherwise.

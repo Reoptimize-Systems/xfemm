@@ -269,6 +269,17 @@ void femm::FemmProblem::updateCircuitMap()
     }
 }
 
+void femm::FemmProblem::invalidateMesh()
+{
+    meshnodes.clear();
+    meshelems.clear();
+}
+
+bool femm::FemmProblem::isMeshed() const
+{
+    return !(meshelems.empty() && meshnodes.empty());
+}
+
 femm::FemmProblem::FemmProblem(FileType ftype)
     : FileFormat(-1)
     , Frequency(0.0)
