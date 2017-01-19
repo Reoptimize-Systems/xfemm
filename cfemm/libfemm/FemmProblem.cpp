@@ -280,6 +280,157 @@ bool femm::FemmProblem::isMeshed() const
     return !(meshelems.empty() && meshnodes.empty());
 }
 
+bool femm::FemmProblem::consistencyCheckOK() const
+{
+    using std::to_string;
+    bool ok = true;
+    // block labels
+    for (const auto &label: labellist)
+    {
+        if (label->hasBlockType())
+        {
+            int idx = label->BlockType;
+            if ( idx < 0 || idx >= (int)blockproplist.size() )
+            {
+                std::cerr << "Label has invalid block type index: " << to_string(idx)
+                          << " (0 <= index < " << to_string(blockproplist.size()) << ")\n";
+                ok = false;
+            } else if (label->BlockTypeName != blockproplist[idx]->BlockName)
+            {
+                std::cerr << "Label has inconsistent block type name: " << label->BlockTypeName
+                          << ", but block type " << to_string(idx)
+                          << " has name " << blockproplist[idx]->BlockName << "\n";
+                ok = false;
+            }
+        }
+        if (label->isInCircuit())
+        {
+            int idx = label->InCircuit;
+            if ( idx < 0 || idx >= (int)circproplist.size() )
+            {
+                std::cerr << "Label has invalid circuit index: " << to_string(idx)
+                          << " (0 <= index < " << to_string(circproplist.size()) << ")\n";
+                ok = false;
+            } else if (label->InCircuitName != circproplist[idx]->CircName)
+            {
+                std::cerr << "Label has inconsistent circuit name: " << label->InCircuitName
+                          << ", but circuit " << to_string(idx)
+                          << " has name " << circproplist[idx]->CircName << "\n";
+                ok = false;
+            }
+        }
+    }
+    // points
+    for (const auto &node: nodelist)
+    {
+        if (node->hasBoundaryMarker())
+        {
+            int idx = node->BoundaryMarker;
+            if ( idx < 0 || idx >= (int)nodeproplist.size() )
+            {
+                std::cerr << "Point has invalid boundary marker index: " << to_string(idx)
+                          << " (0 <= index < " << to_string(nodeproplist.size()) << ")\n";
+                ok = false;
+            } else if (node->BoundaryMarkerName != nodeproplist[idx]->PointName)
+            {
+                std::cerr << "Point has inconsistent boundary marker name: " << node->BoundaryMarkerName
+                          << ", but boundary marker " << to_string(idx)
+                          << " has name " << nodeproplist[idx]->PointName << "\n";
+                ok = false;
+            }
+        }
+        if (node->isInConductor())
+        {
+            int idx = node->InConductor;
+            if ( idx < 0 || idx >= (int)circproplist.size() )
+            {
+                std::cerr << "Point has invalid conductor index: " << to_string(idx)
+                          << " (0 <= index < " << to_string(circproplist.size()) << ")\n";
+                ok = false;
+            } else if (node->InConductorName != circproplist[idx]->CircName)
+            {
+                std::cerr << "Point has inconsistent conductor name: " << node->InConductorName
+                          << ", but conductor " << to_string(idx)
+                          << " has name " << circproplist[idx]->CircName << "\n";
+                ok = false;
+            }
+        }
+    }
+    // segments
+    for (const auto &segm: linelist)
+    {
+        if (segm->hasBoundaryMarker())
+        {
+            int idx = segm->BoundaryMarker;
+            if ( idx < 0 || idx >= (int)lineproplist.size() )
+            {
+                std::cerr << "Line has invalid boundary marker index: " << to_string(idx)
+                          << " (0 <= index < " << to_string(lineproplist.size()) << ")\n";
+                ok = false;
+            } else if (segm->BoundaryMarkerName != lineproplist[idx]->BdryName)
+            {
+                std::cerr << "Line has inconsistent boundary marker name: " << segm->BoundaryMarkerName
+                          << ", but boundary marker " << to_string(idx)
+                          << " has name " << lineproplist[idx]->BdryName << "\n";
+                ok = false;
+            }
+        }
+        if (segm->isInConductor())
+        {
+            int idx = segm->InConductor;
+            if ( idx < 0 || idx >= (int)circproplist.size() )
+            {
+                std::cerr << "Point has invalid circuit index: " << to_string(idx)
+                          << " (0 <= index < " << to_string(circproplist.size()) << ")\n";
+                ok = false;
+            } else if (segm->InConductorName != circproplist[idx]->CircName)
+            {
+                std::cerr << "Point has inconsistent circuit name: " << segm->InConductorName
+                          << ", but circuit " << to_string(idx)
+                          << " has name " << circproplist[idx]->CircName << "\n";
+                ok = false;
+            }
+        }
+    }
+    // arc segments
+    for (const auto &asegm: arclist)
+    {
+        if (asegm->hasBoundaryMarker())
+        {
+            int idx = asegm->BoundaryMarker;
+            if ( idx < 0 || idx >= (int)lineproplist.size() )
+            {
+                std::cerr << "Line has invalid boundary marker index: " << to_string(idx)
+                          << " (0 <= index < " << to_string(lineproplist.size()) << ")\n";
+                ok = false;
+            } else if (asegm->BoundaryMarkerName != lineproplist[idx]->BdryName)
+            {
+                std::cerr << "Line has inconsistent boundary marker name: " << asegm->BoundaryMarkerName
+                          << ", but boundary marker " << to_string(idx)
+                          << " has name " << lineproplist[idx]->BdryName << "\n";
+                ok = false;
+            }
+        }
+        if (asegm->isInConductor())
+        {
+            int idx = asegm->InConductor;
+            if ( idx < 0 || idx >= (int)circproplist.size() )
+            {
+                std::cerr << "Point has invalid circuit index: " << to_string(idx)
+                          << " (0 <= index < " << to_string(circproplist.size()) << ")\n";
+                ok = false;
+            } else if (asegm->InConductorName != circproplist[idx]->CircName)
+            {
+                std::cerr << "Point has inconsistent circuit name: " << asegm->InConductorName
+                          << ", but circuit " << to_string(idx)
+                          << " has name " << circproplist[idx]->CircName << "\n";
+                ok = false;
+            }
+        }
+    }
+    return ok;
+}
+
 femm::FemmProblem::FemmProblem(FileType ftype)
     : FileFormat(-1)
     , Frequency(0.0)
