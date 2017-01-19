@@ -1556,15 +1556,73 @@ int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Translate selected objects by a given vector.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_move_translate()}
+ *
+ * \internal
+ * mi_movetranslate(dx,dy,(editaction))
+ * * dx,dy – distance by which the selected objects are shifted.
+ * * editaction:
+ *   * 0: nodes
+ *   * 1: lines (segments)
+ *   * 2: block labels
+ *   * 3: arc segments
+ *   * 4: group
  */
 int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if( n<2 || n>3)
+    {
+        lua_error(L,"Invalid number of parameters for move translate!\n");
+        return 0;
+    }
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+
+    fmesher::FMesher::EditType editAction;
+    if (n==3)
+    {
+        int action = (int)lua_todouble(L,3);
+        switch (action) {
+        case 0: editAction = fmesher::FMesher::EditNodes;
+            break;
+        case 1: editAction = fmesher::FMesher::EditLines;
+            break;
+        case 2: editAction = fmesher::FMesher::EditLabels;
+            break;
+        case 3: editAction = fmesher::FMesher::EditArcs;
+            break;
+        case 4: editAction = fmesher::FMesher::EditGroup;
+            break;
+        default:
+            lua_error(L, "mi_movetranslate(): Invalid value of editaction!\n");
+            return 0;
+            break;
+        }
+    } else {
+        // some configured default value:
+        // editAction=theView->EditAction;
+        // to avoid subtle bugs, bail out:
+        lua_error(L, "mi_movetranslate(): edittype was omitted, but there is no default value!\n");
+        return 0;
+    }
+
+    mesher->UpdateUndo();
+    mesher->TranslateMove(x,y,editAction);
+    // Note(ZaJ): shouldn't the invalidation be done by translateMove?
+    doc->invalidateMesh();
+    //mesher->greymeshline.RemoveAll();
+
     return 0;
 }
 
@@ -1857,7 +1915,6 @@ int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     if (const char* s=lua_tostring(L,1))
     {

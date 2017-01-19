@@ -334,6 +334,83 @@ double FMesher::ShortestDistance(double p, double q, int segm)
     return sqrt((p-x[2])*(p-x[2]) + (q-y[2])*(q-y[2]));
 }
 
+void FMesher::EnforcePSLG(double tol)
+{
+    std::vector< std::unique_ptr<CNode>> newnodelist;
+    std::vector< std::unique_ptr<CSegment>> newlinelist;
+    std::vector< std::unique_ptr<CArcSegment>> newarclist;
+    std::vector< std::unique_ptr<CBlockLabel>> newlabellist;
+
+    // save existing objects into new*list:
+    newnodelist.swap(problem->nodelist);
+    newlinelist.swap(problem->linelist);
+    newarclist.swap(problem->arclist);
+    newlabellist.swap(problem->labellist);
+
+    // find out what tolerance is so that there are not nodes right on
+    // top of each other;
+    double d = tol;
+    if (tol==0)
+    {
+        if (newnodelist.size()==1)
+            d = 1.e-08;
+        else
+        {
+            CComplex p0 = newnodelist[0]->CC();
+            CComplex p1 = p0;
+            for (int i=1; i<(int)newnodelist.size(); i++)
+            {
+                if(newnodelist[i]->x<p0.re) p0.re = newnodelist[i]->x;
+                if(newnodelist[i]->x>p1.re) p1.re = newnodelist[i]->x;
+                if(newnodelist[i]->y<p0.im) p0.im = newnodelist[i]->y;
+                if(newnodelist[i]->y>p1.im) p1.im = newnodelist[i]->y;
+            }
+            d = abs(p1-p0)*CLOSE_ENOUGH;
+        }
+    }
+
+    // put in all of the nodes;
+    for (auto &node: newnodelist)
+    {
+        AddNode(std::move(node), d);
+    }
+
+    // put in all of the lines;
+    for (const auto &line: newlinelist)
+    {
+        // Note(ZaJ): the original code uses a variant of AddSegment that uses coordinates instead of node indices.
+        // since I don't see any advantage to that, I just use the regular AddSegment method:
+        //CComplex p0 (newnodelist[line->n0]->x, newnodelist[line->n0]->y);
+        //CComplex p1 (newnodelist[line->n1]->x, newnodelist[line->n1]->y);
+        //AddSegment(p0,p1,newlinelist[i]);
+
+        // using the raw pointer is ok here, because AddSegment creates a copy anyways
+        AddSegment(line->n0, line->n1, line.get(), d);
+    }
+
+    // put in all of the arcs;
+    for (const auto &arc: newarclist)
+    {
+        // Note(ZaJ): the original code uses a variant of AddArcSegment that uses coordinates instead of the node indices
+        // since I don't see any advantage to that, I just use the regular AddArcSegment method:
+        //CComplex p0 (newnodelist[arc->n0]->x, newnodelist[arc->n0]->y);
+        //CComplex p1 (newnodelist[arc->n1]->x, newnodelist[arc->n1]->y);
+        //AddArcSegment(p0,p1,newarclist[i]);
+
+        // using the raw pointer is ok here, because AddArcSegment creates a copy anyways
+        AddArcSegment(*arc.get(), d);
+    }
+
+    // put in all of the block labels;
+    for (auto &label: newlabellist)
+    {
+        AddBlockLabel(std::move(label), d);
+    }
+
+    UnselectAll();
+    return;
+}
+
 int FMesher::ClosestSegment(double x, double y)
 {
     double d0,d1;
@@ -1388,9 +1465,94 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
     return true;
 }
 
+void FMesher::TranslateMove(double dx, double dy, FMesher::EditType selector)
+{
+    assert(selector != EditTypeInvalid);
+    bool processNodes = (selector == EditNodes);
+
+    if (selector == EditLines || selector == EditGroup)
+    {
+        // select end points of selected lines:
+        for (auto &line: problem->linelist)
+        {
+            if (line->IsSelected)
+            {
+                problem->nodelist[line->n0]->IsSelected = true;
+                problem->nodelist[line->n1]->IsSelected = true;
+            }
+        }
+        // make sure to translate endpoints
+        processNodes = true;
+    }
+    if (selector == EditArcs || selector == EditGroup)
+    {
+        // select end points of selected arcs:
+        for (auto &arc: problem->arclist)
+        {
+            if (arc->IsSelected)
+            {
+                problem->nodelist[arc->n0]->IsSelected = true;
+                problem->nodelist[arc->n1]->IsSelected = true;
+            }
+        }
+        // make sure to translate endpoints
+        processNodes = true;
+    }
+
+    if (selector == EditLabels || selector == EditGroup)
+    {
+        for (auto &lbl: problem->labellist)
+        {
+            if (lbl->IsSelected)
+            {
+                lbl->x += dx;
+                lbl->y += dy;
+            }
+        }
+        // only enforce PSLG if we don't do it later
+        if (!processNodes)
+            EnforcePSLG();
+    }
+    if (processNodes)
+    {
+        for (auto &node: problem->nodelist)
+        {
+            if (node->IsSelected)
+            {
+                node->x += dx;
+                node->y += dy;
+            }
+        }
+        EnforcePSLG();
+    }
+}
+
 
 bool FMesher::AddBlockLabel(double x, double y, double d)
 {
+    std::unique_ptr<CBlockLabel> pt;
+    switch (problem->filetype) {
+    case MagneticsFile:
+        pt = std::make_unique<CMBlockLabel>();
+        break;
+    case HeatFlowFile:
+        pt = std::make_unique<CHBlockLabel>();
+        break;
+    default:
+        assert(false && "Unhandled file type");
+        break;
+    }
+    pt->x = x;
+    pt->y = y;
+
+    return AddBlockLabel(std::move(pt), d);
+}
+
+bool FMesher::AddBlockLabel(std::unique_ptr<CBlockLabel> &&label, double d)
+{
+    double x = label->x;
+    double y = label->y;
+
     // can't put a block label on top of an existing node...
     for (int i=0; i<(int)problem->nodelist.size(); i++)
         if(problem->nodelist[i]->GetDistance(x,y)<d) return false;
@@ -1409,21 +1571,7 @@ bool FMesher::AddBlockLabel(double x, double y, double d)
 
     // if all is OK, add point in to the node list...
     if(!exists){
-        std::unique_ptr<CBlockLabel> pt;
-        switch (problem->filetype) {
-        case MagneticsFile:
-            pt = std::make_unique<CMBlockLabel>();
-            break;
-        case HeatFlowFile:
-            pt = std::make_unique<CHBlockLabel>();
-            break;
-        default:
-            assert(false && "Unhandled file type");
-            break;
-        }
-        pt->x = x;
-        pt->y = y;
-        problem->labellist.push_back(std::move(pt));
+        problem->labellist.push_back(std::move(label));
     }
 
     return true;
@@ -1432,8 +1580,17 @@ bool FMesher::AddBlockLabel(double x, double y, double d)
 
 bool FMesher::AddNode(double x, double y, double d)
 {
+    // create an appropriate node and call AddNode on it
+    std::unique_ptr<CNode> node = std::make_unique<CNode>(x,y);
+    return AddNode(std::move(node), d);
+}
+
+bool FMesher::AddNode(std::unique_ptr<CNode> &&node, double d)
+{
     CComplex c,a0,a1,a2;
     double R;
+    double x = node->x;
+    double y = node->y;
 
     // test to see if ``too close'' to existing node...
     for (int i=0; i<(int)problem->nodelist.size(); i++)
@@ -1444,8 +1601,7 @@ bool FMesher::AddNode(double x, double y, double d)
         if(problem->labellist[i]->GetDistance(x,y)<d) return false;
 
     // if all is OK, add point in to the node list...
-    std::unique_ptr<CNode> pt = std::make_unique<CNode>(x,y);
-    problem->nodelist.push_back(std::move(pt));
+    problem->nodelist.push_back(std::move(node));
 
     // test to see if node is on an existing line; if so,
     // break into two lines;
@@ -1490,7 +1646,7 @@ bool FMesher::AddSegment(int n0, int n1, double tol)
     return AddSegment(n0,n1,nullptr,tol);
 }
 
-bool FMesher::AddSegment(int n0, int n1, CSegment *parsegm, double tol)
+bool FMesher::AddSegment(int n0, int n1, const CSegment *parsegm, double tol)
 {
     double xi,yi,t;
     CComplex p[2];

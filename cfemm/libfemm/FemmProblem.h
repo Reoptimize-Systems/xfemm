@@ -87,6 +87,18 @@ public:
      */
     void updateCircuitMap();
 
+    /**
+     * @brief Invalidate the mesh data if the problem was already meshed.
+     * Call this method whenever you change the problem structure.
+     */
+    void invalidateMesh();
+
+    /**
+     * @brief meshed
+     * @return \c true, if the problem contains mesh data, \c false otherwise.
+     */
+    bool isMeshed() const;
+
 public: // data members
     double FileFormat; ///< \brief format version of the file
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
