@@ -785,6 +785,11 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         lua_error(L, "mi_analyze(): Could not save fem file!\n");
         return 0;
     }
+    if (!doc->consistencyCheckOK())
+    {
+        //lua_error(L,"mi_analyze(): consistency check failed before meshing!\n");
+        //return 0;
+    }
 
     //BeginWaitCursor();
     std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getMesher();
@@ -806,6 +811,11 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
         }
     }
     //EndWaitCursor();
+    if (!doc->consistencyCheckOK())
+    {
+        //lua_error(L,"mi_analyze(): consistency check failed after meshing!\n");
+        //return 0;
+    }
 
     FSolver theFSolver;
     // filename.fem -> filename

@@ -99,6 +99,20 @@ public:
      */
     bool isMeshed() const;
 
+    /**
+     * @brief Run a basic consistency check.
+     * In particular, this checks:
+     *  * For block labels
+     *    * whether integer-indices of InCircuit and BlockType are in the correct range
+     *    * whether the textual references (InCircuitName, BlockTypeName) match the integer indices
+     *  * For points, lines, and arcs:
+     *    * whether integer-indices of InConductor and BoundaryMarker are in the correct range
+     *    * whether the textual references (InConductorName, BoundaryMarkerName) match the integer indices
+     *
+     * @return \c true, if the data seems consistent, \c false otherwise.
+     */
+    bool consistencyCheckOK() const;
+
 public: // data members
     double FileFormat; ///< \brief format version of the file
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
