@@ -86,6 +86,16 @@ public:
      * Call this function whenever the circuit properties change (i.e. whenever a new element is added or a CircuitName changes).
      */
     void updateCircuitMap();
+    /**
+     * @brief Update the lineMap.
+     * Call this function whenever the line properties change (i.e. whenever a new element is added or a BoundaryMarkerName changes).
+     */
+    void updateLineMap();
+    /**
+     * @brief Update the nodeMap.
+     * Call this function whenever the node properties change (i.e. whenever a new element is added or a PointName changes).
+     */
+    void updateNodeMap();
 
     /**
      * @brief Invalidate the mesh data if the problem was already meshed.
@@ -155,7 +165,9 @@ public: // data members
 
     FileType filetype; ///< \brief file type of the problem description.
     std::map<std::string, int> blockMap; ///< \brief a map from BlockName to block index. \sa updateBlockMap
+    std::map<std::string, int> lineMap; ///< \brief a map from BrdyName to line index. \sa updateLineMap
     std::map<std::string, int> circuitMap; ///< \brief a map from CircuitName to circuit index. \sa updateCircuitMap
+    std::map<std::string, int> nodeMap; ///< \brief a map from PointName to node index. \sa updateNodeMap
 };
 
 } //namespace

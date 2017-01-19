@@ -254,18 +254,39 @@ void femm::FemmProblem::updateBlockMap()
 {
     int idx=0;
     blockMap.clear();
-    for (auto &bprop: blockproplist)
+    for (const auto &bprop: blockproplist)
     {
         blockMap[bprop->BlockName] = idx++;
     }
 }
+
 void femm::FemmProblem::updateCircuitMap()
 {
     int idx=0;
     circuitMap.clear();
-    for (auto &circuit: circproplist)
+    for (const auto &circuit: circproplist)
     {
         circuitMap[circuit->CircName] = idx++;
+    }
+}
+
+void femm::FemmProblem::updateLineMap()
+{
+    int idx=0;
+    lineMap.clear();
+    for (const auto &bprop: lineproplist)
+    {
+        lineMap[bprop->BdryName] = idx++;
+    }
+}
+
+void femm::FemmProblem::updateNodeMap()
+{
+    int idx=0;
+    nodeMap.clear();
+    for (const auto &pprop: nodeproplist)
+    {
+        nodeMap[pprop->PointName] = idx++;
     }
 }
 
