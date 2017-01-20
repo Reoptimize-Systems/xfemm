@@ -133,7 +133,7 @@ protected:
     static int luaSelectSegment(lua_State *L);
     static int luaSetArcsegmentProp(lua_State *L);
     static int luaSetBlocklabelProp(lua_State *L);
-    static int luaSeteditmode(lua_State *L);
+    static int luaSetEditMode(lua_State *L);
     static int luaSetgrid(lua_State *L);
     static int luaSetgroup(lua_State *L);
     static int luaSetNodeProp(lua_State *L);

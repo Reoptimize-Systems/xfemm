@@ -224,10 +224,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_setarcsegmentprop", luaSetArcsegmentProp);
     li.addFunction("mi_set_block_prop", luaSetBlocklabelProp);
     li.addFunction("mi_setblockprop", luaSetBlocklabelProp);
-    li.addFunction("mi_set_edit_mode", luaSeteditmode);
-    li.addFunction("mi_seteditmode", luaSeteditmode);
-    li.addFunction("mo_set_edit_mode", luaSeteditmode);
-    li.addFunction("mo_seteditmode", luaSeteditmode);
+    li.addFunction("mi_set_edit_mode", luaSetEditMode);
+    li.addFunction("mi_seteditmode", luaSetEditMode);
+    li.addFunction("mo_set_edit_mode", luaSetEditMode);
+    li.addFunction("mo_seteditmode", luaSetEditMode);
     li.addFunction("mi_set_grid", luaSetgrid);
     li.addFunction("mi_setgrid", luaSetgrid);
     li.addFunction("mo_set_grid", luaSetgrid);
@@ -1596,7 +1596,7 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
     double x = lua_todouble(L,1);
     double y = lua_todouble(L,2);
 
-    fmesher::FMesher::EditType editAction;
+    fmesher::FMesher::EditMode editAction;
     if (n==3)
     {
         int action = (int)lua_todouble(L,3);
@@ -1617,11 +1617,7 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
             break;
         }
     } else {
-        // some configured default value:
-        // editAction=theView->EditAction;
-        // to avoid subtle bugs, bail out:
-        lua_error(L, "mi_movetranslate(): edittype was omitted, but there is no default value!\n");
-        return 0;
+        editAction = mesher->d_EditMode;
     }
 
     mesher->UpdateUndo();
@@ -2353,22 +2349,46 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_seteditmode()}
  */
-int femmcli::LuaMagneticsCommands::luaSeteditmode(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetEditMode(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set the default mesher EditMode.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_setgrid()}
+ *
+ * \internal
+ * mi_seteditmode(editmode)
  */
 int femmcli::LuaMagneticsCommands::luaSetgrid(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    fmesher::FMesher::EditMode mode;
+    std::string modeString (lua_tostring(L,1));
+    if (modeString == "nodes")
+        mode = fmesher::FMesher::EditNodes;
+    else if (modeString == "segments")
+        mode = fmesher::FMesher::EditLines;
+    else if (modeString == "blocks")
+        mode = fmesher::FMesher::EditLabels;
+    else if (modeString == "arcsegments")
+        mode = fmesher::FMesher::EditArcs;
+    else if (modeString == "group")
+        mode = fmesher::FMesher::EditGroup;
+    else {
+        lua_error(L, "mi_seteditmode(): Invalid value of editmode!\n");
+        return 0;
+    }
+
+    mesher->d_EditMode = mode;
     return 0;
 }
 
