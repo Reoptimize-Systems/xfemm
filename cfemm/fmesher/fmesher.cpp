@@ -70,7 +70,8 @@ FMesher::FMesher()
 
 
 FMesher::FMesher(std::shared_ptr<FemmProblem> p)
-    : problem(p)
+    : d_EditMode(EditModeInvalid)
+    , problem(p)
     , Verbose(true)
     , WarnMessage(&PrintWarningMsg)
     , TriMessage(nullptr)
@@ -1465,9 +1466,9 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
     return true;
 }
 
-void FMesher::TranslateMove(double dx, double dy, FMesher::EditType selector)
+void FMesher::TranslateMove(double dx, double dy, FMesher::EditMode selector)
 {
-    assert(selector != EditTypeInvalid);
+    assert(selector != EditModeInvalid);
     bool processNodes = (selector == EditNodes);
 
     if (selector == EditLines || selector == EditGroup)

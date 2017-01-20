@@ -70,12 +70,13 @@ protected:
 public:
 
     enum loaderrors { F_FILE_OK, F_FILE_UNKNOWN_TYPE, F_FILE_NOT_OPENED, F_FILE_MALFORMED};
-    enum EditType { EditNodes = 0, EditLines = 1, EditLabels = 2, EditArcs = 3, EditGroup = 4, EditTypeInvalid };
+    enum EditMode { EditNodes = 0, EditLines = 1, EditLabels = 2, EditArcs = 3, EditGroup = 4, EditModeInvalid };
 
     explicit FMesher();
     explicit FMesher(std::string);
     explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
 
+    EditMode d_EditMode;
     std::shared_ptr<femm::FemmProblem> problem;
 	bool    Verbose;
 
@@ -242,7 +243,7 @@ public:
      * @param dy
      * @param selector
      */
-    void TranslateMove(double dx, double dy, EditType selector);
+    void TranslateMove(double dx, double dy, EditMode selector);
     /**
      * @brief Delete all selected segments.
      * @return \c true, if any segments were deleted, \c false otherwise.
