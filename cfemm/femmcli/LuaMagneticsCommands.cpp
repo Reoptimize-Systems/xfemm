@@ -317,7 +317,6 @@ int femmcli::LuaMagneticsCommands::luaAddArc(lua_State *L)
 
     asegm.MaxSideLength = maxseg;
     asegm.ArcLength = angle;
-    asegm.BoundaryMarkerName = "<None>";
 
     mesher->AddArcSegment(asegm);
     mesher->UnselectAll();
@@ -376,6 +375,7 @@ int femmcli::LuaMagneticsCommands::luaAddBoundaryProp(lua_State *L)
     if (n>9) m->BdryFormat = (int) lua_todouble(L,10);
 
     doc->lineproplist.push_back(std::move(m));
+    doc->updateLineMap();
     return 0;
 }
 
@@ -547,10 +547,7 @@ int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
 
     if (n>0)
     {
-        std::string str;
-        if (const char *s= lua_tostring(L,1))
-            str = s;
-        m->BlockName = str;
+        m->BlockName = lua_tostring(L,1);
     }
     if (n>1){
         m->mu_x=lua_todouble(L,2);
@@ -1926,11 +1923,10 @@ int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
 
-    if (const char* s=lua_tostring(L,1))
+    if (!lua_isnil(L,1))
     {
-        std::string fname(s);
-        doc->pathName = s;
-        doc->saveFEMFile(fname);
+        doc->pathName = lua_tostring(L,1);
+        doc->saveFEMFile(doc->pathName);
     } else {
         lua_error(L, "mi_saveas(): no pathname given!");
     }
@@ -2245,8 +2241,13 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
 
     double maxsegdeg = lua_todouble(L,1);
     std::string boundprop;
-    if (const char *s=lua_tostring(L,2))
-        boundprop = s;
+    int boundpropidx = -1;
+    if (!lua_isnil(L,2))
+    {
+        boundprop = lua_tostring(L,2);
+        if (doc->nodeMap.count(boundprop))
+            boundpropidx = doc->nodeMap[boundprop];
+    }
     bool hide = (lua_todouble(L,3)!=0);
     int group = (int) lua_todouble(L,4);
 
@@ -2254,6 +2255,7 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
     {
         if (doc->arclist[i]->IsSelected)
         {
+            doc->arclist[i]->BoundaryMarker = boundpropidx;
             doc->arclist[i]->BoundaryMarkerName = boundprop;
             doc->arclist[i]->MaxSideLength = maxsegdeg;
             doc->arclist[i]->Hidden = hide;
@@ -2282,9 +2284,11 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
 
     // default values
+    int blocktypeidx = -1;
     std::string blocktype = "<None>";
     bool automesh = true;
     double meshsize = 0;
+    int incircuitidx = -1;
     std::string incircuit = "<None>";
     double magdirection = 0;
     std::string magdirfctn;
@@ -2293,11 +2297,21 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
 
     int n=lua_gettop(L);
 
-    if (n>0) blocktype = lua_tostring(L,1);
+    if (n>0 && !lua_isnil(L,1))
+    {
+        blocktype = lua_tostring(L,1);
+        if (doc->blockMap.count(blocktype))
+            blocktypeidx = doc->blockMap[blocktype];
+    }
     if (n>1) automesh = (lua_todouble(L,2) != 0);
     if (n>2) meshsize = lua_todouble(L,3);
-    if (n>3) incircuit = lua_tostring(L,4);
-    if (n>4)
+    if (n>3 && !lua_isnil(L,4))
+    {
+        incircuit = lua_tostring(L,4);
+        if (doc->circuitMap.count(incircuit))
+            incircuitidx = doc->circuitMap[incircuit];
+    }
+    if (n>4 && ! lua_isnil(L,5))
     {
         if (lua_isnumber(L,5))
             magdirection = lua_todouble(L,5);
@@ -2318,9 +2332,9 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
             doc->labellist[i]->MaxArea = PI*meshsize*meshsize/4.;
             doc->labellist[i]->MagDir = magdirection;
             doc->labellist[i]->BlockTypeName = blocktype;
-            doc->labellist[i]->BlockType = doc->blockMap[blocktype];
+            doc->labellist[i]->BlockType = blocktypeidx;
             doc->labellist[i]->InCircuitName = incircuit;
-            doc->labellist[i]->InCircuit = doc->circuitMap[incircuit];
+            doc->labellist[i]->InCircuit = incircuitidx;
             doc->labellist[i]->InGroup = group;
             doc->labellist[i]->Turns = turns;
             doc->labellist[i]->MagDirFctn = magdirfctn;
@@ -2388,9 +2402,14 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
 
-    std::string nodeprop;
-    if (const char *s= lua_tostring(L,1))
-        nodeprop = s;
+    int nodepropidx = -1;
+    std::string nodeprop = "<None>";
+    if (!lua_isnil(L,1))
+    {
+        nodeprop = lua_tostring(L,1);
+        if (doc->nodeMap.count(nodeprop))
+            nodepropidx = doc->nodeMap[nodeprop];
+    }
     int groupno=(int) lua_todouble(L,2);
 
     if (groupno<0)
@@ -2406,6 +2425,7 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
         if(doc->nodelist[i]->IsSelected)
         {
             doc->nodelist[i]->InGroup = groupno;
+            doc->nodelist[i]->BoundaryMarker = nodepropidx;
             doc->nodelist[i]->BoundaryMarkerName = nodeprop;
         }
     }
@@ -2437,9 +2457,14 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
 
-    std::string propName;
-    if (const char *s= lua_tostring(L,1))
-        propName = s;
+    int nodepropidx = -1;
+    std::string nodeprop = "<None>";
+    if (!lua_isnil(L,1))
+    {
+        nodeprop = lua_tostring(L,1);
+        if (doc->nodeMap.count(nodeprop))
+            nodepropidx = doc->nodeMap[nodeprop];
+    }
     double elesize = lua_todouble(L,2);
     bool automesh = (lua_todouble(L,3) != 0);
     bool hide = (lua_todouble(L,4) != 0);
@@ -2456,7 +2481,8 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
                     doc->linelist[i]->MaxSideLength = elesize;
                 else elesize = -1;
             }
-            doc->linelist[i]->BoundaryMarkerName = propName;
+            doc->linelist[i]->BoundaryMarker = nodepropidx;
+            doc->linelist[i]->BoundaryMarkerName = nodeprop;
             doc->linelist[i]->Hidden = hide;
             doc->linelist[i]->InGroup = group;
         }
