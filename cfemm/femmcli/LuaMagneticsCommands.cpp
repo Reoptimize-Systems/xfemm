@@ -1996,16 +1996,16 @@ int femmcli::LuaMagneticsCommands::luaSelectArcsegment(lua_State *L)
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
-    if (doc->linelist.empty())
+    if (doc->arclist.empty())
         return 0;
 
-    int node = mesher->ClosestSegment(mx,my);
-    doc->linelist[node]->ToggleSelect();
+    int node = mesher->ClosestArcSegment(mx,my);
+    doc->arclist[node]->ToggleSelect();
 
-    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n0]->x);
-    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n0]->y);
-    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n1]->x);
-    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n1]->y);
+    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n0]->x);
+    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n0]->y);
+    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n1]->x);
+    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n1]->y);
 
     return 4;
 }
