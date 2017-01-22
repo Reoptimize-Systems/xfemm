@@ -1,5 +1,7 @@
 #include "FemmProblem.h"
 
+#include "femmconstants.h"
+
 #include <fstream>
 #include <iomanip>
 #include <ios>
@@ -456,7 +458,7 @@ femm::FemmProblem::FemmProblem(FileType ftype)
     : FileFormat(-1)
     , Frequency(0.0)
     , Precision(1.e-08)
-    , MinAngle(0)
+    , MinAngle(DEFAULT_MINIMUM_ANGLE)
     , Depth(1)
     , LengthUnits(LengthInches)
     , Coords(CART)
