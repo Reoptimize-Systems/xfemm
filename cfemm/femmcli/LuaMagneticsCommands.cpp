@@ -819,6 +819,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     std::size_t dotpos = doc->pathName.find_last_of(".");
     theFSolver.PathName = doc->pathName.substr(0,dotpos);
     theFSolver.WarnMessage = &PrintWarningMsg;
+    theFSolver.PrintMessage = &PrintWarningMsg;
     if (!theFSolver.LoadProblemFile())
     {
         lua_error(L, "mi_analyze(): problem initializing solver!");
