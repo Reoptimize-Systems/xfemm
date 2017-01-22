@@ -266,9 +266,6 @@ void femm::LuaInstance::luaStackInfo(lua_State *L, int level, femm::LuaInstance:
         // collect frame info for current frame
         if (!lua_getstack(L,level,&ar))
             break;
-        // padding for info
-        std::cout.width(level);
-        std::cout << ' ';
         // force event to a sane value:
         ar.event = "";
         // print info
@@ -287,11 +284,18 @@ void femm::LuaInstance::luaStackHook(lua_State *L, lua_Debug *ar)
     assert(ar);
     // fill ar fields from collected information
     lua_getinfo(L, "lnS", ar);
+    // line
+    if (ar->currentline != -1)
+    {
+        std::cout << "L";
+        std::cout.width(9);
+        std::cout << std::left << ar->currentline << " ";
+    }
     // call/return
     if (ar->event && ar->event[0] != '\0' )
     {
-        std::cout.width(8);
-        std::cout << ar->event << " ";
+        std::cout.width(10);
+        std::cout << std::right << ar->event << " ";
     }
     if (ar->namewhat[0] != '\0')
         std::cout << ar->namewhat << " ";

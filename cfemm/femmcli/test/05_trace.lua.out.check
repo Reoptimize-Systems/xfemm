@@ -1,4 +1,4 @@
- 12        main [file `test/05_trace.lua':0]
- 9         global Lua FUN() [file `test/05_trace.lua':8]
-  13        main [file `test/05_trace.lua':0]
+L12        main [file `femmcli/test/05_trace.lua':0]
+L9         global Lua FUN() [file `femmcli/test/05_trace.lua':8]
+L13        main [file `femmcli/test/05_trace.lua':0]
 SUCCESS
