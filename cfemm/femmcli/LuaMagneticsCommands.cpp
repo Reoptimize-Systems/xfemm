@@ -784,8 +784,8 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
     if (!doc->consistencyCheckOK())
     {
-        //lua_error(L,"mi_analyze(): consistency check failed before meshing!\n");
-        //return 0;
+        lua_error(L,"mi_analyze(): consistency check failed before meshing!\n");
+        return 0;
     }
 
     //BeginWaitCursor();
@@ -810,8 +810,8 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     //EndWaitCursor();
     if (!doc->consistencyCheckOK())
     {
-        //lua_error(L,"mi_analyze(): consistency check failed after meshing!\n");
-        //return 0;
+        lua_error(L,"mi_analyze(): consistency check failed after meshing!\n");
+        return 0;
     }
 
     FSolver theFSolver;
@@ -2228,6 +2228,9 @@ int femmcli::LuaMagneticsCommands::luaSelectSegment(lua_State *L)
  *
  * \internal
  * mi_setarcsegmentprop(maxsegdeg, "propname", hide, group)
+ *
+ * Note: propname may be 0 (as in number 0, not string "0").
+ *       In that case, the arc segments have no boundary property.
  */
 int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
 {
@@ -2272,6 +2275,11 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
  * \internal
  * mi_setblockprop("blockname", automesh, meshsize, "incircuit", magdirection, group, turns)
  * Set the selected block labels to have the properties
+ *
+ * Note: blockname and/or incircuit may be 0 (as in number 0, not string "0").
+ *       In that case, the block labels have no block type and/or are not in a circuit.
+ *
+ * magdirection can either be a number, or a string containing a lua expression.
  */
 int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
 {
@@ -2307,11 +2315,11 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
         if (doc->circuitMap.count(incircuit))
             incircuitidx = doc->circuitMap[incircuit];
     }
-    if (n>4 && ! lua_isnil(L,5))
+    if (n>4)
     {
         if (lua_isnumber(L,5))
             magdirection = lua_todouble(L,5);
-        else
+        else if (!lua_isnil(L,5))
             magdirfctn = lua_tostring(L,5);
     }
     if (n>5) group = (int) lua_todouble(L,6);
@@ -2415,6 +2423,9 @@ int femmcli::LuaMagneticsCommands::luaSetgroup(lua_State *L)
  * \internal
  * mi_setnodeprop("propname",groupno)
  * Set the selected nodes to have the nodal property mi_"propname" and group number groupno.
+ *
+ * Note: propname may be 0 (as in number 0, not string "0").
+ *       In that case, the arc segments have no boundary property.
  */
 int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
 {
@@ -2464,6 +2475,8 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
  * mi_setsegmentprop("propname", elementsize, automesh, hide, group)
  * Set the selected segments to have:
  * * Boundary property "propname"
+ *   Note: propname may be 0 (as in number 0, not string "0").
+ *   In that case, the arc segments have no boundary property.
  * * Local element size along segment no greater than elementsize
  * * automesh:
  *   0 = mesher defers to the element constraint defined by elementsize,
