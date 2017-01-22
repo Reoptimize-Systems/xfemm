@@ -1620,6 +1620,12 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
         editAction = mesher->d_EditMode;
     }
 
+    if (editAction == fmesher::FMesher::EditModeInvalid)
+    {
+        lua_error(L, "mi_movetranslate(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
     mesher->UpdateUndo();
     mesher->TranslateMove(x,y,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by translateMove?
@@ -2090,6 +2096,8 @@ int femmcli::LuaMagneticsCommands::luaSelectgroup(lua_State *L)
             doc->labellist[i]->IsSelected=true;
     }
 
+    // set default edit mode
+    mesher->d_EditMode = fmesher::FMesher::EditGroup;
 
     return 0;
 }
