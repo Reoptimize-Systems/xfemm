@@ -113,8 +113,8 @@ femm::LuaInstance *femm::LuaInstance::instance(lua_State *L)
 {
     lua_getregistry(L); //+1
     lua_rawgeti(L,-1,1); //+1
-    void *obj = lua_touserdata(L, -1); //-1
-    lua_pop(L,1); //-1
+    void *obj = lua_touserdata(L, -1); //-1,+1
+    lua_pop(L,2); //-2
     return static_cast<LuaInstance*>(obj);
 }
 
@@ -287,18 +287,17 @@ void femm::LuaInstance::luaStackHook(lua_State *L, lua_Debug *ar)
     assert(ar);
     // fill ar fields from collected information
     lua_getinfo(L, "lnS", ar);
-    if (ar->currentline != -1)
+    // call/return
+    if (ar->event && ar->event[0] != '\0' )
     {
-        std::cout.width(9);
-        std::cout << std::left << ar->currentline << " ";
+        std::cout.width(8);
+        std::cout << ar->event << " ";
     }
     if (ar->namewhat[0] != '\0')
         std::cout << ar->namewhat << " ";
     std::cout << ar->what;
     if (ar->name)
         std::cout << " " << ar->name << "()";
-    if (ar->event && ar->event[0] != '\0' )
-        std::cout << " " << ar->event;
     std::cout << " [" << ar->short_src;
     if (ar->linedefined != -1)
         std::cout << ":" << ar->linedefined;

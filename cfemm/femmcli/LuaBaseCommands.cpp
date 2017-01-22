@@ -108,13 +108,10 @@ int femmcli::LuaBaseCommands::luaMessageBox(lua_State *L)
  */
 int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
 {
-    int docType = static_cast<int>(lua_tonumber(L,1).Re());
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
     assert(femmState);
 
-    // FIXME IMPLEMENT:
-    // 1. get "CDocTemplate"
-    // 2. call [MFC] CDocTemplate::OpenDocumentFile(NULL)
+    int docType = static_cast<int>(lua_tonumber(L,1).Re());
     switch (docType) {
         case 0: // magnetics
             femmState->femmDocument = std::make_shared<femm::FemmProblem>(femm::MagneticsFile);
@@ -122,7 +119,7 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
         case 1: // electrostatics
         case 2: // heat flow
         case 3: // current flow
-            debug << "NOP: luaNewDocument("<<docType<<")" << std::endl;
+            debug << "NOP: newdocument("<<docType<<")" << std::endl;
             break;
         default:
             // we don't need to handle other docTypes that are used in femm
