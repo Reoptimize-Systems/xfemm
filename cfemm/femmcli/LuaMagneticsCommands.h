@@ -100,7 +100,7 @@ protected:
     static int luaMinimize(lua_State *L);
     static int luaMirror(lua_State *L);
     static int luaModboundprop(lua_State *L);
-    static int luaModcircprop(lua_State *L);
+    static int luaModifyCircuitProperty(lua_State *L);
     static int luaModmatprop(lua_State *L);
     static int luaModpointprop(lua_State *L);
     static int luaMoveRotate(lua_State *L);

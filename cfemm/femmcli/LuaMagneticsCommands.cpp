@@ -157,8 +157,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_mirror", luaMirror);
     li.addFunction("mi_modify_bound_prop", luaModboundprop);
     li.addFunction("mi_modifyboundprop", luaModboundprop);
-    li.addFunction("mi_modify_circ_prop", luaModcircprop);
-    li.addFunction("mi_modifycircprop", luaModcircprop);
+    li.addFunction("mi_modify_circ_prop", luaModifyCircuitProperty);
+    li.addFunction("mi_modifycircprop", luaModifyCircuitProperty);
     li.addFunction("mi_modify_material", luaModmatprop);
     li.addFunction("mi_modifymaterial", luaModmatprop);
     li.addFunction("mi_modify_point_prop", luaModpointprop);
@@ -399,7 +399,7 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
     if (luaInstance->compatibilityMode())
     {
         //return ((CFemmeDoc *)pFemmeDoc)->old_lua_addcircuitprop(L);
-        lua_error(L,"Compatibility mode for mi_addcircprop is not implemented!");
+        lua_error(L,"Compatibility mode for mi_addcircprop is not implemented!\n");
         return 0;
     }
 
@@ -537,7 +537,7 @@ int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
     // for compatibility with 4.0 and 4.1 Lua implementation
     if (luaInstance->compatibilityMode())
     {
-        lua_error(L,"Compatibility mode for mi_addmatprop is not implemented!");
+        lua_error(L,"Compatibility mode for mi_addmatprop is not implemented!\n");
         //return ((CFemmeDoc *)pFemmeDoc)->old_lua_addmatprop(L);
         return 0;
     }
@@ -1369,8 +1369,12 @@ int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     // for compatibility with 4.0 and 4.1 Lua implementation
-    //if (luaInstance->compatibilityMode())
-    //    return ((CFemmviewDoc *)pFemmviewdoc)->old_lua_getpointvals(L);
+    if (luaInstance->compatibilityMode())
+    {
+        lua_error(L,"Compatibility mode for mo_getpointvalues is not implemented!\n");
+        //return ((CFemmviewDoc *)pFemmviewdoc)->old_lua_getpointvals(L);
+        return 0;
+    }
 
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
@@ -1617,15 +1621,78 @@ int femmcli::LuaMagneticsCommands::luaModboundprop(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify the given circuit property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_modcircprop()}
+ *
+ * \internal
+ * mi_modifycircprop("CircName",propnum,value)
+ * This function allows for modification of a circuit property.
+ *  * propnum:
+ *    1. name
+ *    2. Total current
+ *    3. Circuit type (0=parallel or 1=series)
  */
-int femmcli::LuaMagneticsCommands::luaModcircprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        //return ((CFemmeDoc *)pFemmeDoc)->old_lua_modcircprop(L);
+        lua_error(L,"Compatibility mode for mi_modcircprop is not implemented!\n");
+        return 0;
+    }
+
+    if (doc->circproplist.empty())
+        return 0;
+
+    // find the index of the material to modify;
+    std::string CircName = lua_tostring(L,1);
+
+    auto searchResult = doc->circuitMap.find(CircName);
+
+    // get out of here if there's no matching circuit
+    if (searchResult == doc->circuitMap.end())
+    {
+        debug << "mi_modcircprop(): No circuit of name " << CircName << "\n";
+        return 0;
+    }
+    int idx = searchResult->second;
+
+    int modprop=(int) lua_todouble(L,2);
+    CMCircuit *prop = dynamic_cast<CMCircuit*>(doc->circproplist[idx].get());
+    assert(prop);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+    {
+        std::string newName;
+        if (!lua_isnil(L,3))
+            newName = lua_tostring(L,3);
+        prop->CircName = newName;
+        break;
+    }
+    case 1:
+        prop->Amps = lua_tonumber(L,3);
+        break;
+    case 2:
+        prop->CircType = (int) lua_todouble(L,3);
+        break;
+    default:
+    {
+        std::string msg = "mi_modcircprop(): No property with index " + std::to_string(modprop) + "\n";
+        lua_error(L,msg.c_str());
+        break;
+    }
+    }
+
     return 0;
 }
 
