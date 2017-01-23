@@ -83,7 +83,7 @@ protected:
     static int luaGetelement(lua_State *L);
     static int luaGetmaterial(lua_State *L);
     static int luaGetnode(lua_State *L);
-    static int luaGetpointvals(lua_State *L);
+    static int luaGetPointVals(lua_State *L);
     static int luaGetprobleminfo(lua_State *L);
     static int luaGettitle(lua_State *L);
     static int luaGradient(lua_State *L);
@@ -106,7 +106,7 @@ protected:
     static int luaMoveRotate(lua_State *L);
     static int luaMoveTranslate(lua_State *L);
     static int luaNewdocument(lua_State *L);
-    static int luaNumelements(lua_State *L);
+    static int luaNumElements(lua_State *L);
     static int luaNumnodes(lua_State *L);
     static int luaPrevious(lua_State *L);
     static int luaProbDef(lua_State *L);
