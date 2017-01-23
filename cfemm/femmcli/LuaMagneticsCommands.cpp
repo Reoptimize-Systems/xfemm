@@ -69,8 +69,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_blockintegral", luaBlockintegral);
     li.addFunction("mi_clear_bh_points", luaClearbhpoints);
     li.addFunction("mi_clearbhpoints", luaClearbhpoints);
-    li.addFunction("mo_clear_block", luaClearblock);
-    li.addFunction("mo_clearblock", luaClearblock);
+    li.addFunction("mo_clear_block", luaClearBlock);
+    li.addFunction("mo_clearblock", luaClearBlock);
     li.addFunction("mo_clear_contour", luaClearcontour);
     li.addFunction("mo_clearcontour", luaClearcontour);
     li.addFunction("mi_clear_selected", luaClearselected);
@@ -906,15 +906,35 @@ int femmcli::LuaMagneticsCommands::luaClearbhpoints(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Clear block selection and reset some (fpproc) settings.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_clearblock()}
+ *
+ * \internal
+ * mo_clearblock() Clear block selection
  */
-int femmcli::LuaMagneticsCommands::luaClearblock(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    fpproc->bHasMask= false;
+    for(auto &block: fpproc->blocklist)
+    {
+        block.IsSelected = false;
+    }
+
+    // FIXME(ZaJ): xfemm doesn't have this currently:
+    //fpproc->EditAction=0;
     return 0;
 }
 
