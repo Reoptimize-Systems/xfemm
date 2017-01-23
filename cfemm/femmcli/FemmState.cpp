@@ -12,7 +12,6 @@ std::shared_ptr<FPProc> femmcli::FemmState::getFPProc()
     {
         theFPProc = std::make_shared<FPProc>();
     }
-    // TODO: see if we need to invalidate this sometimes.
     return theFPProc;
 }
 
@@ -23,4 +22,9 @@ std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
         theFMesher = std::make_shared<fmesher::FMesher>(femmDocument);
     }
     return theFMesher;
+}
+
+void femmcli::FemmState::invalidateSolutionData()
+{
+    theFPProc.reset();
 }
