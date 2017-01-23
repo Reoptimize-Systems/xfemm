@@ -71,6 +71,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         err << "Couldn't read from specified .fem file\n";
         return F_FILE_NOT_OPENED;
     }
+    problem->pathName = file;
 
     // parse the file
 
