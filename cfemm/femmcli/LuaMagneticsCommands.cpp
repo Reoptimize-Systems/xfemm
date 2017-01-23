@@ -118,8 +118,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_getmaterial", luaGetmaterial);
     li.addFunction("mo_get_node", luaGetnode);
     li.addFunction("mo_getnode", luaGetnode);
-    li.addFunction("mo_get_point_values", luaGetpointvals);
-    li.addFunction("mo_getpointvalues", luaGetpointvals);
+    li.addFunction("mo_get_point_values", luaGetPointVals);
+    li.addFunction("mo_getpointvalues", luaGetPointVals);
     li.addFunction("mi_getprobleminfo", luaGetprobleminfo);
     li.addFunction("mo_get_problem_info", luaGetprobleminfo);
     li.addFunction("mo_getprobleminfo", luaGetprobleminfo);
@@ -169,8 +169,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_movetranslate", luaMoveTranslate);
     li.addFunction("mi_new_document", luaNewdocument);
     li.addFunction("mi_newdocument", luaNewdocument);
-    li.addFunction("mo_num_elements", luaNumelements);
-    li.addFunction("mo_numelements", luaNumelements);
+    li.addFunction("mo_num_elements", luaNumElements);
+    li.addFunction("mo_numelements", luaNumElements);
     li.addFunction("mo_num_nodes", luaNumnodes);
     li.addFunction("mo_numnodes", luaNumnodes);
     li.addFunction("mi_setprevious", luaPrevious);
@@ -1327,10 +1327,10 @@ int femmcli::LuaMagneticsCommands::luaGetnode(lua_State *L)
  * \femm42{femm/femmviewLua.cpp,lua_getpointvals()}
  *
  * \internal
- * mo getpointvalues(X,Y)
+ * mo_getpointvalues(X,Y)
  * Get the values associated with the point at x,y return values in order.
  */
-int femmcli::LuaMagneticsCommands::luaGetpointvals(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     // for compatibility with 4.0 and 4.1 Lua implementation
@@ -1338,7 +1338,7 @@ int femmcli::LuaMagneticsCommands::luaGetpointvals(lua_State *L)
     //    return ((CFemmviewDoc *)pFemmviewdoc)->old_lua_getpointvals(L);
 
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    auto fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1720,16 +1720,27 @@ int femmcli::LuaMagneticsCommands::luaNewdocument(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Return the number of elements in the output mesh.
  * @param L
- * @return 0
+ * @return 1
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_numelements()}
+ *
+ * \internal
+ * mo_numelements() Returns the number of elements in the in focus magnets output mesh.
  */
-int femmcli::LuaMagneticsCommands::luaNumelements(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaNumElements(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+    lua_pushnumber(L,(int) fpproc->meshelem.size());
+    return 1;
 }
 
 /**
