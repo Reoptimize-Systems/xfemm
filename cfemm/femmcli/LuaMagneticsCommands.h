@@ -79,7 +79,7 @@ protected:
     static int luaExitpost(lua_State *L);
     static int luaExitpre(lua_State *L);
     static int luaGetboundingbox(lua_State *L);
-    static int luaGetcircuitprops(lua_State *L);
+    static int luaGetCircuitProperties(lua_State *L);
     static int luaGetElement(lua_State *L);
     static int luaGetmaterial(lua_State *L);
     static int luaGetnode(lua_State *L);

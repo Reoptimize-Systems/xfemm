@@ -110,8 +110,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_close", luaExitpost);
     li.addFunction("mi_close", luaExitpre);
     li.addFunction("mi_getboundingbox", luaGetboundingbox);
-    li.addFunction("mo_get_circuit_properties", luaGetcircuitprops);
-    li.addFunction("mo_getcircuitproperties", luaGetcircuitprops);
+    li.addFunction("mo_get_circuit_properties", luaGetCircuitProperties);
+    li.addFunction("mo_getcircuitproperties", luaGetCircuitProperties);
     li.addFunction("mo_get_element", luaGetElement);
     li.addFunction("mo_getelement", luaGetElement);
     li.addFunction("mi_get_material", luaGetmaterial);
@@ -1268,16 +1268,62 @@ int femmcli::LuaMagneticsCommands::luaGetboundingbox(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Get information about a circuit property.
  * @param L
- * @return 0
+ * @return 0 on error, 3 on success.
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_getcircuitprops()}
+ *
+ * \internal
+ * mo_getcircuitproperties("circuit")
+ * Used primarily to obtain impedance information associated with circuit properties.
+ *
+ * Properties are returned for the circuit property named "circuit".
+ * Three values are returned by the function:
+ * 1. current Current carried by the circuit
+ * 2. volts Voltage drop across the circuit
+ * 3. flux_re Circuit’s flux linkage
  */
-int femmcli::LuaMagneticsCommands::luaGetcircuitprops(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetCircuitProperties(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        lua_error(L,"Compatibility mode for mo_getcircuitproperties is not implemented!\n");
+        //return ((CFemmviewDoc *)pFemmviewdoc)->old_lua_getcircuitprops(L);
+        return 0;
+    }
+
+    std::string circuitname = lua_tostring(L,1);
+
+    // ok we need to find the correct entry for the circuit name
+    auto searchResult = doc->circuitMap.find(circuitname);
+    // get out of here if there's no matching circuit
+    if (searchResult == doc->circuitMap.end())
+    {
+        debug << "mo_getcircuitproperties(): No circuit of name " << circuitname << "\n";
+        return 0;
+    }
+    int idx = searchResult->second;
+
+    CComplex amps = fpproc->circproplist[idx].Amps;
+    CComplex volts = fpproc->GetVoltageDrop(idx);
+    CComplex fluxlinkage = fpproc->GetFluxLinkage(idx);
+
+    lua_pushnumber(L,amps);
+    lua_pushnumber(L,volts);
+    lua_pushnumber(L,fluxlinkage);
+
+    return 3;
 }
 
 /**
@@ -1656,7 +1702,6 @@ int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
     std::string CircName = lua_tostring(L,1);
 
     auto searchResult = doc->circuitMap.find(CircName);
-
     // get out of here if there's no matching circuit
     if (searchResult == doc->circuitMap.end())
     {
