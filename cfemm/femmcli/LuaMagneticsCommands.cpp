@@ -977,15 +977,85 @@ int femmcli::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Explicitly calls the mesher.
+ * As a side-effect, this method calls FMesher::LoadMesh() to cound the number of mesh nodes.
+ * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
  * @param L
- * @return 0
+ * @return 1 on success, 0 otherwise.
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_create_mesh()}
+ *
+ * \internal
+ * mi_createmesh() runs triangle to create a mesh.
+ *
+ * \remark The femm42 documentation states that "The number of elements in the mesh is pushed back onto the lua stack.", but the implementation does not do it.
+ *
+ * Implementation notes:
+ *  * \femm42{femm/femmeLua.cpp,lua_create_mesh()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnuMakeMesh()
+ *  * \femm42{femm/FemmeDoc.cpp,CFemmeView::lnuMakeMesh()}: calls OnMakeMesh
+ *  * \femm42{femm/FemmeView.cpp,CFemmeView::OnMakeMesh()}: does the things we do here directly...
  */
 int femmcli::LuaMagneticsCommands::luaCreateMesh(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    std::string pathName = doc->pathName;
+    if (pathName.empty())
+    {
+        lua_error(L,"A data file must be loaded,\nor the current data must saved.");
+        return 0;
+    }
+    if (!doc->saveFEMFile(pathName))
+    {
+        lua_error(L, "mi_createmesh(): Could not save fem file!\n");
+        return 0;
+    }
+    if (!doc->consistencyCheckOK())
+    {
+        lua_error(L,"mi_createmesh(): consistency check failed before meshing!\n");
+        return 0;
+    }
+
+    //BeginWaitCursor();
+    if (mesher->HasPeriodicBC()){
+        if (mesher->DoPeriodicBCTriangulation(pathName) != 0)
+        {
+            //EndWaitCursor();
+            mesher->UnselectAll();
+            lua_error(L, "mi_createmesh(): Periodic BC triangulation failed!\n");
+            return 0;
+        }
+    } else {
+        if (mesher->DoNonPeriodicBCTriangulation(pathName) != 0)
+        {
+            //EndWaitCursor();
+            lua_error(L, "mi_createmesh(): Nonperiodic BC triangulation failed!\n");
+            return 0;
+        }
+    }
+    bool LoadMesh=mesher->LoadMesh(pathName);
+    //EndWaitCursor();
+
+    if (LoadMesh)
+    {
+        //MeshUpToDate=TRUE;
+        //if(MeshFlag==FALSE) OnShowMesh();
+        //else InvalidateRect(NULL);
+        //CString s;
+        //s.Format("Created mesh with %i nodes",mesher->meshnode.GetSize());
+        //if (mesher->greymeshline.GetSize()!=0)
+        //    s+="\nGrey mesh lines denote regions\nthat have no block label.";
+        //if(bLinehook==FALSE) AfxMessageBox(s,MB_ICONINFORMATION);
+        //else lua_pushnumber(lua,(int) mesher->meshnode.GetSize());
+
+        lua_pushnumber(L,(int) mesher->meshnode.size());
+        // Note(ZaJ): femm42 returns 0 - I think that's a bug
+        return 1;
+    }
+
     return 0;
 }
 
@@ -1886,6 +1956,7 @@ int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
     std::string solutionFile = doc->pathName.substr(0,dotpos);
     solutionFile += ".ans";
 
+    femmState->invalidateSolutionData();
     auto fpproc = femmState->getFPProc();
     if (!fpproc->OpenDocument(solutionFile))
     {
