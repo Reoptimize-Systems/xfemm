@@ -112,8 +112,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_getboundingbox", luaGetboundingbox);
     li.addFunction("mo_get_circuit_properties", luaGetcircuitprops);
     li.addFunction("mo_getcircuitproperties", luaGetcircuitprops);
-    li.addFunction("mo_get_element", luaGetelement);
-    li.addFunction("mo_getelement", luaGetelement);
+    li.addFunction("mo_get_element", luaGetElement);
+    li.addFunction("mo_getelement", luaGetElement);
     li.addFunction("mi_get_material", luaGetmaterial);
     li.addFunction("mi_getmaterial", luaGetmaterial);
     li.addFunction("mo_get_node", luaGetnode);
@@ -1281,16 +1281,51 @@ int femmcli::LuaMagneticsCommands::luaGetcircuitprops(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Get data of indexed element.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_getelement()}
+ *
+ * \internal
+ * mo_getelement(n)
+ * MOGetElement[n] returns the following proprerties for the nth element:
+ * 1. Index of first element node
+ * 2. Index of second element node
+ * 3. Index of third element node
+ * 4. x (or r) coordinate of the element centroid
+ * 5. y (or z) coordinate of the element centroid
+ * 6. element area using the length unit defined for the problem
+ * 7. group number associated with the element
+ *
+ * Note: in lua code, indices start at 1.
  */
-int femmcli::LuaMagneticsCommands::luaGetelement(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetElement(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    int idx=(int) lua_todouble(L,1);
+    idx--;
+
+    if ( idx<0 || idx>=(int)fpproc->meshelem.size())
+        return 0;
+
+    lua_pushnumber(L,fpproc->meshelem[idx].p[0]+1);
+    lua_pushnumber(L,fpproc->meshelem[idx].p[1]+1);
+    lua_pushnumber(L,fpproc->meshelem[idx].p[2]+1);
+    lua_pushnumber(L,Re(fpproc->meshelem[idx].ctr));
+    lua_pushnumber(L,Im(fpproc->meshelem[idx].ctr));
+    lua_pushnumber(L,fpproc->ElmArea(idx));
+    lua_pushnumber(L,fpproc->blocklist[fpproc->meshelem[idx].lbl].InGroup);
+
+    return 7;
 }
 
 /**
