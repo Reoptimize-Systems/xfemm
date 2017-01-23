@@ -7,9 +7,8 @@
  * along with the source code.
  */
 
-#include "feasolver.h"
-#include "fsolver.h"
 #include "FemmState.h"
+#include "femmversion.h"
 #include "LuaBaseCommands.h"
 #include "LuaInstance.h"
 #include "LuaMagneticsCommands.h"
@@ -35,8 +34,6 @@ using namespace femmcli;
  * @brief quiet if true, reduce commandline-output
  */
 bool quiet = false;
-
-enum OperationMode { NoOperation, LuaMode, SolverMode };
 
 /**
  * \brief Execute a Lua File
@@ -106,186 +103,6 @@ int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool 
 }
 
 /**
- * \brief solveFile
- * Determines the file type and runs the appropriate solver on the file.
- * \param inputFile
- * \return
- */
-int solveFile( const std::string &inputFile)
-{
-    if (inputFile.size() < 3)
-    {
-        std::cerr << "Input file name too short.\n";
-        return 1;
-    }
-    auto dotIdx = inputFile.find_last_of('.');
-    std::string ending = inputFile.substr(dotIdx+1);
-    to_lower(ending);
-    if (ending == "fem")
-    {
-        FSolver theFSolver;
-        theFSolver.PathName = inputFile.substr(0,dotIdx);
-        debug << inputFile << " is a magnetics file; setting PathName to " << theFSolver.PathName << "\n";
-
-        if (theFSolver.LoadProblemFile () != true)
-        {
-            theFSolver.WarnMessage("problem loading .fem file\n");
-            return 1;
-        }
-
-        // load mesh
-        int err = theFSolver.LoadMesh();
-        if (err != 0)
-        {
-            theFSolver.WarnMessage("problem loading mesh:\n");
-
-            switch (err)
-            {
-                case ( BADEDGEFILE ):
-                    theFSolver.WarnMessage("Could not open .edge file.\n");
-                    break;
-
-                case ( BADELEMENTFILE ):
-                    theFSolver.WarnMessage("Could not open .ele file.\n");
-                    break;
-
-                case( BADFEMFILE ):
-                    theFSolver.WarnMessage("Could not open .fem file.\n");
-                    break;
-
-                case( BADNODEFILE ):
-                    theFSolver.WarnMessage("Could not open .node file.\n");
-                    break;
-
-                case( BADPBCFILE ):
-                    theFSolver.WarnMessage("Could not open .pbc file.\n");
-                    break;
-
-                case( MISSINGMATPROPS ):
-                    theFSolver.WarnMessage("Material properties have not been defined for all regions.\n");
-                    break;
-
-                default:
-                    theFSolver.WarnMessage("AN unknown error occured.\n");
-                    break;
-            }
-
-            return 2;
-        }
-
-        // renumber using Cuthill-McKee
-        std::cout << "renumbering nodes\n";
-        if (theFSolver.Cuthill() != true)
-        {
-            theFSolver.WarnMessage("problem renumbering node points");
-            return 3;
-        }
-
-        std::cout << "solving...\n";
-
-        std::cout.precision(2);
-        std::cout.width(3);
-        std::cout << "Problem Statistics:\n"
-                  << theFSolver.NumNodes << " nodes\n"
-                  << theFSolver.NumEls << " elements\n"
-                  << "Precision: " << theFSolver.Precision << "\n";
-
-
-        //    double mr = (8.*((double) Doc.NumNodes)*((double) Doc.BandWidth)) / 1.e06;
-
-        if(theFSolver.Frequency == 0)
-        {
-
-            CBigLinProb L;
-
-            L.Precision = theFSolver.Precision;
-
-            // initialize the problem, allocating the space required to solve it.
-            if (L.Create(theFSolver.NumNodes, theFSolver.BandWidth) == false)
-            {
-                theFSolver.WarnMessage("couldn't allocate enough space for matrices");
-                return 4;
-            }
-
-            // Create element matrices and solve the problem;
-            if (theFSolver.ProblemType == false)
-            {
-                if (theFSolver.Static2D(L) == false)
-                {
-                    theFSolver.WarnMessage("Couldn't solve the problem");
-                    return 5;
-                }
-                std::cout << "Static 2-D problem solved\n";
-            }
-            else
-            {
-
-                if (theFSolver.StaticAxisymmetric(L) == false)
-                {
-                    theFSolver.WarnMessage("Couldn't solve the problem");
-                    return 5;
-                }
-                std::cout << "Static axisymmetric problem solved\n";
-            }
-
-            if (theFSolver.WriteStatic2D(L) == false)
-            {
-                theFSolver.WarnMessage("couldn't write results to disk");
-                return 6;
-            }
-            std::cout << "results written to disk\n";
-        }
-        else
-        {
-            CBigComplexLinProb L;
-
-            L.Precision = theFSolver.Precision;
-
-            // initialize the problem, allocating the space required to solve it.
-
-            if (L.Create(theFSolver.NumNodes+theFSolver.NumCircProps, theFSolver.BandWidth, theFSolver.NumNodes) == false)
-            {
-                theFSolver.WarnMessage("couldn't allocate enough space for matrices");
-                return 4;
-            }
-
-            // Create element matrices and solve the problem;
-            if (theFSolver.ProblemType == false)
-            {
-                if (theFSolver.Harmonic2D(L) == false)
-                {
-                    theFSolver.WarnMessage("Couldn't solve the problem");
-                    return 5;
-                }
-                std::cout << "Harmonic 2-D problem solved\n";
-            }
-            else
-            {
-                if (theFSolver.HarmonicAxisymmetric(L) == false)
-                {
-                    theFSolver.WarnMessage("Couldn't solve the problem");
-                    return 5;
-                }
-                std::cout << "Harmonic axisymmetric problem solved\n";
-            }
-
-
-            if (theFSolver.WriteHarmonic2D(L)==false)
-            {
-                theFSolver.WarnMessage("couldn't write results to disk");
-                return 6;
-            }
-            std::cout << "results written to disk.\n";
-        }
-        return 0;
-    }
-
-    // fall-through:
-    std::cerr << "Could not determine file type!\n";
-    return 1;
-}
-
-/**
  * @brief splitArg splits a c string into two parts and appends it to two std::strings.
  * @param cstr the source c string (e.g. "--arg=value")
  * @param arg an existing string where the first part of cstr (e.g. "--arg") is appended.
@@ -311,7 +128,6 @@ int main(int argc, char ** argv)
     std::string exeDir { exe.substr(0,exe.find_last_of("/\\")+1) };
     exe = exe.substr(exeDir.length());
 
-    OperationMode opMode { NoOperation };
     std::string inputFile;
     std::string luaInit { exeDir + "init.lua" };
     bool luaTrace = false;
@@ -321,18 +137,7 @@ int main(int argc, char ** argv)
         std::string arg;
         std::string value;
         splitArg(argv[i],arg,value);
-        bool setInputFile=false;
         if (arg == "--lua-script")
-        {
-            opMode = LuaMode;
-            setInputFile=true;
-        }
-        if (arg == "--solve-file")
-        {
-            opMode = SolverMode;
-            setInputFile=true;
-        }
-        if (setInputFile)
         {
             // allow both "--arg=value" and "--arg value"
             if (value.empty())
@@ -363,6 +168,11 @@ int main(int argc, char ** argv)
             luaTrace = true;
             continue;
         }
+        if (arg == "--version" )
+        {
+            std::cout << "femmcli version " << FEMM_VERSION_STRING << "\n";
+            return 0;
+        }
         if (arg == "-q" || arg == "--quiet")
         {
             quiet = true;
@@ -371,8 +181,28 @@ int main(int argc, char ** argv)
         // unhandled argument -> print usage and exit
         if (arg != "-h" && arg != "--help")
             std::cerr << "Unknown argument: " << arg << std::endl;
-        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-enable-tracing] --lua-script=<file.lua>\n";
-        std::cout << "       " << exe << " --solve-file=<file.feX>\n";
+        std::cout << "Command-line interpreter for FEMM-specific lua files.\n";
+        std::cout << "\n";
+        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-enable-tracing] [--lua-init=<init.lua>] --lua-script=<file.lua>\n";
+        std::cout << "       " << exe << " [-h|--help] [--version]\n";
+        std::cout << "\n";
+        std::cout << "Command line arguments:\n";
+        std::cout << " --lua-enable-tracing     Show what lua functions are being executed.\n";
+        std::cout << " --lua-init=<init.lua>    Initialize the lua state with a custom lua script.\n";
+        std::cout << "                          [default: " << luaInit <<"]\n";
+        std::cout << " --lua-script=<file.lua>  Execute the lua file.\n";
+        std::cout << "\n";
+        std::cout << "Additional options:\n";
+        std::cout << " -h, --help               Show this help message and exit.\n";
+        std::cout << " -q, --quiet              Be somewhat less verbose.\n";
+        std::cout << "     --version            Show version information and exit.\n";
+        std::cout << "\n";
+        std::cout << "Examples:\n";
+        std::cout << "To execute a lua file, you can omit the '=' and write two arguments instead:\n";
+        std::cout << " \"femmcli --lua-script=file.lua\"\n";
+        std::cout << "is the same as:\n";
+        std::cout << " \"femmcli --lua-script file.lua\"\n";
+        std::cout << "\n";
         return 1;
     }
     if (inputFile.empty())
@@ -381,20 +211,6 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    int exitCode = 0;
-    switch (opMode) {
-        case NoOperation:
-            assert(false); // already covered by inputFile.empty()
-            break;
-        case LuaMode:
-            exitCode = execLuaFile(inputFile, luaInit, luaTrace);
-            break;
-        case SolverMode:
-            exitCode = solveFile(inputFile);
-            break;
-    }
-
-    return exitCode;
-
+    return execLuaFile(inputFile, luaInit, luaTrace);
 }
 // vi:expandtab:tabstop=4 shiftwidth=4:
