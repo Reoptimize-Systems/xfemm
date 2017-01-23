@@ -31,6 +31,7 @@ add_library(femm
   FemmProblem.cpp
   FemmReader.cpp
   FemmStateBase.cpp
+  femmversion.cpp
   fparse.cpp
   fullmatrix.cpp
   IntPoint.cpp
