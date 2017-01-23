@@ -57,7 +57,7 @@ protected:
     static int luaBendcontour(lua_State *L);
     static int luaBlockintegral(lua_State *L);
     static int luaClearbhpoints(lua_State *L);
-    static int luaClearblock(lua_State *L);
+    static int luaClearBlock(lua_State *L);
     static int luaClearcontour(lua_State *L);
     static int luaClearselected(lua_State *L);
     static int luaCopyRotate(lua_State *L);
