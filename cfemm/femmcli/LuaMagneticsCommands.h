@@ -76,8 +76,8 @@ protected:
     static int luaDelpointprop(lua_State *L);
     static int luaDetachdefault(lua_State *L);
     static int luaDetachouterspace(lua_State *L);
-    static int luaExitpost(lua_State *L);
-    static int luaExitpre(lua_State *L);
+    static int luaExitPost(lua_State *L);
+    static int luaExitPre(lua_State *L);
     static int luaGetboundingbox(lua_State *L);
     static int luaGetCircuitProperties(lua_State *L);
     static int luaGetElement(lua_State *L);
