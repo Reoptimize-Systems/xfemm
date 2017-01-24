@@ -132,8 +132,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_gridsnap", luaGridsnap);
     li.addFunction("mo_grid_snap", luaGridsnap);
     li.addFunction("mo_gridsnap", luaGridsnap);
-    li.addFunction("mo_group_select_block", luaGroupselectblock);
-    li.addFunction("mo_groupselectblock", luaGroupselectblock);
+    li.addFunction("mo_group_select_block", luaGroupSelectBlock);
+    li.addFunction("mo_groupselectblock", luaGroupSelectBlock);
     li.addFunction("mo_hide_contour_plot", luaHidecountour);
     li.addFunction("mo_hidecontourplot", luaHidecountour);
     li.addFunction("mo_hide_density_plot", luaHidedensity);
@@ -1531,15 +1531,62 @@ int femmcli::LuaMagneticsCommands::luaGridsnap(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief (De)select blocks associated with block labels in a given group.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_groupselectblock()}
+ *
+ * \internal
+ * mo_groupselectblock(n)
+ * Selects all of the blocks that are labeled by block labels that are
+ * members of group n.
+ * If no number is specified (i.e. mo_groupselectblock() ), all blocks
+ * are selected.
  */
-int femmcli::LuaMagneticsCommands::luaGroupselectblock(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    // FIXME(ZaJ): xfemm doesn't have this currently:
+    //fpproc->EditAction=2;
+
+    // Note(ZaJ): why does this depend on meshelem,
+    //            when blocklist is affected?
+    if (!fpproc->meshelem.empty())
+    {
+        int n = lua_gettop(L);
+        int group = 0;
+        if (n>0)
+            group = (int)lua_todouble(L,1);
+
+        for (auto &block: fpproc->blocklist)
+        {
+            if (group==0 || block.InGroup == group)
+                block.ToggleSelect();
+            fpproc->bHasMask = false;
+        }
+
+        //HDC myDCH=GetDC(theView->m_hWnd);
+        //CDC tempDC;
+        //CDC *pDC;
+        //pDC=tempDC.FromHandle(myDCH);
+
+        //CDC *pDC=GetDC(theView->m_hWnd);
+        //theView->OnDraw(pDC);
+        //theView->DrawSelected=-1;
+        //theView->ReleaseDC(pDC);
+        //fpproc->UpdateAllViews(theView);
+    }
+
     return 0;
 }
 

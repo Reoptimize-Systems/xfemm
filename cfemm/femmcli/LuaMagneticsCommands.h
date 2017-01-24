@@ -88,7 +88,7 @@ protected:
     static int luaGettitle(lua_State *L);
     static int luaGradient(lua_State *L);
     static int luaGridsnap(lua_State *L);
-    static int luaGroupselectblock(lua_State *L);
+    static int luaGroupSelectBlock(lua_State *L);
     static int luaHidecountour(lua_State *L);
     static int luaHidedensity(lua_State *L);
     static int luaHidegrid(lua_State *L);
