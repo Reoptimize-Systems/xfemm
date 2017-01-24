@@ -96,7 +96,7 @@ protected:
      * @param err output stream for error messages
      * @return \c false, if the token is not handled. \c true, if it is handled
      */
-    virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err) { return false; }
+    virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err);
 
     std::shared_ptr<FemmProblem> problem;
 private:

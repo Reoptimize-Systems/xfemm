@@ -557,6 +557,18 @@ void FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
     ignoreUnhandled = value;
 }
 
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          >
+bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
+::handleToken(const string &, istream &, ostream &)
+{
+    return false;
+}
+
 
 // template instantiation
 template class FemmReader<
