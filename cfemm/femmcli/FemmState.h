@@ -61,7 +61,7 @@ namespace femmcli
  * 3. LuaMagneticsCommands::luaAnalyze() or LuaMagneticsCommands::luaCreateMesh() mesh the data
  *    and store the result to disk.<br/>
  *    → additional mesh files (\c .edge, \c .ele, \c .node, \c .pbc) are generated
- * 4. LuaMagneticsCommands::luaAnalyze() runs the solver and stores the solution to disk.</br>
+ * 4. LuaMagneticsCommands::luaAnalyze() runs the solver and stores the solution to disk.<br/>
  *    → the mesh files are removed, and a solution file \c .ans is generated
  * 5. LuaMagneticsCommands::luaLoadSolution() reads the solution file into memory.
  *    The solution data is available for lua commands (mo_*).<br/>

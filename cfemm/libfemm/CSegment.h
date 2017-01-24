@@ -43,12 +43,12 @@ public:
 
     /**
      * @brief hasBoundaryMarker
-     * @return \c true, if the BoundaryMarker is set, \false otherwise
+     * @return \c true, if the BoundaryMarker is set, \c false otherwise
      */
     bool hasBoundaryMarker() const;
     /**
      * @brief isInConductor
-     * @return \c true, if InConductor is set, \false otherwise
+     * @return \c true, if InConductor is set, \c false otherwise
      */
     bool isInConductor() const;
 private:

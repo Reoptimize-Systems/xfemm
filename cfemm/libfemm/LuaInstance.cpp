@@ -40,7 +40,7 @@ femm::LuaInstance::LuaInstance(int stackSize)
     initializeLua(stackSize);
 }
 
-femm::LuaInstance::LuaInstance(std::shared_ptr<femm::FemmStateBase> state, int stackSize)
+femm::LuaInstance::LuaInstance(std::shared_ptr<FemmStateBase> state, int stackSize)
     : fs(state)
     , compatMode(false)
 {

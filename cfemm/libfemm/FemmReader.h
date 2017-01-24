@@ -60,6 +60,7 @@ public:
 
     /**
      * @brief FemmReader constructor
+     * @param problem The FemmProblem that shall contain the data.
      * @param errorpipe
      */
     FemmReader(std::shared_ptr<FemmProblem>problem, std::ostream &errorpipe);
@@ -67,6 +68,7 @@ public:
 
     /**
      * @brief Parse the given file and store the data in the associated data object.
+     * This also sets the PathName of the FemmProblem.
      * @param file
      * @return
      */
@@ -94,7 +96,7 @@ protected:
      * @param err output stream for error messages
      * @return \c false, if the token is not handled. \c true, if it is handled
      */
-    virtual bool handleToken(const std::string &, std::istream &, std::ostream &) { return false; }
+    virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err) { return false; }
 
     std::shared_ptr<FemmProblem> problem;
 private:
