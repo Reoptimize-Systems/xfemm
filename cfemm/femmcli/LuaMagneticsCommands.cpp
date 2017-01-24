@@ -65,8 +65,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_attachouterspace", luaAttachouterspace);
     li.addFunction("mo_bend_contour", luaBendcontour);
     li.addFunction("mo_bendcontour", luaBendcontour);
-    li.addFunction("mo_block_integral", luaBlockintegral);
-    li.addFunction("mo_blockintegral", luaBlockintegral);
+    li.addFunction("mo_block_integral", luaBlockIntegral);
+    li.addFunction("mo_blockintegral", luaBlockIntegral);
     li.addFunction("mi_clear_bh_points", luaClearbhpoints);
     li.addFunction("mi_clearbhpoints", luaClearbhpoints);
     li.addFunction("mo_clear_block", luaClearBlock);
@@ -880,16 +880,56 @@ int femmcli::LuaMagneticsCommands::luaBendcontour(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Calculate a block integral for the selected blocks.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_blockintegral()}
+ *
+ * \internal
+ * mo_blockintegral(type)
+ * Type parameter is documented in femm42 manual.
  */
-int femmcli::LuaMagneticsCommands::luaBlockintegral(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        lua_error(L,"Compatibility mode for mo_blockintegral is not implemented!\n");
+        //return ((CFemmviewDoc *)pFemmviewdoc)->old_lua_blockintegral(L);
+        return 0;
+    }
+
+    int type = (int) lua_todouble(L,1);
+
+    bool hasSelectedBlocks = false;
+    for (const auto &block: fpproc->blocklist )
+    {
+        if (block.IsSelected)
+        {
+            hasSelectedBlocks = true;
+            break;
+        }
+    }
+
+    if (!hasSelectedBlocks)
+    {
+        lua_error(L,"Cannot integrate\nNo area has been selected");
+        return 0;
+    }
+
+    CComplex z = fpproc->BlockIntegral(type);
+
+    lua_pushnumber(L,z);
+    return 1;
 }
 
 /**
