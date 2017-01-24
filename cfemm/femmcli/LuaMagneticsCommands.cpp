@@ -107,8 +107,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_detachdefault", luaDetachdefault);
     li.addFunction("mi_detach_outer_space", luaDetachouterspace);
     li.addFunction("mi_detachouterspace", luaDetachouterspace);
-    li.addFunction("mo_close", luaExitpost);
-    li.addFunction("mi_close", luaExitpre);
+    li.addFunction("mo_close", luaExitPost);
+    li.addFunction("mi_close", luaExitPre);
     li.addFunction("mi_getboundingbox", luaGetboundingbox);
     li.addFunction("mo_get_circuit_properties", luaGetCircuitProperties);
     li.addFunction("mo_getcircuitproperties", luaGetCircuitProperties);
@@ -1289,28 +1289,42 @@ int femmcli::LuaMagneticsCommands::luaDetachouterspace(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Closes the current post-processor instance.
+ * Invalidates the post-processor data of the FemmProblem.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_exitpost()}
+ *
+ * \internal
+ * mo_close()
  */
-int femmcli::LuaMagneticsCommands::luaExitpost(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaExitPost(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    femmState->invalidateSolutionData();
     return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_exitpre()}
+ *
+ * \internal
+ * mi_close()
+ * Closes current magnetics preprocessor document and destroys magnetics preprocessor window.
  */
-int femmcli::LuaMagneticsCommands::luaExitpre(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaExitPre(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    femmState->femmDocument.reset();
+    // trigger a reset of the mesher object (to break its dependency on femmDocument)
+    femmState->getMesher();
     return 0;
 }
 
