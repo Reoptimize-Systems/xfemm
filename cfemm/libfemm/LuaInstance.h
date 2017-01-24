@@ -134,7 +134,6 @@ public:
     /**
      * @brief luaNOP does nothing.
      * This function can be used as "implementation" for intentionally unimplemented lua functions.
-     * @param L
      * @return 0
      */
     static int luaNOP(lua_State *);
