@@ -39,185 +39,185 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
 {
     li.addFunction("mi_add_arc", luaAddArc);
     li.addFunction("mi_addarc", luaAddArc);
-    li.addFunction("mi_add_bh_point", luaAddbhpoint);
-    li.addFunction("mi_addbhpoint", luaAddbhpoint);
+    li.addFunction("mi_add_bh_point", luaAddbhpointNOP);
+    li.addFunction("mi_addbhpoint", luaAddbhpointNOP);
     li.addFunction("mi_add_bound_prop", luaAddBoundaryProp);
     li.addFunction("mi_addboundprop", luaAddBoundaryProp);
     li.addFunction("mi_add_circ_prop", luaAddCircuitProp);
     li.addFunction("mi_addcircprop", luaAddCircuitProp);
-    li.addFunction("mo_add_contour", luaAddcontour);
-    li.addFunction("mo_addcontour", luaAddcontour);
+    li.addFunction("mo_add_contour", luaAddcontourNOP);
+    li.addFunction("mo_addcontour", luaAddcontourNOP);
     li.addFunction("mi_add_block_label", luaAddBlocklabel);
     li.addFunction("mi_addblocklabel", luaAddBlocklabel);
-    li.addFunction("mi_add_segment", luaAddline);
-    li.addFunction("mi_addsegment", luaAddline);
+    li.addFunction("mi_add_segment", luaAddLine);
+    li.addFunction("mi_addsegment", luaAddLine);
     li.addFunction("mi_add_material", luaAddMatProp);
     li.addFunction("mi_addmaterial", luaAddMatProp);
-    li.addFunction("mi_add_node", luaAddnode);
-    li.addFunction("mi_addnode", luaAddnode);
-    li.addFunction("mi_add_point_prop", luaAddpointprop);
-    li.addFunction("mi_addpointprop", luaAddpointprop);
+    li.addFunction("mi_add_node", luaAddNode);
+    li.addFunction("mi_addnode", luaAddNode);
+    li.addFunction("mi_add_point_prop", luaAddpointpropNOP);
+    li.addFunction("mi_addpointprop", luaAddpointpropNOP);
     li.addFunction("mi_analyse", luaAnalyze);
     li.addFunction("mi_analyze", luaAnalyze);
-    li.addFunction("mi_attach_default", luaAttachdefault);
-    li.addFunction("mi_attachdefault", luaAttachdefault);
-    li.addFunction("mi_attach_outer_space", luaAttachouterspace);
-    li.addFunction("mi_attachouterspace", luaAttachouterspace);
-    li.addFunction("mo_bend_contour", luaBendcontour);
-    li.addFunction("mo_bendcontour", luaBendcontour);
+    li.addFunction("mi_attach_default", luaAttachdefaultNOP);
+    li.addFunction("mi_attachdefault", luaAttachdefaultNOP);
+    li.addFunction("mi_attach_outer_space", luaAttachouterspaceNOP);
+    li.addFunction("mi_attachouterspace", luaAttachouterspaceNOP);
+    li.addFunction("mo_bend_contour", luaBendcontourNOP);
+    li.addFunction("mo_bendcontour", luaBendcontourNOP);
     li.addFunction("mo_block_integral", luaBlockIntegral);
     li.addFunction("mo_blockintegral", luaBlockIntegral);
-    li.addFunction("mi_clear_bh_points", luaClearbhpoints);
-    li.addFunction("mi_clearbhpoints", luaClearbhpoints);
+    li.addFunction("mi_clear_bh_points", luaClearbhpointsNOP);
+    li.addFunction("mi_clearbhpoints", luaClearbhpointsNOP);
     li.addFunction("mo_clear_block", luaClearBlock);
     li.addFunction("mo_clearblock", luaClearBlock);
-    li.addFunction("mo_clear_contour", luaClearcontour);
-    li.addFunction("mo_clearcontour", luaClearcontour);
-    li.addFunction("mi_clear_selected", luaClearselected);
-    li.addFunction("mi_clearselected", luaClearselected);
-    li.addFunction("mi_copy_rotate", luaCopyRotate);
-    li.addFunction("mi_copyrotate", luaCopyRotate);
-    li.addFunction("mi_copy_translate", luaCopyTranslate);
-    li.addFunction("mi_copytranslate", luaCopyTranslate);
+    li.addFunction("mo_clear_contour", luaClearcontourNOP);
+    li.addFunction("mo_clearcontour", luaClearcontourNOP);
+    li.addFunction("mi_clear_selected", luaClearSelected);
+    li.addFunction("mi_clearselected", luaClearSelected);
+    li.addFunction("mi_copy_rotate", luaCopyRotateNOP);
+    li.addFunction("mi_copyrotate", luaCopyRotateNOP);
+    li.addFunction("mi_copy_translate", luaCopyTranslateNOP);
+    li.addFunction("mi_copytranslate", luaCopyTranslateNOP);
     li.addFunction("mi_create_mesh", luaCreateMesh);
     li.addFunction("mi_createmesh", luaCreateMesh);
-    li.addFunction("mi_create_radius", luaCreateradius);
-    li.addFunction("mi_createradius", luaCreateradius);
-    li.addFunction("mi_define_outer_space", luaDefineouterspace);
-    li.addFunction("mi_defineouterspace", luaDefineouterspace);
-    li.addFunction("mi_delete_bound_prop", luaDelboundprop);
-    li.addFunction("mi_deleteboundprop", luaDelboundprop);
-    li.addFunction("mi_delete_circuit", luaDelcircuitprop);
-    li.addFunction("mi_deletecircuit", luaDelcircuitprop);
-    li.addFunction("mi_delete_selected_arcsegments", luaDeleteselectedarcsegments);
-    li.addFunction("mi_deleteselectedarcsegments", luaDeleteselectedarcsegments);
-    li.addFunction("mi_delete_selected_labels", luaDeleteselectedlabels);
-    li.addFunction("mi_deleteselectedlabels", luaDeleteselectedlabels);
-    li.addFunction("mi_delete_selected", luaDeleteselected);
-    li.addFunction("mi_deleteselected", luaDeleteselected);
-    li.addFunction("mi_delete_selected_nodes", luaDeleteselectednodes);
-    li.addFunction("mi_deleteselectednodes", luaDeleteselectednodes);
-    li.addFunction("mi_delete_selected_segments", luaDeleteselectedsegments);
-    li.addFunction("mi_deleteselectedsegments", luaDeleteselectedsegments);
-    li.addFunction("mi_delete_material", luaDelmatprop);
-    li.addFunction("mi_deletematerial", luaDelmatprop);
-    li.addFunction("mi_delete_point_prop", luaDelpointprop);
-    li.addFunction("mi_deletepointprop", luaDelpointprop);
-    li.addFunction("mi_detach_default", luaDetachdefault);
-    li.addFunction("mi_detachdefault", luaDetachdefault);
-    li.addFunction("mi_detach_outer_space", luaDetachouterspace);
-    li.addFunction("mi_detachouterspace", luaDetachouterspace);
+    li.addFunction("mi_create_radius", luaCreateradiusNOP);
+    li.addFunction("mi_createradius", luaCreateradiusNOP);
+    li.addFunction("mi_define_outer_space", luaDefineouterspaceNOP);
+    li.addFunction("mi_defineouterspace", luaDefineouterspaceNOP);
+    li.addFunction("mi_delete_bound_prop", luaDelboundpropNOP);
+    li.addFunction("mi_deleteboundprop", luaDelboundpropNOP);
+    li.addFunction("mi_delete_circuit", luaDelcircuitpropNOP);
+    li.addFunction("mi_deletecircuit", luaDelcircuitpropNOP);
+    li.addFunction("mi_delete_selected_arcsegments", luaDeleteselectedarcsegmentsNOP);
+    li.addFunction("mi_deleteselectedarcsegments", luaDeleteselectedarcsegmentsNOP);
+    li.addFunction("mi_delete_selected_labels", luaDeleteselectedlabelsNOP);
+    li.addFunction("mi_deleteselectedlabels", luaDeleteselectedlabelsNOP);
+    li.addFunction("mi_delete_selected", luaDeleteselectedNOP);
+    li.addFunction("mi_deleteselected", luaDeleteselectedNOP);
+    li.addFunction("mi_delete_selected_nodes", luaDeleteselectednodesNOP);
+    li.addFunction("mi_deleteselectednodes", luaDeleteselectednodesNOP);
+    li.addFunction("mi_delete_selected_segments", luaDeleteselectedsegmentsNOP);
+    li.addFunction("mi_deleteselectedsegments", luaDeleteselectedsegmentsNOP);
+    li.addFunction("mi_delete_material", luaDelmatpropNOP);
+    li.addFunction("mi_deletematerial", luaDelmatpropNOP);
+    li.addFunction("mi_delete_point_prop", luaDelpointpropNOP);
+    li.addFunction("mi_deletepointprop", luaDelpointpropNOP);
+    li.addFunction("mi_detach_default", luaDetachdefaultNOP);
+    li.addFunction("mi_detachdefault", luaDetachdefaultNOP);
+    li.addFunction("mi_detach_outer_space", luaDetachouterspaceNOP);
+    li.addFunction("mi_detachouterspace", luaDetachouterspaceNOP);
     li.addFunction("mo_close", luaExitPost);
     li.addFunction("mi_close", luaExitPre);
-    li.addFunction("mi_getboundingbox", luaGetboundingbox);
+    li.addFunction("mi_getboundingbox", luaGetboundingboxNOP);
     li.addFunction("mo_get_circuit_properties", luaGetCircuitProperties);
     li.addFunction("mo_getcircuitproperties", luaGetCircuitProperties);
     li.addFunction("mo_get_element", luaGetElement);
     li.addFunction("mo_getelement", luaGetElement);
-    li.addFunction("mi_get_material", luaGetmaterial);
-    li.addFunction("mi_getmaterial", luaGetmaterial);
-    li.addFunction("mo_get_node", luaGetnode);
-    li.addFunction("mo_getnode", luaGetnode);
+    li.addFunction("mi_get_material", luaGetmaterialNOP);
+    li.addFunction("mi_getmaterial", luaGetmaterialNOP);
+    li.addFunction("mo_get_node", luaGetnodeNOP);
+    li.addFunction("mo_getnode", luaGetnodeNOP);
     li.addFunction("mo_get_point_values", luaGetPointVals);
     li.addFunction("mo_getpointvalues", luaGetPointVals);
-    li.addFunction("mi_getprobleminfo", luaGetprobleminfo);
-    li.addFunction("mo_get_problem_info", luaGetprobleminfo);
-    li.addFunction("mo_getprobleminfo", luaGetprobleminfo);
-    li.addFunction("mi_get_title", luaGettitle);
-    li.addFunction("mi_gettitle", luaGettitle);
-    li.addFunction("mo_get_title", luaGettitle);
-    li.addFunction("mo_gettitle", luaGettitle);
-    li.addFunction("mo_gradient", luaGradient);
-    li.addFunction("mi_grid_snap", luaGridsnap);
-    li.addFunction("mi_gridsnap", luaGridsnap);
-    li.addFunction("mo_grid_snap", luaGridsnap);
-    li.addFunction("mo_gridsnap", luaGridsnap);
+    li.addFunction("mi_getprobleminfo", luaGetprobleminfoNOP);
+    li.addFunction("mo_get_problem_info", luaGetprobleminfoNOP);
+    li.addFunction("mo_getprobleminfo", luaGetprobleminfoNOP);
+    li.addFunction("mi_get_title", luaGettitleNOP);
+    li.addFunction("mi_gettitle", luaGettitleNOP);
+    li.addFunction("mo_get_title", luaGettitleNOP);
+    li.addFunction("mo_gettitle", luaGettitleNOP);
+    li.addFunction("mo_gradient", luaGradientNOP);
+    li.addFunction("mi_grid_snap", LuaInstance::luaNOP);
+    li.addFunction("mi_gridsnap", LuaInstance::luaNOP);
+    li.addFunction("mo_grid_snap", LuaInstance::luaNOP);
+    li.addFunction("mo_gridsnap", LuaInstance::luaNOP);
     li.addFunction("mo_group_select_block", luaGroupSelectBlock);
     li.addFunction("mo_groupselectblock", luaGroupSelectBlock);
-    li.addFunction("mo_hide_contour_plot", luaHidecountour);
-    li.addFunction("mo_hidecontourplot", luaHidecountour);
-    li.addFunction("mo_hide_density_plot", luaHidedensity);
-    li.addFunction("mo_hidedensityplot", luaHidedensity);
-    li.addFunction("mi_hide_grid", luaHidegrid);
-    li.addFunction("mi_hidegrid", luaHidegrid);
-    li.addFunction("mo_hide_grid", luaHidegrid);
-    li.addFunction("mo_hidegrid", luaHidegrid);
-    li.addFunction("mo_hide_mesh", luaHidemesh);
-    li.addFunction("mo_hidemesh", luaHidemesh);
-    li.addFunction("mo_hide_points", luaHidepoints);
-    li.addFunction("mo_hidepoints", luaHidepoints);
-    li.addFunction("mo_line_integral", luaLineintegral);
-    li.addFunction("mo_lineintegral", luaLineintegral);
-    li.addFunction("mo_make_plot", luaMakeplot);
-    li.addFunction("mo_makeplot", luaMakeplot);
-    li.addFunction("mi_maximize", luaMaximize);
-    li.addFunction("mo_maximize", luaMaximize);
-    li.addFunction("mi_minimize", luaMinimize);
-    li.addFunction("mo_minimize", luaMinimize);
-    li.addFunction("mi_mirror", luaMirror);
-    li.addFunction("mi_modify_bound_prop", luaModboundprop);
-    li.addFunction("mi_modifyboundprop", luaModboundprop);
+    li.addFunction("mo_hide_contour_plot", LuaInstance::luaNOP);
+    li.addFunction("mo_hidecontourplot", LuaInstance::luaNOP);
+    li.addFunction("mo_hide_density_plot", LuaInstance::luaNOP);
+    li.addFunction("mo_hidedensityplot", LuaInstance::luaNOP);
+    li.addFunction("mi_hide_grid", LuaInstance::luaNOP);
+    li.addFunction("mi_hidegrid", LuaInstance::luaNOP);
+    li.addFunction("mo_hide_grid", LuaInstance::luaNOP);
+    li.addFunction("mo_hidegrid", LuaInstance::luaNOP);
+    li.addFunction("mo_hide_mesh", LuaInstance::luaNOP);
+    li.addFunction("mo_hidemesh", LuaInstance::luaNOP);
+    li.addFunction("mo_hide_points", LuaInstance::luaNOP);
+    li.addFunction("mo_hidepoints", LuaInstance::luaNOP);
+    li.addFunction("mo_line_integral", luaLineintegralNOP);
+    li.addFunction("mo_lineintegral", luaLineintegralNOP);
+    li.addFunction("mo_make_plot", luaMakeplotNOP);
+    li.addFunction("mo_makeplot", luaMakeplotNOP);
+    li.addFunction("mi_maximize", LuaInstance::luaNOP);
+    li.addFunction("mo_maximize", LuaInstance::luaNOP);
+    li.addFunction("mi_minimize", LuaInstance::luaNOP);
+    li.addFunction("mo_minimize", LuaInstance::luaNOP);
+    li.addFunction("mi_mirror", luaMirrorNOP);
+    li.addFunction("mi_modify_bound_prop", luaModboundpropNOP);
+    li.addFunction("mi_modifyboundprop", luaModboundpropNOP);
     li.addFunction("mi_modify_circ_prop", luaModifyCircuitProperty);
     li.addFunction("mi_modifycircprop", luaModifyCircuitProperty);
-    li.addFunction("mi_modify_material", luaModmatprop);
-    li.addFunction("mi_modifymaterial", luaModmatprop);
-    li.addFunction("mi_modify_point_prop", luaModpointprop);
-    li.addFunction("mi_modifypointprop", luaModpointprop);
-    li.addFunction("mi_move_rotate", luaMoveRotate);
-    li.addFunction("mi_moverotate", luaMoveRotate);
+    li.addFunction("mi_modify_material", luaModmatpropNOP);
+    li.addFunction("mi_modifymaterial", luaModmatpropNOP);
+    li.addFunction("mi_modify_point_prop", luaModpointpropNOP);
+    li.addFunction("mi_modifypointprop", luaModpointpropNOP);
+    li.addFunction("mi_move_rotate", luaMoveRotateNOP);
+    li.addFunction("mi_moverotate", luaMoveRotateNOP);
     li.addFunction("mi_move_translate", luaMoveTranslate);
     li.addFunction("mi_movetranslate", luaMoveTranslate);
-    li.addFunction("mi_new_document", luaNewdocument);
-    li.addFunction("mi_newdocument", luaNewdocument);
+    li.addFunction("mi_new_document", luaNewdocumentNOP);
+    li.addFunction("mi_newdocument", luaNewdocumentNOP);
     li.addFunction("mo_num_elements", luaNumElements);
     li.addFunction("mo_numelements", luaNumElements);
-    li.addFunction("mo_num_nodes", luaNumnodes);
-    li.addFunction("mo_numnodes", luaNumnodes);
-    li.addFunction("mi_setprevious", luaPrevious);
+    li.addFunction("mo_num_nodes", luaNumnodesNOP);
+    li.addFunction("mo_numnodes", luaNumnodesNOP);
+    li.addFunction("mi_setprevious", luaPreviousNOP);
     li.addFunction("mi_prob_def", luaProbDef);
     li.addFunction("mi_probdef", luaProbDef);
-    li.addFunction("mi_purge_mesh", luaPurgeMesh);
-    li.addFunction("mi_purgemesh", luaPurgeMesh);
-    li.addFunction("mi_read_dxf", luaReaddxf);
-    li.addFunction("mi_readdxf", luaReaddxf);
-    li.addFunction("mo_refresh_view", luaRefreshview);
-    li.addFunction("mo_refreshview", luaRefreshview);
-    li.addFunction("mo_reload", luaReload);
-    li.addFunction("mi_resize", luaResize);
-    li.addFunction("mo_resize", luaResize);
-    li.addFunction("mi_restore", luaRestore);
-    li.addFunction("mo_restore", luaRestore);
+    li.addFunction("mi_purge_mesh", luaPurgeMeshNOP);
+    li.addFunction("mi_purgemesh", luaPurgeMeshNOP);
+    li.addFunction("mi_read_dxf", LuaInstance::luaNOP);
+    li.addFunction("mi_readdxf", LuaInstance::luaNOP);
+    li.addFunction("mo_refresh_view", LuaInstance::luaNOP);
+    li.addFunction("mo_refreshview", LuaInstance::luaNOP);
+    li.addFunction("mo_reload", luaReloadNOP);
+    li.addFunction("mi_resize", LuaInstance::luaNOP);
+    li.addFunction("mo_resize", LuaInstance::luaNOP);
+    li.addFunction("mi_restore", LuaInstance::luaNOP);
+    li.addFunction("mo_restore", LuaInstance::luaNOP);
     li.addFunction("mi_load_solution", luaLoadSolution);
     li.addFunction("mi_loadsolution", luaLoadSolution);
-    li.addFunction("mi_save_bitmap", luaSavebitmap);
-    li.addFunction("mi_savebitmap", luaSavebitmap);
-    li.addFunction("mo_save_bitmap", luaSavebitmap);
-    li.addFunction("mo_savebitmap", luaSavebitmap);
+    li.addFunction("mi_save_bitmap", LuaInstance::luaNOP);
+    li.addFunction("mi_savebitmap", LuaInstance::luaNOP);
+    li.addFunction("mo_save_bitmap", LuaInstance::luaNOP);
+    li.addFunction("mo_savebitmap", LuaInstance::luaNOP);
     li.addFunction("mi_save_as", luaSaveDocument);
     li.addFunction("mi_saveas", luaSaveDocument);
-    li.addFunction("mi_save_dxf", luaSavedxf);
-    li.addFunction("mi_savedxf", luaSavedxf);
-    li.addFunction("mi_save_metafile", luaSaveWMF);
-    li.addFunction("mi_savemetafile", luaSaveWMF);
-    li.addFunction("mo_save_metafile", luaSaveWMF);
-    li.addFunction("mo_savemetafile", luaSaveWMF);
-    li.addFunction("mi_scale", luaScale);
+    li.addFunction("mi_save_dxf", LuaInstance::luaNOP);
+    li.addFunction("mi_savedxf", LuaInstance::luaNOP);
+    li.addFunction("mi_save_metafile", LuaInstance::luaNOP);
+    li.addFunction("mi_savemetafile", LuaInstance::luaNOP);
+    li.addFunction("mo_save_metafile", LuaInstance::luaNOP);
+    li.addFunction("mo_savemetafile", LuaInstance::luaNOP);
+    li.addFunction("mi_scale", luaScaleNOP);
     li.addFunction("mi_select_arcsegment", luaSelectArcsegment);
     li.addFunction("mi_selectarcsegment", luaSelectArcsegment);
-    li.addFunction("mo_select_block", luaSelectblock);
-    li.addFunction("mo_selectblock", luaSelectblock);
-    li.addFunction("mi_select_circle", luaSelectcircle);
-    li.addFunction("mi_selectcircle", luaSelectcircle);
-    li.addFunction("mi_select_group", luaSelectgroup);
-    li.addFunction("mi_selectgroup", luaSelectgroup);
+    li.addFunction("mo_select_block", luaSelectBlockNOP);
+    li.addFunction("mo_selectblock", luaSelectBlockNOP);
+    li.addFunction("mi_select_circle", luaSelectcircleNOP);
+    li.addFunction("mi_selectcircle", luaSelectcircleNOP);
+    li.addFunction("mi_select_group", luaSelectGroup);
+    li.addFunction("mi_selectgroup", luaSelectGroup);
     li.addFunction("mi_select_label", luaSelectBlocklabel);
     li.addFunction("mi_selectlabel", luaSelectBlocklabel);
-    li.addFunction("mo_select_point", luaSelectline);
-    li.addFunction("mo_selectpoint", luaSelectline);
+    li.addFunction("mo_select_point", luaSelectlineNOP);
+    li.addFunction("mo_selectpoint", luaSelectlineNOP);
     li.addFunction("mi_select_node", luaSelectnode);
     li.addFunction("mi_selectnode", luaSelectnode);
-    li.addFunction("mi_select_rectangle", luaSelectrectangle);
-    li.addFunction("mi_selectrectangle", luaSelectrectangle);
+    li.addFunction("mi_select_rectangle", luaSelectrectangleNOP);
+    li.addFunction("mi_selectrectangle", luaSelectrectangleNOP);
     li.addFunction("mi_select_segment", luaSelectSegment);
     li.addFunction("mi_selectsegment", luaSelectSegment);
     li.addFunction("mi_set_arcsegment_prop", luaSetArcsegmentProp);
@@ -228,12 +228,12 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_seteditmode", luaSetEditMode);
     li.addFunction("mo_set_edit_mode", luaSetEditMode);
     li.addFunction("mo_seteditmode", luaSetEditMode);
-    li.addFunction("mi_set_grid", luaSetgrid);
-    li.addFunction("mi_setgrid", luaSetgrid);
-    li.addFunction("mo_set_grid", luaSetgrid);
-    li.addFunction("mo_setgrid", luaSetgrid);
-    li.addFunction("mi_set_group", luaSetgroup);
-    li.addFunction("mi_setgroup", luaSetgroup);
+    li.addFunction("mi_set_grid", LuaInstance::luaNOP);
+    li.addFunction("mi_setgrid", LuaInstance::luaNOP);
+    li.addFunction("mo_set_grid", LuaInstance::luaNOP);
+    li.addFunction("mo_setgrid", LuaInstance::luaNOP);
+    li.addFunction("mi_set_group", luaSetgroupNOP);
+    li.addFunction("mi_setgroup", luaSetgroupNOP);
     li.addFunction("mi_set_node_prop", luaSetNodeProp);
     li.addFunction("mi_setnodeprop", luaSetNodeProp);
     li.addFunction("mi_set_segment_prop", luaSetSegmentProp);
@@ -256,7 +256,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_shownames", LuaInstance::luaNOP);
     li.addFunction("mo_show_points", LuaInstance::luaNOP);
     li.addFunction("mo_showpoints", LuaInstance::luaNOP);
-    li.addFunction("mo_smooth", luaSmoothing);
+    li.addFunction("mo_smooth", LuaInstance::luaNOP);
     li.addFunction("mi_set_focus", LuaInstance::luaNOP);
     li.addFunction("mi_setfocus", LuaInstance::luaNOP);
     li.addFunction("mo_set_focus", LuaInstance::luaNOP);
@@ -337,7 +337,7 @@ int femmcli::LuaMagneticsCommands::luaAddArc(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addbhpoint()}
  */
-int femmcli::LuaMagneticsCommands::luaAddbhpoint(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddbhpointNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -423,7 +423,7 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_addcontour()}
  */
-int femmcli::LuaMagneticsCommands::luaAddcontour(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddcontourNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -490,7 +490,7 @@ int femmcli::LuaMagneticsCommands::luaAddBlocklabel(lua_State *L)
  * mi_addsegment(x1,y1,x2,y2)
  * Add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)
  */
-int femmcli::LuaMagneticsCommands::luaAddline(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddLine(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -597,7 +597,7 @@ int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
  * \internal
  * mi_addnode(x,y) Add a new node at x,y
  */
-int femmcli::LuaMagneticsCommands::luaAddnode(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddNode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -642,7 +642,7 @@ int femmcli::LuaMagneticsCommands::luaAddnode(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addpointprop()}
  */
-int femmcli::LuaMagneticsCommands::luaAddpointprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddpointpropNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -847,7 +847,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_attachdefault()}
  */
-int femmcli::LuaMagneticsCommands::luaAttachdefault(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAttachdefaultNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -860,7 +860,7 @@ int femmcli::LuaMagneticsCommands::luaAttachdefault(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_attachouterspace()}
  */
-int femmcli::LuaMagneticsCommands::luaAttachouterspace(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAttachouterspaceNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -873,7 +873,7 @@ int femmcli::LuaMagneticsCommands::luaAttachouterspace(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_bendcontour()}
  */
-int femmcli::LuaMagneticsCommands::luaBendcontour(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaBendcontourNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -939,7 +939,7 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_clearbhpoints()}
  */
-int femmcli::LuaMagneticsCommands::luaClearbhpoints(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaClearbhpointsNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -985,7 +985,7 @@ int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_clearcontour()}
  */
-int femmcli::LuaMagneticsCommands::luaClearcontour(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaClearcontourNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1001,7 +1001,7 @@ int femmcli::LuaMagneticsCommands::luaClearcontour(lua_State *L)
  * \internal
  * mi clearselected() Clear all selected nodes, blocks, segments and arc segments.
  */
-int femmcli::LuaMagneticsCommands::luaClearselected(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaClearSelected(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1017,7 +1017,7 @@ int femmcli::LuaMagneticsCommands::luaClearselected(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_copy_rotate()}
  */
-int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaCopyRotateNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1030,7 +1030,7 @@ int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_copy_translate()}
  */
-int femmcli::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaCopyTranslateNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1126,7 +1126,7 @@ int femmcli::LuaMagneticsCommands::luaCreateMesh(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_createradius()}
  */
-int femmcli::LuaMagneticsCommands::luaCreateradius(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaCreateradiusNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1139,7 +1139,7 @@ int femmcli::LuaMagneticsCommands::luaCreateradius(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_defineouterspace()}
  */
-int femmcli::LuaMagneticsCommands::luaDefineouterspace(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDefineouterspaceNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1152,7 +1152,7 @@ int femmcli::LuaMagneticsCommands::luaDefineouterspace(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_delboundprop()}
  */
-int femmcli::LuaMagneticsCommands::luaDelboundprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDelboundpropNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1165,7 +1165,7 @@ int femmcli::LuaMagneticsCommands::luaDelboundprop(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
  */
-int femmcli::LuaMagneticsCommands::luaDelcircuitprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDelcircuitpropNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1178,7 +1178,7 @@ int femmcli::LuaMagneticsCommands::luaDelcircuitprop(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselectedarcsegments()}
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectedarcsegments(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteselectedarcsegmentsNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1191,7 +1191,7 @@ int femmcli::LuaMagneticsCommands::luaDeleteselectedarcsegments(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselectedlabels()}
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectedlabels(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteselectedlabelsNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1204,7 +1204,7 @@ int femmcli::LuaMagneticsCommands::luaDeleteselectedlabels(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselected()}
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselected(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteselectedNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1217,7 +1217,7 @@ int femmcli::LuaMagneticsCommands::luaDeleteselected(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselectednodes()}
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectednodes(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteselectednodesNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1230,7 +1230,7 @@ int femmcli::LuaMagneticsCommands::luaDeleteselectednodes(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselectedsegments()}
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectedsegments(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteselectedsegmentsNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1243,7 +1243,7 @@ int femmcli::LuaMagneticsCommands::luaDeleteselectedsegments(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_delmatprop()}
  */
-int femmcli::LuaMagneticsCommands::luaDelmatprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDelmatpropNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1256,7 +1256,7 @@ int femmcli::LuaMagneticsCommands::luaDelmatprop(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_delpointprop()}
  */
-int femmcli::LuaMagneticsCommands::luaDelpointprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDelpointpropNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1269,7 +1269,7 @@ int femmcli::LuaMagneticsCommands::luaDelpointprop(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_detachdefault()}
  */
-int femmcli::LuaMagneticsCommands::luaDetachdefault(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDetachdefaultNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1282,7 +1282,7 @@ int femmcli::LuaMagneticsCommands::luaDetachdefault(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_detachouterspace()}
  */
-int femmcli::LuaMagneticsCommands::luaDetachouterspace(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDetachouterspaceNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1335,7 +1335,7 @@ int femmcli::LuaMagneticsCommands::luaExitPre(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_getboundingbox()}
  */
-int femmcli::LuaMagneticsCommands::luaGetboundingbox(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetboundingboxNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1455,7 +1455,7 @@ int femmcli::LuaMagneticsCommands::luaGetElement(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_getmaterial()}
  */
-int femmcli::LuaMagneticsCommands::luaGetmaterial(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetmaterialNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1468,7 +1468,7 @@ int femmcli::LuaMagneticsCommands::luaGetmaterial(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_getnode()}
  */
-int femmcli::LuaMagneticsCommands::luaGetnode(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetnodeNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1539,7 +1539,7 @@ int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_getprobleminfo()}
  */
-int femmcli::LuaMagneticsCommands::luaGetprobleminfo(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetprobleminfoNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1552,7 +1552,7 @@ int femmcli::LuaMagneticsCommands::luaGetprobleminfo(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_gettitle()}
  */
-int femmcli::LuaMagneticsCommands::luaGettitle(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGettitleNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1565,20 +1565,7 @@ int femmcli::LuaMagneticsCommands::luaGettitle(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_gradient()}
  */
-int femmcli::LuaMagneticsCommands::luaGradient(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_gridsnap()}
- */
-int femmcli::LuaMagneticsCommands::luaGridsnap(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGradientNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1649,74 +1636,9 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_hidecountour()}
- */
-int femmcli::LuaMagneticsCommands::luaHidecountour(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_hidedensity()}
- */
-int femmcli::LuaMagneticsCommands::luaHidedensity(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_hidegrid()}
- */
-int femmcli::LuaMagneticsCommands::luaHidegrid(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_hidemesh()}
- */
-int femmcli::LuaMagneticsCommands::luaHidemesh(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_hidepoints()}
- */
-int femmcli::LuaMagneticsCommands::luaHidepoints(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_lineintegral()}
  */
-int femmcli::LuaMagneticsCommands::luaLineintegral(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaLineintegralNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1729,33 +1651,7 @@ int femmcli::LuaMagneticsCommands::luaLineintegral(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_makeplot()}
  */
-int femmcli::LuaMagneticsCommands::luaMakeplot(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,luaMaximize()}
- */
-int femmcli::LuaMagneticsCommands::luaMaximize(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,luaMinimize()}
- */
-int femmcli::LuaMagneticsCommands::luaMinimize(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaMakeplotNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1768,7 +1664,7 @@ int femmcli::LuaMagneticsCommands::luaMinimize(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_mirror()}
  */
-int femmcli::LuaMagneticsCommands::luaMirror(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaMirrorNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1781,7 +1677,7 @@ int femmcli::LuaMagneticsCommands::luaMirror(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_modboundprop()}
  */
-int femmcli::LuaMagneticsCommands::luaModboundprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModboundpropNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1869,7 +1765,7 @@ int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_modmatprop()}
  */
-int femmcli::LuaMagneticsCommands::luaModmatprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModmatpropNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1882,7 +1778,7 @@ int femmcli::LuaMagneticsCommands::luaModmatprop(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_modpointprop()}
  */
-int femmcli::LuaMagneticsCommands::luaModpointprop(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModpointpropNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1895,7 +1791,7 @@ int femmcli::LuaMagneticsCommands::luaModpointprop(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_move_rotate()}
  */
-int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaMoveRotateNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -1981,7 +1877,7 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_newdocument()}
  */
-int femmcli::LuaMagneticsCommands::luaNewdocument(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaNewdocumentNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2018,7 +1914,7 @@ int femmcli::LuaMagneticsCommands::luaNumElements(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_numnodes()}
  */
-int femmcli::LuaMagneticsCommands::luaNumnodes(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaNumnodesNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2031,7 +1927,7 @@ int femmcli::LuaMagneticsCommands::luaNumnodes(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_previous()}
  */
-int femmcli::LuaMagneticsCommands::luaPrevious(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaPreviousNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2137,33 +2033,7 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_purge_mesh()}
  */
-int femmcli::LuaMagneticsCommands::luaPurgeMesh(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_readdxf()}
- */
-int femmcli::LuaMagneticsCommands::luaReaddxf(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_refreshview()}
- */
-int femmcli::LuaMagneticsCommands::luaRefreshview(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaPurgeMeshNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2176,33 +2046,7 @@ int femmcli::LuaMagneticsCommands::luaRefreshview(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_reload()}
  */
-int femmcli::LuaMagneticsCommands::luaReload(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,luaResize()}
- */
-int femmcli::LuaMagneticsCommands::luaResize(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,luaRestore()}
- */
-int femmcli::LuaMagneticsCommands::luaRestore(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaReloadNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2247,19 +2091,6 @@ int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_savebitmap()}
- */
-int femmcli::LuaMagneticsCommands::luaSavebitmap(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
  * @brief Save the problem description into the given file.
  * @param L
  * @return 0
@@ -2292,35 +2123,9 @@ int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_savedxf()}
- */
-int femmcli::LuaMagneticsCommands::luaSavedxf(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_saveWMF()}
- */
-int femmcli::LuaMagneticsCommands::luaSaveWMF(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_scale()}
  */
-int femmcli::LuaMagneticsCommands::luaScale(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaScaleNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2368,7 +2173,7 @@ int femmcli::LuaMagneticsCommands::luaSelectArcsegment(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_selectblock()}
  */
-int femmcli::LuaMagneticsCommands::luaSelectblock(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectBlockNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2381,7 +2186,7 @@ int femmcli::LuaMagneticsCommands::luaSelectblock(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectcircle()}
  */
-int femmcli::LuaMagneticsCommands::luaSelectcircle(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectcircleNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2399,7 +2204,7 @@ int femmcli::LuaMagneticsCommands::luaSelectcircle(lua_State *L)
  * Select the nth group of nodes, segments, arc segments and blocklabels.
  * This function will clear all previously selected elements and leave the editmode in 4 (group)
  */
-int femmcli::LuaMagneticsCommands::luaSelectgroup(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectGroup(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -2493,7 +2298,7 @@ int femmcli::LuaMagneticsCommands::luaSelectBlocklabel(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_selectline()}
  */
-int femmcli::LuaMagneticsCommands::luaSelectline(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectlineNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2538,7 +2343,7 @@ int femmcli::LuaMagneticsCommands::luaSelectnode(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectrectangle()}
  */
-int femmcli::LuaMagneticsCommands::luaSelectrectangle(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectrectangleNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2710,29 +2515,16 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_seteditmode()}
- */
-int femmcli::LuaMagneticsCommands::luaSetEditMode(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
  * @brief Set the default mesher EditMode.
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_setgrid()}
+ * \femm42{femm/femmeLua.cpp,lua_seteditmode()}
  *
  * \internal
  * mi_seteditmode(editmode)
  */
-int femmcli::LuaMagneticsCommands::luaSetgrid(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetEditMode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -2766,7 +2558,7 @@ int femmcli::LuaMagneticsCommands::luaSetgrid(lua_State *L)
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_setgroup()}
  */
-int femmcli::LuaMagneticsCommands::luaSetgroup(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetgroupNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
@@ -2880,19 +2672,6 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
         }
     }
 
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_smoothing()}
- */
-int femmcli::LuaMagneticsCommands::luaSmoothing(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
     return 0;
 }
 
