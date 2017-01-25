@@ -50,7 +50,7 @@ protected:
     static int luaAddLine(lua_State *L);
     static int luaAddMatProp(lua_State *L);
     static int luaAddNode(lua_State *L);
-    static int luaAddpointpropNOP(lua_State *L);
+    static int luaAddPointProp(lua_State *L);
     static int luaAnalyze(lua_State *L);
     static int luaAttachdefaultNOP(lua_State *L);
     static int luaAttachouterspaceNOP(lua_State *L);
