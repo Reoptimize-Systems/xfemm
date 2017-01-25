@@ -1250,22 +1250,24 @@ void FMesher::Undo()
 //	}
 //}
 
-//bool FMesher::DeleteSelectedBlockLabels()
-//{
-//	int i=0;
-//	bool flag=false;
-//
-//	if (blocklist.size() > 0) do{
-//		if(blocklist[i].IsSelected != 0){
-//			blocklist.RemoveAt(i,1);
-//			flag=true;
-//		}
-//		else i++;
-//	} while (i<blocklist.size());
-//
-//	blocklist.FreeExtra();
-//	return flag;
-//}
+bool FMesher::DeleteSelectedBlockLabels()
+{
+    auto &labellist = problem->labellist;
+    size_t oldsize = labellist.size();
+
+    if (!labellist.empty())
+    {
+        // remove selected elements
+        labellist.erase(
+                    std::remove_if(labellist.begin(),labellist.end(),
+                                   [](const auto& label){ return label->IsSelected;} ),
+                    labellist.end()
+                    );
+    }
+    labellist.shrink_to_fit();
+
+    return labellist.size() != oldsize;
+}
 
 bool FMesher::DeleteSelectedSegments()
 {
@@ -1305,49 +1307,57 @@ bool FMesher::DeleteSelectedArcSegments()
     return arclist.size() != oldsize;
 }
 
-//bool FMesher::DeleteSelectedNodes()
-//{
-//	int i=0;
-//	int j;
-//	bool flag=false;
-//
-//	if (nodelist.size() > 0) do{
-//		if(nodelist[i].IsSelected!=0){
-//			flag=true;
-//			// first remove all lines that contain the point;
-//			for(j=0;j<linelist.size();j++)
-//				if((linelist[j].n0==i) || (linelist[j].n1==i))
-//					linelist[j].ToggleSelect();
-//			DeleteSelectedSegments();
-//
-//			// remove all arcs that contain the point;
-//			for(j=0;j<arclist.size();j++)
-//				if((arclist[j].n0==i) || (arclist[j].n1==i))
-//					arclist[j].ToggleSelect();
-//			DeleteSelectedArcSegments();
-//
-//			// remove node from the nodelist...
-//			nodelist.RemoveAt(i,1);
-//
-//			// update lines to point to the new node numbering
-//			for(j=0;j<linelist.size();j++){
-//				if (linelist[j].n0>i) linelist[j].n0--;
-//				if (linelist[j].n1>i) linelist[j].n1--;
-//			}
-//
-//			// update arcs to point to the new node numbering
-//			for(j=0;j<arclist.size();j++){
-//				if (arclist[j].n0>i) arclist[j].n0--;
-//				if (arclist[j].n1>i) arclist[j].n1--;
-//			}
-//		}
-//		else i++;
-//	} while (i<nodelist.size());
-//
-//	nodelist.FreeExtra();
-//
-//	return flag;
-//}
+bool FMesher::DeleteSelectedNodes()
+{
+    auto &nodelist = problem->nodelist;
+    bool changed = false;
+
+    if (nodelist.size() > 0)
+    {
+        int i=0;
+        do
+        {
+            if(nodelist[i]->IsSelected!=0)
+            {
+                changed=true;
+                auto &linelist = problem->linelist;
+                auto &arclist = problem->arclist;
+                // first remove all lines that contain the point;
+                for (int j=0; j<(int)linelist.size(); j++)
+                    if((linelist[j]->n0==i) || (linelist[j]->n1==i))
+                        linelist[j]->ToggleSelect();
+                DeleteSelectedSegments();
+
+                // remove all arcs that contain the point;
+                for (int j=0; j<(int)arclist.size(); j++)
+                    if((arclist[j]->n0==i) || (arclist[j]->n1==i))
+                        arclist[j]->ToggleSelect();
+                DeleteSelectedArcSegments();
+
+                // remove node from the nodelist...
+                nodelist.erase(nodelist.begin()+i);
+
+                // update lines to point to the new node numbering
+                for (int j=0; j<(int)linelist.size(); j++)
+                {
+                    if (linelist[j]->n0>i) linelist[j]->n0--;
+                    if (linelist[j]->n1>i) linelist[j]->n1--;
+                }
+
+                // update arcs to point to the new node numbering
+                for (int j=0; j<(int)arclist.size(); j++)
+                {
+                    if (arclist[j]->n0>i) arclist[j]->n0--;
+                    if (arclist[j]->n1>i) arclist[j]->n1--;
+                }
+            } else
+                i++;
+        } while (i<(int)nodelist.size());
+    }
+
+    nodelist.shrink_to_fit();
+    return changed;
+}
 
 
 bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
