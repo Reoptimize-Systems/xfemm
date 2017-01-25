@@ -254,6 +254,17 @@ public:
      * @return \c true, if any segments were deleted, \c false otherwise.
      */
     bool DeleteSelectedArcSegments();
+    /**
+     * @brief Delete all selected BlockLabels
+     * @return \c true, if any blocks were deleted, \c false otherwise.
+     */
+    bool DeleteSelectedBlockLabels();
+    /**
+     * @brief Delete all selected nodes.
+     * If a node is part of a line or arc, that line or arc is also deleted.
+     * @return \c true, if any node was deleted, \c false otherwise.
+     */
+    bool DeleteSelectedNodes();
 private:
 
     virtual bool Initialize(femm::FileType t);
