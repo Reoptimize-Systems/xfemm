@@ -1,15 +1,15 @@
-[Format] = 4.0
-[Frequency] = 0
-[Precision] = 1e-08
-[MinAngle] = 30
-[Depth] = 1.635130595832468
-[LengthUnits] = meters
-[ProblemType] = planar
-[Coordinates] = cartesian
-[ACSolver] = 0
-[Comment] = "Add comments here."
-[PointProps] = 0
-[BdryProps] = 9
+[Format]      =  4.0
+[Frequency]   =  0
+[Precision]   =  1e-08
+[MinAngle]    =  30
+[Depth]       =  1.635130595832468
+[LengthUnits] =  meters
+[ProblemType] =  planar
+[Coordinates] =  cartesian
+[ACSolver]    =  0
+[Comment]     =  "Add comments here."
+[PointProps]  =  0
+[BdryProps]   = 9
   <BeginBdry>
     <BdryName> = "Pros A"
     <BdryType> = 0
@@ -136,7 +136,7 @@
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
   <EndBdry>
-[BlockProps] = 4
+[BlockProps]  = 4
   <BeginBlock>
     <BlockName> = "1117 Steel"
     <Mu_x> = 1777
@@ -155,15 +155,15 @@
     <NStrands> = 0
     <WireD> = 0
     <BHPoints> = 9
-    0 0
-    0.70040000000000002 238.73249999999999
-    1.351 795.77499999999998
-    1.6240000000000001 3183.0999999999999
-    1.77 7957.75
-    2 31831
-    2.1299999999999999 79577.5
-    2.25 159155
-    2.46 318310
+      0	0
+      0.70040000000000002	238.73249999999999
+      1.351	795.77499999999998
+      1.6240000000000001	3183.0999999999999
+      1.77	7957.75
+      2	31831
+      2.1299999999999999	79577.5
+      2.25	159155
+      2.46	318310
   <EndBlock>
   <BeginBlock>
     <BlockName> = "NdFeB 40 MGOe"
@@ -222,30 +222,24 @@
     <WireD> = 0.74416819751743335
     <BHPoints> = 0
   <EndBlock>
-[CircuitProps] = 3
+[CircuitProps]  = 3
   <BeginCircuit>
-    <CircuitName> ="Coil A"
+    <CircuitName> = "Coil A"
     <TotalAmps_re> = 0
     <TotalAmps_im> = 0
     <CircuitType> = 1
-    <Voltgradient_re> = 0
-    <Voltgradient_im> = 0
   <EndCircuit>
   <BeginCircuit>
-    <CircuitName> ="Coil C"
+    <CircuitName> = "Coil C"
     <TotalAmps_re> = 4.3494274780126675e-08
     <TotalAmps_im> = 0
     <CircuitType> = 1
-    <Voltgradient_re> = 0
-    <Voltgradient_im> = 0
   <EndCircuit>
   <BeginCircuit>
-    <CircuitName> ="Coil B"
+    <CircuitName> = "Coil B"
     <TotalAmps_re> = 0
     <TotalAmps_im> = 0
     <CircuitType> = 1
-    <Voltgradient_re> = 0
-    <Voltgradient_im> = 0
   <EndCircuit>
 [NumPoints] = 60
 0.018754979001603209	0.0083074143815839233	0	0

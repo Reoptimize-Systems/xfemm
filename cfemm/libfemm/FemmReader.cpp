@@ -387,11 +387,11 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                 // correct for 1-based indexing:
                 node->BoundaryMarker--;
                 line = line.substr(pos);
+                node->InGroup = std::stoi(line, &pos);
+                line = line.substr(pos);
 
                 if (problem->filetype == femm::HeatFlowFile)
                 {
-                    node->InGroup = std::stoi(line, &pos);
-                    line = line.substr(pos);
                     node->InConductor = std::stoi(line, &pos);
                     // correct for 1-based indexing:
                     node->InConductor--;
