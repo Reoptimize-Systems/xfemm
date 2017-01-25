@@ -55,8 +55,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addmaterial", luaAddMatProp);
     li.addFunction("mi_add_node", luaAddNode);
     li.addFunction("mi_addnode", luaAddNode);
-    li.addFunction("mi_add_point_prop", luaAddpointpropNOP);
-    li.addFunction("mi_addpointprop", luaAddpointpropNOP);
+    li.addFunction("mi_add_point_prop", luaAddPointProp);
+    li.addFunction("mi_addpointprop", luaAddPointProp);
     li.addFunction("mi_analyse", luaAnalyze);
     li.addFunction("mi_analyze", luaAnalyze);
     li.addFunction("mi_attach_default", luaAttachdefaultNOP);
@@ -636,15 +636,41 @@ int femmcli::LuaMagneticsCommands::luaAddNode(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new point property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addpointprop()}
+ *
+ * \internal
+ * mi_addpointprop("pointpropname",a,j)
+ * Adds a new point property of name "pointpropname"
+ * with either a specified potential a in units Webers/Meter or a point current j in units of Amps.
+ * Set the unused parameter pairs to 0.
  */
-int femmcli::LuaMagneticsCommands::luaAddpointpropNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddPointProp(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        lua_error(L,"Compatibility mode for mi_addpointprop is not implemented!\n");
+        //return ((CFemmeDoc *)pFemmeDoc)->old_lua_addpointprop(L);
+        return 0;
+    }
+
+    std::unique_ptr<CMPointProp> m = std::make_unique<CMPointProp>();
+    int n=lua_gettop(L);
+
+    if (n>0) m->PointName = lua_tostring(L,1);
+    if (n>1) m->A = lua_tonumber(L,2);
+    if (n>2) m->J = lua_tonumber(L,3);
+
+    doc->nodeproplist.push_back(std::move(m));
+    doc->updateNodeMap();
     return 0;
 }
 
@@ -882,7 +908,7 @@ int femmcli::LuaMagneticsCommands::luaBendcontourNOP(lua_State *L)
 /**
  * @brief Calculate a block integral for the selected blocks.
  * @param L
- * @return 0
+ * @return 1 on success, 0 otherwise
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_blockintegral()}
  *
