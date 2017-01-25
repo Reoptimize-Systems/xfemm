@@ -67,11 +67,11 @@ protected:
     static int luaDefineouterspaceNOP(lua_State *L);
     static int luaDelboundpropNOP(lua_State *L);
     static int luaDelcircuitpropNOP(lua_State *L);
-    static int luaDeleteselectedarcsegmentsNOP(lua_State *L);
-    static int luaDeleteselectedlabelsNOP(lua_State *L);
-    static int luaDeleteselectedNOP(lua_State *L);
-    static int luaDeleteselectednodesNOP(lua_State *L);
-    static int luaDeleteselectedsegmentsNOP(lua_State *L);
+    static int luaDeleteSelectedArcSegments(lua_State *L);
+    static int luaDeleteSelectedBlockLabels(lua_State *L);
+    static int luaDeleteSelected(lua_State *L);
+    static int luaDeleteSelectedNodes(lua_State *L);
+    static int luaDeleteSelectedSegments(lua_State *L);
     static int luaDelmatpropNOP(lua_State *L);
     static int luaDelpointpropNOP(lua_State *L);
     static int luaDetachdefaultNOP(lua_State *L);
