@@ -89,16 +89,16 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deleteboundprop", luaDelboundpropNOP);
     li.addFunction("mi_delete_circuit", luaDelcircuitpropNOP);
     li.addFunction("mi_deletecircuit", luaDelcircuitpropNOP);
-    li.addFunction("mi_delete_selected_arcsegments", luaDeleteselectedarcsegmentsNOP);
-    li.addFunction("mi_deleteselectedarcsegments", luaDeleteselectedarcsegmentsNOP);
-    li.addFunction("mi_delete_selected_labels", luaDeleteselectedlabelsNOP);
-    li.addFunction("mi_deleteselectedlabels", luaDeleteselectedlabelsNOP);
-    li.addFunction("mi_delete_selected", luaDeleteselectedNOP);
-    li.addFunction("mi_deleteselected", luaDeleteselectedNOP);
-    li.addFunction("mi_delete_selected_nodes", luaDeleteselectednodesNOP);
-    li.addFunction("mi_deleteselectednodes", luaDeleteselectednodesNOP);
-    li.addFunction("mi_delete_selected_segments", luaDeleteselectedsegmentsNOP);
-    li.addFunction("mi_deleteselectedsegments", luaDeleteselectedsegmentsNOP);
+    li.addFunction("mi_delete_selected_arcsegments", luaDeleteSelectedArcSegments);
+    li.addFunction("mi_deleteselectedarcsegments", luaDeleteSelectedArcSegments);
+    li.addFunction("mi_delete_selected_labels", luaDeleteSelectedBlockLabels);
+    li.addFunction("mi_deleteselectedlabels", luaDeleteSelectedBlockLabels);
+    li.addFunction("mi_delete_selected", luaDeleteSelected);
+    li.addFunction("mi_deleteselected", luaDeleteSelected);
+    li.addFunction("mi_delete_selected_nodes", luaDeleteSelectedNodes);
+    li.addFunction("mi_deleteselectednodes", luaDeleteSelectedNodes);
+    li.addFunction("mi_delete_selected_segments", luaDeleteSelectedSegments);
+    li.addFunction("mi_deleteselectedsegments", luaDeleteSelectedSegments);
     li.addFunction("mi_delete_material", luaDelmatpropNOP);
     li.addFunction("mi_deletematerial", luaDelmatpropNOP);
     li.addFunction("mi_delete_point_prop", luaDelpointpropNOP);
@@ -1198,67 +1198,108 @@ int femmcli::LuaMagneticsCommands::luaDelcircuitpropNOP(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete selects arcs.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselectedarcsegments()}
+ *
+ * \internal
+ * mi_deleteselectedarcsegments()
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectedarcsegmentsNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteSelectedArcSegments(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedArcSegments();
     return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete selected block labels.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselectedlabels()}
+ *
+ * \internal
+ * mi_deleteselectedlabels()
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectedlabelsNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteSelectedBlockLabels(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedBlockLabels();
     return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete selected objects.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselected()}
+ *
+ * \internal
+ * mi_deleteselected()
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectedNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteSelected(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedSegments();
+    mesher->DeleteSelectedArcSegments();
+    mesher->DeleteSelectedNodes();
+    mesher->DeleteSelectedBlockLabels();
+
     return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete selected nodes
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselectednodes()}
+ *
+ * \internal
+ * mi_deleteselectednodes()
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectednodesNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteSelectedNodes(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedNodes();
+
     return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete selected segments.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_deleteselectedsegments()}
+ *
+ * \internal
+ * mi_deleteselectedsegments()
  */
-int femmcli::LuaMagneticsCommands::luaDeleteselectedsegmentsNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteSelectedSegments(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedSegments();
+
     return 0;
 }
 
