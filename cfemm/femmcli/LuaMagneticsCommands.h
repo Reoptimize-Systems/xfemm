@@ -84,7 +84,7 @@ protected:
     static int luaGetmaterialNOP(lua_State *L);
     static int luaGetnodeNOP(lua_State *L);
     static int luaGetPointVals(lua_State *L);
-    static int luaGetprobleminfoNOP(lua_State *L);
+    static int luaGetProblemInfo(lua_State *L);
     static int luaGettitleNOP(lua_State *L);
     static int luaGradientNOP(lua_State *L);
     static int luaGroupSelectBlock(lua_State *L);
