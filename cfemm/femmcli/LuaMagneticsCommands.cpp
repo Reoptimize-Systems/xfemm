@@ -120,9 +120,9 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_getnode", luaGetnodeNOP);
     li.addFunction("mo_get_point_values", luaGetPointVals);
     li.addFunction("mo_getpointvalues", luaGetPointVals);
-    li.addFunction("mi_getprobleminfo", luaGetprobleminfoNOP);
-    li.addFunction("mo_get_problem_info", luaGetprobleminfoNOP);
-    li.addFunction("mo_getprobleminfo", luaGetprobleminfoNOP);
+    li.addFunction("mi_getprobleminfo", luaGetProblemInfo);
+    li.addFunction("mo_get_problem_info", luaGetProblemInfo);
+    li.addFunction("mo_getprobleminfo", luaGetProblemInfo);
     li.addFunction("mi_get_title", luaGettitleNOP);
     li.addFunction("mi_gettitle", luaGettitleNOP);
     li.addFunction("mo_get_title", luaGettitleNOP);
@@ -1600,16 +1600,53 @@ int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Get information about the problem description.
  * @param L
- * @return 0
+ * @return 4
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_getprobleminfo()}
+ *
+ * \internal
+ * mo_getprobleminfo()
+ * Returns info on problem description. Returns four values
+ * 1. problem type
+ * 2. frequency in Hz
+ * 3. depth assumed for planar problems in meters
+ * 4. length unit used to draw the problem in meters
  */
-int femmcli::LuaMagneticsCommands::luaGetprobleminfoNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetProblemInfo(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    lua_pushnumber(L,doc->ProblemType);
+    lua_pushnumber(L,doc->Frequency);
+    lua_pushnumber(L,doc->Depth);
+    switch (doc->LengthUnits)
+    {
+    case LengthMillimeters:
+        lua_pushnumber(L,0.001);
+        break;
+    case LengthCentimeters:
+        lua_pushnumber(L,0.01);
+        break;
+    case LengthMeters:
+        lua_pushnumber(L,1.0);
+        break;
+    case LengthMils:
+        lua_pushnumber(L,2.54e-05);
+        break;
+    case LengthMicrometers:
+        lua_pushnumber(L,1.0e-06);
+        break;
+    case LengthInches:
+    default:// inches
+        lua_pushnumber(L,0.0254);
+        break;
+    }
+
+    return 4;
 }
 
 /**
