@@ -246,7 +246,7 @@ bool FPProc::OpenDocument(string pathname)
 {
 
     FILE *fp;
-    int i,j,k,t;
+    int i,j,k,t, sscnt;
     char s[1024],q[1024];
     char *v;
     double b,bi,br;
@@ -1017,30 +1017,88 @@ bool FPProc::OpenDocument(string pathname)
 
     // read in meshnodes;
     fscanf(fp,"%i\n",&k);
+#ifndef NDEBUG
+printf("numnodes: %d\n", k);
+fflush(stdout);
+#endif // NDEBUG
     meshnode.resize(k);
     for(i=0; i<k; i++)
     {
-        fgets(s,1024,fp);
-        if (Frequency!=0)
-            sscanf(s,"%lf\t%lf\t%lf\t%lf",&mnode.x,&mnode.y,
-                   &mnode.A.re,&mnode.A.im);
+        if ( fgets(s,1024,fp) != NULL )
+        {
+            if (Frequency!=0)
+                sscnt = sscanf(s,"%lf\t%lf\t%lf\t%lf",
+                               &mnode.x,
+                               &mnode.y,
+                               &mnode.A.re,
+                               &mnode.A.im) ;
+
+                if (sscnt != 4)
+                {
+                    char buf[50];
+                    sprintf (buf, "An error occured while reading mesh nodes section of file, wrong number of inputs (%d) for node %d.\n", sscnt, i);
+                    WarnMessage(buf); /* Error */
+                    return false;
+                }
+
+            else
+            {
+                sscnt = sscanf(s,"%lf\t%lf\t%lf",&mnode.x,&mnode.y,&mnode.A.re);
+                mnode.A.im=0;
+
+                if (sscnt != 3)
+                {
+                    char buf[50];
+                    sprintf (buf, "An error occured while reading mesh nodes section of file, wrong number of inputs (%d) for node %d.\n", sscnt, i);
+                    WarnMessage(buf); /* Error */
+                    return false;
+                }
+            }
+            meshnode[i] = mnode;
+        }
         else
         {
-            sscanf(s,"%lf\t%lf\t%lf",&mnode.x,&mnode.y,&mnode.A.re);
-            mnode.A.im=0;
+            // There was some read error while trying to read the file
+            WarnMessage("An error occured while reading mesh nodes section of file.\n"); /* Error */
+            return false;
         }
-        meshnode[i] = mnode;
+
     }
 
     // read in elements;
-    fscanf(fp,"%i\n",&k);
+    fgets(s,1024,fp);
+    sscanf(s,"%i",&k);
+    //fscanf(fp,"%i\n",&k);
     meshelem.resize(k);
+#ifndef NDEBUG
+printf("numelement: %d\n", k);
+#endif // NDEBUG
     for(i=0; i<k; i++)
     {
-        fgets(s,1024,fp);
-        sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
-        elm.blk=blocklist[elm.lbl].BlockType;
-        meshelem[i] = elm;
+        if ( fgets(s,1024,fp) != NULL )
+        {
+            sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
+
+            if (sscnt != 4)
+            {
+                char buf[50];
+                sprintf (buf, "An error occured while reading mesh nodes section of file, wrong number of inputs (%d) for node %d.\n", sscnt, i);
+                WarnMessage(buf); /* Error */
+                return false;
+            }
+
+            elm.blk=blocklist[elm.lbl].BlockType;
+            meshelem[i] = elm;
+#ifndef NDEBUG
+            printf("numnodes: %d\n", k);
+#endif // NDEBUG
+        }
+        else
+        {
+            // There was some read error while trying to read the file
+            WarnMessage("An error occured while reading mesh elements section of file.\n"); /* Error */
+            return false;
+        }
     }
 
     // read in circuit data;
@@ -1484,7 +1542,7 @@ int FPProc::InTriangle(double x, double y)
     double z;
 
     sz = meshelem.size();
-    
+
     if ((k < 0) || (k >= sz)) k = 0;
 
     // In most applications, the triangle we're looking
@@ -1493,7 +1551,7 @@ int FPProc::InTriangle(double x, double y)
     // elements nearby the last one selected first.
     if (InTriangleTest(x,y,k)) return k;
 
-    // wasn't in the last searched triangle, so look through all the 
+    // wasn't in the last searched triangle, so look through all the
     // elements
     hi = k;
     lo = k;
@@ -1507,7 +1565,7 @@ int FPProc::InTriangle(double x, double y)
 
         z = (meshelem[hi].ctr.re - x) * (meshelem[hi].ctr.re - x) +
             (meshelem[hi].ctr.im - y) * (meshelem[hi].ctr.im - y);
-        
+
         if (z <= meshelem[hi].rsqr)
         {
             if (InTriangleTest(x,y,hi))
@@ -1519,7 +1577,7 @@ int FPProc::InTriangle(double x, double y)
 
         z = (meshelem[lo].ctr.re-x)*(meshelem[lo].ctr.re-x) +
             (meshelem[lo].ctr.im-y)*(meshelem[lo].ctr.im-y);
-        
+
         if (z <= meshelem[lo].rsqr)
         {
             if (InTriangleTest(x,y,lo))
@@ -2585,18 +2643,18 @@ int FPProc::ClosestNode(double x, double y)
 
 bool FPProc::InTriangleTest(double x, double y, int i)
 {
-        
+
     if ((i < 0) || (i >= int(meshelem.size()))) return false;
-    
+
     int j,k;
     double z;
 
     for (j=0; j<3; j++)
     {
-        k = j + 1; 
-        
+        k = j + 1;
+
         if (k == 3) k = 0;
-        
+
         // Case 1: p[k]>p[j]
         if (meshelem[i].p[k] > meshelem[i].p[j])
         {
@@ -2604,7 +2662,7 @@ bool FPProc::InTriangleTest(double x, double y, int i)
                 (y - meshnode[meshelem[i].p[j]].y) -
                 (meshnode[meshelem[i].p[k]].y - meshnode[meshelem[i].p[j]].y) *
                 (x - meshnode[meshelem[i].p[j]].x);
-            
+
             if(z<0) return false;
         }
         //Case 2: p[k]<p[j]
@@ -2614,7 +2672,7 @@ bool FPProc::InTriangleTest(double x, double y, int i)
                 (y - meshnode[meshelem[i].p[k]].y) -
                 (meshnode[meshelem[i].p[j]].y - meshnode[meshelem[i].p[k]].y) *
                 (x - meshnode[meshelem[i].p[k]].x);
-            
+
             if (z > 0) return false;
         }
     }
@@ -2688,9 +2746,9 @@ double FPProc::ElmVolume(int i)
 {
     int k;
     double a, r[3], R;
-            
+
     a = ElmArea(i) * pow (LengthConv[LengthUnits], 2.);
-    
+
     if (problemType == AXISYMMETRIC)
     {
         for (k=0; k<3; k++)
@@ -2698,10 +2756,10 @@ double FPProc::ElmVolume(int i)
             r[k] = meshnode[meshelem[i].p[k]].x * LengthConv[LengthUnits];
         }
         R = (r[0] + r[1] + r[2]) / 3.;
-        
+
         a *= (2. * PI * R);
     }
-    else 
+    else
     {
         a *= Depth;
     }
@@ -2866,7 +2924,7 @@ CComplex FPProc::BlockIntegral(int inttype)
     y.re = 0.; y.im = 0.;
     for(i=0; i<3; i++) U[i]=1.;
 
-    if(inttype==6) 
+    if(inttype==6)
     {
         z = BlockIntegral(3) + BlockIntegral(4); //total losses
     }
@@ -3165,12 +3223,12 @@ CComplex FPProc::BlockIntegral(int inttype)
 
                     z+=y;
                     break;
-                    
+
                 case 25: // 2D Shape centroid
-                    
+
                     y.re += meshelem[i].ctr.re * a;
                     y.im += meshelem[i].ctr.im * a;
-                            
+
                     break;
 
                 default:
@@ -3294,7 +3352,7 @@ CComplex temp;
             }
         }
     }
-    
+
     if (inttype == 25) // 2D shape centroid
     {
         // divide sum of Cx*A and Cy*A by sum of A
