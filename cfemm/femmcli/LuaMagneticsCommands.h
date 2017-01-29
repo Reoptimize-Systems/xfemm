@@ -1,4 +1,4 @@
-/* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+/* Copyright 2016-2017 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  *
  * The source code in this file is heavily derived from
  * FEMM by David Meeker <dmeeker@ieee.org>.
@@ -42,7 +42,7 @@ public:
 protected:
 
     static int luaAddArc(lua_State *L);
-    static int luaAddbhpointNOP(lua_State *L);
+    static int luaAddBHPoint(lua_State *L);
     static int luaAddBoundaryProp(lua_State *L);
     static int luaAddCircuitProp(lua_State *L);
     static int luaAddcontourNOP(lua_State *L);
