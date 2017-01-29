@@ -60,8 +60,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addpointprop", luaAddPointProp);
     li.addFunction("mi_analyse", luaAnalyze);
     li.addFunction("mi_analyze", luaAnalyze);
-    li.addFunction("mi_attach_default", luaAttachdefaultNOP);
-    li.addFunction("mi_attachdefault", luaAttachdefaultNOP);
+    li.addFunction("mi_attach_default", luaAttachDefault);
+    li.addFunction("mi_attachdefault", luaAttachDefault);
     li.addFunction("mi_attach_outer_space", luaAttachOuterSpace);
     li.addFunction("mi_attachouterspace", luaAttachOuterSpace);
     li.addFunction("mo_bend_contour", luaBendcontourNOP);
@@ -104,8 +104,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deletematerial", luaDelmatpropNOP);
     li.addFunction("mi_delete_point_prop", luaDelpointpropNOP);
     li.addFunction("mi_deletepointprop", luaDelpointpropNOP);
-    li.addFunction("mi_detach_default", luaDetachdefaultNOP);
-    li.addFunction("mi_detachdefault", luaDetachdefaultNOP);
+    li.addFunction("mi_detach_default", luaDetachDefault);
+    li.addFunction("mi_detachdefault", luaDetachDefault);
     li.addFunction("mi_detach_outer_space", luaDetachOuterSpace);
     li.addFunction("mi_detachouterspace", luaDetachOuterSpace);
     li.addFunction("mo_close", luaExitPost);
@@ -939,15 +939,31 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Marks the first selected block label as the default block label.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_attachdefault()}
+ *
+ * \internal
+ * mi_attachdefault()
+ * Marks the selected block label as the default block label. This block
+ * label is applied to any region that has not been explicitly labeled.
  */
-int femmcli::LuaMagneticsCommands::luaAttachdefaultNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAttachDefault(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    bool isFirstSelected = true;
+    for (auto &label: doc->labellist)
+    {
+        label->IsDefault = (label->IsSelected && isFirstSelected);
+        if (label->IsSelected)
+            isFirstSelected = false;
+    }
+
     return 0;
 }
 
@@ -1416,15 +1432,28 @@ int femmcli::LuaMagneticsCommands::luaDelpointpropNOP(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Unset IsDefault for selected block labels.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_detachdefault()}
+ *
+ * \internal
+ * mi_detachdefault()
+ * Undefines the default attribute for the selected block labels.
  */
-int femmcli::LuaMagneticsCommands::luaDetachdefaultNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDetachDefault(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    for (auto &label: doc->labellist)
+    {
+        if (label->IsSelected)
+            label->IsDefault = false;
+    }
+
     return 0;
 }
 

@@ -52,7 +52,7 @@ protected:
     static int luaAddNode(lua_State *L);
     static int luaAddPointProp(lua_State *L);
     static int luaAnalyze(lua_State *L);
-    static int luaAttachdefaultNOP(lua_State *L);
+    static int luaAttachDefault(lua_State *L);
     static int luaAttachOuterSpace(lua_State *L);
     static int luaBendcontourNOP(lua_State *L);
     static int luaBlockIntegral(lua_State *L);
@@ -74,7 +74,7 @@ protected:
     static int luaDeleteSelectedSegments(lua_State *L);
     static int luaDelmatpropNOP(lua_State *L);
     static int luaDelpointpropNOP(lua_State *L);
-    static int luaDetachdefaultNOP(lua_State *L);
+    static int luaDetachDefault(lua_State *L);
     static int luaDetachOuterSpace(lua_State *L);
     static int luaExitPost(lua_State *L);
     static int luaExitPre(lua_State *L);
