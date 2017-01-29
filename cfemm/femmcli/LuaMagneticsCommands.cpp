@@ -62,8 +62,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_analyze", luaAnalyze);
     li.addFunction("mi_attach_default", luaAttachdefaultNOP);
     li.addFunction("mi_attachdefault", luaAttachdefaultNOP);
-    li.addFunction("mi_attach_outer_space", luaAttachouterspaceNOP);
-    li.addFunction("mi_attachouterspace", luaAttachouterspaceNOP);
+    li.addFunction("mi_attach_outer_space", luaAttachOuterSpace);
+    li.addFunction("mi_attachouterspace", luaAttachOuterSpace);
     li.addFunction("mo_bend_contour", luaBendcontourNOP);
     li.addFunction("mo_bendcontour", luaBendcontourNOP);
     li.addFunction("mo_block_integral", luaBlockIntegral);
@@ -106,8 +106,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deletepointprop", luaDelpointpropNOP);
     li.addFunction("mi_detach_default", luaDetachdefaultNOP);
     li.addFunction("mi_detachdefault", luaDetachdefaultNOP);
-    li.addFunction("mi_detach_outer_space", luaDetachouterspaceNOP);
-    li.addFunction("mi_detachouterspace", luaDetachouterspaceNOP);
+    li.addFunction("mi_detach_outer_space", luaDetachOuterSpace);
+    li.addFunction("mi_detachouterspace", luaDetachOuterSpace);
     li.addFunction("mo_close", luaExitPost);
     li.addFunction("mi_close", luaExitPre);
     li.addFunction("mi_getboundingbox", luaGetboundingboxNOP);
@@ -952,15 +952,29 @@ int femmcli::LuaMagneticsCommands::luaAttachdefaultNOP(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Mark selected block labels as members of the external region,
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_attachouterspace()}
+ *
+ * \internal
+ * mi_attachouterspace()
+ * Marks all selected block labels as members of the external region
+ * used for modeling unbounded axisymmetric problems via the Kelvin Transformation.
  */
-int femmcli::LuaMagneticsCommands::luaAttachouterspaceNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAttachOuterSpace(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    for (auto &label: doc->labellist)
+    {
+        if (label->IsSelected)
+            label->IsExternal = true;
+    }
+
     return 0;
 }
 
@@ -1415,15 +1429,29 @@ int femmcli::LuaMagneticsCommands::luaDetachdefaultNOP(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Mark selected block labels as not belonging to the external region.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_detachouterspace()}
+ *
+ * \internal
+ * mi_detachouterspace()
+ * Undefines all selected block labels as members of the external
+ * region used for modeling unbounded axisymmetric problems via the Kelvin Transformation.
  */
-int femmcli::LuaMagneticsCommands::luaDetachouterspaceNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDetachOuterSpace(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    for (auto &label: doc->labellist)
+    {
+        if (label->IsSelected)
+            label->IsExternal = false;
+    }
+
     return 0;
 }
 
