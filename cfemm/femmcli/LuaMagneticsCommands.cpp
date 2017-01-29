@@ -1,4 +1,5 @@
-/* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+/* Copyright 2016-2017 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+ * Copyright 1998-2016 David Meeker <dmeeker@ieee.org>
  *
  * The source code in this file is heavily derived from
  * FEMM by David Meeker <dmeeker@ieee.org>.
@@ -39,8 +40,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
 {
     li.addFunction("mi_add_arc", luaAddArc);
     li.addFunction("mi_addarc", luaAddArc);
-    li.addFunction("mi_add_bh_point", luaAddbhpointNOP);
-    li.addFunction("mi_addbhpoint", luaAddbhpointNOP);
+    li.addFunction("mi_add_bh_point", luaAddBHPoint);
+    li.addFunction("mi_addbhpoint", luaAddBHPoint);
     li.addFunction("mi_add_bound_prop", luaAddBoundaryProp);
     li.addFunction("mi_addboundprop", luaAddBoundaryProp);
     li.addFunction("mi_add_circ_prop", luaAddCircuitProp);
@@ -331,15 +332,86 @@ int femmcli::LuaMagneticsCommands::luaAddArc(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a B-H data point to the given material.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_addbhpoint()}
+ *
+ * \internal
+ * mi_addbhpoint("blockname",b,h)
+ * Adds a B-H data point the the material specified by the string "blockname"
+ *
+ * \remark Note(ZaJ): xfemm has Bdata and Hdata in CMMaterialProp,
+ * while femm42 has two forms of CMaterialProp: one with Bdata and Hdata, and
+ * one with a single BHdata.
+ * I didn't want to introduce the second form into xfemm, so I tried mapping the BHdata
+ * in this function to Bdata+Hdata. Ideally, we'd have a single form BHdata in xfemm, though.
  */
-int femmcli::LuaMagneticsCommands::luaAddbhpointNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddBHPoint(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    // find the index of the material to modify;
+    if (doc->blockproplist.empty())
+        return 0; // Note(ZaJ): femm42 returns TRUE
+    std::string BlockName = lua_tostring(L,1);
+
+    // for(blockIdx=0;blockIdx<doc->blockproplist.GetSize();blockIdx++)
+    //     if(BlockName==doc->blockproplist[blockIdx].BlockName) break;
+    // // get out of here if there's no matching material
+    // if(blockIdx==doc->blockproplist.GetSize()) return TRUE;
+    int blockIdx;
+    // search block name
+    if (doc->blockMap.count(BlockName))
+        blockIdx = doc->blockMap[BlockName];
+    else
+        return 0; // Note(ZaJ): femm42 returns TRUE
+
+    // cast CMaterialProp to CMMaterialProp:
+    CMMaterialProp *blockprop = dynamic_cast<CMMaterialProp*>(doc->blockproplist[blockIdx].get());
+    // now, add the bhpoint for the specified material;
+    int n = blockprop->BHpoints;
+    if(n==0) // Make sure that (0,0) gets included as a data point;
+    {
+        n=1;
+        blockprop->BHpoints=1;
+        //blockprop->BHdata=(CComplex *)malloc(sizeof(CComplex));
+        //blockprop->BHdata[0]=0;
+        blockprop->Bdata.push_back(0);
+        blockprop->Hdata.push_back(0);
+    }
+    //CComplex v = lua_tonumber(L,2)+I*lua_tonumber(L,3);
+    double b = lua_tonumber(L,2).re;
+    CComplex h = lua_tonumber(L,3);
+    // make sure the point isn't a duplicate
+    for(int i=0; i<n; i++)
+    {
+        if (blockprop->Bdata[i]==b && blockprop->Hdata[i]==h)
+            return 0;
+    }
+    blockprop->BHpoints=n+1;
+    blockprop->Bdata.push_back(b);
+    blockprop->Hdata.push_back(h);
+
+    // make sure that the BH points are in the right order;
+    // Note(ZaJ): bubblesort anyone?
+    for(int i=0; i<n; i++)
+    {
+        bool swapped=false;
+        for(int j=0; j<n; j++)
+        {
+            if(blockprop->Bdata[j]>blockprop->Bdata[j+1])
+            {
+                swapped=true;
+                std::swap(blockprop->Bdata[j],blockprop->Bdata[j+1]);
+                std::swap(blockprop->Hdata[j],blockprop->Hdata[j+1]);
+            }
+        }
+        if (!swapped) i=n;
+    }
     return 0;
 }
 
