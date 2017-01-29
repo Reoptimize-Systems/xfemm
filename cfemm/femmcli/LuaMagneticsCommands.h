@@ -95,7 +95,7 @@ protected:
     static int luaModifyCircuitProperty(lua_State *L);
     static int luaModmatpropNOP(lua_State *L);
     static int luaModpointpropNOP(lua_State *L);
-    static int luaMoveRotateNOP(lua_State *L);
+    static int luaMoveRotate(lua_State *L);
     static int luaMoveTranslate(lua_State *L);
     static int luaNewdocumentNOP(lua_State *L);
     static int luaNumElements(lua_State *L);

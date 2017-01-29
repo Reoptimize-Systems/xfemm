@@ -1476,6 +1476,83 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
     return true;
 }
 
+void FMesher::RotateMove(CComplex c, double t, FMesher::EditMode selector)
+{
+    assert(selector != EditModeInvalid);
+    bool processNodes = (selector == EditNodes);
+
+    const CComplex z = exp(I*t*PI/180);
+
+    if(selector==EditLines || selector==EditGroup)
+    {
+        for (const auto &line: problem->linelist)
+        {
+            if (line->IsSelected)
+            {
+                problem->nodelist[line->n0]->IsSelected = true;
+                problem->nodelist[line->n1]->IsSelected = true;
+            }
+        }
+        processNodes = true;
+    }
+
+    if(selector==EditArcs || selector==EditGroup)
+    {
+        for (const auto &arc: problem->arclist)
+        {
+            if (arc->IsSelected)
+            {
+                problem->nodelist[arc->n0]->IsSelected = true;
+                problem->nodelist[arc->n1]->IsSelected = true;
+            }
+        }
+        processNodes = true;
+    }
+
+    if(selector==EditLabels || selector==EditGroup)
+    {
+        for (auto &label: problem->labellist)
+        {
+            if (label->IsSelected)
+            {
+                CComplex x (label->x, label->y);
+                x = (x-c)*z+c;
+                label->x = x.re;
+                label->y = x.im;
+
+                for (const auto &bprop : problem->blockproplist)
+                {
+                    CMMaterialProp *prop = dynamic_cast<CMMaterialProp*>(bprop.get());
+                    if (prop
+                            && prop->BlockName == label->BlockTypeName
+                            && prop->H_c != 0)
+                    {
+                        label->MagDir += t;
+                    }
+                }
+            }
+        }
+        // only enforce PSLG if we don't do it later
+        if (!processNodes)
+            EnforcePSLG();
+    }
+
+    if(processNodes)
+    {
+        for (auto &node : problem->nodelist)
+        {
+            if (node->IsSelected)
+            {
+                CComplex x(node->x,node->y);
+                x = (x-c)*z+c;
+                node->x = x.re;
+                node->y = x.im;
+            }
+        }
+        EnforcePSLG();
+    }
+}
+
 void FMesher::TranslateMove(double dx, double dy, FMesher::EditMode selector)
 {
     assert(selector != EditModeInvalid);

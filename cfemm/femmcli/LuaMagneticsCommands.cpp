@@ -164,8 +164,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_modifymaterial", luaModmatpropNOP);
     li.addFunction("mi_modify_point_prop", luaModpointpropNOP);
     li.addFunction("mi_modifypointprop", luaModpointpropNOP);
-    li.addFunction("mi_move_rotate", luaMoveRotateNOP);
-    li.addFunction("mi_moverotate", luaMoveRotateNOP);
+    li.addFunction("mi_move_rotate", luaMoveRotate);
+    li.addFunction("mi_moverotate", luaMoveRotate);
     li.addFunction("mi_move_translate", luaMoveTranslate);
     li.addFunction("mi_movetranslate", luaMoveTranslate);
     li.addFunction("mi_new_document", luaNewdocumentNOP);
@@ -1961,15 +1961,70 @@ int femmcli::LuaMagneticsCommands::luaModpointpropNOP(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Rotate selected objects around a point by a given angle.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_move_rotate()}
+ *
+ * \internal
+ * mi_moverotate(bx,by,shiftangle,(editaction))
+ * * bx, by – base point for rotation
+ * * shiftangle – angle in degrees by which the selected objects are rotated.
+ * * editaction 0 –nodes, 1 – lines (segments), 2 –block labels, 3 – arc segments, 4- group
  */
-int femmcli::LuaMagneticsCommands::luaMoveRotateNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n;
+    n=lua_gettop(L);
+
+    if(n!=4 && n!=3)
+    {
+        lua_error(L,"Invalid number of parameters for move rotate!\n");
+        return 0;
+    }
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+    double shiftangle = lua_todouble(L,3);
+
+    fmesher::FMesher::EditMode editAction;
+    if (n==4)
+    {
+        int action = (int)lua_todouble(L,4);
+        switch (action) {
+        case 0: editAction = fmesher::FMesher::EditNodes;
+            break;
+        case 1: editAction = fmesher::FMesher::EditLines;
+            break;
+        case 2: editAction = fmesher::FMesher::EditLabels;
+            break;
+        case 3: editAction = fmesher::FMesher::EditArcs;
+            break;
+        case 4: editAction = fmesher::FMesher::EditGroup;
+            break;
+        default:
+            lua_error(L, "mi_moverotate(): Invalid value of editaction!\n");
+            return 0;
+            break;
+        }
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    mesher->UpdateUndo();
+    mesher->RotateMove(CComplex(x,y),shiftangle,editAction);
+    // Note(ZaJ): shouldn't the invalidation be done by translateMove?
+    doc->invalidateMesh();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
+
     return 0;
 }
 
@@ -2041,7 +2096,9 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
     mesher->TranslateMove(x,y,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by translateMove?
     doc->invalidateMesh();
-    //mesher->greymeshline.RemoveAll();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
 
     return 0;
 }
