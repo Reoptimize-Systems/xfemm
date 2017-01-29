@@ -237,6 +237,7 @@ public:
      */
     bool AddArcSegment(femm::CArcSegment &asegm, double tol=0.);
 
+    void RotateMove(CComplex c, double t, FMesher::EditMode selector);
     /**
      * @brief Translate the selected objects of the requested type.
      * @param dx
