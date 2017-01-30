@@ -134,10 +134,6 @@ function writefemmfile(filename, FemmProblem, varargin)
     if numel(FemmProblem.ProbInfo) > 1
         error('MFEMM:writefemmfile:probinfonum', 'FemmProblem.ProbInfo must be a scalar structure.');
     end
-    
-    if ~isfield(FemmProblem.ProbInfo, 'ForceMaxMesh')
-        FemmProblem.ProbInfo.ForceMaxMesh = false;
-    end
         
     switch ftype.(domaintype)
         
@@ -282,10 +278,24 @@ function writefemmfile(filename, FemmProblem, varargin)
         s = '';
     end
     
-    if FemmProblem.ProbInfo.ForceMaxMesh
-        fprintf(fp, '[forcemaxmesh] =  1\n');
+    if ~isfield (FemmProblem.ProbInfo, 'ForceMaxMesh')
+        FemmProblem.ProbInfo.ForceMaxMesh = false;
+    end
+    
+    if FemmProblem.ProbInfo.ForceMaxMesh == true
+        fprintf(fp,'[forcemaxmesh] =  1\n');
     else
-        fprintf(fp, '[forcemaxmesh] =  0\n');
+        fprintf(fp,'[forcemaxmesh] =  0\n');
+    end
+
+    if ~isfield (FemmProblem.ProbInfo, 'SmartMesh')
+        FemmProblem.ProbInfo.SmartMesh = true;
+    end
+
+    if FemmProblem.ProbInfo.SmartMesh == true
+        fprintf(fp,'[dosmartmesh] =  1\n');
+    else
+        fprintf(fp,'[dosmartmesh] =  0\n');
     end
     
     fprintf(fp, '[Comment]     =  "%s"\n', s);
