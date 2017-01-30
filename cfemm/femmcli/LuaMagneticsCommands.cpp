@@ -68,8 +68,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_bendcontour", luaBendcontourNOP);
     li.addFunction("mo_block_integral", luaBlockIntegral);
     li.addFunction("mo_blockintegral", luaBlockIntegral);
-    li.addFunction("mi_clear_bh_points", luaClearbhpointsNOP);
-    li.addFunction("mi_clearbhpoints", luaClearbhpointsNOP);
+    li.addFunction("mi_clear_bh_points", luaClearBHPoints);
+    li.addFunction("mi_clearbhpoints", luaClearBHPoints);
     li.addFunction("mo_clear_block", luaClearBlock);
     li.addFunction("mo_clearblock", luaClearBlock);
     li.addFunction("mo_clear_contour", luaClearcontourNOP);
@@ -1061,15 +1061,41 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Clear B-H data for a given material.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_clearbhpoints()}
+ *
+ * \internal
+ * mi_clearbhpoints("blockname")
+ * Clears all B-H data points associatied with the material
+ * specified by "blockname".
  */
-int femmcli::LuaMagneticsCommands::luaClearbhpointsNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaClearBHPoints(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    // find the index of the material to modify;
+    if (doc->blockproplist.empty())
+        return 0; // Note(ZaJ): femm42 returns TRUE
+    std::string BlockName = lua_tostring(L,1);
+
+    int blockIdx;
+    // search block name
+    if (doc->blockMap.count(BlockName))
+        blockIdx = doc->blockMap[BlockName];
+    else
+        return 0; // Note(ZaJ): femm42 returns TRUE
+
+    // cast CMaterialProp to CMMaterialProp:
+    CMMaterialProp *blockprop = dynamic_cast<CMMaterialProp*>(doc->blockproplist[blockIdx].get());
+    blockprop->BHpoints=0;
+    blockprop->Bdata.clear();
+    blockprop->Hdata.clear();
+
     return 0;
 }
 
