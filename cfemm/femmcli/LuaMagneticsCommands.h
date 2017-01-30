@@ -56,7 +56,7 @@ protected:
     static int luaAttachOuterSpace(lua_State *L);
     static int luaBendcontourNOP(lua_State *L);
     static int luaBlockIntegral(lua_State *L);
-    static int luaClearbhpointsNOP(lua_State *L);
+    static int luaClearBHPoints(lua_State *L);
     static int luaClearBlock(lua_State *L);
     static int luaClearcontourNOP(lua_State *L);
     static int luaClearSelected(lua_State *L);
