@@ -64,7 +64,7 @@ protected:
     static int luaCopyTranslateNOP(lua_State *L);
     static int luaCreateMesh(lua_State *L);
     static int luaCreateradiusNOP(lua_State *L);
-    static int luaDefineouterspaceNOP(lua_State *L);
+    static int luaDefineOuterSpace(lua_State *L);
     static int luaDeleteBoundaryProperty(lua_State *L);
     static int luaDeleteCircuitProperty(lua_State *L);
     static int luaDeleteSelectedArcSegments(lua_State *L);

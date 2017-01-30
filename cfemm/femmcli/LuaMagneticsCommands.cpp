@@ -84,8 +84,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_createmesh", luaCreateMesh);
     li.addFunction("mi_create_radius", luaCreateradiusNOP);
     li.addFunction("mi_createradius", luaCreateradiusNOP);
-    li.addFunction("mi_define_outer_space", luaDefineouterspaceNOP);
-    li.addFunction("mi_defineouterspace", luaDefineouterspaceNOP);
+    li.addFunction("mi_define_outer_space", luaDefineOuterSpace);
+    li.addFunction("mi_defineouterspace", luaDefineOuterSpace);
     li.addFunction("mi_delete_bound_prop", luaDeleteBoundaryProperty);
     li.addFunction("mi_deleteboundprop", luaDeleteBoundaryProperty);
     li.addFunction("mi_delete_circuit", luaDeleteCircuitProperty);
@@ -1287,15 +1287,38 @@ int femmcli::LuaMagneticsCommands::luaCreateradiusNOP(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Define properties of external region.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_defineouterspace()}
+ *
+ * \internal
+ * mi_defineouterspace(Zo,Ro,Ri)
+ * Defines an axisymmetric external region to be used in
+ * conjuction with the Kelvin Transformation method of modeling unbounded problems.
  */
-int femmcli::LuaMagneticsCommands::luaDefineouterspaceNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDefineOuterSpace(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    int n = lua_gettop(L);
+    if (n!=3)
+        return 0;
+
+    doc->extZo = fabs(lua_todouble(L,1));
+    doc->extRo = fabs(lua_todouble(L,2));
+    doc->extRi = fabs(lua_todouble(L,3));
+
+    if((doc->extRo==0) || (doc->extRi==0))
+    {
+        doc->extZo = 0;
+        doc->extRo = 0;
+        doc->extRi = 0;
+    }
+
     return 0;
 }
 
