@@ -79,6 +79,7 @@ public:
 	int     filetype;
 	double	MinAngle;
 	bool    DoForceMaxMeshArea;
+	bool    DoSmartMesh;
 
 	// default behaviors
 	double	d_minangle;

@@ -85,6 +85,7 @@ FMesher::FMesher(string PathName)
 bool FMesher::Initialize()
 {
     DoForceMaxMeshArea = false;
+    DoSmartMesh = false;
 
     // set up some default behaviors
     d_minangle=30.;
@@ -570,6 +571,26 @@ int FMesher::LoadFEMFile (string PathName)
             else
             {
                 DoForceMaxMeshArea = true;
+            }
+            addFileStr (s);
+        }
+
+        // Option to use smart meshing
+        if( _strnicmp(q,"[dosmartmesh]",13)==0)
+        {
+            int temp = 0;
+            v = StripKey(s);
+            sscanf(v,"%i",&temp);
+            q[0] = '\0';
+            // 0 == do not use smart mesh
+            // not 0 == use smart mesh
+            if (temp == 0)
+            {
+                DoSmartMesh = false;
+            }
+            else
+            {
+                DoSmartMesh = true;
             }
             addFileStr (s);
         }
