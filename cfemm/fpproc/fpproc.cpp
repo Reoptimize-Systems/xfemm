@@ -1018,8 +1018,7 @@ bool FPProc::OpenDocument(string pathname)
     // read in meshnodes;
     fscanf(fp,"%i\n",&k);
 #ifndef NDEBUG
-printf("numnodes: %d\n", k);
-fflush(stdout);
+    printf("numnodes: %d\n", k);
 #endif // NDEBUG
     meshnode.resize(k);
     for(i=0; i<k; i++)
@@ -1027,6 +1026,7 @@ fflush(stdout);
         if ( fgets(s,1024,fp) != NULL )
         {
             if (Frequency!=0)
+            {
                 sscnt = sscanf(s,"%lf\t%lf\t%lf\t%lf",
                                &mnode.x,
                                &mnode.y,
@@ -1038,9 +1038,10 @@ fflush(stdout);
                     char buf[50];
                     sprintf (buf, "An error occured while reading mesh nodes section of file, wrong number of inputs (%d) for node %d.\n", sscnt, i);
                     WarnMessage(buf); /* Error */
+                    fclose(fp);
                     return false;
                 }
-
+            }
             else
             {
                 sscnt = sscanf(s,"%lf\t%lf\t%lf",&mnode.x,&mnode.y,&mnode.A.re);
@@ -1051,6 +1052,10 @@ fflush(stdout);
                     char buf[50];
                     sprintf (buf, "An error occured while reading mesh nodes section of file, wrong number of inputs (%d) for node %d.\n", sscnt, i);
                     WarnMessage(buf); /* Error */
+#ifndef NDEBUG
+                    printf("s: %s\n", s);
+#endif // NDEBUG
+                    fclose(fp);
                     return false;
                 }
             }
@@ -1060,6 +1065,7 @@ fflush(stdout);
         {
             // There was some read error while trying to read the file
             WarnMessage("An error occured while reading mesh nodes section of file.\n"); /* Error */
+            fclose(fp);
             return false;
         }
 
@@ -1071,32 +1077,37 @@ fflush(stdout);
     //fscanf(fp,"%i\n",&k);
     meshelem.resize(k);
 #ifndef NDEBUG
-printf("numelement: %d\n", k);
+    printf("numelement: %d\n", k);
 #endif // NDEBUG
     for(i=0; i<k; i++)
     {
         if ( fgets(s,1024,fp) != NULL )
         {
-            sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
-
+            sscnt = sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
+#ifndef NDEBUG
+            printf("s: %s\n", s);
+            //getchar();
+#endif // NDEBUG
             if (sscnt != 4)
             {
                 char buf[50];
-                sprintf (buf, "An error occured while reading mesh nodes section of file, wrong number of inputs (%d) for node %d.\n", sscnt, i);
+                sprintf (buf, "An error occured while reading mesh elements section of file, wrong number of inputs (%d) for element %d.\n", sscnt, i);
                 WarnMessage(buf); /* Error */
+                fclose(fp);
                 return false;
             }
 
             elm.blk=blocklist[elm.lbl].BlockType;
             meshelem[i] = elm;
 #ifndef NDEBUG
-            printf("numnodes: %d\n", k);
+            printf("numelement: %d\n", k);
 #endif // NDEBUG
         }
         else
         {
             // There was some read error while trying to read the file
             WarnMessage("An error occured while reading mesh elements section of file.\n"); /* Error */
+            fclose(fp);
             return false;
         }
     }
