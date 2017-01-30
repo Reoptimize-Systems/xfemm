@@ -207,7 +207,7 @@ int main(int argc, char ** argv)
     }
     if (inputFile.empty())
     {
-        std::cerr << "No file name given!\n";
+        std::cerr << "No file name given! Try \"femmcli --help\"...\n";
         return 1;
     }
 
