@@ -86,10 +86,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_createradius", luaCreateradiusNOP);
     li.addFunction("mi_define_outer_space", luaDefineouterspaceNOP);
     li.addFunction("mi_defineouterspace", luaDefineouterspaceNOP);
-    li.addFunction("mi_delete_bound_prop", luaDelboundpropNOP);
-    li.addFunction("mi_deleteboundprop", luaDelboundpropNOP);
-    li.addFunction("mi_delete_circuit", luaDelcircuitpropNOP);
-    li.addFunction("mi_deletecircuit", luaDelcircuitpropNOP);
+    li.addFunction("mi_delete_bound_prop", luaDeleteBoundaryProperty);
+    li.addFunction("mi_deleteboundprop", luaDeleteBoundaryProperty);
+    li.addFunction("mi_delete_circuit", luaDeleteCircuitProperty);
+    li.addFunction("mi_deletecircuit", luaDeleteCircuitProperty);
     li.addFunction("mi_delete_selected_arcsegments", luaDeleteSelectedArcSegments);
     li.addFunction("mi_deleteselectedarcsegments", luaDeleteSelectedArcSegments);
     li.addFunction("mi_delete_selected_labels", luaDeleteSelectedBlockLabels);
@@ -100,10 +100,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deleteselectednodes", luaDeleteSelectedNodes);
     li.addFunction("mi_delete_selected_segments", luaDeleteSelectedSegments);
     li.addFunction("mi_deleteselectedsegments", luaDeleteSelectedSegments);
-    li.addFunction("mi_delete_material", luaDelmatpropNOP);
-    li.addFunction("mi_deletematerial", luaDelmatpropNOP);
-    li.addFunction("mi_delete_point_prop", luaDelpointpropNOP);
-    li.addFunction("mi_deletepointprop", luaDelpointpropNOP);
+    li.addFunction("mi_delete_material", luaDeleteMaterial);
+    li.addFunction("mi_deletematerial", luaDeleteMaterial);
+    li.addFunction("mi_delete_point_prop", luaDeletePointProperty);
+    li.addFunction("mi_deletepointprop", luaDeletePointProperty);
     li.addFunction("mi_detach_default", luaDetachDefault);
     li.addFunction("mi_detachdefault", luaDetachDefault);
     li.addFunction("mi_detach_outer_space", luaDetachOuterSpace);
@@ -1274,28 +1274,58 @@ int femmcli::LuaMagneticsCommands::luaDefineouterspaceNOP(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete the given boundary property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_delboundprop()}
+ *
+ * \internal
+ * mi_deleteboundprop("propname") deletes the boundary property named "propname".
  */
-int femmcli::LuaMagneticsCommands::luaDelboundpropNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteBoundaryProperty(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    std::string propName = lua_tostring(L,1);
+    doc->lineproplist.erase(
+                std::remove_if(doc->lineproplist.begin(),doc->lineproplist.end(),
+                               [&propName](const auto& prop){ return prop->BdryName == propName; } ),
+                doc->lineproplist.end()
+                );
+    doc->lineproplist.shrink_to_fit();
+    doc->updateLineMap();
+
     return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete the given circuit property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
+ *
+ * \internal
+ * mi_deletecircuit("circuitname") deletes the circuit named circuitname.
  */
-int femmcli::LuaMagneticsCommands::luaDelcircuitpropNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteCircuitProperty(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    std::string propName = lua_tostring(L,1);
+    doc->circproplist.erase(
+                std::remove_if(doc->circproplist.begin(),doc->circproplist.end(),
+                               [&propName](const auto& prop){ return prop->CircName == propName; } ),
+                doc->circproplist.end()
+                );
+    doc->circproplist.shrink_to_fit();
+    doc->updateCircuitMap();
+
     return 0;
 }
 
@@ -1406,28 +1436,58 @@ int femmcli::LuaMagneticsCommands::luaDeleteSelectedSegments(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete the given material property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_delmatprop()}
+ *
+ * \internal
+ * mi deletematerial("materialname") deletes the material named "materialname".
  */
-int femmcli::LuaMagneticsCommands::luaDelmatpropNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeleteMaterial(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    std::string propName = lua_tostring(L,1);
+    doc->blockproplist.erase(
+                std::remove_if(doc->blockproplist.begin(),doc->blockproplist.end(),
+                               [&propName](const auto& mat){ return mat->BlockName == propName; } ),
+                doc->blockproplist.end()
+                );
+    doc->blockproplist.shrink_to_fit();
+    doc->updateBlockMap();
+
     return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Delete the given point property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_delpointprop()}
+ *
+ * \internal
+ * mi_deletepointprop("pointpropname") deletes the point property named "pointpropname"
  */
-int femmcli::LuaMagneticsCommands::luaDelpointpropNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaDeletePointProperty(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    std::string propName = lua_tostring(L,1);
+    doc->nodeproplist.erase(
+                std::remove_if(doc->nodeproplist.begin(),doc->nodeproplist.end(),
+                               [&propName](const auto& prop){ return prop->PointName == propName; } ),
+                doc->nodeproplist.end()
+                );
+    doc->nodeproplist.shrink_to_fit();
+    doc->updateNodeMap();
+
     return 0;
 }
 
