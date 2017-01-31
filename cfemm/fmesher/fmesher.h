@@ -237,6 +237,12 @@ public:
      */
     bool AddArcSegment(femm::CArcSegment &asegm, double tol=0.);
 
+    /**
+     * @brief Rotate the selected objects of the requested type.
+     * @param c center
+     * @param t angle
+     * @param selector
+     */
     void RotateMove(CComplex c, double t, FMesher::EditMode selector);
     /**
      * @brief Translate the selected objects of the requested type.
@@ -266,6 +272,13 @@ public:
      * @return \c true, if any node was deleted, \c false otherwise.
      */
     bool DeleteSelectedNodes();
+
+    /**
+     * @brief Convert an integer value into an EditMode enum.
+     * @param m
+     * @return a valid EditMode for defined values, EditModeInvalid otherwise.
+     */
+    EditMode intToEditMode(int m) const;
 private:
 
     virtual bool Initialize(femm::FileType t);

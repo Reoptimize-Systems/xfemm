@@ -2160,27 +2160,15 @@ int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
     double shiftangle = lua_todouble(L,3);
 
     fmesher::FMesher::EditMode editAction;
-    if (n==4)
-    {
-        int action = (int)lua_todouble(L,4);
-        switch (action) {
-        case 0: editAction = fmesher::FMesher::EditNodes;
-            break;
-        case 1: editAction = fmesher::FMesher::EditLines;
-            break;
-        case 2: editAction = fmesher::FMesher::EditLabels;
-            break;
-        case 3: editAction = fmesher::FMesher::EditArcs;
-            break;
-        case 4: editAction = fmesher::FMesher::EditGroup;
-            break;
-        default:
-            lua_error(L, "mi_moverotate(): Invalid value of editaction!\n");
-            return 0;
-            break;
-        }
+    if (n==4) {
+        editAction = mesher->intToEditMode((int)lua_todouble(L,4));
     } else {
         editAction = mesher->d_EditMode;
+    }
+    if (editAction == fmesher::FMesher::EditModeInvalid)
+    {
+            lua_error(L, "mi_moverotate(): Invalid value of editaction!\n");
+            return 0;
     }
 
     mesher->UpdateUndo();
@@ -2229,25 +2217,8 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
     double y = lua_todouble(L,2);
 
     fmesher::FMesher::EditMode editAction;
-    if (n==3)
-    {
-        int action = (int)lua_todouble(L,3);
-        switch (action) {
-        case 0: editAction = fmesher::FMesher::EditNodes;
-            break;
-        case 1: editAction = fmesher::FMesher::EditLines;
-            break;
-        case 2: editAction = fmesher::FMesher::EditLabels;
-            break;
-        case 3: editAction = fmesher::FMesher::EditArcs;
-            break;
-        case 4: editAction = fmesher::FMesher::EditGroup;
-            break;
-        default:
-            lua_error(L, "mi_movetranslate(): Invalid value of editaction!\n");
-            return 0;
-            break;
-        }
+    if (n==3) {
+        editAction = mesher->intToEditMode((int)lua_todouble(L,3));
     } else {
         editAction = mesher->d_EditMode;
     }
