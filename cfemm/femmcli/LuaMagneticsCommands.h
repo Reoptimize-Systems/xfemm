@@ -60,7 +60,7 @@ protected:
     static int luaClearBlock(lua_State *L);
     static int luaClearcontourNOP(lua_State *L);
     static int luaClearSelected(lua_State *L);
-    static int luaCopyRotateNOP(lua_State *L);
+    static int luaCopyRotate(lua_State *L);
     static int luaCopyTranslateNOP(lua_State *L);
     static int luaCreateMesh(lua_State *L);
     static int luaCreateradiusNOP(lua_State *L);

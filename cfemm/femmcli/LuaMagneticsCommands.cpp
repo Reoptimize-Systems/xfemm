@@ -76,8 +76,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_clearcontour", luaClearcontourNOP);
     li.addFunction("mi_clear_selected", luaClearSelected);
     li.addFunction("mi_clearselected", luaClearSelected);
-    li.addFunction("mi_copy_rotate", luaCopyRotateNOP);
-    li.addFunction("mi_copyrotate", luaCopyRotateNOP);
+    li.addFunction("mi_copy_rotate", luaCopyRotate);
+    li.addFunction("mi_copyrotate", luaCopyRotate);
     li.addFunction("mi_copy_translate", luaCopyTranslateNOP);
     li.addFunction("mi_copytranslate", luaCopyTranslateNOP);
     li.addFunction("mi_create_mesh", luaCreateMesh);
@@ -1165,15 +1165,58 @@ int femmcli::LuaMagneticsCommands::luaClearSelected(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Copy selected objects and rotate the copy around a point.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_copy_rotate()}
+ *
+ * \internal
+ * mi_copyrotate(bx, by, angle, copies, (editaction) )
+ * * bx, by – base point for rotation
+ * * angle – angle by which the selected objects are incrementally shifted to make each copy. angle is measured in degrees.
+ * * copies – number of copies to be produced from the selected objects.
  */
-int femmcli::LuaMagneticsCommands::luaCopyRotateNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if(n!=4 && n!=5)
+    {
+        lua_error(L,"Invalid number of parameters for copy rotate\n");
+        return 0;
+    }
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+    double angle = lua_todouble(L,3);
+    int copies = (int) lua_todouble(L,4);
+
+    fmesher::FMesher::EditMode editAction;
+    if (n==5) {
+        editAction = mesher->intToEditMode((int)lua_todouble(L,5));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == fmesher::FMesher::EditModeInvalid)
+    {
+        lua_error(L, "mi_copyrotate(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+
+    mesher->RotateCopy(CComplex(x,y),angle,copies,editAction);
+    // Note(ZaJ): shouldn't the invalidation be done by RotateCopy?
+    doc->invalidateMesh();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
+
     return 0;
 }
 
@@ -1192,7 +1235,7 @@ int femmcli::LuaMagneticsCommands::luaCopyTranslateNOP(lua_State *L)
 
 /**
  * @brief Explicitly calls the mesher.
- * As a side-effect, this method calls FMesher::LoadMesh() to cound the number of mesh nodes.
+ * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
  * @param L
  * @return 1 on success, 0 otherwise.
