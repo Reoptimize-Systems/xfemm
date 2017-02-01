@@ -78,8 +78,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_clearselected", luaClearSelected);
     li.addFunction("mi_copy_rotate", luaCopyRotate);
     li.addFunction("mi_copyrotate", luaCopyRotate);
-    li.addFunction("mi_copy_translate", luaCopyTranslateNOP);
-    li.addFunction("mi_copytranslate", luaCopyTranslateNOP);
+    li.addFunction("mi_copy_translate", luaCopyTranslate);
+    li.addFunction("mi_copytranslate", luaCopyTranslate);
     li.addFunction("mi_create_mesh", luaCreateMesh);
     li.addFunction("mi_createmesh", luaCreateMesh);
     li.addFunction("mi_create_radius", luaCreateradiusNOP);
@@ -1233,7 +1233,7 @@ int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
  * * dx,dy – distance by which the selected objects are incrementally shifted.
  * * copies – number of copies to be produced from the selected objects.
  */
-int femmcli::LuaMagneticsCommands::luaCopyTranslateNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
