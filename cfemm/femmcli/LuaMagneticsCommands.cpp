@@ -1210,6 +1210,7 @@ int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
     }
 
 
+    // Note(ZaJ): why is mesher->UpdateUndo called in mi_copytranslate but not here?
     mesher->RotateCopy(CComplex(x,y),angle,copies,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by RotateCopy?
     doc->invalidateMesh();
@@ -1221,15 +1222,57 @@ int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Copy selected objects and translate each copy by a given offset.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_copy_translate()}
+ *
+ * \internal
+ * mi_copytranslate(dx, dy, copies, (editaction))
+ * * dx,dy – distance by which the selected objects are incrementally shifted.
+ * * copies – number of copies to be produced from the selected objects.
  */
 int femmcli::LuaMagneticsCommands::luaCopyTranslateNOP(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if(n!=3 && n!=4)
+    {
+        lua_error(L,"Invalid number of parameters for copy translate\n");
+        return 0;
+    }
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+    int copies = (int) lua_todouble(L,3);
+
+    fmesher::FMesher::EditMode editAction;
+    if (n==4) {
+        editAction = mesher->intToEditMode((int)lua_todouble(L,4));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == fmesher::FMesher::EditModeInvalid)
+    {
+        lua_error(L, "mi_copytranslate(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+
+    mesher->UpdateUndo();
+    mesher->TranslateCopy(x,y,copies,editAction);
+    // Note(ZaJ): shouldn't the invalidation be done by TranslateCopy?
+    doc->invalidateMesh();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
+
     return 0;
 }
 

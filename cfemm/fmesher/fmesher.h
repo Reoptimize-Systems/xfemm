@@ -238,7 +238,8 @@ public:
     bool AddArcSegment(femm::CArcSegment &asegm, double tol=0.);
 
     /**
-     * @brief Rotate a copy of the selected objects of the selected type.
+     * @brief Rotate copies of the selected objects of the selected type.
+     * Each copy is rotated by the given amount compared to the previous copy.
      * @param c center
      * @param dt (incremental) angle in degrees
      * @param ncopies number of copies
@@ -252,6 +253,15 @@ public:
      * @param selector
      */
     void RotateMove(CComplex c, double t, EditMode selector);
+    /**
+     * @brief Translate copies of the selected objects of the selected type.
+     * Each copy is translated by the given amount compared to the previous copy.
+     * @param incx offset
+     * @param incy offset
+     * @param ncopies number of copies
+     * @param selector
+     */
+    void TranslateCopy(double incx, double incy, int ncopies, EditMode selector);
     /**
      * @brief Translate the selected objects of the selected type.
      * @param dx
