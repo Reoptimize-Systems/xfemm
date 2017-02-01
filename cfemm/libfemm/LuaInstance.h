@@ -137,10 +137,27 @@ public:
      * @return 0
      */
     static int luaNOP(lua_State *);
+
+    /**
+     * @brief The base directory for accessory files (like init.lua, matlib.lua).
+     * Usually, this is the same as the binary directory of the femm executables.
+     * The directory name contains a trailing '/'.
+     * @return baseDir
+     */
+    std::string getBaseDir() const;
+    /**
+     * @brief setBaseDir
+     * If the base dir does not end in a '/', it is added.
+     * @param value
+     */
+    void setBaseDir(const std::string &value);
+
 private:
     lua_State *lua;
     std::shared_ptr<FemmStateBase> fs;
     bool compatMode;
+
+    std::string baseDir;
 
     /**
      * @brief initialize lua

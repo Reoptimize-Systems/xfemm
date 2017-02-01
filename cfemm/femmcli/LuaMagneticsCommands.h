@@ -81,7 +81,7 @@ protected:
     static int luaGetboundingboxNOP(lua_State *L);
     static int luaGetCircuitProperties(lua_State *L);
     static int luaGetElement(lua_State *L);
-    static int luaGetmaterialNOP(lua_State *L);
+    static int luaGetMaterialFromLib(lua_State *L);
     static int luaGetnodeNOP(lua_State *L);
     static int luaGetPointVals(lua_State *L);
     static int luaGetProblemInfo(lua_State *L);
