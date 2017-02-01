@@ -1198,7 +1198,7 @@ int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
 
     fmesher::FMesher::EditMode editAction;
     if (n==5) {
-        editAction = mesher->intToEditMode((int)lua_todouble(L,5));
+        editAction = fmesher::intToEditMode((int)lua_todouble(L,5));
     } else {
         editAction = mesher->d_EditMode;
     }
@@ -1253,7 +1253,7 @@ int femmcli::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
 
     fmesher::FMesher::EditMode editAction;
     if (n==4) {
-        editAction = mesher->intToEditMode((int)lua_todouble(L,4));
+        editAction = fmesher::intToEditMode((int)lua_todouble(L,4));
     } else {
         editAction = mesher->d_EditMode;
     }
@@ -2247,7 +2247,7 @@ int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
 
     fmesher::FMesher::EditMode editAction;
     if (n==4) {
-        editAction = mesher->intToEditMode((int)lua_todouble(L,4));
+        editAction = fmesher::intToEditMode((int)lua_todouble(L,4));
     } else {
         editAction = mesher->d_EditMode;
     }
@@ -2304,7 +2304,7 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
 
     fmesher::FMesher::EditMode editAction;
     if (n==3) {
-        editAction = mesher->intToEditMode((int)lua_todouble(L,3));
+        editAction = fmesher::intToEditMode((int)lua_todouble(L,3));
     } else {
         editAction = mesher->d_EditMode;
     }

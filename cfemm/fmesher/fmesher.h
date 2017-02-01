@@ -291,18 +291,30 @@ public:
      */
     bool DeleteSelectedNodes();
 
-    /**
-     * @brief Convert an integer value into an EditMode enum.
-     * @param m
-     * @return a valid EditMode for defined values, EditModeInvalid otherwise.
-     */
-    EditMode intToEditMode(int m) const;
 private:
 
     virtual bool Initialize(femm::FileType t);
 	void addFileStr (char * q);
 
 };
+
+/**
+ * @brief Convert an integer value into an EditMode enum.
+ * @param m
+ * @return a valid EditMode for defined values, EditModeInvalid otherwise.
+ */
+inline FMesher::EditMode intToEditMode(int m)
+{
+    switch (m) {
+    case 0: return FMesher::EditNodes;
+    case 1: return FMesher::EditLines;
+    case 2: return FMesher::EditLabels;
+    case 3: return FMesher::EditArcs;
+    case 4: return FMesher::EditGroup;
+    default:
+        return FMesher::EditModeInvalid;
+    }
+}
 
 } // namespace femm
 

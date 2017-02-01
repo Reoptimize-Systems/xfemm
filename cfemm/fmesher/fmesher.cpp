@@ -1359,19 +1359,6 @@ bool FMesher::DeleteSelectedNodes()
     return changed;
 }
 
-FMesher::EditMode FMesher::intToEditMode(int m) const
-{
-    switch (m) {
-    case 0: return EditNodes;
-    case 1: return EditLines;
-    case 2: return EditLabels;
-    case 3: return EditArcs;
-    case 4: return EditGroup;
-    default:
-        return EditModeInvalid;
-    }
-}
-
 
 bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
 {
