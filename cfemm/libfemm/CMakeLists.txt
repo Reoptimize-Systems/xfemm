@@ -35,7 +35,6 @@ add_library(femm
   fparse.cpp
   fullmatrix.cpp
   IntPoint.cpp
-  spars.cpp
   liblua/llimits.h
   liblua/lopcodes.h
   liblua/lua.h
@@ -66,6 +65,7 @@ add_library(femm
   liblua/lvm.cpp
   liblua/lzio.cpp
   LuaInstance.cpp
+  spars.cpp
   stringTools.cpp
   )
 

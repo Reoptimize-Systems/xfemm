@@ -123,6 +123,19 @@ int femm::LuaInstance::luaNOP(lua_State *)
     return 0;
 }
 
+std::string femm::LuaInstance::getBaseDir() const
+{
+    return baseDir;
+}
+
+void femm::LuaInstance::setBaseDir(const std::string &value)
+{
+    baseDir = value;
+
+    if (baseDir[baseDir.length()-1] != '/' )
+        baseDir.push_back('/');
+}
+
 void femm::LuaInstance::initializeLua(int stackSize)
 {
     debug << "Initializing Lua with stacksize = " << stackSize << std::endl;

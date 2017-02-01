@@ -40,9 +40,10 @@ bool quiet = false;
  * \param inputFile the lua file
  * \param luaInit a lua file containing initialization code
  * \param luaTrace enable function tracing for lua
+ * \param luaBaseDir base directory for lua
  * \return the result of lua_dostring()
  */
-int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace)
+int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace, const std::string &luaBaseDir)
 {
     // initialize interpreter
     shared_ptr<FemmState> state = make_shared<FemmState>();
@@ -50,6 +51,7 @@ int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool 
     LuaBaseCommands::registerCommands(li);
     LuaMagneticsCommands::registerCommands(li);
     li.enableTracing(luaTrace);
+    li.setBaseDir(luaBaseDir);
     // canned initialization
     if (!luaInit.empty())
     {
@@ -211,6 +213,6 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    return execLuaFile(inputFile, luaInit, luaTrace);
+    return execLuaFile(inputFile, luaInit, luaTrace, exeDir);
 }
 // vi:expandtab:tabstop=4 shiftwidth=4:
