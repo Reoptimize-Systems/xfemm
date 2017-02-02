@@ -2,6 +2,7 @@
 
 #include "femmconstants.h"
 
+#include <ctgmath>
 #include <fstream>
 #include <iomanip>
 #include <ios>
@@ -452,6 +453,68 @@ bool femm::FemmProblem::consistencyCheckOK() const
         }
     }
     return ok;
+}
+
+bool femm::FemmProblem::getBoundingBox(double (&x)[2], double (&y)[2]) const
+{
+    if (nodelist.size()<2)
+        return false;
+
+    // initial estimate
+    x[0]=nodelist[0]->x;  x[1]=nodelist[0]->x;
+    y[0]=nodelist[0]->y;  y[1]=nodelist[0]->y;
+    // expand to fit
+    for (const auto &node: nodelist)
+    {
+        if(node->x<x[0]) x[0]=node->x;
+        if(node->x>x[1]) x[1]=node->x;
+        if(node->y<y[0]) y[0]=node->y;
+        if(node->y>y[1]) y[1]=node->y;
+    }
+
+    for (const auto &label: labellist)
+    {
+        if(label->x<x[0]) x[0]=label->x;
+        if(label->x>x[1]) x[1]=label->x;
+        if(label->y<y[0]) y[0]=label->y;
+        if(label->y>y[1]) y[1]=label->y;
+    }
+
+    // arcs can "curve" outside of the bounding box defined by their endpoints
+    for (const auto &arc: arclist)
+    {
+        int k=(int) ceil(arc->ArcLength/arc->MaxSideLength);
+        double dt = arc->ArcLength*PI/(((double) k)*180.);
+        CComplex c;
+        double R;
+        getCircle(*arc,c,R);
+        CComplex p(nodelist[arc->n0]->x, nodelist[arc->n0]->y);
+        CComplex s=exp(I*dt);
+        for(int j=0; j<k; j++)
+        {
+            p=(p-c)*s+c;
+            if(p.re<x[0]) x[0]=p.re;
+            if(p.re>x[1]) x[1]=p.re;
+            if(p.im<y[0]) y[0]=p.im;
+            if(p.im>y[1]) y[1]=p.im;
+        }
+    }
+
+    return true;
+}
+
+void femm::FemmProblem::getCircle(const femm::CArcSegment &arc, CComplex &c, double &R) const
+{
+    CComplex a0(nodelist[arc.n0]->x,nodelist[arc.n0]->y);
+    CComplex a1(nodelist[arc.n1]->x,nodelist[arc.n1]->y);
+    double d=abs(a1-a0);        // distance between arc endpoints
+
+    // figure out what the radius of the circle is...
+    CComplex t=(a1-a0)/d;
+    double tta=arc.ArcLength*PI/180.;
+
+    R=d/(2.*sin(tta/2.));
+    c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
 }
 
 femm::FemmProblem::FemmProblem(FileType ftype)

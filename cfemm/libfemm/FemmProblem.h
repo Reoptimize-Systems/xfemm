@@ -123,6 +123,22 @@ public:
      */
     bool consistencyCheckOK() const;
 
+    //
+    /**
+     * @brief look at points, block labels, and arcs to get bounding box.
+     * @param x
+     * @param y
+     * @return \c true on success, \c false on failure
+     */
+    bool getBoundingBox(double (&x)[2], double (&y)[2]) const;
+    /**
+     * @brief get the circle matching the arc segment
+     * @param arc the arc segment
+     * @param c the center of the circle
+     * @param R the radius
+     */
+    void getCircle(const CArcSegment &arc,CComplex &c, double &R) const;
+
 public: // data members
     double FileFormat; ///< \brief format version of the file
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
