@@ -170,8 +170,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_moverotate", luaMoveRotate);
     li.addFunction("mi_move_translate", luaMoveTranslate);
     li.addFunction("mi_movetranslate", luaMoveTranslate);
-    li.addFunction("mi_new_document", luaNewdocumentNOP);
-    li.addFunction("mi_newdocument", luaNewdocumentNOP);
+    li.addFunction("mi_new_document", luaNewDocument);
+    li.addFunction("mi_newdocument", luaNewDocument);
     li.addFunction("mo_num_elements", luaNumElements);
     li.addFunction("mo_numelements", luaNumElements);
     li.addFunction("mo_num_nodes", luaNumnodesNOP);
@@ -2392,15 +2392,19 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Create a new magnetics document.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_newdocument()}
+ *
+ * \internal
+ * mi_newdocument()
  */
-int femmcli::LuaMagneticsCommands::luaNewdocumentNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaNewDocument(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
+    femmState->femmDocument = std::make_shared<femm::FemmProblem>(femm::MagneticsFile);
     return 0;
 }
 

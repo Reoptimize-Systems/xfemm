@@ -139,6 +139,11 @@ public:
      */
     void getCircle(const CArcSegment &arc,CComplex &c, double &R) const;
 
+    /**
+     * @brief The document title.
+     * Currently, this is the same as PathName
+     * @return
+     */
     std::string getTitle() const;
 
 public: // data members
