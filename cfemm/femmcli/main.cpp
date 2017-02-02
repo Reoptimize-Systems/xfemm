@@ -127,11 +127,11 @@ void splitArg(const char cstr[], std::string &arg, std::string &value)
 int main(int argc, char ** argv)
 {
     std::string exe { argv[0] };
-    std::string exeDir { exe.substr(0,exe.find_last_of("/\\")+1) };
-    exe = exe.substr(exeDir.length());
+    std::string baseDir { exe.substr(0,exe.find_last_of("/\\")+1) };
+    exe = exe.substr(baseDir.length());
 
     std::string inputFile;
-    std::string luaInit { exeDir + "init.lua" };
+    std::string luaInit { baseDir + "init.lua" };
     bool luaTrace = false;
 
     for(int i=1; i<argc; i++)
@@ -162,12 +162,27 @@ int main(int argc, char ** argv)
             } else {
                 luaInit = value;
             }
-            std::cerr << "Using custom init.lua: " << luaInit << std::endl;
+            if (!quiet)
+                std::cerr << "Using custom init.lua: " << luaInit << std::endl;
             continue;
         }
         if (arg == "--lua-enable-tracing" )
         {
             luaTrace = true;
+            continue;
+        }
+        if (arg == "--lua-base-dir")
+        {
+            if (value.empty())
+            {
+                i++;
+                if (i<argc)
+                    baseDir = argv[i];
+            } else {
+                baseDir = value;
+            }
+            if (!quiet)
+                std::cerr << "Using custom base directory " << baseDir << std::endl;
             continue;
         }
         if (arg == "--version" )
@@ -185,10 +200,12 @@ int main(int argc, char ** argv)
             std::cerr << "Unknown argument: " << arg << std::endl;
         std::cout << "Command-line interpreter for FEMM-specific lua files.\n";
         std::cout << "\n";
-        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-enable-tracing] [--lua-init=<init.lua>] --lua-script=<file.lua>\n";
+        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-enable-tracing] [--lua-init=<init.lua>] [--lua-base-dir=<dir>] --lua-script=<file.lua>\n";
         std::cout << "       " << exe << " [-h|--help] [--version]\n";
         std::cout << "\n";
         std::cout << "Command line arguments:\n";
+        std::cout << " --lua-base-dir=<dir>     Set base directory for matlib.dat.\n";
+        std::cout << "                          [default: " << baseDir << "]\n";
         std::cout << " --lua-enable-tracing     Show what lua functions are being executed.\n";
         std::cout << " --lua-init=<init.lua>    Initialize the lua state with a custom lua script.\n";
         std::cout << "                          [default: " << luaInit <<"]\n";
@@ -213,6 +230,6 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    return execLuaFile(inputFile, luaInit, luaTrace, exeDir);
+    return execLuaFile(inputFile, luaInit, luaTrace, baseDir);
 }
 // vi:expandtab:tabstop=4 shiftwidth=4:
