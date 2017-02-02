@@ -519,7 +519,6 @@ void femm::FemmProblem::getCircle(const femm::CArcSegment &arc, CComplex &c, dou
 
 std::string femm::FemmProblem::getTitle() const
 {
-    // pathname should be good enough for now...
     return pathName;
 }
 
