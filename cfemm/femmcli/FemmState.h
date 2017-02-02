@@ -66,11 +66,22 @@ namespace femmcli
  * 5. LuaMagneticsCommands::luaLoadSolution() reads the solution file into memory.
  *    The solution data is available for lua commands (mo_*).<br/>
  *    → the data is in memory in FPProc
+ *
+ * Multiple documents
+ * ------------------
+ *
+ * The sections "Data model" and "Data flow" mostly handle the "single document" case.
  */
 class FemmState : public femm::FemmStateBase
 {
 public:
-    std::shared_ptr<femm::FemmProblem> femmDocument;
+    /**
+     * @brief femmDocument
+     * A pointer to the currently active FemmProblem.
+     */
+    const std::shared_ptr<femm::FemmProblem> femmDocument();
+
+    void setDocument(std::shared_ptr<femm::FemmProblem> doc);
 
     /**
      * @brief Returns the current FPProc.
@@ -92,13 +103,25 @@ public:
     std::shared_ptr<fmesher::FMesher> getMesher();
 
     /**
-     * @brief Invalidate the solution data stored in FPProc.
+     * @brief Invalidate the current solution data stored in FPProc.
      * When a new solution is available, call this method before loading it.
      */
     void invalidateSolutionData();
+
+    /**
+     * @brief Close and discard the current problem set.
+     */
+    void close();
 private:
-    std::shared_ptr<FPProc> theFPProc;
-    std::shared_ptr<fmesher::FMesher> theFMesher;
+    struct MagneticsProblemSet {
+        std::shared_ptr<femm::FemmProblem> document;
+        std::shared_ptr<fmesher::FMesher> mesher;
+        std::shared_ptr<FPProc> postprocessor;
+    };
+
+    MagneticsProblemSet current;
+
+
 };
 
 } /* namespace */

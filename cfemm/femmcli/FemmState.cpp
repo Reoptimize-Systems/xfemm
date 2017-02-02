@@ -6,25 +6,44 @@
 #include <memory>
 
 
+const std::shared_ptr<femm::FemmProblem> femmcli::FemmState::femmDocument()
+{
+    return current.document;
+}
+
+void femmcli::FemmState::setDocument(std::shared_ptr<femm::FemmProblem> doc)
+{
+    // invalidate current state
+    close();
+    current.document = doc;
+}
+
 std::shared_ptr<FPProc> femmcli::FemmState::getFPProc()
 {
-    if (!theFPProc)
+    if (!current.postprocessor)
     {
-        theFPProc = std::make_shared<FPProc>();
+        current.postprocessor = std::make_shared<FPProc>();
     }
-    return theFPProc;
+    return current.postprocessor;
 }
 
 std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
 {
-    if (!theFMesher || theFMesher->problem != femmDocument)
+    if (!current.mesher || current.mesher->problem != current.document)
     {
-        theFMesher = std::make_shared<fmesher::FMesher>(femmDocument);
+        current.mesher = std::make_shared<fmesher::FMesher>(current.document);
     }
-    return theFMesher;
+    return current.mesher;
 }
 
 void femmcli::FemmState::invalidateSolutionData()
 {
-    theFPProc.reset();
+    current.postprocessor.reset();
+}
+
+void femmcli::FemmState::close()
+{
+    current.document.reset();
+    current.mesher.reset();
+    current.postprocessor.reset();
 }
