@@ -261,8 +261,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_showpoints", LuaInstance::luaNOP);
     li.addFunction("mo_smooth", LuaInstance::luaNOP);
     li.addFunction("mi_set_focus", LuaInstance::luaNOP);
-    li.addFunction("mi_setfocus", LuaInstance::luaNOP);
-    li.addFunction("mo_set_focus", LuaInstance::luaNOP);
+    li.addFunction("mi_setfocus", luaSetFocus);
+    li.addFunction("mo_set_focus", luaSetFocus);
     li.addFunction("mo_setfocus", LuaInstance::luaNOP);
     li.addFunction("mi_refresh_view", LuaInstance::luaNOP);
     li.addFunction("mi_refreshview", LuaInstance::luaNOP);
@@ -301,7 +301,7 @@ int femmcli::LuaMagneticsCommands::luaAddArc(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     double sx = lua_todouble(L,1);
@@ -354,7 +354,7 @@ int femmcli::LuaMagneticsCommands::luaAddBHPoint(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     // find the index of the material to modify;
     if (doc->blockproplist.empty())
@@ -432,7 +432,7 @@ int femmcli::LuaMagneticsCommands::luaAddBoundaryProp(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     std::unique_ptr<CMBoundaryProp> m = std::make_unique<CMBoundaryProp>();
 
@@ -484,8 +484,8 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
     if (n>1) m->Amps=lua_tonumber(L,2);
     if (n>2) m->CircType=(int) lua_todouble(L,3);
 
-    femmState->femmDocument->circproplist.push_back(std::move(m));
-    femmState->femmDocument->updateCircuitMap();
+    femmState->femmDocument()->circproplist.push_back(std::move(m));
+    femmState->femmDocument()->updateCircuitMap();
 
     return 0;
 }
@@ -518,7 +518,7 @@ int femmcli::LuaMagneticsCommands::luaAddBlocklabel(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     double x = lua_todouble(L,1);
@@ -656,8 +656,8 @@ int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
         m->WireD=lua_todouble(L,14);
     }
 
-    femmState->femmDocument->blockproplist.push_back(std::move(m));
-    femmState->femmDocument->updateBlockMap();
+    femmState->femmDocument()->blockproplist.push_back(std::move(m));
+    femmState->femmDocument()->updateBlockMap();
     return 0;
 }
 
@@ -675,7 +675,7 @@ int femmcli::LuaMagneticsCommands::luaAddNode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     double x=lua_todouble(L,1);
     double y=lua_todouble(L,2);
@@ -726,7 +726,7 @@ int femmcli::LuaMagneticsCommands::luaAddPointProp(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     // for compatibility with 4.0 and 4.1 Lua implementation
     if (luaInstance->compatibilityMode())
@@ -767,7 +767,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
 
     // check to see if all blocklabels are kosher...
     if (doc->labellist.size()==0){
@@ -956,7 +956,7 @@ int femmcli::LuaMagneticsCommands::luaAttachDefault(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     bool isFirstSelected = true;
     for (auto &label: doc->labellist)
@@ -985,7 +985,7 @@ int femmcli::LuaMagneticsCommands::luaAttachOuterSpace(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     for (auto &label: doc->labellist)
     {
@@ -1078,7 +1078,7 @@ int femmcli::LuaMagneticsCommands::luaClearBHPoints(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     // find the index of the material to modify;
     if (doc->blockproplist.empty())
@@ -1115,7 +1115,7 @@ int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
     if (!fpproc)
     {
@@ -1183,7 +1183,7 @@ int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
@@ -1239,7 +1239,7 @@ int femmcli::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
@@ -1301,7 +1301,7 @@ int femmcli::LuaMagneticsCommands::luaCreateMesh(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     std::string pathName = doc->pathName;
@@ -1390,7 +1390,7 @@ int femmcli::LuaMagneticsCommands::luaDefineOuterSpace(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     int n = lua_gettop(L);
     if (n!=3)
@@ -1424,7 +1424,7 @@ int femmcli::LuaMagneticsCommands::luaDeleteBoundaryProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     std::string propName = lua_tostring(L,1);
     doc->lineproplist.erase(
@@ -1452,7 +1452,7 @@ int femmcli::LuaMagneticsCommands::luaDeleteCircuitProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     std::string propName = lua_tostring(L,1);
     doc->circproplist.erase(
@@ -1586,7 +1586,7 @@ int femmcli::LuaMagneticsCommands::luaDeleteMaterial(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     std::string propName = lua_tostring(L,1);
     doc->blockproplist.erase(
@@ -1614,7 +1614,7 @@ int femmcli::LuaMagneticsCommands::luaDeletePointProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     std::string propName = lua_tostring(L,1);
     doc->nodeproplist.erase(
@@ -1643,7 +1643,7 @@ int femmcli::LuaMagneticsCommands::luaDetachDefault(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     for (auto &label: doc->labellist)
     {
@@ -1670,7 +1670,7 @@ int femmcli::LuaMagneticsCommands::luaDetachOuterSpace(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     for (auto &label: doc->labellist)
     {
@@ -1715,9 +1715,7 @@ int femmcli::LuaMagneticsCommands::luaExitPre(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    femmState->femmDocument.reset();
-    // trigger a reset of the mesher object (to break its dependency on femmDocument)
-    femmState->getMesher();
+    femmState->close();
     return 0;
 }
 
@@ -1735,7 +1733,7 @@ int femmcli::LuaMagneticsCommands::luaGetBoundingBox(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     double x[2],y[2];
     if (doc->getBoundingBox(x,y))
@@ -1770,7 +1768,7 @@ int femmcli::LuaMagneticsCommands::luaGetCircuitProperties(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
     if (!fpproc)
     {
@@ -1872,7 +1870,7 @@ int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     int n=lua_gettop(L);
     std::string matname;
@@ -2000,7 +1998,7 @@ int femmcli::LuaMagneticsCommands::luaGetProblemInfo(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     lua_pushnumber(L,doc->ProblemType);
     lua_pushnumber(L,doc->Frequency);
@@ -2045,7 +2043,7 @@ int femmcli::LuaMagneticsCommands::luaGetTitle(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     lua_pushstring(L, doc->getTitle().c_str());
     return 1;
@@ -2082,7 +2080,7 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
     if (!fpproc)
     {
@@ -2195,7 +2193,7 @@ int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     // for compatibility with 4.0 and 4.1 Lua implementation
     if (luaInstance->compatibilityMode())
@@ -2294,7 +2292,7 @@ int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n;
@@ -2354,7 +2352,7 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
@@ -2404,7 +2402,7 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
 int femmcli::LuaMagneticsCommands::luaNewDocument(lua_State *L)
 {
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
-    femmState->femmDocument = std::make_shared<femm::FemmProblem>(femm::MagneticsFile);
+    femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::MagneticsFile));
     return 0;
 }
 
@@ -2476,7 +2474,7 @@ int femmcli::LuaMagneticsCommands::luaSetPrevious(lua_State *L)
     {
         auto luaInstance = LuaInstance::instance(L);
         std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-        std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+        std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
 
         std::string prev = lua_tostring(L,n);
         doc->PrevSoln=prev;
@@ -2510,7 +2508,7 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<femm::FemmProblem> magDoc = femmState->femmDocument;
+    std::shared_ptr<femm::FemmProblem> magDoc = femmState->femmDocument();
 
     // argument count
     int n;
@@ -2619,7 +2617,7 @@ int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     if (doc->pathName.empty())
     {
@@ -2657,7 +2655,7 @@ int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     if (!lua_isnil(L,1))
     {
@@ -2698,7 +2696,7 @@ int femmcli::LuaMagneticsCommands::luaSelectArcsegment(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     double mx = lua_todouble(L,1);
@@ -2760,7 +2758,7 @@ int femmcli::LuaMagneticsCommands::luaSelectGroup(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int group=(int) lua_todouble(L,1);
@@ -2825,7 +2823,7 @@ int femmcli::LuaMagneticsCommands::luaSelectBlocklabel(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     double mx = lua_todouble(L,1);
@@ -2916,7 +2914,7 @@ int femmcli::LuaMagneticsCommands::luaSelectSegment(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> thisDoc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> thisDoc = femmState->femmDocument();
 
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
@@ -2952,7 +2950,7 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     double maxsegdeg = lua_todouble(L,1);
     std::string boundprop;
@@ -3001,7 +2999,7 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     // default values
     int blocktypeidx = -1;
@@ -3104,6 +3102,29 @@ int femmcli::LuaMagneticsCommands::luaSetEditMode(lua_State *L)
 }
 
 /**
+ * @brief FIXME
+ * @param L
+ * @return 0
+ * \ingroup LuaMM
+ * \femm42{femm/femmeLua.cpp,lua_setgroup()}
+ *
+ * \internal
+ * mi_setfocus("documentname")
+ * Switches the magnetics input file upon which Lua commands are to act.
+ * If more than one magnetics input file is being edited at a time, this command
+ * can be used to switch between files so that the mutiple files can be operated upon
+ * programmatically via Lua.
+ */
+int femmcli::LuaMagneticsCommands::luaSetFocus(lua_State *L)
+{
+    // FIXME IMPLEMENT
+    //auto luaInstance = LuaInstance::instance(L);
+    //std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    lua_error(L, "Not implemented.");
+    return 0;
+}
+
+/**
  * @brief Set the group of selected items and unselect them.
  * @param L
  * @return 0
@@ -3117,7 +3138,7 @@ int femmcli::LuaMagneticsCommands::luaSetGroup(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     int n=lua_gettop(L);
     int grp;
@@ -3174,7 +3195,7 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     int nodepropidx = -1;
     std::string nodeprop = "<None>";
@@ -3231,7 +3252,7 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     int nodepropidx = -1;
     std::string nodeprop = "<None>";

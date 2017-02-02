@@ -100,7 +100,6 @@ protected:
     static int luaNewDocument(lua_State *L);
     static int luaNumElements(lua_State *L);
     static int luaNumNodes(lua_State *L);
-    static int luaSetPrevious(lua_State *L);
     static int luaProbDef(lua_State *L);
     static int luaPurgeMeshNOP(lua_State *L);
     static int luaReloadNOP(lua_State *L);
@@ -119,8 +118,10 @@ protected:
     static int luaSetArcsegmentProp(lua_State *L);
     static int luaSetBlocklabelProp(lua_State *L);
     static int luaSetEditMode(lua_State *L);
+    static int luaSetFocus(lua_State *L);
     static int luaSetGroup(lua_State *L);
     static int luaSetNodeProp(lua_State *L);
+    static int luaSetPrevious(lua_State *L);
     static int luaSetSegmentProp(lua_State *L);
 };
 
