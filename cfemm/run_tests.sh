@@ -110,14 +110,15 @@ checks="$checks check_femmcli"
 check_femmcli()
 {
 	prefix="$1"
+	luaBaseDir="$mydir/femmcli/debug"
 	init_check femmcli
 	local retval=0
 	for f in `ls test/*.lua`
 	do
 		echo "$prefix $f"
-		run $bindir/femmcli --quiet --lua-script=$f > $f.out || retval=1
+		run $bindir/femmcli --quiet --lua-base-dir="$luaBaseDir" --lua-script="$f" > "$f.out" || retval=1
 		# search for .check files
-		for checkfile in ${f/.lua/}*.check
+		for checkfile in "${f/.lua/}"*.check
 		do
 			outfile=${checkfile/.check/}
 			echo "diff -wq '$checkfile' '$outfile'" >> log.txt
