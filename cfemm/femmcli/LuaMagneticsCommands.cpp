@@ -176,7 +176,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_numelements", luaNumElements);
     li.addFunction("mo_num_nodes", luaNumNodes);
     li.addFunction("mo_numnodes", luaNumNodes);
-    li.addFunction("mi_setprevious", luaPreviousNOP);
+    li.addFunction("mi_setprevious", luaSetPrevious);
     li.addFunction("mi_prob_def", luaProbDef);
     li.addFunction("mi_probdef", luaProbDef);
     li.addFunction("mi_purge_mesh", luaPurgeMeshNOP);
@@ -2458,15 +2458,30 @@ int femmcli::LuaMagneticsCommands::luaNumNodes(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set file name of previous solution file.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_previous()}
+ *
+ * \internal
+ * mi_setprevious(filename) defines the previous solution to be used as the basis for an
+ * AC incremental permeability solution. The filename should include the .ans extension
  */
-int femmcli::LuaMagneticsCommands::luaPreviousNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetPrevious(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    int n = lua_gettop(L);
+
+    if (n>0)
+    {
+        auto luaInstance = LuaInstance::instance(L);
+        std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+        std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument;
+
+        std::string prev = lua_tostring(L,n);
+        doc->PrevSoln=prev;
+    }
+
     return 0;
 }
 
