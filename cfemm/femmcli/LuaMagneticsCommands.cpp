@@ -112,7 +112,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_detachouterspace", luaDetachOuterSpace);
     li.addFunction("mo_close", luaExitPost);
     li.addFunction("mi_close", luaExitPre);
-    li.addFunction("mi_getboundingbox", luaGetboundingboxNOP);
+    li.addFunction("mi_getboundingbox", luaGetBoundingBox);
     li.addFunction("mo_get_circuit_properties", luaGetCircuitProperties);
     li.addFunction("mo_getcircuitproperties", luaGetCircuitProperties);
     li.addFunction("mo_get_element", luaGetElement);
@@ -126,10 +126,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_getprobleminfo", luaGetProblemInfo);
     li.addFunction("mo_get_problem_info", luaGetProblemInfo);
     li.addFunction("mo_getprobleminfo", luaGetProblemInfo);
-    li.addFunction("mi_get_title", luaGettitleNOP);
-    li.addFunction("mi_gettitle", luaGettitleNOP);
-    li.addFunction("mo_get_title", luaGettitleNOP);
-    li.addFunction("mo_gettitle", luaGettitleNOP);
+    li.addFunction("mi_get_title", luaGetTitle);
+    li.addFunction("mi_gettitle", luaGetTitle);
+    li.addFunction("mo_get_title", luaGetTitle);
+    li.addFunction("mo_gettitle", luaGetTitle);
     li.addFunction("mo_gradient", luaGradientNOP);
     li.addFunction("mi_grid_snap", LuaInstance::luaNOP);
     li.addFunction("mi_gridsnap", LuaInstance::luaNOP);
@@ -1731,7 +1731,7 @@ int femmcli::LuaMagneticsCommands::luaExitPre(lua_State *L)
  * \internal
  * mi_getboundingbox() seems to be undocumented
  */
-int femmcli::LuaMagneticsCommands::luaGetboundingboxNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetBoundingBox(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -2032,16 +2032,23 @@ int femmcli::LuaMagneticsCommands::luaGetProblemInfo(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Get the document title
  * @param L
- * @return 0
+ * @return 1
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_gettitle()}
+ *
+ * \internal
+ * mi_gettitle()
  */
-int femmcli::LuaMagneticsCommands::luaGettitleNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetTitle(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    lua_pushstring(L, doc->getTitle().c_str());
+    return 1;
 }
 
 /**

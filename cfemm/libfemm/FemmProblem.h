@@ -139,6 +139,8 @@ public:
      */
     void getCircle(const CArcSegment &arc,CComplex &c, double &R) const;
 
+    std::string getTitle() const;
+
 public: // data members
     double FileFormat; ///< \brief format version of the file
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
