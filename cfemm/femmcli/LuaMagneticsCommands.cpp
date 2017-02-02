@@ -1722,16 +1722,31 @@ int femmcli::LuaMagneticsCommands::luaExitPre(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Compute a bounding box for the problem.
  * @param L
- * @return 0
+ * @return 4 on success, 0 on failure
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_getboundingbox()}
+ *
+ * \internal
+ * mi_getboundingbox() seems to be undocumented
  */
 int femmcli::LuaMagneticsCommands::luaGetboundingboxNOP(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument;
+
+    double x[2],y[2];
+    if (doc->getBoundingBox(x,y))
+    {
+        lua_pushnumber(L,x[0]);
+        lua_pushnumber(L,x[1]);
+        lua_pushnumber(L,y[0]);
+        lua_pushnumber(L,y[1]);
+        return 4;
+    }
+    else return 0;
 }
 
 /**
