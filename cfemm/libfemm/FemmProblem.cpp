@@ -517,6 +517,12 @@ void femm::FemmProblem::getCircle(const femm::CArcSegment &arc, CComplex &c, dou
     c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
 }
 
+std::string femm::FemmProblem::getTitle() const
+{
+    // pathname should be good enough for now...
+    return pathName;
+}
+
 femm::FemmProblem::FemmProblem(FileType ftype)
     : FileFormat(-1)
     , Frequency(0.0)
