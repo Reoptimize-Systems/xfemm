@@ -81,6 +81,11 @@ public:
      */
     const std::shared_ptr<femm::FemmProblem> femmDocument();
 
+    /**
+     * @brief Set the current document (i.e. FemmProblem).
+     * The problem set that was current before this call will be closed.
+     * @param doc
+     */
     void setDocument(std::shared_ptr<femm::FemmProblem> doc);
 
     /**
@@ -88,7 +93,7 @@ public:
      * If FPProc was not yet initialized, a new FPProc is initialized.
      * @return
      */
-    std::shared_ptr<FPProc> getFPProc();
+    const std::shared_ptr<FPProc> getFPProc();
 
     /**
      * @brief Returns the current FMesher
@@ -100,7 +105,7 @@ public:
      * In this case, calling getMesher generates a new mesher.
      * @return
      */
-    std::shared_ptr<fmesher::FMesher> getMesher();
+    const std::shared_ptr<fmesher::FMesher> getMesher();
 
     /**
      * @brief Invalidate the current solution data stored in FPProc.

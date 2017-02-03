@@ -18,7 +18,7 @@ void femmcli::FemmState::setDocument(std::shared_ptr<femm::FemmProblem> doc)
     current.document = doc;
 }
 
-std::shared_ptr<FPProc> femmcli::FemmState::getFPProc()
+const std::shared_ptr<FPProc> femmcli::FemmState::getFPProc()
 {
     if (!current.postprocessor)
     {
@@ -27,7 +27,7 @@ std::shared_ptr<FPProc> femmcli::FemmState::getFPProc()
     return current.postprocessor;
 }
 
-std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
+const std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
 {
     if (!current.mesher || current.mesher->problem != current.document)
     {
