@@ -1909,16 +1909,31 @@ int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Get position of a mesh node.
  * @param L
- * @return 0
+ * @return 2 if the node was found, 0 otherwise
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_getnode()}
+ *
+ * \internal
+ * mo_getnode(n)
+ * Returns the (x,y) or (r,z) position of the nth mesh node.
  */
 int femmcli::LuaMagneticsCommands::luaGetnodeNOP(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+
+    int idx = (int)lua_todouble(L,1);
+    idx--; // convert to 0-based indexing
+
+    if (idx<0 || idx>=(int)fpproc->meshnode.size())
+        return 0;
+
+    lua_pushnumber(L, fpproc->meshnode[idx].x);
+    lua_pushnumber(L, fpproc->meshnode[idx].y);
+    return 2;
 }
 
 /**
