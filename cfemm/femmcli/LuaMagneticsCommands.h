@@ -82,7 +82,7 @@ protected:
     static int luaGetCircuitProperties(lua_State *L);
     static int luaGetElement(lua_State *L);
     static int luaGetMaterialFromLib(lua_State *L);
-    static int luaGetnodeNOP(lua_State *L);
+    static int luaGetMeshNode(lua_State *L);
     static int luaGetPointVals(lua_State *L);
     static int luaGetProblemInfo(lua_State *L);
     static int luaGetTitle(lua_State *L);
@@ -107,7 +107,7 @@ protected:
     static int luaSaveDocument(lua_State *L);
     static int luaScaleNOP(lua_State *L);
     static int luaSelectArcsegment(lua_State *L);
-    static int luaSelectBlockNOP(lua_State *L);
+    static int luaSelectOutputBlocklabel(lua_State *L);
     static int luaSelectcircleNOP(lua_State *L);
     static int luaSelectGroup(lua_State *L);
     static int luaSelectBlocklabel(lua_State *L);

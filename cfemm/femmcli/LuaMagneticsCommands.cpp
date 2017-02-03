@@ -119,8 +119,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_getelement", luaGetElement);
     li.addFunction("mi_get_material", luaGetMaterialFromLib);
     li.addFunction("mi_getmaterial", luaGetMaterialFromLib);
-    li.addFunction("mo_get_node", luaGetnodeNOP);
-    li.addFunction("mo_getnode", luaGetnodeNOP);
+    li.addFunction("mo_get_node", luaGetMeshNode);
+    li.addFunction("mo_getnode", luaGetMeshNode);
     li.addFunction("mo_get_point_values", luaGetPointVals);
     li.addFunction("mo_getpointvalues", luaGetPointVals);
     li.addFunction("mi_getprobleminfo", luaGetProblemInfo);
@@ -207,8 +207,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_scale", luaScaleNOP);
     li.addFunction("mi_select_arcsegment", luaSelectArcsegment);
     li.addFunction("mi_selectarcsegment", luaSelectArcsegment);
-    li.addFunction("mo_select_block", luaSelectBlockNOP);
-    li.addFunction("mo_selectblock", luaSelectBlockNOP);
+    li.addFunction("mo_select_block", luaSelectOutputBlocklabel);
+    li.addFunction("mo_selectblock", luaSelectOutputBlocklabel);
     li.addFunction("mi_select_circle", luaSelectcircleNOP);
     li.addFunction("mi_selectcircle", luaSelectcircleNOP);
     li.addFunction("mi_select_group", luaSelectGroup);
@@ -1919,7 +1919,7 @@ int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
  * mo_getnode(n)
  * Returns the (x,y) or (r,z) position of the nth mesh node.
  */
-int femmcli::LuaMagneticsCommands::luaGetnodeNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetMeshNode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -2732,15 +2732,52 @@ int femmcli::LuaMagneticsCommands::luaSelectArcsegment(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Select the (postprocessor) block label containing the given point
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_selectblock()}
+ *
+ * \internal
+ * mo_selectblock(x,y) Select the block that contains point (x,y).
  */
-int femmcli::LuaMagneticsCommands::luaSelectBlockNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectOutputBlocklabel(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    double px=lua_todouble(L,1);
+    double py=lua_todouble(L,2);
+
+    //theView->EditAction=2;
+
+    if (!fpproc->meshelem.empty()){
+        int k=fpproc->InTriangle(px,py);
+        if(k>=0)
+        {
+            fpproc->bHasMask=false;
+            fpproc->blocklist[fpproc->meshelem[k].lbl].ToggleSelect();
+            // RedrawView();
+            // theView->DrawSelected=fpproc->meshelem[k].lbl;
+            // HDC myDCH=GetDC(theView->m_hWnd);
+            // CDC tempDC;
+            // CDC *pDC;
+            // pDC=tempDC.FromHandle(myDCH);
+
+            // //CDC *pDC=GetDC(theView->m_hWnd);
+            // theView->OnDraw(pDC);
+            // theView->DrawSelected=-1;
+            // theView->ReleaseDC(pDC);
+            // fpproc->UpdateAllViews(theView);
+        }
+    }
+
     return 0;
 }
 
