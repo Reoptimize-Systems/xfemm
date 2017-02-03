@@ -115,8 +115,30 @@ public:
 
     /**
      * @brief Close and discard the current problem set.
+     * After this operation, the current problem set is empty and you
+     * need to set a new document or activate an inactive problem set.
      */
     void close();
+
+    /**
+     * @brief Deactivate the current problem set.
+     * After this operation, the current problem set is empty and you
+     * need to set a new document or activate an inactive problem set.
+     */
+    void deactivateProblemSet();
+    /**
+     * @brief Make the problem set with the given title active.
+     * If the title is found, the current problem set is deactivated and the found problem set becomes active.
+     * @param title the title of the FemmProblem
+     * @return \c true, if the title was found, \c false otherwise
+     */
+    bool activateProblemSet( const std::string &title );
+
+    /**
+     * @brief isValid
+     * @return \c true, if a problem set is active, \c false otherwise.
+     */
+    bool isValid() const;
 private:
     struct MagneticsProblemSet {
         std::shared_ptr<femm::FemmProblem> document;
@@ -125,6 +147,7 @@ private:
     };
 
     MagneticsProblemSet current;
+    std::vector<MagneticsProblemSet> inactiveMagneticsProblems;
 
 
 };

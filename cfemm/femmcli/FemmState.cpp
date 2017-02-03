@@ -47,3 +47,34 @@ void femmcli::FemmState::close()
     current.mesher.reset();
     current.postprocessor.reset();
 }
+
+void femmcli::FemmState::deactivateProblemSet()
+{
+    inactiveMagneticsProblems.push_back(current);
+    current = MagneticsProblemSet();
+}
+
+bool femmcli::FemmState::activateProblemSet(const std::string &title)
+{
+    for (auto it=inactiveMagneticsProblems.cbegin()
+         , end = inactiveMagneticsProblems.cend()
+         ; it != end
+         ; ++it)
+    {
+        if (it->document->getTitle() == title)
+        {
+            // deactivate current problem set
+            inactiveMagneticsProblems.push_back(current);
+            // activate problem set
+            current = *it;
+            inactiveMagneticsProblems.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool femmcli::FemmState::isValid() const
+{
+    return (nullptr != current.document.get());
+}
