@@ -230,8 +230,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_setblockprop", luaSetBlocklabelProp);
     li.addFunction("mi_set_edit_mode", luaSetEditMode);
     li.addFunction("mi_seteditmode", luaSetEditMode);
-    li.addFunction("mo_set_edit_mode", luaSetEditMode);
-    li.addFunction("mo_seteditmode", luaSetEditMode);
+    li.addFunction("mo_set_edit_mode", LuaInstance::luaNOP);
+    li.addFunction("mo_seteditmode", LuaInstance::luaNOP);
     li.addFunction("mi_set_grid", LuaInstance::luaNOP);
     li.addFunction("mi_setgrid", LuaInstance::luaNOP);
     li.addFunction("mo_set_grid", LuaInstance::luaNOP);
@@ -1103,7 +1103,7 @@ int femmcli::LuaMagneticsCommands::luaClearBHPoints(lua_State *L)
 }
 
 /**
- * @brief Clear block selection and reset some (fpproc) settings.
+ * @brief Clear output block label selection and reset some (fpproc) settings.
  * @param L
  * @return 0
  * \ingroup LuaMM
@@ -1130,8 +1130,7 @@ int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
         block.IsSelected = false;
     }
 
-    // FIXME(ZaJ): xfemm doesn't have this currently:
-    //fpproc->EditAction=0;
+    //fpproc->d_EditMode = EditNodes;
     return 0;
 }
 
@@ -2079,7 +2078,7 @@ int femmcli::LuaMagneticsCommands::luaGradientNOP(lua_State *L)
 }
 
 /**
- * @brief (De)select blocks associated with block labels in a given group.
+ * @brief (De)select output block labels associated with block labels in a given group.
  * @param L
  * @return 0
  * \ingroup LuaMM
@@ -2104,8 +2103,7 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
         return 0;
     }
 
-    // FIXME(ZaJ): xfemm doesn't have this currently:
-    //fpproc->EditAction=2;
+    //fpproc->d_EditMode = EditLabels;
 
     // Note(ZaJ): why does this depend on meshelem,
     //            when blocklist is affected?
@@ -2756,7 +2754,7 @@ int femmcli::LuaMagneticsCommands::luaSelectOutputBlocklabel(lua_State *L)
     double px=lua_todouble(L,1);
     double py=lua_todouble(L,2);
 
-    //theView->EditAction=2;
+    //fpproc->d_EditMode = EditLabels;
 
     if (!fpproc->meshelem.empty()){
         int k=fpproc->InTriangle(px,py);
