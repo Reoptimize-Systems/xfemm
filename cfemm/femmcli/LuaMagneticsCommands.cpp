@@ -209,8 +209,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectarcsegment", luaSelectArcsegment);
     li.addFunction("mo_select_block", luaSelectOutputBlocklabel);
     li.addFunction("mo_selectblock", luaSelectOutputBlocklabel);
-    li.addFunction("mi_select_circle", luaSelectcircleNOP);
-    li.addFunction("mi_selectcircle", luaSelectcircleNOP);
+    li.addFunction("mi_select_circle", luaSelectWithinCircle);
+    li.addFunction("mi_selectcircle", luaSelectWithinCircle);
     li.addFunction("mi_select_group", luaSelectGroup);
     li.addFunction("mi_selectgroup", luaSelectGroup);
     li.addFunction("mi_select_label", luaSelectBlocklabel);
@@ -2782,15 +2782,84 @@ int femmcli::LuaMagneticsCommands::luaSelectOutputBlocklabel(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Select objects in a given radius around a point.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectcircle()}
+ *
+ * \internal
+ * mi_selectcircle(x,y,R,(editmode)) selects objects within a circle of radius R centered at (x,y)
  */
-int femmcli::LuaMagneticsCommands::luaSelectcircleNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectWithinCircle(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n=lua_gettop(L);
+    if (n<3)
+        return 0;
+
+    CComplex c=lua_tonumber(L,1)+I*lua_tonumber(L,2);
+    double R=lua_todouble(L,3);
+
+    fmesher::FMesher::EditMode editAction;
+    if (n>3) {
+        editAction = fmesher::intToEditMode((int)lua_todouble(L,4));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == fmesher::FMesher::EditModeInvalid)
+    {
+        lua_error(L, "mi_selectcircle(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    if((editAction==fmesher::FMesher::EditNodes) || (editAction==fmesher::FMesher::EditGroup))
+    {
+        for (auto &node: doc->nodelist)
+        {
+            CComplex q = node->CC();
+            if (abs(q-c)<=R)
+                node->IsSelected = true;
+        }
+    }
+
+    if((editAction==fmesher::FMesher::EditLabels) || (editAction==fmesher::FMesher::EditGroup))
+    {
+        for (auto &label: doc->labellist)
+        {
+            CComplex q (label->x,label->y);
+            if (abs(q-c)<=R)
+                label->IsSelected = true;
+        }
+    }
+    if((editAction==fmesher::FMesher::EditLines) || (editAction==fmesher::FMesher::EditGroup))
+    {
+        for (auto &line: doc->linelist)
+        {
+            CComplex q0 = doc->nodelist[line->n0]->CC();
+            CComplex q1 = doc->nodelist[line->n1]->CC();
+
+            if (abs(q0-c)<=R && abs(q1-c)<=R)
+                line->IsSelected = true;
+        }
+    }
+
+    if((editAction==fmesher::FMesher::EditArcs) || (editAction==fmesher::FMesher::EditGroup))
+    {
+        for (auto &arc: doc->arclist)
+        {
+            CComplex q0 = doc->nodelist[arc->n0]->CC();
+            CComplex q1 = doc->nodelist[arc->n1]->CC();
+
+            if (abs(q0-c)<=R && abs(q1-c)<=R)
+                arc->IsSelected = true;
+        }
+    }
     return 0;
 }
 

@@ -108,7 +108,7 @@ protected:
     static int luaScaleNOP(lua_State *L);
     static int luaSelectArcsegment(lua_State *L);
     static int luaSelectOutputBlocklabel(lua_State *L);
-    static int luaSelectcircleNOP(lua_State *L);
+    static int luaSelectWithinCircle(lua_State *L);
     static int luaSelectGroup(lua_State *L);
     static int luaSelectBlocklabel(lua_State *L);
     static int luaSelectlineNOP(lua_State *L);
