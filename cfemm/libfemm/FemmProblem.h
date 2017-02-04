@@ -26,6 +26,7 @@
 #include "CNode.h"
 #include "CPointProp.h"
 #include "CSegment.h"
+#include "femmenums.h"
 #include "fparse.h"
 
 #include <map>
@@ -34,10 +35,6 @@
 #include <vector>
 
 namespace femm {
-/**
- * @brief The FileType enum determines how the problem description is written to disc.
- */
-enum FileType { UnknownFile, MagneticsFile, HeatFlowFile, CurrentFlowFile, ElectrostaticsFile };
 
 /**
  * \brief The FemmProblem class holds all data concerning a problem.
