@@ -89,7 +89,6 @@ protected:
     static int luaGradientNOP(lua_State *L);
     static int luaGroupSelectBlock(lua_State *L);
     static int luaLineintegralNOP(lua_State *L);
-    static int luaMakeplotNOP(lua_State *L);
     static int luaMirrorNOP(lua_State *L);
     static int luaModboundpropNOP(lua_State *L);
     static int luaModifyCircuitProperty(lua_State *L);
