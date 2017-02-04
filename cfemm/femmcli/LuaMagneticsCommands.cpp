@@ -17,6 +17,7 @@
 #include "LuaMagneticsCommands.h"
 
 #include "CPointVals.h"
+#include "femmenums.h"
 #include "FemmState.h"
 #include "fpproc.h"
 #include "LuaInstance.h"
@@ -1198,14 +1199,14 @@ int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
     double angle = lua_todouble(L,3);
     int copies = (int) lua_todouble(L,4);
 
-    fmesher::FMesher::EditMode editAction;
+    EditMode editAction;
     if (n==5) {
-        editAction = fmesher::intToEditMode((int)lua_todouble(L,5));
+        editAction = intToEditMode((int)lua_todouble(L,5));
     } else {
         editAction = mesher->d_EditMode;
     }
 
-    if (editAction == fmesher::FMesher::EditModeInvalid)
+    if (editAction == EditModeInvalid)
     {
         lua_error(L, "mi_copyrotate(): no editmode given and no default edit mode set!\n");
         return 0;
@@ -1253,14 +1254,14 @@ int femmcli::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
     double y = lua_todouble(L,2);
     int copies = (int) lua_todouble(L,3);
 
-    fmesher::FMesher::EditMode editAction;
+    EditMode editAction;
     if (n==4) {
-        editAction = fmesher::intToEditMode((int)lua_todouble(L,4));
+        editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
         editAction = mesher->d_EditMode;
     }
 
-    if (editAction == fmesher::FMesher::EditModeInvalid)
+    if (editAction == EditModeInvalid)
     {
         lua_error(L, "mi_copytranslate(): no editmode given and no default edit mode set!\n");
         return 0;
@@ -2323,13 +2324,13 @@ int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
     double y = lua_todouble(L,2);
     double shiftangle = lua_todouble(L,3);
 
-    fmesher::FMesher::EditMode editAction;
+    EditMode editAction;
     if (n==4) {
-        editAction = fmesher::intToEditMode((int)lua_todouble(L,4));
+        editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
         editAction = mesher->d_EditMode;
     }
-    if (editAction == fmesher::FMesher::EditModeInvalid)
+    if (editAction == EditModeInvalid)
     {
             lua_error(L, "mi_moverotate(): Invalid value of editaction!\n");
             return 0;
@@ -2380,14 +2381,14 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
     double x = lua_todouble(L,1);
     double y = lua_todouble(L,2);
 
-    fmesher::FMesher::EditMode editAction;
+    EditMode editAction;
     if (n==3) {
-        editAction = fmesher::intToEditMode((int)lua_todouble(L,3));
+        editAction = intToEditMode((int)lua_todouble(L,3));
     } else {
         editAction = mesher->d_EditMode;
     }
 
-    if (editAction == fmesher::FMesher::EditModeInvalid)
+    if (editAction == EditModeInvalid)
     {
         lua_error(L, "mi_movetranslate(): no editmode given and no default edit mode set!\n");
         return 0;
@@ -2805,20 +2806,20 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinCircle(lua_State *L)
     CComplex c=lua_tonumber(L,1)+I*lua_tonumber(L,2);
     double R=lua_todouble(L,3);
 
-    fmesher::FMesher::EditMode editAction;
+    EditMode editAction;
     if (n>3) {
-        editAction = fmesher::intToEditMode((int)lua_todouble(L,4));
+        editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
         editAction = mesher->d_EditMode;
     }
 
-    if (editAction == fmesher::FMesher::EditModeInvalid)
+    if (editAction == EditModeInvalid)
     {
         lua_error(L, "mi_selectcircle(): no editmode given and no default edit mode set!\n");
         return 0;
     }
 
-    if((editAction==fmesher::FMesher::EditNodes) || (editAction==fmesher::FMesher::EditGroup))
+    if((editAction==EditNodes) || (editAction==EditGroup))
     {
         for (auto &node: doc->nodelist)
         {
@@ -2828,7 +2829,7 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinCircle(lua_State *L)
         }
     }
 
-    if((editAction==fmesher::FMesher::EditLabels) || (editAction==fmesher::FMesher::EditGroup))
+    if((editAction==EditLabels) || (editAction==EditGroup))
     {
         for (auto &label: doc->labellist)
         {
@@ -2837,7 +2838,7 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinCircle(lua_State *L)
                 label->IsSelected = true;
         }
     }
-    if((editAction==fmesher::FMesher::EditLines) || (editAction==fmesher::FMesher::EditGroup))
+    if((editAction==EditLines) || (editAction==EditGroup))
     {
         for (auto &line: doc->linelist)
         {
@@ -2849,7 +2850,7 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinCircle(lua_State *L)
         }
     }
 
-    if((editAction==fmesher::FMesher::EditArcs) || (editAction==fmesher::FMesher::EditGroup))
+    if((editAction==EditArcs) || (editAction==EditGroup))
     {
         for (auto &arc: doc->arclist)
         {
@@ -2924,7 +2925,7 @@ int femmcli::LuaMagneticsCommands::luaSelectGroup(lua_State *L)
     }
 
     // set default edit mode
-    mesher->d_EditMode = fmesher::FMesher::EditGroup;
+    mesher->d_EditMode = EditGroup;
 
     return 0;
 }
@@ -3201,18 +3202,18 @@ int femmcli::LuaMagneticsCommands::luaSetEditMode(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
-    fmesher::FMesher::EditMode mode;
+    EditMode mode;
     std::string modeString (lua_tostring(L,1));
     if (modeString == "nodes")
-        mode = fmesher::FMesher::EditNodes;
+        mode = EditNodes;
     else if (modeString == "segments")
-        mode = fmesher::FMesher::EditLines;
+        mode = EditLines;
     else if (modeString == "blocks")
-        mode = fmesher::FMesher::EditLabels;
+        mode = EditLabels;
     else if (modeString == "arcsegments")
-        mode = fmesher::FMesher::EditArcs;
+        mode = EditArcs;
     else if (modeString == "group")
-        mode = fmesher::FMesher::EditGroup;
+        mode = EditGroup;
     else {
         lua_error(L, "mi_seteditmode(): Invalid value of editmode!\n");
         return 0;

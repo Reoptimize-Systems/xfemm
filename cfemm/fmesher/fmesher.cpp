@@ -1476,7 +1476,7 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
     return true;
 }
 
-void FMesher::RotateCopy(CComplex c, double dt, int ncopies, FMesher::EditMode selector)
+void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode selector)
 {
     assert(selector != EditModeInvalid);
     for(int nc=0; nc<ncopies; nc++)
@@ -1606,7 +1606,7 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, FMesher::EditMode s
     EnforcePSLG();
 }
 
-void FMesher::RotateMove(CComplex c, double t, FMesher::EditMode selector)
+void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
 {
     assert(selector != EditModeInvalid);
     bool processNodes = (selector == EditNodes);
@@ -1683,7 +1683,7 @@ void FMesher::RotateMove(CComplex c, double t, FMesher::EditMode selector)
     }
 }
 
-void FMesher::TranslateCopy(double incx, double incy, int ncopies, FMesher::EditMode selector)
+void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMode selector)
 {
     assert(selector != EditModeInvalid);
     for(int nc=0; nc<ncopies; nc++)
@@ -1789,7 +1789,7 @@ void FMesher::TranslateCopy(double incx, double incy, int ncopies, FMesher::Edit
     EnforcePSLG();
 }
 
-void FMesher::TranslateMove(double dx, double dy, FMesher::EditMode selector)
+void FMesher::TranslateMove(double dx, double dy, femm::EditMode selector)
 {
     assert(selector != EditModeInvalid);
     bool processNodes = (selector == EditNodes);

@@ -11,7 +11,8 @@ include_directories(${PROJECT_SOURCE_DIR}/liblua)
 #add_subdirectory(${PROJECT_SOURCE_DIR}/liblua)
 
 add_library(femm
-  femmconstants.h # header only
+  femmconstants.cpp
+  femmenums.cpp
   CArcSegment.cpp
   CBlockLabel.cpp
   CBoundaryProp.cpp

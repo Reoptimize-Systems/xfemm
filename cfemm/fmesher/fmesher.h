@@ -34,6 +34,7 @@
 #include "CNode.h"
 #include "CPointProp.h"
 #include "CSegment.h"
+#include "femmenums.h"
 #include "FemmProblem.h"
 
 #include <memory>
@@ -70,13 +71,12 @@ protected:
 public:
 
     enum loaderrors { F_FILE_OK, F_FILE_UNKNOWN_TYPE, F_FILE_NOT_OPENED, F_FILE_MALFORMED};
-    enum EditMode { EditNodes = 0, EditLines = 1, EditLabels = 2, EditArcs = 3, EditGroup = 4, EditModeInvalid };
 
     explicit FMesher();
     explicit FMesher(std::string);
     explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
 
-    EditMode d_EditMode;
+    femm::EditMode d_EditMode;
     std::shared_ptr<femm::FemmProblem> problem;
 	bool    Verbose;
 
@@ -245,14 +245,14 @@ public:
      * @param ncopies number of copies
      * @param selector
      */
-    void RotateCopy(CComplex c, double dt, int ncopies, EditMode selector);
+    void RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode selector);
     /**
      * @brief Rotate the selected objects of the selected type.
      * @param c center
      * @param t angle
      * @param selector
      */
-    void RotateMove(CComplex c, double t, EditMode selector);
+    void RotateMove(CComplex c, double t, femm::EditMode selector);
     /**
      * @brief Translate copies of the selected objects of the selected type.
      * Each copy is translated by the given amount compared to the previous copy.
@@ -261,14 +261,14 @@ public:
      * @param ncopies number of copies
      * @param selector
      */
-    void TranslateCopy(double incx, double incy, int ncopies, EditMode selector);
+    void TranslateCopy(double incx, double incy, int ncopies, femm::EditMode selector);
     /**
      * @brief Translate the selected objects of the selected type.
      * @param dx
      * @param dy
      * @param selector
      */
-    void TranslateMove(double dx, double dy, EditMode selector);
+    void TranslateMove(double dx, double dy, femm::EditMode selector);
     /**
      * @brief Delete all selected segments.
      * @return \c true, if any segments were deleted, \c false otherwise.
@@ -297,24 +297,6 @@ private:
 	void addFileStr (char * q);
 
 };
-
-/**
- * @brief Convert an integer value into an EditMode enum.
- * @param m
- * @return a valid EditMode for defined values, EditModeInvalid otherwise.
- */
-inline FMesher::EditMode intToEditMode(int m)
-{
-    switch (m) {
-    case 0: return FMesher::EditNodes;
-    case 1: return FMesher::EditLines;
-    case 2: return FMesher::EditLabels;
-    case 3: return FMesher::EditArcs;
-    case 4: return FMesher::EditGroup;
-    default:
-        return FMesher::EditModeInvalid;
-    }
-}
 
 } // namespace femm
 
