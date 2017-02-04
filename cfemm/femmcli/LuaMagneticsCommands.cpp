@@ -152,8 +152,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_hidepoints", LuaInstance::luaNOP);
     li.addFunction("mo_line_integral", luaLineintegralNOP);
     li.addFunction("mo_lineintegral", luaLineintegralNOP);
-    li.addFunction("mo_make_plot", luaMakeplotNOP);
-    li.addFunction("mo_makeplot", luaMakeplotNOP);
+    li.addFunction("mo_make_plot", LuaInstance::luaNOP);
+    li.addFunction("mo_makeplot", LuaInstance::luaNOP);
     li.addFunction("mi_maximize", LuaInstance::luaNOP);
     li.addFunction("mo_maximize", LuaInstance::luaNOP);
     li.addFunction("mi_minimize", LuaInstance::luaNOP);
@@ -2144,19 +2144,6 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
  * \femm42{femm/femmviewLua.cpp,lua_lineintegral()}
  */
 int femmcli::LuaMagneticsCommands::luaLineintegralNOP(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_makeplot()}
- */
-int femmcli::LuaMagneticsCommands::luaMakeplotNOP(lua_State *L)
 {
     lua_error(L, "Not implemented.");
     return 0;
