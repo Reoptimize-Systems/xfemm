@@ -15,6 +15,8 @@ This is a list of issues I encountered during porting of code from FEMM42 to xfe
   Returns 0, when in some cases it should return 1 (i.e. when CFemmeView::OnMakeMesh() pushes a value to the stack)
 - lua_modboundprop():  
   Returns TRUE (i.e. 1) when it should return 0
+- lua_modmatprop():
+  Returns TRUE (i.e. 1) when it should return 0
 
 ### femm/MOVECOPY.CPP
 
