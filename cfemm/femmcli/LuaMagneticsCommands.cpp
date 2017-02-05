@@ -159,8 +159,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_minimize", LuaInstance::luaNOP);
     li.addFunction("mo_minimize", LuaInstance::luaNOP);
     li.addFunction("mi_mirror", luaMirrorCopy);
-    li.addFunction("mi_modify_bound_prop", luaModboundpropNOP);
-    li.addFunction("mi_modifyboundprop", luaModboundpropNOP);
+    li.addFunction("mi_modify_bound_prop", luaModifyBoundaryProp);
+    li.addFunction("mi_modifyboundprop", luaModifyBoundaryProp);
     li.addFunction("mi_modify_circ_prop", luaModifyCircuitProperty);
     li.addFunction("mi_modifycircprop", luaModifyCircuitProperty);
     li.addFunction("mi_modify_material", luaModmatpropNOP);
@@ -2199,15 +2199,77 @@ int femmcli::LuaMagneticsCommands::luaMirrorCopy(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a boundary property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_modboundprop()}
+ *
+ * \internal
+ * mi_modifyboundprop("BdryName",propnum,value)
+ * This function allows for modification of a boundary property.
+ * * propnum: property field to be edited
  */
-int femmcli::LuaMagneticsCommands::luaModboundpropNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModifyBoundaryProp(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    // find the index of the boundary property to modify;
+    if (doc->lineproplist.empty())
+        return 0;
+    std::string BdryName = lua_tostring(L,1);
+    CMBoundaryProp *m = nullptr;
+    for (auto &prop: doc->lineproplist)
+    {
+        if (BdryName==prop->BdryName) {
+            m = dynamic_cast<CMBoundaryProp*>(prop.get());
+            break;
+        }
+    }
+    // get out of here if there's no matching material
+    if (m==nullptr)
+        return 0;
+
+    // now, modify the specified attribute...
+    int modprop=(int) lua_todouble(L,2);
+    switch(modprop)
+    {
+    case 0:
+        m->BdryName = lua_tostring(L,3);
+        doc->updateLineMap();
+        break;
+    case 1:
+        m->A0 = lua_todouble(L,3);
+        break;
+    case 2:
+        m->A1 = lua_todouble(L,3);
+        break;
+    case 3:
+        m->A2 = lua_todouble(L,3);
+        break;
+    case 4:
+        m->phi = lua_todouble(L,3);
+        break;
+    case 5:
+        m->Mu = lua_todouble(L,3);
+        break;
+    case 6:
+        m->Sig = lua_todouble(L,3);
+        break;
+    case 7:
+        m->c0 = lua_tonumber(L,3);
+        break;
+    case 8:
+        m->c1 = lua_tonumber(L,3);
+        break;
+    case 9:
+        m->BdryFormat = (int)lua_todouble(L,3);
+        break;
+    default:
+        break;
+    }
     return 0;
 }
 
