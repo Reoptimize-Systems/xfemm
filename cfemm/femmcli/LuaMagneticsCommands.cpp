@@ -165,8 +165,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_modifycircprop", luaModifyCircuitProperty);
     li.addFunction("mi_modify_material", luaModifyMaterialProp);
     li.addFunction("mi_modifymaterial", luaModifyMaterialProp);
-    li.addFunction("mi_modify_point_prop", luaModpointpropNOP);
-    li.addFunction("mi_modifypointprop", luaModpointpropNOP);
+    li.addFunction("mi_modify_point_prop", luaModifyPointProp);
+    li.addFunction("mi_modifypointprop", luaModifyPointProp);
     li.addFunction("mi_move_rotate", luaMoveRotate);
     li.addFunction("mi_moverotate", luaMoveRotate);
     li.addFunction("mi_move_translate", luaMoveTranslate);
@@ -2217,8 +2217,6 @@ int femmcli::LuaMagneticsCommands::luaModifyBoundaryProp(lua_State *L)
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     // find the index of the boundary property to modify;
-    if (doc->lineproplist.empty())
-        return 0;
     std::string BdryName = lua_tostring(L,1);
     CMBoundaryProp *m = nullptr;
     for (auto &prop: doc->lineproplist)
@@ -2374,8 +2372,6 @@ int femmcli::LuaMagneticsCommands::luaModifyMaterialProp(lua_State *L)
     }
 
     // find the index of the material to modify;
-    if (doc->blockproplist.empty())
-        return 0;
     std::string BlockName = lua_tostring(L,1);
     CMSolverMaterialProp *m = nullptr;
     for (auto &prop: doc->blockproplist)
@@ -2444,15 +2440,61 @@ int femmcli::LuaMagneticsCommands::luaModifyMaterialProp(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a point property.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_modpointprop()}
+ *
+ * \internal
+ * mi_modifypointprop("PointName",propnum,value)
+ * * propnum: field number
  */
-int femmcli::LuaMagneticsCommands::luaModpointpropNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModifyPointProp(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        //return ((CFemmeDoc *)pFemmeDoc)->old_lua_modpointprop(L);
+        lua_error(L,"Compatibility mode for mi_modifypointprop is not implemented!\n");
+        return 0;
+    }
+
+    // find the index of the material to modify;
+    std::string PointName = lua_tostring(L,1);
+    CMPointProp *p = nullptr;
+    for (const auto &prop:doc->nodeproplist)
+    {
+        if (PointName==prop->PointName) {
+            p = dynamic_cast<CMPointProp*>(prop.get());
+            break;
+        }
+    }
+    // get out of here if there's no matching material
+    if (p==nullptr)
+        return 0;
+
+    int modprop=(int) lua_todouble(L,2);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+        p->PointName = lua_tostring(L,3);
+        break;
+    case 1:
+        p->A = lua_tonumber(L,3);
+        break;
+    case 2:
+        p->J = lua_tonumber(L,3);
+        break;
+    default:
+        break;
+    }
+
     return 0;
 }
 
