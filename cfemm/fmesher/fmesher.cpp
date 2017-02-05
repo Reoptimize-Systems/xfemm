@@ -1476,6 +1476,126 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
     return true;
 }
 
+void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode selector)
+{
+    CComplex x=x0 + I*y0;
+    CComplex p=(x1-x0) + I*(y1-y0);
+    if(abs(p)==0)
+        return;
+    p/=abs(p);
+
+    if (selector==EditNodes || selector == EditGroup)
+    {
+        for (const auto &node: problem->nodelist)
+        {
+            if (node->IsSelected)
+            {
+                CComplex y (node->x,node->y);
+                y = (y-x) / p;
+                y = p*y.Conj()+x;
+                // create copy
+                std::unique_ptr<CNode> newnode = std::make_unique<CNode>(*node);
+                // overwrite coordinates in copy
+                newnode->x = y.re;
+                newnode->y = y.im;
+                newnode->IsSelected = false;
+                problem->nodelist.push_back(std::move(newnode));
+            }
+        }
+    }
+    if (selector == EditLines || selector == EditGroup)
+    {
+        for (const auto &line: problem->linelist)
+        {
+            if (line->IsSelected)
+            {
+                // copy endpoints
+                std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*problem->nodelist[line->n0]);
+                CComplex y0 (n0->x,n0->y);
+                y0 = (y0-x) / p;
+                y0 = p*y0.Conj()+x;
+                n0->x = y0.re;
+                n0->y = y0.im;
+                n0->IsSelected = false;
+
+                std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*problem->nodelist[line->n1]);
+                CComplex y1 (n1->x,n1->y);
+                y1 = (y1-x) / p;
+                y1 = p*y1.Conj()+x;
+                n1->x = y1.re;
+                n1->y = y1.im;
+                n1->IsSelected = false;
+
+                // copy line (with identical endpoints)
+                std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                newline->IsSelected = false;
+                // set endpoints
+                newline->n0 = (int)problem->nodelist.size();
+                problem->nodelist.push_back(std::move(n0));
+                newline->n1 = (int)problem->nodelist.size();
+                problem->nodelist.push_back(std::move(n1));
+                problem->linelist.push_back(std::move(newline));
+            }
+        }
+    }
+
+    if (selector == EditLabels || selector == EditGroup)
+    {
+        for (const auto &label: problem->labellist)
+        {
+            if (label->IsSelected)
+            {
+                std::unique_ptr<CBlockLabel> newlabel = std::make_unique<CBlockLabel>(*label);
+                CComplex y (label->x,label->y);
+                y = (y-x) / p;
+                y = p*y.Conj()+x;
+                newlabel->x = y.re;
+                newlabel->y = y.im;
+                newlabel->IsSelected = false;
+                newlabel->MagDir = (180./PI)*arg(p*conj(exp(I*newlabel->MagDir*PI/180.)/p));
+
+                problem->labellist.push_back(std::move(newlabel));
+            }
+        }
+    }
+    if (selector == EditArcs || selector == EditGroup)
+    {
+        for (const auto &arc: problem->arclist)
+        {
+            if (arc->IsSelected)
+            {
+                // copy endpoints
+                std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*problem->nodelist[arc->n0]);
+                CComplex y0 (n0->x,n0->y);
+                y0 = (y0-x) / p;
+                y0 = p*y0.Conj()+x;
+                n0->x = y0.re;
+                n0->y = y0.im;
+                n0->IsSelected = false;
+
+                std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*problem->nodelist[arc->n1]);
+                CComplex y1 (n1->x,n1->y);
+                y1 = (y1-x) / p;
+                y1 = p*y1.Conj()+x;
+                n1->x = y1.re;
+                n1->y = y1.im;
+                n1->IsSelected = false;
+
+                // copy arc (with identical endpoints)
+                std::unique_ptr<CArcSegment> newarc = std::make_unique<CArcSegment>(*arc);
+                newarc->IsSelected = false;
+                // set endpoints
+                newarc->n0 = (int)problem->nodelist.size();
+                problem->nodelist.push_back(std::move(n0));
+                newarc->n1 = (int)problem->nodelist.size();
+                problem->nodelist.push_back(std::move(n1));
+                problem->arclist.push_back(std::move(newarc));
+            }
+        }
+    }
+    EnforcePSLG();
+}
+
 void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode selector)
 {
     assert(selector != EditModeInvalid);
