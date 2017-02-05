@@ -238,6 +238,17 @@ public:
     bool AddArcSegment(femm::CArcSegment &asegm, double tol=0.);
 
     /**
+     * @brief Mirror copies of the selected objects about the given line.
+     * The line is defined by two points along the line.
+     * @param x0 x coordinate of point 0
+     * @param y0 y coordinate of point 0
+     * @param x1 x coordinate of point 1
+     * @param y1 y coordinate of point 1
+     * @param selector
+     */
+    void MirrorCopy(double x0, double y0, double x1, double y1, femm::EditMode selector);
+
+    /**
      * @brief Rotate copies of the selected objects of the selected type.
      * Each copy is rotated by the given amount compared to the previous copy.
      * @param c center

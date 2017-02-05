@@ -158,7 +158,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_maximize", LuaInstance::luaNOP);
     li.addFunction("mi_minimize", LuaInstance::luaNOP);
     li.addFunction("mo_minimize", LuaInstance::luaNOP);
-    li.addFunction("mi_mirror", luaMirrorNOP);
+    li.addFunction("mi_mirror", luaMirrorCopy);
     li.addFunction("mi_modify_bound_prop", luaModboundpropNOP);
     li.addFunction("mi_modifyboundprop", luaModboundpropNOP);
     li.addFunction("mi_modify_circ_prop", luaModifyCircuitProperty);
@@ -2150,15 +2150,51 @@ int femmcli::LuaMagneticsCommands::luaLineintegralNOP(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Mirror selected objects about a line.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_mirror()}
+ *
+ * \internal
+ * mi_mirror(x1,y1,x2,y2,(editaction))
+ * Mirror the selected objects about a line passing through the points (x1,y1) and (x2,y2).
  */
-int femmcli::LuaMagneticsCommands::luaMirrorNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaMirrorCopy(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+
+    double m_pax = lua_todouble(L,1);
+    double m_pay = lua_todouble(L,2);
+    double m_pbx = lua_todouble(L,3);
+    double m_pby = lua_todouble(L,4);
+
+    EditMode editAction;
+    if (n==5) {
+        editAction = intToEditMode((int)lua_todouble(L,5));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditModeInvalid)
+    {
+        lua_error(L, "mi_mirror(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    if(n!=4 && n!=5)
+    {
+        lua_error(L,"Invalid number of parameters for mirror\n");
+        return 0;
+    }
+
+    mesher->UpdateUndo();
+    mesher->MirrorCopy(m_pax,m_pay,m_pbx,m_pby,editAction);
+
     return 0;
 }
 

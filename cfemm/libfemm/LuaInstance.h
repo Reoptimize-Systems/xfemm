@@ -173,7 +173,7 @@ private:
     static void luaStackHook(lua_State *L, lua_Debug *ar);
 };
 
-} /* namespace FemmLua*/
+} /* namespace */
 
 #endif /* LUAINSTANCE_H */
 // vi:expandtab:tabstop=4 shiftwidth=4:
