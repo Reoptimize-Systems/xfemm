@@ -1478,6 +1478,7 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
 
 void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode selector)
 {
+    assert(selector != EditModeInvalid);
     CComplex x=x0 + I*y0;
     CComplex p=(x1-x0) + I*(y1-y0);
     if(abs(p)==0)
@@ -1782,9 +1783,6 @@ void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
                 }
             }
         }
-        // only enforce PSLG if we don't do it later
-        if (!processNodes)
-            EnforcePSLG();
     }
 
     if(processNodes)
@@ -1799,8 +1797,66 @@ void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
                 node->y = x.im;
             }
         }
-        EnforcePSLG();
     }
+    EnforcePSLG();
+}
+
+void FMesher::ScaleMove(double bx, double by, double sf, EditMode selector)
+{
+    assert(selector != EditModeInvalid);
+    bool processNodes = (selector == EditNodes);
+
+    if (selector==EditLines || selector==EditGroup)
+    {
+        for (const auto& line: problem->linelist)
+        {
+            if (line->IsSelected)
+            {
+                problem->nodelist[line->n0]->IsSelected = true;
+                problem->nodelist[line->n1]->IsSelected = true;
+            }
+        }
+        processNodes = true;
+    }
+
+    if (selector==EditArcs || selector==EditGroup)
+    {
+        for (const auto &arc: problem->arclist)
+        {
+            if (arc->IsSelected)
+            {
+                problem->nodelist[arc->n0]->IsSelected = true;
+                problem->nodelist[arc->n1]->IsSelected = true;
+            }
+        }
+        processNodes = true;
+    }
+
+    if (selector==EditLabels || selector==EditGroup)
+    {
+        for (auto &label: problem->labellist)
+        {
+            if (label->IsSelected)
+            {
+                label->x = bx+sf*(label->x - bx);
+                label->y = by+sf*(label->y - by);
+                label->MaxArea *= (sf*sf);
+            }
+        }
+    }
+
+    if (processNodes)
+    {
+        for (auto &node : problem->nodelist)
+        {
+            if (node->IsSelected)
+            {
+                node->x = bx+sf*(node->x - bx);
+                node->y = by+sf*(node->y - by);
+            }
+        }
+    }
+    EnforcePSLG();
 }
 
 void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMode selector)
@@ -1953,9 +2009,6 @@ void FMesher::TranslateMove(double dx, double dy, femm::EditMode selector)
                 lbl->y += dy;
             }
         }
-        // only enforce PSLG if we don't do it later
-        if (!processNodes)
-            EnforcePSLG();
     }
     if (processNodes)
     {
@@ -1967,8 +2020,8 @@ void FMesher::TranslateMove(double dx, double dy, femm::EditMode selector)
                 node->y += dy;
             }
         }
-        EnforcePSLG();
     }
+    EnforcePSLG();
 }
 
 

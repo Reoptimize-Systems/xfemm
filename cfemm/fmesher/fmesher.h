@@ -264,6 +264,16 @@ public:
      * @param selector
      */
     void RotateMove(CComplex c, double t, femm::EditMode selector);
+
+    /**
+     * @brief Scale the selected objects relative to a base point
+     * @param bx base-point x
+     * @param by base-point y
+     * @param sf scale factor
+     * @param selector
+     */
+    void ScaleMove(double bx, double by, double sf, femm::EditMode selector);
+
     /**
      * @brief Translate copies of the selected objects of the selected type.
      * Each copy is translated by the given amount compared to the previous copy.
