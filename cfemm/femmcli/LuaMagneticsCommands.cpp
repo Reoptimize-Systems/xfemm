@@ -205,7 +205,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_savemetafile", LuaInstance::luaNOP);
     li.addFunction("mo_save_metafile", LuaInstance::luaNOP);
     li.addFunction("mo_savemetafile", LuaInstance::luaNOP);
-    li.addFunction("mi_scale", luaScaleNOP);
+    li.addFunction("mi_scale", luaScaleMove);
     li.addFunction("mi_select_arcsegment", luaSelectArcsegment);
     li.addFunction("mi_selectarcsegment", luaSelectArcsegment);
     li.addFunction("mo_select_block", luaSelectOutputBlocklabel);
@@ -2150,7 +2150,7 @@ int femmcli::LuaMagneticsCommands::luaLineintegralNOP(lua_State *L)
 }
 
 /**
- * @brief Mirror selected objects about a line.
+ * @brief Mirror a copy of the selected objects about a line.
  * @param L
  * @return 0
  * \ingroup LuaMM
@@ -2706,15 +2706,52 @@ int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Scale the selected objects
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_scale()}
+ *
+ * \internal
+ * mi_scale(bx,by,scalefactor,(editaction))
+ * * bx, by: base point for scaling
+ * * scalefactor: a multiplier that determines how much the selected objects are scaled
  */
-int femmcli::LuaMagneticsCommands::luaScaleNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaScaleMove(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+
+    double x=lua_todouble(L,1);
+    double y=lua_todouble(L,2);
+    double scalefactor=lua_todouble(L,3);
+
+    EditMode editAction;
+    if (n==4) {
+        editAction = intToEditMode((int)lua_todouble(L,4));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditModeInvalid)
+    {
+        lua_error(L, "mi_scale(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    if (n!=4 && n!=3)
+    {
+        lua_error(L, "Invalid number of parameters for scale");
+        return 0;
+    }
+
+
+    mesher->UpdateUndo();
+    mesher->ScaleMove(x,y,scalefactor,editAction);
+
     return 0;
 }
 

@@ -104,7 +104,7 @@ protected:
     static int luaReloadNOP(lua_State *L);
     static int luaLoadSolution(lua_State *L);
     static int luaSaveDocument(lua_State *L);
-    static int luaScaleNOP(lua_State *L);
+    static int luaScaleMove(lua_State *L);
     static int luaSelectArcsegment(lua_State *L);
     static int luaSelectOutputBlocklabel(lua_State *L);
     static int luaSelectWithinCircle(lua_State *L);
