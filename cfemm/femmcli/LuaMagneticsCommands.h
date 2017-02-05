@@ -90,7 +90,7 @@ protected:
     static int luaGroupSelectBlock(lua_State *L);
     static int luaLineintegralNOP(lua_State *L);
     static int luaMirrorCopy(lua_State *L);
-    static int luaModboundpropNOP(lua_State *L);
+    static int luaModifyBoundaryProp(lua_State *L);
     static int luaModifyCircuitProperty(lua_State *L);
     static int luaModmatpropNOP(lua_State *L);
     static int luaModpointpropNOP(lua_State *L);
