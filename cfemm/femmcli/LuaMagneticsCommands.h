@@ -92,7 +92,7 @@ protected:
     static int luaMirrorCopy(lua_State *L);
     static int luaModifyBoundaryProp(lua_State *L);
     static int luaModifyCircuitProperty(lua_State *L);
-    static int luaModmatpropNOP(lua_State *L);
+    static int luaModifyMaterialProp(lua_State *L);
     static int luaModpointpropNOP(lua_State *L);
     static int luaMoveRotate(lua_State *L);
     static int luaMoveTranslate(lua_State *L);

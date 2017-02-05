@@ -163,8 +163,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_modifyboundprop", luaModifyBoundaryProp);
     li.addFunction("mi_modify_circ_prop", luaModifyCircuitProperty);
     li.addFunction("mi_modifycircprop", luaModifyCircuitProperty);
-    li.addFunction("mi_modify_material", luaModmatpropNOP);
-    li.addFunction("mi_modifymaterial", luaModmatpropNOP);
+    li.addFunction("mi_modify_material", luaModifyMaterialProp);
+    li.addFunction("mi_modifymaterial", luaModifyMaterialProp);
     li.addFunction("mi_modify_point_prop", luaModpointpropNOP);
     li.addFunction("mi_modifypointprop", luaModpointpropNOP);
     li.addFunction("mi_move_rotate", luaMoveRotate);
@@ -2349,15 +2349,97 @@ int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a material.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_modmatprop()}
+ *
+ * \internal
+ * mi_modifymaterial("BlockName",propnum,value)
+ * * propnum: property field to be edited
  */
-int femmcli::LuaMagneticsCommands::luaModmatpropNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModifyMaterialProp(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        //return ((CFemmeDoc *)pFemmeDoc)->old_lua_modmatprop(L);
+        lua_error(L,"Compatibility mode for mi_modmatprop is not implemented!\n");
+        return 0;
+    }
+
+    // find the index of the material to modify;
+    if (doc->blockproplist.empty())
+        return 0;
+    std::string BlockName = lua_tostring(L,1);
+    CMSolverMaterialProp *m = nullptr;
+    for (auto &prop: doc->blockproplist)
+    {
+        if (BlockName==prop->BlockName) {
+            m = dynamic_cast<CMSolverMaterialProp*>(prop.get());
+            break;
+        }
+    }
+
+    // get out of here if there's no matching material
+    if (m==nullptr)
+        return 0;
+
+    int modprop=(int) lua_todouble(L,2);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+        m->BlockName = lua_tostring(L,3);
+        doc->updateBlockMap();
+        break;
+    case 1:
+        m->mu_x = lua_todouble(L,3);
+        break;
+    case 2:
+        m->mu_y = lua_todouble(L,3);
+        break;
+    case 3:
+        m->H_c = lua_todouble(L,3);
+        break;
+    case 4:
+        m->J = lua_tonumber(L,3);
+        break;
+    case 5:
+        m->Cduct = lua_todouble(L,3);
+        break;
+    case 6:
+        m->Lam_d = lua_todouble(L,3);
+        break;
+    case 7:
+        m->Theta_hn = lua_todouble(L,3);
+        break;
+    case 8:
+        m->LamFill = lua_todouble(L,3);
+        break;
+    case 9:
+        m->LamType = (int) lua_todouble(L,3);
+        break;
+    case 10:
+        m->Theta_hx = lua_todouble(L,3);
+        break;
+    case 11:
+        m->Theta_hy = lua_todouble(L,3);
+        break;
+    case 12:
+        m->NStrands = (int) lua_todouble(L,3);
+        break;
+    case 13:
+        m->WireD = lua_todouble(L,4);
+    default:
+        break;
+    }
+
     return 0;
 }
 
