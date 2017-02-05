@@ -180,8 +180,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_setprevious", luaSetPrevious);
     li.addFunction("mi_prob_def", luaProbDef);
     li.addFunction("mi_probdef", luaProbDef);
-    li.addFunction("mi_purge_mesh", luaPurgeMeshNOP);
-    li.addFunction("mi_purgemesh", luaPurgeMeshNOP);
+    li.addFunction("mi_purge_mesh", luaPurgeMesh);
+    li.addFunction("mi_purgemesh", luaPurgeMesh);
     li.addFunction("mi_read_dxf", LuaInstance::luaNOP);
     li.addFunction("mi_readdxf", LuaInstance::luaNOP);
     li.addFunction("mo_refresh_view", LuaInstance::luaNOP);
@@ -2800,15 +2800,27 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Clear mesh data.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_purge_mesh()}
+ *
+ * \internal
+ * mi_purgemesh() clears the mesh out of both the screen and memory.
  */
-int femmcli::LuaMagneticsCommands::luaPurgeMeshNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaPurgeMesh(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    doc->invalidateMesh();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
+
     return 0;
 }
 
@@ -2818,6 +2830,9 @@ int femmcli::LuaMagneticsCommands::luaPurgeMeshNOP(lua_State *L)
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_reload()}
+ *
+ * \internal
+ * mo_reload() Reloads the solution from disk.
  */
 int femmcli::LuaMagneticsCommands::luaReloadNOP(lua_State *L)
 {
