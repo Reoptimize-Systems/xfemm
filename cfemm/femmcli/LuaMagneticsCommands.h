@@ -100,7 +100,7 @@ protected:
     static int luaNumElements(lua_State *L);
     static int luaNumNodes(lua_State *L);
     static int luaProbDef(lua_State *L);
-    static int luaPurgeMeshNOP(lua_State *L);
+    static int luaPurgeMesh(lua_State *L);
     static int luaReloadNOP(lua_State *L);
     static int luaLoadSolution(lua_State *L);
     static int luaSaveDocument(lua_State *L);
