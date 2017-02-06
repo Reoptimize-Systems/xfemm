@@ -3339,8 +3339,10 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
     if (!lua_isnil(L,2))
     {
         boundprop = lua_tostring(L,2);
-        if (doc->nodeMap.count(boundprop))
-            boundpropidx = doc->nodeMap[boundprop];
+        if (doc->lineMap.count(boundprop))
+            boundpropidx = doc->lineMap[boundprop];
+        else
+            debug << "Property " << boundprop << " has no index!\n";
     }
     bool hide = (lua_todouble(L,3)!=0);
     int group = (int) lua_todouble(L,4);
@@ -3600,6 +3602,8 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
         nodeprop = lua_tostring(L,1);
         if (doc->nodeMap.count(nodeprop))
             nodepropidx = doc->nodeMap[nodeprop];
+        else
+            debug << "Property " << nodeprop << " has no index!\n";
     }
     int groupno=(int) lua_todouble(L,2);
 
@@ -3650,13 +3654,15 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int nodepropidx = -1;
-    std::string nodeprop = "<None>";
+    int boundpropidx = -1;
+    std::string boundprop = "<None>";
     if (!lua_isnil(L,1))
     {
-        nodeprop = lua_tostring(L,1);
-        if (doc->nodeMap.count(nodeprop))
-            nodepropidx = doc->nodeMap[nodeprop];
+        boundprop = lua_tostring(L,1);
+        if (doc->lineMap.count(boundprop))
+            boundpropidx = doc->lineMap[boundprop];
+        else
+            debug << "Property " << boundprop << " has no index!\n";
     }
     double elesize = lua_todouble(L,2);
     bool automesh = (lua_todouble(L,3) != 0);
@@ -3674,8 +3680,8 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
                     doc->linelist[i]->MaxSideLength = elesize;
                 else elesize = -1;
             }
-            doc->linelist[i]->BoundaryMarker = nodepropidx;
-            doc->linelist[i]->BoundaryMarkerName = nodeprop;
+            doc->linelist[i]->BoundaryMarker = boundpropidx;
+            doc->linelist[i]->BoundaryMarkerName = boundprop;
             doc->linelist[i]->Hidden = hide;
             doc->linelist[i]->InGroup = group;
         }

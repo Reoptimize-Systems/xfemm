@@ -155,6 +155,7 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     fem << "[NumSegments] = " << linelist.size() <<"\n";
     for (const auto &line: linelist)
     {
+        // n0 n1 MaxSideLength BoundaryMarker Hidden Group [InConductor]
         fem << line->n0 << "\t" << line->n1;
         if (line->MaxSideLength < 0)
         {
@@ -177,6 +178,7 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     fem << "[NumArcSegments] = " << arclist.size() <<"\n";
     for (const auto &arc: arclist)
     {
+        // n0 n1 ArcLength MaxSideLength BoundaryMarker Hidden Group [InConductor]
         fem << arc->n0 << "\t" << arc->n1
             << "\t" << arc->ArcLength << "\t" << arc->MaxSideLength
             << "\t" << arc->BoundaryMarker+1
