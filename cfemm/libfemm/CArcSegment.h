@@ -28,8 +28,8 @@ public:
 
     // start and end point
     int n0,n1;
-    double ArcLength; ///< arc angle
-    double MaxSideLength; ///< max segment
+    double ArcLength; ///< arc angle [deg]
+    double MaxSideLength; ///< max segment [deg]
     // BoundaryMarker: see inheriting classes
     bool Hidden; ///< hide in postproc
     int InGroup; ///< number of group

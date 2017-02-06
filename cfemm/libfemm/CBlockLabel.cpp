@@ -67,7 +67,7 @@ void CBlockLabel::toStream(ostream &out) const
 
     out << x << "\t" << y
         << "\t" << (BlockType+1)
-        << "\t" << sqrt(4.*MaxArea/PI)
+        << "\t" << ((MaxArea>0) ? sqrt(4.*MaxArea/PI) : -1)
         << "\t" << (InCircuit+1)
         << "\t" << MagDir
         << "\t" << InGroup
@@ -185,7 +185,7 @@ void CHBlockLabel::toStream(ostream &out) const
 
     out << x << "\t" << y
         << "\t" << (BlockType+1)
-        << "\t" << sqrt(4.*MaxArea/PI)
+        << "\t" << ((MaxArea>0) ? sqrt(4.*MaxArea/PI) : -1)
         << "\t" << InGroup
         << "\t" << extDefault
         <<"\n";
