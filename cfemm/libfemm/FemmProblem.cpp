@@ -14,7 +14,7 @@ femm::FemmProblem::~FemmProblem()
 
 bool femm::FemmProblem::saveFEMFile(std::string &filename) const
 {
-    if ( filetype == UnknownFile )
+    if ( filetype == FileType::Unknown )
     {
         // can't save if file type is not set
         std::cerr << "Cannot save file because file type is unknown!\n";
@@ -127,9 +127,9 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     }
 
     std::string circuitHeader;
-    if (filetype==MagneticsFile)
+    if (filetype==FileType::MagneticsFile)
         circuitHeader =  "[CircuitProps]";
-    else if (filetype==HeatFlowFile)
+    else if (filetype==FileType::HeatFlowFile)
         circuitHeader =  "[ConductorProps]";
     fem.width(12);
     fem << circuitHeader << "  = " << circproplist.size() <<"\n";
@@ -145,7 +145,7 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
         fem << node->x << "\t" << node->y
             << "\t" << node->BoundaryMarker+1 << "\t" << node->InGroup;
 
-        if (filetype == HeatFlowFile)
+        if (filetype == FileType::HeatFlowFile)
         {
             fem << "\t" << node->InConductor+1;
         }
@@ -168,7 +168,7 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
             << "\t" << (int)line->Hidden
             << "\t" << line->InGroup;
 
-        if (filetype == HeatFlowFile)
+        if (filetype == FileType::HeatFlowFile)
         {
             fem << "\t" << line->InConductor+1;
         }
@@ -186,7 +186,7 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
             << "\t" << arc->InGroup;
 
 
-        if (filetype == HeatFlowFile)
+        if (filetype == FileType::HeatFlowFile)
         {
             fem << "\t" << arc->InConductor+1;
         }

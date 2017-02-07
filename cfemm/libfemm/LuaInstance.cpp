@@ -61,7 +61,7 @@ int femm::LuaInstance::doBuffer(const std::string &luaString, const std::string 
 {
     int stackTop = lua_gettop(lua);
     int result = lua_dobuffer(lua, luaString.c_str(), luaString.size(), chunkName.c_str());
-    if (mode==LuaStackMode::SafeStack)
+    if (mode==LuaStackMode::Safe)
     {
         // ensure that no values are left on the stack
         lua_settop(lua, stackTop);
@@ -73,7 +73,7 @@ int femm::LuaInstance::doFile(const std::string &filename, femm::LuaInstance::Lu
 {
     int stackTop = lua_gettop(lua);
     int result = lua_dofile(lua, filename.c_str());
-    if (mode==LuaStackMode::SafeStack)
+    if (mode==LuaStackMode::Safe)
     {
         // ensure that no values are left on the stack
         lua_settop(lua, stackTop);
@@ -85,7 +85,7 @@ int femm::LuaInstance::doString(const std::string &luaString, femm::LuaInstance:
 {
     int stackTop = lua_gettop(lua);
     int result = lua_dostring(lua, luaString.c_str());
-    if (mode==LuaStackMode::SafeStack)
+    if (mode==LuaStackMode::Safe)
     {
         // ensure that no values are left on the stack
         lua_settop(lua, stackTop);
@@ -273,11 +273,11 @@ int femm::LuaInstance::luaGetCompatibilityMode(lua_State *L)
  */
 int femm::LuaInstance::luaTrace(lua_State *L)
 {
-    StackInfoMode mode = CurrentFrameInfo;
+    StackInfoMode mode = StackInfoMode::CurrentFrameInfo;
     if (lua_gettop(L)!=0)
     {
         if (1 == lua_tonumber(L,1).Re())
-            mode = FullStackInfo;
+            mode = StackInfoMode::FullStackInfo;
     }
     // startLevel=1 to omit trace function itself
     luaStackInfo(L, 1, mode);
@@ -302,7 +302,7 @@ void femm::LuaInstance::luaStackInfo(lua_State *L, int level, femm::LuaInstance:
         // print info
         luaStackHook(L, &ar);
         level++;
-    } while (info == FullStackInfo);
+    } while (info == StackInfoMode::FullStackInfo);
 }
 
 /**

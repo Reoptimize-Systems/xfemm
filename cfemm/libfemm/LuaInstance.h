@@ -45,14 +45,14 @@ public:
      * SafeStack enforces a clean, unaltered stack after execution.
      * UnsafeStack allows Lua commands to leave items on the stack for the next command.
      */
-    enum LuaStackMode { SafeStack, UnsafeStack };
+    enum class LuaStackMode { Safe, Unsafe };
 
     /**
      * @brief The StackInfoMode enum
      * Carries information whether the LuaStackInfo method should only examine the
      * current stack frame, or the full stack frame.
      */
-    enum StackInfoMode { CurrentFrameInfo, FullStackInfo };
+    enum class StackInfoMode { CurrentFrameInfo, FullStackInfo };
     /**
      * @brief LuaInstance constructor
      * Create a Lua instance and initialize it, adding the Lua standard libraries and the CComplex data type.
@@ -82,21 +82,21 @@ public:
      * @param mode enable/disable stack safety
      * @return  the return value of lua_dobuffer
      */
-    int doBuffer( const std::string &luaString, const std::string &chunkName=std::string(), LuaStackMode mode=SafeStack );
+    int doBuffer( const std::string &luaString, const std::string &chunkName=std::string(), LuaStackMode mode=LuaStackMode::Safe );
     /**
      * @brief Call lua_dofile on a given file name.
      * @param filename the file name of a Lua source file or Lua precompiled chunk
      * @param mode enable/disable stack safety
      * @return the return value of lua_dofile
      */
-    int doFile(const std::string &filename, LuaStackMode mode=SafeStack );
+    int doFile(const std::string &filename, LuaStackMode mode=LuaStackMode::Safe );
     /**
      * @brief Call lua_dostring on the given string.
      * @param luaString a Lua source string
      * @param mode enable/disable stack safety
      * @return  the return value of lua_dostring
      */
-    int doString( const std::string &luaString, LuaStackMode mode=SafeStack );
+    int doString( const std::string &luaString, LuaStackMode mode=LuaStackMode::Safe );
 
     /**
      * @brief Get a global lua variable.
