@@ -390,7 +390,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                 node->InGroup = std::stoi(line, &pos);
                 line = line.substr(pos);
 
-                if (problem->filetype == femm::HeatFlowFile)
+                if (problem->filetype == femm::FileType::HeatFlowFile)
                 {
                     node->InConductor = std::stoi(line, &pos);
                     // correct for 1-based indexing:
@@ -437,7 +437,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                 line = line.substr(pos);
                 segm->InGroup = std::stoi(line, &pos);
                 line = line.substr(pos);
-                if (problem->filetype == femm::HeatFlowFile)
+                if (problem->filetype == femm::FileType::HeatFlowFile)
                 {
                     segm->InConductor = std::stoi(line, &pos);
                     // correct for 1-based indexing:
@@ -486,7 +486,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                 line = line.substr(pos);
                 asegm->InGroup = std::stoi(line, &pos);
                 line = line.substr(pos);
-                if (problem->filetype == femm::HeatFlowFile)
+                if (problem->filetype == femm::FileType::HeatFlowFile)
                 {
                     trim(line);
                     if (!line.empty())

@@ -64,13 +64,13 @@ FMesher::FMesher()
 
     // initialize the problem data structures
     // and default behaviour etc.
-    Initialize(femm::UnknownFile);
+    Initialize(femm::FileType::Unknown);
 
 }
 
 
 FMesher::FMesher(std::shared_ptr<FemmProblem> p)
-    : d_EditMode(EditModeInvalid)
+    : d_EditMode(EditMode::Invalid)
     , problem(p)
     , Verbose(true)
     , WarnMessage(&PrintWarningMsg)
@@ -520,21 +520,21 @@ femm::FileType FMesher::GetFileType (string PathName)
     if (dotpos == string::npos)
     {
         // no '.' found
-        return femm::UnknownFile;
+        return femm::FileType::Unknown;
     }
 
     // compare different file extensions and return the appropriate string
     if ( PathName.compare (dotpos, string::npos, ".fem") == 0 )
     {
-        return femm::MagneticsFile;
+        return femm::FileType::MagneticsFile;
     }
     else if ( PathName.compare (dotpos, string::npos, ".feh") == 0 )
     {
-        return femm::HeatFlowFile;
+        return femm::FileType::HeatFlowFile;
     }
     else
     {
-        return femm::UnknownFile;
+        return femm::FileType::Unknown;
     }
 
 }
@@ -573,7 +573,7 @@ bool FMesher::SaveFEMFile(string PathName)
         fprintf(fp,"%.17g\t%.17g\t%i\t%i",problem->nodelist[i]->x,problem->nodelist[i]->y,t,
                 problem->nodelist[i]->InGroup);
 
-        if (problem->filetype == femm::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile)
         {
             for (j=0,t=0; j<problem->circproplist.size (); j++)
                 if (problem->circproplist[j]->CircName==problem->nodelist[i]->InConductorName) t=j+1;
@@ -604,7 +604,7 @@ bool FMesher::SaveFEMFile(string PathName)
 
         fprintf(fp,"%i\t%i\t%i",t,problem->linelist[i]->Hidden,problem->linelist[i]->InGroup);
 
-        if (problem->filetype == femm::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile)
         {
             for(j=0,t=0;j<problem->circproplist.size ();j++)
             {
@@ -626,7 +626,7 @@ bool FMesher::SaveFEMFile(string PathName)
                 problem->arclist[i]->ArcLength,problem->arclist[i]->MaxSideLength,t,
                 problem->arclist[i]->Hidden,problem->arclist[i]->InGroup);
 
-        if (problem->filetype == femm::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile)
         {
             for(j=0,t=0;j<problem->circproplist.size ();j++)
                 if(problem->circproplist[j]->CircName==problem->arclist[i]->InConductorName) t=j+1;
@@ -1478,14 +1478,14 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
 
 void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode selector)
 {
-    assert(selector != EditModeInvalid);
+    assert(selector != EditMode::Invalid);
     CComplex x=x0 + I*y0;
     CComplex p=(x1-x0) + I*(y1-y0);
     if(abs(p)==0)
         return;
     p/=abs(p);
 
-    if (selector==EditNodes || selector == EditGroup)
+    if (selector==EditMode::EditNodes || selector == EditMode::EditGroup)
     {
         for (const auto &node: problem->nodelist)
         {
@@ -1504,7 +1504,7 @@ void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode se
             }
         }
     }
-    if (selector == EditLines || selector == EditGroup)
+    if (selector == EditMode::EditLines || selector == EditMode::EditGroup)
     {
         for (const auto &line: problem->linelist)
         {
@@ -1540,7 +1540,7 @@ void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode se
         }
     }
 
-    if (selector == EditLabels || selector == EditGroup)
+    if (selector == EditMode::EditLabels || selector == EditMode::EditGroup)
     {
         for (const auto &label: problem->labellist)
         {
@@ -1559,7 +1559,7 @@ void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode se
             }
         }
     }
-    if (selector == EditArcs || selector == EditGroup)
+    if (selector == EditMode::EditArcs || selector == EditMode::EditGroup)
     {
         for (const auto &arc: problem->arclist)
         {
@@ -1599,7 +1599,7 @@ void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode se
 
 void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode selector)
 {
-    assert(selector != EditModeInvalid);
+    assert(selector != EditMode::Invalid);
     for(int nc=0; nc<ncopies; nc++)
     {
         // accumulated angle
@@ -1607,7 +1607,7 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
 
         CComplex z = exp(I*t*PI/180);
 
-        if (selector==EditNodes || selector == EditGroup)
+        if (selector==EditMode::EditNodes || selector == EditMode::EditGroup)
         {
             for (const auto &node: problem->nodelist)
             {
@@ -1626,7 +1626,7 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
             }
         }
 
-        if (selector == EditLines || selector == EditGroup)
+        if (selector == EditMode::EditLines || selector == EditMode::EditGroup)
         {
             for (const auto &line: problem->linelist)
             {
@@ -1660,7 +1660,7 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
             }
         }
 
-        if (selector == EditArcs || selector == EditGroup)
+        if (selector == EditMode::EditArcs || selector == EditMode::EditGroup)
         {
             for (const auto &arc: problem->arclist)
             {
@@ -1694,7 +1694,7 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
             }
         }
 
-        if (selector == EditLabels || selector == EditGroup)
+        if (selector == EditMode::EditLabels || selector == EditMode::EditGroup)
         {
             for (const auto &label: problem->labellist)
             {
@@ -1729,12 +1729,12 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
 
 void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
 {
-    assert(selector != EditModeInvalid);
-    bool processNodes = (selector == EditNodes);
+    assert(selector != EditMode::Invalid);
+    bool processNodes = (selector == EditMode::EditNodes);
 
     const CComplex z = exp(I*t*PI/180);
 
-    if(selector==EditLines || selector==EditGroup)
+    if(selector==EditMode::EditLines || selector==EditMode::EditGroup)
     {
         for (const auto &line: problem->linelist)
         {
@@ -1747,7 +1747,7 @@ void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
         processNodes = true;
     }
 
-    if(selector==EditArcs || selector==EditGroup)
+    if(selector==EditMode::EditArcs || selector==EditMode::EditGroup)
     {
         for (const auto &arc: problem->arclist)
         {
@@ -1760,7 +1760,7 @@ void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
         processNodes = true;
     }
 
-    if(selector==EditLabels || selector==EditGroup)
+    if(selector==EditMode::EditLabels || selector==EditMode::EditGroup)
     {
         for (auto &label: problem->labellist)
         {
@@ -1803,10 +1803,10 @@ void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
 
 void FMesher::ScaleMove(double bx, double by, double sf, EditMode selector)
 {
-    assert(selector != EditModeInvalid);
-    bool processNodes = (selector == EditNodes);
+    assert(selector != EditMode::Invalid);
+    bool processNodes = (selector == EditMode::EditNodes);
 
-    if (selector==EditLines || selector==EditGroup)
+    if (selector==EditMode::EditLines || selector==EditMode::EditGroup)
     {
         for (const auto& line: problem->linelist)
         {
@@ -1819,7 +1819,7 @@ void FMesher::ScaleMove(double bx, double by, double sf, EditMode selector)
         processNodes = true;
     }
 
-    if (selector==EditArcs || selector==EditGroup)
+    if (selector==EditMode::EditArcs || selector==EditMode::EditGroup)
     {
         for (const auto &arc: problem->arclist)
         {
@@ -1832,7 +1832,7 @@ void FMesher::ScaleMove(double bx, double by, double sf, EditMode selector)
         processNodes = true;
     }
 
-    if (selector==EditLabels || selector==EditGroup)
+    if (selector==EditMode::EditLabels || selector==EditMode::EditGroup)
     {
         for (auto &label: problem->labellist)
         {
@@ -1861,14 +1861,14 @@ void FMesher::ScaleMove(double bx, double by, double sf, EditMode selector)
 
 void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMode selector)
 {
-    assert(selector != EditModeInvalid);
+    assert(selector != EditMode::Invalid);
     for(int nc=0; nc<ncopies; nc++)
     {
         // accumulated offsets
         double dx=((double)(nc+1))*incx;
         double dy=((double)(nc+1))*incy;
 
-        if (selector==EditNodes || selector == EditGroup)
+        if (selector==EditMode::EditNodes || selector == EditMode::EditGroup)
         {
             for (const auto &node: problem->nodelist)
             {
@@ -1885,7 +1885,7 @@ void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMod
             }
         }
 
-        if (selector == EditLines || selector == EditGroup)
+        if (selector == EditMode::EditLines || selector == EditMode::EditGroup)
         {
             for (const auto &line: problem->linelist)
             {
@@ -1915,7 +1915,7 @@ void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMod
             }
         }
 
-        if (selector == EditLabels || selector == EditGroup)
+        if (selector == EditMode::EditLabels || selector == EditMode::EditGroup)
         {
             for (const auto &label: problem->labellist)
             {
@@ -1931,7 +1931,7 @@ void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMod
             }
         }
 
-        if (selector == EditArcs || selector == EditGroup)
+        if (selector == EditMode::EditArcs || selector == EditMode::EditGroup)
         {
             for (const auto &arc: problem->arclist)
             {
@@ -1967,10 +1967,10 @@ void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMod
 
 void FMesher::TranslateMove(double dx, double dy, femm::EditMode selector)
 {
-    assert(selector != EditModeInvalid);
-    bool processNodes = (selector == EditNodes);
+    assert(selector != EditMode::Invalid);
+    bool processNodes = (selector == EditMode::EditNodes);
 
-    if (selector == EditLines || selector == EditGroup)
+    if (selector == EditMode::EditLines || selector == EditMode::EditGroup)
     {
         // select end points of selected lines:
         for (auto &line: problem->linelist)
@@ -1984,7 +1984,7 @@ void FMesher::TranslateMove(double dx, double dy, femm::EditMode selector)
         // make sure to translate endpoints
         processNodes = true;
     }
-    if (selector == EditArcs || selector == EditGroup)
+    if (selector == EditMode::EditArcs || selector == EditMode::EditGroup)
     {
         // select end points of selected arcs:
         for (auto &arc: problem->arclist)
@@ -1999,7 +1999,7 @@ void FMesher::TranslateMove(double dx, double dy, femm::EditMode selector)
         processNodes = true;
     }
 
-    if (selector == EditLabels || selector == EditGroup)
+    if (selector == EditMode::EditLabels || selector == EditMode::EditGroup)
     {
         for (auto &lbl: problem->labellist)
         {
@@ -2029,10 +2029,10 @@ bool FMesher::AddBlockLabel(double x, double y, double d)
 {
     std::unique_ptr<CBlockLabel> pt;
     switch (problem->filetype) {
-    case MagneticsFile:
+    case FileType::MagneticsFile:
         pt = std::make_unique<CMBlockLabel>();
         break;
-    case HeatFlowFile:
+    case FileType::HeatFlowFile:
         pt = std::make_unique<CHBlockLabel>();
         break;
     default:

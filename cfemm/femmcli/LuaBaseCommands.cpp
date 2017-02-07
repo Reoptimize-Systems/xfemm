@@ -115,7 +115,7 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
     int docType = static_cast<int>(lua_tonumber(L,1).Re());
     switch (docType) {
         case 0: // magnetics
-            femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::MagneticsFile));
+            femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::MagneticsFile));
             break;
         case 1: // electrostatics
         case 2: // heat flow
@@ -145,9 +145,9 @@ int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
     std::string filename = lua_tostring(L,1);
 
     switch (fmesher::FMesher::GetFileType(filename)) {
-    case femm::MagneticsFile:
+    case femm::FileType::MagneticsFile:
     {
-        femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::MagneticsFile));
+        femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::MagneticsFile));
         std::stringstream err;
         femm::MagneticsReader reader(femmState->femmDocument(), err);
         if (reader.parse(filename)!=F_FILE_OK)
@@ -158,10 +158,10 @@ int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
         }
     }
         break;
-    case CurrentFlowFile:
-    case ElectrostaticsFile:
-    case HeatFlowFile:
-    case UnknownFile:
+    case FileType::CurrentFlowFile:
+    case FileType::ElectrostaticsFile:
+    case FileType::HeatFlowFile:
+    case FileType::Unknown:
         std::string msg = "File not supported: " + filename;
         lua_error(L, msg.c_str());
         break;

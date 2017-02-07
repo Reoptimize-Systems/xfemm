@@ -22,7 +22,7 @@ namespace femm {
 /**
  * @brief The EditMode determines which objects are affected by an edit or selection command.
  */
-enum EditMode {
+enum class EditMode {
     /// \brief Operate on nodes
     EditNodes = 0,
     /// \brief Operate on line segments
@@ -34,7 +34,7 @@ enum EditMode {
     /// \brief Operate on all object types
     EditGroup = 4,
     /// \brief An invalid value
-    EditModeInvalid
+    Invalid
 };
 
 /**
@@ -45,20 +45,20 @@ enum EditMode {
 inline EditMode intToEditMode(int m)
 {
     switch (m) {
-    case 0: return EditNodes;
-    case 1: return EditLines;
-    case 2: return EditLabels;
-    case 3: return EditArcs;
-    case 4: return EditGroup;
+    case 0: return EditMode::EditNodes;
+    case 1: return EditMode::EditLines;
+    case 2: return EditMode::EditLabels;
+    case 3: return EditMode::EditArcs;
+    case 4: return EditMode::EditGroup;
     default:
-        return EditModeInvalid;
+        return EditMode::Invalid;
     }
 }
 
 /**
  * @brief The FileType enum determines how the problem description is written to disc.
  */
-enum FileType { UnknownFile, MagneticsFile, HeatFlowFile, CurrentFlowFile, ElectrostaticsFile };
+enum class FileType { Unknown, MagneticsFile, HeatFlowFile, CurrentFlowFile, ElectrostaticsFile };
 }
 
 #endif
