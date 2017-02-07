@@ -99,6 +99,20 @@ public:
     int doString( const std::string &luaString, LuaStackMode mode=SafeStack );
 
     /**
+     * @brief Get a global lua variable.
+     * @param varName the name of the global variable
+     * @param ok if not \c nullptr, this variable is set to \c true if \p varName could be retrieved, \c false otherwise.
+     * @return The variable value, or 0 on error
+     */
+    CComplex getGlobal( const std::string &varName, bool *ok=nullptr );
+
+    /**
+     * @brief Set a global lua variable.
+     * @param varName the name of the global variable
+     * @param val the value to be stored
+     */
+    void setGlobal(const std::string &varName, CComplex val );
+    /**
      * @brief getLuaState
      * @return a pointer to the Lua instance state.
      */

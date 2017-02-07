@@ -94,6 +94,24 @@ int femm::LuaInstance::doString(const std::string &luaString, femm::LuaInstance:
 
 }
 
+CComplex femm::LuaInstance::getGlobal(const std::__cxx11::string &varName, bool *ok)
+{
+    lua_getglobal(lua, varName.c_str()); //+1
+
+    CComplex value = lua_tonumber(lua,-1);
+    if (ok!=nullptr)
+        *ok = (lua_isnumber(lua,-1));
+    lua_pop(lua, 1); //-1
+
+    return value;
+}
+
+void femm::LuaInstance::setGlobal(const std::string &varName, CComplex val)
+{
+    lua_pushnumber(lua, val); //+1
+    lua_setglobal(lua, varName.c_str()); //-1
+}
+
 bool femm::LuaInstance::compatibilityMode() const
 {
     return compatMode;
