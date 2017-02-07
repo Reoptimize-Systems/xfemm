@@ -85,7 +85,7 @@ public:
      * Note: You need to set the PathName beforehand.
      * @return \c true on success, \c false on error.
      */
-    bool runSolver();
+    bool runSolver(bool verbose=false);
 
 private:
 
