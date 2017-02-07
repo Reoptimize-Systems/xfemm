@@ -4,6 +4,9 @@
 -- OUTPUT:
 -- SUCCESS
 
+-- verbose means more chances for different output:
+XFEMM_VERBOSE = 1
+
 open("test/06_femfile.fem")
 mi_saveas("test/06_femfile.result.fem")
 mi_analyze()

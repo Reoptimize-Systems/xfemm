@@ -528,7 +528,7 @@ double FSolver::ElmArea(int i)
 
 }
 
-bool FSolver::runSolver()
+bool FSolver::runSolver(bool verbose)
 {
     // load mesh
     int err = LoadMesh();
@@ -568,19 +568,23 @@ bool FSolver::runSolver()
     }
 
     // renumber using Cuthill-McKee
-    PrintMessage("renumbering nodes");
+    if (verbose)
+        PrintMessage("renumbering nodes");
     if (!Cuthill())
     {
         WarnMessage("problem renumbering node points");
         return false;
     }
 
-    PrintMessage("solving...");
-    std::string stats = "Problem Statistics:\n";
-    stats += to_string(NumNodes) + " nodes\n";
-    stats += to_string(NumEls) + " elements\n";
-    stats += "Precision: " + to_string(Precision) + "\n";
-    PrintMessage(stats.c_str());
+    if (verbose)
+    {
+        PrintMessage("solving...");
+        std::string stats = "Problem Statistics:\n";
+        stats += to_string(NumNodes) + " nodes\n";
+        stats += to_string(NumEls) + " elements\n";
+        stats += "Precision: " + to_string(Precision) + "\n";
+        PrintMessage(stats.c_str());
+    }
 
     if (Frequency == 0)
     {
@@ -602,14 +606,16 @@ bool FSolver::runSolver()
                 WarnMessage("Couldn't solve the problem");
                 return false;
             }
-            PrintMessage("Static 2-D problem solved");
+            if (verbose)
+                PrintMessage("Static 2-D problem solved");
         } else {
             if (StaticAxisymmetric(L) == false)
             {
                 WarnMessage("Couldn't solve the problem");
                 return false;
             }
-            PrintMessage("Static axisymmetric problem solved\n");
+            if (verbose)
+                PrintMessage("Static axisymmetric problem solved\n");
         }
 
         if (WriteStatic2D(L) == false)
@@ -617,7 +623,8 @@ bool FSolver::runSolver()
             WarnMessage("couldn't write results to disk");
             return false;
         }
-        PrintMessage("results written to disk\n");
+        if (verbose)
+            PrintMessage("results written to disk\n");
     } else {
         CBigComplexLinProb L;
         L.Precision = Precision;
@@ -637,14 +644,16 @@ bool FSolver::runSolver()
                 WarnMessage("Couldn't solve the problem");
                 return false;
             }
-            PrintMessage("Harmonic 2-D problem solved");
+            if (verbose)
+                PrintMessage("Harmonic 2-D problem solved");
         } else {
             if (HarmonicAxisymmetric(L) == false)
             {
                 WarnMessage("Couldn't solve the problem");
                 return false;
             }
-            PrintMessage("Harmonic axisymmetric problem solved");
+            if (verbose)
+                PrintMessage("Harmonic axisymmetric problem solved");
         }
 
         if (WriteHarmonic2D(L)==false)
@@ -652,7 +661,8 @@ bool FSolver::runSolver()
             WarnMessage("couldn't write results to disk");
             return false;
         }
-        PrintMessage("results written to disk.");
+        if (verbose)
+            PrintMessage("results written to disk.");
     }
     return true;
 }

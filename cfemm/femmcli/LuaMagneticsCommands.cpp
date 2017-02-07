@@ -760,6 +760,8 @@ int femmcli::LuaMagneticsCommands::luaAddPointProp(lua_State *L)
  * mi_analyze(flag) runs fkern to solve the problem.
  * Parameter flag (0,1) determines visibility of fkern window.
  *
+ * If the global variable "XFEMM_VERBOSE" is set to 1, the mesher and solver is more verbose and prints statistics.
+ *
  * Implementation notes:
  *  * \femm42{femm/femmeLua.cpp,lua_analyze()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnu_analyze(flag)
  *  * \femm42{femm/FemmeView.cpp,CFemmeView::OnMenuAnalyze()}: does the things we do here directly...
@@ -891,6 +893,9 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 
     //BeginWaitCursor();
     std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getMesher();
+    // allow setting verbosity from lua:
+    const bool verbose = (luaInstance->getGlobal("XFEMM_VERBOSE") != 0);
+    mesherDoc->Verbose = verbose;
     if (mesherDoc->HasPeriodicBC()){
         if (mesherDoc->DoPeriodicBCTriangulation(pathName) != 0)
         {
@@ -934,7 +939,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     // this does not hold, because fsolver creates additional circprops
     // assert( doc->circproplist.size() == theFSolver.circproplist.size());
     assert( doc->labellist.size() == theFSolver.labellist.size());
-    if (!theFSolver.runSolver())
+    if (!theFSolver.runSolver(verbose))
     {
         lua_error(L, "solver failed.");
     }
