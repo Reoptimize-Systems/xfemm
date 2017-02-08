@@ -114,11 +114,11 @@ int nrhs, const mxArray *prhs[])
 	 MeshObj.problem->filetype = filetype;
 
 	 // depending on the file type, instantiate the appropriate reader
-	 if (filetype == MagneticsFile)
+	 if (filetype == FileType::MagneticsFile)
 	 {
 		 MagneticsReader femReader (MeshObj.problem, std::cerr);
 		 status = femReader.parse(FilePath);
-	 } else if (MeshObj.problem->filetype == HeatFlowFile)
+	 } else if (MeshObj.problem->filetype == FileType::HeatFlowFile)
 	 {
 		 HeatFlowReader fehReader (MeshObj.problem, std::cerr);
 		 status = fehReader.parse(FilePath);
