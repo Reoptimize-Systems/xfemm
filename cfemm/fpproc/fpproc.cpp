@@ -1500,10 +1500,11 @@ int FPProc::InTriangle(double x, double y)
         lo--;
         if (lo < 0)   lo = sz - 1;
 
-        z = (meshelem[hi].ctr.re - x) * (meshelem[hi].ctr.re - x) +
-            (meshelem[hi].ctr.im - y) * (meshelem[hi].ctr.im - y);
+        femm::CElement &hiElem = meshelem[hi];
+        z = (hiElem.ctr.re - x) * (hiElem.ctr.re - x) +
+            (hiElem.ctr.im - y) * (hiElem.ctr.im - y);
         
-        if (z <= meshelem[hi].rsqr)
+        if (z <= hiElem.rsqr)
         {
             if (InTriangleTest(x,y,hi))
             {
@@ -1512,10 +1513,11 @@ int FPProc::InTriangle(double x, double y)
             }
         }
 
-        z = (meshelem[lo].ctr.re-x)*(meshelem[lo].ctr.re-x) +
-            (meshelem[lo].ctr.im-y)*(meshelem[lo].ctr.im-y);
+        femm::CElement &loElem = meshelem[lo];
+        z = (loElem.ctr.re-x)*(loElem.ctr.re-x) +
+            (loElem.ctr.im-y)*(loElem.ctr.im-y);
         
-        if (z <= meshelem[lo].rsqr)
+        if (z <= loElem.rsqr)
         {
             if (InTriangleTest(x,y,lo))
             {
