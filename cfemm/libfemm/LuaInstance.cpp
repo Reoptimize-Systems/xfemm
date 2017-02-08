@@ -94,7 +94,7 @@ int femm::LuaInstance::doString(const std::string &luaString, femm::LuaInstance:
 
 }
 
-CComplex femm::LuaInstance::getGlobal(const std::__cxx11::string &varName, bool *ok)
+CComplex femm::LuaInstance::getGlobal(const std::string &varName, bool *ok)
 {
     lua_getglobal(lua, varName.c_str()); //+1
 
