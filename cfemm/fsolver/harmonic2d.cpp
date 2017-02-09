@@ -63,7 +63,9 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
     deg45=1+I;
     w=Frequency*2.*PI;
 
-    CComplex *CircInt1,*CircInt2,*CircInt3;
+    CComplex *CircInt1=nullptr;
+    CComplex *CircInt2=nullptr;
+    CComplex *CircInt3=nullptr;
 
 
 
@@ -187,7 +189,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
         V_sdi=(CComplex *) calloc(NumNodes+NumCircProps,sizeof(CComplex));
         sdin=2;
     }
-    else sdin=1;
+    else V_sdi=nullptr, sdin=1;
 
     // compute effective permeability for each block type;
     Mu=(CComplex **)calloc(NumBlockProps,sizeof(CComplex *));
