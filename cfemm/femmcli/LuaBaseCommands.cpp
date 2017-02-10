@@ -137,6 +137,10 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
  * @return 0
  * \ingroup LuaCommon
  * \femm42{femm/femm.cpp,luaOpenDocument()}
+ *
+ * \internal
+ * open("filename")
+ * Opens a document specified by filename.
  */
 int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
 {
