@@ -38,6 +38,7 @@
 #endif
 
 using namespace femm;
+using std::swap;
 
 void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
 {
@@ -409,8 +410,8 @@ int femmcli::LuaMagneticsCommands::luaAddBHPoint(lua_State *L)
             if(blockprop->Bdata[j]>blockprop->Bdata[j+1])
             {
                 swapped=true;
-                std::swap(blockprop->Bdata[j],blockprop->Bdata[j+1]);
-                std::swap(blockprop->Hdata[j],blockprop->Hdata[j+1]);
+                swap(blockprop->Bdata[j],blockprop->Bdata[j+1]);
+                swap(blockprop->Hdata[j],blockprop->Hdata[j+1]);
             }
         }
         if (!swapped) i=n;
@@ -3337,9 +3338,9 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinRectangle(lua_State *L)
     }
 
     if (mx<wzx)
-        std::swap(mx,wzx);
+        swap(mx,wzx);
     if (my<wzy)
-        std::swap(my,wzy);
+        swap(my,wzy);
 
     if((editAction==EditMode::EditNodes) || (editAction==EditMode::EditGroup))
     {

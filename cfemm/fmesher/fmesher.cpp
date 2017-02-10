@@ -1066,7 +1066,7 @@ bool FMesher::CreateRadius(int n, double r)
         // and fix it if they are.
         if (phi<0){
             p0=p1; p1=p2; p2=p0; p0=problem->nodelist[n]->CC();
-            std::swap(seg[0],seg[1]);
+            swap(seg[0],seg[1]);
             phi=fabs(phi);
         }
 

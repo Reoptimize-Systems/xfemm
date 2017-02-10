@@ -27,6 +27,8 @@
 #include <cstdlib>
 #include <utility>
 
+using std::swap;
+
 #define KLUDGE
 
 
@@ -145,7 +147,7 @@ double CBigLinProb::Get(int p, int q)
 {
     if (q < p)
     {
-        std::swap(p,q);
+        swap(p,q);
     }
 
     CEntry *e = M[p];
