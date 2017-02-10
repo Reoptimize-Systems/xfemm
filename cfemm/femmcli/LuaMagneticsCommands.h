@@ -45,7 +45,7 @@ protected:
     static int luaAddBHPoint(lua_State *L);
     static int luaAddBoundaryProp(lua_State *L);
     static int luaAddCircuitProp(lua_State *L);
-    static int luaAddcontourNOP(lua_State *L);
+    static int luaAddContour(lua_State *L);
     static int luaAddBlocklabel(lua_State *L);
     static int luaAddLine(lua_State *L);
     static int luaAddMatProp(lua_State *L);
@@ -58,7 +58,7 @@ protected:
     static int luaBlockIntegral(lua_State *L);
     static int luaClearBHPoints(lua_State *L);
     static int luaClearBlock(lua_State *L);
-    static int luaClearcontourNOP(lua_State *L);
+    static int luaClearContour(lua_State *L);
     static int luaClearSelected(lua_State *L);
     static int luaCopyRotate(lua_State *L);
     static int luaCopyTranslate(lua_State *L);
