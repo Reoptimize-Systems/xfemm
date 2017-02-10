@@ -63,7 +63,7 @@ protected:
     static int luaCopyRotate(lua_State *L);
     static int luaCopyTranslate(lua_State *L);
     static int luaCreateMesh(lua_State *L);
-    static int luaCreateradiusNOP(lua_State *L);
+    static int luaCreateRadius(lua_State *L);
     static int luaDefineOuterSpace(lua_State *L);
     static int luaDeleteBoundaryProperty(lua_State *L);
     static int luaDeleteCircuitProperty(lua_State *L);
