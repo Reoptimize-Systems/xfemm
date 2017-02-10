@@ -54,7 +54,7 @@ protected:
     static int luaAnalyze(lua_State *L);
     static int luaAttachDefault(lua_State *L);
     static int luaAttachOuterSpace(lua_State *L);
-    static int luaBendcontourNOP(lua_State *L);
+    static int luaBendContourLine(lua_State *L);
     static int luaBlockIntegral(lua_State *L);
     static int luaClearBHPoints(lua_State *L);
     static int luaClearBlock(lua_State *L);
