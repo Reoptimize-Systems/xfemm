@@ -186,7 +186,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_readdxf", LuaInstance::luaNOP);
     li.addFunction("mo_refresh_view", LuaInstance::luaNOP);
     li.addFunction("mo_refreshview", LuaInstance::luaNOP);
-    li.addFunction("mo_reload", luaReloadNOP);
+    li.addFunction("mo_reload", luaLoadSolution);
     li.addFunction("mi_resize", LuaInstance::luaNOP);
     li.addFunction("mo_resize", LuaInstance::luaNOP);
     li.addFunction("mi_restore", LuaInstance::luaNOP);
@@ -2108,6 +2108,10 @@ int femmcli::LuaMagneticsCommands::luaGetTitle(lua_State *L)
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_gradient()}
+ *
+ * \internal
+ * mo_gradient(xo,yo)
+ * undocumented.
  */
 int femmcli::LuaMagneticsCommands::luaGradientNOP(lua_State *L)
 {
@@ -2863,22 +2867,6 @@ int femmcli::LuaMagneticsCommands::luaPurgeMesh(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_reload()}
- *
- * \internal
- * mo_reload() Reloads the solution from disk.
- */
-int femmcli::LuaMagneticsCommands::luaReloadNOP(lua_State *L)
-{
-    lua_error(L, "Not implemented.");
-    return 0;
-}
-
-/**
  * @brief Load the solution and run the postprocessor on it.
  * @param L
  * @return 0
@@ -2888,6 +2876,9 @@ int femmcli::LuaMagneticsCommands::luaReloadNOP(lua_State *L)
  * \internal
  * mi_loadsolution()
  * Loads and displays the solution corresponding to the current geometry.
+ *
+ * mo_reload()
+ * Reloads the solution from disk.
  */
 int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
 {

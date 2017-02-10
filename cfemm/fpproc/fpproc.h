@@ -115,7 +115,6 @@ public:
     bool GetPointValues(double x, double y, int k, femm::CPointVals &u);
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
     void GetElementB(femm::CElement &elm);
-    void OnReload();
     void FindBoundaryEdges();
     int ClosestNode(double x, double y);
     CComplex Ctr(int i);

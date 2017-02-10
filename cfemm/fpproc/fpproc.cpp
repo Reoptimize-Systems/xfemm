@@ -2265,18 +2265,6 @@ void FPProc::GetElementB(CElement &elm)
 }
 
 
-// void FPProc::OnReload()
-// {
-//     // TODO: Add your command handler code here
-//     CString pname = GetPathName();
-//     if(pname.GetLength()>0)
-//     {
-//         NewDocument();
-//         SetPathName(pname,false);
-//         OpenDocument(pname);
-//     }
-// }
-
 int FPProc::ClosestNode(double x, double y)
 {
     int i,j;
