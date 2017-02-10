@@ -151,8 +151,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_hidemesh", LuaInstance::luaNOP);
     li.addFunction("mo_hide_points", LuaInstance::luaNOP);
     li.addFunction("mo_hidepoints", LuaInstance::luaNOP);
-    li.addFunction("mo_line_integral", luaLineintegralNOP);
-    li.addFunction("mo_lineintegral", luaLineintegralNOP);
+    li.addFunction("mo_line_integral", luaLineIntegral);
+    li.addFunction("mo_lineintegral", luaLineIntegral);
     li.addFunction("mo_make_plot", LuaInstance::luaNOP);
     li.addFunction("mo_makeplot", LuaInstance::luaNOP);
     li.addFunction("mi_maximize", LuaInstance::luaNOP);
@@ -2238,15 +2238,94 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Calculate the line integral for the defined contour.
  * @param L
- * @return 0
+ * @return Depending on integral type: 1, 2, or 4, or 0 on error.
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_lineintegral()}
+ *
+ * \internal
+ * mo_lineintegral(type)
  */
-int femmcli::LuaMagneticsCommands::luaLineintegralNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaLineIntegral(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        //return ((CFemmviewDoc *)pFemmviewdoc)->old_lua_lineintegral(L);
+        lua_error(L,"Compatibility mode for mo_lineintegral is not implemented!\n");
+        return 0;
+    }
+
+    int type=(int) lua_todouble(L,1);
+    // 0- B.n
+    // 1 - H.t
+    // 2 - Cont length
+    // 3 - Force from stress tensor
+    // 4 - Torque from stress tensor
+    // 5 - (B.n)^2
+
+    if (type<0 || type >5)
+    {
+        std::string msg = "Invalid line integral selected " + std::to_string(type) + "\n";
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    CComplex z[4];
+    fpproc->LineIntegral(type,z);
+
+    switch(type)
+    {
+    case 0: // B.n
+    case 1: // H.t
+    case 5: // (B.n)^2
+        lua_pushnumber(L,z[0]); // total
+        lua_pushnumber(L,z[1]); // avg
+        return 2;
+
+    case 2: // length result
+        lua_pushnumber(L,z[0].re); // contour length
+        lua_pushnumber(L,z[0].im); // swept area
+        return 2;
+
+    case 3: // force results
+        if (fpproc->Frequency!=0)
+        {
+            lua_pushnumber(L,z[2].re);
+            lua_pushnumber(L,z[3].re);
+            lua_pushnumber(L,z[0]);
+            lua_pushnumber(L,z[1]);
+            return 4;
+        } else {
+            lua_pushnumber(L,z[0].re);
+            lua_pushnumber(L,z[1].re);
+            return 2;
+        }
+
+    case 4: // torque results
+        if (fpproc->Frequency!=0)
+        {
+            lua_pushnumber(L,z[1].re);
+            lua_pushnumber(L,z[0]);
+            return 2;
+        } else {
+            lua_pushnumber(L,z[0].re);
+            lua_pushnumber(L,0);
+            return 2;
+        }
+    default:
+        assert(false);
+    }
     return 0;
 }
 
