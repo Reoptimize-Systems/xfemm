@@ -50,8 +50,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addboundprop", luaAddBoundaryProp);
     li.addFunction("mi_add_circ_prop", luaAddCircuitProp);
     li.addFunction("mi_addcircprop", luaAddCircuitProp);
-    li.addFunction("mo_add_contour", luaAddContour);
-    li.addFunction("mo_addcontour", luaAddContour);
+    li.addFunction("mo_add_contour", luaAddContourPoint);
+    li.addFunction("mo_addcontour", luaAddContourPoint);
     li.addFunction("mi_add_block_label", luaAddBlocklabel);
     li.addFunction("mi_addblocklabel", luaAddBlocklabel);
     li.addFunction("mi_add_segment", luaAddLine);
@@ -76,8 +76,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_clearbhpoints", luaClearBHPoints);
     li.addFunction("mo_clear_block", luaClearBlock);
     li.addFunction("mo_clearblock", luaClearBlock);
-    li.addFunction("mo_clear_contour", luaClearContour);
-    li.addFunction("mo_clearcontour", luaClearContour);
+    li.addFunction("mo_clear_contour", luaClearContourPoint);
+    li.addFunction("mo_clearcontour", luaClearContourPoint);
     li.addFunction("mi_clear_selected", luaClearSelected);
     li.addFunction("mi_clearselected", luaClearSelected);
     li.addFunction("mi_copy_rotate", luaCopyRotate);
@@ -217,8 +217,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectgroup", luaSelectGroup);
     li.addFunction("mi_select_label", luaSelectBlocklabel);
     li.addFunction("mi_selectlabel", luaSelectBlocklabel);
-    li.addFunction("mo_select_point", luaSelectlineNOP);
-    li.addFunction("mo_selectpoint", luaSelectlineNOP);
+    li.addFunction("mo_select_point", luaAddContourPointFromNode);
+    li.addFunction("mo_selectpoint", luaAddContourPointFromNode);
     li.addFunction("mi_select_node", luaSelectnode);
     li.addFunction("mi_selectnode", luaSelectnode);
     li.addFunction("mi_select_rectangle", luaSelectWithinRectangle);
@@ -503,7 +503,7 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
  * mo_addcontour(x,y)
  * Adds a contour point at (x,y).
  */
-int femmcli::LuaMagneticsCommands::luaAddContour(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddContourPoint(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1175,7 +1175,7 @@ int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
  * mo_clearcontour()
  * Clear a previously defined contour
  */
-int femmcli::LuaMagneticsCommands::luaClearContour(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -3304,9 +3304,143 @@ int femmcli::LuaMagneticsCommands::luaSelectBlocklabel(lua_State *L)
  * selected point and a previous selected points lie at the ends of an arcsegment,
  * a contour is added that traces along the arcsegment.
  */
-int femmcli::LuaMagneticsCommands::luaSelectlineNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddContourPointFromNode(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+    // Note(ZaJ): editAction should not be relevant to anything this method does
+    //theView->EditAction=1; // make sure things update OK
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+
+    if (!fpproc->nodelist.empty())
+    {
+        int n0=fpproc->ClosestNode(mx,my);
+
+        int lineno=-1;
+        int arcno=-1;
+        CComplex z(fpproc->nodelist[n0].x,fpproc->nodelist[n0].y);
+        if (fpproc->contour.empty())
+        {
+            fpproc->contour.push_back(z);
+            //theView->DrawUserContour(FALSE);
+            return 0;
+        }
+        //check to see if point is the same as last point in the contour;
+        CComplex y = fpproc->contour.back();
+
+        if ((y.re==z.re) && (y.im==z.im))
+            return 0;
+
+        int n1 = fpproc->ClosestNode(y.re,y.im);
+        CComplex x(fpproc->nodelist[n1].x,fpproc->nodelist[n1].y);
+
+        //check to see if this point and the last point are ends of an
+        //input segment;
+        double d1=1.e08;
+
+        if (abs(x-y)<1.e-08)
+        {
+            for(int k=0; k<(int)fpproc->linelist.size(); k++)
+            {
+                if((fpproc->linelist[k].n0==n1) && (fpproc->linelist[k].n1==n0))
+                {
+                    double d2=fabs(fpproc->ShortestDistanceFromSegment(mx,my,k));
+                    if(d2<d1)
+                    {
+                        lineno=k;
+                        d1=d2;
+                    }
+                }
+                if((fpproc->linelist[k].n0==n0) && (fpproc->linelist[k].n1==n1))
+                {
+                    double d2=fabs(fpproc->ShortestDistanceFromSegment(mx,my,k));
+                    if(d2<d1){
+                        lineno=k;
+                        d1=d2;
+                    }
+                }
+            }
+        }
+        bool reverseOrder = false;
+        //check to see if this point and last point are ends of an
+        // arc segment; if so, add entire arc to the contour;
+        if (abs(x-y)<1.e-08)
+        {
+            for(int k=0;k<(int)fpproc->arclist.size();k++)
+            {
+                if((fpproc->arclist[k].n0==n1) && (fpproc->arclist[k].n1==n0))
+                {
+                    double d2=fpproc->ShortestDistanceFromArc(CComplex(mx,my),
+                                                              fpproc->arclist[k]);
+                    if(d2<d1){
+                        arcno=k;
+                        lineno=-1;
+                        reverseOrder=true;
+                        d1=d2;
+                    }
+                }
+                if((fpproc->arclist[k].n0==n0) && (fpproc->arclist[k].n1==n1))
+                {
+                    double d2=fpproc->ShortestDistanceFromArc(CComplex(mx,my),
+                                                              fpproc->arclist[k]);
+                    if(d2<d1){
+                        arcno=k;
+                        lineno=-1;
+                        reverseOrder=false;
+                        d1=d2;
+                    }
+                }
+            }
+        }
+        if((lineno<0) && (arcno<0))
+        {
+            fpproc->contour.push_back(z);
+            //theView->DrawUserContour(FALSE);
+        }
+        if(lineno>=0)
+        {
+            int size=(int) fpproc->contour.size();
+            if(size>1)
+            {
+                if(abs(fpproc->contour[size-2]-z)<1.e-08)
+                    return 0;
+            }
+            fpproc->contour.push_back(z);
+            //theView->DrawUserContour(FALSE);
+        }
+        if(arcno>=0){
+            int k=arcno;
+            double R;
+            fpproc->GetCircle(fpproc->arclist[k],x,R);
+            int arcsegments=(int) ceil(fpproc->arclist[k].ArcLength/fpproc->arclist[k].MaxSideLength);
+            if(reverseOrder)
+                z=exp(I*fpproc->arclist[k].ArcLength*PI/(180.*((double) arcsegments)) );
+            else
+                z=exp(-I*fpproc->arclist[k].ArcLength*PI/(180.*((double) arcsegments)) );
+
+            for(int i=0; i<arcsegments; i++)
+            {
+                y=(y-x)*z+x;
+                int size=(int) fpproc->contour.size();
+                if(size>1)
+                {
+                    if(abs(fpproc->contour[size-2]-y)<1.e-08)
+                        return 0;
+                }
+                fpproc->contour.push_back(y);
+                //theView->DrawUserContour(FALSE);
+            }
+        }
+    }
+
     return 0;
 }
 
