@@ -50,8 +50,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addboundprop", luaAddBoundaryProp);
     li.addFunction("mi_add_circ_prop", luaAddCircuitProp);
     li.addFunction("mi_addcircprop", luaAddCircuitProp);
-    li.addFunction("mo_add_contour", luaAddcontourNOP);
-    li.addFunction("mo_addcontour", luaAddcontourNOP);
+    li.addFunction("mo_add_contour", luaAddContour);
+    li.addFunction("mo_addcontour", luaAddContour);
     li.addFunction("mi_add_block_label", luaAddBlocklabel);
     li.addFunction("mi_addblocklabel", luaAddBlocklabel);
     li.addFunction("mi_add_segment", luaAddLine);
@@ -76,8 +76,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_clearbhpoints", luaClearBHPoints);
     li.addFunction("mo_clear_block", luaClearBlock);
     li.addFunction("mo_clearblock", luaClearBlock);
-    li.addFunction("mo_clear_contour", luaClearcontourNOP);
-    li.addFunction("mo_clearcontour", luaClearcontourNOP);
+    li.addFunction("mo_clear_contour", luaClearContour);
+    li.addFunction("mo_clearcontour", luaClearContour);
     li.addFunction("mi_clear_selected", luaClearSelected);
     li.addFunction("mi_clearselected", luaClearSelected);
     li.addFunction("mi_copy_rotate", luaCopyRotate);
@@ -493,15 +493,39 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a contour point.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_addcontour()}
+ *
+ * \internal
+ * mo_addcontour(x,y)
+ * Adds a contour point at (x,y).
  */
-int femmcli::LuaMagneticsCommands::luaAddcontourNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddContour(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    CComplex z(lua_todouble(L,1),lua_todouble(L,2));
+
+    if (!fpproc->contour.empty())
+    {
+        // Note(ZaJ): this seems like a rather arbitrary check:
+        if (z != fpproc->contour.back())
+            fpproc->contour.push_back(z);
+    } else
+        fpproc->contour.push_back(z);
+
+    //theView->DrawUserContour(FALSE);
+
     return 0;
 }
 
@@ -1141,15 +1165,30 @@ int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Clear the contour line.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_clearcontour()}
+ *
+ * \internal
+ * mo_clearcontour()
+ * Clear a previously defined contour
  */
-int femmcli::LuaMagneticsCommands::luaClearcontourNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaClearContour(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    //theView->EraseUserContour(TRUE);
+    fpproc->contour.clear();
+
     return 0;
 }
 
@@ -3258,6 +3297,12 @@ int femmcli::LuaMagneticsCommands::luaSelectBlocklabel(lua_State *L)
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_selectline()}
+ *
+ * \internal
+ * mo_selectpoint(x,y)
+ * Adds a contour point at the closest input point to (x,y). If the
+ * selected point and a previous selected points lie at the ends of an arcsegment,
+ * a contour is added that traces along the arcsegment.
  */
 int femmcli::LuaMagneticsCommands::luaSelectlineNOP(lua_State *L)
 {
