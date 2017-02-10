@@ -112,7 +112,7 @@ protected:
     static int luaSelectBlocklabel(lua_State *L);
     static int luaSelectlineNOP(lua_State *L);
     static int luaSelectnode(lua_State *L);
-    static int luaSelectrectangleNOP(lua_State *L);
+    static int luaSelectWithinRectangle(lua_State *L);
     static int luaSelectSegment(lua_State *L);
     static int luaSetArcsegmentProp(lua_State *L);
     static int luaSetBlocklabelProp(lua_State *L);
