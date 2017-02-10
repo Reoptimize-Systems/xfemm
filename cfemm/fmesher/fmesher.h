@@ -312,6 +312,19 @@ public:
      */
     bool DeleteSelectedNodes();
 
+    /**
+     * @brief Check whether the given node is suitable for creating a radius.
+     * @param n node index
+     * @return \c true if the node can be replaced with a radius, \c false otherwise
+     */
+    bool CanCreateRadius(int n);
+    /**
+     * @brief Create an arc in place of the given node.
+     * @param n the node index
+     * @param r the arc radius
+     * @return \c true if the arc could be created, \c false otherwise
+     */
+    bool CreateRadius(int n, double r);
 private:
 
     virtual bool Initialize(femm::FileType t);
