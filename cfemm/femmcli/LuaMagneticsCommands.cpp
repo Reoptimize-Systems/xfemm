@@ -220,8 +220,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_selectpoint", luaSelectlineNOP);
     li.addFunction("mi_select_node", luaSelectnode);
     li.addFunction("mi_selectnode", luaSelectnode);
-    li.addFunction("mi_select_rectangle", luaSelectrectangleNOP);
-    li.addFunction("mi_selectrectangle", luaSelectrectangleNOP);
+    li.addFunction("mi_select_rectangle", luaSelectWithinRectangle);
+    li.addFunction("mi_selectrectangle", luaSelectWithinRectangle);
     li.addFunction("mi_select_segment", luaSelectSegment);
     li.addFunction("mi_selectsegment", luaSelectSegment);
     li.addFunction("mi_set_arcsegment_prop", luaSetArcsegmentProp);
@@ -3306,15 +3306,107 @@ int femmcli::LuaMagneticsCommands::luaSelectnode(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Select objects within a given rectangle.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmeLua.cpp,lua_selectrectangle()}
+ *
+ * \internal
+ * mi_selectrectangle(x1,y1,x2,y2,(editmode))
+ * Selects objects within a rectangle defined by points (x1,y1) and (x2,y2).
  */
-int femmcli::LuaMagneticsCommands::luaSelectrectangleNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSelectWithinRectangle(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if (n<4)
+        return 0;
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+    double wzx = lua_todouble(L,3);
+    double wzy = lua_todouble(L,4);
+
+    EditMode editAction;
+    if (n>4) {
+        editAction = intToEditMode((int)lua_todouble(L,5));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditMode::Invalid)
+    {
+        lua_error(L, "mi_selectrectangle(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    if (mx<wzx)
+        std::swap(mx,wzx);
+    if (my<wzy)
+        std::swap(my,wzy);
+
+    if((editAction==EditMode::EditNodes) || (editAction==EditMode::EditGroup))
+    {
+        for (const auto &node: doc->nodelist)
+        {
+            double x = node->x;
+            double y = node->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy))
+                node->IsSelected = true;
+        }
+    }
+
+    if((editAction==EditMode::EditLabels) || (editAction==EditMode::EditGroup))
+    {
+        for (const auto &label: doc->labellist)
+        {
+            double x = label->x;
+            double y = label->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy))
+                label->IsSelected = true;
+        }
+    }
+    if((editAction==EditMode::EditLines) || (editAction==EditMode::EditGroup))
+    {
+        for (const auto &line: doc->linelist)
+        {
+            int count=0;
+            double x = doc->nodelist[line->n0]->x;
+            double y = doc->nodelist[line->n0]->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy)) count++;
+            x = doc->nodelist[line->n1]->x;
+            y = doc->nodelist[line->n1]->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy)) count++;
+
+            // both endpoints in rectangle?
+            if (count==2)
+                line->IsSelected = true;
+        }
+    }
+
+    if((editAction==EditMode::EditArcs) || (editAction==EditMode::EditGroup))
+    {
+        for (const auto &arc: doc->arclist)
+        {
+            int count=0;
+            double x = doc->nodelist[arc->n0]->x;
+            double y = doc->nodelist[arc->n0]->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy)) count++;
+            x = doc->nodelist[arc->n1]->x;
+            y = doc->nodelist[arc->n1]->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy)) count++;
+
+            // both endpoints in rectangle?
+            if (count==2)
+                arc->IsSelected = true;
+        }
+    }
+
     return 0;
 }
 
