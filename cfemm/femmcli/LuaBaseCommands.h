@@ -49,7 +49,6 @@ protected:
     static int luaMessageBox(lua_State *L);
     static int luaNewDocument(lua_State *L);
     static int luaOpenDocument(lua_State *L);
-    static int luaPause(lua_State *L);
     static int luaPromptBox(lua_State *L);
     static int luaSetWorkingDirectory(lua_State *L);
 };

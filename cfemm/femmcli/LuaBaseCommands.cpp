@@ -48,7 +48,7 @@ void femmcli::LuaBaseCommands::registerCommands(LuaInstance &li)
 {
     li.addFunction("_ALERT",luaError);
     li.addFunction("messagebox",luaMessageBox);
-    li.addFunction("pause",luaPause);
+    li.addFunction("pause",LuaInstance::luaNOP);
     //li.addFunction("prompt",luaPromptBox);
     li.addFunction("open",luaOpenDocument);
     li.addFunction("quit",LuaInstance::luaNOP);
@@ -76,7 +76,14 @@ void femmcli::LuaBaseCommands::registerCommands(LuaInstance &li)
  * @param L
  * @return 0
  * \ingroup LuaCommon
- * \femm42{femm/femm.cpp,lua_endapp()}
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{_ALERT("message")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femm.cpp,lua_endapp()}
+ * \endinternal
  */
 int femmcli::LuaBaseCommands::luaError(lua_State *L)
 {
@@ -92,7 +99,14 @@ int femmcli::LuaBaseCommands::luaError(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaCommon
- * \femm42{femm/femm.cpp,lua_messagebox()}
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{messagebox("message")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femm.cpp,lua_messagebox()}
+ * \endinternal
  */
 int femmcli::LuaBaseCommands::luaMessageBox(lua_State *L)
 {
@@ -105,7 +119,14 @@ int femmcli::LuaBaseCommands::luaMessageBox(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaCommon
- * \femm42{femm/femm.cpp,lua_newdocument()}
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{newdocument(doctype)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femm.cpp,lua_newdocument()}
+ * \endinternal
  */
 int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
 {
@@ -136,11 +157,14 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaCommon
- * \femm42{femm/femm.cpp,luaOpenDocument()}
  *
  * \internal
- * open("filename")
- * Opens a document specified by filename.
+ * ### Implements:
+ * - \lua{open("filename")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femm.cpp,luaOpenDocument()}
+ * \endinternal
  */
 int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
 {
@@ -174,24 +198,18 @@ int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
 }
 
 /**
- * @brief Dummy-function for compatibility.
- * @param L
- * @return 0
- * \ingroup LuaCommon
- * \femm42{femm/femm.cpp,lua_afxpause()}
- */
-int femmcli::LuaBaseCommands::luaPause(lua_State *)
-{
-    debug << "NOP: luaPause" << std::endl;
-    return 0;
-}
-
-/**
  * @brief Set/Change working Directory.
  * @param L
  * @return 0
  * \ingroup LuaCommon
- * \femm42{femm/femm.cpp,lua_setcurrentdirectory()}
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{setcurrentdirectory("directory")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femm.cpp,lua_setcurrentdirectory()}
+ * \endinternal
  */
 int femmcli::LuaBaseCommands::luaSetWorkingDirectory(lua_State *L)
 {

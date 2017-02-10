@@ -233,6 +233,7 @@ ALIASES                =
 ALIASES += femm42{1}="<tt>FEMM42/\1</tt>"
 # e.g.: \femm42{femm/FemmeDoc.h,myFunction()}
 ALIASES += femm42{2}="<tt>FEMM42/\1:</tt><em>\2</em>"
+ALIASES += lua{1}="<tt>\1</tt>"
 
 # This tag can be used to specify a number of word-keyword mappings (TCL only).
 # A mapping has the form "name=value". For example adding "class=itcl::class"

@@ -289,15 +289,19 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
 
 /**
  * @brief Add a new arc segment.
+ * Add a new arc segment from the nearest node to (x1,y1) to the
+ * nearest node to (x2,y2) with angle ‘angle’ divided into ‘maxseg’ segments.
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addarc()}
  *
  * \internal
- * mi_addarc(x1,y1,x2,y2,angle,maxseg)
- * Add a new arc segment from the nearest node to (x1,y1) to the
- * nearest node to (x2,y2) with angle ‘angle’ divided into ‘maxseg’ segments.
+ * ### Implements:
+ * - \lua{mi_addarc(x1,y1,x2,y2,angle,maxseg)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addarc()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddArc(lua_State *L)
 {
@@ -340,17 +344,20 @@ int femmcli::LuaMagneticsCommands::luaAddArc(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addbhpoint()}
  *
  * \internal
- * mi_addbhpoint("blockname",b,h)
- * Adds a B-H data point the the material specified by the string "blockname"
+ * ### Implements:
+ * - \lua{mi_addbhpoint("blockname",b,h)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addbhpoint()}
  *
  * \remark Note(ZaJ): xfemm has Bdata and Hdata in CMMaterialProp,
  * while femm42 has two forms of CMaterialProp: one with Bdata and Hdata, and
  * one with a single BHdata.
  * I didn't want to introduce the second form into xfemm, so I tried mapping the BHdata
  * in this function to Bdata+Hdata. Ideally, we'd have a single form BHdata in xfemm, though.
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddBHPoint(lua_State *L)
 {
@@ -424,11 +431,14 @@ int femmcli::LuaMagneticsCommands::luaAddBHPoint(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addboundprop()}
  *
  * \internal
- * mi_addboundprop("propname", A0, A1, A2, Phi, Mu, Sig, c0, c1, BdryFormat)
- * Adds a new boundary property with name "propname"
+ * ### Implements:
+ * - \lua{mi_addboundprop("propname", A0, A1, A2, Phi, Mu, Sig, c0, c1, BdryFormat)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addboundprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddBoundaryProp(lua_State *L)
 {
@@ -460,11 +470,14 @@ int femmcli::LuaMagneticsCommands::luaAddBoundaryProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addcircuitprop()}
  *
  * \internal
- * mi_addcircprop("circuitname", i, circuittype)
- * Adds a new circuit property with name "circuitname"
+ * ### Implements:
+ * - \lua{mi_addcircprop("circuitname", i, circuittype)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addcircuitprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
 {
@@ -497,11 +510,14 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_addcontour()}
  *
  * \internal
- * mo_addcontour(x,y)
- * Adds a contour point at (x,y).
+ * ### Implements:
+ * - \lua{mo_addcontour(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_addcontour()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddContourPoint(lua_State *L)
 {
@@ -534,11 +550,14 @@ int femmcli::LuaMagneticsCommands::luaAddContourPoint(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addlabel()}
  *
  * \internal
- * mi_addblocklabel(x,y)
- * Add a new block label at (x,y)
+ * ### Implements:
+ * - \lua{mi_addblocklabel(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addlabel()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddBlocklabel(lua_State *L)
 {
@@ -581,14 +600,18 @@ int femmcli::LuaMagneticsCommands::luaAddBlocklabel(lua_State *L)
 
 /**
  * @brief Add a new line segment between two given points.
+ * In other words, add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addline()}
  *
  * \internal
- * mi_addsegment(x1,y1,x2,y2)
- * Add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)
+ * ### Implements:
+ * - \lua{mi_addsegment(x1,y1,x2,y2)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addline()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddLine(lua_State *L)
 {
@@ -622,12 +645,14 @@ int femmcli::LuaMagneticsCommands::luaAddLine(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addmatprop()}
  *
  * \internal
- * mi addmaterial("materialname", mu x, mu y, H c, J, Cduct, Lam d, Phi hmax,
- *                lam fill, LamType, Phi hx, Phi hy, NStrands, WireD)
- * Adds a new material called "materialname" with the given material properties.
+ * ### Implements:
+ * - \lua{mi_addmaterial("materialname", mu x, mu y, H c, J, Cduct, Lam d, Phi hmax, lam fill, LamType, Phi hx, Phi hy, NStrands, WireD)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addmatprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
 {
@@ -692,10 +717,14 @@ int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addnode()}
  *
  * \internal
- * mi_addnode(x,y) Add a new node at x,y
+ * ### Implements:
+ * - \lua{mi_addnode(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addnode()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddNode(lua_State *L)
 {
@@ -740,13 +769,14 @@ int femmcli::LuaMagneticsCommands::luaAddNode(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_addpointprop()}
  *
  * \internal
- * mi_addpointprop("pointpropname",a,j)
- * Adds a new point property of name "pointpropname"
- * with either a specified potential a in units Webers/Meter or a point current j in units of Amps.
- * Set the unused parameter pairs to 0.
+ * ### Implements:
+ * - \lua{mi_addpointprop("pointpropname",a,j)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_addpointprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddPointProp(lua_State *L)
 {
@@ -776,20 +806,23 @@ int femmcli::LuaMagneticsCommands::luaAddPointProp(lua_State *L)
 
 /**
  * @brief Mesh the problem description, save it, and run the solver.
+ * If the global variable "XFEMM_VERBOSE" is set to 1, the mesher and solver is more verbose and prints statistics.
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_analyze()}
  *
  * \internal
- * mi_analyze(flag) runs fkern to solve the problem.
- * Parameter flag (0,1) determines visibility of fkern window.
+ * ### Implements:
+ * - \lua{mi_analyze(flag)}
+ *   Parameter flag (0,1) determines visibility of fkern window and is ignored on xfemm.
  *
- * If the global variable "XFEMM_VERBOSE" is set to 1, the mesher and solver is more verbose and prints statistics.
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_analyze()}
  *
- * Implementation notes:
- *  * \femm42{femm/femmeLua.cpp,lua_analyze()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnu_analyze(flag)
- *  * \femm42{femm/FemmeView.cpp,CFemmeView::OnMenuAnalyze()}: does the things we do here directly...
+ * #### Additional source:
+ * - \femm42{femm/femmeLua.cpp,lua_analyze()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnu_analyze(flag)
+ * - \femm42{femm/FemmeView.cpp,CFemmeView::OnMenuAnalyze()}: does the things we do here directly...
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 {
@@ -973,15 +1006,19 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
 
 /**
  * @brief Marks the first selected block label as the default block label.
+ *
+ * This block label is applied to any region that has not been explicitly labeled.
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_attachdefault()}
  *
  * \internal
- * mi_attachdefault()
- * Marks the selected block label as the default block label. This block
- * label is applied to any region that has not been explicitly labeled.
+ * ### Implements:
+ * - \lua{mi_attachdefault()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_attachdefault()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAttachDefault(lua_State *L)
 {
@@ -1002,15 +1039,18 @@ int femmcli::LuaMagneticsCommands::luaAttachDefault(lua_State *L)
 
 /**
  * @brief Mark selected block labels as members of the external region,
+ * used for modeling unbounded axisymmetric problems via the Kelvin Transformation.
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_attachouterspace()}
  *
  * \internal
- * mi_attachouterspace()
- * Marks all selected block labels as members of the external region
- * used for modeling unbounded axisymmetric problems via the Kelvin Transformation.
+ * ### Implements:
+ * - \lua{mi_attachouterspace()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_attachouterspace()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAttachOuterSpace(lua_State *L)
 {
@@ -1029,20 +1069,26 @@ int femmcli::LuaMagneticsCommands::luaAttachOuterSpace(lua_State *L)
 
 /**
  * @brief Bend the end of the contour line.
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_bendcontour()}
- *
- * \internal
- * mo_bendcontour(angle,anglestep)
  * Replaces the straight line formed by the last two
  * points in the contour by an arc that spans angle degrees. The arc is actually composed
  * of many straight lines, each of which is constrained to span no more than anglestep
  * degrees.
+ *
  * The angle parameter can take on values from -180 to 180 degrees.
  * The anglestep parameter must be greater than zero.
  * If there are less than two points defined in the contour, this command is ignored.
+ *
+ * @param L
+ * @return 0
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_bendcontour(angle,anglestep)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_bendcontour()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaBendContourLine(lua_State *L)
 {
@@ -1064,11 +1110,13 @@ int femmcli::LuaMagneticsCommands::luaBendContourLine(lua_State *L)
  * @param L
  * @return 1 on success, 0 otherwise
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_blockintegral()}
  *
  * \internal
- * mo_blockintegral(type)
- * Type parameter is documented in femm42 manual.
+ * ### Implements:
+ * - \lua{mo_blockintegral(type)}
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_blockintegral()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
 {
@@ -1117,12 +1165,14 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_clearbhpoints()}
  *
  * \internal
- * mi_clearbhpoints("blockname")
- * Clears all B-H data points associatied with the material
- * specified by "blockname".
+ * ### Implements:
+ * - \lua{mi_clearbhpoints("blockname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_clearbhpoints()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaClearBHPoints(lua_State *L)
 {
@@ -1156,10 +1206,14 @@ int femmcli::LuaMagneticsCommands::luaClearBHPoints(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_clearblock()}
  *
  * \internal
- * mo_clearblock() Clear block selection
+ * ### Implements:
+ * - \lua{mo_clearblock()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_clearblock()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
 {
@@ -1188,11 +1242,14 @@ int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_clearcontour()}
  *
  * \internal
- * mo_clearcontour()
- * Clear a previously defined contour
+ * ### Implements:
+ * - \lua{mo_clearcontour()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_clearcontour()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 {
@@ -1216,10 +1273,14 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_clearselected()}
  *
  * \internal
- * mi clearselected() Clear all selected nodes, blocks, segments and arc segments.
+ * ### Implements:
+ * - \lua{mi_clearselected()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_clearselected()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaClearSelected(lua_State *L)
 {
@@ -1235,13 +1296,14 @@ int femmcli::LuaMagneticsCommands::luaClearSelected(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_copy_rotate()}
  *
  * \internal
- * mi_copyrotate(bx, by, angle, copies, (editaction) )
- * * bx, by – base point for rotation
- * * angle – angle by which the selected objects are incrementally shifted to make each copy. angle is measured in degrees.
- * * copies – number of copies to be produced from the selected objects.
+ * ### Implements:
+ * - \lua{mi_copyrotate(bx, by, angle, copies, (editaction) )}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_copy_rotate()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
 {
@@ -1292,12 +1354,13 @@ int femmcli::LuaMagneticsCommands::luaCopyRotate(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_copy_translate()}
  *
  * \internal
- * mi_copytranslate(dx, dy, copies, (editaction))
- * * dx,dy – distance by which the selected objects are incrementally shifted.
- * * copies – number of copies to be produced from the selected objects.
+ * ### Implements:
+ * - \lua{mi_copytranslate(dx, dy, copies, (editaction))}
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_copy_translate()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
 {
@@ -1346,20 +1409,24 @@ int femmcli::LuaMagneticsCommands::luaCopyTranslate(lua_State *L)
  * @brief Explicitly calls the mesher.
  * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
+ *
+ * \remark The femm42 documentation states that "The number of elements in the mesh is pushed back onto the lua stack.", but the implementation does not do it.
  * @param L
  * @return 1 on success, 0 otherwise.
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_create_mesh()}
  *
  * \internal
- * mi_createmesh() runs triangle to create a mesh.
+ * ### Implements:
+ * - \lua{mi_createmesh()} runs triangle to create a mesh.
  *
- * \remark The femm42 documentation states that "The number of elements in the mesh is pushed back onto the lua stack.", but the implementation does not do it.
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_create_mesh()}
  *
- * Implementation notes:
- *  * \femm42{femm/femmeLua.cpp,lua_create_mesh()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnuMakeMesh()
- *  * \femm42{femm/FemmeDoc.cpp,CFemmeView::lnuMakeMesh()}: calls OnMakeMesh
- *  * \femm42{femm/FemmeView.cpp,CFemmeView::OnMakeMesh()}: does the things we do here directly...
+ * #### Additional source:
+ * - \femm42{femm/femmeLua.cpp,lua_create_mesh()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnuMakeMesh()
+ * - \femm42{femm/FemmeDoc.cpp,CFemmeView::lnuMakeMesh()}: calls OnMakeMesh
+ * - \femm42{femm/FemmeView.cpp,CFemmeView::OnMakeMesh()}: does the things we do here directly...
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaCreateMesh(lua_State *L)
 {
@@ -1430,11 +1497,14 @@ int femmcli::LuaMagneticsCommands::luaCreateMesh(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_createradius()}
  *
  * \internal
- * mi_createradius(x,y,r)
- * Turns a corner located at (x,y) into a curve of radius r.
+ * ### Implements:
+ * - \lua{mi_createradius(x,y,r)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_createradius()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaCreateRadius(lua_State *L)
 {
@@ -1473,15 +1543,19 @@ int femmcli::LuaMagneticsCommands::luaCreateRadius(lua_State *L)
 
 /**
  * @brief Define properties of external region.
+ * Defines an axisymmetric external region to be used in
+ * conjuction with the Kelvin Transformation method of modeling unbounded problems.
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_defineouterspace()}
  *
  * \internal
- * mi_defineouterspace(Zo,Ro,Ri)
- * Defines an axisymmetric external region to be used in
- * conjuction with the Kelvin Transformation method of modeling unbounded problems.
+ * ### Implements:
+ * - \lua{mi_defineouterspace(Zo,Ro,Ri)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_defineouterspace()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDefineOuterSpace(lua_State *L)
 {
@@ -1512,10 +1586,14 @@ int femmcli::LuaMagneticsCommands::luaDefineOuterSpace(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_delboundprop()}
  *
  * \internal
- * mi_deleteboundprop("propname") deletes the boundary property named "propname".
+ * ### Implements:
+ * - \lua{mi_deleteboundprop("propname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_delboundprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeleteBoundaryProperty(lua_State *L)
 {
@@ -1540,10 +1618,14 @@ int femmcli::LuaMagneticsCommands::luaDeleteBoundaryProperty(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
  *
  * \internal
- * mi_deletecircuit("circuitname") deletes the circuit named circuitname.
+ * ### Implements:
+ * - \lua{mi_deletecircuit("circuitname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeleteCircuitProperty(lua_State *L)
 {
@@ -1568,10 +1650,14 @@ int femmcli::LuaMagneticsCommands::luaDeleteCircuitProperty(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_deleteselectedarcsegments()}
  *
  * \internal
- * mi_deleteselectedarcsegments()
+ * ### Implements:
+ * - \lua{mi_deleteselectedarcsegments()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselectedarcsegments()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeleteSelectedArcSegments(lua_State *L)
 {
@@ -1588,10 +1674,14 @@ int femmcli::LuaMagneticsCommands::luaDeleteSelectedArcSegments(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_deleteselectedlabels()}
  *
  * \internal
- * mi_deleteselectedlabels()
+ * ### Implements:
+ * - \lua{mi_deleteselectedlabels()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselectedlabels()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeleteSelectedBlockLabels(lua_State *L)
 {
@@ -1608,10 +1698,14 @@ int femmcli::LuaMagneticsCommands::luaDeleteSelectedBlockLabels(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_deleteselected()}
  *
  * \internal
- * mi_deleteselected()
+ * ### Implements:
+ * - \lua{mi_deleteselected()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselected()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeleteSelected(lua_State *L)
 {
@@ -1632,10 +1726,14 @@ int femmcli::LuaMagneticsCommands::luaDeleteSelected(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_deleteselectednodes()}
  *
  * \internal
- * mi_deleteselectednodes()
+ * ### Implements:
+ * - \lua{mi_deleteselectednodes()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselectednodes()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeleteSelectedNodes(lua_State *L)
 {
@@ -1653,10 +1751,14 @@ int femmcli::LuaMagneticsCommands::luaDeleteSelectedNodes(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_deleteselectedsegments()}
  *
  * \internal
- * mi_deleteselectedsegments()
+ * ### Implements:
+ * - \lua{mi_deleteselectedsegments()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselectedsegments()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeleteSelectedSegments(lua_State *L)
 {
@@ -1674,10 +1776,14 @@ int femmcli::LuaMagneticsCommands::luaDeleteSelectedSegments(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_delmatprop()}
  *
  * \internal
- * mi deletematerial("materialname") deletes the material named "materialname".
+ * ### Implements:
+ * - \lua{mi_deletematerial("materialname")} deletes the material named "materialname".
+
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_delmatprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeleteMaterial(lua_State *L)
 {
@@ -1702,10 +1808,14 @@ int femmcli::LuaMagneticsCommands::luaDeleteMaterial(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_delpointprop()}
  *
  * \internal
- * mi_deletepointprop("pointpropname") deletes the point property named "pointpropname"
+ * ### Implements:
+ * - \lua{mi_deletepointprop("pointpropname")} deletes the point property named "pointpropname"
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_delpointprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDeletePointProperty(lua_State *L)
 {
@@ -1730,11 +1840,14 @@ int femmcli::LuaMagneticsCommands::luaDeletePointProperty(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_detachdefault()}
  *
  * \internal
- * mi_detachdefault()
- * Undefines the default attribute for the selected block labels.
+ * ### Implements:
+ * - \lua{mi_detachdefault()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_detachdefault()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDetachDefault(lua_State *L)
 {
@@ -1756,12 +1869,14 @@ int femmcli::LuaMagneticsCommands::luaDetachDefault(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_detachouterspace()}
  *
  * \internal
- * mi_detachouterspace()
- * Undefines all selected block labels as members of the external
- * region used for modeling unbounded axisymmetric problems via the Kelvin Transformation.
+ * ### Implements:
+ * - \lua{mi_detachouterspace()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_detachouterspace()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaDetachOuterSpace(lua_State *L)
 {
@@ -1784,10 +1899,14 @@ int femmcli::LuaMagneticsCommands::luaDetachOuterSpace(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_exitpost()}
  *
  * \internal
- * mo_close()
+ * ### Implements:
+ * - \lua{mo_close()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_exitpost()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaExitPost(lua_State *L)
 {
@@ -1802,11 +1921,14 @@ int femmcli::LuaMagneticsCommands::luaExitPost(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_exitpre()}
  *
  * \internal
- * mi_close()
- * Closes current magnetics preprocessor document and destroys magnetics preprocessor window.
+ * ### Implements:
+ * - \lua{mi_close()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_exitpre()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaExitPre(lua_State *L)
 {
@@ -1821,10 +1943,14 @@ int femmcli::LuaMagneticsCommands::luaExitPre(lua_State *L)
  * @param L
  * @return 4 on success, 0 on failure
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_getboundingbox()}
  *
  * \internal
- * mi_getboundingbox() seems to be undocumented
+ * ### Implements:
+ * - \lua{mi_getboundingbox()}<br> \b undocumented in manual42
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_getboundingbox()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGetBoundingBox(lua_State *L)
 {
@@ -1846,13 +1972,6 @@ int femmcli::LuaMagneticsCommands::luaGetBoundingBox(lua_State *L)
 
 /**
  * @brief Get information about a circuit property.
- * @param L
- * @return 0 on error, 3 on success.
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_getcircuitprops()}
- *
- * \internal
- * mo_getcircuitproperties("circuit")
  * Used primarily to obtain impedance information associated with circuit properties.
  *
  * Properties are returned for the circuit property named "circuit".
@@ -1860,6 +1979,17 @@ int femmcli::LuaMagneticsCommands::luaGetBoundingBox(lua_State *L)
  * 1. current Current carried by the circuit
  * 2. volts Voltage drop across the circuit
  * 3. flux_re Circuit’s flux linkage
+ * @param L
+ * @return 0 on error, 3 on success.
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_getcircuitproperties("circuit")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_getcircuitprops()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGetCircuitProperties(lua_State *L)
 {
@@ -1905,13 +2035,6 @@ int femmcli::LuaMagneticsCommands::luaGetCircuitProperties(lua_State *L)
 
 /**
  * @brief Get data of indexed element.
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_getelement()}
- *
- * \internal
- * mo_getelement(n)
  * MOGetElement[n] returns the following proprerties for the nth element:
  * 1. Index of first element node
  * 2. Index of second element node
@@ -1920,8 +2043,18 @@ int femmcli::LuaMagneticsCommands::luaGetCircuitProperties(lua_State *L)
  * 5. y (or z) coordinate of the element centroid
  * 6. element area using the length unit defined for the problem
  * 7. group number associated with the element
+ * @param L
+ * @return 0
+ * \ingroup LuaMM
  *
- * Note: in lua code, indices start at 1.
+ * \internal
+ * ### Implements:
+ * - \lua{mo_getelement(n)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_getelement()}
+ *
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGetElement(lua_State *L)
 {
@@ -1934,6 +2067,7 @@ int femmcli::LuaMagneticsCommands::luaGetElement(lua_State *L)
         return 0;
     }
 
+    // Note: in lua code, indices start at 1.
     int idx=(int) lua_todouble(L,1);
     idx--;
 
@@ -1956,12 +2090,14 @@ int femmcli::LuaMagneticsCommands::luaGetElement(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_getmaterial()}
  *
  * \internal
- * mi_getmaterial("materialname")
- * fetches the material specified by materialname from
- * the materials library.
+ * ### Implements:
+ * - \lua{mi_getmaterial("materialname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_getmaterial()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
 {
@@ -2010,11 +2146,14 @@ int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
  * @param L
  * @return 2 if the node was found, 0 otherwise
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_getnode()}
  *
  * \internal
- * mo_getnode(n)
- * Returns the (x,y) or (r,z) position of the nth mesh node.
+ * ### Implements:
+ * - \lua{mo_getnode(n)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_getnode()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGetMeshNode(lua_State *L)
 {
@@ -2038,11 +2177,14 @@ int femmcli::LuaMagneticsCommands::luaGetMeshNode(lua_State *L)
  * @param L
  * @return 0 on error, otherwise 14
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_getpointvals()}
  *
  * \internal
- * mo_getpointvalues(X,Y)
- * Get the values associated with the point at x,y return values in order.
+ * ### Implements:
+ * - \lua{mo_getpointvalues(X,Y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_getpointvals()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
 {
@@ -2093,18 +2235,22 @@ int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
 
 /**
  * @brief Get information about the problem description.
- * @param L
- * @return 4
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_getprobleminfo()}
- *
- * \internal
- * mo_getprobleminfo()
  * Returns info on problem description. Returns four values
  * 1. problem type
  * 2. frequency in Hz
  * 3. depth assumed for planar problems in meters
  * 4. length unit used to draw the problem in meters
+ * @param L
+ * @return 4
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_getprobleminfo()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_getprobleminfo()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGetProblemInfo(lua_State *L)
 {
@@ -2146,10 +2292,14 @@ int femmcli::LuaMagneticsCommands::luaGetProblemInfo(lua_State *L)
  * @param L
  * @return 1
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_gettitle()}
  *
  * \internal
- * mi_gettitle()
+ * ### Implements:
+ * - \lua{mi_gettitle()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_gettitle()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGetTitle(lua_State *L)
 {
@@ -2163,19 +2313,23 @@ int femmcli::LuaMagneticsCommands::luaGetTitle(lua_State *L)
 
 /**
  * @brief Compute the gradients of the B field.
- * @param L
- * @return 8
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_gradient()}
- *
- * \internal
- * mo_gradient(xo,yo)
- * \b undocumented in manual42.
  *
  * Femm42 source documentation:
  * Computes the gradients of the B field by differentiating
  * the shape functions that are used to represent the smoothed
  * B in an element.
+ * @param L
+ * @return 8
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_gradient(xo,yo)}<br> \b undocumented in manual42.
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_gradient()}
+ *
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaBGradient(lua_State *L)
 {
@@ -2228,17 +2382,21 @@ int femmcli::LuaMagneticsCommands::luaBGradient(lua_State *L)
 
 /**
  * @brief (De)select output block labels associated with block labels in a given group.
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_groupselectblock()}
- *
- * \internal
- * mo_groupselectblock(n)
  * Selects all of the blocks that are labeled by block labels that are
  * members of group n.
  * If no number is specified (i.e. mo_groupselectblock() ), all blocks
  * are selected.
+ * @param L
+ * @return 0
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_groupselectblock(n)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_groupselectblock()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
 {
@@ -2290,10 +2448,14 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
  * @param L
  * @return Depending on integral type: 1, 2, or 4, or 0 on error.
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_lineintegral()}
  *
  * \internal
- * mo_lineintegral(type)
+ * ### Implements:
+ * - \lua{mo_lineintegral(type)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_lineintegral()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaLineIntegral(lua_State *L)
 {
@@ -2382,11 +2544,14 @@ int femmcli::LuaMagneticsCommands::luaLineIntegral(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_mirror()}
  *
  * \internal
- * mi_mirror(x1,y1,x2,y2,(editaction))
- * Mirror the selected objects about a line passing through the points (x1,y1) and (x2,y2).
+ * ### Implements:
+ * - \lua{mi_mirror(x1,y1,x2,y2,(editaction))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_mirror()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaMirrorCopy(lua_State *L)
 {
@@ -2431,12 +2596,14 @@ int femmcli::LuaMagneticsCommands::luaMirrorCopy(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_modboundprop()}
  *
  * \internal
- * mi_modifyboundprop("BdryName",propnum,value)
- * This function allows for modification of a boundary property.
- * * propnum: property field to be edited
+ * ### Implements:
+ * - \lua{mi_modifyboundprop("BdryName",propnum,value)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_modboundprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaModifyBoundaryProp(lua_State *L)
 {
@@ -2504,15 +2671,14 @@ int femmcli::LuaMagneticsCommands::luaModifyBoundaryProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_modcircprop()}
  *
  * \internal
- * mi_modifycircprop("CircName",propnum,value)
- * This function allows for modification of a circuit property.
- *  * propnum:
- *    1. name
- *    2. Total current
- *    3. Circuit type (0=parallel or 1=series)
+ * ### Implements:
+ * - \lua{mi_modifycircprop("CircName",propnum,value)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_modcircprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
 {
@@ -2579,11 +2745,14 @@ int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_modmatprop()}
  *
  * \internal
- * mi_modifymaterial("BlockName",propnum,value)
- * * propnum: property field to be edited
+ * ### Implements:
+ * - \lua{mi_modifymaterial("BlockName",propnum,value)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_modmatprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaModifyMaterialProp(lua_State *L)
 {
@@ -2672,11 +2841,14 @@ int femmcli::LuaMagneticsCommands::luaModifyMaterialProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_modpointprop()}
  *
  * \internal
- * mi_modifypointprop("PointName",propnum,value)
- * * propnum: field number
+ * ### Implements:
+ * - \lua{mi_modifypointprop("PointName",propnum,value)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_modpointprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaModifyPointProp(lua_State *L)
 {
@@ -2731,13 +2903,14 @@ int femmcli::LuaMagneticsCommands::luaModifyPointProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_move_rotate()}
  *
  * \internal
- * mi_moverotate(bx,by,shiftangle,(editaction))
- * * bx, by – base point for rotation
- * * shiftangle – angle in degrees by which the selected objects are rotated.
- * * editaction 0 –nodes, 1 – lines (segments), 2 –block labels, 3 – arc segments, 4- group
+ * ### Implements:
+ * - \lua{mi_moverotate(bx,by,shiftangle,(editaction))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_move_rotate()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
 {
@@ -2787,17 +2960,14 @@ int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_move_translate()}
  *
  * \internal
- * mi_movetranslate(dx,dy,(editaction))
- * * dx,dy – distance by which the selected objects are shifted.
- * * editaction:
- *   * 0: nodes
- *   * 1: lines (segments)
- *   * 2: block labels
- *   * 3: arc segments
- *   * 4: group
+ * ### Implements:
+ * - \lua{mi_movetranslate(dx,dy,(editaction))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_move_translate()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
 {
@@ -2845,10 +3015,14 @@ int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_newdocument()}
  *
  * \internal
- * mi_newdocument()
+ * ### Implements:
+ * - \lua{mi_newdocument()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_newdocument()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaNewDocument(lua_State *L)
 {
@@ -2862,10 +3036,14 @@ int femmcli::LuaMagneticsCommands::luaNewDocument(lua_State *L)
  * @param L
  * @return 1
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_numelements()}
  *
  * \internal
- * mo_numelements() Returns the number of elements in the in focus magnets output mesh.
+ * ### Implements:
+ * - \lua{mo_numelements()} Returns the number of elements in the in focus magnets output mesh.
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_numelements()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaNumElements(lua_State *L)
 {
@@ -2886,10 +3064,14 @@ int femmcli::LuaMagneticsCommands::luaNumElements(lua_State *L)
  * @param L
  * @return 0 if no magnetics output in focus, 1 otherwise.
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_numnodes()}
  *
  * \internal
- * mo_numnodes() Returns the number of nodes in the in focus magnetics output mesh.
+ * ### Implements:
+ * - \lua{mo_numnodes()} Returns the number of nodes in the in focus magnetics output mesh.
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_numnodes()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaNumNodes(lua_State *L)
 {
@@ -2911,11 +3093,15 @@ int femmcli::LuaMagneticsCommands::luaNumNodes(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_previous()}
  *
  * \internal
- * mi_setprevious(filename) defines the previous solution to be used as the basis for an
+ * ### Implements:
+ * - \lua{mi_setprevious(filename)} defines the previous solution to be used as the basis for an
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_previous()}
  * AC incremental permeability solution. The filename should include the .ans extension
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSetPrevious(lua_State *L)
 {
@@ -2936,24 +3122,17 @@ int femmcli::LuaMagneticsCommands::luaSetPrevious(lua_State *L)
 
 /**
  * @brief Change problem definition.
+ * Only the parameters that are set are changed.
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_prob_def()}
  * \internal
- * mi_probdef(frequency,units,type,precision,(depth),(minangle),(acsolver) changes the problem definition.
+ * ### Implements:
+ * - \lua{mi_probdef(frequency,(units),(type),(precision),(depth),(minangle),(acsolver))}
  *
- * Parameters:
- *  * frequency: number
- *  * units: "inches", "millimeters", "centimeters", "mils", "meters, and "micrometers"
- *  * type: "planar", "axi"
- *  * precision: in scientific notation (e.g. "1E-8")
- *  * depth: number
- *  * minangle: number
- *  * acsolver: number? ... solver type for AC problems
- *
- * All parameters except the first are optional.
- * Only the parameters that are set are changed.
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_prob_def()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
 {
@@ -3032,10 +3211,14 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_purge_mesh()}
  *
  * \internal
- * mi_purgemesh() clears the mesh out of both the screen and memory.
+ * ### Implements:
+ * - \lua{mi_purgemesh()} clears the mesh out of both the screen and memory.
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_purge_mesh()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaPurgeMesh(lua_State *L)
 {
@@ -3057,14 +3240,15 @@ int femmcli::LuaMagneticsCommands::luaPurgeMesh(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_runpost()}
  *
  * \internal
- * mi_loadsolution()
- * Loads and displays the solution corresponding to the current geometry.
+ * ### Implements:
+ * - \lua{mi_loadsolution()}
+ * - \lua{mo_reload()}
  *
- * mo_reload()
- * Reloads the solution from disk.
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_runpost()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
 {
@@ -3098,11 +3282,14 @@ int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,luaSaveDocument()}
  *
  * \internal
- * mi_saveas("filename")
- * Saves the file with name "filename".
+ * ### Implements:
+ * - \lua{mi_saveas("filename")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,luaSaveDocument()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
 {
@@ -3126,12 +3313,14 @@ int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_scale()}
  *
  * \internal
- * mi_scale(bx,by,scalefactor,(editaction))
- * * bx, by: base point for scaling
- * * scalefactor: a multiplier that determines how much the selected objects are scaled
+ * ### Implements:
+ * - \lua{mi_scale(bx,by,scalefactor,(editaction))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_scale()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaScaleMove(lua_State *L)
 {
@@ -3176,11 +3365,14 @@ int femmcli::LuaMagneticsCommands::luaScaleMove(lua_State *L)
  * @param L
  * @return 4 on success, 0 otherwise
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_selectarcsegment()}
  *
  * \internal
- * mi_selectarcsegment(x,y)
- * Select the arc segment closest to (x,y)
+ * ### Implements:
+ * - \lua{mi_selectarcsegment(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectarcsegment()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSelectArcsegment(lua_State *L)
 {
@@ -3211,10 +3403,14 @@ int femmcli::LuaMagneticsCommands::luaSelectArcsegment(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_selectblock()}
  *
  * \internal
- * mo_selectblock(x,y) Select the block that contains point (x,y).
+ * ### Implements:
+ * - \lua{mo_selectblock(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_selectblock()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSelectOutputBlocklabel(lua_State *L)
 {
@@ -3261,10 +3457,14 @@ int femmcli::LuaMagneticsCommands::luaSelectOutputBlocklabel(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_selectcircle()}
  *
  * \internal
- * mi_selectcircle(x,y,R,(editmode)) selects objects within a circle of radius R centered at (x,y)
+ * ### Implements:
+ * - \lua{mi_selectcircle(x,y,R,(editmode))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectcircle()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSelectWithinCircle(lua_State *L)
 {
@@ -3340,15 +3540,18 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinCircle(lua_State *L)
 
 /**
  * @brief Select the given group of nodes, segments, arc segments and blocklabels.
+ * This function will clear all previously selected elements and leave the editmode in 4 (group)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_selectgroup()}
  *
  * \internal
- * mi_selectgroup(n)
- * Select the nth group of nodes, segments, arc segments and blocklabels.
- * This function will clear all previously selected elements and leave the editmode in 4 (group)
+ * ### Implements:
+ * - \lua{mi_selectgroup(n)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectgroup()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSelectGroup(lua_State *L)
 {
@@ -3406,14 +3609,18 @@ int femmcli::LuaMagneticsCommands::luaSelectGroup(lua_State *L)
 
 /**
  * @brief Select the closest label to a given point.
+ * Select the label closet to (x,y). Returns the coordinates of the selected label.
  * @param L
  * @return 0 on error, 2 otherwise.
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_selectlabel()}
  *
  * \internal
- * mi_selectlabel(x,y)
- * Select the label closet to (x,y). Returns the coordinates of the selected label.
+ * ### Implements:
+ * - \lua{mi_selectlabel(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectlabel()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSelectBlocklabel(lua_State *L)
 {
@@ -3438,17 +3645,22 @@ int femmcli::LuaMagneticsCommands::luaSelectBlocklabel(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Adds a contour point at the closest input point to (x,y).
+ *
+ * If the
+ * selected point and a previous selected points lie at the ends of an arcsegment,
+ * a contour is added that traces along the arcsegment.
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmviewLua.cpp,lua_selectline()}
  *
  * \internal
- * mo_selectpoint(x,y)
- * Adds a contour point at the closest input point to (x,y). If the
- * selected point and a previous selected points lie at the ends of an arcsegment,
- * a contour is added that traces along the arcsegment.
+ * ### Implements:
+ * - \lua{mo_selectpoint(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_selectline()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaAddContourPointFromNode(lua_State *L)
 {
@@ -3592,14 +3804,18 @@ int femmcli::LuaMagneticsCommands::luaAddContourPointFromNode(lua_State *L)
 
 /**
  * @brief Select the nearest node to given coordinates.
+ * Returns the coordinates of the selected node.
  * @param L
  * @return 0 on error, 2 on success
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_selectnode()}
  *
  * \internal
- * mi_selectnode(x,y) Select the node closest to (x,y).
- * Returns the coordinates of the selected node.
+ * ### Implements:
+ * - \lua{mi_selectnode(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectnode()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSelectnode(lua_State *L)
 {
@@ -3627,11 +3843,14 @@ int femmcli::LuaMagneticsCommands::luaSelectnode(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_selectrectangle()}
  *
  * \internal
- * mi_selectrectangle(x1,y1,x2,y2,(editmode))
- * Selects objects within a rectangle defined by points (x1,y1) and (x2,y2).
+ * ### Implements:
+ * - \lua{mi_selectrectangle(x1,y1,x2,y2,(editmode))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectrectangle()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSelectWithinRectangle(lua_State *L)
 {
@@ -3732,11 +3951,14 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinRectangle(lua_State *L)
  * @param L
  * @return 0 on error, 4 on success
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_selectsegment()}
  *
  * \internal
- * mi_selectsegment(x,y)
- * Select the line segment closest to (x,y)
+ * ### Implements:
+ * - \lua{mi_selectsegment(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectsegment()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSelectSegment(lua_State *L)
 {
@@ -3766,13 +3988,15 @@ int femmcli::LuaMagneticsCommands::luaSelectSegment(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_setarcsegmentprop()}
  *
  * \internal
- * mi_setarcsegmentprop(maxsegdeg, "propname", hide, group)
+ * ### Implements:
+ * - \lua{mi_setarcsegmentprop(maxsegdeg, "propname", hide, group)}
  *
- * Note: propname may be 0 (as in number 0, not string "0").
- *       In that case, the arc segments have no boundary property.
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_setarcsegmentprop()}
+ *
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
 {
@@ -3783,6 +4007,8 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
     double maxsegdeg = lua_todouble(L,1);
     std::string boundprop;
     int boundpropidx = -1;
+    // Note: propname may be 0 (as in number 0, not string "0").
+    //       In that case, the arc segments have no boundary property.
     if (!lua_isnil(L,2))
     {
         boundprop = lua_tostring(L,2);
@@ -3814,16 +4040,14 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_setblockprop()}
  *
  * \internal
- * mi_setblockprop("blockname", automesh, meshsize, "incircuit", magdirection, group, turns)
- * Set the selected block labels to have the properties
+ * ### Implements:
+ * - \lua{mi_setblockprop("blockname", automesh, meshsize, "incircuit", magdirection, group, turns)}
  *
- * Note: blockname and/or incircuit may be 0 (as in number 0, not string "0").
- *       In that case, the block labels have no block type and/or are not in a circuit.
- *
- * magdirection can either be a number, or a string containing a lua expression.
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_setblockprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
 {
@@ -3845,6 +4069,8 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
 
     int n=lua_gettop(L);
 
+    // Note: blockname and/or incircuit may be 0 (as in number 0, not string "0").
+    //       In that case, the block labels have no block type and/or are not in a circuit.
     if (n>0 && !lua_isnil(L,1))
     {
         blocktype = lua_tostring(L,1);
@@ -3861,6 +4087,7 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
     }
     if (n>4)
     {
+        // magdirection can either be a number, or a string containing a lua expression.
         if (lua_isnumber(L,5))
             magdirection = lua_todouble(L,5);
         else if (!lua_isnil(L,5))
@@ -3899,10 +4126,14 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_seteditmode()}
  *
  * \internal
- * mi_seteditmode(editmode)
+ * ### Implements:
+ * - \lua{mi_seteditmode(editmode)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_seteditmode()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSetEditMode(lua_State *L)
 {
@@ -3933,22 +4164,26 @@ int femmcli::LuaMagneticsCommands::luaSetEditMode(lua_State *L)
 
 /**
  * @brief Set the currently active problem set.
- * \remark In contrast to femm42, xfemm switches \b both input file and output file.
- * @param L
- * @return 0
- * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_switchfocus()}
- * \femm42{femm/femmeviewLua.cpp,lua_switchfocus()}
  *
- * \internal
- * mi_setfocus("documentname")
  * Switches the magnetics input file upon which Lua commands are to act.
  * If more than one magnetics input file is being edited at a time, this command
  * can be used to switch between files so that the mutiple files can be operated upon
  * programmatically via Lua.
  *
- * mo_setfocus("documentname")
- * ...same for the output file
+ * \remark In contrast to femm42, xfemm switches \b both input file and output file.
+ * @param L
+ * @return 0
+ * \ingroup LuaMM
+ * - \femm42{femm/femmeLua.cpp,lua_switchfocus()}
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_setfocus("documentname")}
+ * - \lua{mo_setfocus("documentname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeviewLua.cpp,lua_switchfocus()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSetFocus(lua_State *L)
 {
@@ -3974,10 +4209,14 @@ int femmcli::LuaMagneticsCommands::luaSetFocus(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_setgroup()}
  *
  * \internal
- * mi_setgroup(n) Set the group associated of the selected items to n
+ * ### Implements:
+ * - \lua{mi_setgroup(n)} Set the group associated of the selected items to n
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_setgroup()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSetGroup(lua_State *L)
 {
@@ -4027,14 +4266,14 @@ int femmcli::LuaMagneticsCommands::luaSetGroup(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_setnodeprop()}
  *
  * \internal
- * mi_setnodeprop("propname",groupno)
- * Set the selected nodes to have the nodal property mi_"propname" and group number groupno.
+ * ### Implements:
+ * - \lua{mi_setnodeprop("propname",groupno)}
  *
- * Note: propname may be 0 (as in number 0, not string "0").
- *       In that case, the arc segments have no boundary property.
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_setnodeprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
 {
@@ -4044,6 +4283,8 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
 
     int nodepropidx = -1;
     std::string nodeprop = "<None>";
+    // Note: propname may be 0 (as in number 0, not string "0").
+    //       In that case, the arc segments have no boundary property.
     if (!lua_isnil(L,1))
     {
         nodeprop = lua_tostring(L,1);
@@ -4080,20 +4321,14 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * \femm42{femm/femmeLua.cpp,lua_setsegmentprop()}
  *
  * \internal
- * mi_setsegmentprop("propname", elementsize, automesh, hide, group)
- * Set the selected segments to have:
- * * Boundary property "propname"
- *   Note: propname may be 0 (as in number 0, not string "0").
- *   In that case, the arc segments have no boundary property.
- * * Local element size along segment no greater than elementsize
- * * automesh:
- *   0 = mesher defers to the element constraint defined by elementsize,
- *   1 = mesher automatically chooses mesh size along the selected segments
- * * hide: 0 = not hidden in post-processor, 1 == hidden in post processor
- * * A member of group number group
+ * ### Implements:
+ * - \lua{mi_setsegmentprop("propname", elementsize, automesh, hide, group)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_setsegmentprop()}
+ * \endinternal
  */
 int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
 {
