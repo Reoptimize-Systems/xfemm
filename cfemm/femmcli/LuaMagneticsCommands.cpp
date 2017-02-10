@@ -68,8 +68,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_attachdefault", luaAttachDefault);
     li.addFunction("mi_attach_outer_space", luaAttachOuterSpace);
     li.addFunction("mi_attachouterspace", luaAttachOuterSpace);
-    li.addFunction("mo_bend_contour", luaBendcontourNOP);
-    li.addFunction("mo_bendcontour", luaBendcontourNOP);
+    li.addFunction("mo_bend_contour", luaBendContourLine);
+    li.addFunction("mo_bendcontour", luaBendContourLine);
     li.addFunction("mo_block_integral", luaBlockIntegral);
     li.addFunction("mo_blockintegral", luaBlockIntegral);
     li.addFunction("mi_clear_bh_points", luaClearBHPoints);
@@ -1028,15 +1028,34 @@ int femmcli::LuaMagneticsCommands::luaAttachOuterSpace(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Bend the end of the contour line.
  * @param L
  * @return 0
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_bendcontour()}
+ *
+ * \internal
+ * mo_bendcontour(angle,anglestep)
+ * Replaces the straight line formed by the last two
+ * points in the contour by an arc that spans angle degrees. The arc is actually composed
+ * of many straight lines, each of which is constrained to span no more than anglestep
+ * degrees.
+ * The angle parameter can take on values from -180 to 180 degrees.
+ * The anglestep parameter must be greater than zero.
+ * If there are less than two points defined in the contour, this command is ignored.
  */
-int femmcli::LuaMagneticsCommands::luaBendcontourNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaBendContourLine(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    fpproc->BendContour(lua_todouble(L,1),lua_todouble(L,2));
     return 0;
 }
 
