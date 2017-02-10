@@ -19,11 +19,13 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "femmcomplex.h"
 #include "spars.h"
+
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <utility>
 
 #define KLUDGE
 
@@ -141,18 +143,12 @@ void CBigLinProb::Put(double v, int p, int q)
 
 double CBigLinProb::Get(int p, int q)
 {
-    CEntry *e;
-
     if (q < p)
     {
-        int i;
-        i = p;
-        p = q;
-        q = i;
+        std::swap(p,q);
     }
 
-    e = M[p];
-
+    CEntry *e = M[p];
     while ((e->c < q) && (e->next != NULL))
     {
         e = e->next;
