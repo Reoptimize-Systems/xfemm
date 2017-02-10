@@ -88,7 +88,7 @@ protected:
     static int luaGetTitle(lua_State *L);
     static int luaGradientNOP(lua_State *L);
     static int luaGroupSelectBlock(lua_State *L);
-    static int luaLineintegralNOP(lua_State *L);
+    static int luaLineIntegral(lua_State *L);
     static int luaMirrorCopy(lua_State *L);
     static int luaModifyBoundaryProp(lua_State *L);
     static int luaModifyCircuitProperty(lua_State *L);
