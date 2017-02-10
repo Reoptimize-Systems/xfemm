@@ -86,7 +86,7 @@ protected:
     static int luaGetPointVals(lua_State *L);
     static int luaGetProblemInfo(lua_State *L);
     static int luaGetTitle(lua_State *L);
-    static int luaGradientNOP(lua_State *L);
+    static int luaBGradient(lua_State *L);
     static int luaGroupSelectBlock(lua_State *L);
     static int luaLineIntegral(lua_State *L);
     static int luaMirrorCopy(lua_State *L);

@@ -132,7 +132,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_gettitle", luaGetTitle);
     li.addFunction("mo_get_title", luaGetTitle);
     li.addFunction("mo_gettitle", luaGetTitle);
-    li.addFunction("mo_gradient", luaGradientNOP);
+    li.addFunction("mo_gradient", luaBGradient);
     li.addFunction("mi_grid_snap", LuaInstance::luaNOP);
     li.addFunction("mi_gridsnap", LuaInstance::luaNOP);
     li.addFunction("mo_grid_snap", LuaInstance::luaNOP);
@@ -2162,20 +2162,68 @@ int femmcli::LuaMagneticsCommands::luaGetTitle(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Compute the gradients of the B field.
  * @param L
- * @return 0
+ * @return 8
  * \ingroup LuaMM
  * \femm42{femm/femmviewLua.cpp,lua_gradient()}
  *
  * \internal
  * mo_gradient(xo,yo)
- * undocumented.
+ * \b undocumented in manual42.
+ *
+ * Femm42 source documentation:
+ * Computes the gradients of the B field by differentiating
+ * the shape functions that are used to represent the smoothed
+ * B in an element.
  */
-int femmcli::LuaMagneticsCommands::luaGradientNOP(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaBGradient(lua_State *L)
 {
-    lua_error(L, "Not implemented.");
-    return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    double xo=lua_todouble(L,1);
+    double yo=lua_todouble(L,2);
+
+    CComplex dbxdx = 0;
+    CComplex dbxdy = 0;
+    CComplex dbydx = 0;
+    CComplex dbydy = 0;
+
+    for(int i=0; i<(int)fpproc->meshelem.size(); i++)
+    {
+        CComplex Mx;
+        CComplex My;
+        fpproc->GetMagnetization(i,Mx,My);
+
+        double da = muo*fpproc->ElmArea(i)/fpproc->LengthConv[fpproc->LengthUnits];
+        double x = Re(fpproc->meshelem[i].ctr);
+        double y = Im(fpproc->meshelem[i].ctr);
+
+        double p0 = PI*pow(pow(x - xo,2.) + pow(y - yo,2.),3.);
+        double p1 = (-3.*pow(x - xo,2.) + pow(y - yo,2.))*(y - yo);
+        double p2 = (x - xo)*(pow(x - xo,2.) - 3.*pow(y - yo,2.));
+        dbxdx += (da*(-(My*p1) + Mx*p2))/p0;
+        dbydx += (da*(-(Mx*p1) - My*p2))/p0;
+        dbxdy += (da*(-(Mx*p1) - My*p2))/p0;
+        dbydy += -(da*(-(My*p1) + Mx*p2))/p0;
+    }
+    lua_pushnumber(L,Re(dbxdx));
+    lua_pushnumber(L,Im(dbxdx));
+    lua_pushnumber(L,Re(dbxdy));
+    lua_pushnumber(L,Im(dbxdy));
+    lua_pushnumber(L,Re(dbydx));
+    lua_pushnumber(L,Im(dbydx));
+    lua_pushnumber(L,Re(dbydy));
+    lua_pushnumber(L,Im(dbydy));
+
+    return 8;
 }
 
 /**
