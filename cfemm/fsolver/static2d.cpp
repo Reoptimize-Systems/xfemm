@@ -103,6 +103,7 @@ int FSolver::Static2D(CBigLinProb &L)
     }
     else
     {
+        V_sdi = nullptr;
         sdin = 1;
     }
 
@@ -337,6 +338,7 @@ int FSolver::Static2D(CBigLinProb &L)
                 // contribution to be from current density in the block
                 for(j = 0; j<3; j++)
                 {
+                    t = 0;
                     if(labellist[El->lbl].InCircuit>=0)
                     {
                         k = labellist[El->lbl].InCircuit;
@@ -346,10 +348,6 @@ int FSolver::Static2D(CBigLinProb &L)
                         }
                         if(circproplist[k].Case==0)
                             t = -circproplist[k].dV.Re()*blockproplist[El->blk].Cduct;
-                    }
-                    else
-                    {
-                        t = 0;
                     }
 
                     K = -(blockproplist[El->blk].J.re+t)*a/3.;

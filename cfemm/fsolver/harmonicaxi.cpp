@@ -62,9 +62,6 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     deg45=1+I;
     w=Frequency*2.*PI;
 
-    CComplex *CircInt1,*CircInt2,*CircInt3;
-
-
     // Can't handle LamType==1 or LamType==2 in AC problems.
     // Detect if this is being attempted.
     for(i=0; i<NumEls; i++)
@@ -81,6 +78,10 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     for(i=0; i<NumBlockLabels; i++) GetFillFactor(i);
 
     V_old=(CComplex *) calloc(NumNodes+NumCircProps,sizeof(CComplex));
+
+    CComplex *CircInt1 = nullptr;
+    CComplex *CircInt2 = nullptr;
+    CComplex *CircInt3 = nullptr;
 
     // check to see if any circuits have been defined and process them;
     if (NumCircProps>0)
@@ -179,8 +180,10 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     {
         V_sdi=(CComplex *) calloc(NumNodes+NumCircProps,sizeof(CComplex));
         sdin=2;
+    } else {
+        V_sdi = nullptr;
+        sdin=1;
     }
-    else sdin=1;
 
 
     // compute effective permeability for each block type;
@@ -319,7 +322,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
                     break;
 
                 case 1:
-
+                    R_hat = 0;
                     if(rn[0]<1.e-06)
                     {
                         if (fabs(rn[1]-rn[2])<1.e-06) R_hat=rn[2]/2.;
