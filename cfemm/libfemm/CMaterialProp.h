@@ -38,11 +38,9 @@ public:
      * This virtual method is called by the \c operator<<() and
      * needs to be overridden by any subclass.
      *
-     * This base implementation will just invoke assert(false).
-     *
      * @param out
      */
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const = 0;
 protected:
     CMaterialProp();
 };
@@ -103,6 +101,12 @@ public:
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
 
+    /**
+     * @brief CMaterialProp is used in the fpproc and fpproc never uses the toStream method.
+     * Therefore, this implementation just calls assert(false).
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const override;
 private:
 
 };
