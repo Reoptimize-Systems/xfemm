@@ -50,12 +50,6 @@ CCircuit::CCircuit()
 {
 }
 
-void CCircuit::toStream(ostream &out) const
-{
-    out << "CCircuit without toStream implementation!\n";
-    assert(false && "Circuit without toStream");
-}
-
 CMCircuit::CMCircuit()
     : CCircuit()
     , Amps()

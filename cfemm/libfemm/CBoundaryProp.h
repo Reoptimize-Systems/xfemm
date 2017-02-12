@@ -40,11 +40,9 @@ public:
      * This virtual method is called by the \c operator<<() and
      * needs to be overridden by any subclass.
      *
-     * Unless \c NDEBUG is defined, this dummy implementation in the base class will call \c assert(false).
-     *
      * @param out
      */
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const = 0;
 };
 
 /**

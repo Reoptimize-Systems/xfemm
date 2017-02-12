@@ -23,12 +23,6 @@ CBoundaryProp::CBoundaryProp()
 {
 }
 
-void CBoundaryProp::toStream(ostream &out) const
-{
-    out << "CBoundaryProp without toStream implementation!\n";
-    assert(false && "BoundaryProp without toStream");
-}
-
 CMBoundaryProp::CMBoundaryProp()
     : CBoundaryProp()
 {

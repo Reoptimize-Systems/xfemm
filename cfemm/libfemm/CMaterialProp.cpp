@@ -46,11 +46,6 @@ CMaterialProp::~CMaterialProp()
 {
 }
 
-void CMaterialProp::toStream(ostream &) const
-{
-    assert(false && "CMaterialProp without toStream");
-}
-
 CMMaterialProp::CMMaterialProp()
     : CMaterialProp()
     , mu_x(1.)
@@ -672,6 +667,11 @@ double CMMaterialProp::DoEnergy(CComplex b1, CComplex b2)
 double CMMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
 {
     return DoEnergy(b1,b2);
+}
+
+void CMMaterialProp::toStream(ostream &) const
+{
+    assert(false && "CMMaterialProp::toStream() should never be called. Did you mean to call CMSolverMaterialProp::toStream()?");
 }
 
 void CMMaterialProp::GetMu(CComplex b1, CComplex b2,
