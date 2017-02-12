@@ -3,6 +3,7 @@
 
 #include "femmcomplex.h"
 #include <iostream>
+#include <memory>
 #include <string>
 
 namespace femm {
@@ -48,12 +49,10 @@ public:
 
     double x,y;
     double MaxArea;  ///< desired mesh size
-    double MagDir;   ///< magnetization direction (\c deg), if constant. \sa MagDirFctn
     int InGroup;     ///< number of the group
     int    Turns;    ///< number of turns
     bool IsExternal; ///< is located in external region
 
-    std::string MagDirFctn; ///< \brief Lua expression describing magnetization direction
     bool IsDefault;  ///< additional property for hpproc
 
     bool IsSelected;
@@ -83,7 +82,14 @@ public:
      *
      * @param out
      */
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const = 0;
+
+    /**
+     * @brief clone creates a copy of the block label.
+     * The copy is memory-managed through a unique_ptr.
+     * @return a unique_ptr holding a copy of this object.
+     */
+    virtual std::unique_ptr<CBlockLabel> clone() const = 0;
 private:
 
 };
@@ -111,6 +117,8 @@ public:
     bool bIsWound; ///< true, if Turns>1, but also in some other conditions; set by \c FSolver::GetFillFactor()
 
     //---- fpproc attributes:
+    double MagDir;   ///< magnetization direction (\c deg), if constant. \sa MagDirFctn
+    std::string MagDirFctn; ///< \brief Lua expression describing magnetization direction
     int Case;
     CComplex  J,dVolts;
     // attributes used to keep track of wound coil properties...
@@ -124,6 +132,8 @@ public:
      * @return a CMSolverBlockLabel
      */
     static CMBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const;
+    virtual std::unique_ptr<CBlockLabel> clone() const;
 private:
 
 };
@@ -143,14 +153,8 @@ public:
      * @return a CBlockLabel
      */
     static CHBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
-    /**
-     * @brief toStream serializes the data and inserts it into \p out.
-     * This virtual method is called by the \c operator<<() and
-     * needs to be overridden by any subclass.
-     *
-     * @param out
-     */
     virtual void toStream( std::ostream &out ) const;
+    virtual std::unique_ptr<CBlockLabel> clone() const;
 };
 
 /**
@@ -168,14 +172,8 @@ public:
      * @return a CBlockLabel
      */
     static CSBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
-    /**
-     * @brief toStream serializes the data and inserts it into \p out.
-     * This virtual method is called by the \c operator<<() and
-     * needs to be overridden by any subclass.
-     *
-     * @param out
-     */
     virtual void toStream( std::ostream &out ) const;
+    virtual std::unique_ptr<CBlockLabel> clone() const;
 };
 
 }
