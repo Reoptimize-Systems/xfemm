@@ -22,11 +22,9 @@ CBlockLabel::CBlockLabel()
     : x(0.)
     , y(0.)
     , MaxArea(0.)
-    , MagDir(0.0)
     , InGroup(0)
     , Turns(1)
     , IsExternal(false)
-    , MagDirFctn()
     , IsDefault(false)
     , IsSelected(false)
     , BlockType(-1)
@@ -57,31 +55,12 @@ bool CBlockLabel::isInCircuit() const
 }
 
 
-void CBlockLabel::toStream(ostream &out) const
-{
-    int extDefault = 0;
-    if (IsExternal)
-        extDefault |= 0x01;
-    if (IsDefault)
-        extDefault |= 0x02;
-
-    out << x << "\t" << y
-        << "\t" << (BlockType+1)
-        << "\t" << ((MaxArea>0) ? sqrt(4.*MaxArea/PI) : -1)
-        << "\t" << (InCircuit+1)
-        << "\t" << MagDir
-        << "\t" << InGroup
-        << "\t" << Turns
-        << "\t" << extDefault;
-    if (!MagDirFctn.empty())
-        out << "\t\"" << MagDirFctn << "\"";
-    out << "\n";
-}
-
 CMBlockLabel::CMBlockLabel()
     : CBlockLabel()
     , ProximityMu(0)
     , bIsWound(false)
+    , MagDir(0.0)
+    , MagDirFctn()
     , Case(0)
     , J(0.)
     , dVolts(0.)
@@ -133,6 +112,32 @@ CMBlockLabel CMBlockLabel::fromStream(istream &input, ostream &)
     parseString(inputStream, &prop.MagDirFctn);
 
     return prop;
+}
+
+void CMBlockLabel::toStream(ostream &out) const
+{
+    int extDefault = 0;
+    if (IsExternal)
+        extDefault |= 0x01;
+    if (IsDefault)
+        extDefault |= 0x02;
+
+    out << x << "\t" << y
+        << "\t" << (BlockType+1)
+        << "\t" << ((MaxArea>0) ? sqrt(4.*MaxArea/PI) : -1)
+        << "\t" << (InCircuit+1)
+        << "\t" << MagDir
+        << "\t" << InGroup
+        << "\t" << Turns
+        << "\t" << extDefault;
+    if (!MagDirFctn.empty())
+        out << "\t\"" << MagDirFctn << "\"";
+    out << "\n";
+}
+
+std::unique_ptr<CBlockLabel> CMBlockLabel::clone() const
+{
+    return std::unique_ptr<CMBlockLabel>(new CMBlockLabel(*this));
 }
 
 
@@ -191,6 +196,11 @@ void CHBlockLabel::toStream(ostream &out) const
         <<"\n";
 }
 
+std::unique_ptr<CBlockLabel> CHBlockLabel::clone() const
+{
+    return std::unique_ptr<CHBlockLabel>(new CHBlockLabel(*this));
+}
+
 CSBlockLabel::CSBlockLabel()
     : CBlockLabel()
 {
@@ -206,4 +216,9 @@ CSBlockLabel CSBlockLabel::fromStream(istream &input, ostream &err)
 void CSBlockLabel::toStream(ostream &out) const
 {
 
+}
+
+std::unique_ptr<CBlockLabel> CSBlockLabel::clone() const
+{
+    return std::unique_ptr<CSBlockLabel>(new CSBlockLabel(*this));
 }

@@ -79,7 +79,7 @@ public:
 	// lists of nodes, segments, and block labels
     std::vector< femm::CNode >             nodelist;
     std::vector< femm::CSegment >       	 linelist;
-    std::vector< femm::CBlockLabel > 		 blocklist;
+    std::vector< femm::CHBlockLabel > 		 blocklist;
     std::vector< femm::CArcSegment > 		 arclist;
 
 	// CArrays containing the mesh information

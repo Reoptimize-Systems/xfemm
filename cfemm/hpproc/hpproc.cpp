@@ -243,7 +243,7 @@ bool HPProc::OpenDocument(string pathname)
     CSegment	segm;
     CArcSegment asegm;
 	CElement	elm;
-    CBlockLabel blk;
+    CHBlockLabel blk;
     CHMeshNode	mnode;
 	//CPoint		mline;
 

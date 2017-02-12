@@ -785,9 +785,8 @@ void FMesher::UpdateUndo()
     for(i=0; i<problem->arclist.size(); i++)
         undoarclist.push_back(
                     std::make_unique<CArcSegment>(*problem->arclist[i]));
-    for(i=0; i<problem->labellist.size(); i++)
-        undolabellist.push_back(
-                    std::make_unique<CBlockLabel>(*problem->labellist[i]));
+    for (const auto &label: problem->labellist)
+        undolabellist.push_back(label->clone());
 
 
 }
@@ -1555,14 +1554,16 @@ void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode se
         {
             if (label->IsSelected)
             {
-                std::unique_ptr<CBlockLabel> newlabel = std::make_unique<CBlockLabel>(*label);
+                std::unique_ptr<CBlockLabel> newlabel = label->clone();
                 CComplex y (label->x,label->y);
                 y = (y-x) / p;
                 y = p*y.Conj()+x;
                 newlabel->x = y.re;
                 newlabel->y = y.im;
                 newlabel->IsSelected = false;
-                newlabel->MagDir = (180./PI)*arg(p*conj(exp(I*newlabel->MagDir*PI/180.)/p));
+                // set specific problem parameters:
+                if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(newlabel.get()))
+                    ptr->MagDir = (180./PI)*arg(p*conj(exp(I*ptr->MagDir*PI/180.)/p));
 
                 problem->labellist.push_back(std::move(newlabel));
             }
@@ -1709,7 +1710,7 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
             {
                 if (label->IsSelected)
                 {
-                    std::unique_ptr<CBlockLabel> newlabel = std::make_unique<CBlockLabel>(*label);
+                    std::unique_ptr<CBlockLabel> newlabel = label->clone();
                     CComplex x(label->x,label->y);
                     x = (x-c)*z+c;
                     newlabel->x = x.re;
@@ -1723,7 +1724,8 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
                                 && prop->BlockName == newlabel->BlockTypeName
                                 && prop->H_c != 0)
                         {
-                            newlabel->MagDir += t;
+                            if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(newlabel.get()))
+                                ptr->MagDir += t;
                         }
                     }
 
@@ -1787,7 +1789,8 @@ void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
                             && prop->BlockName == label->BlockTypeName
                             && prop->H_c != 0)
                     {
-                        label->MagDir += t;
+                        if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(label.get()))
+                            ptr->MagDir += t;
                     }
                 }
             }
@@ -1930,7 +1933,7 @@ void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMod
             {
                 if (label->IsSelected)
                 {
-                    std::unique_ptr<CBlockLabel> newlabel = std::make_unique<CBlockLabel>(*label);
+                    std::unique_ptr<CBlockLabel> newlabel = label->clone();
                     newlabel->x += dx;
                     newlabel->y += dy;
                     newlabel->IsSelected = false;
