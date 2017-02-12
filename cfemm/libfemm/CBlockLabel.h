@@ -97,6 +97,9 @@ private:
 std::ostream& operator<< (std::ostream& os, const CBlockLabel& lbl);
 
 
+/**
+ * @brief The CMBlockLabel class specializes CBlockLabel for electromagnetics problems.
+ */
 class CMBlockLabel : public CBlockLabel
 {
 public:
@@ -125,18 +128,46 @@ private:
 
 };
 
+/**
+ * @brief The CHBlockLabel class specializes CBlockLabel for heat flow problems.
+ */
 class CHBlockLabel : public CBlockLabel
 {
 public:
     CHBlockLabel();
 
     /**
-     * @brief fromStream constructs a CBlockLabel from an input stream (usually an input file stream)
+     * @brief fromStream constructs a CSBlockLabel from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
      * @return a CBlockLabel
      */
     static CHBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
+    /**
+     * @brief toStream serializes the data and inserts it into \p out.
+     * This virtual method is called by the \c operator<<() and
+     * needs to be overridden by any subclass.
+     *
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const;
+};
+
+/**
+ * @brief The CSBlockLabel class specializes CBlockLabel for electrostatics problems.
+ */
+class CSBlockLabel : public CBlockLabel
+{
+public:
+    CSBlockLabel();
+
+    /**
+     * @brief fromStream constructs a CSBlockLabel from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CBlockLabel
+     */
+    static CSBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
     /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and

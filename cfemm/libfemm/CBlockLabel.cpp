@@ -190,3 +190,20 @@ void CHBlockLabel::toStream(ostream &out) const
         << "\t" << extDefault
         <<"\n";
 }
+
+CSBlockLabel::CSBlockLabel()
+    : CBlockLabel()
+{
+
+}
+
+CSBlockLabel CSBlockLabel::fromStream(istream &input, ostream &err)
+{
+    CSBlockLabel prop;
+    return prop;
+}
+
+void CSBlockLabel::toStream(ostream &out) const
+{
+
+}
