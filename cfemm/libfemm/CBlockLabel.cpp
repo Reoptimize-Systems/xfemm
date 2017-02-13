@@ -23,7 +23,6 @@ CBlockLabel::CBlockLabel()
     , y(0.)
     , MaxArea(0.)
     , InGroup(0)
-    , Turns(1)
     , IsExternal(false)
     , IsDefault(false)
     , IsSelected(false)
@@ -58,6 +57,7 @@ bool CBlockLabel::isInCircuit() const
 CMBlockLabel::CMBlockLabel()
     : CBlockLabel()
     , ProximityMu(0)
+    , Turns(1)
     , bIsWound(false)
     , MagDir(0.0)
     , MagDirFctn()
@@ -232,7 +232,6 @@ CSBlockLabel CSBlockLabel::fromStream(istream &input, ostream &)
     else
         prop.MaxArea *= PI * prop.MaxArea / 4.;
     inputStream >> prop.InGroup;
-    inputStream >> prop.Turns;
 
     int extDefault = 0;
     inputStream >> extDefault;
