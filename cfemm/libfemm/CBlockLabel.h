@@ -50,7 +50,6 @@ public:
     double x,y;
     double MaxArea;  ///< desired mesh size
     int InGroup;     ///< number of the group
-    int    Turns;    ///< number of turns
     bool IsExternal; ///< is located in external region
 
     bool IsDefault;  ///< additional property for hpproc
@@ -114,6 +113,7 @@ public:
     //---- fsolver attributes:
     // used for proximity effect regions only.
     CComplex ProximityMu;
+    int    Turns;    ///< number of turns
     bool bIsWound; ///< true, if Turns>1, but also in some other conditions; set by \c FSolver::GetFillFactor()
 
     //---- fpproc attributes:
