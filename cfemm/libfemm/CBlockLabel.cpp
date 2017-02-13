@@ -207,15 +207,59 @@ CSBlockLabel::CSBlockLabel()
 
 }
 
-CSBlockLabel CSBlockLabel::fromStream(istream &input, ostream &err)
+CSBlockLabel CSBlockLabel::fromStream(istream &input, ostream &)
 {
+    std::string line;
+    // read whole line to prevent reading from the next line if a line is malformed/too short
+    std::getline(input, line);
+    trim(line);
+    std::istringstream inputStream(line);
+
+#ifdef DEBUG_PARSER
+    std::cerr << "Reading line: " << line <<"\n";
+#endif
+
     CSBlockLabel prop;
+    // scan in data
+    inputStream >> prop.x;
+    inputStream >> prop.y;
+    inputStream >> prop.BlockType;
+    prop.BlockType--;
+    // BlockTypeName is set by FemmProblem::updateLabelsFromIndex()
+    inputStream >> prop.MaxArea;
+    if (prop.MaxArea<=0)
+        prop.MaxArea = 0;
+    else
+        prop.MaxArea *= PI * prop.MaxArea / 4.;
+    inputStream >> prop.InGroup;
+    inputStream >> prop.Turns;
+
+    int extDefault = 0;
+    inputStream >> extDefault;
+    // second last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    prop.IsDefault  = extDefault & 2;
+    // last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    prop.IsExternal = extDefault & 1;
+
     return prop;
 }
 
 void CSBlockLabel::toStream(ostream &out) const
 {
+    int extDefault = 0;
+    if (IsExternal)
+        extDefault |= 0x01;
+    if (IsDefault)
+        extDefault |= 0x02;
 
+    out << x << "\t" << y
+        << "\t" << (BlockType+1)
+        << "\t" << ((MaxArea>0) ? sqrt(4.*MaxArea/PI) : -1)
+        << "\t" << InGroup
+        << "\t" << extDefault;
+    out << "\n";
 }
 
 std::unique_ptr<CBlockLabel> CSBlockLabel::clone() const

@@ -159,6 +159,9 @@ public:
 
 /**
  * @brief The CSBlockLabel class specializes CBlockLabel for electrostatics problems.
+ * \internal
+ * ### FEMM reference source:
+ * - \femm42{femm/bd_nosebl.h}
  */
 class CSBlockLabel : public CBlockLabel
 {
@@ -170,6 +173,10 @@ public:
      * @param input
      * @param err output stream for error messages
      * @return a CBlockLabel
+     *
+     * \internal
+     * ### FEMM reference source:
+     * - \femm42{femm/beladrawDoc.cpp,CbeladrawDoc::OnOpenDocument()}
      */
     static CSBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
     virtual void toStream( std::ostream &out ) const;
