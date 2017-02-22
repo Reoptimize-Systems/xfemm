@@ -51,7 +51,11 @@ int FSolver::Static2D(CBigLinProb &L)
     double l[3],p[3],q[3];      // element shape parameters;
     int n[3];                   // numbers of nodes for a particular element;
     double a,K,r,t,x,y,B,B1,B2,mu,v[3],u[3],dv,res,lastres,Cduct;
-    double *V_old,*V_sdi,*CircInt1,*CircInt2,*CircInt3;
+    double *V_old=nullptr;
+    double *V_sdi=nullptr;
+    double *CircInt1=nullptr;
+    double *CircInt2=nullptr;
+    double *CircInt3=nullptr;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     int Iter=0,pctr;
