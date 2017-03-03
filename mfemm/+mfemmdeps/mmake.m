@@ -740,7 +740,8 @@ end
 % exist(*,'file') SEARCHES the path,
 % dir(file) returns bad information for directories.
 function b = file_exist(filename)
-    if isempty (javachk ('jvm'))
+    tmp = javachk ('jvm');
+    if isempty (tmp)
         a = javaObject ('java.io.File', filename);
         b=(a.exists() && ~a.isDirectory);
     else
@@ -760,7 +761,8 @@ function b = file_exist(filename)
 end
 
 function t = ftime(filename)
-    if isempty (javachk ('jvm'))
+    tmp = javachk ('jvm');
+    if isempty (tmp)
         a = javaObject ('java.io.File', filename);
         if a.exists()
             t=a.lastModified();
