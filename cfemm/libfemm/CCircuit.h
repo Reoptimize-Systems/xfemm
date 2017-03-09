@@ -33,6 +33,13 @@ public:
          * 0 = total heat flow
          * 1 = fixed temperature
          * \endverbatim
+         *
+         * Electrostatics problems:
+         * \verbatim
+         * <type>
+         * 0 = prescribed voltage
+         * 1 = total charge
+         * \endverbatim
          */
     int CircType;
 
@@ -60,7 +67,7 @@ std::ostream& operator<< (std::ostream& os, const CCircuit& prop);
 /**
  * @brief The CMCircuit class specializes a CCircuit for the fsolver component.
  */
-class CMCircuit : public femm::CCircuit
+class CMCircuit : public CCircuit
 {
 public:
     CMCircuit();
@@ -130,5 +137,29 @@ public:
     virtual void toStream( std::ostream &out ) const override;
 private:
 };
-}
+
+/**
+ * @brief The CSCircuit class specializes a CCircuit for the electrostatics problems.
+ */
+class CSCircuit : public CCircuit
+{
+public:
+    CSCircuit();
+
+    double V;   ///< Prescribed voltage
+    double q;   ///< Total charge
+
+    /**
+     * @brief fromStream constructs a CSCircuit from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CSCircuit
+     */
+    static CSCircuit fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
+
+private:
+};
+
+} //namespace
 #endif
