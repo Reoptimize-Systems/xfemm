@@ -36,3 +36,10 @@ CHMeshNode::CHMeshNode()
     , Q(0)
 {
 }
+
+CSMeshNode::CSMeshNode()
+    : CMeshNode()
+    , Q(false)
+    , IsSelected(false)
+{
+}
