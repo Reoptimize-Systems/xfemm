@@ -185,5 +185,27 @@ public:
     virtual void toStream( std::ostream &out ) const override;
 private:
 };
-}
+
+class CSMaterialProp : CMaterialProp
+{
+public:
+
+    CSMaterialProp();
+
+    double ex;   ///< relative permittivity in x direction
+    double ey;   ///< relative permittivity in y direction
+    double qv;   ///< volume charge density, C/m^3
+
+    /**
+     * @brief fromStream constructs a CSMaterialProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CSMaterialProp
+     */
+    static CSMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
+private:
+};
+
+} //namespace
 #endif
