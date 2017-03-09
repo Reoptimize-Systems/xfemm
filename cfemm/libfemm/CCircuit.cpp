@@ -185,16 +185,80 @@ CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
 
 void CHConductor::toStream(std::ostream &out) const
 {
-    out << "<BeginConductor>\n";
-    out << "<Tc>" << V << "\n";
-    out << "<qc>" << q << "\n";
-    out << "<ConductorType>" << CircType << "\n";
+    out << "  <BeginConductor>\n";
+    out << "    <Tc>" << V << "\n";
+    out << "    <qc>" << q << "\n";
+    out << "    <ConductorType>" << CircType << "\n";
     if (!CircName.empty())
-        out << "<ConductorName> =\"" << CircName << "\"\n";
-    out << "<EndConductor>\n";
+        out << "    <ConductorName> =\"" << CircName << "\"\n";
+    out << "  <EndConductor>\n";
 }
 ostream &operator<<(ostream &os, const CCircuit &prop)
 {
     prop.toStream(os);
     return os;
 }
+
+CSCircuit::CSCircuit()
+    : CCircuit()
+    , V(0)
+    , q(0)
+{
+}
+
+CSCircuit CSCircuit::fromStream(istream &input, ostream &err)
+{
+    CSCircuit prop;
+
+    if( expectToken(input, "<beginconductor>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endconductor>")
+        {
+            nextToken(input, &token);
+
+            if( token == "<conductorname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &prop.CircName, err);
+                continue;
+            }
+
+            if( token == "<vc>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.V, err);
+                continue;
+            }
+
+            if( token == "<qc>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.q, err);
+                continue;
+            }
+
+            if( token == "<conductortype>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.CircType, err);
+                continue;
+            }
+            if (token != "<endconductor>")
+                err << "CSCircuit: unexpected token: "<<token << "\n";
+        }
+    }
+
+    return prop;
+}
+
+void CSCircuit::toStream(ostream &out) const
+{
+    out << "  <BeginConductor>\n";
+    out << "    <ConductorName> =\"" << CircName << "\"\n";
+    out << "    <Vc>" << V << "\n";
+    out << "    <qc>" << q << "\n";
+    out << "    <ConductorType>" << CircType << "\n";
+    out << "  <EndConductor>\n";
+}
+
