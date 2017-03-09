@@ -182,8 +182,7 @@ public:
      * @return a CHMaterialProp
      */
     static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
-    // FIXME: subclass CMaterialProp and mark this as override:
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const override;
 private:
 };
 }
