@@ -32,6 +32,15 @@ public:
      * 4 = periodic
      * 5 = anti-periodic
      * \endverbatim
+     *
+     * For electrostatics problems, this is defined as:
+     * \verbatim
+     * 0 = Fixed Voltage
+     * 1 = Mixed BC
+     * 2 = Surface Charge Density
+     * 3 = Periodic
+     * 4 = Antiperiodic
+     * \endverbatim
      */
     int BdryFormat;
 
@@ -179,5 +188,29 @@ public:
 private:
 };
 
+/**
+ * @brief The CSBoundaryProp class holds BoundaryProp data for electrostatics problems.
+ */
+class CSBoundaryProp : public CBoundaryProp
+{
+public:
+
+    CSBoundaryProp();
+
+    double V;            ///< Fixed value of V for BdryFormat=0;
+    double c0,c1;        ///< Coefficients for BdryFormat=1;
+    double qs;           ///< Surface charge density for Bdryformat=2;
+
+
+    /**
+     * @brief fromStream constructs a CSBoundaryProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CSBoundaryProp
+     */
+    static CSBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
+private:
+};
 }
 #endif
