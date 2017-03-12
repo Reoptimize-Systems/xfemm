@@ -147,7 +147,7 @@ int HPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     for(int i=0; i<(int)mxrows; i++)
     {
-        CPointVals u;
+        CHPointVals u;
 
         if(theHPProc.GetPointValues(px[i], py[i], u)==true)
         {
@@ -1774,7 +1774,7 @@ int HPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
 //
 //	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
 //
-//	CPointVals u;
+//	CHPointVals u;
 //	CComplex Jtot;
 //
 //	if(thisDoc->GetPointValues(px, py, u)==true)

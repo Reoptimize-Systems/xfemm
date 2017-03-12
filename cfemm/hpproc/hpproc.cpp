@@ -975,7 +975,7 @@ int HPProc::InTriangle(double x, double y)
 	return (-1);
 }
 
-bool HPProc::GetPointValues(double x, double y, CPointVals &u)
+bool HPProc::GetPointValues(double x, double y, CHPointVals &u)
 {
 	int k;
 	k=InTriangle(x,y);
@@ -984,7 +984,7 @@ bool HPProc::GetPointValues(double x, double y, CPointVals &u)
     return true;
 }
 
-bool HPProc::GetPointValues(double x, double y, int k, CPointVals &u)
+bool HPProc::GetPointValues(double x, double y, int k, CHPointVals &u)
 {
 	int i,n[3];
     double a[3],b[3],c[3],da;
@@ -1474,7 +1474,7 @@ bool HPProc::InTriangleTest(double x, double y, int i)
 	return InFlag;
 }
 
-CPointVals::CPointVals()
+CHPointVals::CHPointVals()
 {
 	T=0;	// vector potential
 	F=0;	// flux density
@@ -1620,7 +1620,7 @@ void HPProc::LineIntegral(int inttype, double *z)
 
 	// inttype==0 => G.t
 	if(inttype==0){
-		CPointVals u;
+		CHPointVals u;
 		int k;
 
 		k=(int) contour.size();
@@ -1633,7 +1633,7 @@ void HPProc::LineIntegral(int inttype, double *z)
 	// inttype==1 => F.n
 	if(inttype==1){
 		CComplex n,t,pt;
-		CPointVals v;
+		CHPointVals v;
 		double dz,u,d,Fn;
 		int NumPlotPoints=d_LineIntegralPoints;
 		bool flag;
@@ -1711,7 +1711,7 @@ void HPProc::LineIntegral(int inttype, double *z)
 	// inttype==3 => Average Temperature
 	if(inttype==3){
 		CComplex pt;
-		CPointVals v;
+		CHPointVals v;
 		double dz,u,d;
 		int NumPlotPoints=d_LineIntegralPoints;
 		bool flag;

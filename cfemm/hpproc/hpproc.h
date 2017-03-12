@@ -102,8 +102,8 @@ public:
 	// member functions
 	int InTriangle(double x, double y);
 	bool InTriangleTest(double x, double y, int i);
-	bool GetPointValues(double x, double y, CPointVals &u);
-	bool GetPointValues(double x, double y, int k, CPointVals &u);
+    bool GetPointValues(double x, double y, CHPointVals &u);
+    bool GetPointValues(double x, double y, int k, CHPointVals &u);
 	//void GetLineValues(CXYPlot &p, int PlotType, int npoints);
 	void GetElementD(int k);
 	void OnReload();

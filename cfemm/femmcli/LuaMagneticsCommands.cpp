@@ -2209,7 +2209,7 @@ int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
     px=lua_tonumber(L,1).re;
     py=lua_tonumber(L,2).re;
 
-    CPointVals u;
+    CMPointVals u;
 
     if(fpproc->GetPointValues(px, py, u))
     {
