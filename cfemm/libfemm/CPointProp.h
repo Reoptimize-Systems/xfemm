@@ -78,6 +78,25 @@ public:
 private:
 };
 
+class CSPointProp : public CPointProp
+{
+public:
+    CSPointProp();
+
+    double V; ///< \brief Specified potential. \code<Vp>\endcode
+    double qp; ///< \brief Point charge density (C/m). \code<qp>\endcode
+
+    /**
+     * @brief fromStream constructs a CSPointProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CSPointProp
+     */
+    static CSPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+
+    virtual void toStream( std::ostream &out ) const override;
+};
+
 /**
  * @brief operator << serializes the data in \p prop and inserts it into \p os
  * @param os
