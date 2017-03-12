@@ -5,7 +5,7 @@
 #include "femmcomplex.h"
 
 namespace femm {
-class CPointVals
+class CMPointVals
 {
     public:
 
@@ -21,9 +21,22 @@ class CPointVals
         double Pe;            // power dissipated by eddy currents
         double ff;            // winding fill factor
 
-        CPointVals();
+        CMPointVals();
 
     private:
+};
+
+// FIXME(ZaJ): before merging with CPointVals, both classes have to be adopted to fit
+class CSPointVals
+{
+public:
+    CSPointVals();
+
+    double V;      // vector potential
+    CComplex D;    // flux density
+    CComplex e;    // permeability
+    CComplex E;    // field intensity
+    double nrg;    // energy stored in the field
 };
 
 }

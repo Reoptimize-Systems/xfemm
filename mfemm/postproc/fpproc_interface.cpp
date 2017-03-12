@@ -15,7 +15,7 @@
 
 
 using namespace std;
-using femm::CPointVals;
+using femm::CMPointVals;
 
 void FPProcInterfaceWarning(const char* warningmsg)
 {
@@ -134,7 +134,7 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
         for(int i=0; i<(int)mxrows; i++)
         {
-            CPointVals u;
+            CMPointVals u;
 
             if(theFPProc.GetPointValues(px[i], py[i], u)==true)
             {
@@ -241,7 +241,7 @@ int FPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
         for(int i=0; i<(int)mxrows; i++)
         {
-            CPointVals u;
+            CMPointVals u;
 
             if(theFPProc.GetPointValues(px[i], py[i], u)==true)
             {
@@ -1930,7 +1930,7 @@ int FPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
 //
 //	theView=(CFemmviewView *)thisDoc->GetNextView(pos);
 //
-//	CPointVals u;
+//	CMPointVals u;
 //	CComplex Jtot;
 //
 //	if(thisDoc->GetPointValues(px, py, u)==true)
