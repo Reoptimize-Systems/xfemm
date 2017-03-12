@@ -138,3 +138,50 @@ ostream &operator<<(ostream &os, const CMPointProp &prop)
     prop.toStream(os);
     return os;
 }
+
+CSPointProp::CSPointProp()
+    : CPointProp()
+    , V(0)
+    , qp(0)
+{
+}
+
+CSPointProp CSPointProp::fromStream(istream &input, ostream &err)
+{
+    CSPointProp prop;
+
+    if( expectToken(input, "<beginpoint>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endpoint>")
+        {
+            nextToken(input, &token);
+
+            if( token == "<vp>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.V, err);
+                continue;
+            }
+
+            if( token == "<qp>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.qp, err);
+                continue;
+            }
+            if (token != "<endpoint>")
+                err << "CSPointProp: unexpected token: "<<token << "\n";
+        }
+    }
+
+    return prop;
+}
+
+void CSPointProp::toStream(ostream &out) const
+{
+    out << "  <BeginPoint>\n";
+    out << "    <Vp> = " << V << "\n";
+    out << "    <qp> = " << qp << "\n";
+    out << "  <EndPoint>\n";
+}
