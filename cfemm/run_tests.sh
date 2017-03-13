@@ -54,13 +54,20 @@ init_check()
 	cd "$checkdir/$1"
 }
 
+platform_diff()
+# a diff that makes sure line-endings don't pose a problem
+{
+	dos2unix -ascii -q --keepdate -- "$1" "$2"
+	diff -wq "$1" "$2"
+}
+
 checks="$checks check_fmesher"
 check_fmesher()
 {
 	prefix="$1"
 	init_check fmesher
 	run $bindir/fmesher test/Temp.fem > test/fmesher.out || return 1
-	diff -wq "$PWD/"test/fmesher.out.check "$PWD/"test/fmesher.out || return 1
+	platform_diff "$PWD/"test/fmesher.out.check "$PWD/"test/fmesher.out || return 1
 }
 
 checks="$checks check_fpproc"
@@ -78,7 +85,7 @@ check_fsolver()
 	prefix="$1"
 	init_check fsolver
 	run $bindir/fsolver test/Temp > test/fsolver.out || return 1
-	diff -wq "$PWD/"test/Temp.ans.check "$PWD/"test/Temp.ans || return 1
+	platform_diff "$PWD/"test/Temp.ans.check "$PWD/"test/Temp.ans || return 1
 }
 
 checks="$checks check_hpproc"
@@ -87,7 +94,7 @@ check_hpproc()
 	prefix="$1"
 	init_check hpproc
 	run $bindir/hpproc-test > test/hpproc-test.out || return 1
-	diff -wq "$PWD/"test/hpproc-test.out.check "$PWD/"test/hpproc-test.out
+	platform_diff "$PWD/"test/hpproc-test.out.check "$PWD/"test/hpproc-test.out
 }
 
 checks="$checks check_hsolver"
@@ -101,7 +108,7 @@ check_hsolver()
 		echo "$prefix $f"
 		run $bindir/fmesher test/$f.feh > test/$f.fmesher.out || retval=1
 		run $bindir/hsolver test/$f > test/$f.hsolver.out || retval=1
-		diff -wq "$PWD/"test/$f.anh.check "$PWD/"test/$f.anh || retval=1
+		platform_diff "$PWD/"test/$f.anh.check "$PWD/"test/$f.anh || retval=1
 	done
 	return $retval
 }
@@ -121,8 +128,8 @@ check_femmcli()
 		for checkfile in "${f/.lua/}"*.check
 		do
 			outfile=${checkfile/.check/}
-			echo "diff -wq '$checkfile' '$outfile'" >> log.txt
-			diff -wq "$checkfile" "$outfile" || retval=1
+			echo "platform_diff '$checkfile' '$outfile'" >> log.txt
+			platform_diff "$checkfile" "$outfile" || retval=1
 		done
 	done
 	return $retval

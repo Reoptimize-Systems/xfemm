@@ -51,11 +51,6 @@
 #define BoundingBoxFraction 100.0
 #endif
 
-#ifndef _MSC_VER
-#define _stricmp(s1, s2) strcasecmp(s1, s2)
-#define _strnicmp(s1, s2, n) strncasecmp(s1, s2, (n))
-#endif
-
 namespace fmesher
 {
 
