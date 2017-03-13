@@ -182,8 +182,8 @@ public: // data members
     bool solved;
     // vectors containing the mesh information
     // currently, the mesh part of FemmProblem is not used at all
-    std::vector< std::unique_ptr<CMeshNode>>   meshnodes;
-    std::vector< std::unique_ptr<CElement>> meshelems;
+    std::vector< std::unique_ptr<femmsolver::CMeshNode>>   meshnodes;
+    std::vector< std::unique_ptr<femmsolver::CElement>> meshelems;
 
     std::string pathName; ///< \brief pathname of the associated (.fem) file, if any.
     //std::string solutionFile; ///< \brief pathname of the associated solution file (.ans), if any.

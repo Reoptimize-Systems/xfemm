@@ -62,7 +62,7 @@ int FSolver::Static2D(CBigLinProb &L)
     int LinearFlag=true;
     int SDIflag=false;
     res=0;
-    femm::CElement *El;
+    femmsolver::CElement *El;
     V_old = (double *) calloc(NumNodes,sizeof(double));
 
     for(i = 0; i < NumBlockLabels; i++)

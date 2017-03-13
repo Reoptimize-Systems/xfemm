@@ -83,7 +83,7 @@ public:
     std::vector< femm::CArcSegment > 		 arclist;
 
 	// CArrays containing the mesh information
-    std::vector< femm::CHMeshNode >			meshnode;
+    std::vector< femmsolver::CHMeshNode >			meshnode;
 	std::vector< CElement >				meshelem;
 
 	// List of elements connected to each node;

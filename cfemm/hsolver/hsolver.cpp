@@ -243,7 +243,7 @@ int HSolver::LoadMesh(bool deleteFiles)
 	sscanf(s,"%i",&k); NumEls=k;
 
     meshele.reserve(k);
-	CElement elm;
+    femmsolver::CElement elm;
 
 	int defaultLabel;
 	for(i=0,defaultLabel=-1;i<NumBlockLabels;i++)
@@ -438,7 +438,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 	double a,K,r,z,kludge;
 	double bta,Tinf,Tlast,*Vo;
     int IsNonlinear=false;
-	CElement *El;
+    femmsolver::CElement *El;
 	CComplex kn;
 	int iter=0;
 
