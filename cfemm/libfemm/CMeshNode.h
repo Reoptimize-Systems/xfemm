@@ -12,15 +12,20 @@ public:
     CMeshNode();
 
     double x,y;
-    CComplex A; //TODO(ZaJ): move this into CMMeshNode
     double msk;
-    int xs,ys;
 
     double GetDistance(double xo, double yo);
     CComplex CC();
 
 private:
 
+};
+
+class CMMeshNode : public CMeshNode
+{
+public:
+    CMMeshNode();
+    CComplex A;
 };
 
 class CHMeshNode : public CMeshNode

@@ -82,7 +82,7 @@ public:
     std::vector< femm::CMBlockLabel > blocklist;
 
     // vectors containing the mesh information
-    std::vector< femm::CMeshNode >  meshnode;
+    std::vector< femm::CMMeshNode >  meshnode;
     std::vector< femm::CElement >   meshelem;
 
     // List of elements connected to each node;
@@ -99,7 +99,7 @@ public:
     std::vector< CComplex > contour;
 
     // stuff that PTLOC needs
-    std::vector< femm::CMeshNode >  *pmeshnode;
+    std::vector< femm::CMMeshNode >  *pmeshnode;
     std::vector< femm::CElement >   *pmeshelem;
 
 //    TriEdge recenttri;

@@ -15,7 +15,6 @@ using namespace femm;
 CMeshNode::CMeshNode()
     : x(0.)
     , y(0.)
-    , A()
     , msk(0)
 {
 }
@@ -28,6 +27,12 @@ CComplex CMeshNode::CC()
 double CMeshNode::GetDistance(double xo, double yo)
 {
     return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
+}
+
+CMMeshNode::CMMeshNode()
+    : CMeshNode()
+    , A(0)
+{
 }
 
 CHMeshNode::CHMeshNode()

@@ -260,7 +260,7 @@ bool FPProc::OpenDocument(string pathname)
     CArcSegment   asegm;
     CElement      elm;
     CMBlockLabel   blk;
-    CMeshNode     mnode;
+    CMMeshNode     mnode;
     //CPoint        mline;
 
     // clear out all the document data and set defaults to standard values
