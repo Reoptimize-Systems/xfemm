@@ -577,8 +577,10 @@ bool FMesher::SaveFEMFile(string PathName)
         fprintf(fp,"%.17g\t%.17g\t%i\t%i",problem->nodelist[i]->x,problem->nodelist[i]->y,t,
                 problem->nodelist[i]->InGroup);
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile
+                || problem->filetype == femm::FileType::ElectrostaticsFile )
         {
+            // find and write number of conductor property group
             for (j=0,t=0; j<problem->circproplist.size (); j++)
                 if (problem->circproplist[j]->CircName==problem->nodelist[i]->InConductorName) t=j+1;
 
@@ -608,8 +610,10 @@ bool FMesher::SaveFEMFile(string PathName)
 
         fprintf(fp,"%i\t%i\t%i",t,problem->linelist[i]->Hidden,problem->linelist[i]->InGroup);
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile
+                || problem->filetype == femm::FileType::ElectrostaticsFile )
         {
+            // find and write number of conductor property group
             for(j=0,t=0;j<problem->circproplist.size ();j++)
             {
                 if(problem->circproplist[j]->CircName==problem->linelist[i]->InConductorName) t = j + 1;
@@ -630,8 +634,10 @@ bool FMesher::SaveFEMFile(string PathName)
                 problem->arclist[i]->ArcLength,problem->arclist[i]->MaxSideLength,t,
                 problem->arclist[i]->Hidden,problem->arclist[i]->InGroup);
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile
+                || problem->filetype == femm::FileType::ElectrostaticsFile )
         {
+            // find and write number of conductor property group
             for(j=0,t=0;j<problem->circproplist.size ();j++)
                 if(problem->circproplist[j]->CircName==problem->arclist[i]->InConductorName) t=j+1;
             fprintf(fp,"\t%i",t);
@@ -2050,6 +2056,9 @@ bool FMesher::AddBlockLabel(double x, double y, double d)
         break;
     case FileType::HeatFlowFile:
         pt = std::make_unique<CHBlockLabel>();
+        break;
+    case FileType::ElectrostaticsFile:
+        pt = std::make_unique<CSBlockLabel>();
         break;
     default:
         assert(false && "Unhandled file type");
