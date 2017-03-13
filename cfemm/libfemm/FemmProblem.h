@@ -42,6 +42,10 @@ namespace femm {
  * The general problem parameters are a superset of all possible fields.
  * This means a little overhead, but memory-wise it shouldn't really hurt...
  *
+ * \note
+ * Currently, the FemmProblem is only used by the mesher and in lua code.
+ * I.e. the mesh data is currently unused here.
+ *
  * \internal
  * In contrast to FEMM42 and older XFemm classes we use vectors of pointers, not vectors of objects.
  * This allows us to use inheritance to have a common data description which can be used for mesher, solver and pproc.
@@ -177,6 +181,7 @@ public: // data members
 
     bool solved;
     // vectors containing the mesh information
+    // currently, the mesh part of FemmProblem is not used at all
     std::vector< std::unique_ptr<CMeshNode>>   meshnodes;
     std::vector< std::unique_ptr<CElement>> meshelems;
 
