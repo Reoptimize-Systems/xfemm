@@ -171,7 +171,7 @@ public:
 public:
 
     CHMaterialProp();
-    ~CHMaterialProp();
+    virtual ~CHMaterialProp();
     CHMaterialProp( const CHMaterialProp & );
     CComplex GetK(double t);
 
@@ -186,11 +186,12 @@ public:
 private:
 };
 
-class CSMaterialProp : CMaterialProp
+class CSMaterialProp : public CMaterialProp
 {
 public:
 
     CSMaterialProp();
+    virtual ~CSMaterialProp();
 
     double ex;   ///< relative permittivity in x direction
     double ey;   ///< relative permittivity in y direction

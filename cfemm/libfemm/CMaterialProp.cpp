@@ -1370,6 +1370,10 @@ CSMaterialProp::CSMaterialProp()
 {
 }
 
+CSMaterialProp::~CSMaterialProp()
+{
+}
+
 CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err)
 {
     using namespace femm;
