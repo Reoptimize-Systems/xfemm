@@ -532,6 +532,10 @@ femm::FileType FMesher::GetFileType (string PathName)
     {
         return femm::FileType::HeatFlowFile;
     }
+    else if ( PathName.compare(dotpos, string::npos, ".fee") == 0)
+    {
+        return femm::FileType::ElectrostaticsFile;
+    }
     else
     {
         return femm::FileType::Unknown;
