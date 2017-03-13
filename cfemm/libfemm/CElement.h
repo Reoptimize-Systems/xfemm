@@ -24,7 +24,7 @@
 #include <string>
 #include "femmcomplex.h"
 
-namespace femm {
+namespace femmsolver {
 
 /**
  * @brief The CElement class holds solution elements.

@@ -9,7 +9,7 @@
 #define ElementsPerSkinDepth 10
 
 using namespace std;
-using namespace femm;
+using namespace femmsolver;
 
 // CMeshNode construction
 CMeshNode::CMeshNode()

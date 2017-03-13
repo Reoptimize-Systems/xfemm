@@ -2,7 +2,7 @@
 
 // currently empty
 
-femm::CElement::CElement()
+femmsolver::CElement::CElement()
     : p{0,0,0}
     , e{0,0,0}
     , mu1(0)

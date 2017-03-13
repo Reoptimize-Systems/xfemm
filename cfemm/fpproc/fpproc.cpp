@@ -258,9 +258,9 @@ bool FPProc::OpenDocument(string pathname)
     CNode         node;
     CSegment      segm;
     CArcSegment   asegm;
-    CElement      elm;
+    femmsolver::CElement      elm;
     CMBlockLabel   blk;
-    CMMeshNode     mnode;
+    femmsolver::CMMeshNode     mnode;
     //CPoint        mline;
 
     // clear out all the document data and set defaults to standard values
@@ -1500,7 +1500,7 @@ int FPProc::InTriangle(double x, double y)
         lo--;
         if (lo < 0)   lo = sz - 1;
 
-        femm::CElement &hiElem = meshelem[hi];
+        femmsolver::CElement &hiElem = meshelem[hi];
         z = (hiElem.ctr.re - x) * (hiElem.ctr.re - x) +
             (hiElem.ctr.im - y) * (hiElem.ctr.im - y);
         
@@ -1513,7 +1513,7 @@ int FPProc::InTriangle(double x, double y)
             }
         }
 
-        femm::CElement &loElem = meshelem[lo];
+        femmsolver::CElement &loElem = meshelem[lo];
         z = (loElem.ctr.re-x)*(loElem.ctr.re-x) +
             (loElem.ctr.im-y)*(loElem.ctr.im-y);
         
@@ -1895,7 +1895,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u)
 }
 
 void FPProc::GetPointB(double x, double y, CComplex &B1, CComplex &B2,
-                       CElement &elm)
+                       femmsolver::CElement &elm)
 {
     // elm is a reference to the element that contains the point of interest.
     int i,n[3];
@@ -1929,7 +1929,7 @@ void FPProc::GetPointB(double x, double y, CComplex &B1, CComplex &B2,
     }
 }
 
-void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
+void FPProc::GetNodalB(CComplex *b1, CComplex *b2,femmsolver::CElement &elm)
 {
     // elm is a reference to the element that contains the point of interest.
     CComplex p;
@@ -1938,7 +1938,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
     i=j=k=l=q=m=pt=nxt = 0;
     double r,R,z;
     r=R=z = 0;
-    CElement *e;
+    femmsolver::CElement *e;
     int flag;
 
     // find nodal values of flux density via a patch method.
@@ -2195,7 +2195,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
     }
 }
 
-void FPProc::GetElementB(CElement &elm)
+void FPProc::GetElementB(femmsolver::CElement &elm)
 {
     int i,n[3];
     double b[3],c[3],da;
@@ -2635,7 +2635,7 @@ double FPProc::ElmArea(int i)
 
 }
 
-double FPProc::ElmArea(CElement *elm)
+double FPProc::ElmArea(femmsolver::CElement *elm)
 {
     int j,n[3];
     double b0,b1,c0,c1;
