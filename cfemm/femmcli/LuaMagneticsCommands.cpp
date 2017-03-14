@@ -994,9 +994,10 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     assert( doc->lineproplist.size() == theFSolver.lineproplist.size());
     assert( doc->nodeproplist.size() == theFSolver.nodeproplist.size());
     assert( doc->blockproplist.size() == theFSolver.blockproplist.size());
-    // this does not hold, because fsolver creates additional circprops
-    // assert( doc->circproplist.size() == theFSolver.circproplist.size());
-    assert( doc->labellist.size() == theFSolver.labellist.size());
+    // the solver may create additional circprops upon loading:
+    assert( doc->circproplist.size() <= theFSolver.circproplist.size());
+    // holes are not read by the solver, which means that the solver may have fewer blocklabels:
+    assert( doc->labellist.size() >= theFSolver.labellist.size());
     if (!theFSolver.runSolver(verbose))
     {
         lua_error(L, "solver failed.");
