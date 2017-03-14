@@ -188,6 +188,9 @@ int main(int argc, char ** argv)
         if (arg == "--version" )
         {
             std::cout << "femmcli version " << FEMM_VERSION_STRING << "\n";
+#ifndef NDEBUG
+            std::cout << "assertions enabled\n";
+#endif
             return 0;
         }
         if (arg == "-q" || arg == "--quiet")
