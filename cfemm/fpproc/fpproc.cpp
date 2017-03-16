@@ -3200,7 +3200,7 @@ CComplex temp;
                     break;
 
                 case 22: // Henrotte torque, SS part.
-                    if(problemType!=0) break;
+                    if(problemType!=PLANAR) break;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
                     c=HenrotteVector(i);
@@ -3222,7 +3222,7 @@ CComplex temp;
 
                 case 23: // Henrotte torque, 2x part.
 
-                    if(problemType!=0) break;
+                    if(problemType!=PLANAR) break;
                     B1=meshelem[i].B1;
                     B2=meshelem[i].B2;
                     c=HenrotteVector(i);
