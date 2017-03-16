@@ -122,6 +122,49 @@ public:
     double ElmArea(femm::CElement *elm);
     void GetPointB(double x, double y, CComplex &B1, CComplex &B2, femm::CElement &elm);
     void GetNodalB(CComplex *b1, CComplex *b2,femm::CElement &elm);
+    /**
+     * @brief Compute the block integral over selected blocks.
+     *
+     * ## Available block integrals
+     * Note: Some integrals require that you set up a mesh element mask using MakeMask before calling.
+     *
+     * Number |MakeMask required| Integral
+     * -------|-----------------|---------
+     *  0     | no  | A * J
+     *  1     | no  | A
+     *  2     | no  | Magnetic field energy
+     *  3     | no  | Hysteresis and/or lamination losses
+     *  4     | no  | Resistive losses
+     *  5     | no  | Block cross-section area
+     *  6     | no  | Total losses
+     *  7     | no  | Total current
+     *  8     | no  | Integral of Bx (or Br ) over block
+     *  9     | no  | Integral of By (or Bz ) over block
+     *  10    | no  | Block volume
+     *  11    | no  | x (or r) part of steady-state Lorentz force
+     *  12    | no  | y (or z) part of steady-state Lorentz force
+     *  13    | no  | x (or r) part of 2× Lorentz force
+     *  14    | no  | y (or z) part of 2× Lorentz force
+     *  15    | no  | Steady-state Lorentz torque
+     *  16    | no  | 2× component of Lorentz torque
+     *  17    | no  | Magnetic field coenergy
+     *  18    | yes | x (or r) part of steady-state weighted stress tensor force
+     *  19    | yes | y (or z) part of steady-state weighted stress tensor force
+     *  20    | yes | x (or r) part of 2× weighted stress tensor force
+     *  21    | yes | y (or z) part of 2× weighted stress tensor force
+     *  22    | yes | Steady-state weighted stress tensor torque
+     *  23    | yes | 2× component of weighted stress tensor torque
+     *  24    | no  | R2 (i.e. moment of inertia / density)
+     *  25    | no  | x (or r) part of 1× weighted stress tensor force
+     *  26    | no  | y (or z) part of 1× weighted stress tensor force
+     *  27    | no  | 1× component of weighted stress tensor torque
+     *  28    | no  | x (or r) part of 1× Lorentz force
+     *  29    | no  | y (or z) part of 1× Lorentz force
+     *  30    | no  | 1× component of Lorentz torque
+     *
+     * @param inttype The identifier of the block integral.
+     * @return the requested block integral
+     */
     CComplex BlockIntegral(int inttype);
     void LineIntegral(int inttype, CComplex *z);
     int ClosestArcSegment(double x, double y);
