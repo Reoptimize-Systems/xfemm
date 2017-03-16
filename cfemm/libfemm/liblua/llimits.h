@@ -58,8 +58,10 @@ typedef unsigned long lint32;  /* unsigned int with at least 32 bits */
 ** conversion of pointer to int (for hashing only)
 ** (the shift removes bits that are usually 0 because of alignment)
 */
-#define IntPoint(p)  (((unsigned long)(p)) >> 3)
-
+// ZaJ: use a back-ported version of point2uint from lua 5.3:
+//      This should fix a "cast from void* to long unsigned int loses precision" error on some platforms
+//#define IntPoint(p)  (((unsigned long)(p)) >> 3)
+#define IntPoint(p)  ((unsigned int)((size_t)(p) & UINT_MAX))
 
 
 #define MINPOWER2       4       /* minimum size for "growing" vectors */
