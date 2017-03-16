@@ -1138,6 +1138,11 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
     }
 
     int type = (int) lua_todouble(L,1);
+    if((type<0) || (type>24))
+    {
+        lua_error(L, "Invalid block integral type selected");
+        return 0;
+    }
 
     bool hasSelectedBlocks = false;
     for (const auto &block: fpproc->blocklist )
@@ -1153,6 +1158,11 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
     {
         lua_error(L,"Cannot integrate\nNo area has been selected");
         return 0;
+    }
+
+    if ((type>=18) && (type<=23))
+    {
+        fpproc->MakeMask();
     }
 
     CComplex z = fpproc->BlockIntegral(type);
@@ -2413,8 +2423,6 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
 
     //fpproc->d_EditMode = EditLabels;
 
-    // Note(ZaJ): why does this depend on meshelem,
-    //            when blocklist is affected?
     if (!fpproc->meshelem.empty())
     {
         int n = lua_gettop(L);
@@ -2425,7 +2433,9 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
         for (auto &block: fpproc->blocklist)
         {
             if (group==0 || block.InGroup == group)
+            {
                 block.ToggleSelect();
+            }
             fpproc->bHasMask = false;
         }
 
