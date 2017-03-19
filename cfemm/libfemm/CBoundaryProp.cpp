@@ -39,9 +39,15 @@ CMBoundaryProp::CMBoundaryProp()
     c1 = 0.;
 }
 
-bool CMBoundaryProp::isPeriodic() const
+bool CMBoundaryProp::isPeriodic(PeriodicityType pt) const
 {
-    return (BdryFormat==4 || BdryFormat==5);
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::Periodic)
+        if (BdryFormat==4)
+            return true;
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::AntiPeriodic)
+        if (BdryFormat==5)
+            return true;
+    return false;
 }
 
 CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err)
@@ -175,9 +181,15 @@ CHBoundaryProp::CHBoundaryProp()
 
 }
 
-bool CHBoundaryProp::isPeriodic() const
+bool CHBoundaryProp::isPeriodic(PeriodicityType pt) const
 {
-    return (BdryFormat==4 || BdryFormat==5);
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::Periodic)
+        if (BdryFormat==4)
+            return true;
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::AntiPeriodic)
+        if (BdryFormat==5)
+            return true;
+    return false;
 }
 
 CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
@@ -277,9 +289,15 @@ CSBoundaryProp::CSBoundaryProp()
 {
 }
 
-bool CSBoundaryProp::isPeriodic() const
+bool CSBoundaryProp::isPeriodic(PeriodicityType pt) const
 {
-    return (BdryFormat==3 || BdryFormat==4);
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::Periodic)
+        if (BdryFormat==3)
+            return true;
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::AntiPeriodic)
+        if (BdryFormat==4)
+            return true;
+    return false;
 }
 
 CSBoundaryProp CSBoundaryProp::fromStream(istream &input, ostream &err)
