@@ -39,6 +39,11 @@ CMBoundaryProp::CMBoundaryProp()
     c1 = 0.;
 }
 
+bool CMBoundaryProp::isPeriodic() const
+{
+    return (BdryFormat==4 || BdryFormat==5);
+}
+
 CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err)
 {
     CMBoundaryProp prop;
@@ -170,6 +175,11 @@ CHBoundaryProp::CHBoundaryProp()
 
 }
 
+bool CHBoundaryProp::isPeriodic() const
+{
+    return (BdryFormat==4 || BdryFormat==5);
+}
+
 CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
 {
     CHBoundaryProp prop;
@@ -265,6 +275,11 @@ CSBoundaryProp::CSBoundaryProp()
     , c1(0)
     , qs(0)
 {
+}
+
+bool CSBoundaryProp::isPeriodic() const
+{
+    return (BdryFormat==3 || BdryFormat==4);
 }
 
 CSBoundaryProp CSBoundaryProp::fromStream(istream &input, ostream &err)

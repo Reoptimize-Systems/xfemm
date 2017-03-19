@@ -65,32 +65,37 @@ double FMesher::LineLength(int i)
 }
 
 
+/**
+ * @brief FMesher::HasPeriodicBC
+ * @return \c true, if there are periodic or antiperiodic boundary conditions, \c false otherwise.
+ *
+ * \internal
+ *  * \femm42{femm/writepoly.cpp}
+ *  * \femm42{femm/bd_writepoly.cpp}
+ *  * \femm42{femm/hd_writepoly.cpp}
+ */
 bool FMesher::HasPeriodicBC()
 {
-    bool flag=false;
-    unsigned int i,j;
-    int k;
-
-    for(i=0;i<problem->lineproplist.size();i++)
+    bool hasPeriodicBC = false;
+    for (const auto &bdryProp: problem->lineproplist)
     {
-        if ((problem->lineproplist[i]->BdryFormat==4) ||
-            (problem->lineproplist[i]->BdryFormat==5))
-            flag=true;
+        if (bdryProp->isPeriodic())
+            hasPeriodicBC = true;
     }
     // if flag is false, there can't be any lines
     // with periodic BC's, because no periodic boundary
     // conditions have been defined.
-    if (flag==false) return false;
+    if (hasPeriodicBC==false) return false;
 
     //now, if there are some periodic boundary conditions,
     //we have to check to see if any have actually been
     //applied to the model
-    flag=false; // reset flag
 
     // first, test the segments
-    for(i=0;i<problem->linelist.size();i++)
+    for(int i=0;i<(int)problem->linelist.size();i++)
     {
-        for(j=0,k=-1;j<problem->lineproplist.size();j++)
+        int k=-1;
+        for(int j=0;j<(int)problem->lineproplist.size();j++)
         {
             if(problem->lineproplist[j]->BdryName==
                problem->linelist[i]->BoundaryMarkerName)
@@ -100,22 +105,19 @@ bool FMesher::HasPeriodicBC()
             }
         }
         if(k>=0){
-            if ((problem->lineproplist[k]->BdryFormat==4) ||
-                (problem->lineproplist[k]->BdryFormat==5))
+            if (problem->lineproplist[k]->isPeriodic())
             {
-                flag=true;
-                break;
+                return true;
             }
         }
     }
 
-    if (flag==true) return true;
-
     // If we've gotten this far, we still need to check the
     // arc segments.
-    for(i=0;i<problem->arclist.size();i++)
+    for(int i=0;i<(int)problem->arclist.size();i++)
     {
-        for(j=0,k=-1;j<problem->lineproplist.size();j++)
+        int k=-1;
+        for(int j=0;j<(int)problem->lineproplist.size();j++)
         {
             if(problem->lineproplist[j]->BdryName==
                problem->arclist[i]->BoundaryMarkerName)
@@ -125,19 +127,16 @@ bool FMesher::HasPeriodicBC()
             }
         }
         if(k>=0){
-            if ((problem->lineproplist[k]->BdryFormat==4) ||
-                (problem->lineproplist[k]->BdryFormat==5))
+            if (problem->lineproplist[k]->isPeriodic())
             {
-                flag=true;
-                break;
+                return true;
             }
         }
     }
 
-    // Finally, we're done. The value of flag now reflects
-    // the judgement on whether or not we have periodic
-    // and/or antiperiodic boundaries.
-    return flag;
+    // Finally, we're done.
+    // we could not find periodic and/or antiperiodic boundaries.
+    return false;
 }
 
 
