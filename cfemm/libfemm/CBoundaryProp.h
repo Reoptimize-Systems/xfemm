@@ -44,13 +44,15 @@ public:
      */
     int BdryFormat;
 
+    enum class PeriodicityType { Any, Periodic, AntiPeriodic };
     /**
      * @brief Check periodicity of the boundary condition.
      *
      * This method provides an abstraction for the problem-type-specific values of BdryFormat.
+     * @param pt Optional parameter to allow checking specific type of periodicity.
      * @return \c true, if the BdryFormat is (anti-)periodic, \c false otherwise.
      */
-    virtual bool isPeriodic() const = 0;
+    virtual bool isPeriodic( PeriodicityType pt = PeriodicityType::Any) const = 0;
 
     /**
      * @brief toStream serializes the data and inserts it into \p out.
@@ -158,7 +160,7 @@ public:
      */
     CComplex c1;
 
-    virtual bool isPeriodic() const override;
+    virtual bool isPeriodic(PeriodicityType pt) const override;
 
     /**
      * @brief fromStream constructs a CMBoundaryProp from an input stream (usually an input file stream)
@@ -186,7 +188,7 @@ public:
     double beta;			// radiosity coefficient
     double h;				// Heat transfer coefficient
 
-    virtual bool isPeriodic() const override;
+    virtual bool isPeriodic(PeriodicityType pt) const override;
 
     /**
      * @brief fromStream constructs a CHBoundaryProp from an input stream (usually an input file stream)
@@ -213,7 +215,7 @@ public:
     double qs;           ///< Surface charge density for Bdryformat=2;
 
 
-    virtual bool isPeriodic() const override;
+    virtual bool isPeriodic(PeriodicityType pt) const override;
     /**
      * @brief fromStream constructs a CSBoundaryProp from an input stream (usually an input file stream)
      * @param input
