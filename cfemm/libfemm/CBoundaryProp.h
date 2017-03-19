@@ -45,6 +45,14 @@ public:
     int BdryFormat;
 
     /**
+     * @brief Check periodicity of the boundary condition.
+     *
+     * This method provides an abstraction for the problem-type-specific values of BdryFormat.
+     * @return \c true, if the BdryFormat is (anti-)periodic, \c false otherwise.
+     */
+    virtual bool isPeriodic() const = 0;
+
+    /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and
      * needs to be overridden by any subclass.
@@ -150,6 +158,8 @@ public:
      */
     CComplex c1;
 
+    virtual bool isPeriodic() const override;
+
     /**
      * @brief fromStream constructs a CMBoundaryProp from an input stream (usually an input file stream)
      * @param input
@@ -158,7 +168,6 @@ public:
      */
     static CMBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
     virtual void toStream( std::ostream &out ) const override;
-
 private:
 };
 
@@ -176,6 +185,8 @@ public:
     double qs;				// Heat flux;
     double beta;			// radiosity coefficient
     double h;				// Heat transfer coefficient
+
+    virtual bool isPeriodic() const override;
 
     /**
      * @brief fromStream constructs a CHBoundaryProp from an input stream (usually an input file stream)
@@ -202,6 +213,7 @@ public:
     double qs;           ///< Surface charge density for Bdryformat=2;
 
 
+    virtual bool isPeriodic() const override;
     /**
      * @brief fromStream constructs a CSBoundaryProp from an input stream (usually an input file stream)
      * @param input
