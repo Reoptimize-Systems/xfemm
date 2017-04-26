@@ -114,7 +114,7 @@ options.DoCrossBuildWin64 = false;
 options.CrossMexOptsFile = '';
 options.FcnMakeFileArgs = {};
 
-options = parse_pv_pairs (options, varargin);
+options = mfemmdeps.parse_pv_pairs (options, varargin);
 
 if options.DoCrossBuildWin64
     if isempty (options.CrossMexOptsFile)
