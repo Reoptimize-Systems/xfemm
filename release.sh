@@ -10,7 +10,7 @@
 # stop on first error
 set -e
 
-VERSION="1_8"
+VERSION="1_9"
 WORKING_COPY_DIR=$(pwd)
 echo $WORKING_COPY_DIR
 mkdir $WORKING_COPY_DIR/release
@@ -88,9 +88,9 @@ else
   #matlab -nodesktop -r "restoredefaultpath; cd('$WIN_64_RELEASE_DIR/mfemm'); mfemm_setup('Runtests', false, 'ForceMexRecompile', true, 'CrossBuildW64', true); quit"
 fi
 
-# tar up the result in the release directory
-cd $WORKING_COPY_DIR/release
-zip -r xfemm_v${VERSION}_mingw_win64.zip $WIN_64_DIR/
+# zip up the result in the release directory
+#cd $WORKING_COPY_DIR/release
+#zip -r xfemm_v${VERSION}_mingw_win64.zip $WIN_64_DIR/
 
 # test
 cd $WORKING_COPY_DIR
