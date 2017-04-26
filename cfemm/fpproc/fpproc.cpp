@@ -2774,6 +2774,8 @@ double FPProc::ElmVolume(int i)
     {
         a *= Depth;
     }
+
+    return a;
 }
 
 CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
