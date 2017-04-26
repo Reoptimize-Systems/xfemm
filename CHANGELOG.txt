@@ -1,3 +1,14 @@
+## [1.9] - 2017-04-26
+
+## Modified
+
+- Meshing now supports options forcemaxmesh and dosmartmesh
+
+## fixed
+- mmake.m: corrected missing mfemmdeps package namespace on call
+  to parse_pv_pairs.m
+
+
 ## [1.8] - 2016-09-18
 
 ## Notes
