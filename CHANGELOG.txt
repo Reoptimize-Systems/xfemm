@@ -7,7 +7,7 @@
 ## fixed
 - mmake.m: corrected missing mfemmdeps package namespace on call
   to parse_pv_pairs.m
-
+- fpproc.cpp: added missing return statement to ElmArea
 
 ## [1.8] - 2016-09-18
 
