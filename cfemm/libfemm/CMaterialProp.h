@@ -38,11 +38,9 @@ public:
      * This virtual method is called by the \c operator<<() and
      * needs to be overridden by any subclass.
      *
-     * This base implementation will just invoke assert(false).
-     *
      * @param out
      */
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const = 0;
 protected:
     CMaterialProp();
 };
@@ -103,6 +101,12 @@ public:
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
 
+    /**
+     * @brief CMaterialProp is used in the fpproc and fpproc never uses the toStream method.
+     * Therefore, this implementation just calls assert(false).
+     * @param out
+     */
+    virtual void toStream( std::ostream &out ) const override;
 private:
 
 };
@@ -167,7 +171,7 @@ public:
 public:
 
     CHMaterialProp();
-    ~CHMaterialProp();
+    virtual ~CHMaterialProp();
     CHMaterialProp( const CHMaterialProp & );
     CComplex GetK(double t);
 
@@ -178,9 +182,31 @@ public:
      * @return a CHMaterialProp
      */
     static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
-    // FIXME: subclass CMaterialProp and mark this as override:
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const override;
 private:
 };
-}
+
+class CSMaterialProp : public CMaterialProp
+{
+public:
+
+    CSMaterialProp();
+    virtual ~CSMaterialProp();
+
+    double ex;   ///< relative permittivity in x direction
+    double ey;   ///< relative permittivity in y direction
+    double qv;   ///< volume charge density, C/m^3
+
+    /**
+     * @brief fromStream constructs a CSMaterialProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CSMaterialProp
+     */
+    static CSMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
+private:
+};
+
+} //namespace
 #endif

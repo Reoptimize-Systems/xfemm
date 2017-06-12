@@ -32,19 +32,36 @@ public:
      * 4 = periodic
      * 5 = anti-periodic
      * \endverbatim
+     *
+     * For electrostatics problems, this is defined as:
+     * \verbatim
+     * 0 = Fixed Voltage
+     * 1 = Mixed BC
+     * 2 = Surface Charge Density
+     * 3 = Periodic
+     * 4 = Antiperiodic
+     * \endverbatim
      */
     int BdryFormat;
+
+    enum class PeriodicityType { Any, Periodic, AntiPeriodic };
+    /**
+     * @brief Check periodicity of the boundary condition.
+     *
+     * This method provides an abstraction for the problem-type-specific values of BdryFormat.
+     * @param pt Optional parameter to allow checking specific type of periodicity.
+     * @return \c true, if the BdryFormat is (anti-)periodic, \c false otherwise.
+     */
+    virtual bool isPeriodic( PeriodicityType pt = PeriodicityType::Any) const = 0;
 
     /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and
      * needs to be overridden by any subclass.
      *
-     * Unless \c NDEBUG is defined, this dummy implementation in the base class will call \c assert(false).
-     *
      * @param out
      */
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const = 0;
 };
 
 /**
@@ -143,6 +160,8 @@ public:
      */
     CComplex c1;
 
+    virtual bool isPeriodic(PeriodicityType pt) const override;
+
     /**
      * @brief fromStream constructs a CMBoundaryProp from an input stream (usually an input file stream)
      * @param input
@@ -151,7 +170,6 @@ public:
      */
     static CMBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
     virtual void toStream( std::ostream &out ) const override;
-
 private:
 };
 
@@ -170,6 +188,8 @@ public:
     double beta;			// radiosity coefficient
     double h;				// Heat transfer coefficient
 
+    virtual bool isPeriodic(PeriodicityType pt) const override;
+
     /**
      * @brief fromStream constructs a CHBoundaryProp from an input stream (usually an input file stream)
      * @param input
@@ -181,5 +201,30 @@ public:
 private:
 };
 
+/**
+ * @brief The CSBoundaryProp class holds BoundaryProp data for electrostatics problems.
+ */
+class CSBoundaryProp : public CBoundaryProp
+{
+public:
+
+    CSBoundaryProp();
+
+    double V;            ///< Fixed value of V for BdryFormat=0;
+    double c0,c1;        ///< Coefficients for BdryFormat=1;
+    double qs;           ///< Surface charge density for Bdryformat=2;
+
+
+    virtual bool isPeriodic(PeriodicityType pt) const override;
+    /**
+     * @brief fromStream constructs a CSBoundaryProp from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CSBoundaryProp
+     */
+    static CSBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const override;
+private:
+};
 }
 #endif

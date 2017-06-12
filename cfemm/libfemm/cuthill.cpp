@@ -42,7 +42,7 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT
     // Comb Sort -- see http://en.wikipedia.org/wiki/Comb_sort
     int *Score;
     int i,j,k,gap;
-    femm::CElement e;
+    femmsolver::CElement e;
 
     Score=(int*)calloc(NumEls,sizeof(int));
 

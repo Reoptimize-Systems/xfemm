@@ -621,3 +621,17 @@ bool HeatFlowReader::handleToken(const string &token, istream &input, ostream &e
     }
     return false;
 }
+
+// template instantiation
+template class FemmReader<
+        femm::CSPointProp
+        , femm::CSBoundaryProp
+        , femm::CSMaterialProp
+        , femm::CSCircuit
+        , femm::CSBlockLabel
+        >;
+
+ElectrostaticsReader::ElectrostaticsReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)
+    : FemmReader_type(problem, errorpipe)
+{
+}

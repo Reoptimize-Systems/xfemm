@@ -89,7 +89,7 @@ public:
 
     // CArrays containing the mesh information
     int	BandWidth;
-    std::vector<femm::CElement> meshele;
+    std::vector<femmsolver::CElement> meshele;
 
     int NumNodes;
     int NumEls;

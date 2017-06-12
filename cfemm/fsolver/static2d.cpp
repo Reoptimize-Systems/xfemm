@@ -51,14 +51,18 @@ int FSolver::Static2D(CBigLinProb &L)
     double l[3],p[3],q[3];      // element shape parameters;
     int n[3];                   // numbers of nodes for a particular element;
     double a,K,r,t,x,y,B,B1,B2,mu,v[3],u[3],dv,res,lastres,Cduct;
-    double *V_old,*V_sdi,*CircInt1,*CircInt2,*CircInt3;
+    double *V_old=nullptr;
+    double *V_sdi=nullptr;
+    double *CircInt1=nullptr;
+    double *CircInt2=nullptr;
+    double *CircInt3=nullptr;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     int Iter=0,pctr;
     int LinearFlag=true;
     int SDIflag=false;
     res=0;
-    femm::CElement *El;
+    femmsolver::CElement *El;
     V_old = (double *) calloc(NumNodes,sizeof(double));
 
     for(i = 0; i < NumBlockLabels; i++)
@@ -103,6 +107,7 @@ int FSolver::Static2D(CBigLinProb &L)
     }
     else
     {
+        V_sdi = nullptr;
         sdin = 1;
     }
 
@@ -337,6 +342,7 @@ int FSolver::Static2D(CBigLinProb &L)
                 // contribution to be from current density in the block
                 for(j = 0; j<3; j++)
                 {
+                    t = 0;
                     if(labellist[El->lbl].InCircuit>=0)
                     {
                         k = labellist[El->lbl].InCircuit;
@@ -346,10 +352,6 @@ int FSolver::Static2D(CBigLinProb &L)
                         }
                         if(circproplist[k].Case==0)
                             t = -circproplist[k].dV.Re()*blockproplist[El->blk].Cduct;
-                    }
-                    else
-                    {
-                        t = 0;
                     }
 
                     K = -(blockproplist[El->blk].J.re+t)*a/3.;

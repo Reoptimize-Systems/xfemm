@@ -3,6 +3,7 @@
 
 #include "femmcomplex.h"
 #include <iostream>
+#include <memory>
 #include <string>
 
 namespace femm {
@@ -48,12 +49,9 @@ public:
 
     double x,y;
     double MaxArea;  ///< desired mesh size
-    double MagDir;   ///< magnetization direction (\c deg), if constant. \sa MagDirFctn
     int InGroup;     ///< number of the group
-    int    Turns;    ///< number of turns
     bool IsExternal; ///< is located in external region
 
-    std::string MagDirFctn; ///< \brief Lua expression describing magnetization direction
     bool IsDefault;  ///< additional property for hpproc
 
     bool IsSelected;
@@ -83,7 +81,14 @@ public:
      *
      * @param out
      */
-    virtual void toStream( std::ostream &out ) const;
+    virtual void toStream( std::ostream &out ) const = 0;
+
+    /**
+     * @brief clone creates a copy of the block label.
+     * The copy is memory-managed through a unique_ptr.
+     * @return a unique_ptr holding a copy of this object.
+     */
+    virtual std::unique_ptr<CBlockLabel> clone() const = 0;
 private:
 
 };
@@ -97,6 +102,9 @@ private:
 std::ostream& operator<< (std::ostream& os, const CBlockLabel& lbl);
 
 
+/**
+ * @brief The CMBlockLabel class specializes CBlockLabel for electromagnetics problems.
+ */
 class CMBlockLabel : public CBlockLabel
 {
 public:
@@ -105,9 +113,12 @@ public:
     //---- fsolver attributes:
     // used for proximity effect regions only.
     CComplex ProximityMu;
+    int    Turns;    ///< number of turns
     bool bIsWound; ///< true, if Turns>1, but also in some other conditions; set by \c FSolver::GetFillFactor()
 
     //---- fpproc attributes:
+    double MagDir;   ///< magnetization direction (\c deg), if constant. \sa MagDirFctn
+    std::string MagDirFctn; ///< \brief Lua expression describing magnetization direction
     int Case;
     CComplex  J,dVolts;
     // attributes used to keep track of wound coil properties...
@@ -121,30 +132,55 @@ public:
      * @return a CMSolverBlockLabel
      */
     static CMBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
+    virtual void toStream( std::ostream &out ) const;
+    virtual std::unique_ptr<CBlockLabel> clone() const;
 private:
 
 };
 
+/**
+ * @brief The CHBlockLabel class specializes CBlockLabel for heat flow problems.
+ */
 class CHBlockLabel : public CBlockLabel
 {
 public:
     CHBlockLabel();
 
     /**
-     * @brief fromStream constructs a CBlockLabel from an input stream (usually an input file stream)
+     * @brief fromStream constructs a CSBlockLabel from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
      * @return a CBlockLabel
      */
     static CHBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
-    /**
-     * @brief toStream serializes the data and inserts it into \p out.
-     * This virtual method is called by the \c operator<<() and
-     * needs to be overridden by any subclass.
-     *
-     * @param out
-     */
     virtual void toStream( std::ostream &out ) const;
+    virtual std::unique_ptr<CBlockLabel> clone() const;
+};
+
+/**
+ * @brief The CSBlockLabel class specializes CBlockLabel for electrostatics problems.
+ * \internal
+ * ### FEMM reference source:
+ * - \femm42{femm/bd_nosebl.h}
+ */
+class CSBlockLabel : public CBlockLabel
+{
+public:
+    CSBlockLabel();
+
+    /**
+     * @brief fromStream constructs a CSBlockLabel from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CBlockLabel
+     *
+     * \internal
+     * ### FEMM reference source:
+     * - \femm42{femm/beladrawDoc.cpp,CbeladrawDoc::OnOpenDocument()}
+     */
+    static CSBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
+    virtual void toStream( std::ostream &out ) const;
+    virtual std::unique_ptr<CBlockLabel> clone() const;
 };
 
 }

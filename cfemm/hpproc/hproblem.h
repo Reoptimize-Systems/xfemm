@@ -95,7 +95,7 @@ class CElement
 	private:
 };
 
-class CPointVals
+class CHPointVals
 {
 	public:
 
@@ -104,7 +104,7 @@ class CPointVals
 		CComplex K;		// thermal conductivity
 		CComplex G;		// temperature gradient
 
-		CPointVals();
+        CHPointVals();
 
 	private:
 };

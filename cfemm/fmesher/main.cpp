@@ -40,6 +40,10 @@ int main(int argc, char ** argv)
     {
         HeatFlowReader fehReader (MeshObj.problem, std::cerr);
         status = fehReader.parse(FilePath);
+    } else if (MeshObj.problem->filetype == FileType::ElectrostaticsFile)
+    {
+        ElectrostaticsReader feeReader (MeshObj.problem, std::cerr);
+        status = feeReader.parse(FilePath);
     } else {
         std::cout << "File type not supported!" << std::endl;
     }

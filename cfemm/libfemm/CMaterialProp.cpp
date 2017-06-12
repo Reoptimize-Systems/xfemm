@@ -46,11 +46,6 @@ CMaterialProp::~CMaterialProp()
 {
 }
 
-void CMaterialProp::toStream(ostream &) const
-{
-    assert(false && "CMaterialProp without toStream");
-}
-
 CMMaterialProp::CMMaterialProp()
     : CMaterialProp()
     , mu_x(1.)
@@ -674,6 +669,11 @@ double CMMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
     return DoEnergy(b1,b2);
 }
 
+void CMMaterialProp::toStream(ostream &) const
+{
+    assert(false && "CMMaterialProp::toStream() should never be called. Did you mean to call CMSolverMaterialProp::toStream()?");
+}
+
 void CMMaterialProp::GetMu(CComplex b1, CComplex b2,
                           CComplex &mu1, CComplex &mu2)
 {
@@ -1181,7 +1181,7 @@ CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::
                 continue;
             }
             if (token != "<endblock>")
-                err << "CMMaterialProp: unexpected token: "<<token << "\n";
+                err << "CMSolverMaterialProp: unexpected token: "<<token << "\n";
         }
     }
 
@@ -1361,3 +1361,75 @@ void CHMaterialProp::toStream(std::ostream &out) const
     }
     out << "  <EndBlock>\n";
 }
+
+CSMaterialProp::CSMaterialProp()
+    : CMaterialProp()
+    , ex(1.)
+    , ey(1.)
+    , qv(0)
+{
+}
+
+CSMaterialProp::~CSMaterialProp()
+{
+}
+
+CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err)
+{
+    using namespace femm;
+    CSMaterialProp prop;
+
+    if( expectToken(input, "<beginblock>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endblock>")
+        {
+            nextToken(input,&token);
+
+            if( token == "<blockname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &prop.BlockName, err);
+                continue;
+            }
+
+            if( token == "<ex>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.ex, err);
+                continue;
+            }
+
+            if( token == "<ey>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.ey, err);
+                continue;
+            }
+
+            if( token == "<qv>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.qv, err);
+                continue;
+            }
+
+            if (token != "<endblock>")
+                err << "CSMaterialProp: unexpected token: "<<token << "\n";
+        }
+    }
+
+    return prop;
+}
+
+void CSMaterialProp::toStream(ostream &out) const
+{
+    out << "  <BeginBlock>\n";
+    out << "    <BlockName> = \"" << BlockName << "\"\n";
+    out << "    <ex> = " << ex << "\n";
+    out << "    <ey> = " << ey << "\n";
+    out << "    <qv> = " << qv << "\n";
+    out << "  <EndBlock>\n";
+}
+
+
