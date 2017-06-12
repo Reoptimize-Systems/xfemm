@@ -4,23 +4,28 @@
 #include <string>
 #include "femmcomplex.h"
 
-namespace femm {
+namespace femmsolver {
 
 class CMeshNode
 {
-    public:
-        CMeshNode();
+public:
+    CMeshNode();
 
-        double x,y;
-        CComplex A;
-        double msk;
-        int xs,ys;
+    double x,y;
+    double msk;
 
-        double GetDistance(double xo, double yo);
-        CComplex CC();
+    double GetDistance(double xo, double yo);
+    CComplex CC();
 
-    private:
+private:
 
+};
+
+class CMMeshNode : public CMeshNode
+{
+public:
+    CMMeshNode();
+    CComplex A;
 };
 
 class CHMeshNode : public CMeshNode
@@ -35,5 +40,23 @@ public:
      */
     int Q;
 };
-}
+
+/**
+ * @brief The CSMeshNode class
+ *
+ * \internal
+ * ### FEMM reference source:
+ * - \femm42{bv_problem.h}
+ */
+class CSMeshNode : public CMeshNode
+{
+public:
+    CSMeshNode();
+
+    double V;
+    bool Q;
+    bool IsSelected; //Note(ZaJ) why is this only in the electrostatics?
+};
+
+} //namespace
 #endif

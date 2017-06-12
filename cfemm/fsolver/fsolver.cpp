@@ -258,7 +258,7 @@ int FSolver::LoadMesh(bool deleteFiles)
     NumEls = k;
 
     meshele.reserve(k);
-    CElement elm;
+    femmsolver::CElement elm;
 
     // get the default label for unlabelled blocks
     int defaultLabel;

@@ -82,8 +82,8 @@ public:
     std::vector< femm::CMBlockLabel > blocklist;
 
     // vectors containing the mesh information
-    std::vector< femm::CMeshNode >  meshnode;
-    std::vector< femm::CElement >   meshelem;
+    std::vector< femmsolver::CMMeshNode >  meshnode;
+    std::vector< femmsolver::CElement >   meshelem;
 
     // List of elements connected to each node;
     int *NumList;
@@ -99,8 +99,8 @@ public:
     std::vector< CComplex > contour;
 
     // stuff that PTLOC needs
-    std::vector< femm::CMeshNode >  *pmeshnode;
-    std::vector< femm::CElement >   *pmeshelem;
+    std::vector< femmsolver::CMMeshNode >  *pmeshnode;
+    std::vector< femmsolver::CElement >   *pmeshelem;
 
 //    TriEdge recenttri;
 //    int samples;
@@ -111,17 +111,17 @@ public:
     // member functions
     int InTriangle(double x, double y);
     bool InTriangleTest(double x, double y, int i);
-    bool GetPointValues(double x, double y, femm::CPointVals &u);
-    bool GetPointValues(double x, double y, int k, femm::CPointVals &u);
+    bool GetPointValues(double x, double y, femm::CMPointVals &u);
+    bool GetPointValues(double x, double y, int k, femm::CMPointVals &u);
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
-    void GetElementB(femm::CElement &elm);
+    void GetElementB(femmsolver::CElement &elm);
     void FindBoundaryEdges();
     int ClosestNode(double x, double y);
     CComplex Ctr(int i);
     double ElmArea(int i);
-    double ElmArea(femm::CElement *elm);
-    void GetPointB(double x, double y, CComplex &B1, CComplex &B2, femm::CElement &elm);
-    void GetNodalB(CComplex *b1, CComplex *b2,femm::CElement &elm);
+    double ElmArea(femmsolver::CElement *elm);
+    void GetPointB(double x, double y, CComplex &B1, CComplex &B2, femmsolver::CElement &elm);
+    void GetNodalB(CComplex *b1, CComplex *b2,femmsolver::CElement &elm);
     /**
      * @brief Compute the block integral over selected blocks.
      *

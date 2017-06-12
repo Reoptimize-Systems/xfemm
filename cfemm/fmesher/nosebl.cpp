@@ -41,7 +41,7 @@ namespace fmesher
 CPeriodicBoundary::CPeriodicBoundary()
 {
     BdryName="";
-    BdryFormat=0;
+    antiPeriodic=false;
     nseg=0;
     narc=0;
     seg[0]=0;

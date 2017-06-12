@@ -37,8 +37,7 @@ public:
     CPeriodicBoundary();
 
     std::string BdryName;
-    int BdryFormat;            // 0 = Periodic
-    // 1 = Antiperiodic
+    bool antiPeriodic;  ///< \brief \c true for antiperiodic boundary conditions, \c false for periodic ones.
     int nseg;                // number of segs with this bc
     int narc;                // number of arcs with this bc
     int seg[2];                // (arc)segments to which is applied

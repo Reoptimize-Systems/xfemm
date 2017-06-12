@@ -258,9 +258,9 @@ bool FPProc::OpenDocument(string pathname)
     CNode         node;
     CSegment      segm;
     CArcSegment   asegm;
-    CElement      elm;
+    femmsolver::CElement      elm;
     CMBlockLabel   blk;
-    CMeshNode     mnode;
+    femmsolver::CMMeshNode     mnode;
     //CPoint        mline;
 
     // clear out all the document data and set defaults to standard values
@@ -1500,7 +1500,7 @@ int FPProc::InTriangle(double x, double y)
         lo--;
         if (lo < 0)   lo = sz - 1;
 
-        femm::CElement &hiElem = meshelem[hi];
+        femmsolver::CElement &hiElem = meshelem[hi];
         z = (hiElem.ctr.re - x) * (hiElem.ctr.re - x) +
             (hiElem.ctr.im - y) * (hiElem.ctr.im - y);
         
@@ -1513,7 +1513,7 @@ int FPProc::InTriangle(double x, double y)
             }
         }
 
-        femm::CElement &loElem = meshelem[lo];
+        femmsolver::CElement &loElem = meshelem[lo];
         z = (loElem.ctr.re-x)*(loElem.ctr.re-x) +
             (loElem.ctr.im-y)*(loElem.ctr.im-y);
         
@@ -1531,7 +1531,7 @@ int FPProc::InTriangle(double x, double y)
     return (-1);
 }
 
-bool FPProc::GetPointValues(double x, double y, CPointVals &u)
+bool FPProc::GetPointValues(double x, double y, CMPointVals &u)
 {
     int k;
 
@@ -1551,7 +1551,7 @@ bool FPProc::GetPointValues(double x, double y, CPointVals &u)
     return true;
 }
 
-bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
+bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u)
 {
     int i,j,n[3],lbl;
     double a[3],b[3],c[3],da,ravg;
@@ -1895,7 +1895,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CPointVals &u)
 }
 
 void FPProc::GetPointB(double x, double y, CComplex &B1, CComplex &B2,
-                       CElement &elm)
+                       femmsolver::CElement &elm)
 {
     // elm is a reference to the element that contains the point of interest.
     int i,n[3];
@@ -1929,7 +1929,7 @@ void FPProc::GetPointB(double x, double y, CComplex &B1, CComplex &B2,
     }
 }
 
-void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
+void FPProc::GetNodalB(CComplex *b1, CComplex *b2,femmsolver::CElement &elm)
 {
     // elm is a reference to the element that contains the point of interest.
     CComplex p;
@@ -1938,7 +1938,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
     i=j=k=l=q=m=pt=nxt = 0;
     double r,R,z;
     r=R=z = 0;
-    CElement *e;
+    femmsolver::CElement *e;
     int flag;
 
     // find nodal values of flux density via a patch method.
@@ -2195,7 +2195,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2,CElement &elm)
     }
 }
 
-void FPProc::GetElementB(CElement &elm)
+void FPProc::GetElementB(femmsolver::CElement &elm)
 {
     int i,n[3];
     double b[3],c[3],da;
@@ -2606,24 +2606,6 @@ bool FPProc::InTriangleTest(double x, double y, int i)
     return true;
 }
 
-CPointVals::CPointVals()
-{
-    A=0;            // vector potential
-    B1=0;
-    B2=0;        // flux density
-    mu1=1;
-    mu2=1;    // permeability
-    H1=0;
-    H2=0;        // field intensity
-    Je=0;
-    Js=0;        // eddy current and source current densities
-    c=0;            // conductivity
-    E=0;            // energy stored in the magnetic field
-    Ph=0;            // power dissipated by hysteresis
-    Pe=0;
-    ff=1;
-}
-
 CComplex FPProc::Ctr(int i)
 {
     CComplex p,c;
@@ -2653,7 +2635,7 @@ double FPProc::ElmArea(int i)
 
 }
 
-double FPProc::ElmArea(CElement *elm)
+double FPProc::ElmArea(femmsolver::CElement *elm)
 {
     int j,n[3];
     double b0,b1,c0,c1;
@@ -3259,7 +3241,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
     if(inttype==0)
     {
         CComplex a0,a1;
-        CPointVals u;
+        CMPointVals u;
         double l;
         int i,k;
 
@@ -3291,7 +3273,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
     if(inttype==1)
     {
         CComplex n,t,pt,Ht;
-        CPointVals v;
+        CMPointVals v;
         double dz,u,l;
         int i,j,k,m,elm;
         int NumPlotPoints=d_LineIntegralPoints;
@@ -3372,7 +3354,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
     if(inttype==3)
     {
         CComplex n,t,pt,Hn,Bn,BH,dF1,dF2;
-        CPointVals v;
+        CMPointVals v;
         double dz,dza,u;
         int i,j,k,m,elm;
         int NumPlotPoints=d_LineIntegralPoints;
@@ -3473,7 +3455,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
     if(inttype==4)
     {
         CComplex n,t,pt,Hn,Bn,BH,dF1,dF2,dT;
-        CPointVals v;
+        CMPointVals v;
         double dz,dza,u;
         int i,j,k,m,elm;
         int NumPlotPoints=d_LineIntegralPoints;
@@ -3564,7 +3546,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
     if(inttype==5)
     {
         CComplex n,t,pt,Ht;
-        CPointVals pvals;
+        CMPointVals pvals;
         double dz,u,l;
         int i,j,k,m,elm;
         int NumPlotPoints = d_LineIntegralPoints;

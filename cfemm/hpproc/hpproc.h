@@ -79,11 +79,11 @@ public:
 	// lists of nodes, segments, and block labels
     std::vector< femm::CNode >             nodelist;
     std::vector< femm::CSegment >       	 linelist;
-    std::vector< femm::CBlockLabel > 		 blocklist;
+    std::vector< femm::CHBlockLabel > 		 blocklist;
     std::vector< femm::CArcSegment > 		 arclist;
 
 	// CArrays containing the mesh information
-    std::vector< femm::CHMeshNode >			meshnode;
+    std::vector< femmsolver::CHMeshNode >			meshnode;
 	std::vector< CElement >				meshelem;
 
 	// List of elements connected to each node;
@@ -102,8 +102,8 @@ public:
 	// member functions
 	int InTriangle(double x, double y);
 	bool InTriangleTest(double x, double y, int i);
-	bool GetPointValues(double x, double y, CPointVals &u);
-	bool GetPointValues(double x, double y, int k, CPointVals &u);
+    bool GetPointValues(double x, double y, CHPointVals &u);
+    bool GetPointValues(double x, double y, int k, CHPointVals &u);
 	//void GetLineValues(CXYPlot &p, int PlotType, int npoints);
 	void GetElementD(int k);
 	void OnReload();

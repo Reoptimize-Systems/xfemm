@@ -23,12 +23,6 @@ CBoundaryProp::CBoundaryProp()
 {
 }
 
-void CBoundaryProp::toStream(ostream &out) const
-{
-    out << "CBoundaryProp without toStream implementation!\n";
-    assert(false && "BoundaryProp without toStream");
-}
-
 CMBoundaryProp::CMBoundaryProp()
     : CBoundaryProp()
 {
@@ -43,6 +37,17 @@ CMBoundaryProp::CMBoundaryProp()
     // coefficients for mixed BC
     c0 = 0.;
     c1 = 0.;
+}
+
+bool CMBoundaryProp::isPeriodic(PeriodicityType pt) const
+{
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::Periodic)
+        if (BdryFormat==4)
+            return true;
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::AntiPeriodic)
+        if (BdryFormat==5)
+            return true;
+    return false;
 }
 
 CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err)
@@ -176,6 +181,17 @@ CHBoundaryProp::CHBoundaryProp()
 
 }
 
+bool CHBoundaryProp::isPeriodic(PeriodicityType pt) const
+{
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::Periodic)
+        if (BdryFormat==4)
+            return true;
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::AntiPeriodic)
+        if (BdryFormat==5)
+            return true;
+    return false;
+}
+
 CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
 {
     CHBoundaryProp prop;
@@ -245,15 +261,15 @@ CHBoundaryProp CHBoundaryProp::fromStream(istream &input, ostream &err)
 
 void CHBoundaryProp::toStream(ostream &out) const
 {
-    out << "<BeginBdry>\n";
-    out << "<BdryType> = " << BdryFormat << "\n";
-    out << "<Tset> = " << Tset << "\n";
-    out << "<qs> = " << qs << "\n";
-    out << "<beta> = " << beta << "\n";
-    out << "<h> = " << h << "\n";
-    out << "<Tinf> = " << Tinf << "\n";
-    out << "<BdryName> = \"" << BdryName << "\"\n";
-    out << "<EndBdry>\n";
+    out << "  <BeginBdry>\n";
+    out << "    <BdryType> = " << BdryFormat << "\n";
+    out << "    <Tset> = " << Tset << "\n";
+    out << "    <qs> = " << qs << "\n";
+    out << "    <beta> = " << beta << "\n";
+    out << "    <h> = " << h << "\n";
+    out << "    <Tinf> = " << Tinf << "\n";
+    out << "    <BdryName> = \"" << BdryName << "\"\n";
+    out << "  <EndBdry>\n";
 }
 
 
@@ -262,4 +278,97 @@ ostream &operator<<(ostream &os, const CBoundaryProp &prop)
 {
     prop.toStream(os);
     return os;
+}
+
+CSBoundaryProp::CSBoundaryProp()
+    : CBoundaryProp()
+    , V(0)
+    , c0(0)
+    , c1(0)
+    , qs(0)
+{
+}
+
+bool CSBoundaryProp::isPeriodic(PeriodicityType pt) const
+{
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::Periodic)
+        if (BdryFormat==3)
+            return true;
+    if (pt==PeriodicityType::Any || pt==PeriodicityType::AntiPeriodic)
+        if (BdryFormat==4)
+            return true;
+    return false;
+}
+
+CSBoundaryProp CSBoundaryProp::fromStream(istream &input, ostream &err)
+{
+    CSBoundaryProp prop;
+
+    if( expectToken(input, "<beginbdry>", err) )
+    {
+        string token;
+        while (input.good() && token != "<endbdry>")
+        {
+            nextToken(input,&token);
+
+            if( token == "<bdryname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &prop.BdryName);
+                continue;
+            }
+
+            if( token == "<bdrytype>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.BdryFormat, err);
+                continue;
+            }
+
+            if( token == "<vs>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.V, err);
+                continue;
+            }
+
+            if( token == "<qs>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.qs, err);
+                continue;
+            }
+
+            if( token == "<c0>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.c0, err);
+                continue;
+            }
+
+            if( token == "<c1>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.c1, err);
+                continue;
+            }
+
+            if ( token != "<endbdry>")
+                err << "CSBoundaryProp: unexpected token: "<<token << "\n";
+        }
+    }
+
+    return prop;
+}
+
+void CSBoundaryProp::toStream(ostream &out) const
+{
+    out << "  <BeginBdry>\n";
+    out << "    <BdryName> = \"" << BdryName << "\"\n";
+    out << "    <BdryType> = " << BdryFormat << "\n";
+    out << "    <Vs> = " << V << "\n";
+    out << "    <qs> = " << qs << "\n";
+    out << "    <c0> = " << c0 << "\n";
+    out << "    <c1> = " << c1 << "\n";
+    out << "  <EndBdry>\n";
 }

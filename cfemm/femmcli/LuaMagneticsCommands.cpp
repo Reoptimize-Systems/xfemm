@@ -2220,7 +2220,7 @@ int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
     px=lua_tonumber(L,1).re;
     py=lua_tonumber(L,2).re;
 
-    CPointVals u;
+    CMPointVals u;
 
     if(fpproc->GetPointValues(px, py, u))
     {
@@ -4113,19 +4113,21 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
 
     for (int i=0; i<(int) doc->labellist.size(); i++)
     {
-        if (doc->labellist[i]->IsSelected)
+        CMBlockLabel *labelPtr = dynamic_cast<CMBlockLabel*>(doc->labellist[i].get());
+        assert(labelPtr);
+        if (labelPtr->IsSelected)
         {
-            doc->labellist[i]->MaxArea = PI*meshsize*meshsize/4.;
-            doc->labellist[i]->MagDir = magdirection;
-            doc->labellist[i]->BlockTypeName = blocktype;
-            doc->labellist[i]->BlockType = blocktypeidx;
-            doc->labellist[i]->InCircuitName = incircuit;
-            doc->labellist[i]->InCircuit = incircuitidx;
-            doc->labellist[i]->InGroup = group;
-            doc->labellist[i]->Turns = turns;
-            doc->labellist[i]->MagDirFctn = magdirfctn;
+            labelPtr->MaxArea = PI*meshsize*meshsize/4.;
+            labelPtr->MagDir = magdirection;
+            labelPtr->BlockTypeName = blocktype;
+            labelPtr->BlockType = blocktypeidx;
+            labelPtr->InCircuitName = incircuit;
+            labelPtr->InCircuit = incircuitidx;
+            labelPtr->InGroup = group;
+            labelPtr->Turns = turns;
+            labelPtr->MagDirFctn = magdirfctn;
             if(automesh)
-                doc->labellist[i]->MaxArea = 0;
+                labelPtr->MaxArea = 0;
         }
     }
 

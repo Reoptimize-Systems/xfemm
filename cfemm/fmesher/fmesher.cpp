@@ -532,6 +532,10 @@ femm::FileType FMesher::GetFileType (string PathName)
     {
         return femm::FileType::HeatFlowFile;
     }
+    else if ( PathName.compare(dotpos, string::npos, ".fee") == 0)
+    {
+        return femm::FileType::ElectrostaticsFile;
+    }
     else
     {
         return femm::FileType::Unknown;
@@ -573,8 +577,10 @@ bool FMesher::SaveFEMFile(string PathName)
         fprintf(fp,"%.17g\t%.17g\t%i\t%i",problem->nodelist[i]->x,problem->nodelist[i]->y,t,
                 problem->nodelist[i]->InGroup);
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile
+                || problem->filetype == femm::FileType::ElectrostaticsFile )
         {
+            // find and write number of conductor property group
             for (j=0,t=0; j<problem->circproplist.size (); j++)
                 if (problem->circproplist[j]->CircName==problem->nodelist[i]->InConductorName) t=j+1;
 
@@ -604,8 +610,10 @@ bool FMesher::SaveFEMFile(string PathName)
 
         fprintf(fp,"%i\t%i\t%i",t,problem->linelist[i]->Hidden,problem->linelist[i]->InGroup);
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile
+                || problem->filetype == femm::FileType::ElectrostaticsFile )
         {
+            // find and write number of conductor property group
             for(j=0,t=0;j<problem->circproplist.size ();j++)
             {
                 if(problem->circproplist[j]->CircName==problem->linelist[i]->InConductorName) t = j + 1;
@@ -626,8 +634,10 @@ bool FMesher::SaveFEMFile(string PathName)
                 problem->arclist[i]->ArcLength,problem->arclist[i]->MaxSideLength,t,
                 problem->arclist[i]->Hidden,problem->arclist[i]->InGroup);
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype == femm::FileType::HeatFlowFile
+                || problem->filetype == femm::FileType::ElectrostaticsFile )
         {
+            // find and write number of conductor property group
             for(j=0,t=0;j<problem->circproplist.size ();j++)
                 if(problem->circproplist[j]->CircName==problem->arclist[i]->InConductorName) t=j+1;
             fprintf(fp,"\t%i",t);
@@ -785,9 +795,8 @@ void FMesher::UpdateUndo()
     for(i=0; i<problem->arclist.size(); i++)
         undoarclist.push_back(
                     std::make_unique<CArcSegment>(*problem->arclist[i]));
-    for(i=0; i<problem->labellist.size(); i++)
-        undolabellist.push_back(
-                    std::make_unique<CBlockLabel>(*problem->labellist[i]));
+    for (const auto &label: problem->labellist)
+        undolabellist.push_back(label->clone());
 
 
 }
@@ -1555,14 +1564,16 @@ void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode se
         {
             if (label->IsSelected)
             {
-                std::unique_ptr<CBlockLabel> newlabel = std::make_unique<CBlockLabel>(*label);
+                std::unique_ptr<CBlockLabel> newlabel = label->clone();
                 CComplex y (label->x,label->y);
                 y = (y-x) / p;
                 y = p*y.Conj()+x;
                 newlabel->x = y.re;
                 newlabel->y = y.im;
                 newlabel->IsSelected = false;
-                newlabel->MagDir = (180./PI)*arg(p*conj(exp(I*newlabel->MagDir*PI/180.)/p));
+                // set specific problem parameters:
+                if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(newlabel.get()))
+                    ptr->MagDir = (180./PI)*arg(p*conj(exp(I*ptr->MagDir*PI/180.)/p));
 
                 problem->labellist.push_back(std::move(newlabel));
             }
@@ -1709,7 +1720,7 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
             {
                 if (label->IsSelected)
                 {
-                    std::unique_ptr<CBlockLabel> newlabel = std::make_unique<CBlockLabel>(*label);
+                    std::unique_ptr<CBlockLabel> newlabel = label->clone();
                     CComplex x(label->x,label->y);
                     x = (x-c)*z+c;
                     newlabel->x = x.re;
@@ -1723,7 +1734,8 @@ void FMesher::RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode sele
                                 && prop->BlockName == newlabel->BlockTypeName
                                 && prop->H_c != 0)
                         {
-                            newlabel->MagDir += t;
+                            if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(newlabel.get()))
+                                ptr->MagDir += t;
                         }
                     }
 
@@ -1787,7 +1799,8 @@ void FMesher::RotateMove(CComplex c, double t, femm::EditMode selector)
                             && prop->BlockName == label->BlockTypeName
                             && prop->H_c != 0)
                     {
-                        label->MagDir += t;
+                        if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(label.get()))
+                            ptr->MagDir += t;
                     }
                 }
             }
@@ -1930,7 +1943,7 @@ void FMesher::TranslateCopy(double incx, double incy, int ncopies, femm::EditMod
             {
                 if (label->IsSelected)
                 {
-                    std::unique_ptr<CBlockLabel> newlabel = std::make_unique<CBlockLabel>(*label);
+                    std::unique_ptr<CBlockLabel> newlabel = label->clone();
                     newlabel->x += dx;
                     newlabel->y += dy;
                     newlabel->IsSelected = false;
@@ -2043,6 +2056,9 @@ bool FMesher::AddBlockLabel(double x, double y, double d)
         break;
     case FileType::HeatFlowFile:
         pt = std::make_unique<CHBlockLabel>();
+        break;
+    case FileType::ElectrostaticsFile:
+        pt = std::make_unique<CSBlockLabel>();
         break;
     default:
         assert(false && "Unhandled file type");

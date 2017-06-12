@@ -65,32 +65,37 @@ double FMesher::LineLength(int i)
 }
 
 
+/**
+ * @brief FMesher::HasPeriodicBC
+ * @return \c true, if there are periodic or antiperiodic boundary conditions, \c false otherwise.
+ *
+ * \internal
+ *  * \femm42{femm/writepoly.cpp}
+ *  * \femm42{femm/bd_writepoly.cpp}
+ *  * \femm42{femm/hd_writepoly.cpp}
+ */
 bool FMesher::HasPeriodicBC()
 {
-    bool flag=false;
-    unsigned int i,j;
-    int k;
-
-    for(i=0;i<problem->lineproplist.size();i++)
+    bool hasPeriodicBC = false;
+    for (const auto &bdryProp: problem->lineproplist)
     {
-        if ((problem->lineproplist[i]->BdryFormat==4) ||
-            (problem->lineproplist[i]->BdryFormat==5))
-            flag=true;
+        if (bdryProp->isPeriodic())
+            hasPeriodicBC = true;
     }
     // if flag is false, there can't be any lines
     // with periodic BC's, because no periodic boundary
     // conditions have been defined.
-    if (flag==false) return false;
+    if (hasPeriodicBC==false) return false;
 
     //now, if there are some periodic boundary conditions,
     //we have to check to see if any have actually been
     //applied to the model
-    flag=false; // reset flag
 
     // first, test the segments
-    for(i=0;i<problem->linelist.size();i++)
+    for(int i=0;i<(int)problem->linelist.size();i++)
     {
-        for(j=0,k=-1;j<problem->lineproplist.size();j++)
+        int k=-1;
+        for(int j=0;j<(int)problem->lineproplist.size();j++)
         {
             if(problem->lineproplist[j]->BdryName==
                problem->linelist[i]->BoundaryMarkerName)
@@ -100,22 +105,19 @@ bool FMesher::HasPeriodicBC()
             }
         }
         if(k>=0){
-            if ((problem->lineproplist[k]->BdryFormat==4) ||
-                (problem->lineproplist[k]->BdryFormat==5))
+            if (problem->lineproplist[k]->isPeriodic())
             {
-                flag=true;
-                break;
+                return true;
             }
         }
     }
 
-    if (flag==true) return true;
-
     // If we've gotten this far, we still need to check the
     // arc segments.
-    for(i=0;i<problem->arclist.size();i++)
+    for(int i=0;i<(int)problem->arclist.size();i++)
     {
-        for(j=0,k=-1;j<problem->lineproplist.size();j++)
+        int k=-1;
+        for(int j=0;j<(int)problem->lineproplist.size();j++)
         {
             if(problem->lineproplist[j]->BdryName==
                problem->arclist[i]->BoundaryMarkerName)
@@ -125,19 +127,16 @@ bool FMesher::HasPeriodicBC()
             }
         }
         if(k>=0){
-            if ((problem->lineproplist[k]->BdryFormat==4) ||
-                (problem->lineproplist[k]->BdryFormat==5))
+            if (problem->lineproplist[k]->isPeriodic())
             {
-                flag=true;
-                break;
+                return true;
             }
         }
     }
 
-    // Finally, we're done. The value of flag now reflects
-    // the judgement on whether or not we have periodic
-    // and/or antiperiodic boundaries.
-    return flag;
+    // Finally, we're done.
+    // we could not find periodic and/or antiperiodic boundaries.
+    return false;
 }
 
 
@@ -268,10 +267,17 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
  * @return
  *
  * Original function name:
- * \femm42{femm/writepoly.cpp:CFemmeDoc::OnWritePoly()}
+ *  * \femm42{femm/writepoly.cpp,CFemmeDoc::OnWritePoly()}
+ *  * \femm42{femm/bd_writepoly.cpp,CbeladrawDoc::OnWritePoly()}
+ *  * \femm42{femm/hd_writepoly.cpp,ChdrawDoc::OnWritePoly()}
  */
 int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 {
+    // // if incremental permeability solution, we crib mesh from the previous problem.
+    // // we can just bail out in that case.
+    // if (!problem->PrevSoln.empty() && problem->Frequency>0)
+    //     return true;
+
     FILE *fp;
     unsigned int i,j,k;
     int l,t,NRegionalAttribs,Nholes,tristatus;
@@ -393,6 +399,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
         k = (unsigned int) std::ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
         segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
+        segm.InConductorName=problem->arclist[i]->InConductorName;
         GetCircle(*problem->arclist[i],c,R);
         a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
 
@@ -532,7 +539,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         for(j=0,t=0;j<problem->nodeproplist.size ();j++)
                 if(problem->nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName) t = j + 2;
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype != femm::FileType::MagneticsFile)
         {
             // include conductor number;
             for(j = 0; j < problem->circproplist.size (); j++)
@@ -582,7 +589,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                 }
         }
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype != femm::FileType::MagneticsFile)
         {
             // include conductor number;
             for (j=0; j < problem->circproplist.size (); j++)
@@ -764,10 +771,16 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
  * for periodic or antiperiodic boundary conditions
  *
  * Original function name:
- * \femm42{femm/writepoly.cpp:CFemmeDoc::FunnyOnWritePoly()}
+ *  * \femm42{femm/writepoly.cpp,CFemmeDoc::FunnyOnWritePoly()}
+ *  * \femm42{femm/bd_writepoly.cpp,CbeladrawDoc::OnWritePoly()}
+ *  * \femm42{femm/hd_writepoly.cpp,ChdrawDoc::OnWritePoly()}
  */
 int FMesher::DoPeriodicBCTriangulation(string PathName)
 {
+    // // if incremental permeability solution, we crib mesh from the previous problem.
+    // // we can just bail out in that case.
+    // if (!problem->PrevSoln.empty() && problem->Frequency>0)
+    //     return true;
     FILE *fp;
     int i, j, k, n;
     int l,t,n0,n1,n2,NRegionalAttribs,Nholes,tristatus;
@@ -1451,10 +1464,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // First, search through defined bc's for periodic ones;
     for(i=0;i<(int)problem->lineproplist.size();i++)
     {
-        if ((problem->lineproplist[i]->BdryFormat==4) ||
-            (problem->lineproplist[i]->BdryFormat==5)){
+        if (problem->lineproplist[i]->isPeriodic())
+        {
             pbc.BdryName=problem->lineproplist[i]->BdryName;
-            pbc.BdryFormat=problem->lineproplist[i]->BdryFormat-4; // 0 for pbc, 1 for apbc
+            pbc.antiPeriodic = problem->lineproplist[i]->isPeriodic(CBoundaryProp::PeriodicityType::AntiPeriodic);
             pbclst.push_back(std::make_unique<CPeriodicBoundary>(pbc));
         }
     }
@@ -1625,11 +1638,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // add segment end points to the list;
             pt.x = problem->linelist[s0]->n0;
             pt.y = problem->linelist[s1]->n0;
-            pt.t = pbclst[n]->BdryFormat;
+            pt.t = pbclst[n]->antiPeriodic;
             ptlst.push_back(std::make_unique<CCommonPoint>(pt));
             pt.x = problem->linelist[s0]->n1;
             pt.y = problem->linelist[s1]->n1;
-            pt.t = pbclst[n]->BdryFormat;
+            pt.t = pbclst[n]->antiPeriodic;
             ptlst.push_back(std::make_unique<CCommonPoint>(pt));
 
             if (k == 1){
@@ -1661,7 +1674,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         linelst.push_back(std::make_unique<CSegment>(segm));
                         pt.y = l;
 
-                        pt.t = pbclst[n]->BdryFormat;
+                        pt.t = pbclst[n]->antiPeriodic;
                         ptlst.push_back(std::make_unique<CCommonPoint>(pt));
                     }
                     else if(j==(k-1))
@@ -1694,7 +1707,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
                         pt.x = l;
                         pt.y = l+1;
-                        pt.t = pbclst[n]->BdryFormat;
+                        pt.t = pbclst[n]->antiPeriodic;
                         ptlst.push_back(std::make_unique<CCommonPoint>(pt));
                     }
                 }
@@ -1715,6 +1728,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             k = (int) ceil(problem->arclist[s0]->ArcLength/problem->arclist[s0]->MaxSideLength);
             segm.BoundaryMarkerName = problem->arclist[s0]->BoundaryMarkerName;
+            segm.InConductorName=problem->arclist[i]->InConductorName;
             GetCircle(*problem->arclist[s0],c0,r0);
             GetCircle(*problem->arclist[s1],c1,r1);
 
@@ -1745,9 +1759,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             }
 
             // add arc segment end points to the list;
-            pt.x=p0[0]; pt.y=p1[0]; pt.t=pbclst[n]->BdryFormat;
+            pt.x=p0[0]; pt.y=p1[0]; pt.t=pbclst[n]->antiPeriodic;
             ptlst.push_back(std::make_unique<CCommonPoint>(pt));
-            pt.x=p0[1]; pt.y=p1[1]; pt.t=pbclst[n]->BdryFormat;
+            pt.x=p0[1]; pt.y=p1[1]; pt.t=pbclst[n]->antiPeriodic;
             ptlst.push_back(std::make_unique<CCommonPoint>(pt));
 
             if (k==1){
@@ -1783,7 +1797,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         linelst.push_back(std::make_unique<CSegment>(segm));
                         pt.y=l;
 
-                        pt.t=pbclst[n]->BdryFormat;
+                        pt.t=pbclst[n]->antiPeriodic;
                         ptlst.push_back(std::make_unique<CCommonPoint>(pt));
                     }
                     else if(j==(k-1))
@@ -1816,7 +1830,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
                         pt.x=l;
                         pt.y=l+1;
-                        pt.t=pbclst[n]->BdryFormat;
+                        pt.t=pbclst[n]->antiPeriodic;
                         ptlst.push_back(std::make_unique<CCommonPoint>(pt));
                     }
                 }
@@ -2116,7 +2130,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         for(j=0,t=0; j < (int)problem->nodeproplist.size (); j++)
                 if(problem->nodeproplist[j]->PointName == nodelst[i]->BoundaryMarkerName) t = j + 2;
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype != femm::FileType::MagneticsFile)
         {
             // include conductor number;
             for(j=0; j < (int)problem->circproplist.size (); j++)
@@ -2161,7 +2175,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         for(j=0,t=0; j < (int)problem->lineproplist.size (); j++)
                 if(problem->lineproplist[j]->BdryName==linelst[i]->BoundaryMarkerName) t = -(j+2);
 
-        if (problem->filetype == femm::FileType::HeatFlowFile)
+        if (problem->filetype != femm::FileType::MagneticsFile)
         {
             // include conductor number;
             for(j=0; j < (int)problem->circproplist.size (); j++)
