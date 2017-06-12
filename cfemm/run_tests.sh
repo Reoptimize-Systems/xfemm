@@ -2,6 +2,8 @@
 ###
 # BSD-2-Clause license:
 # Copyright 2016 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
+# Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+# Mechatronics GmbH
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions

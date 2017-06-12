@@ -1,4 +1,6 @@
 /* Copyright 2016-2017 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+ * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ * Mechatronics GmbH
  * Copyright 1998-2016 David Meeker <dmeeker@ieee.org>
  *
  * The source code in this file is heavily derived from
