@@ -1,6 +1,6 @@
 /* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
- * Mechatronics GmbH
+ * Mechatronics GmbH (LCM)
  *
  * The source code in this file is heavily derived from
  * FEMM by David Meeker <dmeeker@ieee.org>.
