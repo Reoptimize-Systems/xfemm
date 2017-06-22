@@ -1,6 +1,6 @@
 /* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
- * Mechatronics GmbH
+ * Mechatronics GmbH (LCM)
  *
  * License:
  * This software is subject to the Aladdin Free Public Licence
