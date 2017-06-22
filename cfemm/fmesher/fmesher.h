@@ -17,6 +17,11 @@
    Date Modified: 2011 - 11 - 10
    By: Richard Crozier
    Contact: richard.crozier@yahoo.co.uk
+
+   Additional changes:
+   Copyright 2016-2017 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+   Contributions by Johannes Zarl-Zierl were funded by Linz Center of
+   Mechatronics GmbH (LCM)
 */
 
 #ifndef FMESHER_H
