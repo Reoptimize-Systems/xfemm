@@ -147,6 +147,60 @@ ostream &operator<<(ostream &os, const CBlockLabel &lbl)
     return os;
 }
 
+CEBlockLabel::CEBlockLabel()
+    : CBlockLabel()
+{
+}
+
+CEBlockLabel CEBlockLabel::fromStream(istream &input, ostream &)
+{
+    CEBlockLabel prop;
+
+    // scan in data
+    input >> prop.x;
+    input >> prop.y;
+    input >> prop.BlockType;
+    prop.BlockType--;
+    input >> prop.MaxArea;
+    if (prop.MaxArea<=0)
+        prop.MaxArea = 0;
+    else
+        prop.MaxArea *= PI * prop.MaxArea / 4.;
+    input >> prop.InGroup;
+
+    int extDefault;
+    input >> extDefault;
+    // second last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    prop.IsDefault  = extDefault & 2;
+    // last bit in extDefault flag, we mask the other bits
+    // and take the resulting value, if not zero it will evaluate to true
+    prop.IsExternal = extDefault & 1;
+
+    return prop;
+}
+
+void CEBlockLabel::toStream(ostream &out) const
+{
+    int extDefault = 0;
+    if (IsExternal)
+        extDefault |= 0x01;
+    if (IsDefault)
+        extDefault |= 0x02;
+
+    out << x << "\t" << y
+        << "\t" << (BlockType+1)
+        << "\t" << ((MaxArea>0) ? sqrt(4.*MaxArea/PI) : -1)
+        << "\t" << InGroup
+        << "\t" << extDefault
+        <<"\n";
+}
+
+std::unique_ptr<CBlockLabel> CEBlockLabel::clone() const
+{
+    return std::unique_ptr<CEBlockLabel>(new CEBlockLabel(*this));
+}
+
 CHBlockLabel::CHBlockLabel()
     : CBlockLabel()
 {

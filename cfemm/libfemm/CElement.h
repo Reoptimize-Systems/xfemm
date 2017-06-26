@@ -28,17 +28,18 @@ namespace femmsolver {
 
 /**
  * @brief The CElement class holds solution elements.
- * This class has been merged from two CElement classes in libfemm/feasolver and fpproc.
+ * This class has been merged from the CElement classes in libfemm/feasolver, esolver, and fpproc.
  */
 class CElement
 {
 public:
     CElement();
 
-    int p[3];
-    int e[3]; // from feasolver
+    int p[3]; ///< nodes at the corners of the element
+    int e[3]; ///< boundary condition applied to each edge of the element
     CComplex mu1,mu2; // from feasolver
-    int blk,lbl;
+    int blk;  ///< block property applied to the element
+    int lbl;  ///< block label associated with the element
     CComplex B1,B2;  //from fpproc
     CComplex b1[3],b2[3];  //from fpproc
     double magdir;  //from fpproc

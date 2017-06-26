@@ -139,6 +139,26 @@ private:
 };
 
 /**
+ * @brief The CEBlockLabel class specializes CBlockLabel for electrostatics problems.
+ * @warning This implementation is currently just copied from CHBlockLabel. Review needed!
+ */
+class CEBlockLabel : public CBlockLabel
+{
+public:
+    CEBlockLabel();
+
+    /**
+     * @brief fromStream constructs a CEBlockLabel from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CBlockLabel
+     */
+    static CEBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
+    virtual void toStream( std::ostream &out ) const;
+    virtual std::unique_ptr<CBlockLabel> clone() const;
+};
+
+/**
  * @brief The CHBlockLabel class specializes CBlockLabel for heat flow problems.
  */
 class CHBlockLabel : public CBlockLabel
@@ -147,7 +167,7 @@ public:
     CHBlockLabel();
 
     /**
-     * @brief fromStream constructs a CSBlockLabel from an input stream (usually an input file stream)
+     * @brief fromStream constructs a CHBlockLabel from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
      * @return a CBlockLabel
