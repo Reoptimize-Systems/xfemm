@@ -47,7 +47,7 @@ public:
     int InGroup;
     bool IsSelected;
 
-    int BoundaryMarker;
+    int BoundaryMarker; ///< \c bc in FEMM42
     int InConductor;
     std::string BoundaryMarkerName;
     std::string InConductorName;
