@@ -186,6 +186,9 @@ public:
 private:
 };
 
+/**
+ * @brief The CSMaterialProp class holds material properties in electrostatics problems.
+ */
 class CSMaterialProp : public CMaterialProp
 {
 public:
