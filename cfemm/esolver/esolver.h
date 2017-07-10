@@ -62,21 +62,13 @@ public:
 	~ESolver();
 
 
-    // General problem attributes
-    double	dT; ///< \brief delta T used by esolver \verbatim[dT]\endverbatim
-
     // mesh information
     femm::CNode *meshnode;
-
-	// Vector containing previous solution for time-transient analysis
-	double *Tprev;
-
 
 // Operations
 public:
 
     int LoadMesh(bool deleteFiles=true);
-    int LoadPrev();
     bool LoadProblemFile();
     double ChargeOnConductor(int OnConductor, CHBigLinProb &L);
 	int WriteResults(CHBigLinProb &L);

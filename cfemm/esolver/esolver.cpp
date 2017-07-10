@@ -105,170 +105,119 @@ void ESolver::MsgBox(const char* message)
 
 bool ESolver::LoadProblemFile ()
 {
-    std::string fehFile = PathName+".feh";
+    std::string feeFile = PathName+".fee";
 
-    bool ret = FEASolver_type::LoadProblemFile(fehFile);
+    bool ret = FEASolver_type::LoadProblemFile(feeFile);
     return ret;
-}
-
-int ESolver::LoadPrev()
-{
-    if (previousSolutionFile.empty()) return true;
-
-	FILE *fp;
-    double x,y;
-    int k;
-	char s[1024],q[256];
-
-    if ((fp=fopen(previousSolutionFile.c_str(),"rt"))==NULL)
-	{
-		return BADELEMENTFILE;
-	}
-
-	// parse the file
-	k=0;
-	while (fgets(s,1024,fp)!=NULL)
-	{
-		sscanf(s,"%s",q);
-		if( _strnicmp(q,"[solution]",11)==0){
-			k=1;
-			break;
-		}
-	}
-
-	// case where the solution is never found.
-	if (k==0)
-	{
-		fclose(fp);
-		return BADELEMENTFILE;
-	}
-
-	// read in the solution
-	fgets(s,1024,fp);
-	sscanf(s,"%i",&k);
-	if(k!=NumNodes)
-	{
-		fclose(fp);
-		return BADELEMENTFILE;
-	}
-
-    Tprev=new double[NumNodes];
-
-	for(k=0;k<NumNodes;k++)
-	{
-		fgets(s,1024,fp);
-		sscanf(s,"%lf	%lf	%lf",&x,&y,&Tprev[k]);
-	}
-
-	return 0;
 }
 
 int ESolver::LoadMesh(bool deleteFiles)
 {
-	int i,j,k,q,n0,n1,n;
-	char infile[256];
-	FILE *fp;
-	char s[1024];
-    double c[]={0.0254,0.001,0.01,1,2.54e-5,1.e-6};
+    int i,j,k,q,n0,n1,n;
+    char infile[256];
+    FILE *fp;
+    char s[1024];
+    // FIXME(ZaJ) check if these factors are correct
+    double c[]={25.4,1.,10.,1000.,0.0254,0.001};
 
-
-	//read meshnodes;
-	sprintf(infile,"%s.node",PathName.c_str());
-	if((fp=fopen(infile,"rt"))==NULL){
-		return BADELEMENTFILE;
-	}
-	fgets(s,1024,fp);
-	sscanf(s,"%i",&k);
-	NumNodes = k;
+    //read meshnodes;
+    sprintf(infile,"%s.node",PathName.c_str());
+    if((fp=fopen(infile,"rt"))==NULL){
+        return BADELEMENTFILE;
+    }
+    fgets(s,1024,fp);
+    sscanf(s,"%i",&k);
+    NumNodes=k;
 
     meshnode = new CNode[k];
     CNode node;
-	for(i = 0; i < k; i++)
-	{
-		fscanf(fp,"%i",&j);
-		fscanf(fp,"%lf",&node.x);
-		fscanf(fp,"%lf",&node.y);
-		fscanf(fp,"%i",&n);
+    for (i=0; i<k; i++)
+    {
+        fscanf(fp,"%i",&j);
+        fscanf(fp,"%lf",&node.x);
+        fscanf(fp,"%lf",&node.y);
+        fscanf(fp,"%i",&n);
 
-		if (n > 1)
-		{
-			// strip off point BC number;
-			j = n & 0xffff;
-			j = j - 2;
-			if (j<0)
-			{
-			    j = -1;
-			}
+        if (n > 1)
+        {
+            // strip off point BC number;
+            j = n & 0xffff;
+            j = j - 2;
+            if (j<0)
+            {
+                j=-1;
+            }
 
-			// strip off Conductor number
-			n = (n - (n & 0xffff))/0x10000 - 1;
-		}
-		else
-		{
-			j = -1;
-			n = -1;
-		}
+            // strip off Conductor number
+            n = (n - (n & 0xffff))/0x10000 - 1;
+        }
+        else
+        {
+            j = -1;
+            n = -1;
+        }
         node.BoundaryMarker = j;
-		node.InConductor = n;
+        node.InConductor = n;
 
-		// convert all lengths to internal working units of mm
-		node.x *= c[LengthUnits];
-		node.y *= c[LengthUnits];
+        // convert all lengths to internal working units of mm
+        node.x *= c[LengthUnits];
+        node.y *= c[LengthUnits];
 
-		meshnode[i] = node;
-	}
-	fclose(fp);
+        meshnode[i] = node;
+    }
+    fclose(fp);
 
-	//read in periodic boundary conditions;
-	sprintf(infile,"%s.pbc",PathName.c_str());
-	if((fp=fopen(infile,"rt"))==NULL){
-		return BADPBCFILE;
-	}
-	fgets(s,1024,fp);
-	sscanf(s,"%i",&k);
-	NumPBCs=k;
+    //read in periodic boundary conditions;
+    sprintf(infile,"%s.pbc",PathName.c_str());
+    if((fp=fopen(infile,"rt"))==NULL){
+        return BADPBCFILE;
+    }
+    fgets(s,1024,fp);
+    sscanf(s,"%i",&k);
+    NumPBCs=k;
 
-    if (k!=0) pbclist.reserve(k);
-	CCommonPoint pbc;
-	for(i=0;i<k;i++){
-		fscanf(fp,"%i",&j);
-		fscanf(fp,"%i",&pbc.x);
-		fscanf(fp,"%i",&pbc.y);
-		fscanf(fp,"%i",&pbc.t);
+    if (k!=0)
+        pbclist.reserve(k);
+    CCommonPoint pbc;
+    for(i=0;i<k;i++){
+        fscanf(fp,"%i",&j);
+        fscanf(fp,"%i",&pbc.x);
+        fscanf(fp,"%i",&pbc.y);
+        fscanf(fp,"%i",&pbc.t);
         pbclist.push_back(pbc);
-	}
-	fclose(fp);
+    }
+    fclose(fp);
 
-	// read in elements;
-	sprintf(infile,"%s.ele",PathName.c_str());
-	if((fp=fopen(infile,"rt"))==NULL){
-		return BADELEMENTFILE;
-	}
-	fgets(s,1024,fp);
-	sscanf(s,"%i",&k); NumEls=k;
+    // read in elements;
+    sprintf(infile,"%s.ele",PathName.c_str());
+    if((fp=fopen(infile,"rt"))==NULL){
+        return BADELEMENTFILE;
+    }
+    fgets(s,1024,fp);
+    sscanf(s,"%i",&k); NumEls=k;
 
     meshele.reserve(k);
     femmsolver::CElement elm;
 
-	int defaultLabel;
-	for(i=0,defaultLabel=-1;i<NumBlockLabels;i++)
-		if (labellist[i].IsDefault) defaultLabel=i;
+    int defaultLabel;
+    for(i=0,defaultLabel=-1;i<NumBlockLabels;i++)
+        if (labellist[i].IsDefault) defaultLabel=i;
 
-	for(i=0;i<k;i++){
-		fscanf(fp,"%i",&j);
-		fscanf(fp,"%i",&elm.p[0]);
-		fscanf(fp,"%i",&elm.p[1]);
-		fscanf(fp,"%i",&elm.p[2]);
-		fscanf(fp,"%i",&elm.lbl);
-		elm.lbl--;
-		if(elm.lbl<0) elm.lbl=defaultLabel;
-		if(elm.lbl<0){
-		    string msg = "Material properties have not been defined for\n";
-            msg += "all regions. Press the \"Run Mesh Generator\"\n";
-            msg += "button to highlight the problem regions.";
+    for(i=0;i<k;i++){
+        fscanf(fp,"%i",&j);
+        fscanf(fp,"%i",&elm.p[0]);
+        fscanf(fp,"%i",&elm.p[1]);
+        fscanf(fp,"%i",&elm.p[2]);
+        fscanf(fp,"%i",&elm.lbl);
+        elm.lbl--;
+        if(elm.lbl<0) elm.lbl=defaultLabel;
+        if(elm.lbl<0){
+            std::string msg = "Material properties have not been defined for\n";
+            msg +="all regions. Press the \"Run Mesh Generator\"\n";
+            msg +="button to highlight the problem regions.";
             WarnMessage(msg.c_str());
 
-			fclose(fp);
+            fclose(fp);
             if (deleteFiles)
             {
                 sprintf(infile,"%s.ele",PathName.c_str());
@@ -283,90 +232,90 @@ int ESolver::LoadMesh(bool deleteFiles)
                 remove(infile);
             }
             return MISSINGMATPROPS;
-		}
-		// look up block type out of the list of block labels
-		elm.blk=labellist[elm.lbl].BlockType;
+        }
+        // look up block type out of the list of block labels
+        elm.blk=labellist[elm.lbl].BlockType;
 
         meshele.push_back(elm);
-	}
-	fclose(fp);
+    }
+    fclose(fp);
 
-	// initialize edge bc's and element permeabilities;
-	for(i=0;i<NumEls;i++)
-		for(j=0;j<3;j++)
-			meshele[i].e[j] = -1;
+    // initialize edge bc's and element permeabilities;
+    for(i=0;i<NumEls;i++)
+        for(j=0;j<3;j++)
+            meshele[i].e[j] = -1;
 
-	// read in edges to which boundary conditions are applied;
+    // read in edges to which boundary conditions are applied;
 
-		// first, do a little bookkeeping so that element
-		// associated with a give edge can be identified fast
-		int *nmbr;
-		int **mbr;
+    // first, do a little bookkeeping so that element
+    // associated with a give edge can be identified fast
+    int *nmbr;
+    int **mbr;
 
-		nmbr=(int *)calloc(NumNodes,sizeof(int));
+    nmbr=(int *)calloc(NumNodes,sizeof(int));
 
-		// Make a list of how many elements that tells how
-		// many elements to which each node belongs.
-		for(i=0;i<NumEls;i++)
-			for(j=0;j<3;j++)
-				nmbr[meshele[i].p[j]]++;
+    // Make a list of how many elements that tells how
+    // many elements to which each node belongs.
+    for(i=0;i<NumEls;i++)
+        for(j=0;j<3;j++)
+            nmbr[meshele[i].p[j]]++;
 
-		// mete out some memory to build a list of the
-		// connectivity...
-		mbr=(int **)calloc(NumNodes,sizeof(int *));
-		for(i=0;i<NumNodes;i++){
-			mbr[i]=(int *)calloc(nmbr[i],sizeof(int));
-			nmbr[i]=0;
-		}
+    // mete out some memory to build a list of the
+    // connectivity...
+    mbr=(int **)calloc(NumNodes,sizeof(int *));
+    for(i=0;i<NumNodes;i++){
+        mbr[i]=(int *)calloc(nmbr[i],sizeof(int));
+        nmbr[i]=0;
+    }
 
-		// fill up the connectivity information;
-		for(i=0;i<NumEls;i++)
-			for(j=0;j<3;j++)
-			{
-				k=meshele[i].p[j];
-				mbr[k][nmbr[k]]=i;
-				nmbr[k]++;
-			}
+    // fill up the connectivity information;
+    for(i=0;i<NumEls;i++)
+        for(j=0;j<3;j++)
+        {
+            k=meshele[i].p[j];
+            mbr[k][nmbr[k]]=i;
+            nmbr[k]++;
+        }
 
-	sprintf(infile,"%s.edge",PathName.c_str());
-	if((fp=fopen(infile,"rt"))==NULL)
-	{
-		return BADEDGEFILE;
-	}
-	fscanf(fp,"%i",&k);	// read in number of lines
+    sprintf(infile,"%s.edge",PathName.c_str());
+    if((fp=fopen(infile,"rt"))==NULL)
+    {
+        return BADEDGEFILE;
+    }
+    fscanf(fp,"%i",&k);	// read in number of lines
 
-	fscanf(fp,"%i",&j);	// read in boundarymarker flag;
-	for(i=0;i<k;i++)
-	{
-		fscanf(fp,"%i",&j);
-		fscanf(fp,"%i",&n0);
-		fscanf(fp,"%i",&n1);
-		fscanf(fp,"%i",&n);
+    fscanf(fp,"%i",&j);	// read in boundarymarker flag;
+    for(i=0;i<k;i++)
+    {
+        fscanf(fp,"%i",&j);
+        fscanf(fp,"%i",&n0);
+        fscanf(fp,"%i",&n1);
+        fscanf(fp,"%i",&n);
 
-		// BC number;
-		if (n<0)
-		{
-			n=(-n);
-			j = (n & 0xffff) - 2;
-			if (j<0) j = -1;
+        // BC number;
+        if (n<0)
+        {
+            n=(-n);
+            j = (n & 0xffff) - 2;
+            if (j<0) j = -1;
 
-			// Conductor number;
-			n= (n - (n & 0xffff))/0x10000 - 1;
-			if (n>=0)
-			{
-				meshnode[n0].InConductor=n;
-				meshnode[n1].InConductor=n;
-			}
-		}
-		else j=-1;
+            // Conductor number;
+            n= (n - (n & 0xffff))/0x10000 - 1;
+            if (n>=0)
+            {
+                meshnode[n0].InConductor=n;
+                meshnode[n1].InConductor=n;
+            }
+        }
+        else j=-1;
 
-		if (j>=0)
-		{
-			// search through elements to find one containing the line;
-			// set corresponding edge equal to the bc number
+        if (j>=0)
+        {
+            // search through elements to find one containing the line;
+            // set corresponding edge equal to the bc number
             for(q=0,n=false;q<nmbr[n0];q++)
-			{
-				elm=meshele[mbr[n0][q]];
+            {
+                elm=meshele[mbr[n0][q]];
 
                 if ((elm.p[0] == n0) && (elm.p[1] == n1)) {elm.e[0]=j; n=true;}
                 if ((elm.p[0] == n1) && (elm.p[1] == n0)) {elm.e[0]=j; n=true;}
@@ -377,21 +326,21 @@ int ESolver::LoadMesh(bool deleteFiles)
                 if ((elm.p[2] == n0) && (elm.p[0] == n1)) {elm.e[2]=j; n=true;}
                 if ((elm.p[2] == n1) && (elm.p[0] == n0)) {elm.e[2]=j; n=true;}
 
-				meshele[mbr[n0][q]]=elm;
+                meshele[mbr[n0][q]]=elm;
 
-				//this is a little hack: line charge distributions should be applied
-				//to at most one element;
-				if((lineproplist[j].BdryFormat==2) && (n)) q=nmbr[n0];
-			}
-		}
+                //this is a little hack: line charge distributions should be applied
+                //to at most one element;
+                if((lineproplist[j].BdryFormat==2) && (n)) q=nmbr[n0];
+            }
+        }
 
-	}
-	fclose(fp);
+    }
+    fclose(fp);
 
-	// free up the connectivity information
-	free(nmbr);
-	for(i=0;i<NumNodes;i++) free(mbr[i]);
-	free(mbr);
+    // free up the connectivity information
+    free(nmbr);
+    for(i=0;i<NumNodes;i++) free(mbr[i]);
+    free(mbr);
 
     if (deleteFiles)
     {
@@ -408,6 +357,9 @@ int ESolver::LoadMesh(bool deleteFiles)
 
     return 0;
 }
+
+// FIXME ZaJ MARK TODO Here
+
 
 //CComplex CMaterialProp::GetK(double t)
 //{
