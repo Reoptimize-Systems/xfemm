@@ -573,7 +573,7 @@ bool FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 
 
 // template instantiation
-template class FemmReader<
+template class femm::FemmReader<
         femm::CMPointProp
         , femm::CMBoundaryProp
         , femm::CMSolverMaterialProp
@@ -600,7 +600,7 @@ bool MagneticsReader::handleToken(const string &token, istream &input, ostream &
 }
 
 // template instantiation
-template class FemmReader<
+template class femm::FemmReader<
         femm::CHPointProp
         , femm::CHBoundaryProp
         , femm::CHMaterialProp
@@ -625,7 +625,7 @@ bool HeatFlowReader::handleToken(const string &token, istream &input, ostream &e
 }
 
 // template instantiation
-template class FemmReader<
+template class femm::FemmReader<
         femm::CSPointProp
         , femm::CSBoundaryProp
         , femm::CSMaterialProp
