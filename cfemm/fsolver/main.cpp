@@ -41,7 +41,6 @@ int main(int argc, char** argv)
 {
     FSolver theFSolver;
     char PathName[512];
-    char outstr[1024];
 //    int i;
 
     if (argc < 2)
@@ -129,10 +128,8 @@ int main(int argc, char** argv)
 
     printf("solving...");
 
-    sprintf(outstr,"Problem Statistics:\n%i nodes\n%i elements\nPrecision: %3.2e\n",
+    printf("Problem Statistics:\n%i nodes\n%i elements\nPrecision: %3.2e\n",
             theFSolver.NumNodes,theFSolver.NumEls,theFSolver.Precision);
-
-    printf(outstr);
 
 //    double mr = (8.*((double) Doc.NumNodes)*((double) Doc.BandWidth)) / 1.e06;
 
