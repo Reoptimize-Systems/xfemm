@@ -68,7 +68,7 @@ public:
 // Operations
 public:
 
-    int LoadMesh(bool deleteFiles=true);
+    int LoadMesh(bool deleteFiles=true) override;
     bool LoadProblemFile();
     int Static2D(CBigLinProb &L);
     int WriteStatic2D(CBigLinProb &L);
@@ -92,7 +92,7 @@ private:
     virtual void CleanUp() override;
 
     // override parent class virtual method
-    void SortNodes (int* newnum);
+    void SortNodes (int* newnum) override;
 
     bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 
