@@ -35,7 +35,7 @@
 #define ESOLVER_H
 
 #include "feasolver.h"
-#include "hspars.h"
+#include "spars.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
@@ -46,11 +46,11 @@
 #include <string>
 
 class ESolver : public FEASolver<
-        femm::CHPointProp
-        , femm::CHBoundaryProp
-        , femm::CHMaterialProp
-        , femm::CHConductor
-        , femm::CHBlockLabel
+        femm::CSPointProp
+        , femm::CSBoundaryProp
+        , femm::CSMaterialProp
+        , femm::CSCircuit
+        , femm::CSBlockLabel
         , femm::CNode
         >
 {
@@ -70,8 +70,8 @@ public:
 
     int LoadMesh(bool deleteFiles=true);
     bool LoadProblemFile();
-    double ChargeOnConductor(int OnConductor, CHBigLinProb &L);
-	int WriteResults(CHBigLinProb &L);
+    double ChargeOnConductor(int OnConductor, CBigLinProb &L);
+    int WriteResults(CHBigLinProb &L);
     int AnalyzeProblem(CHBigLinProb &L);
     void (*WarnMessage)(const char*);
 

@@ -34,7 +34,7 @@
 
 #include "femmcomplex.h"
 #include "femmconstants.h"
-//#include "hspars.h"
+#include "spars.h"
 //#include "fparse.h"
 #include "esolver.h"
 
@@ -48,11 +48,11 @@
 #include "../libfemm/feasolver.cpp"
 #include "../libfemm/cuthill.cpp"
 template class FEASolver<
-        femm::CEPointProp
-        , femm::CEBoundaryProp
-        , femm::CEMaterialProp
-        , femm::CEConductor
-        , femm::CEBlockLabel
+        femm::CSPointProp
+        , femm::CSBoundaryProp
+        , femm::CSMaterialProp
+        , femm::CSCircuit
+        , femm::CSBlockLabel
         , femm::CNode
         >;
 
@@ -60,8 +60,8 @@ template class FEASolver<
 #define _strnicmp strncasecmp
 #endif
 
-//conversion to internal working units of m
-double units[]={0.0254,0.001,0.01,1,2.54e-5,1.e-6};
+//conversion to internal working units of mm
+double units[]={25.4,1.,10.,1000.,0.0254,0.001};
 double sq(double x){ return x*x; }
 
 using namespace std;
@@ -74,7 +74,6 @@ using namespace femm;
 ESolver::ESolver()
 {
 	meshnode=NULL;
-	Tprev=NULL;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
@@ -92,7 +91,6 @@ void ESolver::CleanUp()
 {
     FEASolver_type::CleanUp();
     if (meshnode!=NULL)		 delete[] meshnode;
-    if (Tprev!=NULL)		 delete[] Tprev;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -111,6 +109,16 @@ bool ESolver::LoadProblemFile ()
     return ret;
 }
 
+/**
+ * @brief ESolver::LoadMesh
+ * @param deleteFiles
+ * @return
+ *
+ * \internal
+ * ### FEMM source:
+ * - \femm42{belasolv/femmedoccore.cpp,CFemmeDocCore::LoadMesh()}
+ * \endinternal
+ */
 int ESolver::LoadMesh(bool deleteFiles)
 {
     int i,j,k,q,n0,n1,n;
@@ -358,432 +366,297 @@ int ESolver::LoadMesh(bool deleteFiles)
     return 0;
 }
 
-// FIXME ZaJ MARK TODO Here
-
-
-//CComplex CMaterialProp::GetK(double t)
-//{
-//	int i,j;
-//
-//	// Kx returned as real part;
-//	// Ky returned as imag part
-//
-//	if (npts==0) return (Kx+I*Ky);
-//	if (npts==1) return (Im(Kn[0])*(1+I));
-//	if (t<=Re(Kn[0])) return (Im(Kn[0])*(1+I));
-//	if (t>=Re(Kn[npts-1])) return (Im(Kn[npts-1])*(1+I));
-//
-//	for(i=0,j=1;j<npts;i++,j++)
-//	{
-//		if((t>=Re(Kn[i])) && (t<=Re(Kn[j])))
-//		{
-//			return (1+I)*(Im(Kn[i])+Im(Kn[j]-Kn[i])*Re(t-Kn[i])/Re(Kn[j]-Kn[i]));
-//		}
-//	}
-//
-//	return (Kx+I*Ky);
-//}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief ESolver::AnalyzeProblem
+ * @param L
+ * @return
+ *
+ * \internal
+ * ### FEMM source:
+ * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::AnalyzeProblem()}
+ * \endinternal
+ */
 int ESolver::AnalyzeProblem(CHBigLinProb &L)
 {
-	int i,j,k,bf,pctr=0;
+	int i,j,k,pctr=0;
 	double Me[3][3],be[3];		// element matrices;
 	double l[3],p[3],q[3];		// element shape parameters;
 	int n[3],ne[3];				// numbers of nodes for a particular element;
 	double a,K,r,z,kludge;
-	double bta,Tinf,Tlast,*Vo;
-    int IsNonlinear=false;
     femmsolver::CElement *El;
-	CComplex kn;
-	int iter=0;
 
+	double c = (1.e-6)/eo;
 	Depth*=units[LengthUnits];
 	extRo*=units[LengthUnits];
 	extRi*=units[LengthUnits];
 	extZo*=units[LengthUnits];
 	kludge=1;
 
-	//TheView->SetDlgItemText(IDC_FRAME1,"Matrix Construction");
+    //TheView->SetDlgItemText(IDC_FRAME1,"Matrix Construction");
 
-	Vo=(double *) calloc(NumNodes,sizeof(double));
-
-	// scan through the problem to see if there are any elements
-	// with a nonlinear conductivity
+	// do some book-keeping related to fixed boundary conditions;
+	// The P vector denotes which nodes have an assigned value
+	// The V vector denotes the assigned value
 	for(i=0;i<NumNodes;i++)
 	{
-		if (blockproplist[meshele[i].blk].npts>0){
-            IsNonlinear=true;
-			i=NumNodes;
-		}
-	}
-
-	do{
-		// copy old solution
-		for(i=0;i<NumNodes;i++) Vo[i]=L.V[i];
-		L.Wipe();
-
-		// do some book-keeping related to fixed boundary conditions;
-		// The P vector denotes which nodes have an assigned value
-		// The V vector denotes the assigned value
-		for(i=0;i<NumNodes;i++)
-		{
-			L.Q[i] = -2;
-            if(meshnode[i].BoundaryMarker >= 0)
-                if(nodeproplist[meshnode[i].BoundaryMarker].qp == 0)
-				{
-                    L.V[i] = nodeproplist[meshnode[i].BoundaryMarker].V;
-					L.Q[i] = -1;
-				}
-
-			if(meshnode[i].InConductor >= 0)
-				if(circproplist[meshnode[i].InConductor].CircType == 1)
-				{
-					L.V[i] = circproplist[meshnode[i].InConductor].V;
-					L.Q[i] = meshnode[i].InConductor;
-				}
-		}
-
-		// account for fixed boundary conditions along segments;
-		for(i=0;i<NumEls;i++)
-		{
-			for(j=0;j<3;j++){
-				k=j+1; if(k==3) k=0;
-				if(meshele[i].e[j]>=0)
-				{
-					if(lineproplist[ meshele[i].e[j] ].BdryFormat==0)
-					{
-						L.V[meshele[i].p[j]]=lineproplist[meshele[i].e[j]].Tset;
-						L.V[meshele[i].p[k]]=lineproplist[meshele[i].e[j]].Tset;
-						L.Q[meshele[i].p[j]]=-1;
-						L.Q[meshele[i].p[k]]=-1;
-					}
-				}
-			}
-		}
-
-
-		// build element matrices using the matrices derived in Allaire's book.
-		for(i=0;i<NumEls;i++)
-		{
-			// update progress bar
-			j=5*((i*20)/NumEls);
-			if(j!=pctr){ pctr=j;
-               // TheView->m_prog1.SetPos(pctr);
-            }
-
-			// zero out Me, be;
-			for(j=0;j<3;j++){
-				for(k=0;k<3;k++) Me[j][k]=0;
-				be[j]=0;
-			}
-
-			// Determine shape parameters.
-			// l's are element side lengths;
-			// p's corresponds to the `b' parameter in Allaire
-			// q's corresponds to the `c' parameter in Allaire
-			El=&meshele[i];
-
-			for(k=0;k<3;k++) n[k]=El->p[k];
-			p[0]=meshnode[n[1]].y - meshnode[n[2]].y;
-			p[1]=meshnode[n[2]].y - meshnode[n[0]].y;
-			p[2]=meshnode[n[0]].y - meshnode[n[1]].y;
-			q[0]=meshnode[n[2]].x - meshnode[n[1]].x;
-			q[1]=meshnode[n[0]].x - meshnode[n[2]].x;
-			q[2]=meshnode[n[1]].x - meshnode[n[0]].x;
-			for(j=0,k=1;j<3;k++,j++){
-				if (k==3) k=0;
-				l[j]=sqrt( sq(meshnode[n[k]].x-meshnode[n[j]].x) +
-						   sq(meshnode[n[k]].y-meshnode[n[j]].y) );
-			}
-			a=(p[0]*q[1]-p[1]*q[0])/2.;
-			r=(meshnode[n[0]].x+meshnode[n[1]].x+meshnode[n[2]].x)/3.;
-
-			// get the thermal conductivites to use for this element;
-			kn = (blockproplist[El->blk].GetK(Vo[n[0]]) +
-				  blockproplist[El->blk].GetK(Vo[n[1]]) +
-				  blockproplist[El->blk].GetK(Vo[n[2]]))/3.;
-
-			if (ProblemType==AXISYMMETRIC){
-				Depth=2.*PI*r;
-
-				// "Warp" the permeability of this element is part of
-				// the conformally mapped external region
-				if(labellist[meshele[i].lbl].IsExternal)
-				{
-					z=(meshnode[n[0]].y+meshnode[n[1]].y+meshnode[n[2]].y)/3. - extZo;
-					kludge=(r*r+z*z)/(extRi*extRo);
-				}
-				else kludge=1;
-			}
-
-
-			// x-contribution;
-			K = -Depth*Re(kn)/(4.*a)/kludge;
-			for(j=0;j<3;j++)
-				for(k=j;k<3;k++)
-				{
-					Me[j][k] += K*p[j]*p[k];
-					if (j!=k) Me[k][j]+=K*p[j]*p[k];
-				}
-
-			// y-contribution;
-			K = -Depth*Im(kn)/(4.*a)/kludge;
-			for(j=0;j<3;j++)
-				for(k=j;k<3;k++)
-				{
-					Me[j][k] +=K*q[j]*q[k];
-					if (j!=k) Me[k][j]+=K*q[j]*q[k];
-				}
-
-			// contribution to Me and be from time-transient term
-/*			if (dT!=0)
+		L.Q[i]=-2;
+        if(meshnode[i].BoundaryMarker >=0)
+            if(nodeproplist[meshnode[i].BoundaryMarker].qp==0)
 			{
-				K = -Depth*blockproplist[El->blk].Kt*a/(12.*dT);
-
-				Me[0][0]+=2.*K;
-				Me[1][1]+=2.*K;
-				Me[2][2]+=2.*K;
-				Me[0][1]+=K; Me[1][0]+=K;
-				Me[0][2]+=K; Me[2][0]+=K;
-				Me[1][2]+=K; Me[2][1]+=K;
-
-				be[0]+=K*(2.*Tprev[n[0]] +    Tprev[n[1]] +    Tprev[n[2]]);
-				be[1]+=K*(   Tprev[n[0]] + 2.*Tprev[n[1]] +    Tprev[n[2]]);
-				be[2]+=K*(   Tprev[n[0]] +    Tprev[n[1]] + 2.*Tprev[n[2]]);
-			} */
-
-			if (dT!=0)
-			{
-				K = -Depth*blockproplist[El->blk].Kt*a/(3.*dT);
-
-				Me[0][0]+=K;
-				Me[1][1]+=K;
-				Me[2][2]+=K;
-
-				be[0]+=K*Tprev[n[0]];
-				be[1]+=K*Tprev[n[1]];
-				be[2]+=K*Tprev[n[2]];
-			}
-
-			// contribution to be[] from volume charge density
-			for(j = 0;j<3;j++){
-				K = -Depth*(blockproplist[El->blk].qv)*a/3.;
-				be[j]+=K;
-			}
-
-
-			for(j=0;j<3;j++)
-			{
-				if (El->e[j] >= 0)
-				{
-					k=j+1; if(k==3) k=0;
-
-					if (ProblemType==AXISYMMETRIC)
-						Depth=PI*(meshnode[n[j]].x + meshnode[n[k]].x);
-
-					// contributions to Me, be from derivative boundary conditions;
-					// !!! need to put in contribution here for radiation....
-					bf=lineproplist[El->e[j]].BdryFormat;
-					if ((bf==1) || (bf==2) || (bf==3))
-					{
-						double c0,c1;
-
-						switch(bf)
-						{
-							case 1:
-								c1=lineproplist[El->e[j]].qs;
-								c0=0;
-								break;
-							case 2:
-								c0=lineproplist[El->e[j]].h;
-								c1=-c0*lineproplist[El->e[j]].Tinf;
-								break;
-							case 3:
-                                IsNonlinear=true;
-								bta =lineproplist[El->e[j]].beta;
-								Tinf=lineproplist[El->e[j]].Tinf;
-								Tlast=(Vo[n[j]]+Vo[n[k]])/2.;
-
-								c0 = 4.*bta*Ksb*pow(Tlast,3.);
-								c1 = -(bta*Ksb*(pow(Tinf,4.) + 3.*pow(Tlast,4.)));
-
-								break;
-							default:
-								break;
-						}
-
-						if (ProblemType==AXISYMMETRIC)
-						{
-							K =-2.*PI*c0*l[j]/6.;
-							Me[j][j]+=K*2. *(3.*meshnode[n[j]].x + meshnode[n[k]].x)/4.;
-							Me[k][k]+=K*2. *(meshnode[n[j]].x + 3.*meshnode[n[k]].x)/4.;
-							Me[j][k]+=K    *(meshnode[n[j]].x + meshnode[n[k]].x)/2.;
-							Me[k][j]+=K    *(meshnode[n[j]].x + meshnode[n[k]].x)/2.;
-
-							K = 2.*PI*c1*l[j]/2.;
-							be[j]+=K*(2.*meshnode[n[j]].x + meshnode[n[k]].x)/3.;
-							be[k]+=K*(meshnode[n[j]].x + 2.*meshnode[n[k]].x)/3.;
-						}
-						else
-						{
-							K =-Depth*c0*l[j]/6.;
-							Me[j][j]+=K*2.;
-							Me[k][k]+=K*2.;
-							Me[j][k]+=K;
-							Me[k][j]+=K;
-
-							K = Depth*c1*l[j]/2.;
-							be[j]+=K;
-							be[k]+=K;
-						}
-					}
-				/*
-					// contribution to be[] from surface heating
-					if (lineproplist[El->e[j]].BdryFormat==2)
-					{
-						K =-Depth*lineproplist[El->e[j]].qs*l[j]/2.;
-						be[j]+=K;
-						be[k]+=K;
-					}
-				*/
-				}
-			}
-
-			// process any prescribed nodal values;
-			for(j=0;j<3;j++)
-			{
-				if(L.Q[n[j]]!=-2)
-				{
-					for(k=0;k<3;k++)
-					{
-						if(j!=k){
-							be[k]-=Me[k][j]*L.V[n[j]];
-							Me[k][j]=0;
-							Me[j][k]=0;
-						}
-					}
-					be[j]=L.V[n[j]]*Me[j][j];
-				}
-			}
-
-			// combine block matrices into global matrices;
-			for (j=0;j<3;j++)
-			{
-				ne[j]=n[j];
-				if(meshnode[n[j]].InConductor>=0)
-					if(circproplist[meshnode[n[j]].InConductor].CircType==0)
-						ne[j]=meshnode[n[j]].InConductor+NumNodes;
-			}
-			for (j=0;j<3;j++){
-				for (k=j;k<3;k++)
-                L.Put(L.Get(ne[j],ne[k])-Me[j][k],ne[j],ne[k]);
-				L.b[ne[j]]-=be[j];
-
-				if(ne[j]!=n[j])
-				{
-					L.Put(L.Get(n[j],n[j])-Me[j][j],n[j],n[j]);
-					L.Put(L.Get(n[j],ne[j])+Me[j][j],n[j],ne[j]);
-				}
-			}
-
-		} // end of loop that builds element matrices
-
-		// add in contribution from point charge density;
-		for(i=0;i<NumNodes;i++)
-		{
-            if((meshnode[i].BoundaryMarker>=0) && (L.Q[i]==-2))
-			{
-				if (ProblemType==AXISYMMETRIC) Depth=2.*PI*meshnode[i].x;
-                L.b[i]+=(Depth*nodeproplist[meshnode[i].BoundaryMarker].qp);
+                L.V[i]=nodeproplist[meshnode[i].BoundaryMarker].V;
 				L.Q[i]=-1;
 			}
 
-			// some bookkeeping to denote which nodes we can smooth over
-			if(meshnode[i].InConductor>=0) L.Q[i]=meshnode[i].InConductor;
-		}
-
-		// Apply any periodicity/antiperiodicity boundary conditions that we have
-		for(k=0,pctr=0;k<NumPBCs;k++)
-		{
-			if (pbclist[k].t==0) L.Periodicity(pbclist[k].x,pbclist[k].y);
-			if (pbclist[k].t==1) L.AntiPeriodicity(pbclist[k].x,pbclist[k].y);
-		}
-
-		// Finish building the equations that assign conductor voltage;
-		for(i=0;i<NumCircProps;i++)
-		{
-			// put a placeholder on the main diagonal;
-			k=NumNodes+i;
-
-			if (circproplist[i].CircType==1)
+		if(meshnode[i].InConductor>=0)
+			if(circproplist[meshnode[i].InConductor].CircType==1)
 			{
-				K=L.Get(0,0);
-				L.Put(K,k,k);
-				L.b[k]=K*circproplist[i].V;
+				L.V[i]=circproplist[meshnode[i].InConductor].V;
+				L.Q[i]=meshnode[i].InConductor;
 			}
+	}
 
-			if(circproplist[i].CircType==0)
+	// account for fixed boundary conditions along segments;
+	for(i=0;i<NumEls;i++)
+	{
+		for(j=0;j<3;j++){
+			k=j+1; if(k==3) k=0;
+			if(meshele[i].e[j]>=0)
 			{
-				for(j=0,K=0;j<L.n;j++) if(j!=k) K+=L.Get(k,j);
-				if(K!=0){
-					L.Put(-K,k,k);
-					L.b[k]=circproplist[i].q;
+				if(lineproplist[ meshele[i].e[j] ].BdryFormat==0)
+				{	
+					L.V[meshele[i].p[j]]=lineproplist[meshele[i].e[j]].V;
+					L.V[meshele[i].p[k]]=lineproplist[meshele[i].e[j]].V;
+					L.Q[meshele[i].p[j]]=-1;
+					L.Q[meshele[i].p[k]]=-1;
 				}
-				else L.Put(L.Get(0,0),k,k);
-
-
 			}
+		}		
+	}
+
+
+	// build element matrices using the matrices derived in Allaire's book.
+	for(i=0;i<NumEls;i++)
+	{
+		// update progress bar
+		j=5*((i*20)/NumEls); 
+        if(j!=pctr){
+            pctr=j;
+            //TheView->m_prog1.SetPos(pctr);
+        }
+
+		// zero out Me, be;
+		for(j=0;j<3;j++){
+			for(k=0;k<3;k++) Me[j][k]=0;
+			be[j]=0;
 		}
 
-		// solve the problem;
-        if (L.PCGSolve(iter++)==false){
-			free(Vo);
-            return false;
+		// Determine shape parameters.
+		// l's are element side lengths;
+		// p's corresponds to the `b' parameter in Allaire
+		// q's corresponds to the `c' parameter in Allaire
+		El=&meshele[i];		
+	
+		for(k=0;k<3;k++) n[k]=El->p[k];
+		p[0]=meshnode[n[1]].y - meshnode[n[2]].y;
+		p[1]=meshnode[n[2]].y - meshnode[n[0]].y;
+		p[2]=meshnode[n[0]].y - meshnode[n[1]].y;	
+		q[0]=meshnode[n[2]].x - meshnode[n[1]].x;
+		q[1]=meshnode[n[0]].x - meshnode[n[2]].x;
+		q[2]=meshnode[n[1]].x - meshnode[n[0]].x;
+		for(j=0,k=1;j<3;k++,j++){
+			if (k==3) k=0;
+			l[j]=sqrt( sq(meshnode[n[k]].x-meshnode[n[j]].x) +
+					   sq(meshnode[n[k]].y-meshnode[n[j]].y) );
 		}
+		a=(p[0]*q[1]-p[1]*q[0])/2.;
+		r=(meshnode[n[0]].x+meshnode[n[1]].x+meshnode[n[2]].x)/3.;
 
-        if (IsNonlinear == true)
-		{
-			double e1=0;
-			double e2=0;
-			int prog;
-			char fmsg[256];
+		if (ProblemType==AXISYMMETRIC){
+			Depth=2.*PI*r;
 
-			sprintf(fmsg,"Iteration(%i) ",iter);
-            printf("%s", fmsg);
-			//TheView->SetDlgItemText(IDC_FRAME2,fmsg);
-
-			for(i=0;i<NumNodes;i++){
-				e1+=(L.V[i]-Vo[i])*(L.V[i]-Vo[i]);
-				e2+=(Vo[i]*Vo[i]);
-			}
-			if(e2!=0)
+			// "Warp" the permeability of this element is part of 
+			// the conformally mapped external region
+			if(labellist[meshele[i].lbl].IsExternal)
 			{
-				// test to see if we have converged.
-                if(sqrt(e1/e2) < Precision*100.) IsNonlinear=false;
-				prog=(int)  (100.*log10(e1/e2)/(log10(Precision)+2.));
-				if (prog>100) prog=100;
-			//	TheView->m_prog2.SetPos(prog);
+				z=(meshnode[n[0]].y+meshnode[n[1]].y+meshnode[n[2]].y)/3. - extZo;
+				kludge=(r*r+z*z)/(extRi*extRo); 
+			}
+			else kludge=1;
+		}
+		
 
+		// x-contribution;
+		K = -Depth*blockproplist[El->blk].ex/(4.*a)/kludge;
+		for(j=0;j<3;j++)
+			for(k=j;k<3;k++)
+			{	
+				Me[j][k] += K*p[j]*p[k];
+				if (j!=k) Me[k][j]+=K*p[j]*p[k];
+			}
+
+		// y-contribution; 
+		K = -Depth*blockproplist[El->blk].ey/(4.*a)/kludge;
+		for(j=0;j<3;j++)
+			for(k=j;k<3;k++)
+			{
+				Me[j][k] +=K*q[j]*q[k];
+				if (j!=k) Me[k][j]+=K*q[j]*q[k];
+			}
+
+		// contribution to be[] from volume charge density
+		for(j = 0;j<3;j++){
+			K = -Depth*c*(blockproplist[El->blk].qv)*a/3.;
+			be[j]+=K;
+		}
+
+
+		for(j=0;j<3;j++)
+		{
+			if (El->e[j] >= 0)
+			{
+				k=j+1; if(k==3) k=0;
+
+				if (ProblemType==AXISYMMETRIC) 
+					Depth=PI*(meshnode[n[j]].x + meshnode[n[k]].x);
+
+				// contributions to Me, be from derivative boundary conditions;
+				if (lineproplist[El->e[j]].BdryFormat==1)
+				{
+					K =-1000.*Depth*c*lineproplist[El->e[j]].c0*l[j]/6.;
+					Me[j][j]+=K*2.;
+					Me[k][k]+=K*2.;
+					Me[j][k]+=K;
+					Me[k][j]+=K;
+
+					K = 1000.*Depth*c*lineproplist[El->e[j]].c1*l[j]/2.;
+					be[j]+=K;
+					be[k]+=K;
+				}
+			
+				// contribution to be[] from surface charge density;
+				if (lineproplist[El->e[j]].BdryFormat==2)
+				{
+					K =-1000.*Depth*c*lineproplist[El->e[j]].qs*l[j]/2.;
+					be[j]+=K;
+					be[k]+=K;
+				}
 			}
 		}
 
-    }while(IsNonlinear == true);
+		// process any prescribed nodal values;
+		for(j=0;j<3;j++)
+		{
+			if(L.Q[n[j]]!=-2)
+			{
+				for(k=0;k<3;k++)
+				{
+					if(j!=k){
+						be[k]-=Me[k][j]*L.V[n[j]];
+						Me[k][j]=0;
+						Me[j][k]=0;
+					}
+				}
+				be[j]=L.V[n[j]]*Me[j][j];
+			}
+		}
 
+		// combine block matrices into global matrices;
+		for (j=0;j<3;j++)
+		{
+			ne[j]=n[j];
+			if(meshnode[n[j]].InConductor>=0)
+				if(circproplist[meshnode[n[j]].InConductor].CircType==0)
+					ne[j]=meshnode[n[j]].InConductor+NumNodes;
+		}
+		for (j=0;j<3;j++){
+			for (k=j;k<3;k++)
+				L.Put(L.Get(ne[j],ne[k])-Me[j][k],ne[j],ne[k]);
+			L.b[ne[j]]-=be[j];
+
+			if(ne[j]!=n[j])
+			{
+				L.Put(L.Get(n[j],n[j])-Me[j][j],n[j],n[j]);
+				L.Put(L.Get(n[j],ne[j])+Me[j][j],n[j],ne[j]);
+			}
+		}
+
+	} // end of loop that builds element matrices
+
+	// add in contribution from point charge density;
+	for(i=0;i<NumNodes;i++)
+	{
+        if((meshnode[i].BoundaryMarker>=0) && (L.Q[i]==-2))
+		{
+			if (ProblemType==AXISYMMETRIC) Depth=2.*PI*meshnode[i].x;
+            L.b[i]+=((1.e6)*Depth*c*nodeproplist[meshnode[i].BoundaryMarker].qp);
+			L.Q[i]=-1;
+		}
+
+		// some bookkeeping to denote which nodes we can smooth over
+		if(meshnode[i].InConductor>=0) L.Q[i]=meshnode[i].InConductor;
+	}
+
+	// Apply any periodicity/antiperiodicity boundary conditions that we have
+	for(k=0,pctr=0;k<NumPBCs;k++)
+	{
+		if (pbclist[k].t==0) L.Periodicity(pbclist[k].x,pbclist[k].y);
+		if (pbclist[k].t==1) L.AntiPeriodicity(pbclist[k].x,pbclist[k].y);
+	}
+
+	// Finish building the equations that assign conductor voltage;
+	for(i=0;i<NumCircProps;i++)
+	{
+		// put a placeholder on the main diagonal;
+		k=NumNodes+i;
+		
+		if (circproplist[i].CircType==1)
+		{
+			K=L.Get(0,0);
+			L.Put(K,k,k);
+			L.b[k]=K*circproplist[i].V;
+		}
+
+		if(circproplist[i].CircType==0)
+		{
+			for(j=0,K=0;j<L.n;j++) if(j!=k) K+=L.Get(k,j);
+			if(K!=0){
+				L.Put(-K,k,k);
+				L.b[k]=(1.e9)*c*circproplist[i].q;
+			}
+			else L.Put(L.Get(0,0),k,k);
+
+
+		}
+	}
+
+	// solve the problem;
+    if (! L.PCGSolve(false)) return false;
+	
 	// compute total charge on conductors
 	// with a specified voltage
 	for(i=0;i<NumCircProps;i++)
 		if(circproplist[i].CircType==1)
 			circproplist[i].q=ChargeOnConductor(i,L);
 
-	free(Vo);
     return true;
 }
 
 //=========================================================================
 //=========================================================================
 
+/**
+ * @brief ESolver::WriteResults
+ * @param L
+ * @return
+ *
+ * \internal
+ * ### FEMM source:
+ * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::WriteResults()}
+ * \endinternal
+ */
 int ESolver::WriteResults(CHBigLinProb &L)
 {
 	// write solution to disk;
@@ -792,21 +665,21 @@ int ESolver::WriteResults(CHBigLinProb &L)
 	FILE *fp,*fz;
 	int i;
 	double cf;
-	// first, echo input .feh file to the .anh file;
-	sprintf(c,"%s.feh",PathName.c_str());
+	// first, echo input .fee file to the .res file;
+	sprintf(c,"%s.fee",PathName.c_str());
 
 	fz=fopen(c,"rt");
 	if(fz==NULL)
     {
-		printf("Couldn't open %s.feh\n", PathName.c_str());
+		printf("Couldn't open %s.fee\n", PathName.c_str());
         return false;
 	}
 
-    sprintf(c,"%s.anh",PathName.c_str());
+    sprintf(c,"%s.res",PathName.c_str());
     fp=fopen(c,"wt");
 	if(fp==NULL)
     {
-		printf("Couldn't write to %s.anh",PathName.c_str());
+		printf("Couldn't write to %s.res",PathName.c_str());
         return false;
 	}
 
@@ -819,7 +692,7 @@ int ESolver::WriteResults(CHBigLinProb &L)
 	// then print out node, line, and element information
 	fprintf(fp,"[Solution]\n");
     // get conversion factor for conversion from internal working units of 
-    // mm to the specified length units
+    // mm to the specified length units //ZaJ TODO CHECK
 	cf = units[LengthUnits];
 	fprintf(fp,"%i\n",NumNodes);
 	for(i=0;i<NumNodes;i++)
@@ -850,13 +723,23 @@ int ESolver::WriteResults(CHBigLinProb &L)
 //=========================================================================
 
 
-double ESolver::ChargeOnConductor(int u, CHBigLinProb &L)
+/**
+ * @brief ESolver::ChargeOnConductor
+ * @param L
+ * @return
+ *
+ * \internal
+ * ### FEMM source:
+ * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::ChargeOnConductor()}
+ * \endinternal
+ */
+double ESolver::ChargeOnConductor(int u, CBigLinProb &L)
 {
 	int i,k;
 	double b[3],c[3];		// element shape parameters;
 	int n[3];				// numbers of nodes for a particular element;
 	double a,da,Dx,Dy,vx,vy,Z;
-	CComplex kn;
+	double LengthConv=0.001;
 
 	for(i=0;i<NumNodes;i++)
 		if(meshnode[i].InConductor==u) L.P[i]=1;
@@ -877,21 +760,20 @@ double ESolver::ChargeOnConductor(int u, CHBigLinProb &L)
 			c[1]=meshnode[n[0]].x - meshnode[n[2]].x;
 			c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
 			da=(b[0]*c[1]-b[1]*c[0]);
-			a=da/2.;
+			a=da*LengthConv*LengthConv/2.;
 			if (ProblemType==AXISYMMETRIC)
-				a*=(2.*PI*(meshnode[n[0]].x+meshnode[n[1]].x+meshnode[n[2]].x)/3.);
-			else a*=Depth;
+				a*=(2.*PI*LengthConv*(meshnode[n[0]].x+meshnode[n[1]].x+meshnode[n[2]].x)/3.);
+			else a*=(Depth*LengthConv);
 			// get normal vector and element flux density;
-			for(k=0,kn=0,vx=0,vy=0,Dx=0,Dy=0;k<3;k++)
+			for(k=0,vx=0,vy=0,Dx=0,Dy=0;k<3;k++)
 			{
-				vx-=(L.P[n[k]]*b[k])/da;
-				vy-=(L.P[n[k]]*c[k])/da;
-				Dx-=(L.V[n[k]]*b[k])/da;
-				Dy-=(L.V[n[k]]*c[k])/da;
-				kn+=blockproplist[meshele[i].blk].GetK(L.V[n[k]])/3.;
+				vx-=(L.P[n[k]]*b[k])/(da*LengthConv);
+				vy-=(L.P[n[k]]*c[k])/(da*LengthConv);
+				Dx-=(L.V[n[k]]*b[k])/(da*LengthConv);
+				Dy-=(L.V[n[k]]*c[k])/(da*LengthConv);
 			}
-			Dx*=Re(kn);
-			Dy*=Im(kn);
+			Dx*=(eo*blockproplist[meshele[i].blk].ex);
+			Dy*=(eo*blockproplist[meshele[i].blk].ey);
 
 			Z+=a*(Dx*vx+Dy*vy);
 		}
@@ -926,11 +808,5 @@ void ESolver::SortNodes (int* newnum)
 
 bool ESolver::handleToken(const string &token, istream &input, ostream &err)
 {
-    if( token == "[dt]" )
-    {
-        expectChar(input, '=', err);
-        parseValue(input, dT, err);
-        return true;
-    }
     return false;
 }
