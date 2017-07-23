@@ -497,3 +497,26 @@ void CBigLinProb::ComputeBandwidth()
 
     printf("Assumed Bandwidth = %i\nActual Bandwidth = %i", bdw, maxbw);
 }
+
+CHBigLinProb::CHBigLinProb()
+{
+    // nothing to see here
+}
+
+CHBigLinProb::~CHBigLinProb()
+{
+    free(Q);
+    n = 0;
+}
+
+int CHBigLinProb::Create(int d, int bw)
+{
+
+    // call the parent Create function
+    int status = CBigLinProb::Create (d, bw);
+
+    // initialise the Q array
+    Q = (int *)  calloc(d,sizeof(int));
+
+    return status;
+}

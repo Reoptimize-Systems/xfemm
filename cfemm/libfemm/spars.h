@@ -79,6 +79,24 @@ private:
 
 };
 
+// shared between hsolver and esolver
+// I'm not sure how to call this (or maybe we should just merge this into CBigLinProb)
+class CHBigLinProb : public CBigLinProb
+{
+public:
 
+    // constructor
+    CHBigLinProb();
+    // destructor
+    ~CHBigLinProb();
+
+    // data members
+    int *Q;
+
+    // member functions
+
+    int Create(int d, int bw);	// initialize the problem
+
+};
 
 #endif
