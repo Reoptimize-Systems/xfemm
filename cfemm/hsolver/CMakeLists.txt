@@ -12,7 +12,6 @@ include_directories(../libfemm)
 
 add_library(hsolver STATIC 
   hsolver.cpp
-  hspars.cpp
   )
 target_link_libraries(hsolver femm)
 

@@ -30,7 +30,7 @@
 #define HSOLVER_H
 
 #include "feasolver.h"
-#include "hspars.h"
+#include "spars.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CCircuit.h"

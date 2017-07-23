@@ -29,7 +29,7 @@
 
 #include "femmcomplex.h"
 #include "femmconstants.h"
-#include "hspars.h"
+#include "spars.h"
 #include "fparse.h"
 #include "hsolver.h"
 
