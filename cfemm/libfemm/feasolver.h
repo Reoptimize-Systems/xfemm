@@ -127,6 +127,17 @@ public:
 
     virtual void CleanUp();
 protected:
+    /**
+     * @brief LoadProblemFile
+     * @param file
+     * @return
+     * \internal
+     * ### FEMM source:
+     * - \femm42{fkn/femmedoccore.cpp:CFemmeDocCore::OnOpenDocument()}
+     * - \femm42{hsolv/hsolvdoc.cpp,Chsolvdoc::OnOpenDocument()}
+     * - \femm42{belasolv/femmedoccore.cpp,CFemmeDocCore::OnOpenDocument()}
+     * \endinternal
+     */
     bool LoadProblemFile(std::string &file);
     /**
      * @brief handleToken is called by LoadProblemFile() when a token is encountered that it can not handle.
