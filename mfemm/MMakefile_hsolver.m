@@ -59,7 +59,6 @@ function [rules,vars] = MMakefile_hsolver (varargin)
       '../cfemm/libfemm/CElement.${OBJ_EXT}', ...
       ... % hsolver
       '../cfemm/hsolver/hsolver.${OBJ_EXT}', ... 
-      '../cfemm/hsolver/hspars.${OBJ_EXT}', ...  
       ... % mexfunction
       'mexhsolver.cpp' };
 
@@ -153,9 +152,6 @@ function [rules,vars] = MMakefile_hsolver (varargin)
     rules(end+1).target = '../cfemm/hsolver/hmesh.${OBJ_EXT}';
     rules(end).deps = '../cfemm/hsolver/hmesh.h';
     
-    rules(end+1).target = '../cfemm/hsolver/hspars.${OBJ_EXT}';
-    rules(end).deps = '../cfemm/hsolver/hspars.h';
-
 
     rules(3).target = 'tidy';
     rules(3).commands = {'try; delete(''../cfemm/libfemm/liblua/*.${OBJ_EXT}''); catch; end;', ...
