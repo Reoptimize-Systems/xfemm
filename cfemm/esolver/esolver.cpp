@@ -806,7 +806,7 @@ void ESolver::SortNodes (int* newnum)
     }
 }
 
-bool ESolver::handleToken(const string &token, istream &input, ostream &err)
+bool ESolver::handleToken(const string &, istream &, ostream &)
 {
     return false;
 }
