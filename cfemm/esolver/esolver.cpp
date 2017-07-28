@@ -125,8 +125,6 @@ int ESolver::LoadMesh(bool deleteFiles)
     char infile[256];
     FILE *fp;
     char s[1024];
-    // FIXME(ZaJ) check if these factors are correct
-    double c[]={25.4,1.,10.,1000.,0.0254,0.001};
 
     //read meshnodes;
     sprintf(infile,"%s.node",PathName.c_str());
@@ -168,8 +166,9 @@ int ESolver::LoadMesh(bool deleteFiles)
         node.InConductor = n;
 
         // convert all lengths to internal working units of mm
-        node.x *= c[LengthUnits];
-        node.y *= c[LengthUnits];
+        double cf = units[LengthUnits];
+        node.x *= cf;
+        node.y *= cf;
 
         meshnode[i] = node;
     }
@@ -692,7 +691,7 @@ int ESolver::WriteResults(CHBigLinProb &L)
 	// then print out node, line, and element information
 	fprintf(fp,"[Solution]\n");
     // get conversion factor for conversion from internal working units of 
-    // mm to the specified length units //ZaJ TODO CHECK
+    // mm to the specified length units
 	cf = units[LengthUnits];
 	fprintf(fp,"%i\n",NumNodes);
 	for(i=0;i<NumNodes;i++)
