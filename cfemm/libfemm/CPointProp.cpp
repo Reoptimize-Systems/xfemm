@@ -170,6 +170,13 @@ CSPointProp CSPointProp::fromStream(istream &input, ostream &err)
                 parseValue(input, prop.qp, err);
                 continue;
             }
+
+            if( token == "<pointname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &prop.PointName, err);
+                continue;
+            }
             if (token != "<endpoint>")
                 err << "CSPointProp: unexpected token: "<<token << "\n";
         }
@@ -181,6 +188,7 @@ CSPointProp CSPointProp::fromStream(istream &input, ostream &err)
 void CSPointProp::toStream(ostream &out) const
 {
     out << "  <BeginPoint>\n";
+    out << "    <PointName> = \"" << PointName << "\"\n";
     out << "    <Vp> = " << V << "\n";
     out << "    <qp> = " << qp << "\n";
     out << "  <EndPoint>\n";
