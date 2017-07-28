@@ -218,8 +218,8 @@ int FSolver::LoadMesh(bool deleteFiles)
         node.BoundaryMarker=j;
 
         // convert all lengths to centimeters (better conditioning this way...)
-        node.x *= 100 * LengthConv[LengthUnits];
-        node.y *= 100 * LengthConv[LengthUnits];
+        node.x *= 100 * LengthConvMeters[LengthUnits];
+        node.y *= 100 * LengthConvMeters[LengthUnits];
 
         meshnode[i] = node;
     }
