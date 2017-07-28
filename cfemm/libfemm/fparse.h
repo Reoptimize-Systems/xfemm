@@ -27,7 +27,7 @@ enum LengthUnit {
 };
 
 // Conversion table to meters:
-const double LengthConv[6] =
+const double LengthConvMeters[6] =
 {
     0.0254,   //inches
     0.001,    //millimeters
