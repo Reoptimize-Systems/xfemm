@@ -105,14 +105,9 @@ int CBigLinProb::Create(int d, int bw)
 void CBigLinProb::Put(double v, int p, int q)
 {
     CEntry *e,*l = NULL;
-    int i;
 
     if (q<p)
-    {
-        i = p;
-        p = q;
-        q = i;
-    }
+        swap(p,q);
 
     e = M[p];
 
@@ -373,11 +368,7 @@ void CBigLinProb::AntiPeriodicity(int i, int j)
 #endif
 
     if (j<i)
-    {
-        k=j;
-        j=i;
-        i=k;
-    }
+        swap(j,i);
 
     if(bdw==0)
     {
@@ -432,11 +423,7 @@ void CBigLinProb::Periodicity(int i, int j)
 #endif
 
     if (j<i)
-    {
-        k=j;
-        j=i;
-        i=k;
-    }
+        swap(j,i);
 
     if(bdw==0)
     {
