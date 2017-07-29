@@ -178,7 +178,7 @@ int nrhs, const mxArray *prhs[])
               SolveObj.NumNodes,SolveObj.NumEls,
               SolveObj.Precision);
 
-    CHBigLinProb L;
+    CBigLinProb L;
 
     L.Precision = SolveObj.Precision;
 
