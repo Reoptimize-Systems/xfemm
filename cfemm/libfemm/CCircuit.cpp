@@ -186,9 +186,9 @@ CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
 void CHConductor::toStream(std::ostream &out) const
 {
     out << "  <BeginConductor>\n";
-    out << "    <Tc>" << V << "\n";
-    out << "    <qc>" << q << "\n";
-    out << "    <ConductorType>" << CircType << "\n";
+    out << "    <Tc> = " << V << "\n";
+    out << "    <qc> = " << q << "\n";
+    out << "    <ConductorType> = " << CircType << "\n";
     if (!CircName.empty())
         out << "    <ConductorName> =\"" << CircName << "\"\n";
     out << "  <EndConductor>\n";
@@ -255,10 +255,11 @@ CSCircuit CSCircuit::fromStream(istream &input, ostream &err)
 void CSCircuit::toStream(ostream &out) const
 {
     out << "  <BeginConductor>\n";
-    out << "    <ConductorName> =\"" << CircName << "\"\n";
-    out << "    <Vc>" << V << "\n";
-    out << "    <qc>" << q << "\n";
-    out << "    <ConductorType>" << CircType << "\n";
+    if (!CircName.empty())
+        out << "    <ConductorName> =\"" << CircName << "\"\n";
+    out << "    <Vc> = " << V << "\n";
+    out << "    <qc> = " << q << "\n";
+    out << "    <ConductorType> = " << CircType << "\n";
     out << "  <EndConductor>\n";
 }
 
