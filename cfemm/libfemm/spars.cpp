@@ -26,7 +26,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <utility>
-#include <string>
 
 using std::swap;
 
@@ -245,9 +244,7 @@ bool CBigLinProb::PCGSolve(int flag)
     // quick check for most obvious sign of singularity;
     for(i=0; i<n; i++) if(M[i]->x==0)
         {
-            std::string msg = "singular flag tripped at ";
-            msg += i + " of " + n;
-            fprintf(stderr,msg.c_str());
+            fprintf(stderr,"singular flag tripped at %i of %i", i,n);
             return 0;
         }
 
