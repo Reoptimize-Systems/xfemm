@@ -64,10 +64,30 @@ public:
     /**
      * @brief saveFEMFile saves the problem description into a .fem file.
      * If the file type is UnknownFile, the method fails.
+     *
+     * Internally, this calls writeProblemDescription.
      * @param filename
      * @return \c true if saving was successful, \c false otherwise
      */
     bool saveFEMFile( std::string &filename ) const;
+
+    /**
+     * @brief writeProblemDescription writes the problem description into an output stream.
+     * @param output
+     * @return
+     * \internal
+     * When adding a new file type, you need to check that all peculiarities are handled here.
+     * E.g. the name of the conductor property section varies with file type.
+     * For now, the following file types are fully supported: electrostatics, heat flow.
+     *
+     * ### FEMM source:
+     *  - \femm42{femm/beladrawDoc.cpp,OnSaveDocument()}
+     *  - \femm42{femm/CDRAWDOC.cpp,OnSaveDocument()}
+     *  - \femm42{femm/FemmeDoc.cpp,OnSaveDocument()}
+     *  - \femm42{femm/HDRAWDOC.cpp,OnSaveDocument()}
+     * \endinternal
+     */
+    void writeProblemDescription( std::ostream &output ) const;
 
     /**
      * @brief Update BoundaryMarkerName and InConductorName textual references from their index.

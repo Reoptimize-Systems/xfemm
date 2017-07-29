@@ -28,72 +28,78 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
         return false;
     }
 
+    writeProblemDescription(fem);
+    return true;
+}
+
+void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
+{
     // set floating point precision once for the whole stream
-    fem << std::setprecision(17);
+    output << std::setprecision(17);
     // when filling to a width, adjust to the left
-    fem.setf(std::ios::left);
+    output.setf(std::ios::left);
     // width and fill-direction are only used to emulate the output of femm42 as close as possible.
 
     // ***** write properties ****
-    fem << "[Format]      =  4.0\n";
-    fem.width(12);
-    fem << "[Frequency]" << "  =  " << Frequency << "\n";
-    fem.width(12);
-    fem << "[Precision]" << "  =  " << Precision << "\n";
-    fem.width(12);
-    fem << "[MinAngle]" << "  =  " << MinAngle << "\n";
-    fem.width(12);
-    fem << "[Depth]" << "  =  " << Depth << "\n";
-    fem << "[LengthUnits] =  ";
+    output << "[Format]      =  4.0\n";
+    output.width(12);
+    output << "[Frequency]" << "  =  " << Frequency << "\n";
+    output.width(12);
+    output << "[Precision]" << "  =  " << Precision << "\n";
+    output.width(12);
+    output << "[MinAngle]" << "  =  " << MinAngle << "\n";
+    output.width(12);
+    output << "[Depth]" << "  =  " << Depth << "\n";
+    output << "[LengthUnits] =  ";
     switch (LengthUnits) {
     case femm::LengthMillimeters:
-        fem << "millimeters\n";
+        output << "millimeters\n";
         break;
     case femm::LengthCentimeters:
-        fem << "centimeters\n";
+        output << "centimeters\n";
         break;
     case femm::LengthMeters:
-        fem << "meters\n";
+        output << "meters\n";
         break;
     case femm::LengthMils:
-        fem << "mils\n";
+        output << "mils\n";
         break;
     case femm::LengthMicrometers:
-        fem << "microns\n";
+        output << "microns\n";
         break;
     case femm::LengthInches:
-        fem << "inches\n";
+        output << "inches\n";
         break;
     }
 
     if (ProblemType == femm::PLANAR)
     {
-        fem << "[ProblemType] =  planar\n";
+        output << "[ProblemType] =  planar\n";
     } else {
-        fem << "[ProblemType] =  axisymmetric\n";
+        output << "[ProblemType] =  axisymmetric\n";
         if ( extRo != 0 && extRi != 0)
         {
-            fem.width(12);
-            fem << "[extZo]" << "  =  " << extZo << "\n";
-            fem.width(12);
-            fem << "[extRo]" << "  =  " << extRo << "\n";
-            fem.width(12);
-            fem << "[extRi]" << "  =  " << extRi << "\n";
+            output.width(12);
+            output << "[extZo]" << "  =  " << extZo << "\n";
+            output.width(12);
+            output << "[extRo]" << "  =  " << extRo << "\n";
+            output.width(12);
+            output << "[extRi]" << "  =  " << extRi << "\n";
         }
     }
     if (Coords == femm::CART)
     {
-        fem << "[Coordinates] =  cartesian\n";
+        output << "[Coordinates] =  cartesian\n";
     } else {
-        fem << "[Coordinates] =  polar\n";
+        output << "[Coordinates] =  polar\n";
     }
 
-    fem.width(12);
-    fem << "[ACSolver]" << "  =  " << ACSolver <<"\n";
+    output.width(12);
+    output << "[ACSolver]" << "  =  " << ACSolver <<"\n";
     if (!PrevSoln.empty())
     {
-        fem.width(12);
-        fem << "[PrevSoln]" << "  = \"" << PrevSoln <<"\"\n";
+        output.width(12);
+        output << "[PrevSoln]" << "  = \"" << PrevSoln <<"\"\n";
     }
 
     std::string commentString (comment);
@@ -101,96 +107,104 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
     size_t pos = commentString.find('\n');
     while (pos != std::string::npos)
         commentString.replace(pos,1,"\\n");
-    fem.width(12);
-    fem << "[Comment]" << "  =  \"" << commentString <<"\"\n";
+    output.width(12);
+    output << "[Comment]" << "  =  \"" << commentString <<"\"\n";
 
     // ***** write data ****
-    fem.width(12);
-    fem << "[PointProps]" << "  =  " << nodeproplist.size() <<"\n";
+    output.width(12);
+    output << "[PointProps]" << "  =  " << nodeproplist.size() <<"\n";
     for( const auto &prop: nodeproplist)
     {
-        prop->toStream(fem);
+        prop->toStream(output);
     }
 
-    fem.width(12);
-    fem << "[BdryProps]" << "  = " << lineproplist.size() <<"\n";
+    output.width(12);
+    output << "[BdryProps]" << "  = " << lineproplist.size() <<"\n";
     for( const auto &prop: lineproplist)
     {
-        prop->toStream(fem);
+        prop->toStream(output);
     }
 
-    fem.width(12);
-    fem << "[BlockProps]" << "  = " << blockproplist.size() <<"\n";
+    output.width(12);
+    output << "[BlockProps]" << "  = " << blockproplist.size() <<"\n";
     for( const auto &prop: blockproplist)
     {
-        prop->toStream(fem);
+        prop->toStream(output);
     }
 
     std::string circuitHeader;
-    if (filetype==FileType::MagneticsFile)
+    if (filetype == FileType::MagneticsFile)
+    {
         circuitHeader =  "[CircuitProps]";
-    else if (filetype==FileType::HeatFlowFile)
+    } else {
         circuitHeader =  "[ConductorProps]";
-    fem.width(12);
-    fem << circuitHeader << "  = " << circproplist.size() <<"\n";
+    }
+
+    output.width(12);
+    output << circuitHeader << "  = " << circproplist.size() <<"\n";
     for( const auto &prop: circproplist)
     {
-        prop->toStream(fem);
+        prop->toStream(output);
     }
 
     // the solver does not even read this, but write it anyways...
-    fem << "[NumPoints] = " << nodelist.size() <<"\n";
+    output << "[NumPoints] = " << nodelist.size() <<"\n";
     for (const auto &node: nodelist)
     {
-        fem << node->x << "\t" << node->y
-            << "\t" << node->BoundaryMarker+1 << "\t" << node->InGroup;
+        output << node->x
+               << "\t" << node->y
+               << "\t" << node->BoundaryMarker+1
+               << "\t" << node->InGroup;
 
-        if (filetype == FileType::HeatFlowFile)
+        if ( filetype == FileType::HeatFlowFile ||
+             filetype == FileType::ElectrostaticsFile )
         {
-            fem << "\t" << node->InConductor+1;
+            output << "\t" << node->InConductor+1;
         }
-        fem << "\n";
+        output << "\n";
     }
     // the solver does not even read this, but write it anyways...
-    fem << "[NumSegments] = " << linelist.size() <<"\n";
+    output << "[NumSegments] = " << linelist.size() <<"\n";
     for (const auto &line: linelist)
     {
         // n0 n1 MaxSideLength BoundaryMarker Hidden Group [InConductor]
-        fem << line->n0 << "\t" << line->n1;
+        output << line->n0 << "\t" << line->n1;
         if (line->MaxSideLength < 0)
         {
-            fem << "\t-1";
+            output << "\t-1";
         } else {
-            fem << "\t" << line->MaxSideLength;
+            output << "\t" << line->MaxSideLength;
         }
 
-        fem << "\t" << line->BoundaryMarker+1
+        output << "\t" << line->BoundaryMarker+1
             << "\t" << (int)line->Hidden
             << "\t" << line->InGroup;
 
-        if (filetype == FileType::HeatFlowFile)
+        if ( filetype == FileType::HeatFlowFile ||
+             filetype == FileType::ElectrostaticsFile )
         {
-            fem << "\t" << line->InConductor+1;
+            output << "\t" << line->InConductor+1;
         }
-        fem << "\n";
+        output << "\n";
     }
     // the solver does not even read this, but write it anyways...
-    fem << "[NumArcSegments] = " << arclist.size() <<"\n";
+    output << "[NumArcSegments] = " << arclist.size() <<"\n";
     for (const auto &arc: arclist)
     {
         // n0 n1 ArcLength MaxSideLength BoundaryMarker Hidden Group [InConductor]
-        fem << arc->n0 << "\t" << arc->n1
+        output << arc->n0 << "\t" << arc->n1
             << "\t" << arc->ArcLength << "\t" << arc->MaxSideLength
             << "\t" << arc->BoundaryMarker+1
             << "\t" << (int)arc->Hidden
             << "\t" << arc->InGroup;
 
 
-        if (filetype == FileType::HeatFlowFile)
+        if ( filetype == FileType::HeatFlowFile ||
+             filetype == FileType::ElectrostaticsFile )
         {
-            fem << "\t" << arc->InConductor+1;
+            output << "\t" << arc->InConductor+1;
         }
-        fem << "\n";
+        output << "\n";
     }
     // write out list of holes;
     int numHoles=0;
@@ -200,23 +214,21 @@ bool femm::FemmProblem::saveFEMFile(std::string &filename) const
         if(!label->hasBlockType())
             numHoles++;
     }
-    fem << "[NumHoles] = " << numHoles << "\n";
+    output << "[NumHoles] = " << numHoles << "\n";
     for (const auto &label: labellist)
     {
         if(!label->hasBlockType())
-            fem << label->x << " " << label->y << " " << label->InGroup << "\n";
+            output << label->x << " " << label->y << " " << label->InGroup << "\n";
     }
 
-    fem << "[NumBlockLabels] = " << labellist.size()-numHoles << "\n";
+    output << "[NumBlockLabels] = " << labellist.size()-numHoles << "\n";
     for (const auto &label: labellist)
     {
         if(label->hasBlockType())
         {
-            label->toStream(fem);
+            label->toStream(output);
         }
     }
-
-    return true;
 }
 
 void femm::FemmProblem::updateLabelsFromIndex()
