@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 
     printf(outstr);
 
-    CHBigLinProb L;
+    CBigLinProb L;
 
     L.Precision = theHSolver.Precision;
     if (L.Create(theHSolver.NumNodes+theHSolver.NumCircProps,theHSolver.BandWidth)==false)

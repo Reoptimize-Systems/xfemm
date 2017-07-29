@@ -126,7 +126,7 @@ int main(int argc, char** argv)
 
     printf(outstr);
 
-    CHBigLinProb L;
+    CBigLinProb L;
 
     L.Precision = solverInstance.Precision;
     if (L.Create(solverInstance.NumNodes+solverInstance.NumCircProps,solverInstance.BandWidth)==false)
