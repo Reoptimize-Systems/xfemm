@@ -53,6 +53,8 @@ public:
     double Precision;		// error tolerance for solution
     double Lambda;			// relaxation factor;
 
+    int *Q; ///< Used by esolver and hsolver.
+
     // member functions
 
     // constructor
@@ -76,26 +78,6 @@ public:
 //		CFknDlg *TheView;
 
 private:
-
-};
-
-// shared between hsolver and esolver
-// I'm not sure how to call this (or maybe we should just merge this into CBigLinProb)
-class CHBigLinProb : public CBigLinProb
-{
-public:
-
-    // constructor
-    CHBigLinProb();
-    // destructor
-    ~CHBigLinProb();
-
-    // data members
-    int *Q;
-
-    // member functions
-
-    int Create(int d, int bw);	// initialize the problem
 
 };
 

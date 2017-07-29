@@ -378,9 +378,9 @@ int ESolver::LoadMesh(bool deleteFiles)
  * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::AnalyzeProblem()}
  * \endinternal
  */
-int ESolver::AnalyzeProblem(CHBigLinProb &L)
+int ESolver::AnalyzeProblem(CBigLinProb &L)
 {
-	int i,j,k,pctr=0;
+    int i,j,k;
 	double Me[3][3],be[3];		// element matrices;
 	double l[3],p[3],q[3];		// element shape parameters;
 	int n[3],ne[3];				// numbers of nodes for a particular element;
@@ -439,12 +439,6 @@ int ESolver::AnalyzeProblem(CHBigLinProb &L)
 	// build element matrices using the matrices derived in Allaire's book.
 	for(i=0;i<NumEls;i++)
 	{
-		// update progress bar
-//		j=5*((i*20)/NumEls);
-//        if(j!=pctr){
-//            pctr=j;
-//            TheView->m_prog1.SetPos(pctr);
-//        }
 
 		// zero out Me, be;
 		for(j=0;j<3;j++){
@@ -599,7 +593,7 @@ int ESolver::AnalyzeProblem(CHBigLinProb &L)
 	}
 
 	// Apply any periodicity/antiperiodicity boundary conditions that we have
-	for(k=0,pctr=0;k<NumPBCs;k++)
+    for(k=0;k<NumPBCs;k++)
 	{
 		if (pbclist[k].t==0) L.Periodicity(pbclist[k].x,pbclist[k].y);
 		if (pbclist[k].t==1) L.AntiPeriodicity(pbclist[k].x,pbclist[k].y);
@@ -656,7 +650,7 @@ int ESolver::AnalyzeProblem(CHBigLinProb &L)
  * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::WriteResults()}
  * \endinternal
  */
-int ESolver::WriteResults(CHBigLinProb &L)
+int ESolver::WriteResults(CBigLinProb &L)
 {
 	// write solution to disk;
 

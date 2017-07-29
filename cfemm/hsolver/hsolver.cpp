@@ -429,7 +429,7 @@ int HSolver::LoadMesh(bool deleteFiles)
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-int HSolver::AnalyzeProblem(CHBigLinProb &L)
+int HSolver::AnalyzeProblem(CBigLinProb &L)
 {
 	int i,j,k,bf,pctr=0;
 	double Me[3][3],be[3];		// element matrices;
@@ -827,7 +827,7 @@ int HSolver::AnalyzeProblem(CHBigLinProb &L)
 //=========================================================================
 //=========================================================================
 
-int HSolver::WriteResults(CHBigLinProb &L)
+int HSolver::WriteResults(CBigLinProb &L)
 {
 	// write solution to disk;
 
@@ -893,7 +893,7 @@ int HSolver::WriteResults(CHBigLinProb &L)
 //=========================================================================
 
 
-double HSolver::ChargeOnConductor(int u, CHBigLinProb &L)
+double HSolver::ChargeOnConductor(int u, CBigLinProb &L)
 {
 	int i,k;
 	double b[3],c[3];		// element shape parameters;

@@ -26,6 +26,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <utility>
+#include <string>
 
 using std::swap;
 
@@ -73,6 +74,8 @@ CBigLinProb::~CBigLinProb()
     }
 
     free(M);
+    free(Q);
+    n = 0;
 }
 
 int CBigLinProb::Create(int d, int bw)
@@ -95,6 +98,7 @@ int CBigLinProb::Create(int d, int bw)
         M[i] = new CEntry;
         M[i]->c = i;
     }
+    Q = (int *)  calloc(d,sizeof(int));
 
     return 1;
 }
@@ -241,7 +245,9 @@ bool CBigLinProb::PCGSolve(int flag)
     // quick check for most obvious sign of singularity;
     for(i=0; i<n; i++) if(M[i]->x==0)
         {
-            fprintf(stderr,"singular flag tripped.");
+            std::string msg = "singular flag tripped at ";
+            msg += i + " of " + n;
+            fprintf(stderr,msg.c_str());
             return 0;
         }
 
@@ -496,27 +502,4 @@ void CBigLinProb::ComputeBandwidth()
 //	MsgBox("Assumed Bandwidth = %i\nActual Bandwidth = %i",bdw,maxbw);
 
     printf("Assumed Bandwidth = %i\nActual Bandwidth = %i", bdw, maxbw);
-}
-
-CHBigLinProb::CHBigLinProb()
-{
-    // nothing to see here
-}
-
-CHBigLinProb::~CHBigLinProb()
-{
-    free(Q);
-    n = 0;
-}
-
-int CHBigLinProb::Create(int d, int bw)
-{
-
-    // call the parent Create function
-    int status = CBigLinProb::Create (d, bw);
-
-    // initialise the Q array
-    Q = (int *)  calloc(d,sizeof(int));
-
-    return status;
 }
