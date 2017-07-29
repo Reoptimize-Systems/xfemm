@@ -440,11 +440,11 @@ int ESolver::AnalyzeProblem(CHBigLinProb &L)
 	for(i=0;i<NumEls;i++)
 	{
 		// update progress bar
-		j=5*((i*20)/NumEls); 
-        if(j!=pctr){
-            pctr=j;
-            //TheView->m_prog1.SetPos(pctr);
-        }
+//		j=5*((i*20)/NumEls);
+//        if(j!=pctr){
+//            pctr=j;
+//            TheView->m_prog1.SetPos(pctr);
+//        }
 
 		// zero out Me, be;
 		for(j=0;j<3;j++){
@@ -663,7 +663,7 @@ int ESolver::WriteResults(CHBigLinProb &L)
 	char c[1024];
 	FILE *fp,*fz;
 	int i;
-	double cf;
+    double cf;
 	// first, echo input .fee file to the .res file;
 	sprintf(c,"%s.fee",PathName.c_str());
 
