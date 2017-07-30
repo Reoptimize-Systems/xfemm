@@ -29,10 +29,10 @@
 	Linz Center of Mechatronics GmbH (LCM)
 */
 
-// esolver.h : interface of the ESolver class
+// ssolver.h : interface of the SSolver class
 
-#ifndef ESOLVER_H
-#define ESOLVER_H
+#ifndef SSOLVER_H
+#define SSOLVER_H
 
 #include "feasolver.h"
 #include "spars.h"
@@ -45,7 +45,7 @@
 
 #include <string>
 
-class ESolver : public FEASolver<
+class SSolver : public FEASolver<
         femm::CSPointProp
         , femm::CSBoundaryProp
         , femm::CSMaterialProp
@@ -58,8 +58,8 @@ class ESolver : public FEASolver<
 // Attributes
 public:
 
-	ESolver();
-	~ESolver();
+	SSolver();
+	~SSolver();
 
 
     // mesh information
