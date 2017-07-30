@@ -141,6 +141,8 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
             femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::MagneticsFile));
             break;
         case 1: // electrostatics
+            femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::ElectrostaticsFile));
+            break;
         case 2: // heat flow
         case 3: // current flow
             debug << "NOP: newdocument("<<docType<<")" << std::endl;
@@ -174,27 +176,38 @@ int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
     assert(femmState);
     std::string filename = lua_tostring(L,1);
 
+    std::stringstream err;
+    bool ok;
+
     switch (fmesher::FMesher::GetFileType(filename)) {
     case femm::FileType::MagneticsFile:
     {
         femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::MagneticsFile));
-        std::stringstream err;
         femm::MagneticsReader reader(femmState->femmDocument(), err);
-        if (reader.parse(filename)!=F_FILE_OK)
-        {
-            std::string msg = "Could not read file " + filename;
-            msg += "\nError: " + err.str() + "\n";
-            lua_error(L, msg.c_str());
-        }
+        ok = (reader.parse(filename)==F_FILE_OK);
+    }
+        break;
+    case FileType::ElectrostaticsFile:
+    {
+        femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::ElectrostaticsFile));
+        femm::ElectrostaticsReader reader(femmState->femmDocument(), err);
+        ok = (reader.parse(filename)==F_FILE_OK);
     }
         break;
     case FileType::CurrentFlowFile:
-    case FileType::ElectrostaticsFile:
     case FileType::HeatFlowFile:
     case FileType::Unknown:
         std::string msg = "File not supported: " + filename;
         lua_error(L, msg.c_str());
+        return 0;
         break;
+    }
+
+    if (!ok)
+    {
+        std::string msg = "Could not read file " + filename;
+        msg += "\nError: " + err.str() + "\n";
+        lua_error(L, msg.c_str());
     }
     return 0;
 }
