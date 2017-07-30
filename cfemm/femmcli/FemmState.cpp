@@ -37,11 +37,12 @@ void femmcli::FemmState::setDocument(std::shared_ptr<femm::FemmProblem> doc)
 
 const std::shared_ptr<FPProc> femmcli::FemmState::getFPProc()
 {
-    if (!current.postprocessor)
+    if (!current.fpproc)
     {
-        current.postprocessor = std::make_shared<FPProc>();
+        if (current.document && current.document->filetype == femm::FileType::MagneticsFile)
+            current.fpproc = std::make_shared<FPProc>();
     }
-    return current.postprocessor;
+    return current.fpproc;
 }
 
 const std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
@@ -55,36 +56,36 @@ const std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
 
 void femmcli::FemmState::invalidateSolutionData()
 {
-    current.postprocessor.reset();
+    current.fpproc.reset();
 }
 
 void femmcli::FemmState::close()
 {
     current.document.reset();
     current.mesher.reset();
-    current.postprocessor.reset();
+    current.fpproc.reset();
 }
 
 void femmcli::FemmState::deactivateProblemSet()
 {
-    inactiveMagneticsProblems.push_back(current);
-    current = MagneticsProblemSet();
+    inactiveProblems.push_back(current);
+    current = ProblemSet();
 }
 
 bool femmcli::FemmState::activateProblemSet(const std::string &title)
 {
-    for (auto it=inactiveMagneticsProblems.cbegin()
-         , end = inactiveMagneticsProblems.cend()
+    for (auto it=inactiveProblems.cbegin()
+         , end = inactiveProblems.cend()
          ; it != end
          ; ++it)
     {
         if (it->document->getTitle() == title)
         {
             // deactivate current problem set
-            inactiveMagneticsProblems.push_back(current);
+            inactiveProblems.push_back(current);
             // activate problem set
             current = *it;
-            inactiveMagneticsProblems.erase(it);
+            inactiveProblems.erase(it);
             return true;
         }
     }
