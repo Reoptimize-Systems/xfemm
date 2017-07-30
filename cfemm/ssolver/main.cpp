@@ -35,12 +35,12 @@
 #include <string.h>
 #include "femmcomplex.h"
 #include "spars.h"
-#include "esolver.h"
+#include "ssolver.h"
 
 
 int main(int argc, char** argv)
 {
-    ESolver solverInstance;
+    SSolver solverInstance;
     char PathName[512];
     char outstr[1024];
 
