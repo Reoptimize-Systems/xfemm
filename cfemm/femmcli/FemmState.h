@@ -91,9 +91,10 @@ public:
     void setDocument(std::shared_ptr<femm::FemmProblem> doc);
 
     /**
-     * @brief Returns the current FPProc.
+     * @brief Returns the current magnetics post-processor.
      * If FPProc was not yet initialized, a new FPProc is initialized.
-     * @return
+     * If the current document is not a magnetics document, a null pointer is returned.
+     * @return an FPProc object, or null on document file type mismatch.
      */
     const std::shared_ptr<FPProc> getFPProc();
 
@@ -142,14 +143,14 @@ public:
      */
     bool isValid() const;
 private:
-    struct MagneticsProblemSet {
+    struct ProblemSet {
         std::shared_ptr<femm::FemmProblem> document;
         std::shared_ptr<fmesher::FMesher> mesher;
-        std::shared_ptr<FPProc> postprocessor;
+        std::shared_ptr<FPProc> fpproc;
     };
 
-    MagneticsProblemSet current;
-    std::vector<MagneticsProblemSet> inactiveMagneticsProblems;
+    ProblemSet current;
+    std::vector<ProblemSet> inactiveProblems;
 
 
 };
