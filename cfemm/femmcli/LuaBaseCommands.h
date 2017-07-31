@@ -28,32 +28,30 @@ namespace femmcli
 {
 
 /**
- * LuaBaseCommands registers the common lua commands usually provided by the FEMM UI.
+ * LuaBaseCommands provides the common lua commands usually provided by the FEMM UI.
  * The commmon Lua command set is described in section 3.2 of the FEMM manual.
  *
- * Since most commands in this set are UI-related, this class can only provide a dummy interface.
- * To actually implement these GUI-related commands, the easiest way is to inherit from it and register the commands in the constructor.
+ * Since most commands in this set are UI-related, this namespace can only provide a dummy interface.
  *
  * Note: mathlink commands (mlput, mlopen, mlclose) are not provided.
  */
-class LuaBaseCommands
+namespace LuaBaseCommands
 {
-public:
-    /**
-     * @brief Register the common command set with the given LuaInstance
-     * @param li a LuaInstance
-     */
-    static void registerCommands(femm::LuaInstance &li );
+/**
+ * @brief Register the common command set with the given LuaInstance
+ * This calls both registerBaseCommands() and registerNOPCommands().
+ * @param li a LuaInstance
+ */
+void registerCommands(femm::LuaInstance &li );
 
-protected:
-    static int luaError(lua_State *L);
-    static int luaExit(lua_State *L);
-    static int luaMessageBox(lua_State *L);
-    static int luaNewDocument(lua_State *L);
-    static int luaOpenDocument(lua_State *L);
-    static int luaPromptBox(lua_State *L);
-    static int luaSetWorkingDirectory(lua_State *L);
-};
+int luaError(lua_State *L);
+int luaExit(lua_State *L);
+int luaMessageBox(lua_State *L);
+int luaNewDocument(lua_State *L);
+int luaOpenDocument(lua_State *L);
+int luaPromptBox(lua_State *L);
+int luaSetWorkingDirectory(lua_State *L);
+}
 
 } /* namespace FemmLua*/
 

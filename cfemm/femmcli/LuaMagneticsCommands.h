@@ -28,103 +28,100 @@ namespace femmcli
 {
 
 /**
- * LuaMagneticsCommands registers the lua commands related to magnetics.
+ * LuaMagneticsCommands provides the lua commands related to magnetics.
  * The Lua magnetics command set is described in sections 3.3 and 3.4 of the FEMM manual.
  *
  */
-class LuaMagneticsCommands
+namespace LuaMagneticsCommands
 {
-public:
-    /**
-     * @brief Register the common command set with the given LuaInstance
-     * @param li a LuaInstance
-     */
-    static void registerCommands(femm::LuaInstance &li );
+/**
+ * @brief Register the common command set with the given LuaInstance
+ * @param li a LuaInstance
+ */
+void registerCommands(femm::LuaInstance &li );
 
-protected:
-
-    static int luaAddArc(lua_State *L);
-    static int luaAddBHPoint(lua_State *L);
-    static int luaAddBoundaryProp(lua_State *L);
-    static int luaAddCircuitProp(lua_State *L);
-    static int luaAddContourPoint(lua_State *L);
-    static int luaAddBlocklabel(lua_State *L);
-    static int luaAddLine(lua_State *L);
-    static int luaAddMatProp(lua_State *L);
-    static int luaAddNode(lua_State *L);
-    static int luaAddPointProp(lua_State *L);
-    static int luaAnalyze(lua_State *L);
-    static int luaAttachDefault(lua_State *L);
-    static int luaAttachOuterSpace(lua_State *L);
-    static int luaBendContourLine(lua_State *L);
-    static int luaBlockIntegral(lua_State *L);
-    static int luaClearBHPoints(lua_State *L);
-    static int luaClearBlock(lua_State *L);
-    static int luaClearContourPoint(lua_State *L);
-    static int luaClearSelected(lua_State *L);
-    static int luaCopyRotate(lua_State *L);
-    static int luaCopyTranslate(lua_State *L);
-    static int luaCreateMesh(lua_State *L);
-    static int luaCreateRadius(lua_State *L);
-    static int luaDefineOuterSpace(lua_State *L);
-    static int luaDeleteBoundaryProperty(lua_State *L);
-    static int luaDeleteCircuitProperty(lua_State *L);
-    static int luaDeleteSelectedArcSegments(lua_State *L);
-    static int luaDeleteSelectedBlockLabels(lua_State *L);
-    static int luaDeleteSelected(lua_State *L);
-    static int luaDeleteSelectedNodes(lua_State *L);
-    static int luaDeleteSelectedSegments(lua_State *L);
-    static int luaDeleteMaterial(lua_State *L);
-    static int luaDeletePointProperty(lua_State *L);
-    static int luaDetachDefault(lua_State *L);
-    static int luaDetachOuterSpace(lua_State *L);
-    static int luaExitPost(lua_State *L);
-    static int luaExitPre(lua_State *L);
-    static int luaGetBoundingBox(lua_State *L);
-    static int luaGetCircuitProperties(lua_State *L);
-    static int luaGetElement(lua_State *L);
-    static int luaGetMaterialFromLib(lua_State *L);
-    static int luaGetMeshNode(lua_State *L);
-    static int luaGetPointVals(lua_State *L);
-    static int luaGetProblemInfo(lua_State *L);
-    static int luaGetTitle(lua_State *L);
-    static int luaBGradient(lua_State *L);
-    static int luaGroupSelectBlock(lua_State *L);
-    static int luaLineIntegral(lua_State *L);
-    static int luaMirrorCopy(lua_State *L);
-    static int luaModifyBoundaryProp(lua_State *L);
-    static int luaModifyCircuitProperty(lua_State *L);
-    static int luaModifyMaterialProp(lua_State *L);
-    static int luaModifyPointProp(lua_State *L);
-    static int luaMoveRotate(lua_State *L);
-    static int luaMoveTranslate(lua_State *L);
-    static int luaNewDocument(lua_State *L);
-    static int luaNumElements(lua_State *L);
-    static int luaNumNodes(lua_State *L);
-    static int luaProbDef(lua_State *L);
-    static int luaPurgeMesh(lua_State *L);
-    static int luaReloadNOP(lua_State *L);
-    static int luaLoadSolution(lua_State *L);
-    static int luaSaveDocument(lua_State *L);
-    static int luaScaleMove(lua_State *L);
-    static int luaSelectArcsegment(lua_State *L);
-    static int luaSelectOutputBlocklabel(lua_State *L);
-    static int luaSelectWithinCircle(lua_State *L);
-    static int luaSelectGroup(lua_State *L);
-    static int luaSelectBlocklabel(lua_State *L);
-    static int luaAddContourPointFromNode(lua_State *L);
-    static int luaSelectnode(lua_State *L);
-    static int luaSelectWithinRectangle(lua_State *L);
-    static int luaSelectSegment(lua_State *L);
-    static int luaSetArcsegmentProp(lua_State *L);
-    static int luaSetBlocklabelProp(lua_State *L);
-    static int luaSetEditMode(lua_State *L);
-    static int luaSetFocus(lua_State *L);
-    static int luaSetGroup(lua_State *L);
-    static int luaSetNodeProp(lua_State *L);
-    static int luaSetPrevious(lua_State *L);
-    static int luaSetSegmentProp(lua_State *L);
-};
+int luaAddArc(lua_State *L);
+int luaAddBHPoint(lua_State *L);
+int luaAddBoundaryProp(lua_State *L);
+int luaAddCircuitProp(lua_State *L);
+int luaAddContourPoint(lua_State *L);
+int luaAddBlocklabel(lua_State *L);
+int luaAddLine(lua_State *L);
+int luaAddMatProp(lua_State *L);
+int luaAddNode(lua_State *L);
+int luaAddPointProp(lua_State *L);
+int luaAnalyze(lua_State *L);
+int luaAttachDefault(lua_State *L);
+int luaAttachOuterSpace(lua_State *L);
+int luaBendContourLine(lua_State *L);
+int luaBlockIntegral(lua_State *L);
+int luaClearBHPoints(lua_State *L);
+int luaClearBlock(lua_State *L);
+int luaClearContourPoint(lua_State *L);
+int luaClearSelected(lua_State *L);
+int luaCopyRotate(lua_State *L);
+int luaCopyTranslate(lua_State *L);
+int luaCreateMesh(lua_State *L);
+int luaCreateRadius(lua_State *L);
+int luaDefineOuterSpace(lua_State *L);
+int luaDeleteBoundaryProperty(lua_State *L);
+int luaDeleteCircuitProperty(lua_State *L);
+int luaDeleteSelectedArcSegments(lua_State *L);
+int luaDeleteSelectedBlockLabels(lua_State *L);
+int luaDeleteSelected(lua_State *L);
+int luaDeleteSelectedNodes(lua_State *L);
+int luaDeleteSelectedSegments(lua_State *L);
+int luaDeleteMaterial(lua_State *L);
+int luaDeletePointProperty(lua_State *L);
+int luaDetachDefault(lua_State *L);
+int luaDetachOuterSpace(lua_State *L);
+int luaExitPost(lua_State *L);
+int luaExitPre(lua_State *L);
+int luaGetBoundingBox(lua_State *L);
+int luaGetCircuitProperties(lua_State *L);
+int luaGetElement(lua_State *L);
+int luaGetMaterialFromLib(lua_State *L);
+int luaGetMeshNode(lua_State *L);
+int luaGetPointVals(lua_State *L);
+int luaGetProblemInfo(lua_State *L);
+int luaGetTitle(lua_State *L);
+int luaBGradient(lua_State *L);
+int luaGroupSelectBlock(lua_State *L);
+int luaLineIntegral(lua_State *L);
+int luaMirrorCopy(lua_State *L);
+int luaModifyBoundaryProp(lua_State *L);
+int luaModifyCircuitProperty(lua_State *L);
+int luaModifyMaterialProp(lua_State *L);
+int luaModifyPointProp(lua_State *L);
+int luaMoveRotate(lua_State *L);
+int luaMoveTranslate(lua_State *L);
+int luaNewDocument(lua_State *L);
+int luaNumElements(lua_State *L);
+int luaNumNodes(lua_State *L);
+int luaProbDef(lua_State *L);
+int luaPurgeMesh(lua_State *L);
+int luaReloadNOP(lua_State *L);
+int luaLoadSolution(lua_State *L);
+int luaSaveDocument(lua_State *L);
+int luaScaleMove(lua_State *L);
+int luaSelectArcsegment(lua_State *L);
+int luaSelectOutputBlocklabel(lua_State *L);
+int luaSelectWithinCircle(lua_State *L);
+int luaSelectGroup(lua_State *L);
+int luaSelectBlocklabel(lua_State *L);
+int luaAddContourPointFromNode(lua_State *L);
+int luaSelectnode(lua_State *L);
+int luaSelectWithinRectangle(lua_State *L);
+int luaSelectSegment(lua_State *L);
+int luaSetArcsegmentProp(lua_State *L);
+int luaSetBlocklabelProp(lua_State *L);
+int luaSetEditMode(lua_State *L);
+int luaSetFocus(lua_State *L);
+int luaSetGroup(lua_State *L);
+int luaSetNodeProp(lua_State *L);
+int luaSetPrevious(lua_State *L);
+int luaSetSegmentProp(lua_State *L);
+}
 
 } /* namespace FemmLua*/
 
