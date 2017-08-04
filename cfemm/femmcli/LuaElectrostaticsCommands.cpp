@@ -1761,7 +1761,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
  *
  * \internal
  * ### Implements:
- * - \lua{ei_set_segment_prop}
+ * - \lua{ei_set_segment_prop("propname", elementsize, automesh, hide, group, "inconductor")}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_setsegmentprop()}
@@ -1769,7 +1769,57 @@ int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaSetSegmentProp(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    int boundpropidx = -1;
+    std::string boundprop = "<None>";
+    if (!lua_isnil(L,1))
+    {
+        boundprop = lua_tostring(L,1);
+        if (doc->lineMap.count(boundprop))
+            boundpropidx = doc->lineMap[boundprop];
+        else
+            debug << "Property " << boundprop << " has no index!\n";
+    }
+    double elesize = lua_todouble(L,2);
+    bool automesh = (lua_todouble(L,3) != 0);
+    bool hide = (lua_todouble(L,4) != 0);
+    int group = (int) lua_todouble(L,5);
+
+    int inconductoridx = -1;
+    std::string inconductor = "<None>";
+    if (!lua_isnil(L,6))
+    {
+        inconductor = lua_tostring(L,6);
+        if (doc->circuitMap.count(inconductor))
+            inconductoridx = doc->circuitMap[inconductor];
+        else
+            debug << "Conductor " << inconductor << " has no index!\n";
+    }
+
+    for (int i=0; i<(int)doc->linelist.size(); i++)
+    {
+        if (doc->linelist[i]->IsSelected)
+        {
+            if (automesh)
+                doc->linelist[i]->MaxSideLength = -1;
+            else{
+                if (elesize>0)
+                    doc->linelist[i]->MaxSideLength = elesize;
+                else elesize = -1;
+            }
+            doc->linelist[i]->BoundaryMarker = boundpropidx;
+            doc->linelist[i]->BoundaryMarkerName = boundprop;
+            doc->linelist[i]->Hidden = hide;
+            doc->linelist[i]->InGroup = group;
+            doc->linelist[i]->InConductor = inconductoridx;
+            doc->linelist[i]->InConductorName = inconductor;
+        }
+    }
+
+    return 0;
 }
 
 /**
