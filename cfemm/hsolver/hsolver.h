@@ -70,7 +70,7 @@ public:
 // Operations
 public:
 
-    int LoadMesh(bool deleteFiles=true);
+    LoadMeshErr LoadMesh(bool deleteFiles=true) override;
     int LoadPrev();
     bool LoadProblemFile();
     double ChargeOnConductor(int OnConductor, CBigLinProb &L);
@@ -78,6 +78,7 @@ public:
     int AnalyzeProblem(CBigLinProb &L);
     void (*WarnMessage)(const char*);
 
+    virtual bool runSolver(bool verbose=false) override;
 private:
 
     void MsgBox(const char* message);
