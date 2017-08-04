@@ -58,7 +58,6 @@ int luaBlockIntegral(lua_State *L);
 int luaClearBHPoints(lua_State *L);
 int luaClearBlock(lua_State *L);
 int luaClearContourPoint(lua_State *L);
-int luaClearSelected(lua_State *L);
 int luaCopyRotate(lua_State *L);
 int luaCopyTranslate(lua_State *L);
 int luaCreateMesh(lua_State *L);

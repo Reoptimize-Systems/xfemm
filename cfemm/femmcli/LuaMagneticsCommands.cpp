@@ -17,6 +17,7 @@
  */
 
 #include "LuaMagneticsCommands.h"
+#include "LuaCommonCommands.h"
 
 #include "CPointVals.h"
 #include "femmenums.h"
@@ -80,8 +81,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_clearblock", luaClearBlock);
     li.addFunction("mo_clear_contour", luaClearContourPoint);
     li.addFunction("mo_clearcontour", luaClearContourPoint);
-    li.addFunction("mi_clear_selected", luaClearSelected);
-    li.addFunction("mi_clearselected", luaClearSelected);
+    li.addFunction("mi_clear_selected", LuaCommonCommands::luaClearSelected);
+    li.addFunction("mi_clearselected", LuaCommonCommands::luaClearSelected);
     li.addFunction("mi_copy_rotate", luaCopyRotate);
     li.addFunction("mi_copyrotate", luaCopyRotate);
     li.addFunction("mi_copy_translate", luaCopyTranslate);
@@ -1278,29 +1279,6 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
 
-    return 0;
-}
-
-/**
- * @brief Unselect all selected nodes, blocks, segments and arc segments.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_clearselected()}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_clearselected()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaClearSelected(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-
-    femmState->getMesher()->UnselectAll();
     return 0;
 }
 
