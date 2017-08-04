@@ -44,8 +44,8 @@ using std::swap;
 
 void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
 {
-    li.addFunction("ei_add_arc", luaAddArc);
-    li.addFunction("ei_addarc", luaAddArc);
+    li.addFunction("ei_add_arc", LuaCommonCommands::luaAddArc);
+    li.addFunction("ei_addarc", LuaCommonCommands::luaAddArc);
     li.addFunction("ei_add_block_label", LuaCommonCommands::luaAddBlocklabel);
     li.addFunction("ei_addblocklabel", LuaCommonCommands::luaAddBlocklabel);
     li.addFunction("ei_add_bound_prop", luaAddBoundaryProp);
@@ -280,25 +280,6 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_zoomnatural", LuaInstance::luaNOP);
     li.addFunction("eo_zoom_out", LuaInstance::luaNOP);
     li.addFunction("eo_zoomout", LuaInstance::luaNOP);
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_add_arc}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_addarc()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaAddArc(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
