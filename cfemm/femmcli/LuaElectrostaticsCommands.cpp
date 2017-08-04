@@ -58,8 +58,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_addnode", LuaCommonCommands::luaAddNode);
     li.addFunction("ei_add_point_prop", luaAddPointProp);
     li.addFunction("ei_addpointprop", luaAddPointProp);
-    li.addFunction("ei_add_segment", luaAddLine);
-    li.addFunction("ei_addsegment", luaAddLine);
+    li.addFunction("ei_add_segment", LuaCommonCommands::luaAddLine);
+    li.addFunction("ei_addsegment", LuaCommonCommands::luaAddLine);
     li.addFunction("ei_analyse", luaAnalyze);
     li.addFunction("ei_analyze", luaAnalyze);
     li.addFunction("ei_attach_default", luaAttachDefault);
@@ -386,25 +386,6 @@ int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddBlocklabel(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_add_segment}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_addline()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

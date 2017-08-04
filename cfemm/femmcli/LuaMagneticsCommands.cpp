@@ -57,8 +57,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_addcontour", luaAddContourPoint);
     li.addFunction("mi_add_block_label", luaAddBlocklabel);
     li.addFunction("mi_addblocklabel", luaAddBlocklabel);
-    li.addFunction("mi_add_segment", luaAddLine);
-    li.addFunction("mi_addsegment", luaAddLine);
+    li.addFunction("mi_add_segment", LuaCommonCommands::luaAddLine);
+    li.addFunction("mi_addsegment", LuaCommonCommands::luaAddLine);
     li.addFunction("mi_add_material", luaAddMatProp);
     li.addFunction("mi_addmaterial", luaAddMatProp);
     li.addFunction("mi_add_node", LuaCommonCommands::luaAddNode);
@@ -597,48 +597,6 @@ int femmcli::LuaMagneticsCommands::luaAddBlocklabel(lua_State *L)
     //    if(theView->MeshFlag==TRUE) theView->lnu_show_mesh();
     //    else theView->DrawPSLG();
     //}
-
-    return 0;
-}
-
-/**
- * @brief Add a new line segment between two given points.
- * In other words, add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_addsegment(x1,y1,x2,y2)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_addline()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaAddLine(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-
-    double sx=lua_todouble(L,1);
-    double sy=lua_todouble(L,2);
-
-    double ex=lua_todouble(L,3);
-    double ey=lua_todouble(L,4);
-
-    femmState->getMesher()->AddSegment(
-                femmState->getMesher()->ClosestNode(sx,sy),
-                femmState->getMesher()->ClosestNode(ex,ey));
-
-    //BOOL flag=thisDoc->AddSegment(thisDoc->ClosestNode(sx,sy),thisDoc->ClosestNode(ex,ey));
-    //if(flag==TRUE)
-    //{
-    //    theView->MeshUpToDate=FALSE;
-    //    if(theView->MeshFlag==TRUE) theView->lnu_show_mesh();
-    //    else theView->DrawPSLG();
-    //}
-    //else theView->DrawPSLG();
 
     return 0;
 }
