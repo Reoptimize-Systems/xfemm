@@ -293,7 +293,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
  * - \lua{ei_add_arc}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_addarc()}
+ * - \femm42{femm/beladrawLua.cpp,lua_addarc()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddArc(lua_State *L)
@@ -312,7 +312,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddArc(lua_State *L)
  * - \lua{ei_add_bound_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_addboundprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_addboundprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *L)
@@ -331,7 +331,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *L)
  * - \lua{ei_add_conductor_prop("conductorname", Vc, qc, conductortype)}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_addcircuitprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_addcircuitprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddConductorProp(lua_State *L)
@@ -363,7 +363,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddConductorProp(lua_State *L)
  * - \lua{eo_add_contour}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_addcontour()}
+ * - \femm42{femm/belaviewLua.cpp,lua_addcontour()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *L)
@@ -382,7 +382,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *L)
  * - \lua{ei_add_block_label}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_addlabel()}
+ * - \femm42{femm/beladrawLua.cpp,lua_addlabel()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddBlocklabel(lua_State *L)
@@ -401,7 +401,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddBlocklabel(lua_State *L)
  * - \lua{ei_add_segment}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_addline()}
+ * - \femm42{femm/beladrawLua.cpp,lua_addline()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *L)
@@ -420,7 +420,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *L)
  * - \lua{ei_add_material("materialname", ex, ey, qv)}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_addmatprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_addmatprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
@@ -458,7 +458,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
  * - \lua{ei_add_point_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_addpointprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_addpointprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *L)
@@ -477,7 +477,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *L)
  * - \lua{ei_analyse}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_analyze()}
+ * - \femm42{femm/beladrawLua.cpp,lua_analyze()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
@@ -496,7 +496,7 @@ int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
  * - \lua{ei_attach_default}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_attachdefault()}
+ * - \femm42{femm/beladrawLua.cpp,lua_attachdefault()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAttachDefault(lua_State *L)
@@ -515,7 +515,7 @@ int femmcli::LuaElectrostaticsCommands::luaAttachDefault(lua_State *L)
  * - \lua{ei_attach_outer_space}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_attachouterspace()}
+ * - \femm42{femm/beladrawLua.cpp,lua_attachouterspace()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAttachOuterSpace(lua_State *L)
@@ -534,7 +534,7 @@ int femmcli::LuaElectrostaticsCommands::luaAttachOuterSpace(lua_State *L)
  * - \lua{eo_bend_contour}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_bendcontour()}
+ * - \femm42{femm/belaviewLua.cpp,lua_bendcontour()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaBendContourLine(lua_State *L)
@@ -553,7 +553,7 @@ int femmcli::LuaElectrostaticsCommands::luaBendContourLine(lua_State *L)
  * - \lua{eo_block_integral}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_blockintegral()}
+ * - \femm42{femm/belaviewLua.cpp,lua_blockintegral()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *L)
@@ -572,7 +572,7 @@ int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *L)
  * - \lua{eo_clear_block}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_clearblock()}
+ * - \femm42{femm/belaviewLua.cpp,lua_clearblock()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
@@ -591,7 +591,7 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * - \lua{eo_clear_contour}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_clearcontour()}
+ * - \femm42{femm/belaviewLua.cpp,lua_clearcontour()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
@@ -610,7 +610,7 @@ int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
  * - \lua{ei_copy_rotate}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_copy_rotate()}
+ * - \femm42{femm/beladrawLua.cpp,lua_copy_rotate()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaCopyRotate(lua_State *L)
@@ -629,7 +629,7 @@ int femmcli::LuaElectrostaticsCommands::luaCopyRotate(lua_State *L)
  * - \lua{ei_copy_translate}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_copy_translate()}
+ * - \femm42{femm/beladrawLua.cpp,lua_copy_translate()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaCopyTranslate(lua_State *L)
@@ -648,7 +648,7 @@ int femmcli::LuaElectrostaticsCommands::luaCopyTranslate(lua_State *L)
  * - \lua{ei_create_mesh}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_create_mesh()}
+ * - \femm42{femm/beladrawLua.cpp,lua_create_mesh()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaCreateMesh(lua_State *L)
@@ -667,7 +667,7 @@ int femmcli::LuaElectrostaticsCommands::luaCreateMesh(lua_State *L)
  * - \lua{ei_create_radius}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_createradius()}
+ * - \femm42{femm/beladrawLua.cpp,lua_createradius()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaCreateRadius(lua_State *L)
@@ -686,7 +686,7 @@ int femmcli::LuaElectrostaticsCommands::luaCreateRadius(lua_State *L)
  * - \lua{ei_define_outer_space}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_defineouterspace()}
+ * - \femm42{femm/beladrawLua.cpp,lua_defineouterspace()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDefineOuterSpace(lua_State *L)
@@ -705,7 +705,7 @@ int femmcli::LuaElectrostaticsCommands::luaDefineOuterSpace(lua_State *L)
  * - \lua{ei_delete_bound_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_delboundprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_delboundprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeleteBoundaryProp(lua_State *L)
@@ -724,7 +724,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteBoundaryProp(lua_State *L)
  * - \lua{ei_delete_conductor}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_delcircuitprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_delcircuitprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeleteCircuitProp(lua_State *L)
@@ -743,7 +743,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteCircuitProp(lua_State *L)
  * - \lua{ei_delete_selected_arcsegments}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedarcsegments()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedarcsegments()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedArcSegments(lua_State *L)
@@ -762,7 +762,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedArcSegments(lua_State *
  * - \lua{ei_delete_selected}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselected()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselected()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeleteSelected(lua_State *L)
@@ -781,7 +781,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelected(lua_State *L)
  * - \lua{ei_delete_selected_labels}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedlabels()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedlabels()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedBlockLabels(lua_State *L)
@@ -800,7 +800,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedBlockLabels(lua_State *
  * - \lua{ei_delete_selected_nodes}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectednodes()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselectednodes()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedNodes(lua_State *L)
@@ -819,7 +819,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedNodes(lua_State *L)
  * - \lua{ei_delete_selected_segments}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedsegments()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedsegments()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedSegments(lua_State *L)
@@ -838,7 +838,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedSegments(lua_State *L)
  * - \lua{ei_delete_material}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_delmatprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_delmatprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeleteMaterial(lua_State *L)
@@ -857,7 +857,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteMaterial(lua_State *L)
  * - \lua{ei_delete_point_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_delpointprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_delpointprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDeletePointProp(lua_State *L)
@@ -876,7 +876,7 @@ int femmcli::LuaElectrostaticsCommands::luaDeletePointProp(lua_State *L)
  * - \lua{ei_detach_default}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_detachdefault()}
+ * - \femm42{femm/beladrawLua.cpp,lua_detachdefault()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDetachDefault(lua_State *L)
@@ -895,7 +895,7 @@ int femmcli::LuaElectrostaticsCommands::luaDetachDefault(lua_State *L)
  * - \lua{ei_detach_outer_space}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_detachouterspace()}
+ * - \femm42{femm/beladrawLua.cpp,lua_detachouterspace()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaDetachOuterSpace(lua_State *L)
@@ -914,7 +914,7 @@ int femmcli::LuaElectrostaticsCommands::luaDetachOuterSpace(lua_State *L)
  * - \lua{eo_close}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_exitpost()}
+ * - \femm42{femm/belaviewLua.cpp,lua_exitpost()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *L)
@@ -933,7 +933,7 @@ int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *L)
  * - \lua{ei_close}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_exitpre()}
+ * - \femm42{femm/beladrawLua.cpp,lua_exitpre()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaExitPre(lua_State *L)
@@ -952,7 +952,7 @@ int femmcli::LuaElectrostaticsCommands::luaExitPre(lua_State *L)
  * - \lua{ei_getboundingbox}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_getboundingbox()}
+ * - \femm42{femm/beladrawLua.cpp,lua_getboundingbox()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetBoundingBox(lua_State *L)
@@ -971,7 +971,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetBoundingBox(lua_State *L)
  * - \lua{eo_get_conductor_properties}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_getcircuitprops()}
+ * - \femm42{femm/belaviewLua.cpp,lua_getcircuitprops()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetCircuitProperties(lua_State *L)
@@ -990,7 +990,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetCircuitProperties(lua_State *L)
  * - \lua{eo_get_element}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_getelement()}
+ * - \femm42{femm/belaviewLua.cpp,lua_getelement()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *L)
@@ -1009,7 +1009,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *L)
  * - \lua{ei_get_material}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_getmaterial()}
+ * - \femm42{femm/beladrawLua.cpp,lua_getmaterial()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
@@ -1028,7 +1028,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
  * - \lua{eo_get_node}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_getnode()}
+ * - \femm42{femm/belaviewLua.cpp,lua_getnode()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *L)
@@ -1047,7 +1047,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *L)
  * - \lua{eo_get_point_values}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_getpointvals()}
+ * - \femm42{femm/belaviewLua.cpp,lua_getpointvals()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *L)
@@ -1066,7 +1066,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *L)
  * - \lua{ei_getprobleminfo}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_getprobleminfo()}
+ * - \femm42{femm/beladrawLua.cpp,lua_getprobleminfo()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetProblemInfo(lua_State *L)
@@ -1085,7 +1085,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetProblemInfo(lua_State *L)
  * - \lua{ei_get_title}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_gettitle()}
+ * - \femm42{femm/beladrawLua.cpp,lua_gettitle()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetTitle(lua_State *L)
@@ -1104,7 +1104,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetTitle(lua_State *L)
  * - \lua{eo_group_select_block}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_groupselectblock()}
+ * - \femm42{femm/belaviewLua.cpp,lua_groupselectblock()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGroupSelectBlock(lua_State *L)
@@ -1123,7 +1123,7 @@ int femmcli::LuaElectrostaticsCommands::luaGroupSelectBlock(lua_State *L)
  * - \lua{eo_line_integral}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_lineintegral()}
+ * - \femm42{femm/belaviewLua.cpp,lua_lineintegral()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *L)
@@ -1142,7 +1142,7 @@ int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *L)
  * - \lua{ei_mirror}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_mirror()}
+ * - \femm42{femm/beladrawLua.cpp,lua_mirror()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaMirrorCopy(lua_State *L)
@@ -1161,7 +1161,7 @@ int femmcli::LuaElectrostaticsCommands::luaMirrorCopy(lua_State *L)
  * - \lua{ei_modify_bound_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_modboundprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_modboundprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *L)
@@ -1180,7 +1180,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *L)
  * - \lua{ei_modify_conductor_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_modcircprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_modcircprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaModifyCircuitProp(lua_State *L)
@@ -1199,7 +1199,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyCircuitProp(lua_State *L)
  * - \lua{ei_modify_material}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_modmatprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_modmatprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProp(lua_State *L)
@@ -1218,7 +1218,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProp(lua_State *L)
  * - \lua{ei_modify_point_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_modpointprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_modpointprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaModifyPointProp(lua_State *L)
@@ -1237,7 +1237,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyPointProp(lua_State *L)
  * - \lua{ei_move_rotate}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_move_rotate()}
+ * - \femm42{femm/beladrawLua.cpp,lua_move_rotate()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaMoveRotate(lua_State *L)
@@ -1256,7 +1256,7 @@ int femmcli::LuaElectrostaticsCommands::luaMoveRotate(lua_State *L)
  * - \lua{ei_move_translate}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_move_translate()}
+ * - \femm42{femm/beladrawLua.cpp,lua_move_translate()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaMoveTranslate(lua_State *L)
@@ -1275,7 +1275,7 @@ int femmcli::LuaElectrostaticsCommands::luaMoveTranslate(lua_State *L)
  * - \lua{ei_new_document}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_newdocument()}
+ * - \femm42{femm/beladrawLua.cpp,lua_newdocument()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaNewDocument(lua_State *L)
@@ -1294,7 +1294,7 @@ int femmcli::LuaElectrostaticsCommands::luaNewDocument(lua_State *L)
  * - \lua{eo_num_elements}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_numelements()}
+ * - \femm42{femm/belaviewLua.cpp,lua_numelements()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaNumElements(lua_State *L)
@@ -1313,7 +1313,7 @@ int femmcli::LuaElectrostaticsCommands::luaNumElements(lua_State *L)
  * - \lua{eo_num_nodes}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_numnodes()}
+ * - \femm42{femm/belaviewLua.cpp,lua_numnodes()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaNumNodes(lua_State *L)
@@ -1334,7 +1334,7 @@ int femmcli::LuaElectrostaticsCommands::luaNumNodes(lua_State *L)
  *   A negative depth is interpreted as 1.
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_prob_def()}
+ * - \femm42{femm/beladrawLua.cpp,lua_prob_def()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaProbDef(lua_State *L)
@@ -1412,7 +1412,7 @@ int femmcli::LuaElectrostaticsCommands::luaProbDef(lua_State *L)
  * - \lua{ei_purge_mesh}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_purge_mesh()}
+ * - \femm42{femm/beladrawLua.cpp,lua_purge_mesh()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaPurgeMesh(lua_State *L)
@@ -1431,7 +1431,7 @@ int femmcli::LuaElectrostaticsCommands::luaPurgeMesh(lua_State *L)
  * - \lua{ei_load_solution}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_runpost()}
+ * - \femm42{femm/beladrawLua.cpp,lua_runpost()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaLoadSolution(lua_State *L)
@@ -1450,7 +1450,7 @@ int femmcli::LuaElectrostaticsCommands::luaLoadSolution(lua_State *L)
  * - \lua{ei_save_as}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,luaSaveDocument()}
+ * - \femm42{femm/beladrawLua.cpp,luaSaveDocument()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSaveDocument(lua_State *L)
@@ -1469,7 +1469,7 @@ int femmcli::LuaElectrostaticsCommands::luaSaveDocument(lua_State *L)
  * - \lua{ei_scale}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_scale()}
+ * - \femm42{femm/beladrawLua.cpp,lua_scale()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaScaleMove(lua_State *L)
@@ -1488,7 +1488,7 @@ int femmcli::LuaElectrostaticsCommands::luaScaleMove(lua_State *L)
  * - \lua{ei_select_arcsegment}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_selectarcsegment()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectarcsegment()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectArcsegment(lua_State *L)
@@ -1507,7 +1507,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectArcsegment(lua_State *L)
  * - \lua{eo_select_block}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_selectblock()}
+ * - \femm42{femm/belaviewLua.cpp,lua_selectblock()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectOutputBlocklabel(lua_State *L)
@@ -1526,7 +1526,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectOutputBlocklabel(lua_State *L)
  * - \lua{ei_select_circle}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_selectcircle()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectcircle()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectWithinCircle(lua_State *L)
@@ -1545,7 +1545,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectWithinCircle(lua_State *L)
  * - \lua{eo_select_conductor}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_selectconductor()}
+ * - \femm42{femm/belaviewLua.cpp,lua_selectconductor()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *L)
@@ -1564,7 +1564,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *L)
  * - \lua{ei_select_group}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_selectgroup()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectgroup()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectGroup(lua_State *L)
@@ -1583,7 +1583,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectGroup(lua_State *L)
  * - \lua{ei_select_label}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_selectlabel()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectlabel()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectBlocklabel(lua_State *L)
@@ -1602,7 +1602,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectBlocklabel(lua_State *L)
  * - \lua{eo_select_point}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/belaviewLua.cpp,lua_selectline()}
+ * - \femm42{femm/belaviewLua.cpp,lua_selectline()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddContourPointFromNode(lua_State *L)
@@ -1621,7 +1621,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddContourPointFromNode(lua_State *L)
  * - \lua{ei_select_node}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_selectnode()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectnode()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectnode(lua_State *L)
@@ -1640,7 +1640,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectnode(lua_State *L)
  * - \lua{ei_select_rectangle}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_selectrectangle()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectrectangle()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *L)
@@ -1659,7 +1659,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *L)
  * - \lua{ei_select_segment}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_selectsegment()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectsegment()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectSegment(lua_State *L)
@@ -1678,7 +1678,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectSegment(lua_State *L)
  * - \lua{ei_set_arcsegment_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_setarcsegmentprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_setarcsegmentprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *L)
@@ -1697,7 +1697,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *L)
  * - \lua{ei_set_block_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_setblockprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_setblockprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *L)
@@ -1716,7 +1716,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *L)
  * - \lua{ei_set_edit_mode}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_seteditmode()}
+ * - \femm42{femm/beladrawLua.cpp,lua_seteditmode()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetEditMode(lua_State *L)
@@ -1735,7 +1735,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetEditMode(lua_State *L)
  * - \lua{ei_set_group}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_setgroup()}
+ * - \femm42{femm/beladrawLua.cpp,lua_setgroup()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *L)
@@ -1754,7 +1754,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *L)
  * - \lua{ei_set_node_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_setnodeprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_setnodeprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
@@ -1773,7 +1773,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
  * - \lua{ei_set_segment_prop}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_setsegmentprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_setsegmentprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetSegmentProp(lua_State *L)
@@ -1792,7 +1792,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetSegmentProp(lua_State *L)
  * - \lua{ei_set_focus}
  *
  * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_switchfocus()}
+ * - \femm42{femm/beladrawLua.cpp,lua_switchfocus()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetFocus(lua_State *L)
