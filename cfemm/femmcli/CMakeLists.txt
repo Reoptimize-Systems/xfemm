@@ -17,6 +17,7 @@ include_directories(../fpproc)
 add_library(femmcli STATIC
   FemmState.cpp
   LuaBaseCommands.cpp
+  LuaCommonCommands.cpp
   LuaElectrostaticsCommands.cpp
   LuaMagneticsCommands.cpp
   )

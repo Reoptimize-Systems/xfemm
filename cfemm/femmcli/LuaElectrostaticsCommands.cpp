@@ -17,6 +17,7 @@
  */
 
 #include "LuaElectrostaticsCommands.h"
+#include "LuaCommonCommands.h"
 
 #include "CPointVals.h"
 #include "femmenums.h"
@@ -65,8 +66,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_attachdefault", luaAttachDefault);
     li.addFunction("ei_attach_outer_space", luaAttachOuterSpace);
     li.addFunction("ei_attachouterspace", luaAttachOuterSpace);
-    li.addFunction("ei_clear_selected", luaClearSelected);
-    li.addFunction("ei_clearselected", luaClearSelected);
+    li.addFunction("ei_clear_selected", LuaCommonCommands::luaClearSelected);
+    li.addFunction("ei_clearselected", LuaCommonCommands::luaClearSelected);
     li.addFunction("ei_close", luaExitPre);
     li.addFunction("ei_copy_rotate", luaCopyRotate);
     li.addFunction("ei_copyrotate", luaCopyRotate);
@@ -612,25 +613,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_clear_selected}
- *
- * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_clearselected()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaClearSelected(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
