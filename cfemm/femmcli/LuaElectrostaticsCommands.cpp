@@ -1535,14 +1535,14 @@ int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set properties for selected arc segments
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_set_arcsegment_prop}
+ * - \lua{ei_set_arcsegment_prop(maxsegdeg, "propname", hide, group, "inconductor")}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_setarcsegmentprop()}
@@ -1550,7 +1550,52 @@ int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    double maxsegdeg = lua_todouble(L,1);
+    std::string boundprop;
+    int boundpropidx = -1;
+    // Note: propname may be 0 (as in number 0, not string "0").
+    //       In that case, the arc segments have no boundary property.
+    if (!lua_isnil(L,2))
+    {
+        boundprop = lua_tostring(L,2);
+        if (doc->lineMap.count(boundprop))
+            boundpropidx = doc->lineMap[boundprop];
+        else
+            debug << "Property " << boundprop << " has no index!\n";
+    }
+    bool hide = (lua_todouble(L,3)!=0);
+    int group = (int) lua_todouble(L,4);
+
+    int inconductoridx = -1;
+    std::string inconductor = "<None>";
+    if (!lua_isnil(L,5))
+    {
+        inconductor = lua_tostring(L,5);
+        if (doc->circuitMap.count(inconductor))
+            inconductoridx = doc->circuitMap[inconductor];
+        else
+            debug << "Conductor " << inconductor << " has no index!\n";
+    }
+
+    for (int i=0; i<(int)doc->arclist.size(); i++)
+    {
+        if (doc->arclist[i]->IsSelected)
+        {
+            doc->arclist[i]->BoundaryMarker = boundpropidx;
+            doc->arclist[i]->BoundaryMarkerName = boundprop;
+            doc->arclist[i]->MaxSideLength = maxsegdeg;
+            doc->arclist[i]->Hidden = hide;
+            doc->arclist[i]->InGroup = group;
+            doc->arclist[i]->InConductor = inconductoridx;
+            doc->arclist[i]->InConductorName = inconductor;
+        }
+    }
+
+    return 0;
 }
 
 /**
