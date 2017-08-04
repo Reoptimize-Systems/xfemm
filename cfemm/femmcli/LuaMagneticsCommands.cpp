@@ -222,8 +222,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectlabel", luaSelectBlocklabel);
     li.addFunction("mo_select_point", luaAddContourPointFromNode);
     li.addFunction("mo_selectpoint", luaAddContourPointFromNode);
-    li.addFunction("mi_select_node", luaSelectnode);
-    li.addFunction("mi_selectnode", luaSelectnode);
+    li.addFunction("mi_select_node", LuaCommonCommands::luaSelectnode);
+    li.addFunction("mi_selectnode", LuaCommonCommands::luaSelectnode);
     li.addFunction("mi_select_rectangle", luaSelectWithinRectangle);
     li.addFunction("mi_selectrectangle", luaSelectWithinRectangle);
     li.addFunction("mi_select_segment", luaSelectSegment);
@@ -3741,42 +3741,6 @@ int femmcli::LuaMagneticsCommands::luaAddContourPointFromNode(lua_State *L)
     }
 
     return 0;
-}
-
-/**
- * @brief Select the nearest node to given coordinates.
- * Returns the coordinates of the selected node.
- * @param L
- * @return 0 on error, 2 on success
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_selectnode(x,y)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_selectnode()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaSelectnode(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    double mx = lua_todouble(L,1);
-    double my = lua_todouble(L,2);
-
-    if(mesher->problem->nodelist.size() == 0)
-        return 0;
-
-    int node = mesher->ClosestNode(mx,my);
-    mesher->problem->nodelist[node]->ToggleSelect();
-
-    lua_pushnumber(L,mesher->problem->nodelist[node]->x);
-    lua_pushnumber(L,mesher->problem->nodelist[node]->y);
-
-    return 2;
 }
 
 /**
