@@ -45,7 +45,6 @@ int luaAddBHPoint(lua_State *L);
 int luaAddBoundaryProp(lua_State *L);
 int luaAddCircuitProp(lua_State *L);
 int luaAddContourPoint(lua_State *L);
-int luaAddBlocklabel(lua_State *L);
 int luaAddMatProp(lua_State *L);
 int luaAddPointProp(lua_State *L);
 int luaAnalyze(lua_State *L);
