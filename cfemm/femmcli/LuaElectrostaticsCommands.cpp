@@ -396,14 +396,14 @@ int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new material property.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_add_material}
+ * - \lua{ei_add_material("materialname", ex, ey, qv)}
  *
  * ### FEMM sources:
  * \sa \femm42{femm/beladrawLua.cpp,lua_addmatprop()}
@@ -411,7 +411,25 @@ int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+
+    std::unique_ptr<CSMaterialProp> m = std::make_unique<CSMaterialProp>();
+    int n=lua_gettop(L);
+
+    if (n>0) {
+        m->BlockName = lua_tostring(L,1);
+    }
+    if (n>1) {
+          m->ex = lua_todouble(L,2);
+          m->ey = m->ex;
+    }
+    if(n>2) m->ey = lua_todouble(L,3);
+    if(n>3) m->qv = lua_todouble(L,4);
+
+    femmState->femmDocument()->blockproplist.push_back(std::move(m));
+    femmState->femmDocument()->updateBlockMap();
+    return 0;
 }
 
 /**
