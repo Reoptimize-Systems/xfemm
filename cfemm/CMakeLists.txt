@@ -28,7 +28,7 @@ add_flag(DEBUG_PARSER "Enable debug output for parser functions")
 
 
 add_subdirectory(libfemm)
-add_subdirectory(ssolver)
+#add_subdirectory(esolver)
 add_subdirectory(femmcli)
 add_subdirectory(fmesher)
 add_subdirectory(fsolver)
