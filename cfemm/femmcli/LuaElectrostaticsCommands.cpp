@@ -1725,14 +1725,14 @@ int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set the nodal property for selected nodes.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_set_node_prop}
+ * - \lua{ei_set_node_prop("propname",groupno, "inconductor")}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_setnodeprop()}
@@ -1740,7 +1740,55 @@ int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    int nodepropidx = -1;
+    std::string nodeprop = "<None>";
+    // Note: propname may be 0 (as in number 0, not string "0").
+    //       In that case, the arc segments have no boundary property.
+    if (!lua_isnil(L,1))
+    {
+        nodeprop = lua_tostring(L,1);
+        if (doc->nodeMap.count(nodeprop))
+            nodepropidx = doc->nodeMap[nodeprop];
+        else
+            debug << "Property " << nodeprop << " has no index!\n";
+    }
+    int groupno=(int) lua_todouble(L,2);
+
+    if (groupno<0)
+    {
+        std::string msg = "Invalid group no " + std::to_string(groupno);
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    int inconductoridx = -1;
+    std::string inconductor = "<None>";
+    if (!lua_isnil(L,3))
+    {
+        inconductor = lua_tostring(L,3);
+        if (doc->circuitMap.count(inconductor))
+            inconductoridx = doc->circuitMap[inconductor];
+        else
+            debug << "Conductor " << inconductor << " has no index!\n";
+    }
+    // check to see how many (if any) nodes are selected.
+    for(int i=0; i<(int)doc->nodelist.size(); i++)
+    {
+        if(doc->nodelist[i]->IsSelected)
+        {
+            doc->nodelist[i]->InGroup = groupno;
+            doc->nodelist[i]->BoundaryMarker = nodepropidx;
+            doc->nodelist[i]->BoundaryMarkerName = nodeprop;
+            doc->nodelist[i]->InConductor = inconductoridx;
+            doc->nodelist[i]->InConductorName = inconductor;
+        }
+    }
+
+    return 0;
 }
 
 /**

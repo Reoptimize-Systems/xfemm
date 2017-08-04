@@ -48,9 +48,9 @@ public:
     bool IsSelected;
 
     int BoundaryMarker; ///< \c bc in FEMM42
-    int InConductor;
+    int InConductor;  ///< The index of the conductor, or -1. \sa FemmProblem::circproplist
     std::string BoundaryMarkerName;
-    std::string InConductorName;
+    std::string InConductorName; ///< The name of a conductor, or the special value "<None>".
 
     double GetDistance(double xo, double yo);
     CComplex CC();
