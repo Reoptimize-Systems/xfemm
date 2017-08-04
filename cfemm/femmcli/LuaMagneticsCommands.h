@@ -98,7 +98,6 @@ int luaProbDef(lua_State *L);
 int luaPurgeMesh(lua_State *L);
 int luaReloadNOP(lua_State *L);
 int luaLoadSolution(lua_State *L);
-int luaSaveDocument(lua_State *L);
 int luaScaleMove(lua_State *L);
 int luaSelectOutputBlocklabel(lua_State *L);
 int luaSelectWithinCircle(lua_State *L);
