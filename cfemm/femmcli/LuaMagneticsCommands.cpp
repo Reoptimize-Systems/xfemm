@@ -218,8 +218,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectcircle", luaSelectWithinCircle);
     li.addFunction("mi_select_group", luaSelectGroup);
     li.addFunction("mi_selectgroup", luaSelectGroup);
-    li.addFunction("mi_select_label", luaSelectBlocklabel);
-    li.addFunction("mi_selectlabel", luaSelectBlocklabel);
+    li.addFunction("mi_select_label", LuaCommonCommands::luaSelectBlocklabel);
+    li.addFunction("mi_selectlabel", LuaCommonCommands::luaSelectBlocklabel);
     li.addFunction("mo_select_point", luaAddContourPointFromNode);
     li.addFunction("mo_selectpoint", luaAddContourPointFromNode);
     li.addFunction("mi_select_node", LuaCommonCommands::luaSelectNode);
@@ -3451,43 +3451,6 @@ int femmcli::LuaMagneticsCommands::luaSelectGroup(lua_State *L)
     mesher->d_EditMode = EditMode::EditGroup;
 
     return 0;
-}
-
-/**
- * @brief Select the closest label to a given point.
- * Select the label closet to (x,y). Returns the coordinates of the selected label.
- * @param L
- * @return 0 on error, 2 otherwise.
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_selectlabel(x,y)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_selectlabel()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaSelectBlocklabel(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    double mx = lua_todouble(L,1);
-    double my = lua_todouble(L,2);
-
-    if (doc->labellist.empty())
-        return 0;
-
-    int node = mesher->ClosestBlockLabel(mx,my);
-    doc->labellist[node]->ToggleSelect();
-
-    lua_pushnumber(L,doc->labellist[node]->x);
-    lua_pushnumber(L,doc->labellist[node]->y);
-
-    return 2;
 }
 
 /**
