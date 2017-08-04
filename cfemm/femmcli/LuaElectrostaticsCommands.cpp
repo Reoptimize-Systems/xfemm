@@ -1344,7 +1344,64 @@ int femmcli::LuaElectrostaticsCommands::luaNumNodes(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaProbDef(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> esDoc = femmState->femmDocument();
+
+    // argument count
+    int n;
+    n=lua_gettop(L);
+
+    // Length Units
+    std::string units (lua_tostring(L,1));
+    if(units=="inches") esDoc->LengthUnits = LengthInches;
+    else if(units=="millimeters") esDoc->LengthUnits = LengthMillimeters;
+    else if(units=="centimeters") esDoc->LengthUnits = LengthCentimeters;
+    else if(units=="meters") esDoc->LengthUnits = LengthMeters;
+    else if(units=="mills") esDoc->LengthUnits = LengthMils;
+    else if(units=="mils") esDoc->LengthUnits = LengthMils;
+    else if(units=="micrometers") esDoc->LengthUnits = LengthMicrometers;
+    else
+    {
+        std::string msg  = "Unknown length unit " + units;
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    // Problem type
+    std::string type (lua_tostring(L,2));
+    if(type=="planar") esDoc->ProblemType = PLANAR;
+    else if(type=="axi") esDoc->ProblemType = AXISYMMETRIC;
+    else
+    {
+        std::string msg =  "Unknown problem type " + type;
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    double precision = lua_tonumber(L,3).re;
+    if (precision < 1.e-16 || precision >1.e-8)
+    {
+        std::string msg = "Invalid Precision " + std::to_string(precision);
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+    esDoc->Precision = precision;
+    if (n==3) return 0;
+
+    // Note: mi_probdef does fabs(Depth) instead
+    esDoc->Depth = lua_tonumber(L,4).re;
+    if (esDoc->Depth < 0)
+        esDoc->Depth = 1;
+    if (n==4) return 0;
+
+    double minAngle = lua_tonumber(L,5).re;
+    if ((minAngle>=1.) && (minAngle<=33.8))
+    {
+        esDoc->MinAngle = minAngle;
+    }
+
+    return 0;
 }
 
 
