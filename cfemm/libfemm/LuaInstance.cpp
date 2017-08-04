@@ -179,6 +179,9 @@ void femm::LuaInstance::initializeLua(int stackSize)
     addFunction("getcompatibilitymode",luaGetCompatibilityMode);
     addFunction("femmVersion",luaFemmVersion);
     addFunction("trace",luaTrace);
+
+    // workaround for scripts with lower case PI:
+    setGlobal("pi", PI);
 }
 
 lua_State *femm::LuaInstance::getLuaState() const
