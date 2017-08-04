@@ -37,12 +37,13 @@
 
 enum LoadMeshErr
 {
-  BADFEMFILE,
-  BADNODEFILE,
-  BADPBCFILE,
-  BADELEMENTFILE,
-  BADEDGEFILE,
-  MISSINGMATPROPS
+    NOERROR,
+    BADFEMFILE,
+    BADNODEFILE,
+    BADPBCFILE,
+    BADELEMENTFILE,
+    BADEDGEFILE,
+    MISSINGMATPROPS
 };
 
 template< class PointPropT
@@ -117,7 +118,22 @@ public:
 // Operations
 public:
 
-    virtual int LoadMesh(bool deleteFiles=true) = 0;
+    virtual LoadMeshErr LoadMesh(bool deleteFiles=true) = 0;
+    /**
+     * @brief Solve the problem.
+     * This is basically a convenience function that encompasses all steps as would be normally taken when running the solver with default settings.
+     * Note: You need to set the PathName beforehand.
+     * @return \c true on success, \c false on error.
+     */
+    virtual bool runSolver(bool verbose=false) = 0;
+
+    /**
+     * @brief Return an error string for the mesh error enum.
+     * @param err
+     * @return an error string, or an empty string if \c err is \c NOERROR
+     */
+    static std::string getErrorString(LoadMeshErr err);
+
     int Cuthill(bool deleteFiles=true);
     int SortElements();
 

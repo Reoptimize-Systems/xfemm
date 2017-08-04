@@ -119,7 +119,7 @@ bool ESolver::LoadProblemFile ()
  * - \femm42{belasolv/femmedoccore.cpp,CFemmeDocCore::LoadMesh()}
  * \endinternal
  */
-int ESolver::LoadMesh(bool deleteFiles)
+LoadMeshErr ESolver::LoadMesh(bool deleteFiles)
 {
     int i,j,k,q,n0,n1,n;
     char infile[256];
@@ -362,7 +362,7 @@ int ESolver::LoadMesh(bool deleteFiles)
         remove(infile);
     }
 
-    return 0;
+    return NOERROR;
 }
 
 
@@ -633,6 +633,65 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 	for(i=0;i<NumCircProps;i++)
 		if(circproplist[i].CircType==1)
 			circproplist[i].q=ChargeOnConductor(i,L);
+
+    return true;
+}
+
+bool ESolver::runSolver(bool verbose)
+{
+    // load mesh
+    LoadMeshErr err = LoadMesh();
+    if (err != NOERROR)
+    {
+        WarnMessage("problem loading mesh:\n");
+        WarnMessage(getErrorString(err).c_str());
+        return false;
+    }
+
+    // renumber using Cuthill-McKee
+    if (verbose)
+        PrintMessage("renumbering nodes\n");
+    if (!Cuthill())
+    {
+        WarnMessage("problem renumbering node points");
+        return false;
+    }
+
+    if (verbose)
+    {
+        PrintMessage("solving...");
+        std::string stats = "Problem Statistics:\n";
+        stats += to_string(NumNodes) + " nodes\n";
+        stats += to_string(NumEls) + " elements\n";
+        stats += "Precision: " + to_string(Precision) + "\n";
+        PrintMessage(stats.c_str());
+    }
+
+    CBigLinProb L;
+
+    L.Precision = Precision;
+    if (L.Create(NumNodes+NumCircProps,BandWidth)==false)
+    {
+        WarnMessage("couldn't allocate enough space for matrices");
+        return false;
+    }
+
+    if (!AnalyzeProblem(L))
+    {
+        WarnMessage("Couldn't solve the problem");
+        return false;
+    }
+
+    if (verbose)
+        PrintMessage("Problem solved\n");
+
+    if (!WriteResults(L))
+    {
+        WarnMessage("couldn't write results to disk");
+        return false;
+    }
+    if (verbose)
+        PrintMessage("results written to disk\n");
 
     return true;
 }

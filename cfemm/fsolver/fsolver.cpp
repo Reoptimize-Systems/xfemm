@@ -187,7 +187,7 @@ bool FSolver::LoadProblemFile ()
     return true;
 }
 
-int FSolver::LoadMesh(bool deleteFiles)
+LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 {
     int i,j,k,q,n0,n1;
     char infile[256];
@@ -414,7 +414,7 @@ int FSolver::LoadMesh(bool deleteFiles)
         remove(infile);
     }
 
-    return 0;
+    return NOERROR;
 }
 
 void FSolver::GetFillFactor(int lbl)
@@ -508,7 +508,6 @@ void FSolver::GetFillFactor(int lbl)
     ufd=c2*(tanh(sqrt(c1*I*W))/sqrt(c1*I*W))+(1.-c2); // relative frequency-dependent permeability
     bl->ProximityMu=ufd;
 
-
 }
 
 double FSolver::ElmArea(int i)
@@ -531,39 +530,10 @@ double FSolver::ElmArea(int i)
 bool FSolver::runSolver(bool verbose)
 {
     // load mesh
-    int err = LoadMesh();
-    if (err != 0)
+    LoadMeshErr err = LoadMesh();
+    if (err != NOERROR)
     {
-        switch (err)
-        {
-        case ( BADEDGEFILE ):
-            WarnMessage("problem loading mesh:\nCould not open .edge file.\n");
-            break;
-
-        case ( BADELEMENTFILE ):
-            WarnMessage("problem loading mesh:\nCould not open .ele file.\n");
-            break;
-
-        case( BADFEMFILE ):
-            WarnMessage("problem loading mesh:\nCould not open .fem file.\n");
-            break;
-
-        case( BADNODEFILE ):
-            WarnMessage("problem loading mesh:\nCould not open .node file.\n");
-            break;
-
-        case( BADPBCFILE ):
-            WarnMessage("problem loading mesh:\nCould not open .pbc file.\n");
-            break;
-
-        case( MISSINGMATPROPS ):
-            WarnMessage("problem loading mesh:\nMaterial properties have not been defined for all regions.\n");
-            break;
-
-        default:
-            WarnMessage("problem loading mesh:\nAn unknown error occured.\n");
-            break;
-        }
+        WarnMessage(getErrorString(err).c_str());
         return false;
     }
 

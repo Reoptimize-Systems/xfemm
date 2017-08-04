@@ -27,6 +27,7 @@
 #include "fparse.h"
 #include "feasolver.h"
 
+#include <assert.h>
 #include <ctype.h>
 #include <fstream>
 #include <ios>
@@ -477,4 +478,35 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Node
     return false;
 }
 
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          , class NodeT
+          >
+std::string FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+::getErrorString(LoadMeshErr err)
+{
+    switch (err)
+    {
+    case (NOERROR):
+        return std::string();
+    case ( BADEDGEFILE ):
+        return "problem loading mesh:\nCould not open .edge file.\n";
+    case ( BADELEMENTFILE ):
+        return "problem loading mesh:\nCould not open .ele file.\n";
+    case( BADFEMFILE ):
+        return "problem loading mesh:\nCould not open .fem file.\n";
+    case( BADNODEFILE ):
+        return "problem loading mesh:\nCould not open .node file.\n";
+    case( BADPBCFILE ):
+        return "problem loading mesh:\nCould not open .pbc file.\n";
+    case( MISSINGMATPROPS ):
+        return "problem loading mesh:\nMaterial properties have not been defined for all regions.\n";
+    }
+
+    assert(false);
+    return std::string();
+}
 

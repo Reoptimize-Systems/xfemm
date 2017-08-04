@@ -42,7 +42,6 @@ int main(int argc, char** argv)
 {
     HSolver theHSolver;
     char PathName[512];
-    char outstr[1024];
 
     if (argc < 2)
     {
@@ -72,91 +71,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    // load mesh
-    int err = theHSolver.LoadMesh();
-    if (err != 0)
-    {
-        theHSolver.WarnMessage("problem loading mesh:\n");
-
-        switch (err)
-	    {
-	        case ( BADEDGEFILE ):
-                theHSolver.WarnMessage("Could not open .edge file.\n");
-                break;
-
-	        case ( BADELEMENTFILE ):
-                theHSolver.WarnMessage("Could not open .ele file.\n");
-                break;
-
-	        case( BADFEMFILE ):
-                theHSolver.WarnMessage("Could not open .fem file.\n");
-                break;
-
-	        case( BADNODEFILE ):
-                theHSolver.WarnMessage("Could not open .node file.\n");
-                break;
-
-	        case( BADPBCFILE ):
-                theHSolver.WarnMessage("Could not open .pbc file.\n");
-                break;
-
-	        case( MISSINGMATPROPS ):
-                theHSolver.WarnMessage("Material properties have not been defined for all regions.\n");
-                break;
-
-	        default:
-                theHSolver.WarnMessage("AN unknown error occured.\n");
-                break;
-	    }
-
+    if ( !theHSolver.runSolver(true))
         return 2;
-    }
-
-
-
-    if (theHSolver.LoadPrev()==false)
-    {
-        printf("Loading previous solution\n");
-    }
-
-    // renumber using Cuthill-McKee
-    printf("renumbering nodes\n");
-    if (theHSolver.Cuthill() != true)
-    {
-        theHSolver.WarnMessage("problem renumbering node points");
-        return 3;
-    }
-
-    printf("solving...");
-
-    sprintf(outstr,"Problem Statistics:\n%i nodes\n%i elements\nPrecision: %3.2e\n",
-            theHSolver.NumNodes,theHSolver.NumEls,theHSolver.Precision);
-
-    printf(outstr);
-
-    CBigLinProb L;
-
-    L.Precision = theHSolver.Precision;
-    if (L.Create(theHSolver.NumNodes+theHSolver.NumCircProps,theHSolver.BandWidth)==false)
-    {
-        theHSolver.WarnMessage("couldn't allocate enough space for matrices");
-        return 4;
-    }
-
-    if (theHSolver.AnalyzeProblem(L)==false)
-    {
-        theHSolver.WarnMessage("Couldn't solve the problem");
-        return 5;
-    }
-
-    printf("Problem solved\n");
-
-    if (theHSolver.WriteResults(L)==false)
-    {
-       theHSolver.WarnMessage("couldn't write results to disk");
-       return 6;
-    }
-    printf("results written to disk\n");
 
     return 0;
 }
