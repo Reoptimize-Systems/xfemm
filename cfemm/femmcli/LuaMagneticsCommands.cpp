@@ -210,8 +210,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_save_metafile", LuaInstance::luaNOP);
     li.addFunction("mo_savemetafile", LuaInstance::luaNOP);
     li.addFunction("mi_scale", luaScaleMove);
-    li.addFunction("mi_select_arcsegment", luaSelectArcsegment);
-    li.addFunction("mi_selectarcsegment", luaSelectArcsegment);
+    li.addFunction("mi_select_arcsegment", LuaCommonCommands::luaSelectArcsegment);
+    li.addFunction("mi_selectarcsegment", LuaCommonCommands::luaSelectArcsegment);
     li.addFunction("mo_select_block", luaSelectOutputBlocklabel);
     li.addFunction("mo_selectblock", luaSelectOutputBlocklabel);
     li.addFunction("mi_select_circle", luaSelectWithinCircle);
@@ -3152,44 +3152,6 @@ int femmcli::LuaMagneticsCommands::luaScaleMove(lua_State *L)
     mesher->ScaleMove(x,y,scalefactor,editAction);
 
     return 0;
-}
-
-/**
- * @brief Select an arc segment near a given point.
- * @param L
- * @return 4 on success, 0 otherwise
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_selectarcsegment(x,y)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_selectarcsegment()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaSelectArcsegment(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    double mx = lua_todouble(L,1);
-    double my = lua_todouble(L,2);
-
-    if (doc->arclist.empty())
-        return 0;
-
-    int node = mesher->ClosestArcSegment(mx,my);
-    doc->arclist[node]->ToggleSelect();
-
-    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n0]->x);
-    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n0]->y);
-    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n1]->x);
-    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n1]->y);
-
-    return 4;
 }
 
 /**

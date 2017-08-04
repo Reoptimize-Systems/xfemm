@@ -42,6 +42,7 @@ int luaAddBlocklabel(lua_State *L);
 int luaAddLine(lua_State *L);
 int luaAddNode(lua_State *L);
 int luaClearSelected(lua_State *L);
+int luaSelectArcsegment(lua_State *L);
 int luaSelectBlocklabel(lua_State *L);
 int luaSelectNode(lua_State *L);
 int luaSelectSegment(lua_State *L);
