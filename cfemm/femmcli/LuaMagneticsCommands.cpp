@@ -45,8 +45,8 @@ using std::swap;
 
 void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
 {
-    li.addFunction("mi_add_arc", luaAddArc);
-    li.addFunction("mi_addarc", luaAddArc);
+    li.addFunction("mi_add_arc", LuaCommonCommands::luaAddArc);
+    li.addFunction("mi_addarc", LuaCommonCommands::luaAddArc);
     li.addFunction("mi_add_bh_point", luaAddBHPoint);
     li.addFunction("mi_addbhpoint", luaAddBHPoint);
     li.addFunction("mi_add_bound_prop", luaAddBoundaryProp);
@@ -289,58 +289,6 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_zoomout", LuaInstance::luaNOP);
 }
 
-
-/**
- * @brief Add a new arc segment.
- * Add a new arc segment from the nearest node to (x1,y1) to the
- * nearest node to (x2,y2) with angle ‘angle’ divided into ‘maxseg’ segments.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_addarc(x1,y1,x2,y2,angle,maxseg)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_addarc()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaAddArc(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    double sx = lua_todouble(L,1);
-    double sy = lua_todouble(L,2);
-    double ex = lua_todouble(L,3);
-    double ey = lua_todouble(L,4);
-
-    double angle = lua_todouble(L,5);
-    double maxseg = lua_todouble(L,6);
-
-    CArcSegment asegm;
-    asegm.n0 = mesher->ClosestNode(sx,sy);
-    asegm.n1 = mesher->ClosestNode(ex,ey);
-    doc->nodelist[asegm.n1]->ToggleSelect();
-    //theView->DrawPSLG();
-
-    asegm.MaxSideLength = maxseg;
-    asegm.ArcLength = angle;
-
-    mesher->AddArcSegment(asegm);
-    mesher->UnselectAll();
-    //if(flag==TRUE){
-    //    theView->MeshUpToDate=FALSE;
-    //    if(theView->MeshFlag==TRUE) theView->lnu_show_mesh();
-    //    else theView->DrawPSLG();
-    //}
-    //else theView->DrawPSLG();
-
-    return 0;
-}
 
 /**
  * @brief Add a B-H data point to the given material.
