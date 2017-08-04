@@ -10,6 +10,7 @@ endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
 include_directories(../libfemm/liblua)
 include_directories(../libfemm)
 
+include_directories(../esolver)
 include_directories(../fmesher)
 include_directories(../fsolver)
 include_directories(../fpproc)
@@ -21,7 +22,7 @@ add_library(femmcli STATIC
   LuaElectrostaticsCommands.cpp
   LuaMagneticsCommands.cpp
   )
-target_link_libraries(femmcli femm fmesher fsolver fpproc)
+target_link_libraries(femmcli femm fmesher esolver fsolver fpproc)
 
 add_executable(femmcli-bin
   main.cpp
@@ -30,5 +31,5 @@ add_executable(femmcli-bin
 set_target_properties(femmcli-bin
   PROPERTIES OUTPUT_NAME femmcli)
 
-target_link_libraries(femmcli-bin femm femmcli fsolver)
+target_link_libraries(femmcli-bin femm femmcli esolver fsolver)
 # vi:expandtab:tabstop=2 shiftwidth=2:
