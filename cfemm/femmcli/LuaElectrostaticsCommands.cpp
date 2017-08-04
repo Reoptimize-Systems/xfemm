@@ -54,8 +54,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_addconductorprop", luaAddConductorProp);
     li.addFunction("ei_add_material", luaAddMaterialProp);
     li.addFunction("ei_addmaterial", luaAddMaterialProp);
-    li.addFunction("ei_add_node", luaAddNode);
-    li.addFunction("ei_addnode", luaAddNode);
+    li.addFunction("ei_add_node", LuaCommonCommands::luaAddNode);
+    li.addFunction("ei_addnode", LuaCommonCommands::luaAddNode);
     li.addFunction("ei_add_point_prop", luaAddPointProp);
     li.addFunction("ei_addpointprop", luaAddPointProp);
     li.addFunction("ei_add_segment", luaAddLine);
@@ -446,24 +446,6 @@ int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
     return 0;
 }
 
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_add_node}
- *
- * ### FEMM sources:
- * \sa \femm42{femm/beladrawLua.cpp,lua_addnode()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaAddNode(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
 
 /**
  * @brief FIXME not implemented
