@@ -274,6 +274,46 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
 }
 
 /**
+ * @brief Select an arc segment near a given point.
+ * @param L
+ * @return 4 on success, 0 otherwise
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_selectarcsegment(x,y)}
+ * - \lua{ei_select_arcsegment(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectarcsegment()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectarcsegment()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSelectArcsegment(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+
+    if (doc->arclist.empty())
+        return 0;
+
+    int node = mesher->ClosestArcSegment(mx,my);
+    doc->arclist[node]->ToggleSelect();
+
+    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n0]->x);
+    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n0]->y);
+    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n1]->x);
+    lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n1]->y);
+
+    return 4;
+}
+
+/**
  * @brief Select the closest label to a given point.
  * Select the label closet to (x,y). Returns the coordinates of the selected label.
  * @param L

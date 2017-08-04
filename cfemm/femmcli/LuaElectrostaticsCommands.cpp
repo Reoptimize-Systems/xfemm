@@ -149,8 +149,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_save_metafile", LuaInstance::luaNOP);
     li.addFunction("ei_savemetafile", LuaInstance::luaNOP);
     li.addFunction("ei_scale", luaScaleMove);
-    li.addFunction("ei_select_arcsegment", luaSelectArcsegment);
-    li.addFunction("ei_selectarcsegment", luaSelectArcsegment);
+    li.addFunction("ei_select_arcsegment", LuaCommonCommands::luaSelectArcsegment);
+    li.addFunction("ei_selectarcsegment", LuaCommonCommands::luaSelectArcsegment);
     li.addFunction("ei_select_circle", luaSelectWithinCircle);
     li.addFunction("ei_selectcircle", luaSelectWithinCircle);
     li.addFunction("ei_select_group", luaSelectGroup);
@@ -1416,25 +1416,6 @@ int femmcli::LuaElectrostaticsCommands::luaSaveDocument(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaScaleMove(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_select_arcsegment}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_selectarcsegment()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaSelectArcsegment(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

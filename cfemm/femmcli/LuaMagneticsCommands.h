@@ -100,7 +100,6 @@ int luaReloadNOP(lua_State *L);
 int luaLoadSolution(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaScaleMove(lua_State *L);
-int luaSelectArcsegment(lua_State *L);
 int luaSelectOutputBlocklabel(lua_State *L);
 int luaSelectWithinCircle(lua_State *L);
 int luaSelectGroup(lua_State *L);
