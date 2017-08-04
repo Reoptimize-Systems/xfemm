@@ -61,8 +61,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addsegment", luaAddLine);
     li.addFunction("mi_add_material", luaAddMatProp);
     li.addFunction("mi_addmaterial", luaAddMatProp);
-    li.addFunction("mi_add_node", luaAddNode);
-    li.addFunction("mi_addnode", luaAddNode);
+    li.addFunction("mi_add_node", LuaCommonCommands::luaAddNode);
+    li.addFunction("mi_addnode", LuaCommonCommands::luaAddNode);
     li.addFunction("mi_add_point_prop", luaAddPointProp);
     li.addFunction("mi_addpointprop", luaAddPointProp);
     li.addFunction("mi_analyse", luaAnalyze);
@@ -712,58 +712,6 @@ int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
 
     femmState->femmDocument()->blockproplist.push_back(std::move(m));
     femmState->femmDocument()->updateBlockMap();
-    return 0;
-}
-
-/**
- * @brief Add a new node.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_addnode(x,y)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_addnode()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaAddNode(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    double x=lua_todouble(L,1);
-    double y=lua_todouble(L,2);
-
-    double d;
-    if ((int)doc->nodelist.size()<2) {
-        d=1.e-08;
-    } else {
-        CComplex p0,p1,p2;
-        p0=doc->nodelist[0]->CC();
-        p1=p0;
-        for(int i=1; i< (int)doc->nodelist.size(); i++)
-        {
-            p2=doc->nodelist[i]->CC();
-            if(p2.re<p0.re) p0.re=p2.re;
-            if(p2.re>p1.re) p1.re=p2.re;
-            if(p2.im<p0.im) p0.im=p2.im;
-            if(p2.im>p1.im) p1.im=p2.im;
-        }
-        d=abs(p1-p0)*CLOSE_ENOUGH;
-    }
-    femmState->getMesher()->AddNode(x,y,d);
-
-    //BOOL flag=doc->AddNode(x,y,d);
-    //if(flag==TRUE){
-    //    theView->MeshUpToDate=FALSE;
-    //    if(theView->MeshFlag==TRUE) theView->lnu_show_mesh();
-    //    else theView->DrawPSLG();
-    //}
-
     return 0;
 }
 

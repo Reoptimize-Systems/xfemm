@@ -48,7 +48,6 @@ int luaAddContourPointFromNode(lua_State *L);
 int luaAddContourPoint(lua_State *L);
 int luaAddLine(lua_State *L);
 int luaAddMaterialProp(lua_State *L);
-int luaAddNode(lua_State *L);
 int luaAddPointProp(lua_State *L);
 int luaAnalyze(lua_State *L);
 int luaAttachDefault(lua_State *L);
