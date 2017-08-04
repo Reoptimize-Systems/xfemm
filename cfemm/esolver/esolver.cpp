@@ -29,14 +29,14 @@
 	Linz Center of Mechatronics GmbH (LCM)
 */
 
-// ssolver.cpp : implementation of the SSolver class
+// esolver.cpp : implementation of the ESolver class
 //
 
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "spars.h"
 //#include "fparse.h"
-#include "ssolver.h"
+#include "esolver.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -69,9 +69,9 @@ using namespace femm;
 
 
 /////////////////////////////////////////////////////////////////////////////
-// SSolver construction/destruction
+// ESolver construction/destruction
 
-SSolver::SSolver()
+ESolver::ESolver()
 {
 	meshnode=NULL;
 
@@ -82,26 +82,26 @@ SSolver::SSolver()
     bMultiplyDefinedLabels = false;
 }
 
-SSolver::~SSolver()
+ESolver::~ESolver()
 {
     CleanUp();
 }
 
-void SSolver::CleanUp()
+void ESolver::CleanUp()
 {
     FEASolver_type::CleanUp();
     if (meshnode!=NULL)		 delete[] meshnode;
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// SSolver commands
+// ESolver commands
 
-void SSolver::MsgBox(const char* message)
+void ESolver::MsgBox(const char* message)
 {
     printf("%s\n", message);
 }
 
-bool SSolver::LoadProblemFile ()
+bool ESolver::LoadProblemFile ()
 {
     std::string feeFile = PathName+".fee";
 
@@ -110,7 +110,7 @@ bool SSolver::LoadProblemFile ()
 }
 
 /**
- * @brief SSolver::LoadMesh
+ * @brief ESolver::LoadMesh
  * @param deleteFiles
  * @return
  *
@@ -119,7 +119,7 @@ bool SSolver::LoadProblemFile ()
  * - \femm42{belasolv/femmedoccore.cpp,CFemmeDocCore::LoadMesh()}
  * \endinternal
  */
-int SSolver::LoadMesh(bool deleteFiles)
+int ESolver::LoadMesh(bool deleteFiles)
 {
     int i,j,k,q,n0,n1,n;
     char infile[256];
@@ -369,7 +369,7 @@ int SSolver::LoadMesh(bool deleteFiles)
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @brief SSolver::AnalyzeProblem
+ * @brief ESolver::AnalyzeProblem
  * @param L
  * @return
  *
@@ -378,7 +378,7 @@ int SSolver::LoadMesh(bool deleteFiles)
  * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::AnalyzeProblem()}
  * \endinternal
  */
-int SSolver::AnalyzeProblem(CBigLinProb &L)
+int ESolver::AnalyzeProblem(CBigLinProb &L)
 {
     int i,j,k;
 	double Me[3][3],be[3];		// element matrices;
@@ -641,7 +641,7 @@ int SSolver::AnalyzeProblem(CBigLinProb &L)
 //=========================================================================
 
 /**
- * @brief SSolver::WriteResults
+ * @brief ESolver::WriteResults
  * @param L
  * @return
  *
@@ -650,7 +650,7 @@ int SSolver::AnalyzeProblem(CBigLinProb &L)
  * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::WriteResults()}
  * \endinternal
  */
-int SSolver::WriteResults(CBigLinProb &L)
+int ESolver::WriteResults(CBigLinProb &L)
 {
 	// write solution to disk;
 
@@ -717,7 +717,7 @@ int SSolver::WriteResults(CBigLinProb &L)
 
 
 /**
- * @brief SSolver::ChargeOnConductor
+ * @brief ESolver::ChargeOnConductor
  * @param L
  * @return
  *
@@ -726,7 +726,7 @@ int SSolver::WriteResults(CBigLinProb &L)
  * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::ChargeOnConductor()}
  * \endinternal
  */
-double SSolver::ChargeOnConductor(int u, CBigLinProb &L)
+double ESolver::ChargeOnConductor(int u, CBigLinProb &L)
 {
 	int i,k;
 	double b[3],c[3];		// element shape parameters;
@@ -777,7 +777,7 @@ double SSolver::ChargeOnConductor(int u, CBigLinProb &L)
 
 
 // SortNodes: sorts mesh nodes based on a new numbering
-void SSolver::SortNodes (int* newnum)
+void ESolver::SortNodes (int* newnum)
 {
     int j=0,n=0;
 
@@ -799,7 +799,7 @@ void SSolver::SortNodes (int* newnum)
     }
 }
 
-bool SSolver::handleToken(const string &, istream &, ostream &)
+bool ESolver::handleToken(const string &, istream &, ostream &)
 {
     return false;
 }
