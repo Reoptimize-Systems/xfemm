@@ -239,7 +239,7 @@ bool CBigLinProb::PCGSolve(int flag)
     // quick check for most obvious sign of singularity;
     for(i=0; i<n; i++) if(M[i]->x==0)
         {
-            fprintf(stderr,"singular flag tripped at %i of %i", i,n);
+            fprintf(stderr,"singular flag tripped at %i of %i\n", i,n);
             return 0;
         }
 
