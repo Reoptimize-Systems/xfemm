@@ -41,7 +41,10 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
     // width and fill-direction are only used to emulate the output of femm42 as close as possible.
 
     // ***** write properties ****
-    output << "[Format]      =  4.0\n";
+    if (filetype == FileType::MagneticsFile)
+        output << "[Format]      =  4.0\n";
+    else
+        output << "[Format]      =  1\n";
     if (filetype != FileType::ElectrostaticsFile)
     {
         output.width(12);
