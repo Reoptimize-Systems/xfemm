@@ -108,7 +108,6 @@ int luaSelectWithinCircle(lua_State *L);
 int luaSelectGroup(lua_State *L);
 int luaSelectBlocklabel(lua_State *L);
 int luaAddContourPointFromNode(lua_State *L);
-int luaSelectnode(lua_State *L);
 int luaSelectWithinRectangle(lua_State *L);
 int luaSelectSegment(lua_State *L);
 int luaSetArcsegmentProp(lua_State *L);
