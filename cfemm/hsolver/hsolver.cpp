@@ -845,7 +845,7 @@ bool HSolver::runSolver(bool verbose)
         PrintMessage("renumbering nodes\n");
     if (!Cuthill())
     {
-        WarnMessage("problem renumbering node points");
+        WarnMessage("problem renumbering node points\n");
         return false;
     }
 
@@ -862,15 +862,15 @@ bool HSolver::runSolver(bool verbose)
     CBigLinProb L;
 
     L.Precision = Precision;
-    if (L.Create(NumNodes+NumCircProps,BandWidth)==false)
+    if (!L.Create(NumNodes+NumCircProps,BandWidth))
     {
-        WarnMessage("couldn't allocate enough space for matrices");
+        WarnMessage("couldn't allocate enough space for matrices\n");
         return false;
     }
 
     if (!AnalyzeProblem(L))
     {
-        WarnMessage("Couldn't solve the problem");
+        WarnMessage("Couldn't solve the problem\n");
         return false;
     }
 
@@ -879,7 +879,7 @@ bool HSolver::runSolver(bool verbose)
 
     if (!WriteResults(L))
     {
-       WarnMessage("couldn't write results to disk");
+       WarnMessage("couldn't write results to disk\n");
        return 6;
     }
     if (verbose)

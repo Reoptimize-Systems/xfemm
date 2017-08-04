@@ -539,10 +539,10 @@ bool FSolver::runSolver(bool verbose)
 
     // renumber using Cuthill-McKee
     if (verbose)
-        PrintMessage("renumbering nodes");
+        PrintMessage("renumbering nodes\n");
     if (!Cuthill())
     {
-        WarnMessage("problem renumbering node points");
+        WarnMessage("problem renumbering node points\n");
         return false;
     }
 
@@ -564,7 +564,7 @@ bool FSolver::runSolver(bool verbose)
         // initialize the problem, allocating the space required to solve it.
         if (L.Create(NumNodes, BandWidth) == false)
         {
-            WarnMessage("couldn't allocate enough space for matrices");
+            WarnMessage("couldn't allocate enough space for matrices\n");
             return false;
         }
 
@@ -573,11 +573,11 @@ bool FSolver::runSolver(bool verbose)
         {
             if (Static2D(L) == false)
             {
-                WarnMessage("Couldn't solve the problem");
+                WarnMessage("Couldn't solve the problem\n");
                 return false;
             }
             if (verbose)
-                PrintMessage("Static 2-D problem solved");
+                PrintMessage("Static 2-D problem solved\n");
         } else {
             if (StaticAxisymmetric(L) == false)
             {
@@ -590,7 +590,7 @@ bool FSolver::runSolver(bool verbose)
 
         if (WriteStatic2D(L) == false)
         {
-            WarnMessage("couldn't write results to disk");
+            WarnMessage("couldn't write results to disk\n");
             return false;
         }
         if (verbose)
@@ -600,39 +600,39 @@ bool FSolver::runSolver(bool verbose)
         L.Precision = Precision;
 
         // initialize the problem, allocating the space required to solve it.
-        if (L.Create(NumNodes+NumCircProps, BandWidth, NumNodes) == false)
+        if (!L.Create(NumNodes+NumCircProps, BandWidth, NumNodes))
         {
-            WarnMessage("couldn't allocate enough space for matrices");
+            WarnMessage("couldn't allocate enough space for matrices\n");
             return false;
         }
 
         // Create element matrices and solve the problem;
-        if (ProblemType == false)
+        if (ProblemType == PLANAR)
         {
-            if (Harmonic2D(L) == false)
+            if (!Harmonic2D(L))
             {
-                WarnMessage("Couldn't solve the problem");
+                WarnMessage("Couldn't solve the problem\n");
                 return false;
             }
             if (verbose)
-                PrintMessage("Harmonic 2-D problem solved");
+                PrintMessage("Harmonic 2-D problem solved\n");
         } else {
-            if (HarmonicAxisymmetric(L) == false)
+            if (!HarmonicAxisymmetric(L))
             {
-                WarnMessage("Couldn't solve the problem");
+                WarnMessage("Couldn't solve the problem\n");
                 return false;
             }
             if (verbose)
-                PrintMessage("Harmonic axisymmetric problem solved");
+                PrintMessage("Harmonic axisymmetric problem solved\n");
         }
 
-        if (WriteHarmonic2D(L)==false)
+        if (!WriteHarmonic2D(L))
         {
-            WarnMessage("couldn't write results to disk");
+            WarnMessage("couldn't write results to disk\n");
             return false;
         }
         if (verbose)
-            PrintMessage("results written to disk.");
+            PrintMessage("results written to disk.\n");
     }
     return true;
 }
