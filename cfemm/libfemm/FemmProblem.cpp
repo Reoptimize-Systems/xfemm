@@ -100,8 +100,11 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
         output << "[Coordinates] =  polar\n";
     }
 
-    output.width(12);
-    output << "[ACSolver]" << "  =  " << ACSolver <<"\n";
+    if (filetype == FileType::MagneticsFile)
+    {
+        output.width(12);
+        output << "[ACSolver]" << "  =  " << ACSolver <<"\n";
+    }
     if (!PrevSoln.empty())
     {
         output.width(12);

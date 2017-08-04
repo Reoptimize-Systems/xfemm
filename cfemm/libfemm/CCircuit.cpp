@@ -190,7 +190,7 @@ void CHConductor::toStream(std::ostream &out) const
     out << "    <qc> = " << q << "\n";
     out << "    <ConductorType> = " << CircType << "\n";
     if (!CircName.empty())
-        out << "    <ConductorName> =\"" << CircName << "\"\n";
+        out << "    <ConductorName> = \"" << CircName << "\"\n";
     out << "  <EndConductor>\n";
 }
 ostream &operator<<(ostream &os, const CCircuit &prop)
@@ -256,7 +256,7 @@ void CSCircuit::toStream(ostream &out) const
 {
     out << "  <BeginConductor>\n";
     if (!CircName.empty())
-        out << "    <ConductorName> =\"" << CircName << "\"\n";
+        out << "    <ConductorName> = \"" << CircName << "\"\n";
     out << "    <Vc> = " << V << "\n";
     out << "    <qc> = " << q << "\n";
     out << "    <ConductorType> = " << CircType << "\n";
