@@ -295,9 +295,9 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
  * \sa \femm42{femm/beladrawLua.cpp,lua_addarc()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddArc(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddArc(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -314,9 +314,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddArc(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_addboundprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -333,9 +333,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_addcircuitprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddCircuitProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddCircuitProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -352,9 +352,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddCircuitProp(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_addcontour()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -371,9 +371,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_addlabel()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddBlocklabel(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddBlocklabel(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -390,9 +390,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddBlocklabel(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_addline()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -409,9 +409,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_addmatprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -428,9 +428,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_addnode()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddNode(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddNode(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -447,9 +447,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddNode(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_addpointprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -466,9 +466,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_analyze()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -485,9 +485,9 @@ int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_attachdefault()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAttachDefault(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAttachDefault(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -504,9 +504,9 @@ int femmcli::LuaElectrostaticsCommands::luaAttachDefault(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_attachouterspace()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAttachOuterSpace(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAttachOuterSpace(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -523,9 +523,9 @@ int femmcli::LuaElectrostaticsCommands::luaAttachOuterSpace(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_bendcontour()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaBendContourLine(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaBendContourLine(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -542,9 +542,9 @@ int femmcli::LuaElectrostaticsCommands::luaBendContourLine(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_blockintegral()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -561,9 +561,9 @@ int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_clearblock()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -580,9 +580,9 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_clearcontour()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -599,9 +599,9 @@ int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_clearselected()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaClearSelected(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaClearSelected(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -618,9 +618,9 @@ int femmcli::LuaElectrostaticsCommands::luaClearSelected(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_copy_rotate()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaCopyRotate(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaCopyRotate(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -637,9 +637,9 @@ int femmcli::LuaElectrostaticsCommands::luaCopyRotate(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_copy_translate()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaCopyTranslate(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaCopyTranslate(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -656,9 +656,9 @@ int femmcli::LuaElectrostaticsCommands::luaCopyTranslate(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_create_mesh()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaCreateMesh(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaCreateMesh(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -675,9 +675,9 @@ int femmcli::LuaElectrostaticsCommands::luaCreateMesh(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_createradius()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaCreateRadius(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaCreateRadius(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -694,9 +694,9 @@ int femmcli::LuaElectrostaticsCommands::luaCreateRadius(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_defineouterspace()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDefineOuterSpace(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDefineOuterSpace(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -713,9 +713,9 @@ int femmcli::LuaElectrostaticsCommands::luaDefineOuterSpace(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_delboundprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeleteBoundaryProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeleteBoundaryProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -732,9 +732,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteBoundaryProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_delcircuitprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeleteCircuitProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeleteCircuitProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -751,9 +751,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteCircuitProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedarcsegments()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedArcSegments(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedArcSegments(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -770,9 +770,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedArcSegments(lua_State *
  * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselected()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeleteSelected(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelected(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -789,9 +789,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelected(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedlabels()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedBlockLabels(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedBlockLabels(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -808,9 +808,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedBlockLabels(lua_State *
  * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectednodes()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedNodes(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedNodes(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -827,9 +827,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedNodes(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedsegments()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedSegments(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedSegments(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -846,9 +846,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedSegments(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_delmatprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeleteMaterial(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeleteMaterial(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -865,9 +865,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeleteMaterial(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_delpointprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDeletePointProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDeletePointProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -884,9 +884,9 @@ int femmcli::LuaElectrostaticsCommands::luaDeletePointProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_detachdefault()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDetachDefault(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDetachDefault(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -903,9 +903,9 @@ int femmcli::LuaElectrostaticsCommands::luaDetachDefault(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_detachouterspace()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaDetachOuterSpace(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaDetachOuterSpace(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -922,9 +922,9 @@ int femmcli::LuaElectrostaticsCommands::luaDetachOuterSpace(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_exitpost()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -941,9 +941,9 @@ int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_exitpre()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaExitPre(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaExitPre(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -960,9 +960,9 @@ int femmcli::LuaElectrostaticsCommands::luaExitPre(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_getboundingbox()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetBoundingBox(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGetBoundingBox(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -979,9 +979,9 @@ int femmcli::LuaElectrostaticsCommands::luaGetBoundingBox(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_getcircuitprops()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetCircuitProperties(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGetCircuitProperties(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -998,9 +998,9 @@ int femmcli::LuaElectrostaticsCommands::luaGetCircuitProperties(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_getelement()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1017,9 +1017,9 @@ int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_getmaterial()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1036,9 +1036,9 @@ int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_getnode()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1055,9 +1055,9 @@ int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_getpointvals()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1074,9 +1074,9 @@ int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_getprobleminfo()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetProblemInfo(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGetProblemInfo(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1093,9 +1093,9 @@ int femmcli::LuaElectrostaticsCommands::luaGetProblemInfo(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_gettitle()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetTitle(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGetTitle(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1112,9 +1112,9 @@ int femmcli::LuaElectrostaticsCommands::luaGetTitle(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_groupselectblock()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGroupSelectBlock(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaGroupSelectBlock(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1131,9 +1131,9 @@ int femmcli::LuaElectrostaticsCommands::luaGroupSelectBlock(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_lineintegral()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1150,9 +1150,9 @@ int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_mirror()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaMirrorCopy(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaMirrorCopy(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1169,9 +1169,9 @@ int femmcli::LuaElectrostaticsCommands::luaMirrorCopy(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_modboundprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1188,9 +1188,9 @@ int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_modcircprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaModifyCircuitProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaModifyCircuitProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1207,9 +1207,9 @@ int femmcli::LuaElectrostaticsCommands::luaModifyCircuitProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_modmatprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1226,9 +1226,9 @@ int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_modpointprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaModifyPointProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaModifyPointProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1245,9 +1245,9 @@ int femmcli::LuaElectrostaticsCommands::luaModifyPointProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_move_rotate()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaMoveRotate(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaMoveRotate(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1264,9 +1264,9 @@ int femmcli::LuaElectrostaticsCommands::luaMoveRotate(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_move_translate()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaMoveTranslate(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaMoveTranslate(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1283,9 +1283,9 @@ int femmcli::LuaElectrostaticsCommands::luaMoveTranslate(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_newdocument()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaNewDocument(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaNewDocument(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1302,9 +1302,9 @@ int femmcli::LuaElectrostaticsCommands::luaNewDocument(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_numelements()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaNumElements(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaNumElements(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1321,29 +1321,33 @@ int femmcli::LuaElectrostaticsCommands::luaNumElements(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_numnodes()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaNumNodes(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaNumNodes(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Change problem definition.
+ * Only the parameters that are set are changed.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_prob_def}
+ * - \lua{ei_prob_def(units,type,precision,(depth),(minangle))}
+ *   A negative depth is interpreted as 1.
  *
  * ### FEMM sources:
  * \sa \femm42{femm/beladrawLua.cpp,lua_prob_def()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaProbDef(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaProbDef(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
+
+
 
 /**
  * @brief FIXME not implemented
@@ -1359,9 +1363,9 @@ int femmcli::LuaElectrostaticsCommands::luaProbDef(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_purge_mesh()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaPurgeMesh(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaPurgeMesh(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1378,9 +1382,9 @@ int femmcli::LuaElectrostaticsCommands::luaPurgeMesh(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_runpost()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaLoadSolution(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaLoadSolution(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1397,9 +1401,9 @@ int femmcli::LuaElectrostaticsCommands::luaLoadSolution(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,luaSaveDocument()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSaveDocument(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSaveDocument(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1416,9 +1420,9 @@ int femmcli::LuaElectrostaticsCommands::luaSaveDocument(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_scale()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaScaleMove(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaScaleMove(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1435,9 +1439,9 @@ int femmcli::LuaElectrostaticsCommands::luaScaleMove(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_selectarcsegment()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectArcsegment(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectArcsegment(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1454,9 +1458,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectArcsegment(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_selectblock()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectOutputBlocklabel(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectOutputBlocklabel(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1473,9 +1477,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectOutputBlocklabel(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_selectcircle()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectWithinCircle(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectWithinCircle(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1492,9 +1496,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectWithinCircle(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_selectconductor()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1511,9 +1515,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_selectgroup()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectGroup(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectGroup(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1530,9 +1534,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectGroup(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_selectlabel()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectBlocklabel(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectBlocklabel(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1549,9 +1553,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectBlocklabel(lua_State *)
  * \sa \femm42{femm/belaviewLua.cpp,lua_selectline()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddContourPointFromNode(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaAddContourPointFromNode(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1568,9 +1572,9 @@ int femmcli::LuaElectrostaticsCommands::luaAddContourPointFromNode(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_selectnode()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectnode(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectnode(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1587,9 +1591,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectnode(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_selectrectangle()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1606,9 +1610,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_selectsegment()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSelectSegment(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSelectSegment(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1625,9 +1629,9 @@ int femmcli::LuaElectrostaticsCommands::luaSelectSegment(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_setarcsegmentprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1644,9 +1648,9 @@ int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_setblockprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1663,9 +1667,9 @@ int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_seteditmode()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetEditMode(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSetEditMode(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1682,9 +1686,9 @@ int femmcli::LuaElectrostaticsCommands::luaSetEditMode(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_setgroup()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1701,9 +1705,9 @@ int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_setnodeprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1720,9 +1724,9 @@ int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_setsegmentprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetSegmentProp(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSetSegmentProp(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
@@ -1739,8 +1743,8 @@ int femmcli::LuaElectrostaticsCommands::luaSetSegmentProp(lua_State *)
  * \sa \femm42{femm/beladrawLua.cpp,lua_switchfocus()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetFocus(lua_State *)
+int femmcli::LuaElectrostaticsCommands::luaSetFocus(lua_State *L)
 {
-    return 0;
+    lua_error(L, "Not implemented"); return 0;
 }
 

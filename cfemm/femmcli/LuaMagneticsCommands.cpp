@@ -3142,6 +3142,7 @@ int femmcli::LuaMagneticsCommands::luaSetPrevious(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mi_probdef(frequency,(units),(type),(precision),(depth),(minangle),(acsolver))}
+ *   A negative depth is interpreted as positive depth.
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_prob_def()}
@@ -3201,6 +3202,7 @@ int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
     magDoc->Precision = precision;
     if (n==4) return 0;
 
+    // Note: ei_probdef sets depth to 1 if Depth < 0
     magDoc->Depth = std::fabs(lua_tonumber(L,5).re);
     if (n==5) return 0;
 
