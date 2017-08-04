@@ -37,6 +37,7 @@ namespace femmcli
  */
 namespace LuaCommonCommands
 {
+int luaAddLine(lua_State *L);
 int luaAddNode(lua_State *L);
 int luaClearSelected(lua_State *L);
 int luaSelectnode(lua_State *L);
