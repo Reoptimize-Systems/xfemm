@@ -181,7 +181,7 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_selectnode()}
  * \endinternal
  */
-int femmcli::LuaCommonCommands::luaSelectnode(lua_State *L)
+int femmcli::LuaCommonCommands::luaSelectNode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -200,4 +200,43 @@ int femmcli::LuaCommonCommands::luaSelectnode(lua_State *L)
     lua_pushnumber(L,mesher->problem->nodelist[node]->y);
 
     return 2;
+}
+
+/**
+ * @brief Select the line closest to a given point.
+ * @param L
+ * @return 0 on error, 4 on success
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_selectsegment(x,y)}
+ * - \lua{ei_select_segment(x,y)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectsegment()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectsegment()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> thisDoc = femmState->femmDocument();
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+
+    if (thisDoc->linelist.empty())
+        return 0;
+
+    int node = femmState->getMesher()->ClosestSegment(mx,my);
+    thisDoc->linelist[node]->ToggleSelect();
+
+    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->x);
+    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->y);
+    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n1]->x);
+    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n1]->y);
+
+    return 4;
 }

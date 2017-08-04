@@ -157,12 +157,12 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_selectgroup", luaSelectGroup);
     li.addFunction("ei_select_label", luaSelectBlocklabel);
     li.addFunction("ei_selectlabel", luaSelectBlocklabel);
-    li.addFunction("ei_select_node", LuaCommonCommands::luaSelectnode);
-    li.addFunction("ei_selectnode", LuaCommonCommands::luaSelectnode);
+    li.addFunction("ei_select_node", LuaCommonCommands::luaSelectNode);
+    li.addFunction("ei_selectnode", LuaCommonCommands::luaSelectNode);
     li.addFunction("ei_select_rectangle", luaSelectWithinRectangle);
     li.addFunction("ei_selectrectangle", luaSelectWithinRectangle);
-    li.addFunction("ei_select_segment", luaSelectSegment);
-    li.addFunction("ei_selectsegment", luaSelectSegment);
+    li.addFunction("ei_select_segment", LuaCommonCommands::luaSelectSegment);
+    li.addFunction("ei_selectsegment", LuaCommonCommands::luaSelectSegment);
     li.addFunction("ei_set_arcsegment_prop", luaSetArcsegmentProp);
     li.addFunction("ei_setarcsegmentprop", luaSetArcsegmentProp);
     li.addFunction("ei_set_block_prop", luaSetBlocklabelProp);
@@ -1606,25 +1606,6 @@ int femmcli::LuaElectrostaticsCommands::luaAddContourPointFromNode(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_select_segment}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_selectsegment()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaSelectSegment(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

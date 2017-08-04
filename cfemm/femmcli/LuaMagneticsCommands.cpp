@@ -222,12 +222,12 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectlabel", luaSelectBlocklabel);
     li.addFunction("mo_select_point", luaAddContourPointFromNode);
     li.addFunction("mo_selectpoint", luaAddContourPointFromNode);
-    li.addFunction("mi_select_node", LuaCommonCommands::luaSelectnode);
-    li.addFunction("mi_selectnode", LuaCommonCommands::luaSelectnode);
+    li.addFunction("mi_select_node", LuaCommonCommands::luaSelectNode);
+    li.addFunction("mi_selectnode", LuaCommonCommands::luaSelectNode);
     li.addFunction("mi_select_rectangle", luaSelectWithinRectangle);
     li.addFunction("mi_selectrectangle", luaSelectWithinRectangle);
-    li.addFunction("mi_select_segment", luaSelectSegment);
-    li.addFunction("mi_selectsegment", luaSelectSegment);
+    li.addFunction("mi_select_segment", LuaCommonCommands::luaSelectSegment);
+    li.addFunction("mi_selectsegment", LuaCommonCommands::luaSelectSegment);
     li.addFunction("mi_set_arcsegment_prop", luaSetArcsegmentProp);
     li.addFunction("mi_setarcsegmentprop", luaSetArcsegmentProp);
     li.addFunction("mi_set_block_prop", luaSetBlocklabelProp);
@@ -3807,43 +3807,6 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinRectangle(lua_State *L)
     }
 
     return 0;
-}
-
-/**
- * @brief Select the line closest to a given point.
- * @param L
- * @return 0 on error, 4 on success
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_selectsegment(x,y)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_selectsegment()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaSelectSegment(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> thisDoc = femmState->femmDocument();
-
-    double mx = lua_todouble(L,1);
-    double my = lua_todouble(L,2);
-
-    if (thisDoc->linelist.empty())
-        return 0;
-
-    int node = femmState->getMesher()->ClosestSegment(mx,my);
-    thisDoc->linelist[node]->ToggleSelect();
-
-    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->x);
-    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->y);
-    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n1]->x);
-    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n1]->y);
-
-    return 4;
 }
 
 /**
