@@ -42,8 +42,11 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
 
     // ***** write properties ****
     output << "[Format]      =  4.0\n";
-    output.width(12);
-    output << "[Frequency]" << "  =  " << Frequency << "\n";
+    if (filetype != FileType::ElectrostaticsFile)
+    {
+        output.width(12);
+        output << "[Frequency]" << "  =  " << Frequency << "\n";
+    }
     output.width(12);
     output << "[Precision]" << "  =  " << Precision << "\n";
     output.width(12);
