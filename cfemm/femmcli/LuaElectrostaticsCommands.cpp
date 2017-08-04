@@ -1,0 +1,1746 @@
+/* Copyright 2017 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
+ * Contributions by Johannes Zarl-Zierl were funded by Linz Center of
+ * Mechatronics GmbH (LCM)
+ * Copyright 1998-2016 David Meeker <dmeeker@ieee.org>
+ *
+ * The source code in this file is heavily derived from
+ * FEMM by David Meeker <dmeeker@ieee.org>.
+ * For more information on FEMM see http://www.femm.info
+ * This modified version is not endorsed in any way by the original
+ * authors of FEMM.
+ *
+ * License:
+ * This software is subject to the Aladdin Free Public Licence
+ * version 8, November 18, 1999.
+ * The full license text is available in the file LICENSE.txt supplied
+ * along with the source code.
+ */
+
+#include "LuaElectrostaticsCommands.h"
+
+#include "CPointVals.h"
+#include "femmenums.h"
+#include "FemmState.h"
+#include "LuaInstance.h"
+
+#include <lua.h>
+
+#include <cassert>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+#ifdef DEBUG_FEMMLUA
+#define debug std::cerr
+#else
+#define debug while(false) std::cerr
+#endif
+
+using namespace femm;
+using std::swap;
+
+void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
+{
+    li.addFunction("ei_add_arc", luaAddArc);
+    li.addFunction("ei_addarc", luaAddArc);
+    li.addFunction("ei_add_block_label", luaAddBlocklabel);
+    li.addFunction("ei_addblocklabel", luaAddBlocklabel);
+    li.addFunction("ei_add_bound_prop", luaAddBoundaryProp);
+    li.addFunction("ei_addboundprop", luaAddBoundaryProp);
+    li.addFunction("ei_add_conductor_prop", luaAddCircuitProp);
+    li.addFunction("ei_addconductorprop", luaAddCircuitProp);
+    li.addFunction("ei_add_material", luaAddMaterialProp);
+    li.addFunction("ei_addmaterial", luaAddMaterialProp);
+    li.addFunction("ei_add_node", luaAddNode);
+    li.addFunction("ei_addnode", luaAddNode);
+    li.addFunction("ei_add_point_prop", luaAddPointProp);
+    li.addFunction("ei_addpointprop", luaAddPointProp);
+    li.addFunction("ei_add_segment", luaAddLine);
+    li.addFunction("ei_addsegment", luaAddLine);
+    li.addFunction("ei_analyse", luaAnalyze);
+    li.addFunction("ei_analyze", luaAnalyze);
+    li.addFunction("ei_attach_default", luaAttachDefault);
+    li.addFunction("ei_attachdefault", luaAttachDefault);
+    li.addFunction("ei_attach_outer_space", luaAttachOuterSpace);
+    li.addFunction("ei_attachouterspace", luaAttachOuterSpace);
+    li.addFunction("ei_clear_selected", luaClearSelected);
+    li.addFunction("ei_clearselected", luaClearSelected);
+    li.addFunction("ei_close", luaExitPre);
+    li.addFunction("ei_copy_rotate", luaCopyRotate);
+    li.addFunction("ei_copyrotate", luaCopyRotate);
+    li.addFunction("ei_copy_translate", luaCopyTranslate);
+    li.addFunction("ei_copytranslate", luaCopyTranslate);
+    li.addFunction("ei_create_mesh", luaCreateMesh);
+    li.addFunction("ei_createmesh", luaCreateMesh);
+    li.addFunction("ei_create_radius", luaCreateRadius);
+    li.addFunction("ei_createradius", luaCreateRadius);
+    li.addFunction("ei_define_outer_space", luaDefineOuterSpace);
+    li.addFunction("ei_defineouterspace", luaDefineOuterSpace);
+    li.addFunction("ei_delete_bound_prop", luaDeleteBoundaryProp);
+    li.addFunction("ei_deleteboundprop", luaDeleteBoundaryProp);
+    li.addFunction("ei_delete_conductor", luaDeleteCircuitProp);
+    li.addFunction("ei_deleteconductor", luaDeleteCircuitProp);
+    li.addFunction("ei_delete_material", luaDeleteMaterial);
+    li.addFunction("ei_deletematerial", luaDeleteMaterial);
+    li.addFunction("ei_delete_point_prop", luaDeletePointProp);
+    li.addFunction("ei_deletepointprop", luaDeletePointProp);
+    li.addFunction("ei_delete_selected_arcsegments", luaDeleteSelectedArcSegments);
+    li.addFunction("ei_deleteselectedarcsegments", luaDeleteSelectedArcSegments);
+    li.addFunction("ei_delete_selected_labels", luaDeleteSelectedBlockLabels);
+    li.addFunction("ei_deleteselectedlabels", luaDeleteSelectedBlockLabels);
+    li.addFunction("ei_delete_selected", luaDeleteSelected);
+    li.addFunction("ei_deleteselected", luaDeleteSelected);
+    li.addFunction("ei_delete_selected_nodes", luaDeleteSelectedNodes);
+    li.addFunction("ei_deleteselectednodes", luaDeleteSelectedNodes);
+    li.addFunction("ei_delete_selected_segments", luaDeleteSelectedSegments);
+    li.addFunction("ei_deleteselectedsegments", luaDeleteSelectedSegments);
+    li.addFunction("ei_detach_default", luaDetachDefault);
+    li.addFunction("ei_detachdefault", luaDetachDefault);
+    li.addFunction("ei_detach_outer_space", luaDetachOuterSpace);
+    li.addFunction("ei_detachouterspace", luaDetachOuterSpace);
+    li.addFunction("ei_getboundingbox", luaGetBoundingBox);
+    li.addFunction("ei_get_material", luaGetMaterialFromLib);
+    li.addFunction("ei_getmaterial", luaGetMaterialFromLib);
+    li.addFunction("ei_getprobleminfo", luaGetProblemInfo);
+    li.addFunction("ei_get_title", luaGetTitle);
+    li.addFunction("ei_gettitle", luaGetTitle);
+    li.addFunction("ei_grid_snap", LuaInstance::luaNOP);
+    li.addFunction("ei_gridsnap", LuaInstance::luaNOP);
+    li.addFunction("ei_hide_grid", LuaInstance::luaNOP);
+    li.addFunction("ei_hidegrid", LuaInstance::luaNOP);
+    li.addFunction("ei_load_solution", luaLoadSolution);
+    li.addFunction("ei_loadsolution", luaLoadSolution);
+    li.addFunction("ei_maximize", LuaInstance::luaNOP);
+    li.addFunction("ei_minimize", LuaInstance::luaNOP);
+    li.addFunction("ei_mirror", luaMirrorCopy);
+    li.addFunction("ei_modify_bound_prop", luaModifyBoundaryProp);
+    li.addFunction("ei_modifyboundprop", luaModifyBoundaryProp);
+    li.addFunction("ei_modify_conductor_prop", luaModifyCircuitProp);
+    li.addFunction("ei_modifyconductorprop", luaModifyCircuitProp);
+    li.addFunction("ei_modify_material", luaModifyMaterialProp);
+    li.addFunction("ei_modifymaterial", luaModifyMaterialProp);
+    li.addFunction("ei_modify_point_prop", luaModifyPointProp);
+    li.addFunction("ei_modifypointprop", luaModifyPointProp);
+    li.addFunction("ei_move_rotate", luaMoveRotate);
+    li.addFunction("ei_moverotate", luaMoveRotate);
+    li.addFunction("ei_move_translate", luaMoveTranslate);
+    li.addFunction("ei_movetranslate", luaMoveTranslate);
+    li.addFunction("ei_new_document", luaNewDocument);
+    li.addFunction("ei_newdocument", luaNewDocument);
+    li.addFunction("ei_prob_def", luaProbDef);
+    li.addFunction("ei_probdef", luaProbDef);
+    li.addFunction("ei_purge_mesh", luaPurgeMesh);
+    li.addFunction("ei_purgemesh", luaPurgeMesh);
+    li.addFunction("ei_read_dxf", LuaInstance::luaNOP);
+    li.addFunction("ei_readdxf", LuaInstance::luaNOP);
+    li.addFunction("ei_refresh_view", LuaInstance::luaNOP);
+    li.addFunction("ei_refreshview", LuaInstance::luaNOP);
+    li.addFunction("ei_resize", LuaInstance::luaNOP);
+    li.addFunction("ei_restore", LuaInstance::luaNOP);
+    li.addFunction("ei_save_as", luaSaveDocument);
+    li.addFunction("ei_saveas", luaSaveDocument);
+    li.addFunction("ei_save_bitmap", LuaInstance::luaNOP);
+    li.addFunction("ei_savebitmap", LuaInstance::luaNOP);
+    li.addFunction("ei_save_dxf", LuaInstance::luaNOP);
+    li.addFunction("ei_savedxf", LuaInstance::luaNOP);
+    li.addFunction("ei_save_metafile", LuaInstance::luaNOP);
+    li.addFunction("ei_savemetafile", LuaInstance::luaNOP);
+    li.addFunction("ei_scale", luaScaleMove);
+    li.addFunction("ei_select_arcsegment", luaSelectArcsegment);
+    li.addFunction("ei_selectarcsegment", luaSelectArcsegment);
+    li.addFunction("ei_select_circle", luaSelectWithinCircle);
+    li.addFunction("ei_selectcircle", luaSelectWithinCircle);
+    li.addFunction("ei_select_group", luaSelectGroup);
+    li.addFunction("ei_selectgroup", luaSelectGroup);
+    li.addFunction("ei_select_label", luaSelectBlocklabel);
+    li.addFunction("ei_selectlabel", luaSelectBlocklabel);
+    li.addFunction("ei_select_node", luaSelectnode);
+    li.addFunction("ei_selectnode", luaSelectnode);
+    li.addFunction("ei_select_rectangle", luaSelectWithinRectangle);
+    li.addFunction("ei_selectrectangle", luaSelectWithinRectangle);
+    li.addFunction("ei_select_segment", luaSelectSegment);
+    li.addFunction("ei_selectsegment", luaSelectSegment);
+    li.addFunction("ei_set_arcsegment_prop", luaSetArcsegmentProp);
+    li.addFunction("ei_setarcsegmentprop", luaSetArcsegmentProp);
+    li.addFunction("ei_set_block_prop", luaSetBlocklabelProp);
+    li.addFunction("ei_setblockprop", luaSetBlocklabelProp);
+    li.addFunction("ei_set_edit_mode", luaSetEditMode);
+    li.addFunction("ei_seteditmode", luaSetEditMode);
+    li.addFunction("ei_set_focus", luaSetFocus);
+    li.addFunction("ei_setfocus", luaSetFocus);
+    li.addFunction("ei_set_grid", LuaInstance::luaNOP);
+    li.addFunction("ei_setgrid", LuaInstance::luaNOP);
+    li.addFunction("ei_set_group", luaSetGroup);
+    li.addFunction("ei_setgroup", luaSetGroup);
+    li.addFunction("ei_set_node_prop", luaSetNodeProp);
+    li.addFunction("ei_setnodeprop", luaSetNodeProp);
+    li.addFunction("ei_set_segment_prop", luaSetSegmentProp);
+    li.addFunction("ei_setsegmentprop", luaSetSegmentProp);
+    li.addFunction("ei_show_grid", LuaInstance::luaNOP);
+    li.addFunction("ei_showgrid", LuaInstance::luaNOP);
+    li.addFunction("ei_show_mesh", LuaInstance::luaNOP);
+    li.addFunction("ei_showmesh", LuaInstance::luaNOP);
+    li.addFunction("ei_show_names", LuaInstance::luaNOP);
+    li.addFunction("ei_shownames", LuaInstance::luaNOP);
+    li.addFunction("ei_zoom_in", LuaInstance::luaNOP);
+    li.addFunction("ei_zoomin", LuaInstance::luaNOP);
+    li.addFunction("ei_zoom", LuaInstance::luaNOP);
+    li.addFunction("ei_zoom_natural", LuaInstance::luaNOP);
+    li.addFunction("ei_zoomnatural", LuaInstance::luaNOP);
+    li.addFunction("ei_zoom_out", LuaInstance::luaNOP);
+    li.addFunction("ei_zoomout", LuaInstance::luaNOP);
+    li.addFunction("eo_add_contour", luaAddContourPoint);
+    li.addFunction("eo_addcontour", luaAddContourPoint);
+    li.addFunction("eo_bend_contour", luaBendContourLine);
+    li.addFunction("eo_bendcontour", luaBendContourLine);
+    li.addFunction("eo_block_integral", luaBlockIntegral);
+    li.addFunction("eo_blockintegral", luaBlockIntegral);
+    li.addFunction("eo_clear_block", luaClearBlock);
+    li.addFunction("eo_clearblock", luaClearBlock);
+    li.addFunction("eo_clear_contour", luaClearContourPoint);
+    li.addFunction("eo_clearcontour", luaClearContourPoint);
+    li.addFunction("eo_close", luaExitPost);
+    li.addFunction("eo_get_conductor_properties", luaGetCircuitProperties);
+    li.addFunction("eo_getconductorproperties", luaGetCircuitProperties);
+    li.addFunction("eo_get_element", luaGetElement);
+    li.addFunction("eo_getelement", luaGetElement);
+    li.addFunction("eo_get_node", luaGetMeshNode);
+    li.addFunction("eo_getnode", luaGetMeshNode);
+    li.addFunction("eo_get_point_values", luaGetPointVals);
+    li.addFunction("eo_getpointvalues", luaGetPointVals);
+    li.addFunction("eo_get_problem_info", luaGetProblemInfo);
+    li.addFunction("eo_getprobleminfo", luaGetProblemInfo);
+    li.addFunction("eo_get_title", luaGetTitle);
+    li.addFunction("eo_gettitle", luaGetTitle);
+    li.addFunction("eo_grid_snap", LuaInstance::luaNOP);
+    li.addFunction("eo_gridsnap", LuaInstance::luaNOP);
+    li.addFunction("eo_group_select_block", luaGroupSelectBlock);
+    li.addFunction("eo_groupselectblock", luaGroupSelectBlock);
+    li.addFunction("eo_hide_contour_plot", LuaInstance::luaNOP);
+    li.addFunction("eo_hidecontourplot", LuaInstance::luaNOP);
+    li.addFunction("eo_hide_density_plot", LuaInstance::luaNOP);
+    li.addFunction("eo_hidedensityplot", LuaInstance::luaNOP);
+    li.addFunction("eo_hide_grid", LuaInstance::luaNOP);
+    li.addFunction("eo_hidegrid", LuaInstance::luaNOP);
+    li.addFunction("eo_hide_mesh", LuaInstance::luaNOP);
+    li.addFunction("eo_hidemesh", LuaInstance::luaNOP);
+    li.addFunction("eo_hide_points", LuaInstance::luaNOP);
+    li.addFunction("eo_hidepoints", LuaInstance::luaNOP);
+    li.addFunction("eo_line_integral", luaLineIntegral);
+    li.addFunction("eo_lineintegral", luaLineIntegral);
+    li.addFunction("eo_make_plot", LuaInstance::luaNOP);
+    li.addFunction("eo_makeplot", LuaInstance::luaNOP);
+    li.addFunction("eo_maximize", LuaInstance::luaNOP);
+    li.addFunction("eo_minimize", LuaInstance::luaNOP);
+    li.addFunction("eo_num_elements", luaNumElements);
+    li.addFunction("eo_numelements", luaNumElements);
+    li.addFunction("eo_num_nodes", luaNumNodes);
+    li.addFunction("eo_numnodes", luaNumNodes);
+    li.addFunction("eo_refresh_view", LuaInstance::luaNOP);
+    li.addFunction("eo_refreshview", LuaInstance::luaNOP);
+    li.addFunction("eo_reload", luaLoadSolution);
+    li.addFunction("eo_resize", LuaInstance::luaNOP);
+    li.addFunction("eo_restore", LuaInstance::luaNOP);
+    li.addFunction("eo_save_bitmap", LuaInstance::luaNOP);
+    li.addFunction("eo_savebitmap", LuaInstance::luaNOP);
+    li.addFunction("eo_save_metafile", LuaInstance::luaNOP);
+    li.addFunction("eo_savemetafile", LuaInstance::luaNOP);
+    li.addFunction("eo_select_block", luaSelectOutputBlocklabel);
+    li.addFunction("eo_selectblock", luaSelectOutputBlocklabel);
+    li.addFunction("eo_select_point", luaAddContourPointFromNode);
+    li.addFunction("eo_selectpoint", luaAddContourPointFromNode);
+    li.addFunction("eo_set_edit_mode", LuaInstance::luaNOP);
+    li.addFunction("eo_seteditmode", LuaInstance::luaNOP);
+    li.addFunction("eo_set_focus", luaSetFocus);
+    li.addFunction("eo_setfocus", luaSetFocus);
+    li.addFunction("eo_set_grid", LuaInstance::luaNOP);
+    li.addFunction("eo_setgrid", LuaInstance::luaNOP);
+    li.addFunction("eo_show_contour_plot", LuaInstance::luaNOP);
+    li.addFunction("eo_showcontourplot", LuaInstance::luaNOP);
+    li.addFunction("eo_show_density_plot", LuaInstance::luaNOP);
+    li.addFunction("eo_showdensityplot", LuaInstance::luaNOP);
+    li.addFunction("eo_show_grid", LuaInstance::luaNOP);
+    li.addFunction("eo_showgrid", LuaInstance::luaNOP);
+    li.addFunction("eo_show_mesh", LuaInstance::luaNOP);
+    li.addFunction("eo_showmesh", LuaInstance::luaNOP);
+    li.addFunction("eo_show_names", LuaInstance::luaNOP);
+    li.addFunction("eo_shownames", LuaInstance::luaNOP);
+    li.addFunction("eo_show_points", LuaInstance::luaNOP);
+    li.addFunction("eo_showpoints", LuaInstance::luaNOP);
+    li.addFunction("eo_show_vector_plot", LuaInstance::luaNOP);
+    li.addFunction("eo_showvectorplot", LuaInstance::luaNOP);
+    li.addFunction("eo_smooth", LuaInstance::luaNOP);
+    li.addFunction("eo_zoom_in", LuaInstance::luaNOP);
+    li.addFunction("eo_zoomin", LuaInstance::luaNOP);
+    li.addFunction("eo_zoom", LuaInstance::luaNOP);
+    li.addFunction("eo_zoom_natural", LuaInstance::luaNOP);
+    li.addFunction("eo_zoomnatural", LuaInstance::luaNOP);
+    li.addFunction("eo_zoom_out", LuaInstance::luaNOP);
+    li.addFunction("eo_zoomout", LuaInstance::luaNOP);
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_add_arc}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_addarc()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddArc(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_add_bound_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_addboundprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_add_conductor_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_addcircuitprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddCircuitProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_add_contour}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_addcontour()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_add_block_label}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_addlabel()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddBlocklabel(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_add_segment}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_addline()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddLine(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_add_material}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_addmatprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_add_node}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_addnode()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddNode(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_add_point_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_addpointprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_analyse}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_analyze()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_attach_default}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_attachdefault()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAttachDefault(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_attach_outer_space}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_attachouterspace()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAttachOuterSpace(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_bend_contour}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_bendcontour()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaBendContourLine(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_block_integral}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_blockintegral()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_clear_block}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_clearblock()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_clear_contour}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_clearcontour()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_clear_selected}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_clearselected()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaClearSelected(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_copy_rotate}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_copy_rotate()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaCopyRotate(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_copy_translate}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_copy_translate()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaCopyTranslate(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_create_mesh}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_create_mesh()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaCreateMesh(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_create_radius}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_createradius()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaCreateRadius(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_define_outer_space}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_defineouterspace()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDefineOuterSpace(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_bound_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_delboundprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeleteBoundaryProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_conductor}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_delcircuitprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeleteCircuitProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_selected_arcsegments}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedarcsegments()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedArcSegments(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_selected}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselected()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelected(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_selected_labels}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedlabels()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedBlockLabels(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_selected_nodes}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectednodes()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedNodes(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_selected_segments}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_deleteselectedsegments()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedSegments(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_material}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_delmatprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeleteMaterial(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_delete_point_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_delpointprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDeletePointProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_detach_default}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_detachdefault()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDetachDefault(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_detach_outer_space}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_detachouterspace()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaDetachOuterSpace(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_close}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_exitpost()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_close}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_exitpre()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaExitPre(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_getboundingbox}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_getboundingbox()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGetBoundingBox(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_get_conductor_properties}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_getcircuitprops()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGetCircuitProperties(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_get_element}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_getelement()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_get_material}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_getmaterial()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_get_node}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_getnode()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_get_point_values}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_getpointvals()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_getprobleminfo}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_getprobleminfo()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGetProblemInfo(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_get_title}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_gettitle()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGetTitle(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_group_select_block}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_groupselectblock()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaGroupSelectBlock(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_line_integral}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_lineintegral()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_mirror}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_mirror()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaMirrorCopy(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_modify_bound_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_modboundprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_modify_conductor_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_modcircprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaModifyCircuitProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_modify_material}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_modmatprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_modify_point_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_modpointprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaModifyPointProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_move_rotate}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_move_rotate()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaMoveRotate(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_move_translate}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_move_translate()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaMoveTranslate(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_new_document}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_newdocument()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaNewDocument(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_num_elements}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_numelements()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaNumElements(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_num_nodes}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_numnodes()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaNumNodes(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_prob_def}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_prob_def()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaProbDef(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_purge_mesh}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_purge_mesh()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaPurgeMesh(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_load_solution}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_runpost()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaLoadSolution(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_save_as}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,luaSaveDocument()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSaveDocument(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_scale}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_scale()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaScaleMove(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_select_arcsegment}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_selectarcsegment()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectArcsegment(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_select_block}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_selectblock()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectOutputBlocklabel(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_select_circle}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_selectcircle()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectWithinCircle(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_select_conductor}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_selectconductor()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_select_group}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_selectgroup()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectGroup(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_select_label}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_selectlabel()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectBlocklabel(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_select_point}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/belaviewLua.cpp,lua_selectline()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaAddContourPointFromNode(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_select_node}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_selectnode()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectnode(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_select_rectangle}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_selectrectangle()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_select_segment}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_selectsegment()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSelectSegment(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_set_arcsegment_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_setarcsegmentprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_set_block_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_setblockprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_set_edit_mode}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_seteditmode()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSetEditMode(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_set_group}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_setgroup()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_set_node_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_setnodeprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_set_segment_prop}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_setsegmentprop()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSetSegmentProp(lua_State *)
+{
+    return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaES
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_set_focus}
+ *
+ * ### FEMM sources:
+ * \sa \femm42{femm/beladrawLua.cpp,lua_switchfocus()}
+ * \endinternal
+ */
+int femmcli::LuaElectrostaticsCommands::luaSetFocus(lua_State *)
+{
+    return 0;
+}
+
