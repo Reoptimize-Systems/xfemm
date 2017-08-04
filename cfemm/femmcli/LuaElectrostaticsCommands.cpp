@@ -49,8 +49,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_addblocklabel", luaAddBlocklabel);
     li.addFunction("ei_add_bound_prop", luaAddBoundaryProp);
     li.addFunction("ei_addboundprop", luaAddBoundaryProp);
-    li.addFunction("ei_add_conductor_prop", luaAddCircuitProp);
-    li.addFunction("ei_addconductorprop", luaAddCircuitProp);
+    li.addFunction("ei_add_conductor_prop", luaAddConductorProp);
+    li.addFunction("ei_addconductorprop", luaAddConductorProp);
     li.addFunction("ei_add_material", luaAddMaterialProp);
     li.addFunction("ei_addmaterial", luaAddMaterialProp);
     li.addFunction("ei_add_node", luaAddNode);
@@ -320,22 +320,35 @@ int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief  Add a new circuit property with a given name.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_add_conductor_prop}
+ * - \lua{ei_add_conductor_prop("conductorname", Vc, qc, conductortype)}
  *
  * ### FEMM sources:
  * \sa \femm42{femm/beladrawLua.cpp,lua_addcircuitprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddCircuitProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaAddConductorProp(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::unique_ptr<CSCircuit> m = std::make_unique<CSCircuit>();
+    int n=lua_gettop(L);
+
+    if(n>0) m->CircName = lua_tostring(L,1);
+    if(n>1) m->V = lua_todouble(L,2);
+    if(n>2) m->q = lua_todouble(L,3);
+    if(n>3) m->CircType = (int) lua_todouble(L,4);
+
+    femmState->femmDocument()->circproplist.push_back(std::move(m));
+    femmState->femmDocument()->updateCircuitMap();
+
+    return 0;
 }
 
 /**

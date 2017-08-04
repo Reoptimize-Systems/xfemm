@@ -43,7 +43,7 @@ void registerCommands(femm::LuaInstance &li );
 int luaAddArc(lua_State *L);
 int luaAddBlocklabel(lua_State *L);
 int luaAddBoundaryProp(lua_State *L);
-int luaAddCircuitProp(lua_State *L);
+int luaAddConductorProp(lua_State *L);
 int luaAddContourPointFromNode(lua_State *L);
 int luaAddContourPoint(lua_State *L);
 int luaAddLine(lua_State *L);
