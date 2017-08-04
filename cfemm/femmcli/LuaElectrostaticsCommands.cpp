@@ -46,8 +46,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
 {
     li.addFunction("ei_add_arc", luaAddArc);
     li.addFunction("ei_addarc", luaAddArc);
-    li.addFunction("ei_add_block_label", luaAddBlocklabel);
-    li.addFunction("ei_addblocklabel", luaAddBlocklabel);
+    li.addFunction("ei_add_block_label", LuaCommonCommands::luaAddBlocklabel);
+    li.addFunction("ei_addblocklabel", LuaCommonCommands::luaAddBlocklabel);
     li.addFunction("ei_add_bound_prop", luaAddBoundaryProp);
     li.addFunction("ei_addboundprop", luaAddBoundaryProp);
     li.addFunction("ei_add_conductor_prop", luaAddConductorProp);
@@ -367,25 +367,6 @@ int femmcli::LuaElectrostaticsCommands::luaAddConductorProp(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_add_block_label}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_addlabel()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaAddBlocklabel(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
