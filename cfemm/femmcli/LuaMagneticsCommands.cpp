@@ -201,8 +201,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_savebitmap", LuaInstance::luaNOP);
     li.addFunction("mo_save_bitmap", LuaInstance::luaNOP);
     li.addFunction("mo_savebitmap", LuaInstance::luaNOP);
-    li.addFunction("mi_save_as", luaSaveDocument);
-    li.addFunction("mi_saveas", luaSaveDocument);
+    li.addFunction("mi_save_as", LuaCommonCommands::luaSaveDocument);
+    li.addFunction("mi_saveas", LuaCommonCommands::luaSaveDocument);
     li.addFunction("mi_save_dxf", LuaInstance::luaNOP);
     li.addFunction("mi_savedxf", LuaInstance::luaNOP);
     li.addFunction("mi_save_metafile", LuaInstance::luaNOP);
@@ -3068,37 +3068,6 @@ int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
         msg += solutionFile;
         lua_error(L, msg.c_str());
     }
-    return 0;
-}
-
-/**
- * @brief Save the problem description into the given file.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_saveas("filename")}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,luaSaveDocument()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaSaveDocument(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    if (!lua_isnil(L,1))
-    {
-        doc->pathName = lua_tostring(L,1);
-        doc->saveFEMFile(doc->pathName);
-    } else {
-        lua_error(L, "mi_saveas(): no pathname given!");
-    }
-
     return 0;
 }
 

@@ -274,6 +274,39 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
 }
 
 /**
+ * @brief Save the problem description into the given file.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_saveas("filename")}
+ * - \lua{ei_saveas("filename")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,luaSaveDocument()}
+ * - \femm42{femm/beladrawLua.cpp,luaSaveDocument()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSaveDocument(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    if (!lua_isnil(L,1))
+    {
+        doc->pathName = lua_tostring(L,1);
+        doc->saveFEMFile(doc->pathName);
+    } else {
+        lua_error(L, "saveas(): no pathname given!");
+    }
+
+    return 0;
+}
+
+/**
  * @brief Select an arc segment near a given point.
  * @param L
  * @return 4 on success, 0 otherwise

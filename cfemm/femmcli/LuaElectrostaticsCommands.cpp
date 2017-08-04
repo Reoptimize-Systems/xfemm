@@ -140,8 +140,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_refreshview", LuaInstance::luaNOP);
     li.addFunction("ei_resize", LuaInstance::luaNOP);
     li.addFunction("ei_restore", LuaInstance::luaNOP);
-    li.addFunction("ei_save_as", luaSaveDocument);
-    li.addFunction("ei_saveas", luaSaveDocument);
+    li.addFunction("ei_save_as", LuaCommonCommands::luaSaveDocument);
+    li.addFunction("ei_saveas", LuaCommonCommands::luaSaveDocument);
     li.addFunction("ei_save_bitmap", LuaInstance::luaNOP);
     li.addFunction("ei_savebitmap", LuaInstance::luaNOP);
     li.addFunction("ei_save_dxf", LuaInstance::luaNOP);
@@ -1378,25 +1378,6 @@ int femmcli::LuaElectrostaticsCommands::luaPurgeMesh(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaLoadSolution(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_save_as}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,luaSaveDocument()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaSaveDocument(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
