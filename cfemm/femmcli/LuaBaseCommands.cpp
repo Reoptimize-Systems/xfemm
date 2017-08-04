@@ -62,6 +62,8 @@ void femmcli::LuaBaseCommands::registerCommands(LuaInstance &li)
     li.addFunction("newdocument",luaNewDocument);
     li.addFunction("new_document",luaNewDocument);
 
+    li.addFunction("clearconsole",LuaInstance::luaNOP);
+    li.addFunction("clear_console",LuaInstance::luaNOP);
     li.addFunction("showconsole",LuaInstance::luaNOP);
     li.addFunction("show_console",LuaInstance::luaNOP);
     li.addFunction("showpointprops",LuaInstance::luaNOP);
