@@ -46,7 +46,8 @@ Statistics:
   Mesh interior boundary edges: 1356
   Mesh subsegments (constrained edges): 1885
 
-renumbering nodessolving...Problem Statistics:
+renumbering nodes
+solving...Problem Statistics:
 12666 nodes
 24801 elements
 Precision: 0.000000
@@ -59,4 +60,5 @@ Newton Iteration(1) Relax=1
 Matrix Construction
 Conjugate Gradient Solver
 Newton Iteration(2) Relax=1
-Static 2-D problem solvedresults written to disk
+Static 2-D problem solved
+results written to disk
