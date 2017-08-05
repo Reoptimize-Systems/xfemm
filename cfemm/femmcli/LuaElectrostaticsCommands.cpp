@@ -411,16 +411,20 @@ int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Mesh the problem description, save it, and run the solver.
+ * If the global variable "XFEMM_VERBOSE" is set to 1, the mesher and solver is more verbose and prints statistics.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_analyse}
+ * - \lua{ei_analyse(flag)}
+ *   Parameter flag (0,1) determines visibility of fkern window and is ignored on xfemm.
  *
  * ### FEMM sources:
+ * - \femm42{femm/beladrawLua.cpp,lua_analyze()}
+ * - \femm42{femm/beladrawView.cpp,CbeladrawView::OnMenuAnalyze()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
@@ -485,7 +489,7 @@ int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
             }
         }
 
-        // check to see if all block defined to be in an axisymmetric external region are linear.
+        // check to see if all block defined to be in an axisymmetric external region are isotropic
         bool hasAnisotropicMaterial = false;
         bool hasExteriorProps = true;
         for (int k=0; k<(int)doc->labellist.size(); k++)
@@ -511,7 +515,7 @@ int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
         if (hasAnisotropicMaterial)
         {
             //InvalidateRect(NULL);
-            std::string ermsg = "Only linear istropic materials are\n"
+            std::string ermsg = "Only istropic materials are\n"
                                 "allowed in axisymmetric external regions.\n"
                                 "Cannot analyze the problem";
             lua_error(L,ermsg.c_str());
