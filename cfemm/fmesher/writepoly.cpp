@@ -1937,6 +1937,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
             k=(int) ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
             segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
+            // FIXME ZaJ: check if conductor name shoule be set here (compare to femm42 source code)
+            //segm.InConductorName=problem->arclist[i]->InConductorName;  // not relevant to magnetics
             GetCircle(*problem->arclist[i],c,R);
             a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
 
