@@ -363,7 +363,6 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                         segm.n1=problem->linelist[i]->n1;
                         linelst.push_back(std::make_unique<CSegment>(segm));
                     }
-
                 }
             }
         }
@@ -404,7 +403,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
         k = (unsigned int) std::ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
         segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
-        segm.InConductorName=problem->arclist[i]->InConductorName;
+        segm.InConductorName=problem->arclist[i]->InConductorName; // not relevant for magnetics
         GetCircle(*problem->arclist[i],c,R);
         a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
 
@@ -445,7 +444,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // create correct output filename;
     string pn = PathName;
 
-    // write out list of holes;
+    // compute and store the number of holes
     for(i=0,j=0;i<problem->labellist.size();i++)
     {
         if(!problem->labellist[i]->hasBlockType())
@@ -453,8 +452,6 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             j++;
         }
     }
-
-    // store the number of holes
     Nholes = j;
 
     NRegionalAttribs = problem->labellist.size() - j;
@@ -777,8 +774,8 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
  *
  * Original function name:
  *  * \femm42{femm/writepoly.cpp,CFemmeDoc::FunnyOnWritePoly()}
- *  * \femm42{femm/bd_writepoly.cpp,CbeladrawDoc::OnWritePoly()}
- *  * \femm42{femm/hd_writepoly.cpp,ChdrawDoc::OnWritePoly()}
+ *  * \femm42{femm/bd_writepoly.cpp,CbeladrawDoc::FunnyOnWritePoly()}
+ *  * \femm42{femm/hd_writepoly.cpp,ChdrawDoc::FunnyOnWritePoly()}
  */
 int FMesher::DoPeriodicBCTriangulation(string PathName)
 {
@@ -1733,7 +1730,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             k = (int) ceil(problem->arclist[s0]->ArcLength/problem->arclist[s0]->MaxSideLength);
             segm.BoundaryMarkerName = problem->arclist[s0]->BoundaryMarkerName;
-            segm.InConductorName=problem->arclist[i]->InConductorName;
+            segm.InConductorName=problem->arclist[i]->InConductorName; // not relevant for magnetics
             GetCircle(*problem->arclist[s0],c0,r0);
             GetCircle(*problem->arclist[s1],c1,r1);
 
