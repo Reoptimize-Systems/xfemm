@@ -838,22 +838,14 @@ double ESolver::ChargeOnConductor(int u, CBigLinProb &L)
 // SortNodes: sorts mesh nodes based on a new numbering
 void ESolver::SortNodes (int* newnum)
 {
-    int j=0,n=0;
-
     // sort mesh nodes based on newnum;
     for(int i = 0; i < NumNodes; i++)
     {
         while(newnum[i] != i)
         {
-            CNode swap;
-
-            j = newnum[i];
-            n = newnum[j];
-            newnum[j] = newnum[i];
-            newnum[i] = n;
-            swap = meshnode[j];
-            meshnode[j] = meshnode[i];
-            meshnode[i] = swap;
+            int j = newnum[i];
+            swap(newnum[i],newnum[j]);
+            swap(meshnode[i],meshnode[j]);
         }
     }
 }
