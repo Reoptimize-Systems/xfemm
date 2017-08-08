@@ -347,15 +347,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
 #ifndef NO_TIMER
 #include <sys/time.h>
 #endif /* not NO_TIMER */
+
 #ifdef CPU86
 #include <float.h>
 #endif /* CPU86 */
+
 #ifdef LINUX
 #include <fpu_control.h>
 #endif /* LINUX */
+
 #ifdef TRILIBRARY
 #include <setjmp.h>
 #include "triangle.h"
