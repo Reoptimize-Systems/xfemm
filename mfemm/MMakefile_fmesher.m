@@ -2,6 +2,7 @@ function [rules,vars] = MMakefile_fmesher (varargin)
 
     options.DoCrossBuildWin64 = false;
     options.Verbose = false;
+    options.Debug = false;
     
     options = mfemmdeps.parse_pv_pairs (options, varargin);
 
@@ -35,9 +36,14 @@ function [rules,vars] = MMakefile_fmesher (varargin)
         vars.MEXFLAGS = [vars.MEXFLAGS, ' -v'];
     end
     
-    if isunix && ~mfemmdeps.isoctave ()
-        vars.OPTIMFLAGS = ['-O2'];
-        vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+    if isunix && ~mfemmdeps.isoctave () 
+        if options.Debug == false
+            vars.OPTIMFLAGS = ['-O2'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+        else
+            vars.OPTIMFLAGS = ['-O0'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0 -DDEBUG"'];
+        end
     end
     
     if ~ismscompiler

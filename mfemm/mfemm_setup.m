@@ -76,7 +76,7 @@ function varargout = mfemm_setup(varargin)
     
     % parse inputs
     Inputs.ForceMexRecompile = false;
-    Inputs.DoDebug = false;
+    Inputs.Debug = false;
     Inputs.Verbose = false;
     Inputs.RunTests = false;
     Inputs.CrossBuildW64 = false;
@@ -138,7 +138,7 @@ function varargout = mfemm_setup(varargin)
             if Inputs.CrossBuildW64
                 mfemmdeps.mmake ('', makefilenames{ind}, 'DoCrossBuildWin64', true, 'FcnMakeFileArgs', {'DoCrossBuildWin64', true, 'Verbose', true})
             else
-                mfemmdeps.mmake ('', makefilenames{ind})
+                mfemmdeps.mmake ('', makefilenames{ind}, 'FcnMakeFileArgs', {'Debug', Inputs.Debug, 'Verbose', Inputs.Verbose})
             end
         end
         warning (ws);
