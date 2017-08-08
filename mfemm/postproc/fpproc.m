@@ -24,8 +24,8 @@ classdef fpproc < mfemmpproc
     %    getb - get flux density values only at points
     %    geth - get magnetic field intensity values only at points
     %    geta - get magnetic vector potential values only at points
-    %    smoothon - turn on B and H smoothing over mesh elemnts
-    %    smoothff - turn off B and H smoothing over mesh elemnts
+    %    smoothon - turn on B and H smoothing over mesh elements
+    %    smoothoff - turn off B and H smoothing over mesh elements
     %    clearcontour - clear a contour
     %    addcontour - add one or more points to a contour
     %    lineintegral - perform a line integral along a contour
