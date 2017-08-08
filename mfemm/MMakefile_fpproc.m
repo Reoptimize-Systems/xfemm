@@ -1,5 +1,10 @@
 function [rules,vars] = MMakefile_fpproc (varargin)
 
+    options.Verbose = false;
+    options.Debug = false;
+    
+    options = mfemmdeps.parse_pv_pairs (options, varargin);
+    
 %     mfemmdeps.getmfilepath (mfilename);
 
 %     if ispc
@@ -12,8 +17,13 @@ function [rules,vars] = MMakefile_fpproc (varargin)
 %     vars.MEXFLAGS = ['${MEXFLAGS} -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
     vars.MEXFLAGS = '${MEXFLAGS} -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
     if isunix && ~mfemmdeps.isoctave ()
-        vars.OPTIMFLAGS = ['-O2'];
-        vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+        if options.Debug
+            vars.OPTIMFLAGS = ['-O2'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+        else
+            vars.OPTIMFLAGS = ['-O0'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0 -DDEBUG"'];
+        end
     end
     
     vars.LDFLAGS = '${LDFLAGS} -lstdc++';
