@@ -405,16 +405,17 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // discretize input arc segments
     for(i=0;i<problem->arclist.size();i++)
     {
-        a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
-        k = (unsigned int) std::ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
-        segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
-        segm.InConductorName=problem->arclist[i]->InConductorName; // not relevant for magnetics
-        GetCircle(*problem->arclist[i],c,R);
-        a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
+        const CArcSegment &arc = *problem->arclist[i];
+        a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
+        k = (unsigned int) std::ceil(arc.ArcLength/arc.MaxSideLength);
+        segm.BoundaryMarkerName=arc.BoundaryMarkerName;
+        segm.InConductorName=arc.InConductorName; // not relevant for magnetics
+        GetCircle(arc,c,R);
+        a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
         if(k==1){
-            segm.n0=problem->arclist[i]->n0;
-            segm.n1=problem->arclist[i]->n1;
+            segm.n0=arc.n0;
+            segm.n1=arc.n1;
             linelst.push_back(std::make_unique<CSegment>(segm));
         }
         else for(j=0;j<k;j++)
@@ -424,7 +425,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             if(j==0){
                 l=nodelst.size();
                 nodelst.push_back(std::make_unique<CNode>(node));
-                segm.n0=problem->arclist[i]->n0;
+                segm.n0=arc.n0;
                 segm.n1=l;
                 linelst.push_back(std::make_unique<CSegment>(segm));
             }
@@ -432,7 +433,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             {
                 l=nodelst.size()-1;
                 segm.n0=l;
-                segm.n1=problem->arclist[i]->n1;
+                segm.n1=arc.n1;
                 linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else{
@@ -937,16 +938,18 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input arc segments
     for(i=0;i<(int)problem->arclist.size();i++)
     {
+        const CArcSegment &arc = *problem->arclist[i];
+
         segm.cnt=i+problem->linelist.size();
-        a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
-        k=(int) ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
-        segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
-        GetCircle(*problem->arclist[i],c,R);
-        a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
+        a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
+        k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
+        segm.BoundaryMarkerName=arc.BoundaryMarkerName;
+        GetCircle(arc,c,R);
+        a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
         if(k==1){
-            segm.n0=problem->arclist[i]->n0;
-            segm.n1=problem->arclist[i]->n1;
+            segm.n0=arc.n0;
+            segm.n1=arc.n1;
             linelst.push_back(std::make_unique<CSegment>(segm));
         }
         else for(j=0;j<k;j++)
@@ -956,7 +959,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             if(j==0){
                 l=nodelst.size();
                 nodelst.push_back(std::make_unique<CNode>(node));
-                segm.n0=problem->arclist[i]->n0;
+                segm.n0=arc.n0;
                 segm.n1=l;
                 linelst.push_back(std::make_unique<CSegment>(segm));
             }
@@ -964,7 +967,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             {
                 l=nodelst.size()-1;
                 segm.n0=l;
-                segm.n1=problem->arclist[i]->n1;
+                segm.n1=arc.n1;
                 linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else{
@@ -1943,19 +1946,20 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input arc segments
     for(i=0;i<(int)problem->arclist.size();i++)
     {
-        if(problem->arclist[i]->IsSelected==0)
+        const CArcSegment &arc = *problem->arclist[i];
+        if(arc.IsSelected==0)
         {
-            a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
-            k=(int) ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
-            segm.BoundaryMarkerName=problem->arclist[i]->BoundaryMarkerName;
+            a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
+            k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
+            segm.BoundaryMarkerName=arc.BoundaryMarkerName;
             // FIXME ZaJ: check if conductor name shoule be set here (compare to femm42 source code)
-            //segm.InConductorName=problem->arclist[i]->InConductorName;  // not relevant to magnetics
-            GetCircle(*problem->arclist[i],c,R);
-            a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
+            //segm.InConductorName=arc.InConductorName;  // not relevant to magnetics
+            GetCircle(arc,c,R);
+            a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
             if(k==1){
-                segm.n0=problem->arclist[i]->n0;
-                segm.n1=problem->arclist[i]->n1;
+                segm.n0=arc.n0;
+                segm.n1=arc.n1;
                 linelst.push_back(std::make_unique<CSegment>(segm));
             }
             else for(j=0;j<k;j++)
@@ -1965,7 +1969,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 if(j==0){
                     l=nodelst.size();
                     nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=problem->arclist[i]->n0;
+                    segm.n0=arc.n0;
                     segm.n1=l;
                     linelst.push_back(std::make_unique<CSegment>(segm));
                 }
@@ -1973,7 +1977,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
-                    segm.n1=problem->arclist[i]->n1;
+                    segm.n1=arc.n1;
                     linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else{
