@@ -409,7 +409,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
         k = (unsigned int) std::ceil(arc.ArcLength/arc.MaxSideLength);
         segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-        segm.InConductorName=arc.InConductorName; // not relevant for magnetics
+        segm.InConductorName=arc.InConductorName; // not relevant for magnetics problems
         GetCircle(arc,c,R);
         a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
@@ -944,6 +944,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
         k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
         segm.BoundaryMarkerName=arc.BoundaryMarkerName;
+        segm.InConductorName=arc.InConductorName; // not relevant to magnetics problems
         GetCircle(arc,c,R);
         a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
@@ -1952,8 +1953,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
             k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
             segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-            // FIXME ZaJ: check if conductor name shoule be set here (compare to femm42 source code)
-            //segm.InConductorName=arc.InConductorName;  // not relevant to magnetics
+            segm.InConductorName=arc.InConductorName;  // not relevant to magnetics problems
             GetCircle(arc,c,R);
             a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
