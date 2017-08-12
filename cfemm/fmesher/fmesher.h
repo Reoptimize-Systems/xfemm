@@ -110,7 +110,7 @@ public:
 	int ClosestSegment(double x, double y);
 	bool GetIntersection(int n0, int n1, int segm, double *xi, double *yi);
 	int ClosestArcSegment(double x, double y);
-    void GetCircle(femm::CArcSegment &asegm,CComplex &c, double &R);
+    void GetCircle(const femm::CArcSegment &asegm, CComplex &c, double &R);
     int GetLineArcIntersection(femm::CSegment &seg, femm::CArcSegment &arc, CComplex *p);
     int GetArcArcIntersection(femm::CArcSegment &arc1, femm::CArcSegment &arc2, CComplex *p);
     double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);

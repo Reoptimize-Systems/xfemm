@@ -118,7 +118,7 @@ void FMesher::UnselectAll()
 }
 
 
-void FMesher::GetCircle(CArcSegment &arc, CComplex &c, double &R)
+void FMesher::GetCircle(const CArcSegment &arc, CComplex &c, double &R)
 {
     CComplex a0,a1,t;
     double d,tta;
