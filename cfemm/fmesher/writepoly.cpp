@@ -305,8 +305,10 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // calculate length used to kludge fine meshing near input node points
     for (i=0,z=0;i < problem->linelist.size();i++)
     {
-        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
-        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
+        const CNode &n0 = *problem->nodelist[problem->linelist[i]->n0];
+        const CNode &n1 = *problem->nodelist[problem->linelist[i]->n1];
+        a0.Set(n0.x,n0.y);
+        a1.Set(n1.x,n1.y);
         z += (abs(a1-a0)/((double) problem->linelist.size()));
     }
     dL=z/LineFraction;
@@ -317,21 +319,24 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     // discretize input segments
     for(i=0;i<problem->linelist.size();i++)
     {
-        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
-        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
-        if (problem->linelist[i]->MaxSideLength==-1) k=1;
+        const CSegment &line = *problem->linelist[i];
+        const CNode &n0 = *problem->nodelist[line.n0];
+        const CNode &n1 = *problem->nodelist[line.n1];
+        a0.Set(n0.x,n0.y);
+        a1.Set(n1.x,n1.y);
+        if (line.MaxSideLength==-1) k=1;
         else{
             z=abs(a1-a0);
-            k=(int) std::ceil(z/problem->linelist[i]->MaxSideLength);
+            k=(int) std::ceil(z/line.MaxSideLength);
         }
 
         if (k==1) // default condition where discretization on line is not specified
         {
-            if (abs(a1-a0)<(3.*dL)) linelst.push_back(std::make_unique<CSegment>(*problem->linelist[i])); // line is too short to add extra points
+            if (abs(a1-a0)<(3.*dL)) linelst.push_back(std::make_unique<CSegment>(line)); // line is too short to add extra points
             else{
                 // add extra points at a distance of dL from the ends of the line.
                 // this forces Triangle to finely mesh near corners
-                segm=*problem->linelist[i];
+                segm=line;
                 for(j=0;j<3;j++)
                 {
                     if(j==0)
@@ -340,7 +345,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                         node.x=a2.re; node.y=a2.im;
                         l=(int) nodelst.size();
                         nodelst.push_back(std::make_unique<CNode>(node));
-                        segm.n0=problem->linelist[i]->n0;
+                        segm.n0=line.n0;
                         segm.n1=l;
                         linelst.push_back(std::make_unique<CSegment>(segm));
                     }
@@ -360,14 +365,14 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                     {
                         l=(int) nodelst.size()-1;
                         segm.n0=l;
-                        segm.n1=problem->linelist[i]->n1;
+                        segm.n1=line.n1;
                         linelst.push_back(std::make_unique<CSegment>(segm));
                     }
                 }
             }
         }
         else{
-            segm=*problem->linelist[i];
+            segm=line;
             for(j=0;j<k;j++)
             {
                 a2=a0+(a1-a0)*((double) (j+1))/((double) k);
@@ -375,7 +380,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                 if(j==0){
                     l=nodelst.size();
                     nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=problem->linelist[i]->n0;
+                    segm.n0=line.n0;
                     segm.n1=l;
                     linelst.push_back(std::make_unique<CSegment>(segm));
                 }
@@ -383,7 +388,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
-                    segm.n1=problem->linelist[i]->n1;
+                    segm.n1=line.n1;
                     linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else{
@@ -815,8 +820,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // calculate length used to kludge fine meshing near input node points
     for (i=0, z=0; i<(int)problem->linelist.size(); i++)
     {
-        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
-        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
+        const CSegment &line = *problem->linelist[i];
+        const CNode &n0 = *problem->nodelist[line.n0];
+        const CNode &n1 = *problem->nodelist[line.n1];
+        a0.Set(n0.x,n0.y);
+        a1.Set(n1.x,n1.y);
         z += (abs(a1-a0) / ((double) problem->linelist.size()));
     }
     dL = z / LineFraction;
@@ -830,20 +838,23 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // discretize input segments
     for(i=0; i<(int)problem->linelist.size(); i++)
     {
+        const CSegment &line = *problem->linelist[i];
         // use the cnt flag to carry a notation
         // of which line or arc in the input geometry a
         // particular segment is associated with
-        segm = *problem->linelist[i];
+        segm = line;
         segm.cnt = i;
-        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x, problem->nodelist[problem->linelist[i]->n0]->y);
-        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x, problem->nodelist[problem->linelist[i]->n1]->y);
+        const CNode &n0 = *problem->nodelist[line.n0];
+        const CNode &n1 = *problem->nodelist[line.n1];
+        a0.Set(n0.x, n0.y);
+        a1.Set(n1.x, n1.y);
 
-        if (problem->linelist[i]->MaxSideLength == -1) {
+        if (line.MaxSideLength == -1) {
             k = 1;
         }
         else{
             z = abs(a1-a0);
-            k = (unsigned int) std::ceil(z/problem->linelist[i]->MaxSideLength);
+            k = (unsigned int) std::ceil(z/line.MaxSideLength);
         }
 
         if (k == 1) // default condition where discretization on line is not specified
@@ -864,7 +875,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         node.y = a2.im;
                         l = (int) nodelst.size();
                         nodelst.push_back(std::make_unique<CNode>(node));
-                        segm.n0 = problem->linelist[i]->n0;
+                        segm.n0 = line.n0;
                         segm.n1 = l;
                         linelst.push_back(std::make_unique<CSegment>(segm));
                     }
@@ -885,7 +896,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                     {
                         l = (int) nodelst.size() - 1;
                         segm.n0 = l;
-                        segm.n1 = problem->linelist[i]->n1;
+                        segm.n1 = line.n1;
                         linelst.push_back(std::make_unique<CSegment>(segm));
                     }
 
@@ -901,7 +912,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 if(j == 0){
                     l=nodelst.size();
                     nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=problem->linelist[i]->n0;
+                    segm.n0=line.n0;
                     segm.n1=l;
                     linelst.push_back(std::make_unique<CSegment>(segm));
                 }
@@ -909,7 +920,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
-                    segm.n1=problem->linelist[i]->n1;
+                    segm.n1=line.n1;
                     linelst.push_back(std::make_unique<CSegment>(segm));
                 }
                 else{
