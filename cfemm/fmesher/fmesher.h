@@ -30,7 +30,6 @@
 #include "nosebl.h"
 #include "femmcomplex.h"
 #include "IntPoint.h"
-#include "triangle.h"
 
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
@@ -55,6 +54,9 @@
 #ifndef BoundingBoxFraction
 #define BoundingBoxFraction 100.0
 #endif
+
+// forward definition
+struct triangulateio;
 
 namespace fmesher
 {
