@@ -89,8 +89,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_copytranslate", LuaCommonCommands::luaCopyTranslate);
     li.addFunction("mi_create_mesh", LuaCommonCommands::luaCreateMesh);
     li.addFunction("mi_createmesh", LuaCommonCommands::luaCreateMesh);
-    li.addFunction("mi_create_radius", luaCreateRadius);
-    li.addFunction("mi_createradius", luaCreateRadius);
+    li.addFunction("mi_create_radius", LuaCommonCommands::luaCreateRadius);
+    li.addFunction("mi_createradius", LuaCommonCommands::luaCreateRadius);
     li.addFunction("mi_define_outer_space", luaDefineOuterSpace);
     li.addFunction("mi_defineouterspace", luaDefineOuterSpace);
     li.addFunction("mi_delete_bound_prop", luaDeleteBoundaryProperty);
@@ -1016,55 +1016,6 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
-
-    return 0;
-}
-
-/**
- * @brief Turn a corner into a curve of given radius.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_createradius(x,y,r)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_createradius()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaCreateRadius(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    int n = lua_gettop(L);
-    if (n!=3)
-        return 0;
-
-    double x = lua_todouble(L,1);
-    double y = lua_todouble(L,2);
-    double r = fabs(lua_todouble(L,3));
-
-    int node = mesher->ClosestNode(x,y);
-    if (node<0)
-        return 0; // catch case where no nodes have been drawn yet;
-
-    if (!mesher->CanCreateRadius(node))
-    {
-        lua_error(L, "The specified point is not suitable for conversion into a radius\n");
-        return 0;
-    }
-
-    if (!mesher->CreateRadius(node,r))
-    {
-        lua_error(L, "Could not make a radius of the prescribed dimension\n");
-        return 0;
-    }
-    doc->invalidateMesh();
 
     return 0;
 }
