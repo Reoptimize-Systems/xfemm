@@ -341,6 +341,66 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
 }
 
 /**
+ * @brief Copy selected objects and rotate the copy around a point.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_copyrotate(bx, by, angle, copies, (editaction) )}
+ * - \lua{ei_copyrotate(bx, by, angle, copies, (editaction) )}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_copy_rotate()}
+ * - \femm42{femm/beladrawLua.cpp,lua_copy_rotate()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if(n!=4 && n!=5)
+    {
+        lua_error(L,"Invalid number of parameters for copy rotate\n");
+        return 0;
+    }
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+    double angle = lua_todouble(L,3);
+    int copies = (int) lua_todouble(L,4);
+
+    EditMode editAction;
+    if (n==5) {
+        editAction = intToEditMode((int)lua_todouble(L,5));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditMode::Invalid)
+    {
+        lua_error(L, "copyrotate(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+
+    // Note(ZaJ): why is mesher->UpdateUndo called in mi_copytranslate but not here?
+    mesher->RotateCopy(CComplex(x,y),angle,copies,editAction);
+    // Note(ZaJ): shouldn't the invalidation be done by RotateCopy?
+    doc->invalidateMesh();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
+
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0

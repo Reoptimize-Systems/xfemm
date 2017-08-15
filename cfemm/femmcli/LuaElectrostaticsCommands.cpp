@@ -70,8 +70,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_clear_selected", LuaCommonCommands::luaClearSelected);
     li.addFunction("ei_clearselected", LuaCommonCommands::luaClearSelected);
     li.addFunction("ei_close", LuaCommonCommands::luaExitPre);
-    li.addFunction("ei_copy_rotate", luaCopyRotate);
-    li.addFunction("ei_copyrotate", luaCopyRotate);
+    li.addFunction("ei_copy_rotate", LuaCommonCommands::luaCopyRotate);
+    li.addFunction("ei_copyrotate", LuaCommonCommands::luaCopyRotate);
     li.addFunction("ei_copy_translate", luaCopyTranslate);
     li.addFunction("ei_copytranslate", luaCopyTranslate);
     li.addFunction("ei_create_mesh", luaCreateMesh);
@@ -707,25 +707,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_copy_rotate}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_copy_rotate()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaCopyRotate(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
