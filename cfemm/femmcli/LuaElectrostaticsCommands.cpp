@@ -284,14 +284,14 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new boundary property with a given name.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_add_bound_prop}
+ * - \lua{ei_addboundprop("boundpropname", Vs, qs, c0, c1, BdryFormat)}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_addboundprop()}
@@ -299,7 +299,23 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
  */
 int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    std::unique_ptr<CSBoundaryProp> m = std::make_unique<CSBoundaryProp>();
+
+    int n=lua_gettop(L);
+    if (n>0) m->BdryName = lua_tostring(L,1);
+    if (n>1) m->V=lua_todouble(L,2);
+    if (n>2) m->qs=lua_todouble(L,3);
+    if (n>3) m->c0=lua_todouble(L,4);
+    if (n>4) m->c1=lua_todouble(L,5);
+    if (n>5) m->BdryFormat=(int) lua_todouble(L,6);
+
+    doc->lineproplist.push_back(std::move(m));
+    doc->updateLineMap();
+    return 0;
 }
 
 /**
