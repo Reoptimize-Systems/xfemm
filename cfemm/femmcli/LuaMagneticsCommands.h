@@ -48,7 +48,6 @@ int luaAddContourPoint(lua_State *L);
 int luaAddMatProp(lua_State *L);
 int luaAddPointProp(lua_State *L);
 int luaAnalyze(lua_State *L);
-int luaAttachDefault(lua_State *L);
 int luaAttachOuterSpace(lua_State *L);
 int luaBendContourLine(lua_State *L);
 int luaBlockIntegral(lua_State *L);

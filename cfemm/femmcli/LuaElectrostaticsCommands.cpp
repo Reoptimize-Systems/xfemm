@@ -63,8 +63,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_addsegment", LuaCommonCommands::luaAddLine);
     li.addFunction("ei_analyse", luaAnalyze);
     li.addFunction("ei_analyze", luaAnalyze);
-    li.addFunction("ei_attach_default", luaAttachDefault);
-    li.addFunction("ei_attachdefault", luaAttachDefault);
+    li.addFunction("ei_attach_default", LuaCommonCommands::luaAttachDefault);
+    li.addFunction("ei_attachdefault", LuaCommonCommands::luaAttachDefault);
     li.addFunction("ei_attach_outer_space", luaAttachOuterSpace);
     li.addFunction("ei_attachouterspace", luaAttachOuterSpace);
     li.addFunction("ei_clear_selected", LuaCommonCommands::luaClearSelected);
@@ -633,25 +633,6 @@ int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
         lua_error(L, "solver failed.");
     }
     return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_attach_default}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_attachdefault()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaAttachDefault(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
