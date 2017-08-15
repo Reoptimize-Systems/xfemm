@@ -573,6 +573,57 @@ int femmcli::LuaCommonCommands::luaCreateMesh(lua_State *L)
 }
 
 /**
+ * @brief Turn a corner into a curve of given radius.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_createradius(x,y,r)}
+ * - \lua{ei_createradius(x,y,r)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_createradius()}
+ * - \femm42{femm/beladrawLua.cpp,lua_createradius()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if (n!=3)
+        return 0;
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+    double r = fabs(lua_todouble(L,3));
+
+    int node = mesher->ClosestNode(x,y);
+    if (node<0)
+        return 0; // catch case where no nodes have been drawn yet;
+
+    if (!mesher->CanCreateRadius(node))
+    {
+        lua_error(L, "The specified point is not suitable for conversion into a radius\n");
+        return 0;
+    }
+
+    if (!mesher->CreateRadius(node,r))
+    {
+        lua_error(L, "Could not make a radius of the prescribed dimension\n");
+        return 0;
+    }
+    doc->invalidateMesh();
+
+    return 0;
+}
+
+/**
  * @brief Save the problem description into the given file.
  * @param L
  * @return 0

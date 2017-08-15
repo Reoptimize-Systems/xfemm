@@ -76,8 +76,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_copytranslate", LuaCommonCommands::luaCopyTranslate);
     li.addFunction("ei_create_mesh", LuaCommonCommands::luaCreateMesh);
     li.addFunction("ei_createmesh", LuaCommonCommands::luaCreateMesh);
-    li.addFunction("ei_create_radius", luaCreateRadius);
-    li.addFunction("ei_createradius", luaCreateRadius);
+    li.addFunction("ei_create_radius", LuaCommonCommands::luaCreateRadius);
+    li.addFunction("ei_createradius", LuaCommonCommands::luaCreateRadius);
     li.addFunction("ei_define_outer_space", luaDefineOuterSpace);
     li.addFunction("ei_defineouterspace", luaDefineOuterSpace);
     li.addFunction("ei_delete_bound_prop", luaDeleteBoundaryProp);
@@ -707,25 +707,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_create_radius}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_createradius()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaCreateRadius(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
