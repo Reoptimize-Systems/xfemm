@@ -45,6 +45,7 @@ int luaAttachDefault(lua_State *L);
 int luaAttachOuterSpace(lua_State *L);
 int luaClearSelected(lua_State *L);
 int luaCopyRotate(lua_State *L);
+int luaCopyTranslate(lua_State *L);
 int luaExitPre(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaSelectArcsegment(lua_State *L);
