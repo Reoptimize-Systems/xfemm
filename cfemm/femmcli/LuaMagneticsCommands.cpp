@@ -91,8 +91,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_createmesh", LuaCommonCommands::luaCreateMesh);
     li.addFunction("mi_create_radius", LuaCommonCommands::luaCreateRadius);
     li.addFunction("mi_createradius", LuaCommonCommands::luaCreateRadius);
-    li.addFunction("mi_define_outer_space", luaDefineOuterSpace);
-    li.addFunction("mi_defineouterspace", luaDefineOuterSpace);
+    li.addFunction("mi_define_outer_space", LuaCommonCommands::luaDefineOuterSpace);
+    li.addFunction("mi_defineouterspace", LuaCommonCommands::luaDefineOuterSpace);
     li.addFunction("mi_delete_bound_prop", luaDeleteBoundaryProperty);
     li.addFunction("mi_deleteboundprop", luaDeleteBoundaryProperty);
     li.addFunction("mi_delete_circuit", luaDeleteCircuitProperty);
@@ -1016,46 +1016,6 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
-
-    return 0;
-}
-
-/**
- * @brief Define properties of external region.
- * Defines an axisymmetric external region to be used in
- * conjuction with the Kelvin Transformation method of modeling unbounded problems.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_defineouterspace(Zo,Ro,Ri)}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_defineouterspace()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaDefineOuterSpace(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    int n = lua_gettop(L);
-    if (n!=3)
-        return 0;
-
-    doc->extZo = fabs(lua_todouble(L,1));
-    doc->extRo = fabs(lua_todouble(L,2));
-    doc->extRi = fabs(lua_todouble(L,3));
-
-    if((doc->extRo==0) || (doc->extRi==0))
-    {
-        doc->extZo = 0;
-        doc->extRo = 0;
-        doc->extRi = 0;
-    }
 
     return 0;
 }

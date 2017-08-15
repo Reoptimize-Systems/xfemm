@@ -78,8 +78,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_createmesh", LuaCommonCommands::luaCreateMesh);
     li.addFunction("ei_create_radius", LuaCommonCommands::luaCreateRadius);
     li.addFunction("ei_createradius", LuaCommonCommands::luaCreateRadius);
-    li.addFunction("ei_define_outer_space", luaDefineOuterSpace);
-    li.addFunction("ei_defineouterspace", luaDefineOuterSpace);
+    li.addFunction("ei_define_outer_space", LuaCommonCommands::luaDefineOuterSpace);
+    li.addFunction("ei_defineouterspace", LuaCommonCommands::luaDefineOuterSpace);
     li.addFunction("ei_delete_bound_prop", luaDeleteBoundaryProp);
     li.addFunction("ei_deleteboundprop", luaDeleteBoundaryProp);
     li.addFunction("ei_delete_conductor", luaDeleteCircuitProp);
@@ -707,25 +707,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_define_outer_space}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_defineouterspace()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaDefineOuterSpace(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

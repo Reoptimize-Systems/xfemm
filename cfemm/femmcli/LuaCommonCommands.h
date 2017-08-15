@@ -48,6 +48,7 @@ int luaCopyRotate(lua_State *L);
 int luaCopyTranslate(lua_State *L);
 int luaCreateMesh(lua_State *L);
 int luaCreateRadius(lua_State *L);
+int luaDefineOuterSpace(lua_State *L);
 int luaExitPre(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaSelectArcsegment(lua_State *L);
