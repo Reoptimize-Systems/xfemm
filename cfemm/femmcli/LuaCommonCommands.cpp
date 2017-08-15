@@ -483,6 +483,96 @@ int femmcli::LuaCommonCommands::luaExitPre(lua_State *L)
 }
 
 /**
+ * @brief Explicitly calls the mesher.
+ * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
+ * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
+ *
+ * \remark The femm42 documentation states that "The number of elements in the mesh is pushed back onto the lua stack.", but the implementation does not do it.
+ * @param L
+ * @return 1 on success, 0 otherwise.
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_createmesh()} runs triangle to create a mesh.
+ * - \lua{ei_createmesh()} runs triangle to create a mesh.
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_create_mesh()}
+ *
+ * #### Additional source:
+ * - \femm42{femm/femmeLua.cpp,lua_create_mesh()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnuMakeMesh()
+ * - \femm42{femm/beladrawLua.cpp,lua_create_mesh()}
+ * - \femm42{femm/FemmeDoc.cpp,CFemmeView::lnuMakeMesh()}: calls OnMakeMesh
+ * - \femm42{femm/FemmeView.cpp,CFemmeView::OnMakeMesh()}: does the things we do here directly...
+ * - \femm42{femm/beladrawView.cpp,CbeladrawView::OnMakeMesh()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaCreateMesh(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    std::string pathName = doc->pathName;
+    if (pathName.empty())
+    {
+        lua_error(L,"A data file must be loaded,\nor the current data must saved.");
+        return 0;
+    }
+    if (!doc->saveFEMFile(pathName))
+    {
+        lua_error(L, "createmesh(): Could not save fem file!\n");
+        return 0;
+    }
+    if (!doc->consistencyCheckOK())
+    {
+        lua_error(L,"createmesh(): consistency check failed before meshing!\n");
+        return 0;
+    }
+
+    //BeginWaitCursor();
+    if (mesher->HasPeriodicBC()){
+        if (mesher->DoPeriodicBCTriangulation(pathName) != 0)
+        {
+            //EndWaitCursor();
+            mesher->UnselectAll();
+            lua_error(L, "createmesh(): Periodic BC triangulation failed!\n");
+            return 0;
+        }
+    } else {
+        if (mesher->DoNonPeriodicBCTriangulation(pathName) != 0)
+        {
+            //EndWaitCursor();
+            lua_error(L, "createmesh(): Nonperiodic BC triangulation failed!\n");
+            return 0;
+        }
+    }
+    bool LoadMesh=mesher->LoadMesh(pathName);
+    //EndWaitCursor();
+
+    if (LoadMesh)
+    {
+        //MeshUpToDate=TRUE;
+        //if(MeshFlag==FALSE) OnShowMesh();
+        //else InvalidateRect(NULL);
+        //CString s;
+        //s.Format("Created mesh with %i nodes",mesher->meshnode.GetSize());
+        //if (mesher->greymeshline.GetSize()!=0)
+        //    s+="\nGrey mesh lines denote regions\nthat have no block label.";
+        //if(bLinehook==FALSE) AfxMessageBox(s,MB_ICONINFORMATION);
+        //else lua_pushnumber(lua,(int) mesher->meshnode.GetSize());
+
+        lua_pushnumber(L,(int) mesher->meshnode.size());
+        // Note(ZaJ): femm42 returns 0 - I think that's a bug
+        return 1;
+    }
+
+    return 0;
+}
+
+/**
  * @brief Save the problem description into the given file.
  * @param L
  * @return 0

@@ -51,7 +51,6 @@ int luaBendContourLine(lua_State *L);
 int luaBlockIntegral(lua_State *L);
 int luaClearBlock(lua_State *L);
 int luaClearContourPoint(lua_State *L);
-int luaCreateMesh(lua_State *L);
 int luaCreateRadius(lua_State *L);
 int luaDefineOuterSpace(lua_State *L);
 int luaDeleteBoundaryProp(lua_State *L);
