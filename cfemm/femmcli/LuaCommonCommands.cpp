@@ -263,6 +263,7 @@ int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_attachdefault()}
+ * - \femm42{femm/beladrawLua.cpp,lua_attachdefault()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAttachDefault(lua_State *L)
@@ -277,6 +278,38 @@ int femmcli::LuaCommonCommands::luaAttachDefault(lua_State *L)
         label->IsDefault = (label->IsSelected && isFirstSelected);
         if (label->IsSelected)
             isFirstSelected = false;
+    }
+
+    return 0;
+}
+
+/**
+ * @brief Mark selected block labels as members of the external region,
+ * used for modeling unbounded axisymmetric problems via the Kelvin Transformation.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_attachouterspace()}
+ * - \lua{ei_attachouterspace()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_attachouterspace()}
+ * - \femm42{femm/beladrawLua.cpp,lua_attachouterspace()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaAttachOuterSpace(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    for (auto &label: doc->labellist)
+    {
+        if (label->IsSelected)
+            label->IsExternal = true;
     }
 
     return 0;
