@@ -624,6 +624,48 @@ int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
 }
 
 /**
+ * @brief Define properties of external region.
+ * Defines an axisymmetric external region to be used in
+ * conjuction with the Kelvin Transformation method of modeling unbounded problems.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_defineouterspace(Zo,Ro,Ri)}
+ * - \lua{ei_defineouterspace(Zo,Ro,Ri)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_defineouterspace()}
+ * - \femm42{femm/beladrawLua.cpp,lua_defineouterspace()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDefineOuterSpace(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    int n = lua_gettop(L);
+    if (n!=3)
+        return 0;
+
+    doc->extZo = fabs(lua_todouble(L,1));
+    doc->extRo = fabs(lua_todouble(L,2));
+    doc->extRi = fabs(lua_todouble(L,3));
+
+    if((doc->extRo==0) || (doc->extRi==0))
+    {
+        doc->extZo = 0;
+        doc->extRo = 0;
+        doc->extRi = 0;
+    }
+
+    return 0;
+}
+
+/**
  * @brief Save the problem description into the given file.
  * @param L
  * @return 0
