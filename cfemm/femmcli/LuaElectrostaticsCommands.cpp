@@ -351,14 +351,14 @@ int femmcli::LuaElectrostaticsCommands::luaAddConductorProp(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a contour point.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{eo_add_contour}
+ * - \lua{eo_addcontour(x,y)}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_addcontour()}
@@ -408,14 +408,14 @@ int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
 
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new point property.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_add_point_prop}
+ * - \lua{ei_addpointprop("pointpropname",Vp,qp)}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_addpointprop()}
@@ -423,7 +423,20 @@ int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    std::unique_ptr<CSPointProp> m = std::make_unique<CSPointProp>();
+    int n=lua_gettop(L);
+
+    if (n>0) m->PointName = lua_tostring(L,1);
+    if (n>1) m->V = lua_todouble(L,2);
+    if (n>2) m->qp = lua_todouble(L,3);
+
+    doc->nodeproplist.push_back(std::move(m));
+    doc->updateNodeMap();
+    return 0;
 }
 
 /**
