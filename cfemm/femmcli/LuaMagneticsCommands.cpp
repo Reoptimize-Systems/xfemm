@@ -116,7 +116,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_detach_outer_space", luaDetachOuterSpace);
     li.addFunction("mi_detachouterspace", luaDetachOuterSpace);
     li.addFunction("mo_close", luaExitPost);
-    li.addFunction("mi_close", luaExitPre);
+    li.addFunction("mi_close", LuaCommonCommands::luaExitPre);
     li.addFunction("mi_getboundingbox", luaGetBoundingBox);
     li.addFunction("mo_get_circuit_properties", luaGetCircuitProperties);
     li.addFunction("mo_getcircuitproperties", luaGetCircuitProperties);
@@ -1642,28 +1642,6 @@ int femmcli::LuaMagneticsCommands::luaExitPost(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     femmState->invalidateSolutionData();
-    return 0;
-}
-
-/**
- * @brief Closes the current pre-processor instance.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_close()}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_exitpre()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaExitPre(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    femmState->close();
     return 0;
 }
 

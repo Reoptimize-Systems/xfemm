@@ -341,6 +341,30 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
 }
 
 /**
+ * @brief Closes the current pre-processor instance.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_close()}
+ * - \lua{ei_close()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_exitpre()}
+ * - \femm42{femm/beladrawLua.cpp,lua_exitpre()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaExitPre(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    femmState->close();
+    return 0;
+}
+
+/**
  * @brief Save the problem description into the given file.
  * @param L
  * @return 0

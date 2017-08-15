@@ -69,7 +69,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_attachouterspace", LuaCommonCommands::luaAttachOuterSpace);
     li.addFunction("ei_clear_selected", LuaCommonCommands::luaClearSelected);
     li.addFunction("ei_clearselected", LuaCommonCommands::luaClearSelected);
-    li.addFunction("ei_close", luaExitPre);
+    li.addFunction("ei_close", LuaCommonCommands::luaExitPre);
     li.addFunction("ei_copy_rotate", luaCopyRotate);
     li.addFunction("ei_copyrotate", luaCopyRotate);
     li.addFunction("ei_copy_translate", luaCopyTranslate);
@@ -1030,25 +1030,6 @@ int femmcli::LuaElectrostaticsCommands::luaDetachOuterSpace(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_close}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_exitpre()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaExitPre(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
