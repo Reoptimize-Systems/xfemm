@@ -41,6 +41,7 @@ int luaAddArc(lua_State *L);
 int luaAddBlocklabel(lua_State *L);
 int luaAddLine(lua_State *L);
 int luaAddNode(lua_State *L);
+int luaAttachDefault(lua_State *L);
 int luaClearSelected(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaSelectArcsegment(lua_State *L);

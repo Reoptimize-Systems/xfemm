@@ -249,6 +249,40 @@ int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
 }
 
 /**
+ * @brief Marks the first selected block label as the default block label.
+ *
+ * This block label is applied to any region that has not been explicitly labeled.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_attachdefault()}
+ * - \lua{ei_attachdefault()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_attachdefault()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaAttachDefault(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    bool isFirstSelected = true;
+    for (auto &label: doc->labellist)
+    {
+        label->IsDefault = (label->IsSelected && isFirstSelected);
+        if (label->IsSelected)
+            isFirstSelected = false;
+    }
+
+    return 0;
+}
+
+/**
  * @brief Unselect all selected nodes, blocks, segments and arc segments.
  * @param L
  * @return 0
