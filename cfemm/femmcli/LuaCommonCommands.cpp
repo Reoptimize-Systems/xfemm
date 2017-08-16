@@ -704,6 +704,33 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedNodes(lua_State *L)
 }
 
 /**
+ * @brief Delete selected segments.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_deleteselectedsegments()}
+ * - \lua{ei_deleteselectedsegments()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselectedsegments()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedsegments()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDeleteSelectedSegments(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedSegments();
+
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0

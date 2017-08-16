@@ -96,8 +96,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_deleteselected", LuaCommonCommands::luaDeleteSelected);
     li.addFunction("ei_delete_selected_nodes", LuaCommonCommands::luaDeleteSelectedNodes);
     li.addFunction("ei_deleteselectednodes", LuaCommonCommands::luaDeleteSelectedNodes);
-    li.addFunction("ei_delete_selected_segments", luaDeleteSelectedSegments);
-    li.addFunction("ei_deleteselectedsegments", luaDeleteSelectedSegments);
+    li.addFunction("ei_delete_selected_segments", LuaCommonCommands::luaDeleteSelectedSegments);
+    li.addFunction("ei_deleteselectedsegments", LuaCommonCommands::luaDeleteSelectedSegments);
     li.addFunction("ei_detach_default", luaDetachDefault);
     li.addFunction("ei_detachdefault", luaDetachDefault);
     li.addFunction("ei_detach_outer_space", luaDetachOuterSpace);
@@ -711,24 +711,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
     lua_error(L, "Not implemented"); return 0;
 }
 
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_delete_selected_segments}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedsegments()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedSegments(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
 
 /**
  * @brief FIXME not implemented
