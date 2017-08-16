@@ -493,6 +493,40 @@ int femmcli::LuaCommonCommands::luaDeleteBoundaryProperty(lua_State *L)
 }
 
 /**
+ * @brief Delete the given circuit property.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_deletecircuit("circuitname")}
+ * - \lua{ei_deletecircuit("circuitname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_delcircuitprop()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDeleteCircuitProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    std::string propName = lua_tostring(L,1);
+    doc->circproplist.erase(
+                std::remove_if(doc->circproplist.begin(),doc->circproplist.end(),
+                               [&propName](const auto& prop){ return prop->CircName == propName; } ),
+                doc->circproplist.end()
+                );
+    doc->circproplist.shrink_to_fit();
+    doc->updateCircuitMap();
+
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0

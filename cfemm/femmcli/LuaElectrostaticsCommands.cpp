@@ -82,8 +82,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_defineouterspace", LuaCommonCommands::luaDefineOuterSpace);
     li.addFunction("ei_delete_bound_prop", LuaCommonCommands::luaDeleteBoundaryProperty);
     li.addFunction("ei_deleteboundprop", LuaCommonCommands::luaDeleteBoundaryProperty);
-    li.addFunction("ei_delete_conductor", luaDeleteCircuitProp);
-    li.addFunction("ei_deleteconductor", luaDeleteCircuitProp);
+    li.addFunction("ei_delete_conductor", LuaCommonCommands::luaDeleteCircuitProperty);
+    li.addFunction("ei_deleteconductor", LuaCommonCommands::luaDeleteCircuitProperty);
     li.addFunction("ei_delete_material", luaDeleteMaterial);
     li.addFunction("ei_deletematerial", luaDeleteMaterial);
     li.addFunction("ei_delete_point_prop", luaDeletePointProp);
@@ -707,25 +707,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_delete_conductor}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_delcircuitprop()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaDeleteCircuitProp(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

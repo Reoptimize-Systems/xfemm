@@ -95,8 +95,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_defineouterspace", LuaCommonCommands::luaDefineOuterSpace);
     li.addFunction("mi_delete_bound_prop", LuaCommonCommands::luaDeleteBoundaryProperty);
     li.addFunction("mi_deleteboundprop", LuaCommonCommands::luaDeleteBoundaryProperty);
-    li.addFunction("mi_delete_circuit", luaDeleteCircuitProperty);
-    li.addFunction("mi_deletecircuit", luaDeleteCircuitProperty);
+    li.addFunction("mi_delete_circuit", LuaCommonCommands::luaDeleteCircuitProperty);
+    li.addFunction("mi_deletecircuit", LuaCommonCommands::luaDeleteCircuitProperty);
     li.addFunction("mi_delete_selected_arcsegments", luaDeleteSelectedArcSegments);
     li.addFunction("mi_deleteselectedarcsegments", luaDeleteSelectedArcSegments);
     li.addFunction("mi_delete_selected_labels", luaDeleteSelectedBlockLabels);
@@ -1016,38 +1016,6 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
-
-    return 0;
-}
-
-/**
- * @brief Delete the given circuit property.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_deletecircuit("circuitname")}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaDeleteCircuitProperty(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    std::string propName = lua_tostring(L,1);
-    doc->circproplist.erase(
-                std::remove_if(doc->circproplist.begin(),doc->circproplist.end(),
-                               [&propName](const auto& prop){ return prop->CircName == propName; } ),
-                doc->circproplist.end()
-                );
-    doc->circproplist.shrink_to_fit();
-    doc->updateCircuitMap();
 
     return 0;
 }

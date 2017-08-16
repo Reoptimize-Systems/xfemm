@@ -50,6 +50,7 @@ int luaCreateMesh(lua_State *L);
 int luaCreateRadius(lua_State *L);
 int luaDefineOuterSpace(lua_State *L);
 int luaDeleteBoundaryProperty(lua_State *L);
+int luaDeleteCircuitProperty(lua_State *L);
 int luaExitPre(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaSelectArcsegment(lua_State *L);
