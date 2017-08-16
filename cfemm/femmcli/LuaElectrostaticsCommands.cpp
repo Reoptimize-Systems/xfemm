@@ -100,8 +100,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_deleteselectedsegments", LuaCommonCommands::luaDeleteSelectedSegments);
     li.addFunction("ei_detach_default", LuaCommonCommands::luaDetachDefault);
     li.addFunction("ei_detachdefault", LuaCommonCommands::luaDetachDefault);
-    li.addFunction("ei_detach_outer_space", luaDetachOuterSpace);
-    li.addFunction("ei_detachouterspace", luaDetachOuterSpace);
+    li.addFunction("ei_detach_outer_space", LuaCommonCommands::luaDetachOuterSpace);
+    li.addFunction("ei_detachouterspace", LuaCommonCommands::luaDetachOuterSpace);
     li.addFunction("ei_getboundingbox", luaGetBoundingBox);
     li.addFunction("ei_get_material", luaGetMaterialFromLib);
     li.addFunction("ei_getmaterial", luaGetMaterialFromLib);
@@ -707,25 +707,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_detach_outer_space}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_detachouterspace()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaDetachOuterSpace(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

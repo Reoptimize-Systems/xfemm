@@ -113,8 +113,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deletepointprop", LuaCommonCommands::luaDeletePointProperty);
     li.addFunction("mi_detach_default", LuaCommonCommands::luaDetachDefault);
     li.addFunction("mi_detachdefault", LuaCommonCommands::luaDetachDefault);
-    li.addFunction("mi_detach_outer_space", luaDetachOuterSpace);
-    li.addFunction("mi_detachouterspace", luaDetachOuterSpace);
+    li.addFunction("mi_detach_outer_space", LuaCommonCommands::luaDetachOuterSpace);
+    li.addFunction("mi_detachouterspace", LuaCommonCommands::luaDetachOuterSpace);
     li.addFunction("mo_close", luaExitPost);
     li.addFunction("mi_close", LuaCommonCommands::luaExitPre);
     li.addFunction("mi_getboundingbox", luaGetBoundingBox);
@@ -1016,35 +1016,6 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
-
-    return 0;
-}
-
-/**
- * @brief Mark selected block labels as not belonging to the external region.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_detachouterspace()}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_detachouterspace()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaDetachOuterSpace(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    for (auto &label: doc->labellist)
-    {
-        if (label->IsSelected)
-            label->IsExternal = false;
-    }
 
     return 0;
 }
