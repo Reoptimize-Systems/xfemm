@@ -131,10 +131,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("mo_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("mo_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
-    li.addFunction("mi_get_title", luaGetTitle);
-    li.addFunction("mi_gettitle", luaGetTitle);
-    li.addFunction("mo_get_title", luaGetTitle);
-    li.addFunction("mo_gettitle", luaGetTitle);
+    li.addFunction("mi_get_title", LuaCommonCommands::luaGetTitle);
+    li.addFunction("mi_gettitle", LuaCommonCommands::luaGetTitle);
+    li.addFunction("mo_get_title", LuaCommonCommands::luaGetTitle);
+    li.addFunction("mo_gettitle", LuaCommonCommands::luaGetTitle);
     li.addFunction("mo_gradient", luaBGradient);
     li.addFunction("mi_grid_snap", LuaInstance::luaNOP);
     li.addFunction("mi_gridsnap", LuaInstance::luaNOP);
@@ -1304,30 +1304,6 @@ int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
     }
 
     return 0;
-}
-
-/**
- * @brief Get the document title
- * @param L
- * @return 1
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_gettitle()}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_gettitle()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaGetTitle(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    lua_pushstring(L, doc->getTitle().c_str());
-    return 1;
 }
 
 /**

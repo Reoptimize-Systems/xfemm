@@ -917,6 +917,34 @@ int femmcli::LuaCommonCommands::luaGetProblemInfo(lua_State *L)
 }
 
 /**
+ * @brief Get the document title
+ * @param L
+ * @return 1
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_gettitle()}
+ * - \lua{mo_gettitle()}
+ * - \lua{ei_gettitle()}
+ * - \lua{eo_gettitle()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_gettitle()}
+ * - \femm42{femm/beladrawLua.cpp,lua_gettitle()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaGetTitle(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    lua_pushstring(L, doc->getTitle().c_str());
+    return 1;
+}
+
+/**
  * @brief Explicitly calls the mesher.
  * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
