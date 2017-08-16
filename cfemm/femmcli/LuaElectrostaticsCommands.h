@@ -51,7 +51,6 @@ int luaBendContourLine(lua_State *L);
 int luaBlockIntegral(lua_State *L);
 int luaClearBlock(lua_State *L);
 int luaClearContourPoint(lua_State *L);
-int luaDetachDefault(lua_State *L);
 int luaDetachOuterSpace(lua_State *L);
 int luaExitPost(lua_State *L);
 int luaGetBoundingBox(lua_State *L);

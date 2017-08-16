@@ -111,8 +111,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deletematerial", LuaCommonCommands::luaDeleteMaterial);
     li.addFunction("mi_delete_point_prop", LuaCommonCommands::luaDeletePointProperty);
     li.addFunction("mi_deletepointprop", LuaCommonCommands::luaDeletePointProperty);
-    li.addFunction("mi_detach_default", luaDetachDefault);
-    li.addFunction("mi_detachdefault", luaDetachDefault);
+    li.addFunction("mi_detach_default", LuaCommonCommands::luaDetachDefault);
+    li.addFunction("mi_detachdefault", LuaCommonCommands::luaDetachDefault);
     li.addFunction("mi_detach_outer_space", luaDetachOuterSpace);
     li.addFunction("mi_detachouterspace", luaDetachOuterSpace);
     li.addFunction("mo_close", luaExitPost);
@@ -1016,35 +1016,6 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
-
-    return 0;
-}
-
-/**
- * @brief Unset IsDefault for selected block labels.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_detachdefault()}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_detachdefault()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaDetachDefault(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    for (auto &label: doc->labellist)
-    {
-        if (label->IsSelected)
-            label->IsDefault = false;
-    }
 
     return 0;
 }
