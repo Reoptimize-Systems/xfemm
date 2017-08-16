@@ -88,8 +88,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_deletematerial", LuaCommonCommands::luaDeleteMaterial);
     li.addFunction("ei_delete_point_prop", LuaCommonCommands::luaDeletePointProperty);
     li.addFunction("ei_deletepointprop", LuaCommonCommands::luaDeletePointProperty);
-    li.addFunction("ei_delete_selected_arcsegments", luaDeleteSelectedArcSegments);
-    li.addFunction("ei_deleteselectedarcsegments", luaDeleteSelectedArcSegments);
+    li.addFunction("ei_delete_selected_arcsegments", LuaCommonCommands::luaDeleteSelectedArcSegments);
+    li.addFunction("ei_deleteselectedarcsegments", LuaCommonCommands::luaDeleteSelectedArcSegments);
     li.addFunction("ei_delete_selected_labels", luaDeleteSelectedBlockLabels);
     li.addFunction("ei_deleteselectedlabels", luaDeleteSelectedBlockLabels);
     li.addFunction("ei_delete_selected", luaDeleteSelected);
@@ -707,25 +707,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_delete_selected_arcsegments}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedarcsegments()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaDeleteSelectedArcSegments(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
