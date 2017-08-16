@@ -100,7 +100,6 @@ int luaSetArcsegmentProp(lua_State *L);
 int luaSetBlocklabelProp(lua_State *L);
 int luaSetEditMode(lua_State *L);
 int luaSetFocus(lua_State *L);
-int luaSetGroup(lua_State *L);
 int luaSetNodeProp(lua_State *L);
 int luaSetPrevious(lua_State *L);
 int luaSetSegmentProp(lua_State *L);

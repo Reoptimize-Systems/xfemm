@@ -174,8 +174,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_setfocus", luaSetFocus);
     li.addFunction("ei_set_grid", LuaInstance::luaNOP);
     li.addFunction("ei_setgrid", LuaInstance::luaNOP);
-    li.addFunction("ei_set_group", luaSetGroup);
-    li.addFunction("ei_setgroup", luaSetGroup);
+    li.addFunction("ei_set_group", LuaCommonCommands::luaSetGroup);
+    li.addFunction("ei_setgroup", LuaCommonCommands::luaSetGroup);
     li.addFunction("ei_set_node_prop", luaSetNodeProp);
     li.addFunction("ei_setnodeprop", luaSetNodeProp);
     li.addFunction("ei_set_segment_prop", luaSetSegmentProp);
@@ -1708,25 +1708,6 @@ int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetEditMode(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_set_group}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_setgroup()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaSetGroup(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

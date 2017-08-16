@@ -853,3 +853,62 @@ int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
 
     return 4;
 }
+
+/**
+ * @brief Set the group of selected items and unselect them.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_setgroup(n)} Set the group associated of the selected items to n
+ * - \lua{ei_setgroup(n)} Set the group associated of the selected items to n
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_setgroup()}
+ * - \femm42{femm/beladrawLua.cpp,lua_setgroup()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSetGroup(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    int n=lua_gettop(L);
+    int grp;
+    if (n>0)
+        grp =(int) lua_todouble(L,1);
+    else
+        return 0;
+
+    for(auto &node: doc->nodelist)
+    {
+        if(node->IsSelected)
+            node->InGroup=grp;
+    }
+
+    for(auto &line: doc->linelist)
+    {
+        if(line->IsSelected)
+            line->InGroup=grp;
+    }
+
+    for(auto &arc: doc->arclist)
+    {
+        if(arc->IsSelected)
+            arc->InGroup=grp;
+    }
+
+    for(auto &label: doc->labellist)
+    {
+        if(label->IsSelected)
+            label->InGroup=grp;
+    }
+
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+    mesher->UnselectAll();
+
+    return 0;
+}
