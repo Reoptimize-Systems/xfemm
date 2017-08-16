@@ -49,22 +49,22 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_addarc", LuaCommonCommands::luaAddArc);
     li.addFunction("mi_add_bh_point", luaAddBHPoint);
     li.addFunction("mi_addbhpoint", luaAddBHPoint);
-    li.addFunction("mi_add_bound_prop", luaAddBoundaryProp);
-    li.addFunction("mi_addboundprop", luaAddBoundaryProp);
-    li.addFunction("mi_add_circ_prop", luaAddCircuitProp);
-    li.addFunction("mi_addcircprop", luaAddCircuitProp);
+    li.addFunction("mi_add_bound_prop", luaAddBoundaryProperty);
+    li.addFunction("mi_addboundprop", luaAddBoundaryProperty);
+    li.addFunction("mi_add_circ_prop", luaAddCircuitProperty);
+    li.addFunction("mi_addcircprop", luaAddCircuitProperty);
     li.addFunction("mo_add_contour", luaAddContourPoint);
     li.addFunction("mo_addcontour", luaAddContourPoint);
     li.addFunction("mi_add_block_label", LuaCommonCommands::luaAddBlocklabel);
     li.addFunction("mi_addblocklabel", LuaCommonCommands::luaAddBlocklabel);
     li.addFunction("mi_add_segment", LuaCommonCommands::luaAddLine);
     li.addFunction("mi_addsegment", LuaCommonCommands::luaAddLine);
-    li.addFunction("mi_add_material", luaAddMatProp);
-    li.addFunction("mi_addmaterial", luaAddMatProp);
+    li.addFunction("mi_add_material", luaAddMatProperty);
+    li.addFunction("mi_addmaterial", luaAddMatProperty);
     li.addFunction("mi_add_node", LuaCommonCommands::luaAddNode);
     li.addFunction("mi_addnode", LuaCommonCommands::luaAddNode);
-    li.addFunction("mi_add_point_prop", luaAddPointProp);
-    li.addFunction("mi_addpointprop", luaAddPointProp);
+    li.addFunction("mi_add_point_prop", luaAddPointProperty);
+    li.addFunction("mi_addpointprop", luaAddPointProperty);
     li.addFunction("mi_analyse", luaAnalyze);
     li.addFunction("mi_analyze", luaAnalyze);
     li.addFunction("mi_attach_default", LuaCommonCommands::luaAttachDefault);
@@ -126,8 +126,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_getmaterial", luaGetMaterialFromLib);
     li.addFunction("mo_get_node", luaGetMeshNode);
     li.addFunction("mo_getnode", luaGetMeshNode);
-    li.addFunction("mo_get_point_values", luaGetPointVals);
-    li.addFunction("mo_getpointvalues", luaGetPointVals);
+    li.addFunction("mo_get_point_values", luaGetPointValuess);
+    li.addFunction("mo_getpointvalues", luaGetPointValuess);
     li.addFunction("mi_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("mo_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("mo_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
@@ -163,14 +163,14 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_minimize", LuaInstance::luaNOP);
     li.addFunction("mo_minimize", LuaInstance::luaNOP);
     li.addFunction("mi_mirror", LuaCommonCommands::luaMirrorCopy);
-    li.addFunction("mi_modify_bound_prop", luaModifyBoundaryProp);
-    li.addFunction("mi_modifyboundprop", luaModifyBoundaryProp);
+    li.addFunction("mi_modify_bound_prop", luaModifyBoundaryProperty);
+    li.addFunction("mi_modifyboundprop", luaModifyBoundaryProperty);
     li.addFunction("mi_modify_circ_prop", luaModifyCircuitProperty);
     li.addFunction("mi_modifycircprop", luaModifyCircuitProperty);
-    li.addFunction("mi_modify_material", luaModifyMaterialProp);
-    li.addFunction("mi_modifymaterial", luaModifyMaterialProp);
-    li.addFunction("mi_modify_point_prop", luaModifyPointProp);
-    li.addFunction("mi_modifypointprop", luaModifyPointProp);
+    li.addFunction("mi_modify_material", luaModifyMaterialProperty);
+    li.addFunction("mi_modifymaterial", luaModifyMaterialProperty);
+    li.addFunction("mi_modify_point_prop", luaModifyPointProperty);
+    li.addFunction("mi_modifypointprop", luaModifyPointProperty);
     li.addFunction("mi_move_rotate", luaMoveRotate);
     li.addFunction("mi_moverotate", luaMoveRotate);
     li.addFunction("mi_move_translate", luaMoveTranslate);
@@ -182,8 +182,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_num_nodes", luaNumNodes);
     li.addFunction("mo_numnodes", luaNumNodes);
     li.addFunction("mi_setprevious", luaSetPrevious);
-    li.addFunction("mi_prob_def", luaProbDef);
-    li.addFunction("mi_probdef", luaProbDef);
+    li.addFunction("mi_prob_def", luaProblemDefinition);
+    li.addFunction("mi_probdef", luaProblemDefinition);
     li.addFunction("mi_purge_mesh", luaPurgeMesh);
     li.addFunction("mi_purgemesh", luaPurgeMesh);
     li.addFunction("mi_read_dxf", LuaInstance::luaNOP);
@@ -228,10 +228,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_selectrectangle", luaSelectWithinRectangle);
     li.addFunction("mi_select_segment", LuaCommonCommands::luaSelectSegment);
     li.addFunction("mi_selectsegment", LuaCommonCommands::luaSelectSegment);
-    li.addFunction("mi_set_arcsegment_prop", luaSetArcsegmentProp);
-    li.addFunction("mi_setarcsegmentprop", luaSetArcsegmentProp);
-    li.addFunction("mi_set_block_prop", luaSetBlocklabelProp);
-    li.addFunction("mi_setblockprop", luaSetBlocklabelProp);
+    li.addFunction("mi_set_arcsegment_prop", luaSetArcsegmentProperty);
+    li.addFunction("mi_setarcsegmentprop", luaSetArcsegmentProperty);
+    li.addFunction("mi_set_block_prop", luaSetBlocklabelProperty);
+    li.addFunction("mi_setblockprop", luaSetBlocklabelProperty);
     li.addFunction("mi_set_edit_mode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("mi_seteditmode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("mo_set_edit_mode", LuaInstance::luaNOP);
@@ -242,10 +242,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_setgrid", LuaInstance::luaNOP);
     li.addFunction("mi_set_group", LuaCommonCommands::luaSetGroup);
     li.addFunction("mi_setgroup", LuaCommonCommands::luaSetGroup);
-    li.addFunction("mi_set_node_prop", luaSetNodeProp);
-    li.addFunction("mi_setnodeprop", luaSetNodeProp);
-    li.addFunction("mi_set_segment_prop", luaSetSegmentProp);
-    li.addFunction("mi_setsegmentprop", luaSetSegmentProp);
+    li.addFunction("mi_set_node_prop", luaSetNodeProperty);
+    li.addFunction("mi_setnodeprop", luaSetNodeProperty);
+    li.addFunction("mi_set_segment_prop", luaSetSegmentProperty);
+    li.addFunction("mi_setsegmentprop", luaSetSegmentProperty);
     li.addFunction("mo_show_contour_plot", LuaInstance::luaNOP);
     li.addFunction("mo_showcontourplot", LuaInstance::luaNOP);
     li.addFunction("mo_show_density_plot", LuaInstance::luaNOP);
@@ -391,7 +391,7 @@ int femmcli::LuaMagneticsCommands::luaAddBHPoint(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_addboundprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaAddBoundaryProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddBoundaryProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -430,7 +430,7 @@ int femmcli::LuaMagneticsCommands::luaAddBoundaryProp(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_addcircuitprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaAddCircuitProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddCircuitProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -510,7 +510,7 @@ int femmcli::LuaMagneticsCommands::luaAddContourPoint(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_addmatprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddMatProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -582,7 +582,7 @@ int femmcli::LuaMagneticsCommands::luaAddMatProp(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_addpointprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaAddPointProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaAddPointProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1259,7 +1259,7 @@ int femmcli::LuaMagneticsCommands::luaGetMeshNode(lua_State *L)
  * - \femm42{femm/femmviewLua.cpp,lua_getpointvals()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaGetPointVals(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetPointValuess(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     // for compatibility with 4.0 and 4.1 Lua implementation
@@ -1548,7 +1548,7 @@ int femmcli::LuaMagneticsCommands::luaLineIntegral(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_modboundprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaModifyBoundaryProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModifyBoundaryProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1697,7 +1697,7 @@ int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_modmatprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaModifyMaterialProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModifyMaterialProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1793,7 +1793,7 @@ int femmcli::LuaMagneticsCommands::luaModifyMaterialProp(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_modpointprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaModifyPointProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaModifyPointProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -2078,7 +2078,7 @@ int femmcli::LuaMagneticsCommands::luaSetPrevious(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_prob_def()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaProbDef(lua_State * L)
+int femmcli::LuaMagneticsCommands::luaProblemDefinition(lua_State * L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -2764,7 +2764,7 @@ int femmcli::LuaMagneticsCommands::luaSelectWithinRectangle(lua_State *L)
  *
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetArcsegmentProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -2815,7 +2815,7 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProp(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_setblockprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaSetBlocklabelProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetBlocklabelProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -2945,7 +2945,7 @@ int femmcli::LuaMagneticsCommands::luaSetFocus(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_setnodeprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetNodeProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -3000,7 +3000,7 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProp(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_setsegmentprop()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaSetSegmentProp(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaSetSegmentProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());

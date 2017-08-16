@@ -40,12 +40,12 @@ namespace LuaElectrostaticsCommands
  */
 void registerCommands(femm::LuaInstance &li );
 
-int luaAddBoundaryProp(lua_State *L);
-int luaAddConductorProp(lua_State *L);
+int luaAddBoundaryProperty(lua_State *L);
+int luaAddConductorProperty(lua_State *L);
 int luaAddContourPointFromNode(lua_State *L);
 int luaAddContourPoint(lua_State *L);
-int luaAddMaterialProp(lua_State *L);
-int luaAddPointProp(lua_State *L);
+int luaAddMaterialProperty(lua_State *L);
+int luaAddPointProperty(lua_State *L);
 int luaAnalyze(lua_State *L);
 int luaBendContourLine(lua_State *L);
 int luaBlockIntegral(lua_State *L);
@@ -56,33 +56,32 @@ int luaGetCircuitProperties(lua_State *L);
 int luaGetElement(lua_State *L);
 int luaGetMaterialFromLib(lua_State *L);
 int luaGetMeshNode(lua_State *L);
-int luaGetPointVals(lua_State *L);
+int luaGetPointValues(lua_State *L);
 int luaGroupSelectBlock(lua_State *L);
 int luaLineIntegral(lua_State *L);
 int luaLoadSolution(lua_State *L);
-int luaModifyBoundaryProp(lua_State *L);
-int luaModifyCircuitProp(lua_State *L);
-int luaModifyMaterialProp(lua_State *L);
-int luaModifyPointProp(lua_State *L);
+int luaModifyBoundaryProperty(lua_State *L);
+int luaModifyConductorProperty(lua_State *L);
+int luaModifyMaterialProperty(lua_State *L);
+int luaModifyPointProperty(lua_State *L);
 int luaMoveRotate(lua_State *L);
 int luaMoveTranslate(lua_State *L);
 int luaNewDocument(lua_State *L);
 int luaNumElements(lua_State *L);
 int luaNumNodes(lua_State *L);
-int luaProbDef(lua_State *L);
+int luaProblemDefinition(lua_State *L);
 int luaPurgeMesh(lua_State *L);
-int luaReloadNOP(lua_State *L);
 int luaScaleMove(lua_State *L);
 int luaSelectConductor(lua_State *L);
 int luaSelectGroup(lua_State *L);
 int luaSelectOutputBlocklabel(lua_State *L);
 int luaSelectWithinCircle(lua_State *L);
 int luaSelectWithinRectangle(lua_State *L);
-int luaSetArcsegmentProp(lua_State *L);
-int luaSetBlocklabelProp(lua_State *L);
+int luaSetArcsegmentProperty(lua_State *L);
+int luaSetBlocklabelProperty(lua_State *L);
 int luaSetFocus(lua_State *L);
-int luaSetNodeProp(lua_State *L);
-int luaSetSegmentProp(lua_State *L);
+int luaSetNodeProperty(lua_State *L);
+int luaSetSegmentProperty(lua_State *L);
 }
 
 } /* namespace FemmLua*/
