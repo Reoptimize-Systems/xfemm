@@ -106,8 +106,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_get_material", luaGetMaterialFromLib);
     li.addFunction("ei_getmaterial", luaGetMaterialFromLib);
     li.addFunction("ei_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
-    li.addFunction("ei_get_title", luaGetTitle);
-    li.addFunction("ei_gettitle", luaGetTitle);
+    li.addFunction("ei_get_title", LuaCommonCommands::luaGetTitle);
+    li.addFunction("ei_gettitle", LuaCommonCommands::luaGetTitle);
     li.addFunction("ei_grid_snap", LuaInstance::luaNOP);
     li.addFunction("ei_gridsnap", LuaInstance::luaNOP);
     li.addFunction("ei_hide_grid", LuaInstance::luaNOP);
@@ -214,8 +214,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_getpointvalues", luaGetPointVals);
     li.addFunction("eo_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("eo_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
-    li.addFunction("eo_get_title", luaGetTitle);
-    li.addFunction("eo_gettitle", luaGetTitle);
+    li.addFunction("eo_get_title", LuaCommonCommands::luaGetTitle);
+    li.addFunction("eo_gettitle", LuaCommonCommands::luaGetTitle);
     li.addFunction("eo_grid_snap", LuaInstance::luaNOP);
     li.addFunction("eo_gridsnap", LuaInstance::luaNOP);
     li.addFunction("eo_group_select_block", luaGroupSelectBlock);
@@ -859,25 +859,6 @@ int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_get_title}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_gettitle()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaGetTitle(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
