@@ -965,14 +965,14 @@ int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProperty(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify the given conductor property.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_modify_conductor_prop}
+ * - \lua{mi_modifyconductorprop("CondName",propnum,value)}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_modcircprop()}
@@ -980,7 +980,57 @@ int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProperty(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaModifyConductorProperty(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    if (doc->circproplist.empty())
+        return 0;
+
+    // find the index of the material to modify;
+    std::string CircName = lua_tostring(L,1);
+
+    auto searchResult = doc->circuitMap.find(CircName);
+    // get out of here if there's no matching circuit
+    if (searchResult == doc->circuitMap.end())
+    {
+        debug << "ei_modcondprop(): No conductor of name " << CircName << "\n";
+        return 0;
+    }
+    int idx = searchResult->second;
+
+    int modprop=(int) lua_todouble(L,2);
+    CSCircuit *prop = dynamic_cast<CSCircuit*>(doc->circproplist[idx].get());
+    assert(prop);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+    {
+        std::string newName;
+        if (!lua_isnil(L,3))
+            newName = lua_tostring(L,3);
+        prop->CircName = newName;
+        break;
+    }
+    case 1:
+        prop->V = lua_todouble(L,3);
+        break;
+    case 2:
+        prop->q = lua_todouble(L,3);
+        break;
+    case 3:
+        prop->CircType = (int) lua_todouble(L,3);
+        break;
+    default:
+    {
+        std::string msg = "ei_modcondprop(): No property with index " + std::to_string(modprop) + "\n";
+        lua_error(L,msg.c_str());
+        break;
+    }
+    }
+
+    return 0;
 }
 
 /**
