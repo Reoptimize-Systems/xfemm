@@ -501,7 +501,7 @@ int femmcli::LuaCommonCommands::luaDeleteBoundaryProperty(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mi_deletecircuit("circuitname")}
- * - \lua{ei_deletecircuit("circuitname")}
+ * - \lua{ei_deleteconductor("circuitname")}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
@@ -591,6 +591,32 @@ int femmcli::LuaCommonCommands::luaDeletePointProperty(lua_State *L)
     doc->nodeproplist.shrink_to_fit();
     doc->updateNodeMap();
 
+    return 0;
+}
+
+/**
+ * @brief Delete selects arcs.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_deleteselectedarcsegments()}
+ * - \lua{ei_deleteselectedarcsegments()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselectedarcsegments()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedarcsegments()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDeleteSelectedArcSegments(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedArcSegments();
     return 0;
 }
 

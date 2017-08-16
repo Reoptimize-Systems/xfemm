@@ -53,7 +53,6 @@ int luaBlockIntegral(lua_State *L);
 int luaClearBHPoints(lua_State *L);
 int luaClearBlock(lua_State *L);
 int luaClearContourPoint(lua_State *L);
-int luaDeleteSelectedArcSegments(lua_State *L);
 int luaDeleteSelectedBlockLabels(lua_State *L);
 int luaDeleteSelected(lua_State *L);
 int luaDeleteSelectedNodes(lua_State *L);
