@@ -49,16 +49,16 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_addarc", LuaCommonCommands::luaAddArc);
     li.addFunction("ei_add_block_label", LuaCommonCommands::luaAddBlocklabel);
     li.addFunction("ei_addblocklabel", LuaCommonCommands::luaAddBlocklabel);
-    li.addFunction("ei_add_bound_prop", luaAddBoundaryProp);
-    li.addFunction("ei_addboundprop", luaAddBoundaryProp);
-    li.addFunction("ei_add_conductor_prop", luaAddConductorProp);
-    li.addFunction("ei_addconductorprop", luaAddConductorProp);
-    li.addFunction("ei_add_material", luaAddMaterialProp);
-    li.addFunction("ei_addmaterial", luaAddMaterialProp);
+    li.addFunction("ei_add_bound_prop", luaAddBoundaryProperty);
+    li.addFunction("ei_addboundprop", luaAddBoundaryProperty);
+    li.addFunction("ei_add_conductor_prop", luaAddConductorProperty);
+    li.addFunction("ei_addconductorprop", luaAddConductorProperty);
+    li.addFunction("ei_add_material", luaAddMaterialProperty);
+    li.addFunction("ei_addmaterial", luaAddMaterialProperty);
     li.addFunction("ei_add_node", LuaCommonCommands::luaAddNode);
     li.addFunction("ei_addnode", LuaCommonCommands::luaAddNode);
-    li.addFunction("ei_add_point_prop", luaAddPointProp);
-    li.addFunction("ei_addpointprop", luaAddPointProp);
+    li.addFunction("ei_add_point_prop", luaAddPointProperty);
+    li.addFunction("ei_addpointprop", luaAddPointProperty);
     li.addFunction("ei_add_segment", LuaCommonCommands::luaAddLine);
     li.addFunction("ei_addsegment", LuaCommonCommands::luaAddLine);
     li.addFunction("ei_analyse", luaAnalyze);
@@ -117,22 +117,22 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_maximize", LuaInstance::luaNOP);
     li.addFunction("ei_minimize", LuaInstance::luaNOP);
     li.addFunction("ei_mirror", LuaCommonCommands::luaMirrorCopy);
-    li.addFunction("ei_modify_bound_prop", luaModifyBoundaryProp);
-    li.addFunction("ei_modifyboundprop", luaModifyBoundaryProp);
-    li.addFunction("ei_modify_conductor_prop", luaModifyCircuitProp);
-    li.addFunction("ei_modifyconductorprop", luaModifyCircuitProp);
-    li.addFunction("ei_modify_material", luaModifyMaterialProp);
-    li.addFunction("ei_modifymaterial", luaModifyMaterialProp);
-    li.addFunction("ei_modify_point_prop", luaModifyPointProp);
-    li.addFunction("ei_modifypointprop", luaModifyPointProp);
+    li.addFunction("ei_modify_bound_prop", luaModifyBoundaryProperty);
+    li.addFunction("ei_modifyboundprop", luaModifyBoundaryProperty);
+    li.addFunction("ei_modify_conductor_prop", luaModifyConductorProperty);
+    li.addFunction("ei_modifyconductorprop", luaModifyConductorProperty);
+    li.addFunction("ei_modify_material", luaModifyMaterialProperty);
+    li.addFunction("ei_modifymaterial", luaModifyMaterialProperty);
+    li.addFunction("ei_modify_point_prop", luaModifyPointProperty);
+    li.addFunction("ei_modifypointprop", luaModifyPointProperty);
     li.addFunction("ei_move_rotate", luaMoveRotate);
     li.addFunction("ei_moverotate", luaMoveRotate);
     li.addFunction("ei_move_translate", luaMoveTranslate);
     li.addFunction("ei_movetranslate", luaMoveTranslate);
     li.addFunction("ei_new_document", luaNewDocument);
     li.addFunction("ei_newdocument", luaNewDocument);
-    li.addFunction("ei_prob_def", luaProbDef);
-    li.addFunction("ei_probdef", luaProbDef);
+    li.addFunction("ei_prob_def", luaProblemDefinition);
+    li.addFunction("ei_probdef", luaProblemDefinition);
     li.addFunction("ei_purge_mesh", luaPurgeMesh);
     li.addFunction("ei_purgemesh", luaPurgeMesh);
     li.addFunction("ei_read_dxf", LuaInstance::luaNOP);
@@ -164,10 +164,10 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_selectrectangle", luaSelectWithinRectangle);
     li.addFunction("ei_select_segment", LuaCommonCommands::luaSelectSegment);
     li.addFunction("ei_selectsegment", LuaCommonCommands::luaSelectSegment);
-    li.addFunction("ei_set_arcsegment_prop", luaSetArcsegmentProp);
-    li.addFunction("ei_setarcsegmentprop", luaSetArcsegmentProp);
-    li.addFunction("ei_set_block_prop", luaSetBlocklabelProp);
-    li.addFunction("ei_setblockprop", luaSetBlocklabelProp);
+    li.addFunction("ei_set_arcsegment_prop", luaSetArcsegmentProperty);
+    li.addFunction("ei_setarcsegmentprop", luaSetArcsegmentProperty);
+    li.addFunction("ei_set_block_prop", luaSetBlocklabelProperty);
+    li.addFunction("ei_setblockprop", luaSetBlocklabelProperty);
     li.addFunction("ei_set_edit_mode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("ei_seteditmode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("ei_set_focus", luaSetFocus);
@@ -176,10 +176,10 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_setgrid", LuaInstance::luaNOP);
     li.addFunction("ei_set_group", LuaCommonCommands::luaSetGroup);
     li.addFunction("ei_setgroup", LuaCommonCommands::luaSetGroup);
-    li.addFunction("ei_set_node_prop", luaSetNodeProp);
-    li.addFunction("ei_setnodeprop", luaSetNodeProp);
-    li.addFunction("ei_set_segment_prop", luaSetSegmentProp);
-    li.addFunction("ei_setsegmentprop", luaSetSegmentProp);
+    li.addFunction("ei_set_node_prop", luaSetNodeProperty);
+    li.addFunction("ei_setnodeprop", luaSetNodeProperty);
+    li.addFunction("ei_set_segment_prop", luaSetSegmentProperty);
+    li.addFunction("ei_setsegmentprop", luaSetSegmentProperty);
     li.addFunction("ei_show_grid", LuaInstance::luaNOP);
     li.addFunction("ei_showgrid", LuaInstance::luaNOP);
     li.addFunction("ei_show_mesh", LuaInstance::luaNOP);
@@ -210,8 +210,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_getelement", luaGetElement);
     li.addFunction("eo_get_node", luaGetMeshNode);
     li.addFunction("eo_getnode", luaGetMeshNode);
-    li.addFunction("eo_get_point_values", luaGetPointVals);
-    li.addFunction("eo_getpointvalues", luaGetPointVals);
+    li.addFunction("eo_get_point_values", luaGetPointValues);
+    li.addFunction("eo_getpointvalues", luaGetPointValues);
     li.addFunction("eo_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("eo_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("eo_get_title", LuaCommonCommands::luaGetTitle);
@@ -297,7 +297,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
  * - \femm42{femm/beladrawLua.cpp,lua_addboundprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -332,7 +332,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProp(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_addcircuitprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddConductorProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaAddConductorProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -383,7 +383,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_addmatprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaAddMaterialProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -421,7 +421,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddMaterialProp(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_addpointprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaAddPointProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaAddPointProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -858,7 +858,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *L)
  * - \femm42{femm/belaviewLua.cpp,lua_getpointvals()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaGetPointValues(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
@@ -915,7 +915,7 @@ int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_modboundprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -978,7 +978,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_modcircprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaModifyCircuitProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaModifyConductorProperty(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
@@ -997,7 +997,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyCircuitProp(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_modmatprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProperty(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
@@ -1016,7 +1016,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProp(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_modpointprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaModifyPointProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaModifyPointProperty(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
@@ -1132,7 +1132,7 @@ int femmcli::LuaElectrostaticsCommands::luaNumNodes(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_prob_def()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaProbDef(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaProblemDefinition(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1381,7 +1381,7 @@ int femmcli::LuaElectrostaticsCommands::luaSelectWithinRectangle(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_setarcsegmentprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1445,7 +1445,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProp(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_setblockprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1504,7 +1504,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_setnodeprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaSetNodeProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
@@ -1571,7 +1571,7 @@ int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
  * - \femm42{femm/beladrawLua.cpp,lua_setsegmentprop()}
  * \endinternal
  */
-int femmcli::LuaElectrostaticsCommands::luaSetSegmentProp(lua_State *L)
+int femmcli::LuaElectrostaticsCommands::luaSetSegmentProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
