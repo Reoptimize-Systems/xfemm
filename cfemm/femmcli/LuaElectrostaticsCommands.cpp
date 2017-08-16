@@ -902,14 +902,14 @@ int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a boundary property.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_modify_bound_prop}
+ * - \lua{ei_modifyboundprop("BdryName",propnum,value)}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_modboundprop()}
@@ -917,7 +917,51 @@ int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProp(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    // find the index of the boundary property to modify;
+    std::string BdryName = lua_tostring(L,1);
+    CSBoundaryProp *m = nullptr;
+    for (auto &prop: doc->lineproplist)
+    {
+        if (BdryName==prop->BdryName) {
+            m = dynamic_cast<CSBoundaryProp*>(prop.get());
+            break;
+        }
+    }
+    // get out of here if there's no matching material
+    if (m==nullptr)
+        return 0;
+
+    // now, modify the specified attribute...
+    int modprop=(int) lua_todouble(L,2);
+    switch(modprop)
+    {
+    case 0:
+        m->BdryName = lua_tostring(L,3);
+        doc->updateLineMap();
+        break;
+    case 1:
+        m->V = lua_todouble(L,3);
+        break;
+    case 2:
+        m->qs = lua_todouble(L,3);
+        break;
+    case 3:
+        m->c0 = lua_todouble(L,3);
+        break;
+    case 4:
+        m->c1 = lua_todouble(L,3);
+        break;
+    case 5:
+        m->BdryFormat = (int)lua_todouble(L,3);
+        break;
+    default:
+        break;
+    }
+    return 0;
 }
 
 /**
