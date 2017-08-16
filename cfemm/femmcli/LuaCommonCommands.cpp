@@ -762,6 +762,37 @@ int femmcli::LuaCommonCommands::luaDetachDefault(lua_State *L)
 }
 
 /**
+ * @brief Mark selected block labels as not belonging to the external region.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_detachouterspace()}
+ * - \lua{ei_detachouterspace()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_detachouterspace()}
+ * - \femm42{femm/beladrawLua.cpp,lua_detachouterspace()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDetachOuterSpace(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    for (auto &label: doc->labellist)
+    {
+        if (label->IsSelected)
+            label->IsExternal = false;
+    }
+
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0
