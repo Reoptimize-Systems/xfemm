@@ -769,14 +769,14 @@ int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Read the file matlib.dat and extract a named material property.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_get_material}
+ * - \lua{ei_getmaterial("materialname")}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_getmaterial()}
@@ -784,7 +784,45 @@ int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    // TODO(ZaJ): merge this with LuaMagneticsCommands::luaGetMaterialFromLib
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    int n=lua_gettop(L);
+    std::string matname;
+    if (n>0)
+        matname=lua_tostring(L,1);
+    else
+        return 0;
+
+    std::string matlib = luaInstance->getBaseDir() + "matlib.dat";
+
+    std::ifstream input;
+    input.open(matlib.c_str(), std::ifstream::in);
+    if (!input.is_open())
+    {
+        std::string msg = "Couldn't open " + matlib + "\n";
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    std::stringstream err;
+    while (input && err.str().empty())
+    {
+        std::unique_ptr<CMaterialProp> prop;
+        prop = std::make_unique<CSMaterialProp>(CSMaterialProp::fromStream(input, err));
+        if (prop->BlockName == matname)
+        {
+            doc->blockproplist.push_back(std::move(prop));
+            doc->updateBlockMap();
+            return 0;
+        }
+    }
+    std::string msg = "Couldn't load \"" + matname + "\" from the materials library\n";
+    msg.append(err.str());
+    lua_error(L, msg.c_str());
+    return 0;
 }
 
 /**
