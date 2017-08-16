@@ -107,8 +107,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deleteselectednodes", luaDeleteSelectedNodes);
     li.addFunction("mi_delete_selected_segments", luaDeleteSelectedSegments);
     li.addFunction("mi_deleteselectedsegments", luaDeleteSelectedSegments);
-    li.addFunction("mi_delete_material", luaDeleteMaterial);
-    li.addFunction("mi_deletematerial", luaDeleteMaterial);
+    li.addFunction("mi_delete_material", LuaCommonCommands::luaDeleteMaterial);
+    li.addFunction("mi_deletematerial", LuaCommonCommands::luaDeleteMaterial);
     li.addFunction("mi_delete_point_prop", luaDeletePointProperty);
     li.addFunction("mi_deletepointprop", luaDeletePointProperty);
     li.addFunction("mi_detach_default", luaDetachDefault);
@@ -1142,38 +1142,6 @@ int femmcli::LuaMagneticsCommands::luaDeleteSelectedSegments(lua_State *L)
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     mesher->DeleteSelectedSegments();
-
-    return 0;
-}
-
-/**
- * @brief Delete the given material property.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_deletematerial("materialname")} deletes the material named "materialname".
-
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_delmatprop()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaDeleteMaterial(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    std::string propName = lua_tostring(L,1);
-    doc->blockproplist.erase(
-                std::remove_if(doc->blockproplist.begin(),doc->blockproplist.end(),
-                               [&propName](const auto& mat){ return mat->BlockName == propName; } ),
-                doc->blockproplist.end()
-                );
-    doc->blockproplist.shrink_to_fit();
-    doc->updateBlockMap();
 
     return 0;
 }

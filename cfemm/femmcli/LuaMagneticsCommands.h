@@ -58,7 +58,6 @@ int luaDeleteSelectedBlockLabels(lua_State *L);
 int luaDeleteSelected(lua_State *L);
 int luaDeleteSelectedNodes(lua_State *L);
 int luaDeleteSelectedSegments(lua_State *L);
-int luaDeleteMaterial(lua_State *L);
 int luaDeletePointProperty(lua_State *L);
 int luaDetachDefault(lua_State *L);
 int luaDetachOuterSpace(lua_State *L);

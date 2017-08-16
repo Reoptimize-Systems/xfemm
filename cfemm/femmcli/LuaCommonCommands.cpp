@@ -527,6 +527,40 @@ int femmcli::LuaCommonCommands::luaDeleteCircuitProperty(lua_State *L)
 }
 
 /**
+ * @brief Delete the given material property.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_deletematerial("materialname")} deletes the material named "materialname".
+ * - \lua{ei_deletematerial("materialname")} deletes the material named "materialname".
+
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_delmatprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_delmatprop()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDeleteMaterial(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    std::string propName = lua_tostring(L,1);
+    doc->blockproplist.erase(
+                std::remove_if(doc->blockproplist.begin(),doc->blockproplist.end(),
+                               [&propName](const auto& mat){ return mat->BlockName == propName; } ),
+                doc->blockproplist.end()
+                );
+    doc->blockproplist.shrink_to_fit();
+    doc->updateBlockMap();
+
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0
