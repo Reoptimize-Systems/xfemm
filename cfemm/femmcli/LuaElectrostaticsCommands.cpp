@@ -102,7 +102,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_detachdefault", LuaCommonCommands::luaDetachDefault);
     li.addFunction("ei_detach_outer_space", LuaCommonCommands::luaDetachOuterSpace);
     li.addFunction("ei_detachouterspace", LuaCommonCommands::luaDetachOuterSpace);
-    li.addFunction("ei_getboundingbox", luaGetBoundingBox);
+    li.addFunction("ei_getboundingbox", LuaCommonCommands::luaGetBoundingBox);
     li.addFunction("ei_get_material", luaGetMaterialFromLib);
     li.addFunction("ei_getmaterial", luaGetMaterialFromLib);
     li.addFunction("ei_getprobleminfo", luaGetProblemInfo);
@@ -726,25 +726,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_getboundingbox}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_getboundingbox()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaGetBoundingBox(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

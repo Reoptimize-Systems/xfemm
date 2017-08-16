@@ -61,6 +61,7 @@ int luaDeleteSelectedSegments(lua_State *L);
 int luaDetachDefault(lua_State *L);
 int luaDetachOuterSpace(lua_State *L);
 int luaExitPre(lua_State *L);
+int luaGetBoundingBox(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaSelectArcsegment(lua_State *L);
 int luaSelectBlocklabel(lua_State *L);
