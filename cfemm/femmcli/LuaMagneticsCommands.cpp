@@ -101,8 +101,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deleteselectedarcsegments", LuaCommonCommands::luaDeleteSelectedArcSegments);
     li.addFunction("mi_delete_selected_labels", LuaCommonCommands::luaDeleteSelectedBlockLabels);
     li.addFunction("mi_deleteselectedlabels", LuaCommonCommands::luaDeleteSelectedBlockLabels);
-    li.addFunction("mi_delete_selected", luaDeleteSelected);
-    li.addFunction("mi_deleteselected", luaDeleteSelected);
+    li.addFunction("mi_delete_selected", LuaCommonCommands::luaDeleteSelected);
+    li.addFunction("mi_deleteselected", LuaCommonCommands::luaDeleteSelected);
     li.addFunction("mi_delete_selected_nodes", luaDeleteSelectedNodes);
     li.addFunction("mi_deleteselectednodes", luaDeleteSelectedNodes);
     li.addFunction("mi_delete_selected_segments", luaDeleteSelectedSegments);
@@ -1016,34 +1016,6 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
-
-    return 0;
-}
-
-/**
- * @brief Delete selected objects.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_deleteselected()}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_deleteselected()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaDeleteSelected(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    mesher->DeleteSelectedSegments();
-    mesher->DeleteSelectedArcSegments();
-    mesher->DeleteSelectedNodes();
-    mesher->DeleteSelectedBlockLabels();
 
     return 0;
 }

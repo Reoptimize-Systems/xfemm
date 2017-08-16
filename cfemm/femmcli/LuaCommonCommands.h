@@ -53,6 +53,7 @@ int luaDeleteBoundaryProperty(lua_State *L);
 int luaDeleteCircuitProperty(lua_State *L);
 int luaDeleteMaterial(lua_State *L);
 int luaDeletePointProperty(lua_State *L);
+int luaDeleteSelected(lua_State *L);
 int luaDeleteSelectedArcSegments(lua_State *L);
 int luaDeleteSelectedBlockLabels(lua_State *L);
 int luaExitPre(lua_State *L);
