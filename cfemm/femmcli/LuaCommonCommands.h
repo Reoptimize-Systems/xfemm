@@ -55,6 +55,7 @@ int luaSelectArcsegment(lua_State *L);
 int luaSelectBlocklabel(lua_State *L);
 int luaSelectNode(lua_State *L);
 int luaSelectSegment(lua_State *L);
+int luaSetEditMode(lua_State *L);
 int luaSetGroup(lua_State *L);
 }
 

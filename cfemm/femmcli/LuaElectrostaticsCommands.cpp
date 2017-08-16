@@ -168,8 +168,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_setarcsegmentprop", luaSetArcsegmentProp);
     li.addFunction("ei_set_block_prop", luaSetBlocklabelProp);
     li.addFunction("ei_setblockprop", luaSetBlocklabelProp);
-    li.addFunction("ei_set_edit_mode", luaSetEditMode);
-    li.addFunction("ei_seteditmode", luaSetEditMode);
+    li.addFunction("ei_set_edit_mode", LuaCommonCommands::luaSetEditMode);
+    li.addFunction("ei_seteditmode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("ei_set_focus", luaSetFocus);
     li.addFunction("ei_setfocus", luaSetFocus);
     li.addFunction("ei_set_grid", LuaInstance::luaNOP);
@@ -1691,25 +1691,6 @@ int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProp(lua_State *L)
     }
 
     return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_set_edit_mode}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_seteditmode()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaSetEditMode(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
