@@ -817,6 +817,40 @@ int femmcli::LuaCommonCommands::luaExitPre(lua_State *L)
 }
 
 /**
+ * @brief Compute a bounding box for the problem.
+ * @param L
+ * @return 4 on success, 0 on failure
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_getboundingbox()}<br> \b undocumented in manual42
+ * - \lua{ei_getboundingbox()}<br> \b undocumented in manual42
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_getboundingbox()}
+ * - \femm42{femm/beladrawLua.cpp,lua_getboundingbox()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaGetBoundingBox(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    double x[2],y[2];
+    if (doc->getBoundingBox(x,y))
+    {
+        lua_pushnumber(L,x[0]);
+        lua_pushnumber(L,x[1]);
+        lua_pushnumber(L,y[0]);
+        lua_pushnumber(L,y[1]);
+        return 4;
+    }
+    else return 0;
+}
+
+/**
  * @brief Explicitly calls the mesher.
  * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.

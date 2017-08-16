@@ -117,7 +117,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_detachouterspace", LuaCommonCommands::luaDetachOuterSpace);
     li.addFunction("mo_close", luaExitPost);
     li.addFunction("mi_close", LuaCommonCommands::luaExitPre);
-    li.addFunction("mi_getboundingbox", luaGetBoundingBox);
+    li.addFunction("mi_getboundingbox", LuaCommonCommands::luaGetBoundingBox);
     li.addFunction("mo_get_circuit_properties", luaGetCircuitProperties);
     li.addFunction("mo_getcircuitproperties", luaGetCircuitProperties);
     li.addFunction("mo_get_element", luaGetElement);
@@ -1041,38 +1041,6 @@ int femmcli::LuaMagneticsCommands::luaExitPost(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     femmState->invalidateSolutionData();
     return 0;
-}
-
-/**
- * @brief Compute a bounding box for the problem.
- * @param L
- * @return 4 on success, 0 on failure
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_getboundingbox()}<br> \b undocumented in manual42
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_getboundingbox()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaGetBoundingBox(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    double x[2],y[2];
-    if (doc->getBoundingBox(x,y))
-    {
-        lua_pushnumber(L,x[0]);
-        lua_pushnumber(L,x[1]);
-        lua_pushnumber(L,y[0]);
-        lua_pushnumber(L,y[1]);
-        return 4;
-    }
-    else return 0;
 }
 
 /**
