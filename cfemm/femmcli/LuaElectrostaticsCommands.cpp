@@ -116,7 +116,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_loadsolution", luaLoadSolution);
     li.addFunction("ei_maximize", LuaInstance::luaNOP);
     li.addFunction("ei_minimize", LuaInstance::luaNOP);
-    li.addFunction("ei_mirror", luaMirrorCopy);
+    li.addFunction("ei_mirror", LuaCommonCommands::luaMirrorCopy);
     li.addFunction("ei_modify_bound_prop", luaModifyBoundaryProp);
     li.addFunction("ei_modifyboundprop", luaModifyBoundaryProp);
     li.addFunction("ei_modify_conductor_prop", luaModifyCircuitProp);
@@ -897,25 +897,6 @@ int femmcli::LuaElectrostaticsCommands::luaGroupSelectBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_mirror}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_mirror()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaMirrorCopy(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

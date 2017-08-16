@@ -62,7 +62,6 @@ int luaGetPointVals(lua_State *L);
 int luaBGradient(lua_State *L);
 int luaGroupSelectBlock(lua_State *L);
 int luaLineIntegral(lua_State *L);
-int luaMirrorCopy(lua_State *L);
 int luaModifyBoundaryProp(lua_State *L);
 int luaModifyCircuitProperty(lua_State *L);
 int luaModifyMaterialProp(lua_State *L);

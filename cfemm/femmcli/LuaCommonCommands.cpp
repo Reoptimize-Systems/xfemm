@@ -945,6 +945,60 @@ int femmcli::LuaCommonCommands::luaGetTitle(lua_State *L)
 }
 
 /**
+ * @brief Mirror a copy of the selected objects about a line.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_mirror(x1,y1,x2,y2,(editaction))}
+ * - \lua{ei_mirror(x1,y1,x2,y2,(editaction))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_mirror()}
+ * - \femm42{femm/beladrawLua.cpp,lua_mirror()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+
+    if (n!=4 && n!=5)
+    {
+        lua_error(L,"Invalid number of parameters for mirror\n");
+        return 0;
+    }
+
+    double m_pax = lua_todouble(L,1);
+    double m_pay = lua_todouble(L,2);
+    double m_pbx = lua_todouble(L,3);
+    double m_pby = lua_todouble(L,4);
+
+    EditMode editAction;
+    if (n==5) {
+        editAction = intToEditMode((int)lua_todouble(L,5));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditMode::Invalid)
+    {
+        lua_error(L, "mirror(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    mesher->UpdateUndo();
+    mesher->MirrorCopy(m_pax,m_pay,m_pbx,m_pby,editAction);
+
+    return 0;
+}
+
+/**
  * @brief Explicitly calls the mesher.
  * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
