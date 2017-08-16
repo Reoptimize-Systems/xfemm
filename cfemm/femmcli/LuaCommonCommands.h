@@ -57,6 +57,7 @@ int luaDeleteSelected(lua_State *L);
 int luaDeleteSelectedArcSegments(lua_State *L);
 int luaDeleteSelectedBlockLabels(lua_State *L);
 int luaDeleteSelectedNodes(lua_State *L);
+int luaDeleteSelectedSegments(lua_State *L);
 int luaExitPre(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaSelectArcsegment(lua_State *L);
