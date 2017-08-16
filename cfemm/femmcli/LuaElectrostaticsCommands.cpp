@@ -1799,14 +1799,14 @@ int femmcli::LuaElectrostaticsCommands::luaSetNodeProp(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Set properties for the selected segments.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_set_segment_prop("propname", elementsize, automesh, hide, group, "inconductor")}
+ * - \lua{ei_setsegmentprop("propname", elementsize, automesh, hide, group, "inconductor")}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_setsegmentprop()}
