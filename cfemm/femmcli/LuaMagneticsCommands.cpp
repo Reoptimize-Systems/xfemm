@@ -240,8 +240,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_setgrid", LuaInstance::luaNOP);
     li.addFunction("mo_set_grid", LuaInstance::luaNOP);
     li.addFunction("mo_setgrid", LuaInstance::luaNOP);
-    li.addFunction("mi_set_group", luaSetGroup);
-    li.addFunction("mi_setgroup", luaSetGroup);
+    li.addFunction("mi_set_group", LuaCommonCommands::luaSetGroup);
+    li.addFunction("mi_setgroup", LuaCommonCommands::luaSetGroup);
     li.addFunction("mi_set_node_prop", luaSetNodeProp);
     li.addFunction("mi_setnodeprop", luaSetNodeProp);
     li.addFunction("mi_set_segment_prop", luaSetSegmentProp);
@@ -3443,63 +3443,6 @@ int femmcli::LuaMagneticsCommands::luaSetFocus(lua_State *L)
         std::string msg = "No document matches " + title + "\n";
         lua_error(L, msg.c_str());
     }
-    return 0;
-}
-
-/**
- * @brief Set the group of selected items and unselect them.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_setgroup(n)} Set the group associated of the selected items to n
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_setgroup()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaSetGroup(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    int n=lua_gettop(L);
-    int grp;
-    if (n>0)
-        grp =(int) lua_todouble(L,1);
-    else
-        return 0;
-
-    for(auto &node: doc->nodelist)
-    {
-        if(node->IsSelected)
-            node->InGroup=grp;
-    }
-
-    for(auto &line: doc->linelist)
-    {
-        if(line->IsSelected)
-            line->InGroup=grp;
-    }
-
-    for(auto &arc: doc->arclist)
-    {
-        if(arc->IsSelected)
-            arc->InGroup=grp;
-    }
-
-    for(auto &label: doc->labellist)
-    {
-        if(label->IsSelected)
-            label->InGroup=grp;
-    }
-
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-    mesher->UnselectAll();
-
     return 0;
 }
 
