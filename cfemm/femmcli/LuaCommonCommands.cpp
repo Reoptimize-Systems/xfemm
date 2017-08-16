@@ -595,6 +595,36 @@ int femmcli::LuaCommonCommands::luaDeletePointProperty(lua_State *L)
 }
 
 /**
+ * @brief Delete selected objects.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_deleteselected()}
+ * - \lua{ei_deleteselected()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselected()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselected()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDeleteSelected(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedSegments();
+    mesher->DeleteSelectedArcSegments();
+    mesher->DeleteSelectedNodes();
+    mesher->DeleteSelectedBlockLabels();
+
+    return 0;
+}
+
+/**
  * @brief Delete selects arcs.
  * @param L
  * @return 0
