@@ -621,6 +621,32 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedArcSegments(lua_State *L)
 }
 
 /**
+ * @brief Delete selected block labels.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_deleteselectedlabels()}
+ * - \lua{ei_deleteselectedlabels()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_deleteselectedlabels()}
+ * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedlabels()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDeleteSelectedBlockLabels(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    mesher->DeleteSelectedBlockLabels();
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0
