@@ -855,6 +855,49 @@ int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
 }
 
 /**
+ * @brief Set the default mesher EditMode.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_seteditmode(editmode)}
+ * - \lua{ei_seteditmode(editmode)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_seteditmode()}
+ * - \femm42{femm/beladrawLua.cpp,lua_seteditmode()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSetEditMode(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    EditMode mode;
+    std::string modeString (lua_tostring(L,1));
+    if (modeString == "nodes")
+        mode = EditMode::EditNodes;
+    else if (modeString == "segments")
+        mode = EditMode::EditLines;
+    else if (modeString == "blocks")
+        mode = EditMode::EditLabels;
+    else if (modeString == "arcsegments")
+        mode = EditMode::EditArcs;
+    else if (modeString == "group")
+        mode = EditMode::EditGroup;
+    else {
+        lua_error(L, "mi_seteditmode(): Invalid value of editmode!\n");
+        return 0;
+    }
+
+    mesher->d_EditMode = mode;
+    return 0;
+}
+
+/**
  * @brief Set the group of selected items and unselect them.
  * @param L
  * @return 0
