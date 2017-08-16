@@ -59,7 +59,6 @@ int luaGetElement(lua_State *L);
 int luaGetMaterialFromLib(lua_State *L);
 int luaGetMeshNode(lua_State *L);
 int luaGetPointVals(lua_State *L);
-int luaGetProblemInfo(lua_State *L);
 int luaGetTitle(lua_State *L);
 int luaBGradient(lua_State *L);
 int luaGroupSelectBlock(lua_State *L);

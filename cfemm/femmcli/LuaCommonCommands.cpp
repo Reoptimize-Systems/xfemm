@@ -851,6 +851,72 @@ int femmcli::LuaCommonCommands::luaGetBoundingBox(lua_State *L)
 }
 
 /**
+ * @brief Get information about the problem description.
+ * Returns info on problem description. Returns four values
+ * 1. problem type
+ * 2. frequency in Hz (only for magnetics problems)
+ * 3. depth assumed for planar problems in meters
+ * 4. length unit used to draw the problem in meters
+ * @param L
+ * @return 3 or 4 (depending on document type)
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_getprobleminfo()}
+ * - \lua{mo_getprobleminfo()}
+ * - \lua{ei_getprobleminfo()}
+ * - \lua{eo_getprobleminfo()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_getprobleminfo()}
+ * - \femm42{femm/beladrawLua.cpp,lua_getprobleminfo()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaGetProblemInfo(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    int num=0;
+
+    lua_pushnumber(L,doc->ProblemType);
+    num++;
+    if (doc->filetype == FileType::MagneticsFile)
+    {
+        lua_pushnumber(L,doc->Frequency);
+        num++;
+    }
+    lua_pushnumber(L,doc->Depth);
+    num++;
+    switch (doc->LengthUnits)
+    {
+    case LengthMillimeters:
+        lua_pushnumber(L,0.001);
+        break;
+    case LengthCentimeters:
+        lua_pushnumber(L,0.01);
+        break;
+    case LengthMeters:
+        lua_pushnumber(L,1.0);
+        break;
+    case LengthMils:
+        lua_pushnumber(L,2.54e-05);
+        break;
+    case LengthMicrometers:
+        lua_pushnumber(L,1.0e-06);
+        break;
+    case LengthInches:
+    default:// inches
+        lua_pushnumber(L,0.0254);
+        break;
+    }
+    num++;
+    return num;
+}
+
+/**
  * @brief Explicitly calls the mesher.
  * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.

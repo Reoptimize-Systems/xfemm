@@ -105,7 +105,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_getboundingbox", LuaCommonCommands::luaGetBoundingBox);
     li.addFunction("ei_get_material", luaGetMaterialFromLib);
     li.addFunction("ei_getmaterial", luaGetMaterialFromLib);
-    li.addFunction("ei_getprobleminfo", luaGetProblemInfo);
+    li.addFunction("ei_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("ei_get_title", luaGetTitle);
     li.addFunction("ei_gettitle", luaGetTitle);
     li.addFunction("ei_grid_snap", LuaInstance::luaNOP);
@@ -212,8 +212,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_getnode", luaGetMeshNode);
     li.addFunction("eo_get_point_values", luaGetPointVals);
     li.addFunction("eo_getpointvalues", luaGetPointVals);
-    li.addFunction("eo_get_problem_info", luaGetProblemInfo);
-    li.addFunction("eo_getprobleminfo", luaGetProblemInfo);
+    li.addFunction("eo_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
+    li.addFunction("eo_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("eo_get_title", luaGetTitle);
     li.addFunction("eo_gettitle", luaGetTitle);
     li.addFunction("eo_grid_snap", LuaInstance::luaNOP);
@@ -859,25 +859,6 @@ int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetPointVals(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_getprobleminfo}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_getprobleminfo()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaGetProblemInfo(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
