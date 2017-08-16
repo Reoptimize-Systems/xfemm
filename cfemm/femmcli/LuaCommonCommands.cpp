@@ -731,6 +731,37 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedSegments(lua_State *L)
 }
 
 /**
+ * @brief Unset IsDefault for selected block labels.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_detachdefault()}
+ * - \lua{ei_detachdefault()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_detachdefault()}
+ * - \femm42{femm/beladrawLua.cpp,lua_detachdefault()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDetachDefault(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    for (auto &label: doc->labellist)
+    {
+        if (label->IsSelected)
+            label->IsDefault = false;
+    }
+
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0
