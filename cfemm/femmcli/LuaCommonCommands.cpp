@@ -561,6 +561,40 @@ int femmcli::LuaCommonCommands::luaDeleteMaterial(lua_State *L)
 }
 
 /**
+ * @brief Delete the given point property.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_deletepointprop("pointpropname")} deletes the point property named "pointpropname"
+ * - \lua{ei_deletepointprop("pointpropname")} deletes the point property named "pointpropname"
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_delpointprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_delpointprop()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDeletePointProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    std::string propName = lua_tostring(L,1);
+    doc->nodeproplist.erase(
+                std::remove_if(doc->nodeproplist.begin(),doc->nodeproplist.end(),
+                               [&propName](const auto& prop){ return prop->PointName == propName; } ),
+                doc->nodeproplist.end()
+                );
+    doc->nodeproplist.shrink_to_fit();
+    doc->updateNodeMap();
+
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0

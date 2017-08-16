@@ -109,8 +109,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_deleteselectedsegments", luaDeleteSelectedSegments);
     li.addFunction("mi_delete_material", LuaCommonCommands::luaDeleteMaterial);
     li.addFunction("mi_deletematerial", LuaCommonCommands::luaDeleteMaterial);
-    li.addFunction("mi_delete_point_prop", luaDeletePointProperty);
-    li.addFunction("mi_deletepointprop", luaDeletePointProperty);
+    li.addFunction("mi_delete_point_prop", LuaCommonCommands::luaDeletePointProperty);
+    li.addFunction("mi_deletepointprop", LuaCommonCommands::luaDeletePointProperty);
     li.addFunction("mi_detach_default", luaDetachDefault);
     li.addFunction("mi_detachdefault", luaDetachDefault);
     li.addFunction("mi_detach_outer_space", luaDetachOuterSpace);
@@ -1142,38 +1142,6 @@ int femmcli::LuaMagneticsCommands::luaDeleteSelectedSegments(lua_State *L)
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     mesher->DeleteSelectedSegments();
-
-    return 0;
-}
-
-/**
- * @brief Delete the given point property.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_deletepointprop("pointpropname")} deletes the point property named "pointpropname"
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_delpointprop()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaDeletePointProperty(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    std::string propName = lua_tostring(L,1);
-    doc->nodeproplist.erase(
-                std::remove_if(doc->nodeproplist.begin(),doc->nodeproplist.end(),
-                               [&propName](const auto& prop){ return prop->PointName == propName; } ),
-                doc->nodeproplist.end()
-                );
-    doc->nodeproplist.shrink_to_fit();
-    doc->updateNodeMap();
 
     return 0;
 }
