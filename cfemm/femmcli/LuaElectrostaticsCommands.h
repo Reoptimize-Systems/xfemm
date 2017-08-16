@@ -51,7 +51,6 @@ int luaBendContourLine(lua_State *L);
 int luaBlockIntegral(lua_State *L);
 int luaClearBlock(lua_State *L);
 int luaClearContourPoint(lua_State *L);
-int luaDeleteBoundaryProp(lua_State *L);
 int luaDeleteCircuitProp(lua_State *L);
 int luaDeleteMaterial(lua_State *L);
 int luaDeletePointProp(lua_State *L);

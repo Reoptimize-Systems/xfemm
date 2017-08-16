@@ -459,6 +459,40 @@ int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
 }
 
 /**
+ * @brief Delete the given boundary property.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_deleteboundprop("propname")}
+ * - \lua{ei_deleteboundprop("propname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_delboundprop()}
+ * - \femm42{femm/beladrawLua.cpp,lua_delboundprop()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaDeleteBoundaryProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    std::string propName = lua_tostring(L,1);
+    doc->lineproplist.erase(
+                std::remove_if(doc->lineproplist.begin(),doc->lineproplist.end(),
+                               [&propName](const auto& prop){ return prop->BdryName == propName; } ),
+                doc->lineproplist.end()
+                );
+    doc->lineproplist.shrink_to_fit();
+    doc->updateLineMap();
+
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0
