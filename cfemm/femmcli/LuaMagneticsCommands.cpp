@@ -173,8 +173,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_modifypointprop", luaModifyPointProperty);
     li.addFunction("mi_move_rotate", LuaCommonCommands::luaMoveRotate);
     li.addFunction("mi_moverotate", LuaCommonCommands::luaMoveRotate);
-    li.addFunction("mi_move_translate", luaMoveTranslate);
-    li.addFunction("mi_movetranslate", luaMoveTranslate);
+    li.addFunction("mi_move_translate", LuaCommonCommands::luaMoveTranslate);
+    li.addFunction("mi_movetranslate", LuaCommonCommands::luaMoveTranslate);
     li.addFunction("mi_new_document", luaNewDocument);
     li.addFunction("mi_newdocument", luaNewDocument);
     li.addFunction("mo_num_elements", luaNumElements);
@@ -1837,61 +1837,6 @@ int femmcli::LuaMagneticsCommands::luaModifyPointProperty(lua_State *L)
     default:
         break;
     }
-
-    return 0;
-}
-
-/**
- * @brief Translate selected objects by a given vector.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_movetranslate(dx,dy,(editaction))}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_move_translate()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaMoveTranslate(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    int n = lua_gettop(L);
-    if( n<2 || n>3)
-    {
-        lua_error(L,"Invalid number of parameters for move translate!\n");
-        return 0;
-    }
-
-    double x = lua_todouble(L,1);
-    double y = lua_todouble(L,2);
-
-    EditMode editAction;
-    if (n==3) {
-        editAction = intToEditMode((int)lua_todouble(L,3));
-    } else {
-        editAction = mesher->d_EditMode;
-    }
-
-    if (editAction == EditMode::Invalid)
-    {
-        lua_error(L, "mi_movetranslate(): no editmode given and no default edit mode set!\n");
-        return 0;
-    }
-
-    mesher->UpdateUndo();
-    mesher->TranslateMove(x,y,editAction);
-    // Note(ZaJ): shouldn't the invalidation be done by translateMove?
-    doc->invalidateMesh();
-    mesher->meshline.clear();
-    mesher->meshnode.clear();
-    mesher->greymeshline.clear();
 
     return 0;
 }

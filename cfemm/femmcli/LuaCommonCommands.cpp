@@ -1058,6 +1058,63 @@ int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
 }
 
 /**
+ * @brief Translate selected objects by a given vector.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_movetranslate(dx,dy,(editaction))}
+ * - \lua{ei_movetranslate(dx,dy,(editaction))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_move_translate()}
+ * - \femm42{femm/beladrawLua.cpp,lua_move_translate()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if( n<2 || n>3)
+    {
+        lua_error(L,"Invalid number of parameters for move translate!\n");
+        return 0;
+    }
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+
+    EditMode editAction;
+    if (n==3) {
+        editAction = intToEditMode((int)lua_todouble(L,3));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditMode::Invalid)
+    {
+        lua_error(L, "movetranslate(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    mesher->UpdateUndo();
+    mesher->TranslateMove(x,y,editAction);
+    // Note(ZaJ): shouldn't the invalidation be done by translateMove?
+    doc->invalidateMesh();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
+
+    return 0;
+}
+
+/**
  * @brief Explicitly calls the mesher.
  * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
