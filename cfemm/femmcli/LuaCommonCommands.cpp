@@ -1776,6 +1776,116 @@ int femmcli::LuaCommonCommands::luaSelectWithinCircle(lua_State *L)
 }
 
 /**
+ * @brief Select objects within a given rectangle.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_selectrectangle(x1,y1,x2,y2,(editmode))}
+ * - \lua{ei_selectrectangle(x1,y1,x2,y2,(editmode))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectrectangle()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectrectangle()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+    if (n<4)
+        return 0;
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+    double wzx = lua_todouble(L,3);
+    double wzy = lua_todouble(L,4);
+
+    EditMode editAction;
+    if (n>4) {
+        editAction = intToEditMode((int)lua_todouble(L,5));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditMode::Invalid)
+    {
+        lua_error(L, "selectrectangle(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    if (mx<wzx)
+        swap(mx,wzx);
+    if (my<wzy)
+        swap(my,wzy);
+
+    if((editAction==EditMode::EditNodes) || (editAction==EditMode::EditGroup))
+    {
+        for (const auto &node: doc->nodelist)
+        {
+            double x = node->x;
+            double y = node->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy))
+                node->IsSelected = true;
+        }
+    }
+
+    if((editAction==EditMode::EditLabels) || (editAction==EditMode::EditGroup))
+    {
+        for (const auto &label: doc->labellist)
+        {
+            double x = label->x;
+            double y = label->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy))
+                label->IsSelected = true;
+        }
+    }
+    if((editAction==EditMode::EditLines) || (editAction==EditMode::EditGroup))
+    {
+        for (const auto &line: doc->linelist)
+        {
+            int count=0;
+            double x = doc->nodelist[line->n0]->x;
+            double y = doc->nodelist[line->n0]->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy)) count++;
+            x = doc->nodelist[line->n1]->x;
+            y = doc->nodelist[line->n1]->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy)) count++;
+
+            // both endpoints in rectangle?
+            if (count==2)
+                line->IsSelected = true;
+        }
+    }
+
+    if((editAction==EditMode::EditArcs) || (editAction==EditMode::EditGroup))
+    {
+        for (const auto &arc: doc->arclist)
+        {
+            int count=0;
+            double x = doc->nodelist[arc->n0]->x;
+            double y = doc->nodelist[arc->n0]->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy)) count++;
+            x = doc->nodelist[arc->n1]->x;
+            y = doc->nodelist[arc->n1]->y;
+            if((x<=mx) && (x>=wzx) && (y<=my) && (y>=wzy)) count++;
+
+            // both endpoints in rectangle?
+            if (count==2)
+                arc->IsSelected = true;
+        }
+    }
+
+    return 0;
+}
+
+/**
  * @brief Set the default mesher EditMode.
  * @param L
  * @return 0
