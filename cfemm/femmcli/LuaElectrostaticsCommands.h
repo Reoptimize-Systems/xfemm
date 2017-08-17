@@ -68,7 +68,6 @@ int luaNumElements(lua_State *L);
 int luaNumNodes(lua_State *L);
 int luaProblemDefinition(lua_State *L);
 int luaSelectConductor(lua_State *L);
-int luaSelectGroup(lua_State *L);
 int luaSelectOutputBlocklabel(lua_State *L);
 int luaSelectWithinRectangle(lua_State *L);
 int luaSetArcsegmentProperty(lua_State *L);

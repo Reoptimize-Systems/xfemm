@@ -1540,6 +1540,77 @@ int femmcli::LuaCommonCommands::luaSelectBlocklabel(lua_State *L)
 }
 
 /**
+ * @brief Select the given group of nodes, segments, arc segments and blocklabels.
+ * This function will clear all previously selected elements and leave the editmode in 4 (group)
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_selectgroup(n)}
+ * - \lua{ei_selectgroup(n)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectgroup()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectgroup()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSelectGroup(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int group=(int) lua_todouble(L,1);
+
+    if(group<0)
+    {
+        std::string msg = "Invalid group " + std::to_string(group);
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+
+    // Note(ZaJ) this is also disabled in femm42:
+    // doc->UnselectAll();
+
+    // select nodes
+    for (int i=0; i<(int)doc->nodelist.size(); i++)
+    {
+        if(doc->nodelist[i]->InGroup==group)
+            doc->nodelist[i]->IsSelected=true;
+    }
+
+    // select segments
+    for(int i=0; i<(int)doc->linelist.size(); i++)
+    {
+        if(doc->linelist[i]->InGroup==group)
+            doc->linelist[i]->IsSelected=true;
+    }
+
+    // select arc segments
+    for(int i=0; i<(int)doc->arclist.size(); i++)
+    {
+        if(doc->arclist[i]->InGroup==group)
+            doc->arclist[i]->IsSelected=true;
+    }
+
+    // select blocks
+    for(int i=0; i<(int)doc->labellist.size(); i++)
+    {
+        if(doc->labellist[i]->InGroup==group)
+            doc->labellist[i]->IsSelected=true;
+    }
+
+    // set default edit mode
+    mesher->d_EditMode = EditMode::EditGroup;
+
+    return 0;
+}
+
+/**
  * @brief Select the nearest node to given coordinates.
  * Returns the coordinates of the selected node.
  * @param L
