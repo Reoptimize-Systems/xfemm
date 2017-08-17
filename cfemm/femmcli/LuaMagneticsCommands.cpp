@@ -209,7 +209,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_savemetafile", LuaInstance::luaNOP);
     li.addFunction("mo_save_metafile", LuaInstance::luaNOP);
     li.addFunction("mo_savemetafile", LuaInstance::luaNOP);
-    li.addFunction("mi_scale", luaScaleMove);
+    li.addFunction("mi_scale", LuaCommonCommands::luaScaleMove);
     li.addFunction("mi_select_arcsegment", LuaCommonCommands::luaSelectArcsegment);
     li.addFunction("mi_selectarcsegment", LuaCommonCommands::luaSelectArcsegment);
     li.addFunction("mo_select_block", luaSelectOutputBlocklabel);
@@ -2036,58 +2036,6 @@ int femmcli::LuaMagneticsCommands::luaProblemDefinition(lua_State * L)
     {
         magDoc->ACSolver=acSolver;
     }
-    return 0;
-}
-
-/**
- * @brief Scale the selected objects
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_scale(bx,by,scalefactor,(editaction))}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_scale()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaScaleMove(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    int n = lua_gettop(L);
-
-    double x=lua_todouble(L,1);
-    double y=lua_todouble(L,2);
-    double scalefactor=lua_todouble(L,3);
-
-    EditMode editAction;
-    if (n==4) {
-        editAction = intToEditMode((int)lua_todouble(L,4));
-    } else {
-        editAction = mesher->d_EditMode;
-    }
-
-    if (editAction == EditMode::Invalid)
-    {
-        lua_error(L, "mi_scale(): no editmode given and no default edit mode set!\n");
-        return 0;
-    }
-
-    if (n!=4 && n!=3)
-    {
-        lua_error(L, "Invalid number of parameters for scale");
-        return 0;
-    }
-
-
-    mesher->UpdateUndo();
-    mesher->ScaleMove(x,y,scalefactor,editAction);
-
     return 0;
 }
 

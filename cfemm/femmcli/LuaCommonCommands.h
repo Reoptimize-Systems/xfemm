@@ -70,6 +70,7 @@ int luaMoveRotate(lua_State *L);
 int luaMoveTranslate(lua_State *L);
 int luaPurgeMesh(lua_State *L);
 int luaSaveDocument(lua_State *L);
+int luaScaleMove(lua_State *L);
 int luaSelectArcsegment(lua_State *L);
 int luaSelectBlocklabel(lua_State *L);
 int luaSelectNode(lua_State *L);
