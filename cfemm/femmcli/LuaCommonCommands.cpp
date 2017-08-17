@@ -999,6 +999,65 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
 }
 
 /**
+ * @brief Rotate selected objects around a point by a given angle.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_moverotate(bx,by,shiftangle,(editaction))}
+ * - \lua{ei_moverotate(bx,by,shiftangle,(editaction))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_move_rotate()}
+ * - \femm42{femm/beladrawLua.cpp,lua_move_rotate()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n;
+    n=lua_gettop(L);
+
+    if(n!=4 && n!=3)
+    {
+        lua_error(L,"Invalid number of parameters for move rotate!\n");
+        return 0;
+    }
+
+    double x = lua_todouble(L,1);
+    double y = lua_todouble(L,2);
+    double shiftangle = lua_todouble(L,3);
+
+    EditMode editAction;
+    if (n==4) {
+        editAction = intToEditMode((int)lua_todouble(L,4));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+    if (editAction == EditMode::Invalid)
+    {
+            lua_error(L, "moverotate(): Invalid value of editaction!\n");
+            return 0;
+    }
+
+    mesher->UpdateUndo();
+    mesher->RotateMove(CComplex(x,y),shiftangle,editAction);
+    // Note(ZaJ): shouldn't the invalidation be done by translateMove?
+    doc->invalidateMesh();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
+
+    return 0;
+}
+
+/**
  * @brief Explicitly calls the mesher.
  * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
