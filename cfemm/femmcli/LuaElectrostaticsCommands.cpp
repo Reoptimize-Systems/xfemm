@@ -133,8 +133,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_newdocument", luaNewDocument);
     li.addFunction("ei_prob_def", luaProblemDefinition);
     li.addFunction("ei_probdef", luaProblemDefinition);
-    li.addFunction("ei_purge_mesh", luaPurgeMesh);
-    li.addFunction("ei_purgemesh", luaPurgeMesh);
+    li.addFunction("ei_purge_mesh", LuaCommonCommands::luaPurgeMesh);
+    li.addFunction("ei_purgemesh", LuaCommonCommands::luaPurgeMesh);
     li.addFunction("ei_read_dxf", LuaInstance::luaNOP);
     li.addFunction("ei_readdxf", LuaInstance::luaNOP);
     li.addFunction("ei_refresh_view", LuaInstance::luaNOP);
@@ -1284,25 +1284,6 @@ int femmcli::LuaElectrostaticsCommands::luaProblemDefinition(lua_State *L)
 }
 
 
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_purge_mesh}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_purge_mesh()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaPurgeMesh(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
 
 /**
  * @brief FIXME not implemented
