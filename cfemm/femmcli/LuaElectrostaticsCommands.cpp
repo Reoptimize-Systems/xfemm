@@ -149,7 +149,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_savedxf", LuaInstance::luaNOP);
     li.addFunction("ei_save_metafile", LuaInstance::luaNOP);
     li.addFunction("ei_savemetafile", LuaInstance::luaNOP);
-    li.addFunction("ei_scale", luaScaleMove);
+    li.addFunction("ei_scale", LuaCommonCommands::luaScaleMove);
     li.addFunction("ei_select_arcsegment", LuaCommonCommands::luaSelectArcsegment);
     li.addFunction("ei_selectarcsegment", LuaCommonCommands::luaSelectArcsegment);
     li.addFunction("ei_select_circle", luaSelectWithinCircle);
@@ -1284,25 +1284,6 @@ int femmcli::LuaElectrostaticsCommands::luaProblemDefinition(lua_State *L)
 }
 
 
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_scale}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_scale()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaScaleMove(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
 
 /**
  * @brief FIXME not implemented

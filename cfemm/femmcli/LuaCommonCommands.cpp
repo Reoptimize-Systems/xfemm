@@ -1407,6 +1407,60 @@ int femmcli::LuaCommonCommands::luaSaveDocument(lua_State *L)
 }
 
 /**
+ * @brief Scale the selected objects
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_scale(bx,by,scalefactor,(editaction))}
+ * - \lua{ei_scale(bx,by,scalefactor,(editaction))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_scale()}
+ * - \femm42{femm/beladrawLua.cpp,lua_scale()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n = lua_gettop(L);
+
+    double x=lua_todouble(L,1);
+    double y=lua_todouble(L,2);
+    double scalefactor=lua_todouble(L,3);
+
+    EditMode editAction;
+    if (n==4) {
+        editAction = intToEditMode((int)lua_todouble(L,4));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditMode::Invalid)
+    {
+        lua_error(L, "scale(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    if (n!=4 && n!=3)
+    {
+        lua_error(L, "Invalid number of parameters for scale");
+        return 0;
+    }
+
+
+    mesher->UpdateUndo();
+    mesher->ScaleMove(x,y,scalefactor,editAction);
+
+    return 0;
+}
+
+/**
  * @brief Select an arc segment near a given point.
  * @param L
  * @return 4 on success, 0 otherwise
