@@ -154,8 +154,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_selectarcsegment", LuaCommonCommands::luaSelectArcsegment);
     li.addFunction("ei_select_circle", LuaCommonCommands::luaSelectWithinCircle);
     li.addFunction("ei_selectcircle", LuaCommonCommands::luaSelectWithinCircle);
-    li.addFunction("ei_select_group", luaSelectGroup);
-    li.addFunction("ei_selectgroup", luaSelectGroup);
+    li.addFunction("ei_select_group", LuaCommonCommands::luaSelectGroup);
+    li.addFunction("ei_selectgroup", LuaCommonCommands::luaSelectGroup);
     li.addFunction("ei_select_label", LuaCommonCommands::luaSelectBlocklabel);
     li.addFunction("ei_selectlabel", LuaCommonCommands::luaSelectBlocklabel);
     li.addFunction("ei_select_node", LuaCommonCommands::luaSelectNode);
@@ -1319,25 +1319,6 @@ int femmcli::LuaElectrostaticsCommands::luaSelectOutputBlocklabel(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_select_group}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_selectgroup()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaSelectGroup(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
