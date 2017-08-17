@@ -1093,14 +1093,14 @@ int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProperty(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a point property.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_modify_point_prop}
+ * - \lua{ei_modifypointprop("PointName",propnum,value)}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_modpointprop()}
@@ -1108,7 +1108,42 @@ int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProperty(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaModifyPointProperty(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    // find the index of the material to modify;
+    std::string PointName = lua_tostring(L,1);
+    CSPointProp *p = nullptr;
+    for (const auto &prop:doc->nodeproplist)
+    {
+        if (PointName==prop->PointName) {
+            p = dynamic_cast<CSPointProp*>(prop.get());
+            break;
+        }
+    }
+    // get out of here if there's no matching material
+    if (p==nullptr)
+        return 0;
+
+    int modprop=(int) lua_todouble(L,2);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+        p->PointName = lua_tostring(L,3);
+        break;
+    case 1:
+        p->V = lua_todouble(L,3);
+        break;
+    case 2:
+        p->qp = lua_todouble(L,3);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
 /**
