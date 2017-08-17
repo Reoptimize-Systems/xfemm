@@ -1147,14 +1147,14 @@ int femmcli::LuaElectrostaticsCommands::luaModifyPointProperty(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Create a new magnetics document.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_new_document}
+ * - \lua{ei_newdocument()}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_newdocument()}
@@ -1162,7 +1162,9 @@ int femmcli::LuaElectrostaticsCommands::luaModifyPointProperty(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaNewDocument(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
+    femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::ElectrostaticsFile));
+    return 0;
 }
 
 /**
