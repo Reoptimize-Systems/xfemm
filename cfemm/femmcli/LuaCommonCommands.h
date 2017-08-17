@@ -65,6 +65,7 @@ int luaGetBoundingBox(lua_State *L);
 int luaGetProblemInfo(lua_State *L);
 int luaGetTitle(lua_State *L);
 int luaMirrorCopy(lua_State *L);
+int luaMoveRotate(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaSelectArcsegment(lua_State *L);
 int luaSelectBlocklabel(lua_State *L);

@@ -171,8 +171,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_modifymaterial", luaModifyMaterialProperty);
     li.addFunction("mi_modify_point_prop", luaModifyPointProperty);
     li.addFunction("mi_modifypointprop", luaModifyPointProperty);
-    li.addFunction("mi_move_rotate", luaMoveRotate);
-    li.addFunction("mi_moverotate", luaMoveRotate);
+    li.addFunction("mi_move_rotate", LuaCommonCommands::luaMoveRotate);
+    li.addFunction("mi_moverotate", LuaCommonCommands::luaMoveRotate);
     li.addFunction("mi_move_translate", luaMoveTranslate);
     li.addFunction("mi_movetranslate", luaMoveTranslate);
     li.addFunction("mi_new_document", luaNewDocument);
@@ -1837,63 +1837,6 @@ int femmcli::LuaMagneticsCommands::luaModifyPointProperty(lua_State *L)
     default:
         break;
     }
-
-    return 0;
-}
-
-/**
- * @brief Rotate selected objects around a point by a given angle.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_moverotate(bx,by,shiftangle,(editaction))}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_move_rotate()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaMoveRotate(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-
-    int n;
-    n=lua_gettop(L);
-
-    if(n!=4 && n!=3)
-    {
-        lua_error(L,"Invalid number of parameters for move rotate!\n");
-        return 0;
-    }
-
-    double x = lua_todouble(L,1);
-    double y = lua_todouble(L,2);
-    double shiftangle = lua_todouble(L,3);
-
-    EditMode editAction;
-    if (n==4) {
-        editAction = intToEditMode((int)lua_todouble(L,4));
-    } else {
-        editAction = mesher->d_EditMode;
-    }
-    if (editAction == EditMode::Invalid)
-    {
-            lua_error(L, "mi_moverotate(): Invalid value of editaction!\n");
-            return 0;
-    }
-
-    mesher->UpdateUndo();
-    mesher->RotateMove(CComplex(x,y),shiftangle,editAction);
-    // Note(ZaJ): shouldn't the invalidation be done by translateMove?
-    doc->invalidateMesh();
-    mesher->meshline.clear();
-    mesher->meshnode.clear();
-    mesher->greymeshline.clear();
 
     return 0;
 }
