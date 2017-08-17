@@ -1034,14 +1034,14 @@ int femmcli::LuaElectrostaticsCommands::luaModifyConductorProperty(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a material.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{ei_modify_material}
+ * - \lua{ei_modifymaterial("BlockName",propnum,value)}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_modmatprop()}
@@ -1049,7 +1049,47 @@ int femmcli::LuaElectrostaticsCommands::luaModifyConductorProperty(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProperty(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    // find the index of the material to modify;
+    std::string BlockName = lua_tostring(L,1);
+    CSMaterialProp *m = nullptr;
+    for (auto &prop: doc->blockproplist)
+    {
+        if (BlockName==prop->BlockName) {
+            m = dynamic_cast<CSMaterialProp*>(prop.get());
+            break;
+        }
+    }
+
+    // get out of here if there's no matching material
+    if (m==nullptr)
+        return 0;
+
+    int modprop=(int) lua_todouble(L,2);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+        m->BlockName = lua_tostring(L,3);
+        doc->updateBlockMap();
+        break;
+    case 1:
+        m->ex = lua_todouble(L,3);
+        break;
+    case 2:
+        m->ey = lua_todouble(L,3);
+        break;
+    case 3:
+        m->qv = lua_todouble(L,3);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
 /**
