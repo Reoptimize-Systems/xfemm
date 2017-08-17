@@ -1617,6 +1617,94 @@ int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
 }
 
 /**
+ * @brief Select objects in a given radius around a point.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_selectcircle(x,y,R,(editmode))}
+ * - \lua{ei_selectcircle(x,y,R,(editmode))}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_selectcircle()}
+ * - \femm42{femm/beladrawLua.cpp,lua_selectcircle()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSelectWithinCircle(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    int n=lua_gettop(L);
+    if (n<3)
+        return 0;
+
+    CComplex c=lua_tonumber(L,1)+I*lua_tonumber(L,2);
+    double R=lua_todouble(L,3);
+
+    EditMode editAction;
+    if (n>3) {
+        editAction = intToEditMode((int)lua_todouble(L,4));
+    } else {
+        editAction = mesher->d_EditMode;
+    }
+
+    if (editAction == EditMode::Invalid)
+    {
+        lua_error(L, "selectcircle(): no editmode given and no default edit mode set!\n");
+        return 0;
+    }
+
+    if((editAction==EditMode::EditNodes) || (editAction==EditMode::EditGroup))
+    {
+        for (auto &node: doc->nodelist)
+        {
+            CComplex q = node->CC();
+            if (abs(q-c)<=R)
+                node->IsSelected = true;
+        }
+    }
+
+    if((editAction==EditMode::EditLabels) || (editAction==EditMode::EditGroup))
+    {
+        for (auto &label: doc->labellist)
+        {
+            CComplex q (label->x,label->y);
+            if (abs(q-c)<=R)
+                label->IsSelected = true;
+        }
+    }
+    if((editAction==EditMode::EditLines) || (editAction==EditMode::EditGroup))
+    {
+        for (auto &line: doc->linelist)
+        {
+            CComplex q0 = doc->nodelist[line->n0]->CC();
+            CComplex q1 = doc->nodelist[line->n1]->CC();
+
+            if (abs(q0-c)<=R && abs(q1-c)<=R)
+                line->IsSelected = true;
+        }
+    }
+
+    if((editAction==EditMode::EditArcs) || (editAction==EditMode::EditGroup))
+    {
+        for (auto &arc: doc->arclist)
+        {
+            CComplex q0 = doc->nodelist[arc->n0]->CC();
+            CComplex q1 = doc->nodelist[arc->n1]->CC();
+
+            if (abs(q0-c)<=R && abs(q1-c)<=R)
+                arc->IsSelected = true;
+        }
+    }
+    return 0;
+}
+
+/**
  * @brief Set the default mesher EditMode.
  * @param L
  * @return 0
