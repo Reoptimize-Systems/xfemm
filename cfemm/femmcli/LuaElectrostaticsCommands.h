@@ -59,7 +59,6 @@ int luaGetMeshNode(lua_State *L);
 int luaGetPointValues(lua_State *L);
 int luaGroupSelectBlock(lua_State *L);
 int luaLineIntegral(lua_State *L);
-int luaLoadSolution(lua_State *L);
 int luaModifyBoundaryProperty(lua_State *L);
 int luaModifyConductorProperty(lua_State *L);
 int luaModifyMaterialProperty(lua_State *L);

@@ -70,7 +70,6 @@ int luaNewDocument(lua_State *L);
 int luaNumElements(lua_State *L);
 int luaNumNodes(lua_State *L);
 int luaProblemDefinition(lua_State *L);
-int luaLoadSolution(lua_State *L);
 int luaScaleMove(lua_State *L);
 int luaSelectOutputBlocklabel(lua_State *L);
 int luaSelectWithinCircle(lua_State *L);
