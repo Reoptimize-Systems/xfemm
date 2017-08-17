@@ -1115,6 +1115,37 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
 }
 
 /**
+ * @brief Clear mesh data.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_purgemesh()} clears the mesh out of both the screen and memory.
+ * - \lua{ei_purgemesh()} clears the mesh out of both the screen and memory.
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_purge_mesh()}
+ * - \femm42{femm/beladrawLua.cpp,lua_purge_mesh()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaPurgeMesh(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+
+    doc->invalidateMesh();
+    mesher->meshline.clear();
+    mesher->meshnode.clear();
+    mesher->greymeshline.clear();
+
+    return 0;
+}
+
+/**
  * @brief Explicitly calls the mesher.
  * As a side-effect, this method calls FMesher::LoadMesh() to count the number of mesh nodes.
  * This means that the memory consumption will be a little bit higher as when only luaAnalyze is called.
