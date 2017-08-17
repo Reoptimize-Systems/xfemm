@@ -19,6 +19,8 @@
 #ifndef LIBFEMM_ENUMS_H
 #define LIBFEMM_ENUMS_H
 
+#include <string>
+
 namespace femm {
 
 /**
@@ -61,6 +63,47 @@ inline EditMode intToEditMode(int m)
  * @brief The FileType enum determines how the problem description is written to disc.
  */
 enum class FileType { Unknown, MagneticsFile, HeatFlowFile, CurrentFlowFile, ElectrostaticsFile };
+
+/**
+ * @brief extensionForFileType maps the file type to the extension of the corresponding problem file.
+ * @param t
+ * @return the file suffix for the given file type (including a leading '.'), or an empty string for Unknown file type
+ */
+inline std::string extensionForFileType(FileType t)
+{
+    switch (t) {
+    case FileType::MagneticsFile:
+        return ".fem";
+    case FileType::HeatFlowFile:
+        return ".feh";
+    case FileType::CurrentFlowFile:
+        return ".fec";
+    case FileType::ElectrostaticsFile:
+        return ".fee";
+    default:
+        return std::string();
+    }
+}
+/**
+ * @brief outputExtensionForFileType maps the file type to the extension of the corresponding solution file.
+ * @param t
+ * @return the file suffix for the given file type (including a leading '.'), or an empty string for Unknown file type
+ */
+inline std::string outputExtensionForFileType(FileType t)
+{
+    switch (t) {
+    case FileType::MagneticsFile:
+        return ".ans";
+    case FileType::HeatFlowFile:
+        return ".anh";
+    case FileType::CurrentFlowFile:
+        return ".anc";
+    case FileType::ElectrostaticsFile:
+        return ".res";
+    default:
+        return std::string();
+    }
+}
 }
 
 #endif

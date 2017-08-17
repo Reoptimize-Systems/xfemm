@@ -112,8 +112,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_gridsnap", LuaInstance::luaNOP);
     li.addFunction("ei_hide_grid", LuaInstance::luaNOP);
     li.addFunction("ei_hidegrid", LuaInstance::luaNOP);
-    li.addFunction("ei_load_solution", luaLoadSolution);
-    li.addFunction("ei_loadsolution", luaLoadSolution);
+    li.addFunction("ei_load_solution", LuaCommonCommands::luaLoadSolution);
+    li.addFunction("ei_loadsolution", LuaCommonCommands::luaLoadSolution);
     li.addFunction("ei_maximize", LuaInstance::luaNOP);
     li.addFunction("ei_minimize", LuaInstance::luaNOP);
     li.addFunction("ei_mirror", LuaCommonCommands::luaMirrorCopy);
@@ -242,7 +242,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_numnodes", luaNumNodes);
     li.addFunction("eo_refresh_view", LuaInstance::luaNOP);
     li.addFunction("eo_refreshview", LuaInstance::luaNOP);
-    li.addFunction("eo_reload", luaLoadSolution);
+    li.addFunction("eo_reload", LuaCommonCommands::luaLoadSolution);
     li.addFunction("eo_resize", LuaInstance::luaNOP);
     li.addFunction("eo_restore", LuaInstance::luaNOP);
     li.addFunction("eo_save_bitmap", LuaInstance::luaNOP);
@@ -1284,25 +1284,6 @@ int femmcli::LuaElectrostaticsCommands::luaProblemDefinition(lua_State *L)
 }
 
 
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_load_solution}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_runpost()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaLoadSolution(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
 
 /**
  * @brief FIXME not implemented

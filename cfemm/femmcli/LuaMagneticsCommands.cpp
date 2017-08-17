@@ -190,13 +190,13 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_readdxf", LuaInstance::luaNOP);
     li.addFunction("mo_refresh_view", LuaInstance::luaNOP);
     li.addFunction("mo_refreshview", LuaInstance::luaNOP);
-    li.addFunction("mo_reload", luaLoadSolution);
+    li.addFunction("mo_reload", LuaCommonCommands::luaLoadSolution);
     li.addFunction("mi_resize", LuaInstance::luaNOP);
     li.addFunction("mo_resize", LuaInstance::luaNOP);
     li.addFunction("mi_restore", LuaInstance::luaNOP);
     li.addFunction("mo_restore", LuaInstance::luaNOP);
-    li.addFunction("mi_load_solution", luaLoadSolution);
-    li.addFunction("mi_loadsolution", luaLoadSolution);
+    li.addFunction("mi_load_solution", LuaCommonCommands::luaLoadSolution);
+    li.addFunction("mi_loadsolution", LuaCommonCommands::luaLoadSolution);
     li.addFunction("mi_save_bitmap", LuaInstance::luaNOP);
     li.addFunction("mi_savebitmap", LuaInstance::luaNOP);
     li.addFunction("mo_save_bitmap", LuaInstance::luaNOP);
@@ -2035,48 +2035,6 @@ int femmcli::LuaMagneticsCommands::luaProblemDefinition(lua_State * L)
     if ((acSolver==0) || (acSolver==1))
     {
         magDoc->ACSolver=acSolver;
-    }
-    return 0;
-}
-
-/**
- * @brief Load the solution and run the postprocessor on it.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_loadsolution()}
- * - \lua{mo_reload()}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_runpost()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaLoadSolution(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    if (doc->pathName.empty())
-    {
-        lua_error(L,"No results to display");
-        return 0;
-    }
-
-    std::size_t dotpos = doc->pathName.find_last_of(".");
-    std::string solutionFile = doc->pathName.substr(0,dotpos);
-    solutionFile += ".ans";
-
-    femmState->invalidateSolutionData();
-    auto fpproc = femmState->getFPProc();
-    if (!fpproc->OpenDocument(solutionFile))
-    {
-        std::string msg = "mi_loadsolution(): error while loading solution file:\n";
-        msg += solutionFile;
-        lua_error(L, msg.c_str());
     }
     return 0;
 }

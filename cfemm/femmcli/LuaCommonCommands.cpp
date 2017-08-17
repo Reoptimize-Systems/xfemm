@@ -945,6 +945,51 @@ int femmcli::LuaCommonCommands::luaGetTitle(lua_State *L)
 }
 
 /**
+ * @brief Load the solution and run the postprocessor on it.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_loadsolution()}
+ * - \lua{mo_reload()}
+ * - \lua{ei_loadsolution()}
+ * - \lua{eo_reload()}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_runpost()}
+ * - \femm42{femm/beladrawLua.cpp,lua_runpost()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaLoadSolution(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    if (doc->pathName.empty())
+    {
+        lua_error(L,"No results to display");
+        return 0;
+    }
+
+    std::size_t dotpos = doc->pathName.find_last_of(".");
+    std::string solutionFile = doc->pathName.substr(0,dotpos);
+    solutionFile += femm::outputExtensionForFileType(doc->filetype);
+
+    femmState->invalidateSolutionData();
+    auto fpproc = femmState->getFPProc();
+    if (!fpproc->OpenDocument(solutionFile))
+    {
+        std::string msg = "loadsolution(): error while loading solution file:\n";
+        msg += solutionFile;
+        lua_error(L, msg.c_str());
+    }
+    return 0;
+}
+
+/**
  * @brief Mirror a copy of the selected objects about a line.
  * @param L
  * @return 0
