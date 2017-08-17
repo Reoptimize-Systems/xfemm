@@ -127,8 +127,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_modifypointprop", luaModifyPointProperty);
     li.addFunction("ei_move_rotate", LuaCommonCommands::luaMoveRotate);
     li.addFunction("ei_moverotate", LuaCommonCommands::luaMoveRotate);
-    li.addFunction("ei_move_translate", luaMoveTranslate);
-    li.addFunction("ei_movetranslate", luaMoveTranslate);
+    li.addFunction("ei_move_translate", LuaCommonCommands::luaMoveTranslate);
+    li.addFunction("ei_movetranslate", LuaCommonCommands::luaMoveTranslate);
     li.addFunction("ei_new_document", luaNewDocument);
     li.addFunction("ei_newdocument", luaNewDocument);
     li.addFunction("ei_prob_def", luaProblemDefinition);
@@ -1144,25 +1144,6 @@ int femmcli::LuaElectrostaticsCommands::luaModifyPointProperty(lua_State *L)
     }
 
     return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_move_translate}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_move_translate()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaMoveTranslate(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
 }
 
 /**

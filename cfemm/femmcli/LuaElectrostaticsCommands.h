@@ -64,7 +64,6 @@ int luaModifyBoundaryProperty(lua_State *L);
 int luaModifyConductorProperty(lua_State *L);
 int luaModifyMaterialProperty(lua_State *L);
 int luaModifyPointProperty(lua_State *L);
-int luaMoveTranslate(lua_State *L);
 int luaNewDocument(lua_State *L);
 int luaNumElements(lua_State *L);
 int luaNumNodes(lua_State *L);
