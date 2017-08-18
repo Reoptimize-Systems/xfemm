@@ -18,7 +18,6 @@
 
 #include "LuaCommonCommands.h"
 
-#include "CPointVals.h"
 #include "femmenums.h"
 #include "FemmState.h"
 #include "LuaInstance.h"

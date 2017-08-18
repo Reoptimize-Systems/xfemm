@@ -12,6 +12,7 @@ include_directories(../libfemm)
 
 add_library(hpproc STATIC 
   hpproc.cpp    
+  CHPointVals.cpp
   )
 target_link_libraries(hpproc femm)
 

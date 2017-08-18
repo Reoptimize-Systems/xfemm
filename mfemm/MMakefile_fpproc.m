@@ -61,11 +61,11 @@ function [rules,vars] = MMakefile_fpproc (varargin)
       '../cfemm/libfemm/CMeshNode.${OBJ_EXT}', ...
       '../cfemm/libfemm/CNode.${OBJ_EXT}', ...
       '../cfemm/libfemm/CPointProp.${OBJ_EXT}', ...
-      '../cfemm/libfemm/CPointVals.${OBJ_EXT}', ...
       '../cfemm/libfemm/CSegment.${OBJ_EXT}', ...
       ... % fpproc
       '../cfemm/fpproc/fpproc.${OBJ_EXT}', ... 
       '../cfemm/fpproc/makemask.${OBJ_EXT}', ... 
+      '../cfemm/fpproc/CMPointVals.${OBJ_EXT}', ...
       'postproc/fpproc_interface.${OBJ_EXT}', ...
       ... % mexfunction
       'postproc/fpproc_interface_mex.${OBJ_EXT}' };
@@ -175,6 +175,43 @@ function [rules,vars] = MMakefile_fpproc (varargin)
     rules(end+1).target = '../cfemm/libfemm/spars.${OBJ_EXT}';
     rules(end).deps = '../cfemm/libfemm/spars.h';
 
+	 rules(end+1).target = '../cfemm/libfemm/CArcSegment.${OBJ_EXT}';
+	 rules(end).deps = '../cfemm/libfemm/CArcSegment.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CBlockLabel.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CBlockLabel.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CBoundaryProp.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CBoundaryProp.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CCircuit.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CCircuit.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CElement.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CElement.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CMaterialProp.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CMaterialProp.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CMeshNode.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CMeshNode.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CNode.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CNode.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CPointProp.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CPointProp.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CSegment.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CSegment.h';
+
+    rules(end+1).target = '../cfemm/fpproc/fpproc.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/fpproc/fpproc.h';
+
+    rules(end+1).target = '../cfemm/fpproc/makemask.${OBJ_EXT}';
+
+    rules(end+1).target = '../cfemm/fpproc/CMPointVals.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/fpproc/CMPointVals.h';
 
     rules(end+1).target = 'postproc/fpproc_interface.${OBJ_EXT}';
     rules(end).deps = 'postproc/fpproc_interface.h';

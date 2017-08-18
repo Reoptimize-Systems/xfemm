@@ -15,7 +15,6 @@
 
 
 using namespace std;
-using femm::CMPointVals;
 
 void FPProcInterfaceWarning(const char* warningmsg)
 {

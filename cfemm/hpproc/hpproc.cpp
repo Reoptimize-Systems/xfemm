@@ -1473,14 +1473,6 @@ bool HPProc::InTriangleTest(double x, double y, int i)
 	return InFlag;
 }
 
-CHPointVals::CHPointVals()
-{
-	T=0;	// vector potential
-	F=0;	// flux density
-	K=0;	// permittivity
-	G=0;	// field intensity
-}
-
 CComplex HPProc::Ctr(int i)
 {
 	CComplex p,c;

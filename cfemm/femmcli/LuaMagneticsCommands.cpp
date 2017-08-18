@@ -19,7 +19,7 @@
 #include "LuaMagneticsCommands.h"
 #include "LuaCommonCommands.h"
 
-#include "CPointVals.h"
+#include "CMPointVals.h"
 #include "femmenums.h"
 #include "FemmState.h"
 #include "fpproc.h"

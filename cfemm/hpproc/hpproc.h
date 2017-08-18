@@ -27,7 +27,11 @@
 // hpproc.h : interface of the HPProc class
 //
 /////////////////////////////////////////////////////////////////////////////
-#include <vector>
+#ifndef HPPROC_H_INCLUDED
+#define HPPROC_H_INCLUDED
+
+#include "CHPointVals.h"
+
 #include "femmcomplex.h"
 #include "fparse.h"
 #include "CArcSegment.h"
@@ -39,11 +43,9 @@
 #include "CMeshNode.h"
 #include "CNode.h"
 #include "CPointProp.h"
-#include "CPointVals.h"
 #include "CSegment.h"
 
-#ifndef HPPROC_H_INCLUDED
-#define HPPROC_H_INCLUDED
+#include <vector>
 
 class HPProc
 {
@@ -104,8 +106,8 @@ public:
 	// member functions
 	int InTriangle(double x, double y);
 	bool InTriangleTest(double x, double y, int i);
-    bool GetPointValues(double x, double y, femm::CHPointVals &u);
-    bool GetPointValues(double x, double y, int k, femm::CHPointVals &u);
+    bool GetPointValues(double x, double y, CHPointVals &u);
+    bool GetPointValues(double x, double y, int k, CHPointVals &u);
 	//void GetLineValues(CXYPlot &p, int PlotType, int npoints);
 	void GetElementD(int k);
 	void OnReload();

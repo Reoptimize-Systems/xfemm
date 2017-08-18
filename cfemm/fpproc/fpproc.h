@@ -4,7 +4,8 @@
 #ifndef FPPROC_H
 #define FPPROC_H
 
-#include <vector>
+#include "CMPointVals.h"
+
 #include "lua.h"
 #include "luadebug.h"
 #include "femmcomplex.h"
@@ -18,8 +19,9 @@
 #include "CMeshNode.h"
 #include "CNode.h"
 #include "CPointProp.h"
-#include "CPointVals.h"
 #include "CSegment.h"
+
+#include <vector>
 
 // extern CFemmApp theApp; //<DP>
 
@@ -111,8 +113,8 @@ public:
     // member functions
     int InTriangle(double x, double y);
     bool InTriangleTest(double x, double y, int i);
-    bool GetPointValues(double x, double y, femm::CMPointVals &u);
-    bool GetPointValues(double x, double y, int k, femm::CMPointVals &u);
+    bool GetPointValues(double x, double y, CMPointVals &u);
+    bool GetPointValues(double x, double y, int k, CMPointVals &u);
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
     void GetElementB(femmsolver::CMElement &elm);
     void FindBoundaryEdges();

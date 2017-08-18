@@ -13,6 +13,7 @@ include_directories(../libfemm)
 add_library(fpproc STATIC 
   fpproc.cpp    
   makemask.cpp
+  CMPointVals.cpp
   )
 target_link_libraries(fpproc femm)
 

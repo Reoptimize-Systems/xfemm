@@ -23,7 +23,6 @@ add_library(femm
   CMeshNode.cpp
   CNode.cpp
   CPointProp.cpp
-  CPointVals.cpp
   CSegment.cpp
   cspars.cpp
   cuthill.cpp

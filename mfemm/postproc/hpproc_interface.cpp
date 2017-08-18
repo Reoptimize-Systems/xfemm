@@ -147,7 +147,7 @@ int HPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     for(int i=0; i<(int)mxrows; i++)
     {
-		 femm::CHPointVals u;
+		 CHPointVals u;
 
         if(theHPProc.GetPointValues(px[i], py[i], u)==true)
         {
