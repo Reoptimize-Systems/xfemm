@@ -1,34 +1,18 @@
 // fpproc.cpp : implementation of the FPProc class
 //
 
-// #include "stdafx.h"
-// #include <afx.h>
-// #include <afxtempl.h>
 #include <cstdlib>
 #include <string>
 #include <cstring>
 #include <cstdio>
 #include <cmath>
-// include the boost format lib to get nicer string handling capabilies
-//#include "boost/format.hpp"
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "fparse.h"
-//#include "femm.h"
-//#include "xyplot.h"
-//#include "femmviewView.h"
 #include "lua.h"
 #include "lualib.h"
 #include "fpproc.h"
 
-
-//#ifndef PLANAR
-//#define PLANAR 0
-//#endif
-//
-//#ifndef AXISYMMETRIC
-//#define AXISYMMETRIC 1
-//#endif
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -40,21 +24,6 @@
   #define SNPRINTF _snprintf
 #endif
 #endif
-
-extern lua_State * lua;
-extern void *pFemmviewdoc;
-//extern CLuaConsoleDlg *LuaConsole;
-extern bool bLinehook;
-
-extern void lua_baselibopen (lua_State *L);
-extern void lua_iolibopen (lua_State *L);
-extern void lua_strlibopen (lua_State *L);
-extern void lua_mathlibopen (lua_State *L);
-extern void lua_dblibopen (lua_State *L);
-
-// char *ParseDbl(char *t, double *f);
-// char *ParseString(char *t, CString *s);
-// char *ParseInt(char *t, int *f);
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -71,12 +40,6 @@ double sqr(double x)
 {
     return x*x;
 }
-
-// Replacement function for windows MFC function AfxMessageBox
-//void FPProc::MsgBox(const char* message)
-//{
-//    printf(message);
-//}
 
 /**
  * Constuctor for the FPProc class.
