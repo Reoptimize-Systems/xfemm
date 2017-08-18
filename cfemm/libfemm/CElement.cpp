@@ -1,7 +1,5 @@
 #include "CElement.h"
 
-// currently empty
-
 femmsolver::CElement::CElement()
     : p{0,0,0}
     , e{0,0,0}
@@ -30,5 +28,12 @@ femmsolver::CMElement::CMElement()
 }
 
 femmsolver::CMElement::~CMElement()
+{
+}
+
+femmsolver::CHElement::CHElement()
+    : CElement()
+    , D(0)
+    , d{0,0,0}
 {
 }

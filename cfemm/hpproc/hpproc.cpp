@@ -242,7 +242,7 @@ bool HPProc::OpenDocument(string pathname)
     CNode		node;
     CSegment	segm;
     CArcSegment asegm;
-	CElement	elm;
+	femmsolver::CHElement	elm;
     CHBlockLabel blk;
     femmsolver::CHMeshNode	mnode;
 	//CPoint		mline;
@@ -1018,7 +1018,7 @@ bool HPProc::GetPointValues(double x, double y, int k, CHPointVals &u)
     return true;
 }
 
-void HPProc::GetPointD(double x, double y, CComplex &D, CElement &elm)
+void HPProc::GetPointD(double x, double y, CComplex &D, femmsolver::CHElement &elm)
 {
 	// elm is a reference to the element that contains the point of interest.
 	int i,n[3];
@@ -1510,7 +1510,7 @@ double HPProc::ElmArea(int i)
 
 }
 
-double HPProc::ElmArea(CElement *elm)
+double HPProc::ElmArea(femmsolver::CHElement *elm)
 {
 	int j,n[3];
 	double b0,b1,c0,c1;

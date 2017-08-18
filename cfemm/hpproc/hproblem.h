@@ -80,21 +80,6 @@ class CCircuit
 
 };
 
-class CElement
-{
-	public:
-
-		int p[3];
-		int blk,lbl;
-		CComplex D;		// elemental flux density
-		CComplex d[3];  // smoothed flux density at corners
-		CComplex ctr;
-		double rsqr;
-		int n[3];  // Add 3 ints to store elem's neigh.
-
-	private:
-};
-
 class CHPointVals
 {
 	public:

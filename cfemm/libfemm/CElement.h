@@ -56,5 +56,16 @@ public:
     double magdir;
 };
 
+class CHElement : public CElement
+{
+public:
+    CHElement();
+
+    CComplex D;		// elemental flux density
+    CComplex d[3];  // smoothed flux density at corners
+
+private:
+};
+
 }
 #endif
