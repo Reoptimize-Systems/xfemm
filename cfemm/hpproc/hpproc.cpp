@@ -238,7 +238,7 @@ bool HPProc::OpenDocument(string pathname)
     CHPointProp	  PProp;
     CHBoundaryProp BProp;
     CHMaterialProp MProp;
-	CCircuit      CProp;
+    CHConductor    CProp;
     CNode		node;
     CSegment	segm;
     CArcSegment asegm;
