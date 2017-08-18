@@ -30,7 +30,6 @@
 #include "spars.h"
 #include "CBoundaryProp.h"
 #include "CCommonPoint.h"
-#include "CElement.h"
 
 #include <string>
 #include <vector>
@@ -52,19 +51,21 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
 class FEASolver
 {
 
 // Attributes
 public:
-    using FEASolver_type = FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>;
+    using FEASolver_type = FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>;
     using PointProp_type = PointPropT;
     using BoundaryProp_type = BoundaryPropT;
     using BlockProp_type = BlockPropT;
     using CircuitProp_type = CircuitPropT;
     using BlockLabel_type = BlockLabelT;
     using Node_type = NodeT;
+    using MeshElement_type = MeshElementT;
 
     FEASolver();
     virtual ~FEASolver();
@@ -90,7 +91,7 @@ public:
 
     // CArrays containing the mesh information
     int	BandWidth;
-    std::vector<femmsolver::CElement> meshele;
+    std::vector<MeshElementT> meshele;
 
     int NumNodes;
     int NumEls;

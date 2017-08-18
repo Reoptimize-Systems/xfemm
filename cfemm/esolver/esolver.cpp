@@ -54,6 +54,7 @@ template class FEASolver<
         , femm::CSCircuit
         , femm::CSBlockLabel
         , femm::CNode
+        , femmsolver::CElement
         >;
 
 #ifndef _MSC_VER

@@ -32,6 +32,7 @@
 #include "cspars.h"
 #include "CBlockLabel.h"
 #include "CCircuit.h"
+#include "CElement.h"
 #include "CMaterialProp.h"
 #include "CNode.h"
 #include "CPointProp.h"
@@ -47,6 +48,7 @@ class FSolver : public FEASolver<
         , femm::CMCircuit
         , femm::CMBlockLabel
         , femm::CNode
+        , femmsolver::CMElement
         >
 {
 

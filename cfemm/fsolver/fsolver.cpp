@@ -52,6 +52,7 @@ template class FEASolver<
         , femm::CMCircuit
         , femm::CMBlockLabel
         , femm::CNode
+        , femmsolver::CMElement
         >;
 
 #ifndef _MSC_VER
@@ -258,7 +259,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     NumEls = k;
 
     meshele.reserve(k);
-    femmsolver::CElement elm;
+    femmsolver::CMElement elm;
 
     // get the default label for unlabelled blocks
     int defaultLabel;
