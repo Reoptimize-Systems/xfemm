@@ -36,13 +36,6 @@
 
 using namespace std;
 
-CPointProp::CPointProp()
-{
-		PointName="New Point Property";
-		InConductor="<None>";
-		V=qp=0;
-}
-
 CCircuit::CCircuit()
 {
 		CircName="New Circuit";

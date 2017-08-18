@@ -32,20 +32,6 @@
 
 namespace HPProcdata{
 
-
-class CPointProp
-{
-	public:
-
-		CPointProp();
-
-        std::string PointName;
-        std::string InConductor;
-		double V,qp;
-
-	private:
-};
-
 class CCircuit
 {
 	public:

@@ -38,6 +38,7 @@
 #include "CMaterialProp.h"
 #include "CMeshNode.h"
 #include "CNode.h"
+#include "CPointProp.h"
 #include "CSegment.h"
 
 using namespace HPProcdata;
@@ -95,7 +96,7 @@ public:
 	// lists of properties
     std::vector< femm::CHMaterialProp > 	blockproplist;
     std::vector< femm::CHBoundaryProp > 	lineproplist;
-	std::vector< CPointProp > 		nodeproplist;
+    std::vector< femm::CHPointProp > 		nodeproplist;
 	std::vector< CCircuit > 		circproplist;
 
 	// list of points in a user-defined contour;
