@@ -34,18 +34,26 @@ class CElement
 {
 public:
     CElement();
+    virtual ~CElement();
 
     int p[3]; ///< nodes at the corners of the element
     int e[3]; ///< boundary condition applied to each edge of the element
-    CComplex mu1,mu2; // from feasolver
     int blk;  ///< block property applied to the element
     int lbl;  ///< block label associated with the element
-    CComplex B1,B2;  //from fpproc
-    CComplex b1[3],b2[3];  //from fpproc
-    double magdir;  //from fpproc
-    CComplex ctr;  //from fpproc
-    double rsqr;  //from fpproc
-    int n[3];  //from fpproc; 3 ints to store elem's neighbouring elements
+    CComplex ctr;
+    double rsqr;
+    int n[3]; ///< 3 ints to store elem's neighbouring elements
+};
+
+class CMElement : public CElement
+{
+public:
+    CMElement();
+    virtual ~CMElement();
+    CComplex mu1,mu2;
+    CComplex B1,B2;
+    CComplex b1[3],b2[3];
+    double magdir;
 };
 
 }

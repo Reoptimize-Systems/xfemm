@@ -35,14 +35,14 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
-int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
 ::SortElements()
 {
     // Comb Sort -- see http://en.wikipedia.org/wiki/Comb_sort
     int *Score;
     int i,j,k,gap;
-    femmsolver::CElement e;
 
     Score=(int*)calloc(NumEls,sizeof(int));
 
@@ -72,9 +72,7 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT
                 i=Score[k];
                 Score[k]=Score[j];
                 Score[j]=i;
-                e=meshele[k];
-                meshele[k]=meshele[j];
-                meshele[j]=e;
+                std::swap(meshele[k],meshele[j]);
                 i=1;
             }
         }
@@ -92,8 +90,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
-int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
 ::Cuthill(bool deletefiles)
 {
 

@@ -56,8 +56,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
-FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
 ::FEASolver()
     : FileFormat(-1)
     , Precision(1.e-08)
@@ -105,8 +106,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
-FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
 ::~FEASolver()
 {
 }
@@ -116,8 +118,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
-void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
 ::CleanUp()
 {
     FileFormat = -1;
@@ -162,8 +165,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
-bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
 ::LoadProblemFile(std::string &file)
 {
     std::ifstream input;
@@ -470,8 +474,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
-bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
 ::handleToken(const string &, istream &, ostream &)
 {
     // token not handled
@@ -484,8 +489,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class NodeT
+          , class MeshElementT
           >
-std::string FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT>
+std::string FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
 ::getErrorString(LoadMeshErr err)
 {
     switch (err)

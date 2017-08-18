@@ -49,6 +49,7 @@ template class FEASolver<
         , femm::CHConductor
         , femm::CHBlockLabel
         , femm::CNode
+        , femmsolver::CElement
         >;
 
 #ifndef _MSC_VER
