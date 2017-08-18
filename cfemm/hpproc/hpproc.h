@@ -34,6 +34,7 @@
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
+#include "CElement.h"
 #include "CMeshNode.h"
 #include "CNode.h"
 #include "CSegment.h"
@@ -84,7 +85,7 @@ public:
 
 	// CArrays containing the mesh information
     std::vector< femmsolver::CHMeshNode >			meshnode;
-	std::vector< CElement >				meshelem;
+	std::vector< femmsolver::CHElement >				meshelem;
 
 	// List of elements connected to each node;
 	int *NumList;
@@ -110,8 +111,8 @@ public:
 	int ClosestNode(double x, double y);
 	CComplex Ctr(int i);
 	double ElmArea(int i);
-	double ElmArea(CElement *elm);
-	void GetPointD(double x, double y, CComplex &D, CElement &elm);
+	double ElmArea(femmsolver::CHElement *elm);
+	void GetPointD(double x, double y, CComplex &D, femmsolver::CHElement &elm);
 	void GetNodalD(CComplex *d, int i);
 	CComplex BlockIntegral(int inttype);
 	void LineIntegral(int inttype, double *z);
