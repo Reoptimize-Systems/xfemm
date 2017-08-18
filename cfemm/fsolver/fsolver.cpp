@@ -51,7 +51,6 @@ template class FEASolver<
         , femm::CMSolverMaterialProp
         , femm::CMCircuit
         , femm::CMBlockLabel
-        , femm::CNode
         , femmsolver::CMElement
         >;
 

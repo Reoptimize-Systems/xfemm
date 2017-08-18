@@ -55,10 +55,9 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
-FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
+FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
 ::FEASolver()
     : FileFormat(-1)
     , Precision(1.e-08)
@@ -105,10 +104,9 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
-FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
+FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
 ::~FEASolver()
 {
 }
@@ -117,10 +115,9 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
-void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
+void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
 ::CleanUp()
 {
     FileFormat = -1;
@@ -164,10 +161,9 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
-bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
+bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
 ::LoadProblemFile(std::string &file)
 {
     std::ifstream input;
@@ -473,10 +469,9 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
-bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
+bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
 ::handleToken(const string &, istream &, ostream &)
 {
     // token not handled
@@ -488,10 +483,9 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
-std::string FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
+std::string FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
 ::getErrorString(LoadMeshErr err)
 {
     switch (err)

@@ -48,7 +48,6 @@ template class FEASolver<
         , femm::CHMaterialProp
         , femm::CHConductor
         , femm::CHBlockLabel
-        , femm::CNode
         , femmsolver::CElement
         >;
 
