@@ -35,6 +35,7 @@
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CElement.h"
+#include "CMaterialProp.h"
 #include "CMeshNode.h"
 #include "CNode.h"
 #include "CSegment.h"
@@ -92,7 +93,7 @@ public:
 	int **ConList;
 
 	// lists of properties
-	std::vector< CMaterialProp > 	blockproplist;
+    std::vector< femm::CHMaterialProp > 	blockproplist;
     std::vector< femm::CHBoundaryProp > 	lineproplist;
 	std::vector< CPointProp > 		nodeproplist;
 	std::vector< CCircuit > 		circproplist;
