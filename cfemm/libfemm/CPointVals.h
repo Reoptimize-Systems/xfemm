@@ -26,7 +26,6 @@ class CMPointVals
     private:
 };
 
-// FIXME(ZaJ): before merging with CPointVals, both classes have to be adopted to fit
 class CSPointVals
 {
 public:
@@ -37,6 +36,18 @@ public:
     CComplex e;    // permeability
     CComplex E;    // field intensity
     double nrg;    // energy stored in the field
+};
+
+class CHPointVals
+{
+public:
+    CHPointVals();
+
+    double T;		// temperature
+    CComplex F;		// heat flux density
+    CComplex K;		// thermal conductivity
+    CComplex G;		// temperature gradient
+private:
 };
 
 }
