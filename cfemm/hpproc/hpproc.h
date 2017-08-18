@@ -29,7 +29,6 @@
 /////////////////////////////////////////////////////////////////////////////
 #include <vector>
 #include "femmcomplex.h"
-#include "hproblem.h"
 #include "fparse.h"
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
@@ -42,8 +41,6 @@
 #include "CPointProp.h"
 #include "CPointVals.h"
 #include "CSegment.h"
-
-using namespace HPProcdata;
 
 #ifndef HPPROC_H_INCLUDED
 #define HPPROC_H_INCLUDED

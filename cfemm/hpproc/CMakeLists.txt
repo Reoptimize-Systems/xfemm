@@ -12,7 +12,6 @@ include_directories(../libfemm)
 
 add_library(hpproc STATIC 
   hpproc.cpp    
-  hproblem.cpp
   )
 target_link_libraries(hpproc femm)
 

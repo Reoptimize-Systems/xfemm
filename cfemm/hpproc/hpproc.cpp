@@ -35,7 +35,6 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
-#include "hproblem.h"
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "fparse.h"
