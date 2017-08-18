@@ -40,6 +40,7 @@
 #include "CMeshNode.h"
 #include "CNode.h"
 #include "CPointProp.h"
+#include "CPointVals.h"
 #include "CSegment.h"
 
 using namespace HPProcdata;
@@ -106,8 +107,8 @@ public:
 	// member functions
 	int InTriangle(double x, double y);
 	bool InTriangleTest(double x, double y, int i);
-    bool GetPointValues(double x, double y, CHPointVals &u);
-    bool GetPointValues(double x, double y, int k, CHPointVals &u);
+    bool GetPointValues(double x, double y, femm::CHPointVals &u);
+    bool GetPointValues(double x, double y, int k, femm::CHPointVals &u);
 	//void GetLineValues(CXYPlot &p, int PlotType, int npoints);
 	void GetElementD(int k);
 	void OnReload();

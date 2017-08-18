@@ -27,3 +27,11 @@ femm::CSPointVals::CSPointVals()
     , nrg(0)
 {
 }
+
+femm::CHPointVals::CHPointVals()
+    : T(0)
+    , F(0)
+    , K(0)
+    , G(0)
+{
+}

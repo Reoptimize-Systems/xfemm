@@ -32,20 +32,6 @@
 
 namespace HPProcdata{
 
-class CHPointVals
-{
-	public:
-
-		double T;		// temperature
-		CComplex F;		// heat flux density
-		CComplex K;		// thermal conductivity
-		CComplex G;		// temperature gradient
-
-        CHPointVals();
-
-	private:
-};
-
 
 }
 #endif
