@@ -33,26 +33,6 @@
 namespace HPProcdata{
 
 
-class CMaterialProp
-{
-	public:
-
-        std::string BlockName;
-		double Kx,Ky;		// thermal conductivity for linear (possibly anisotropic) regions
-		double Kt;			// volumetric heat capacity
-		double qv;			// volume heat generation
-
-		// properties for nonlinear conductivity
-		int npts;			// number of points in the nonlinear conductivity curve
-		CComplex Kn[128];   // here, I'm being _very_ lazy by defining a fixed-length buffer for the
-		                    // thermal conductivity data points.
-		CComplex GetK(double t);
-
-		CMaterialProp();
-
-	private:
-};
-
 class CPointProp
 {
 	public:
