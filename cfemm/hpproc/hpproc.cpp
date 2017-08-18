@@ -47,23 +47,6 @@
 #define _strnicmp strncasecmp
 #endif
 
-extern lua_State * lua;
-extern void *pFemmviewdoc;
-//extern CLuaConsoleDlg *LuaConsole;
-extern bool bLinehook;
-
-extern void lua_baselibopen (lua_State *L);
-extern void lua_iolibopen (lua_State *L);
-extern void lua_strlibopen (lua_State *L);
-extern void lua_mathlibopen (lua_State *L);
-extern void lua_dblibopen (lua_State *L);
-
-//#define AXISYMMETRIC 1
-
-extern lua_State * lua;
-extern void *phviewDoc;
-extern bool bLinehook;
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -85,12 +68,6 @@ double sq(double x)
 {
 	return x*x;
 }
-
-// Replacement function for windows MFC function AfxMessageBox
-//void HPProc::MsgBox(const char* message)
-//{
-//    printf(message);
-//}
 
 /**
  * Constuctor for the HPProc class.
