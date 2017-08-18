@@ -37,7 +37,7 @@ int main()
     string mystr;
     HPProc testHPProc;
     CComplex out;
-    femm::CHPointVals u;
+    CHPointVals u;
     double x, y;
 
     cout << "HPProc Loaded!" << endl;

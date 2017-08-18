@@ -63,6 +63,7 @@ function [rules,vars] = MMakefile_hpproc (varargin)
       ... % hpproc
       '../cfemm/hpproc/hpproc.${OBJ_EXT}', ... 
       '../cfemm/hpproc/hmakemask.${OBJ_EXT}', ... 
+      '../cfemm/hpproc/CHPointVals.${OBJ_EXT}', ... 
       'postproc/hpproc_interface.${OBJ_EXT}', ...
       ... % mexfunction
       'postproc/hpproc_interface_mex.${OBJ_EXT}' };
@@ -172,6 +173,37 @@ function [rules,vars] = MMakefile_hpproc (varargin)
     rules(end+1).target = '../cfemm/libfemm/spars.${OBJ_EXT}';
     rules(end).deps = '../cfemm/libfemm/spars.h';
 
+    rules(end+1).target = '../cfemm/libfemm/CArcSegment.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CArcSegment.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CElement.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CElement.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CMeshNode.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CMeshNode.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CNode.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CNode.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CBlockLabel.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CBlockLabel.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CBoundaryProp.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CBoundaryProp.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CCircuit.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CCircuit.h';
+
+    rules(end+1).target = '../cfemm/libfemm/CSegment.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/libfemm/CSegment.h';
+
+    rules(end+1).target = '../cfemm/hpproc/hpproc.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/hpproc/hpproc.h';
+
+    rules(end+1).target = '../cfemm/hpproc/hmakemask.${OBJ_EXT}';
+
+    rules(end+1).target = '../cfemm/hpproc/CHPointVals.${OBJ_EXT}';
+    rules(end).deps = '../cfemm/hpproc/CHPointVals.h';
 
     rules(end+1).target = 'postproc/hpproc_interface.${OBJ_EXT}';
     rules(end).deps = 'postproc/hpproc_interface.h';

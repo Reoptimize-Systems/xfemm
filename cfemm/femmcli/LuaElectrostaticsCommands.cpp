@@ -19,7 +19,6 @@
 #include "LuaElectrostaticsCommands.h"
 #include "LuaCommonCommands.h"
 
-#include "CPointVals.h"
 #include "esolver.h"
 #include "femmenums.h"
 #include "FemmState.h"
