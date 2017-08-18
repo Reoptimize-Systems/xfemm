@@ -34,10 +34,9 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
-int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
+int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
 ::SortElements()
 {
     // Comb Sort -- see http://en.wikipedia.org/wiki/Comb_sort
@@ -89,10 +88,9 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
-int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>
+int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
 ::Cuthill(bool deletefiles)
 {
 

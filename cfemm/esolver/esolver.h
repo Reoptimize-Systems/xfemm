@@ -52,7 +52,6 @@ class ESolver : public FEASolver<
         , femm::CSMaterialProp
         , femm::CSCircuit
         , femm::CSBlockLabel
-        , femm::CNode
         , femmsolver::CElement
         >
 {

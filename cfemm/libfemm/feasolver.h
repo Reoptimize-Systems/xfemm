@@ -30,6 +30,7 @@
 #include "spars.h"
 #include "CBoundaryProp.h"
 #include "CCommonPoint.h"
+#include "CNode.h"
 
 #include <string>
 #include <vector>
@@ -50,7 +51,6 @@ template< class PointPropT
           , class BlockPropT
           , class CircuitPropT
           , class BlockLabelT
-          , class NodeT
           , class MeshElementT
           >
 class FEASolver
@@ -58,13 +58,12 @@ class FEASolver
 
 // Attributes
 public:
-    using FEASolver_type = FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,NodeT,MeshElementT>;
+    using FEASolver_type = FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>;
     using PointProp_type = PointPropT;
     using BoundaryProp_type = BoundaryPropT;
     using BlockProp_type = BlockPropT;
     using CircuitProp_type = CircuitPropT;
     using BlockLabel_type = BlockLabelT;
-    using Node_type = NodeT;
     using MeshElement_type = MeshElementT;
 
     FEASolver();
@@ -115,7 +114,7 @@ public:
     std::vector< BlockPropT > blockproplist;
     std::vector< CircuitPropT > circproplist;
     std::vector< BlockLabelT > labellist;
-    std::vector< NodeT > nodes;
+    std::vector< femm::CNode > nodes;
 // Operations
 public:
 

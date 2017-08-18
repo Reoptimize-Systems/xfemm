@@ -47,7 +47,6 @@ class HSolver : public FEASolver<
         , femm::CHMaterialProp
         , femm::CHConductor
         , femm::CHBlockLabel
-        , femm::CNode
         , femmsolver::CElement
         >
 {
