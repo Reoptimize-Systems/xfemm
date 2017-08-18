@@ -32,20 +32,6 @@
 
 namespace HPProcdata{
 
-class CCircuit
-{
-	public:
-
-		CCircuit();
-
-        std::string CircName;
-		double V,q;
-		int		CircType;
-
-	private:
-
-};
-
 class CHPointVals
 {
 	public:

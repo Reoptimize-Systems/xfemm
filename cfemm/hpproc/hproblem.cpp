@@ -36,9 +36,3 @@
 
 using namespace std;
 
-CCircuit::CCircuit()
-{
-		CircName="New Circuit";
-		V=q=0;
-		CircType=0;
-}

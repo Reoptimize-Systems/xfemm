@@ -34,6 +34,7 @@
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
+#include "CCircuit.h"
 #include "CElement.h"
 #include "CMaterialProp.h"
 #include "CMeshNode.h"
@@ -97,7 +98,7 @@ public:
     std::vector< femm::CHMaterialProp > 	blockproplist;
     std::vector< femm::CHBoundaryProp > 	lineproplist;
     std::vector< femm::CHPointProp > 		nodeproplist;
-	std::vector< CCircuit > 		circproplist;
+    std::vector< femm::CHConductor > 		circproplist;
 
 	// list of points in a user-defined contour;
 	std::vector< CComplex  > 		contour;
