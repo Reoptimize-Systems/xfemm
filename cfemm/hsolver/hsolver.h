@@ -83,10 +83,10 @@ public:
 private:
 
     void MsgBox(const char* message);
-    void CleanUp();
+    void CleanUp() override;
 
     // override parent class virtual method
-    void SortNodes (int* newnum);
+    void SortNodes (int* newnum) override;
 
     virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 

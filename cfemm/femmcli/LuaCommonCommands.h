@@ -18,7 +18,7 @@
 #ifndef LUACOMMONCOMMANDS_H
 #define LUACOMMONCOMMANDS_H
 
-class lua_State;
+struct lua_State;
 
 namespace femm {
 class LuaInstance;
