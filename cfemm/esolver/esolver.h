@@ -80,7 +80,7 @@ public:
 private:
 
     void MsgBox(const char* message);
-    void CleanUp();
+    void CleanUp() override;
 
     // override parent class virtual method
     void SortNodes (int* newnum) override;

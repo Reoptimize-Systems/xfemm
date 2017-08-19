@@ -18,7 +18,7 @@
 #ifndef LUAMAGNETICSCOMMANDS_H
 #define LUAMAGNETICSCOMMANDS_H
 
-class lua_State;
+struct lua_State;
 
 namespace femm {
 class LuaInstance;
