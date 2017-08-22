@@ -29,7 +29,7 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     vars.LDFLAGS = '${LDFLAGS} -lstdc++';
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fmesher" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fmesher" -I"../cfemm/fmesher/triangle" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
     
     if options.Verbose
         vars.MEXFLAGS = [vars.MEXFLAGS, ' -v'];
@@ -48,11 +48,13 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     
     cfemmpath = [thisfilepath, '/..', '/cfemm'];
     fmesherpath = [cfemmpath, '/fmesher']; 
+    trianglepath = [fmesherpath, '/triangle']; 
     libfemmpath = [cfemmpath, '/libfemm'];
     libluapath = [libfemmpath, '/liblua'];
 
     vars.OBJS = { ...
       ... % liblua
+      [libluapath, '/femmcomplex.${OBJ_EXT}'], ...
       [libluapath, '/lapi.${OBJ_EXT}'], ...  
       [libluapath, '/lcode.${OBJ_EXT}'], ...  
       [libluapath, '/ldo.${OBJ_EXT}'], ...  
@@ -81,7 +83,6 @@ function [rules,vars] = MMakefile_fmesher (varargin)
       [libfemmpath, '/cspars.${OBJ_EXT}'], ...
       [libfemmpath, '/cuthill.${OBJ_EXT}'], ...
       [libfemmpath, '/feasolver.${OBJ_EXT}'], ...
-      [libfemmpath, '/femmcomplex.${OBJ_EXT}'], ...
       [libfemmpath, '/FemmProblem.${OBJ_EXT}'], ...
       [libfemmpath, '/FemmReader.${OBJ_EXT}'], ...
       [libfemmpath, '/fparse.${OBJ_EXT}'], ...
@@ -100,8 +101,8 @@ function [rules,vars] = MMakefile_fmesher (varargin)
       ... % fmesher
       [fmesherpath, '/fmesher.${OBJ_EXT}'], ... 
       [fmesherpath, '/nosebl.${OBJ_EXT}'], ...  
-      [fmesherpath, '/triangle.${OBJ_EXT}'], ...  
       [fmesherpath, '/writepoly.${OBJ_EXT}'], ...
+      [trianglepath, '/triangle.${OBJ_EXT}'], ...  
       ... % mexfunction
       'mexfmesher.cpp' };
 
@@ -116,6 +117,9 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     % for i = 1:numel (vars.OBJS)
     %     fprintf ('rules(end+1).target = ''%s.${OBJ_EXT}'';\nrules(end).deps = ''%s.h'';\n\n', vars.OBJS{i}(1:end-11), vars.OBJS{i}(1:end-11));
     % end
+
+    rules(end+1).target = [libluapath, '/femmcomplex.${OBJ_EXT}'];
+    rules(end).deps = [libluapath, '/femmcomplex.h'];
 
     rules(end+1).target = [libluapath, '/lapi.${OBJ_EXT}'];
     rules(end).deps = [libluapath, '/lapi.h'];
@@ -198,9 +202,6 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     rules(end+1).target = [libfemmpath, '/feasolver.${OBJ_EXT}'];
     rules(end).deps = [libfemmpath, '/feasolver.h'];
 
-    rules(end+1).target = [libfemmpath, '/femmcomplex.${OBJ_EXT}'];
-    rules(end).deps = [libfemmpath, '/femmcomplex.h'];
-
     rules(end+1).target = [libfemmpath, '/FemmProblem.${OBJ_EXT}'];
     rules(end).deps = [libfemmpath, '/FemmProblem.h'];
 
@@ -252,8 +253,8 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     rules(end+1).target = [fmesherpath, '/nosebl.${OBJ_EXT}'];
     rules(end).deps = [fmesherpath, '/nosebl.h'];
 
-    rules(end+1).target = [fmesherpath, '/triangle.${OBJ_EXT}'];
-    rules(end).deps = [fmesherpath, '/triangle.h'];
+    rules(end+1).target = [trianglepath, '/triangle.${OBJ_EXT}'];
+    rules(end).deps = [trianglepath, '/triangle.h'];
 
 % 
 %     rules(end+1).target = [fmesherpath, '/writepoly.${OBJ_EXT}');

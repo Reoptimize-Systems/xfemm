@@ -1,29 +1,23 @@
-cmake_minimum_required (VERSION 2.8.8)
-project (fmesher)
+add_library(triangle STATIC
+    triangle/triangle.c
+    )
+target_include_directories(triangle PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/triangle> $<INSTALL_INTERFACE:include>)
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64") 
-  add_definitions(-fPIC) 
-endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
- 
-# add the binary tree to the search path for include files
-# so that we will find TutorialConfig.h
-include_directories(../libfemm/liblua)
-include_directories(../libfemm)
-
-add_library(fmesher STATIC 
-  fmesher.cbp 
-  fmesher.cpp 
-  main.cpp  
-  nosebl.cpp  
-  triangle.c  
-  writepoly.cpp
-  )
+add_library(fmesher STATIC
+    fmesher.cbp
+    fmesher.cpp
+    main.cpp
+    nosebl.cpp
+    writepoly.cpp
+    )
+target_link_libraries(fmesher PUBLIC femm PRIVATE triangle)
+target_include_directories(fmesher PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
 
 add_executable(fmesher-bin
-  main.cpp
-  )
+    main.cpp
+    )
 
 set_target_properties(fmesher-bin
-  PROPERTIES OUTPUT_NAME fmesher)
+    PROPERTIES OUTPUT_NAME fmesher)
 
 target_link_libraries(fmesher-bin fmesher femm)

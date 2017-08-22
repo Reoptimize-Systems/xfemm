@@ -20,6 +20,7 @@
 #include "LuaCommonCommands.h"
 
 #include "esolver.h"
+#include "femmconstants.h"
 #include "femmenums.h"
 #include "FemmState.h"
 #include "LuaInstance.h"

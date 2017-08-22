@@ -18,6 +18,7 @@
 
 #include "LuaCommonCommands.h"
 
+#include "femmconstants.h"
 #include "femmenums.h"
 #include "FemmState.h"
 #include "LuaInstance.h"

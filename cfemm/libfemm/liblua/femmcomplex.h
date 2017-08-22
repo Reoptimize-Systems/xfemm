@@ -21,7 +21,6 @@
 
 #ifndef CCOMPLEX_H
 #define CCOMPLEX_H
-#include "femmconstants.h"
 
 
 class CComplex

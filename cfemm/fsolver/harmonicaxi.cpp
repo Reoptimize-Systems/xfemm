@@ -24,6 +24,7 @@
 #include<algorithm>
 #include <malloc.h>
 #include "femmcomplex.h"
+#include "femmconstants.h"
 #include "CElement.h"
 #include "spars.h"
 #include "fsolver.h"

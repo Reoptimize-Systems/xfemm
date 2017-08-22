@@ -27,9 +27,11 @@
 // fmesher.cpp : implementation of FMesher Class
 //
 
-#include "fparse.h"
+#include "femmconstants.h"
 #include "fmesher.h"
+#include "fparse.h"
 #include "IntPoint.h"
+
 #include "triangle.h"
 
 #include <algorithm>
@@ -40,13 +42,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
-//extern void *pFemmeDoc;
-//extern lua_State *lua;
-//extern CLuaConsoleDlg *LuaConsole;
-//extern bool bLinehook;
-
-//extern void *triangulate;
 
 using namespace std;
 using namespace femm;

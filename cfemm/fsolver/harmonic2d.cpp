@@ -19,15 +19,17 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
-#include<algorithm>
-#include <malloc.h>
-#include "femmcomplex.h"
 #include "CElement.h"
-#include "spars.h"
+#include "femmcomplex.h"
+#include "femmconstants.h"
 #include "fsolver.h"
+#include "spars.h"
+
+#include <algorithm>
+#include <malloc.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 // #define NEWTON
 
