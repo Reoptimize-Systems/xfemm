@@ -7,6 +7,7 @@ build*/
 release/
 # doxygen output
 cfemm/apidoc/
+cfemm/bin/
 
 # common patterns #
 -------------------
