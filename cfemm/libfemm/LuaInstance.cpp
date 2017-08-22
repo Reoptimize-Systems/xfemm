@@ -35,6 +35,8 @@
 #define debug while(false) std::cerr
 #endif
 
+#define PI 3.141592653589793238462643383
+
 femm::LuaInstance::LuaInstance(int stackSize)
     : fs ()
     , compatMode(false)

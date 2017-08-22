@@ -23,6 +23,8 @@
 #include "stdio.h"
 #include "femmcomplex.h"
 
+#define PI 3.141592653589793238462643383
+
 CComplex::CComplex(double x)
 {
 	re=x; im=0.;

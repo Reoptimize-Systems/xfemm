@@ -19,17 +19,18 @@
    Contact: richard.crozier@yahoo.co.uk
 */
 
-#include <string>
-#include <cstdio>
-#include <math.h>
-#include <malloc.h>
-#include "femmcomplex.h"
 #include "CElement.h"
-#include "spars.h"
+#include "femmcomplex.h"
+#include "femmconstants.h"
 #include "fsolver.h"
 #include "lua.h"
 #include "LuaInstance.h"
-//#include "boost/format.hpp"
+#include "spars.h"
+
+#include <cstdio>
+#include <malloc.h>
+#include <math.h>
+#include <string>
 
 #ifdef _MSC_VER
   #ifndef SNPRINTF
