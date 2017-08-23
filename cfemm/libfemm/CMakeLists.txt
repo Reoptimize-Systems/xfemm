@@ -58,6 +58,7 @@ add_library(femm
     fullmatrix.cpp
     IntPoint.cpp
     LuaInstance.cpp
+    PostProcessor.cpp
     spars.cpp
     stringTools.cpp
     )
