@@ -14,14 +14,19 @@
    MFC dependent code to allow easier reuse across
    multiple operating system platforms.
 
-   Date Modified: 2014 - 03 - 21
+   Date Modified: 2017
    By:  Emoke Szelitzky
         Tibor Szelitzky
         Richard Crozier
+        Johannes Zarl-Zierl
    Contact:
         szelitzkye@gmail.com
         sztibi82@yahoo.com
         richard.crozier@yahoo.co.uk
+        johannes.zarl-zierl@jku.at
+
+   Contributions by Johannes Zarl-Zierl were funded by
+   Linz Center of Mechatronics GmbH (LCM)
 */
 
 // hsolver.h : interface of the HSolver class
