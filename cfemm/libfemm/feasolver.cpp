@@ -14,9 +14,15 @@
    MFC dependent code to allow easier reuse across
    multiple operating system platforms.
 
-   Date Modified: 2011 - 11 - 10
+   Date Modified: 2017
    By: Richard Crozier
-   Contact: richard.crozier@yahoo.co.uk
+       Johannes Zarl-Zierl
+   Contact:
+        richard.crozier@yahoo.co.uk
+       johannes@zarl-zierl.at
+
+   Contributions by Johannes Zarl-Zierl were funded by
+    Linz Center of Mechatronics GmbH (LCM)
 */
 
 // fsolver.cpp : implementation of the FSolver class

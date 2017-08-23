@@ -18,12 +18,12 @@
    By:  Emoke Szelitzky
         Tibor Szelitzky
         Richard Crozier
-		  Johannes Zarl-Zierl
+        Johannes Zarl-Zierl
    Contact:
         szelitzkye@gmail.com
         sztibi82@yahoo.com
         richard.crozier@yahoo.co.uk
-		  johannes.zarl-zierl@jku.at
+        johannes.zarl-zierl@jku.at
 
 	Contributions by Johannes Zarl-Zierl were funded by
 	Linz Center of Mechatronics GmbH (LCM)
