@@ -63,7 +63,6 @@ public:
     femm::ProblemType problemType;
 	bool	Coords;
     std::string ProblemNote;
-	bool	FirstDraw;
 	bool	Smooth;
 	bool	bMultiplyDefinedLabels;
 	double  extRo, extRi, extZo;

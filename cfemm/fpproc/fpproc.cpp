@@ -54,7 +54,6 @@ FPProc::FPProc()
     LengthUnits = 0;
     problemType = PLANAR;
     ProblemNote = "Add comments here.";
-    FirstDraw = -1;
     A_High = 0.;
     A_Low = 0.;
     A_lb = 0.;
@@ -1430,7 +1429,6 @@ bool FPProc::OpenDocument(string pathname)
         }
     }
 
-    FirstDraw=true;
     return true;
 }
 
