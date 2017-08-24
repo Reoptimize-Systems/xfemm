@@ -150,8 +150,8 @@ public:
      * @brief Intersect two arcs.
      * @param arc0
      * @param arc1
-     * @param p intersection points, packed as CComplex
-     * @return the number of valic intersections, and size of array p
+     * @param p intersection points, packed as CComplex (output variable)
+     * @return the number of valid intersections (between 0 and 2 inclusive)
      */
     int getArcArcIntersection(const femm::CArcSegment &arc0, const femm::CArcSegment &arc1, CComplex *p) const;
     /**
@@ -184,6 +184,15 @@ public:
     bool getIntersection(int n0, int n1, int segm, double *xi, double *yi) const;
 
     /**
+     * @brief intersection between line and arc segment
+     * @param seg the line segment
+     * @param arc the arc segment
+     * @param p the intersection point(s), packed as CComplex (output variable)
+     * @return the number of intersections
+     */
+    int getLineArcIntersection(const femm::CSegment &seg, const femm::CArcSegment &arc, CComplex *p) const;
+
+    /**
      * @brief The document title.
      * Currently, this is the same as PathName
      * @return
@@ -201,7 +210,6 @@ public:
     //int ClosestBlockLabel(double x, double y);
     //int ClosestNode(double x, double y);
     //int ClosestSegment(double x, double y);
-    //int GetLineArcIntersection(femm::CSegment &seg, femm::CArcSegment &arc, CComplex *p);
 
 public: // data members
     double FileFormat; ///< \brief format version of the file

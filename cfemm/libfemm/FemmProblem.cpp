@@ -649,6 +649,57 @@ bool femm::FemmProblem::getIntersection(int n0, int n1, int segm, double *xi, do
     return true;
 }
 
+int femm::FemmProblem::getLineArcIntersection(const femm::CSegment &seg, const femm::CArcSegment &arc, CComplex *p) const
+{
+    CComplex p0,p1,a0,a1,t,v,c;
+    double d,l,R,z,tta;
+    int i=0;
+
+    p0.Set(nodelist[seg.n0]->x,nodelist[seg.n0]->y);
+    p1.Set(nodelist[seg.n1]->x,nodelist[seg.n1]->y);
+    a0.Set(nodelist[arc.n0]->x,nodelist[arc.n0]->y);
+    a1.Set(nodelist[arc.n1]->x,nodelist[arc.n1]->y);
+    d=abs(a1-a0);			// distance between arc endpoints
+
+    // figure out what the radius of the circle is...
+    t = (a1-a0) / d;
+    tta = arc.ArcLength * PI / 180.;
+    R = d / ( 2. * std::sin(tta / 2.));
+    c = a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
+
+    // figure out the distance between line and circle's center;
+    d=abs(p1-p0);
+    t=(p1-p0)/d;
+    v=(c-p0)/t;
+    if (fabs(Im(v))>R) return 0;
+    l=sqrt( R*R - Im(v)*Im(v));	// Im(v) is distance between line and center...
+
+    if ((l/R) < 1.e-05) 		// case where line is very close to a tangent;
+    {
+        p[i]=p0 + Re(v)*t;		// make it be a tangent.
+        R=Re((p[i]-p0)/t);
+        z=arg((p[i]-c)/(a0-c));
+        if ((R>0) && (R<d) && (z>0.) && (z<tta)) i++;
+        return i;
+    }
+
+    p[i]=p0 + (Re(v)+l)*t;		// first possible intersection;
+    R=Re((p[i]-p0)/t);
+    z=arg((p[i]-c)/(a0-c));
+    if ((R>0) && (R<d) && (z>0.) && (z<tta)) i++;
+
+    p[i]=p0 + (Re(v)-l)*t;		// second possible intersection
+    R=Re((p[i]-p0)/t);
+    z=arg((p[i]-c)/(a0-c));
+    if ((R>0) && (R<d) && (z>0.) && (z<tta)) i++;
+
+    // returns the number of valid intersections found;
+    // intersections are returned in the array p[];
+    return i;
+}
+
+
+
 double femm::FemmProblem::LineLength(int i)
 {
     return abs(nodelist[linelist[i]->n0]->CC()-
