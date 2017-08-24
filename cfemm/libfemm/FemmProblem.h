@@ -181,7 +181,12 @@ public:
      * @return true, if a "proper" intersection is found, false otherwise.
      */
     bool GetIntersection(int n0, int n1, int segm, double *xi, double *yi);
-    //double LineLength(int i);
+    /**
+     * @brief LineLength
+     * @param i index of line
+     * @return the length of the line
+     */
+    double LineLength(int i);
     //double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
     //int ClosestArcSegment(double x, double y);
     //int ClosestBlockLabel(double x, double y);

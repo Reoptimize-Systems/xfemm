@@ -591,6 +591,12 @@ bool femm::FemmProblem::GetIntersection(int n0, int n1, int segm, double *xi, do
     return true;
 }
 
+double femm::FemmProblem::LineLength(int i)
+{
+    return abs(nodelist[linelist[i]->n0]->CC()-
+           nodelist[linelist[i]->n1]->CC());
+}
+
 femm::FemmProblem::FemmProblem(FileType ftype)
     : FileFormat(-1)
     , Frequency(0.0)

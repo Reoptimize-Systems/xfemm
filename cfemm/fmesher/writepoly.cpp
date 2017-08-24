@@ -63,13 +63,6 @@ using namespace femm;
 using namespace fmesher;
 
 
-double FMesher::LineLength(int i)
-{
-    return abs(problem->nodelist[problem->linelist[i]->n0]->CC()-
-           problem->nodelist[problem->linelist[i]->n1]->CC());
-}
-
-
 /**
  * @brief FMesher::HasPeriodicBC
  * @return \c true, if there are periodic or antiperiodic boundary conditions, \c false otherwise.
@@ -1439,7 +1432,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // length of the boundary divided by the number
             // of elements that were created in the first
             // attempt at meshing
-            problem->linelist[i]->MaxSideLength = LineLength(i) / ((double) problem->linelist[i]->cnt);
+            problem->linelist[i]->MaxSideLength = problem->LineLength(i) / ((double) problem->linelist[i]->cnt);
         }
     }
 
@@ -1559,8 +1552,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         if(pbclst[j]->nseg>0){
 
             // make sure that lines are pretty much the same length
-            if(fabs(LineLength(pbclst[j]->seg[0])
-                   -LineLength(pbclst[j]->seg[1]))>1.e-06)
+            if(fabs(problem->LineLength(pbclst[j]->seg[0])
+                   -problem->LineLength(pbclst[j]->seg[1]))>1.e-06)
             {
                 WarnMessage("(anti)periodic BCs applied to dissimilar segments");
                 Undo();  UnselectAll();

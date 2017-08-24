@@ -116,8 +116,6 @@ public:
     int GetArcArcIntersection(femm::CArcSegment &arc1, femm::CArcSegment &arc2, CComplex *p);
     double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
 
-	double LineLength(int i);
-
     // Core functions
 	bool LoadMesh(std::string PathName);
 	int DoNonPeriodicBCTriangulation(std::string PathName);
