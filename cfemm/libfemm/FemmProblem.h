@@ -169,6 +169,28 @@ public:
      */
     std::string getTitle() const;
 
+    /**
+     * @brief GetIntersection between a line and a segment.
+     * Only intersections that are not at or close to an endpoint are considered.
+     *
+     * @param n0 Node index for line point 0
+     * @param n1 Node index for line point 1
+     * @param segm Segment index
+     * @param xi x coordinate of intersection (output variable)
+     * @param yi y coordinate of intersection (output variable)
+     * @return true, if a "proper" intersection is found, false otherwise.
+     */
+    bool GetIntersection(int n0, int n1, int segm, double *xi, double *yi);
+    //double LineLength(int i);
+    //double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
+    //int ClosestArcSegment(double x, double y);
+    //int ClosestBlockLabel(double x, double y);
+    //int ClosestNode(double x, double y);
+    //int ClosestSegment(double x, double y);
+    //int GetArcArcIntersection(femm::CArcSegment &arc1, femm::CArcSegment &arc2, CComplex *p);
+    //int GetLineArcIntersection(femm::CSegment &seg, femm::CArcSegment &arc, CComplex *p);
+    //void GetCircle(const femm::CArcSegment &asegm, CComplex &c, double &R);
+
 public: // data members
     double FileFormat; ///< \brief format version of the file
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
