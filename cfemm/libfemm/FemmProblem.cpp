@@ -526,18 +526,31 @@ bool femm::FemmProblem::getBoundingBox(double (&x)[2], double (&y)[2]) const
     return true;
 }
 
+// identical in fmesher, FPProc and HPProc
 void femm::FemmProblem::getCircle(const femm::CArcSegment &arc, CComplex &c, double &R) const
 {
+    // construct the coordinates of the two points on the circle
     CComplex a0(nodelist[arc.n0]->x,nodelist[arc.n0]->y);
     CComplex a1(nodelist[arc.n1]->x,nodelist[arc.n1]->y);
-    double d=abs(a1-a0);        // distance between arc endpoints
+
+    // calculate distance between arc endpoints
+    double d = abs(a1 - a0);
 
     // figure out what the radius of the circle is...
-    CComplex t=(a1-a0)/d;
-    double tta=arc.ArcLength*PI/180.;
 
-    R=d/(2.*sin(tta/2.));
-    c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
+    // get unit vector pointing from a0 to a1
+    CComplex t = (a1 - a0) / d;
+
+    // convert swept angle from degrees to radians
+    double tta = arc.ArcLength * PI / 180.;
+
+    // the radius is half the chord length divided by sin of
+    // half the swept angle (finding the side length of a
+    // triangle formed by the two points and the centre)
+    R = d / (2.*sin(tta/2.));
+
+    // center of the arc segment's circle
+    c = a0 + (d/2. + I * sqrt(R*R - d*d / 4.)) * t;
 }
 
 std::string femm::FemmProblem::getTitle() const
@@ -545,7 +558,7 @@ std::string femm::FemmProblem::getTitle() const
     return pathName;
 }
 
-bool femm::FemmProblem::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
+bool femm::FemmProblem::getIntersection(int n0, int n1, int segm, double *xi, double *yi) const
 {
     CComplex p0,p1,q0,q1;
     double ee,x,z;
@@ -594,7 +607,7 @@ bool femm::FemmProblem::GetIntersection(int n0, int n1, int segm, double *xi, do
 double femm::FemmProblem::LineLength(int i)
 {
     return abs(nodelist[linelist[i]->n0]->CC()-
-           nodelist[linelist[i]->n1]->CC());
+            nodelist[linelist[i]->n1]->CC());
 }
 
 femm::FemmProblem::FemmProblem(FileType ftype)

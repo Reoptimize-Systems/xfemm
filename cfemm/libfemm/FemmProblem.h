@@ -154,20 +154,14 @@ public:
      * @return \c true on success, \c false on failure
      */
     bool getBoundingBox(double (&x)[2], double (&y)[2]) const;
-    /**
-     * @brief get the circle matching the arc segment
-     * @param arc the arc segment
-     * @param c the center of the circle
-     * @param R the radius
-     */
-    void getCircle(const CArcSegment &arc,CComplex &c, double &R) const;
 
     /**
-     * @brief The document title.
-     * Currently, this is the same as PathName
-     * @return
+     * @brief getCircle computes the matching circle to an arc segment.
+     * @param asegm the arc segment
+     * @param c the center of the circle, packed as CComplex (output variable)
+     * @param R the radius of the circle (output variable)
      */
-    std::string getTitle() const;
+    void getCircle(const CArcSegment &arc,CComplex &c, double &R) const;
 
     /**
      * @brief GetIntersection between a line and a segment.
@@ -180,7 +174,15 @@ public:
      * @param yi y coordinate of intersection (output variable)
      * @return true, if a "proper" intersection is found, false otherwise.
      */
-    bool GetIntersection(int n0, int n1, int segm, double *xi, double *yi);
+    bool getIntersection(int n0, int n1, int segm, double *xi, double *yi) const;
+
+    /**
+     * @brief The document title.
+     * Currently, this is the same as PathName
+     * @return
+     */
+    std::string getTitle() const;
+
     /**
      * @brief LineLength
      * @param i index of line
@@ -194,7 +196,6 @@ public:
     //int ClosestSegment(double x, double y);
     //int GetArcArcIntersection(femm::CArcSegment &arc1, femm::CArcSegment &arc2, CComplex *p);
     //int GetLineArcIntersection(femm::CSegment &seg, femm::CArcSegment &arc, CComplex *p);
-    //void GetCircle(const femm::CArcSegment &asegm, CComplex &c, double &R);
 
 public: // data members
     double FileFormat; ///< \brief format version of the file

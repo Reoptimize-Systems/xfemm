@@ -403,7 +403,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         k = (unsigned int) std::ceil(arc.ArcLength/arc.MaxSideLength);
         segm.BoundaryMarkerName=arc.BoundaryMarkerName;
         segm.InConductorName=arc.InConductorName; // not relevant for magnetics problems
-        GetCircle(arc,c,R);
+        problem->getCircle(arc,c,R);
         a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
         if(k==1){
@@ -938,7 +938,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
         segm.BoundaryMarkerName=arc.BoundaryMarkerName;
         segm.InConductorName=arc.InConductorName; // not relevant to magnetics problems
-        GetCircle(arc,c,R);
+        problem->getCircle(arc,c,R);
         a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
         if(k==1){
@@ -1739,8 +1739,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             k = (int) ceil(problem->arclist[s0]->ArcLength/problem->arclist[s0]->MaxSideLength);
             segm.BoundaryMarkerName = problem->arclist[s0]->BoundaryMarkerName;
             segm.InConductorName=problem->arclist[i]->InConductorName; // not relevant for magnetics
-            GetCircle(*problem->arclist[s0],c0,r0);
-            GetCircle(*problem->arclist[s1],c1,r1);
+            problem->getCircle(*problem->arclist[s0],c0,r0);
+            problem->getCircle(*problem->arclist[s1],c1,r1);
 
             if (problem->arclist[s0]->NormalDirection ==0){
                 bgn0 = problem->nodelist[problem->arclist[s0]->n0]->CC();
@@ -1947,7 +1947,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
             segm.BoundaryMarkerName=arc.BoundaryMarkerName;
             segm.InConductorName=arc.InConductorName;  // not relevant to magnetics problems
-            GetCircle(arc,c,R);
+            problem->getCircle(arc,c,R);
             a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
             if(k==1){

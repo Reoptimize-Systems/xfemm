@@ -113,37 +113,6 @@ void FMesher::UnselectAll()
 }
 
 
-void FMesher::GetCircle(const CArcSegment &arc, CComplex &c, double &R)
-{
-    CComplex a0,a1,t;
-    double d,tta;
-
-    // construct the coordinates of the two points on the circle
-    a0.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-    a1.Set(problem->nodelist[arc.n1]->x,problem->nodelist[arc.n1]->y);
-
-    // calculate distance between arc endpoints
-    d = abs(a1 - a0);
-
-    // figure out what the radius of the circle is...
-
-    // get unit vector pointing from a0 to a1
-    t = (a1 - a0) / d;
-
-    // convert swept angle from degrees to radians
-    tta = arc.ArcLength * PI / 180.;
-
-    // the radius is half the chord length divided by sin of
-    // half the swept angle (finding the side length of a
-    // triangle formed by the two points and the centre)
-    R = d / (2.*sin(tta/2.));
-
-    // center of the arc segment's circle
-    c = a0 + (d/2. + I * sqrt(R*R - d*d / 4.)) * t;
-
-}
-
-
 int FMesher::GetLineArcIntersection(CSegment &seg, CArcSegment &arc, CComplex *p)
 {
     CComplex p0,p1,a0,a1,t,v,c;
@@ -203,8 +172,8 @@ int FMesher::GetArcArcIntersection(CArcSegment &arc0, CArcSegment &arc1, CComple
     a0.Set(problem->nodelist[arc0.n0]->x,problem->nodelist[arc0.n0]->y);
     a1.Set(problem->nodelist[arc1.n0]->x,problem->nodelist[arc1.n0]->y);
 
-    GetCircle(arc1,c1,R1);
-    GetCircle(arc0,c0,R0);
+    problem->getCircle(arc1,c1,R1);
+    problem->getCircle(arc0,c0,R0);
 
     d=abs(c1-c0);			// distance between centers
 
@@ -297,7 +266,7 @@ double FMesher::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
 
     a0.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
     a1.Set(problem->nodelist[arc.n1]->x,problem->nodelist[arc.n1]->y);
-    GetCircle(arc,c,R);
+    problem->getCircle(arc,c,R);
     d=abs(p-c);
 
     if(d==0) return R;
@@ -912,7 +881,7 @@ bool FMesher::CreateRadius(int n, double r)
         ar.BoundaryMarkerName=problem->arclist[arc[0]]->BoundaryMarkerName;
 
         // get the center and radius of the circle associated with the arc;
-        GetCircle(*problem->arclist[arc[0]],c,rc);
+        problem->getCircle(*problem->arclist[arc[0]],c,rc);
 
         // get the locations of the endpoints of the segment;
         p0=problem->nodelist[n]->CC();
@@ -1069,8 +1038,8 @@ bool FMesher::CreateRadius(int n, double r)
         CArcSegment ar;
 
         r0=r;
-        GetCircle(*problem->arclist[arc[0]],c1,r1);
-        GetCircle(*problem->arclist[arc[1]],c2,r2);
+        problem->getCircle(*problem->arclist[arc[0]],c1,r1);
+        problem->getCircle(*problem->arclist[arc[1]],c2,r2);
         c=abs(c2-c1);
 
         // solve for all of the different possible cases;
@@ -1398,7 +1367,7 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
     UnselectAll();
     CComplex c;
     double R;
-    GetCircle(asegm,c,R);
+    problem->getCircle(asegm,c,R);
 
     double dmin = tol;
     if (tol==0)
@@ -2099,7 +2068,7 @@ bool FMesher::AddNode(std::unique_ptr<CNode> &&node, double d)
             a0.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
             a1.Set(problem->nodelist[problem->arclist[i]->n1]->x,problem->nodelist[problem->arclist[i]->n1]->y);
             a2.Set(x,y);
-            GetCircle(*problem->arclist[i],c,R);
+            problem->getCircle(*problem->arclist[i],c,R);
 
             std::unique_ptr<CArcSegment> asegm;
             asegm = std::make_unique<CArcSegment>(*problem->arclist[i]);
@@ -2142,7 +2111,7 @@ bool FMesher::AddSegment(int n0, int n1, const CSegment *parsegm, double tol)
 
     // check to see if there are intersections with segments
     for (int i=0; i<(int)problem->linelist.size(); i++)
-        if(problem->GetIntersection(n0,n1,i,&xi,&yi)) newnodes.push_back(CComplex(xi,yi));
+        if(problem->getIntersection(n0,n1,i,&xi,&yi)) newnodes.push_back(CComplex(xi,yi));
 
     // check to see if there are intersections with arcs
     for (int i=0; i<(int)problem->arclist.size(); i++){
