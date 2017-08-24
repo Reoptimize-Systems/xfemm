@@ -111,7 +111,6 @@ public:
 	int ClosestBlockLabel(double x, double y);
 	int ClosestSegment(double x, double y);
 	int ClosestArcSegment(double x, double y);
-    int GetLineArcIntersection(femm::CSegment &seg, femm::CArcSegment &arc, CComplex *p);
     double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
 
     // Core functions
