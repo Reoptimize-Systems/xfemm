@@ -462,56 +462,6 @@ int FMesher::ClosestArcSegment(double x, double y)
     return j;
 }
 
-bool FMesher::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
-// prospective line specified by n0,n1;
-// segment specified by segm;
-// coordinates of the intersection returned in xi,yi
-{
-    CComplex p0,p1,q0,q1;
-    double ee,x,z;
-
-    // Check to see if the two lines have a common endpoint
-    // If they do, there can be no other intersection...
-    if (n0==problem->linelist[segm]->n0) return false;
-    if (n0==problem->linelist[segm]->n1) return false;
-    if (n1==problem->linelist[segm]->n0) return false;
-    if (n1==problem->linelist[segm]->n1) return false;
-
-    // Get a definition of "real small" based on the lengths
-    // of the lines of interest;
-    p0=problem->nodelist[problem->linelist[segm]->n0]->CC();
-    p1=problem->nodelist[problem->linelist[segm]->n1]->CC();
-    q0=problem->nodelist[n0]->CC();
-    q1=problem->nodelist[n1]->CC();
-    ee = (std::min)(abs(p1-p0),abs(q1-q0))*1.0e-8;
-
-    // Rotate and scale the prospective line
-    q0=(q0-p0)/(p1-p0);
-    q1=(q1-p0)/(p1-p0);
-
-    // Check for cases where there is obviously no intersection
-    if ((Re(q0)<=0.) && (Re(q1)<=0.)) return false;
-    if ((Re(q0)>=1.) && (Re(q1)>=1.)) return false;
-    if ((Im(q0)<=0.) && (Im(q1)<=0.)) return false;
-    if ((Im(q0)>=0.) && (Im(q1)>=0.)) return false;
-
-    // compute intersection
-    z=Im(q0)/Im(q0-q1);
-
-    // check to see if the line segments intersect at a point sufficiently
-    // far from the segment endpoints....
-    x=Re((1.0 - z)*q0 + z*q1);
-    if((x < ee) || (x > (1.0 - ee))) return false;
-
-    // return resulting intersection point
-    p0 = (1.0 - z)*problem->nodelist[n0]->CC() + z*problem->nodelist[n1]->CC();
-    *xi=Re(p0);
-    *yi=Im(p0);
-
-    return true;
-}
-
-
 femm::FileType FMesher::GetFileType (string PathName)
 {
     // find the position of the last '.' in the string
@@ -2192,7 +2142,7 @@ bool FMesher::AddSegment(int n0, int n1, const CSegment *parsegm, double tol)
 
     // check to see if there are intersections with segments
     for (int i=0; i<(int)problem->linelist.size(); i++)
-        if(GetIntersection(n0,n1,i,&xi,&yi)) newnodes.push_back(CComplex(xi,yi));
+        if(problem->GetIntersection(n0,n1,i,&xi,&yi)) newnodes.push_back(CComplex(xi,yi));
 
     // check to see if there are intersections with arcs
     for (int i=0; i<(int)problem->arclist.size(); i++){

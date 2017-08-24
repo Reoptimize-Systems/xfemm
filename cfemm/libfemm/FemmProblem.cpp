@@ -545,6 +545,52 @@ std::string femm::FemmProblem::getTitle() const
     return pathName;
 }
 
+bool femm::FemmProblem::GetIntersection(int n0, int n1, int segm, double *xi, double *yi)
+{
+    CComplex p0,p1,q0,q1;
+    double ee,x,z;
+
+    // Check to see if the two lines have a common endpoint
+    // If they do, there can be no other intersection...
+    if (n0==linelist[segm]->n0) return false;
+    if (n0==linelist[segm]->n1) return false;
+    if (n1==linelist[segm]->n0) return false;
+    if (n1==linelist[segm]->n1) return false;
+
+    // Get a definition of "real small" based on the lengths
+    // of the lines of interest;
+    p0=nodelist[linelist[segm]->n0]->CC();
+    p1=nodelist[linelist[segm]->n1]->CC();
+    q0=nodelist[n0]->CC();
+    q1=nodelist[n1]->CC();
+    ee = (std::min)(abs(p1-p0),abs(q1-q0))*1.0e-8;
+
+    // Rotate and scale the prospective line
+    q0=(q0-p0)/(p1-p0);
+    q1=(q1-p0)/(p1-p0);
+
+    // Check for cases where there is obviously no intersection
+    if ((Re(q0)<=0.) && (Re(q1)<=0.)) return false;
+    if ((Re(q0)>=1.) && (Re(q1)>=1.)) return false;
+    if ((Im(q0)<=0.) && (Im(q1)<=0.)) return false;
+    if ((Im(q0)>=0.) && (Im(q1)>=0.)) return false;
+
+    // compute intersection
+    z=Im(q0)/Im(q0-q1);
+
+    // check to see if the line segments intersect at a point sufficiently
+    // far from the segment endpoints....
+    x=Re((1.0 - z)*q0 + z*q1);
+    if((x < ee) || (x > (1.0 - ee))) return false;
+
+    // return resulting intersection point
+    p0 = (1.0 - z)*nodelist[n0]->CC() + z*nodelist[n1]->CC();
+    *xi=Re(p0);
+    *yi=Im(p0);
+
+    return true;
+}
+
 femm::FemmProblem::FemmProblem(FileType ftype)
     : FileFormat(-1)
     , Frequency(0.0)
