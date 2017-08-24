@@ -146,7 +146,14 @@ public:
      */
     bool consistencyCheckOK() const;
 
-    //
+    /**
+     * @brief Intersect two arcs.
+     * @param arc0
+     * @param arc1
+     * @param p intersection points, packed as CComplex
+     * @return the number of valic intersections, and size of array p
+     */
+    int getArcArcIntersection(const femm::CArcSegment &arc0, const femm::CArcSegment &arc1, CComplex *p) const;
     /**
      * @brief look at points, block labels, and arcs to get bounding box.
      * @param x
@@ -194,7 +201,6 @@ public:
     //int ClosestBlockLabel(double x, double y);
     //int ClosestNode(double x, double y);
     //int ClosestSegment(double x, double y);
-    //int GetArcArcIntersection(femm::CArcSegment &arc1, femm::CArcSegment &arc2, CComplex *p);
     //int GetLineArcIntersection(femm::CSegment &seg, femm::CArcSegment &arc, CComplex *p);
 
 public: // data members

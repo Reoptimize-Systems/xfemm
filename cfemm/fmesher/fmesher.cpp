@@ -163,52 +163,6 @@ int FMesher::GetLineArcIntersection(CSegment &seg, CArcSegment &arc, CComplex *p
 
 }
 
-int FMesher::GetArcArcIntersection(CArcSegment &arc0, CArcSegment &arc1, CComplex *p)
-{
-    CComplex a0,a1,t,c0,c1;
-    double d,l,R0,R1,z0,z1,c,tta0,tta1;
-    int i=0;
-
-    a0.Set(problem->nodelist[arc0.n0]->x,problem->nodelist[arc0.n0]->y);
-    a1.Set(problem->nodelist[arc1.n0]->x,problem->nodelist[arc1.n0]->y);
-
-    problem->getCircle(arc1,c1,R1);
-    problem->getCircle(arc0,c0,R0);
-
-    d=abs(c1-c0);			// distance between centers
-
-    if ((d>R0+R1) || (d<1.e-08)) return 0;
-    // directly eliminate case where there can't
-    // be any crossings....
-
-    l=sqrt((R0+R1-d)*(d+R0-R1)*(d-R0+R1)*(d+R0+R1))/(2.*d);
-    c=1.+(R0/d)*(R0/d)-(R1/d)*(R1/d);
-    t=(c1-c0)/d;
-    tta0=arc0.ArcLength*PI/180;
-    tta1=arc1.ArcLength*PI/180;
-
-    p[i]=c0 + (c*d/2.+ I*l)*t;		// first possible intersection;
-    z0=arg((p[i]-c0)/(a0-c0));
-    z1=arg((p[i]-c1)/(a1-c1));
-    if ((z0>0.) && (z0<tta0) && (z1>0.) && (z1<tta1)) i++;
-
-    if(fabs(d-R0+R1)/(R0+R1)< 1.e-05)
-    {
-        p[i]=c0+ c*d*t/2.;
-        return i;
-    }
-
-    p[i]=c0 + (c*d/2.-I*l)*t;		// second possible intersection
-    z0=arg((p[i]-c0)/(a0-c0));
-    z1=arg((p[i]-c1)/(a1-c1));
-    if ((z0>0.) && (z0<tta0) && (z1>0.) && (z1<tta1)) i++;
-
-    // returns the number of valid intersections found;
-    // intersections are returned in the array p[];
-    return i;
-}
-
-
 int FMesher::ClosestNode(double x, double y)
 {
     unsigned int i,j;
@@ -1327,7 +1281,7 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
     }
     for (int i=0; i<(int)problem->arclist.size(); i++)
     {
-        int j = GetArcArcIntersection(asegm,*problem->arclist[i],p);
+        int j = problem->getArcArcIntersection(asegm,*problem->arclist[i],p);
         if (j>0)
             for(int k=0; k<j; k++)
                 newnodes.push_back(p[k]);

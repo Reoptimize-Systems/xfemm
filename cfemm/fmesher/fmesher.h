@@ -112,7 +112,6 @@ public:
 	int ClosestSegment(double x, double y);
 	int ClosestArcSegment(double x, double y);
     int GetLineArcIntersection(femm::CSegment &seg, femm::CArcSegment &arc, CComplex *p);
-    int GetArcArcIntersection(femm::CArcSegment &arc1, femm::CArcSegment &arc2, CComplex *p);
     double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
 
     // Core functions
