@@ -127,7 +127,6 @@ public:
     void GetCircle(femm::CArcSegment &asegm,CComplex &c, double &R);
     double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
 	double ShortestDistanceFromSegment(double p, double q, int segm);
-	double ShortestDistance(double p, double q, int segm);
 	int ClosestSegment(double x, double y);
 	bool IsSameMaterial(int e1, int e2);
 	double AECF(int k);
