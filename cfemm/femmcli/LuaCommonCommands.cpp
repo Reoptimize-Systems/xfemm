@@ -75,8 +75,8 @@ int femmcli::LuaCommonCommands::luaAddArc(lua_State *L)
     double maxseg = lua_todouble(L,6);
 
     CArcSegment asegm;
-    asegm.n0 = mesher->ClosestNode(sx,sy);
-    asegm.n1 = mesher->ClosestNode(ex,ey);
+    asegm.n0 = mesher->problem->closestNode(sx,sy);
+    asegm.n1 = mesher->problem->closestNode(ex,ey);
     doc->nodelist[asegm.n1]->ToggleSelect();
     //theView->DrawPSLG();
 
@@ -179,8 +179,8 @@ int femmcli::LuaCommonCommands::luaAddLine(lua_State *L)
     double ey=lua_todouble(L,4);
 
     femmState->getMesher()->AddSegment(
-                femmState->getMesher()->ClosestNode(sx,sy),
-                femmState->getMesher()->ClosestNode(ex,ey));
+                femmState->getMesher()->problem->closestNode(sx,sy),
+                femmState->getMesher()->problem->closestNode(ex,ey));
 
     //BOOL flag=thisDoc->AddSegment(thisDoc->ClosestNode(sx,sy),thisDoc->ClosestNode(ex,ey));
     //if(flag==TRUE)
@@ -1311,7 +1311,7 @@ int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
     double y = lua_todouble(L,2);
     double r = fabs(lua_todouble(L,3));
 
-    int node = mesher->ClosestNode(x,y);
+    int node = mesher->problem->closestNode(x,y);
     if (node<0)
         return 0; // catch case where no nodes have been drawn yet;
 
@@ -1639,7 +1639,7 @@ int femmcli::LuaCommonCommands::luaSelectNode(lua_State *L)
     if(mesher->problem->nodelist.size() == 0)
         return 0;
 
-    int node = mesher->ClosestNode(mx,my);
+    int node = mesher->problem->closestNode(mx,my);
     mesher->problem->nodelist[node]->ToggleSelect();
 
     lua_pushnumber(L,mesher->problem->nodelist[node]->x);

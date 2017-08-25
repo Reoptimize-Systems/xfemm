@@ -133,20 +133,28 @@ public:
     bool isMeshed() const;
 
     /**
-     * @brief closestArcSegment find the closest arc segment for the given coordinates
+     * @brief Find the closest arc segment for the given coordinates
      * @param x
      * @param y
-     * @return an arc segment index, or -1
+     * @return an arc segment index, or -1 if the arclist is empty
      */
     int closestArcSegment(double x, double y);
 
     /**
-     * @brief closestBlockLabel find the closest block label for the given coordinates
+     * @brief Find the closest block label for the given coordinates
      * @param x
      * @param y
-     * @return a blocklabel index, or -1
+     * @return a blocklabel index, or -1 if the labellist is empty
      */
     int closestBlockLabel(double x, double y);
+
+    /**
+     * @brief Find the closest node for the given coordinates
+     * @param x
+     * @param y
+     * @return a node index, or -1 if the nodelist is empty
+     */
+    int closestNode(double x, double y);
 
     /**
      * @brief Run a basic consistency check.
@@ -229,7 +237,6 @@ public:
      * @return the shortest distance
      */
     double shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc);
-    //int ClosestNode(double x, double y);
     //int ClosestSegment(double x, double y);
 
 public: // data members

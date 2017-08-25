@@ -113,31 +113,6 @@ void FMesher::UnselectAll()
 }
 
 
-int FMesher::ClosestNode(double x, double y)
-{
-    unsigned int i,j;
-    double d0,d1;
-
-    if(problem->nodelist.size()==0)
-    {
-        return -1;
-    }
-
-    j=0;
-    d0=problem->nodelist[0]->GetDistance(x,y);
-    for(i=0; i<problem->nodelist.size(); i++)
-    {
-        d1=problem->nodelist[i]->GetDistance(x,y);
-        if(d1<d0)
-        {
-            d0=d1;
-            j=i;
-        }
-    }
-
-    return j;
-}
-
 double FMesher::ShortestDistance(double p, double q, int segm)
 {
     double t,x[3],y[3];
@@ -780,7 +755,7 @@ bool FMesher::CreateRadius(int n, double r)
         UnselectAll();
 
         // delete the node that is to be replace by a radius;
-        n=ClosestNode(Re(p0),Im(p0));
+        n=problem->closestNode(Re(p0),Im(p0));
         problem->nodelist[n]->IsSelected=true;
         DeleteSelectedNodes();
 
@@ -793,8 +768,8 @@ bool FMesher::CreateRadius(int n, double r)
         }
 
         // add in the new radius;
-        ar.n0=ClosestNode(Re(i1[j]),Im(i1[j]));
-        ar.n1=ClosestNode(Re(i2[j]),Im(i2[j]));
+        ar.n0=problem->closestNode(Re(i1[j]),Im(i1[j]));
+        ar.n1=problem->closestNode(Re(i2[j]),Im(i2[j]));
         ar.ArcLength=phi/DEG;
         AddArcSegment(ar);
 
@@ -849,13 +824,13 @@ bool FMesher::CreateRadius(int n, double r)
         UnselectAll();
 
         // delete the node that is to be replace by a radius;
-        n=ClosestNode(Re(p0),Im(p0));
+        n=problem->closestNode(Re(p0),Im(p0));
         problem->nodelist[n]->IsSelected=true;
         DeleteSelectedNodes();
 
         // add in the new radius;
-        ar.n0=ClosestNode(Re(p2),Im(p2));
-        ar.n1=ClosestNode(Re(p1),Im(p1));
+        ar.n0=problem->closestNode(Re(p2),Im(p2));
+        ar.n1=problem->closestNode(Re(p1),Im(p1));
         ar.ArcLength=180.-phi/DEG;
         AddArcSegment(ar);
 
@@ -937,7 +912,7 @@ bool FMesher::CreateRadius(int n, double r)
         UnselectAll();
 
         // delete the node that is to be replace by a radius;
-        n=ClosestNode(Re(c0),Im(c0));
+        n=problem->closestNode(Re(c0),Im(c0));
         problem->nodelist[n]->IsSelected=true;
         DeleteSelectedNodes();
 
@@ -950,8 +925,8 @@ bool FMesher::CreateRadius(int n, double r)
         }
 
         // add in the new radius;
-        ar.n0=ClosestNode(Re(i1[j]),Im(i1[j]));
-        ar.n1=ClosestNode(Re(i2[j]),Im(i2[j]));
+        ar.n0=problem->closestNode(Re(i1[j]),Im(i1[j]));
+        ar.n1=problem->closestNode(Re(i2[j]),Im(i2[j]));
         ar.ArcLength=phi/DEG;
         AddArcSegment(ar);
 

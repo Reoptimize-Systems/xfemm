@@ -166,28 +166,6 @@ int PostProcessor::InTriangle(double x, double y)
     return (-1);
 }
 
-// identical in fmesher, FPProc, and HPProc
-int PostProcessor::ClosestNode(double x, double y)
-{
-    double d0,d1;
-
-    if(problem->nodelist.size()==0) return -1;
-
-    int idx=0;
-    d0=problem->nodelist[0]->GetDistance(x,y);
-    for(int i=0; i<(int)problem->nodelist.size(); i++)
-    {
-        d1=problem->nodelist[i]->GetDistance(x,y);
-        if(d1<d0)
-        {
-            d0=d1;
-            idx=i;
-        }
-    }
-
-    return idx;
-}
-
 // FPProc and HPProc differ, but I'm not sure whether hpproc could just use this version instead
 bool PostProcessor::InTriangleTest(double x, double y, int i)
 {
@@ -300,83 +278,6 @@ CComplex PostProcessor::HenrotteVector(int k)
     return v;
 }
 
-
-// identical in fmesher, FPProc and HPProc
-int PostProcessor::ClosestArcSegment(double x, double y)
-{
-    if(problem->arclist.size()==0) return -1;
-
-    double d0=ShortestDistanceFromArc(CComplex(x,y),*problem->arclist[0]);
-    int idx=0;
-    for(int i=0; i<(int)problem->arclist.size(); i++)
-    {
-        double d1=ShortestDistanceFromArc(CComplex(x,y),*problem->arclist[i]);
-        if(d1<d0)
-        {
-            d0=d1;
-            idx=i;
-        }
-    }
-
-    return idx;
-}
-
-// identical in fmesher, FPProc and HPProc
-void PostProcessor::GetCircle(CArcSegment &arc,CComplex &c, double &R)
-{
-    CComplex a0,a1,t;
-    double d,tta;
-
-    // construct the coordinates of the two points on the circle
-    a0.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-    a1.Set(problem->nodelist[arc.n1]->x,problem->nodelist[arc.n1]->y);
-
-    // calculate distance between arc endpoints
-    d = abs(a1 - a0);
-
-    // figure out what the radius of the circle is...
-
-    // get unit vector pointing from a0 to a1
-    t = (a1 - a0) / d;
-
-    // convert swept angle from degrees to radians
-    tta = arc.ArcLength * PI / 180.;
-
-    // the radius is half the chord length divided by sin of
-    // half the swept angle (finding the side length of a
-    // triangle formed by the two points and the centre)
-    R = d / (2.*sin(tta/2.));
-
-    // center of the arc segment's circle
-    c = a0 + (d/2. + I * sqrt(R*R - d*d / 4.)) * t;
-
-}
-
-
-
-// identical in fmesher, FPProc and HPProc
-double PostProcessor::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
-{
-    double R,d,l,z;
-    CComplex a0,a1,c,t;
-
-    a0.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-    a1.Set(problem->nodelist[arc.n1]->x,problem->nodelist[arc.n1]->y);
-    GetCircle(arc,c,R);
-    d=abs(p-c);
-
-    if(d==0) return R;
-
-    t=(p-c)/d;
-    l=abs(p-c-R*t);
-    z=arg(t/(a0-c))*180/PI;
-    if ((z>0) && (z<arc.ArcLength)) return l;
-
-    z=abs(p-a0);
-    l=abs(p-a1);
-    if(z<l) return z;
-    return l;
-}
 
 // identical in FPProc and HPProc
 double PostProcessor::ShortestDistanceFromSegment(double p, double q, int segm)
