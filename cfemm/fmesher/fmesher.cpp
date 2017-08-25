@@ -286,31 +286,6 @@ int FMesher::ClosestSegment(double x, double y)
     return j;
 }
 
-int FMesher::ClosestArcSegment(double x, double y)
-{
-    double d0,d1;
-    unsigned int i,j;
-
-    if(problem->arclist.size()==0)
-    {
-        return -1;
-    }
-
-    j=0;
-    d0=problem->shortestDistanceFromArc(CComplex(x,y),*(problem->arclist[0]));
-    for(i=0; i<problem->arclist.size(); i++)
-    {
-        d1=problem->shortestDistanceFromArc(CComplex(x,y),*(problem->arclist[i]));
-        if(d1<d0)
-        {
-            d0=d1;
-            j=i;
-        }
-    }
-
-    return j;
-}
-
 femm::FileType FMesher::GetFileType (string PathName)
 {
     // find the position of the last '.' in the string

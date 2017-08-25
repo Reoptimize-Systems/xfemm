@@ -1489,7 +1489,7 @@ int femmcli::LuaCommonCommands::luaSelectArcsegment(lua_State *L)
     if (doc->arclist.empty())
         return 0;
 
-    int node = mesher->ClosestArcSegment(mx,my);
+    int node = mesher->problem->closestArcSegment(mx,my);
     doc->arclist[node]->ToggleSelect();
 
     lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n0]->x);
