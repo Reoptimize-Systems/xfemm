@@ -121,8 +121,6 @@ public:
 	void Undo();
 	//bool OldOnOpenDocument(LPCTSTR lpszPathName);
 	bool HasPeriodicBC();
-    void UnselectAll();
-
 
     /**
      * @brief EnforcePSLG
@@ -147,29 +145,6 @@ public:
     // pointer to function to use for triangle to issue warning messages
     int (*TriMessage)(const char * format, ...);
 
-    /**
-     * @brief Add a CNode to the problem description.
-     * If necessary, adjust existing CSegments or CArcSegments.
-     * The method also ensures that a new node can't be put atop of an existing node or a block label.
-     * @param x node position x
-     * @param y node position y
-     * @param d minimum distance to next node or label.
-     * @return \c true, if the node could be added, \c false otherwise.
-     */
-    bool AddNode(double x, double y, double d);
-    /**
-     * @brief Add a CNode to the problem description.
-     * If necessary, adjust existing CSegments or CArcSegments.
-     * The method also ensures that a new node can't be put atop of an existing node or a block label.
-     *
-     * In contrast to the AddNode(double,double,double), this signature needs an existing CNode rvalue reference that is invalidated by this call.
-     * Normally, you want to call the other variant.
-     *
-     * @param node the node to add.
-     * @param d minimum distance to next node or label.
-     * @return \c true, if the node could be added, \c false otherwise.
-     */
-    bool AddNode(std::unique_ptr<femm::CNode> &&node, double d);
     /**
      * @brief Add a line (CSegment) to the problem description
      * The method checks for intersections, splits existing lines/arcs accordingly,
@@ -216,15 +191,6 @@ public:
      * @return \c true if the label could be added or a block label already exists at that position, \c false otherwise.
      */
     bool AddBlockLabel(std::unique_ptr<femm::CBlockLabel> &&label, double d);
-    /**
-     * @brief Add an arc segment to the problem description.
-     * This method takes care of intersections with other nodes or lines, and splits the arc segment if necessary.
-     * No degenerate arc segments (with start point == end point) can be added.
-     * @param asegm the proposed arc segment.
-     * @param tol tolerance, i.e. minimum distance between arc segment and nodes
-     * @return \c true if the arc segment could be added, \c false otherwise.
-     */
-    bool AddArcSegment(femm::CArcSegment &asegm, double tol=0.);
 
     /**
      * @brief Mirror copies of the selected objects about the given line.
@@ -279,27 +245,6 @@ public:
      * @param selector
      */
     void TranslateMove(double dx, double dy, femm::EditMode selector);
-    /**
-     * @brief Delete all selected segments.
-     * @return \c true, if any segments were deleted, \c false otherwise.
-     */
-    bool DeleteSelectedSegments();
-    /**
-     * @brief Delete all selected arc segments
-     * @return \c true, if any segments were deleted, \c false otherwise.
-     */
-    bool DeleteSelectedArcSegments();
-    /**
-     * @brief Delete all selected BlockLabels
-     * @return \c true, if any blocks were deleted, \c false otherwise.
-     */
-    bool DeleteSelectedBlockLabels();
-    /**
-     * @brief Delete all selected nodes.
-     * If a node is part of a line or arc, that line or arc is also deleted.
-     * @return \c true, if any node was deleted, \c false otherwise.
-     */
-    bool DeleteSelectedNodes();
 
     /**
      * @brief Check whether the given node is suitable for creating a radius.

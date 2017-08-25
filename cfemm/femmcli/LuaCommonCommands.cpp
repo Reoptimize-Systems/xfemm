@@ -64,7 +64,6 @@ int femmcli::LuaCommonCommands::luaAddArc(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     double sx = lua_todouble(L,1);
     double sy = lua_todouble(L,2);
@@ -83,8 +82,8 @@ int femmcli::LuaCommonCommands::luaAddArc(lua_State *L)
     asegm.MaxSideLength = maxseg;
     asegm.ArcLength = angle;
 
-    mesher->AddArcSegment(asegm);
-    mesher->UnselectAll();
+    doc->addArcSegment(asegm);
+    doc->unselectAll();
     //if(flag==TRUE){
     //    theView->MeshUpToDate=FALSE;
     //    if(theView->MeshFlag==TRUE) theView->lnu_show_mesh();
@@ -236,7 +235,7 @@ int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
         }
         d=abs(p1-p0)*CLOSE_ENOUGH;
     }
-    femmState->getMesher()->AddNode(x,y,d);
+    femmState->getMesher()->problem->addNode(x,y,d);
 
     //BOOL flag=doc->AddNode(x,y,d);
     //if(flag==TRUE){
@@ -336,7 +335,7 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
 
-    femmState->getMesher()->UnselectAll();
+    femmState->getMesher()->problem->unselectAll();
     return 0;
 }
 
@@ -614,12 +613,12 @@ int femmcli::LuaCommonCommands::luaDeleteSelected(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    mesher->DeleteSelectedSegments();
-    mesher->DeleteSelectedArcSegments();
-    mesher->DeleteSelectedNodes();
-    mesher->DeleteSelectedBlockLabels();
+    doc->deleteSelectedSegments();
+    doc->deleteSelectedArcSegments();
+    doc->deleteSelectedNodes();
+    doc->deleteSelectedBlockLabels();
 
     return 0;
 }
@@ -644,9 +643,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedArcSegments(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    mesher->DeleteSelectedArcSegments();
+    doc->deleteSelectedArcSegments();
     return 0;
 }
 
@@ -670,9 +669,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedBlockLabels(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    mesher->DeleteSelectedBlockLabels();
+    doc->deleteSelectedBlockLabels();
     return 0;
 }
 
@@ -696,9 +695,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedNodes(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    mesher->DeleteSelectedNodes();
+    doc->deleteSelectedNodes();
 
     return 0;
 }
@@ -724,8 +723,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedSegments(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    mesher->DeleteSelectedSegments();
+    doc->deleteSelectedSegments();
 
     return 0;
 }
@@ -1245,7 +1245,7 @@ int femmcli::LuaCommonCommands::luaCreateMesh(lua_State *L)
         if (mesher->DoPeriodicBCTriangulation(pathName) != 0)
         {
             //EndWaitCursor();
-            mesher->UnselectAll();
+            doc->unselectAll();
             lua_error(L, "createmesh(): Periodic BC triangulation failed!\n");
             return 0;
         }
@@ -1979,8 +1979,7 @@ int femmcli::LuaCommonCommands::luaSetGroup(lua_State *L)
             label->InGroup=grp;
     }
 
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
-    mesher->UnselectAll();
+    doc->unselectAll();
 
     return 0;
 }

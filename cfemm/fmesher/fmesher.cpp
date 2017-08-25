@@ -102,17 +102,6 @@ bool FMesher::Initialize(femm::FileType t)
 }
 
 
-void FMesher::UnselectAll()
-{
-    unsigned int i;
-
-    for(i=0; i < problem->nodelist.size(); i++) problem->nodelist[i]->IsSelected=0;
-    for(i=0; i < problem->linelist.size(); i++) problem->linelist[i]->IsSelected=0;
-    for(i=0; i < problem->labellist.size(); i++) problem->labellist[i]->IsSelected=0;
-    for(i=0; i < problem->arclist.size(); i++) problem->arclist[i]->IsSelected=0;
-}
-
-
 void FMesher::EnforcePSLG(double tol)
 {
     std::vector< std::unique_ptr<CNode>> newnodelist;
@@ -151,7 +140,7 @@ void FMesher::EnforcePSLG(double tol)
     // put in all of the nodes;
     for (auto &node: newnodelist)
     {
-        AddNode(std::move(node), d);
+        problem->addNode(std::move(node), d);
     }
 
     // put in all of the lines;
@@ -177,7 +166,7 @@ void FMesher::EnforcePSLG(double tol)
         //AddArcSegment(p0,p1,newarclist[i]);
 
         // using the raw pointer is ok here, because AddArcSegment creates a copy anyways
-        AddArcSegment(*arc.get(), d);
+        problem->addArcSegment(*arc.get(), d);
     }
 
     // put in all of the block labels;
@@ -186,7 +175,7 @@ void FMesher::EnforcePSLG(double tol)
         AddBlockLabel(std::move(label), d);
     }
 
-    UnselectAll();
+    problem->unselectAll();
     return;
 }
 
@@ -704,14 +693,14 @@ bool FMesher::CreateRadius(int n, double r)
         else j=0;	// The index of the winning case is in j....
 
         UpdateUndo();
-        AddNode(Re(i1[j]),Im(i1[j]),r/10000.);
-        AddNode(Re(i2[j]),Im(i2[j]),r/10000.);
-        UnselectAll();
+        problem->addNode(Re(i1[j]),Im(i1[j]),r/10000.);
+        problem->addNode(Re(i2[j]),Im(i2[j]),r/10000.);
+        problem->unselectAll();
 
         // delete the node that is to be replace by a radius;
         n=problem->closestNode(Re(p0),Im(p0));
         problem->nodelist[n]->IsSelected=true;
-        DeleteSelectedNodes();
+        problem->deleteSelectedNodes();
 
         // compute the angle spanned by the new arc;
         phi=arg((i2[j]-v[j])/(i1[j]-v[j]));
@@ -725,7 +714,7 @@ bool FMesher::CreateRadius(int n, double r)
         ar.n0=problem->closestNode(Re(i1[j]),Im(i1[j]));
         ar.n1=problem->closestNode(Re(i2[j]),Im(i2[j]));
         ar.ArcLength=phi/DEG;
-        AddArcSegment(ar);
+        problem->addArcSegment(ar);
 
         return true;
     }
@@ -773,20 +762,20 @@ bool FMesher::CreateRadius(int n, double r)
 
         // add new nodes at ends of radius
         UpdateUndo();
-        AddNode(Re(p1),Im(p1),len/10000.);
-        AddNode(Re(p2),Im(p2),len/10000.);
-        UnselectAll();
+        problem->addNode(Re(p1),Im(p1),len/10000.);
+        problem->addNode(Re(p2),Im(p2),len/10000.);
+        problem->unselectAll();
 
         // delete the node that is to be replace by a radius;
         n=problem->closestNode(Re(p0),Im(p0));
         problem->nodelist[n]->IsSelected=true;
-        DeleteSelectedNodes();
+        problem->deleteSelectedNodes();
 
         // add in the new radius;
         ar.n0=problem->closestNode(Re(p2),Im(p2));
         ar.n1=problem->closestNode(Re(p1),Im(p1));
         ar.ArcLength=180.-phi/DEG;
-        AddArcSegment(ar);
+        problem->addArcSegment(ar);
 
         return true;
     }
@@ -861,14 +850,14 @@ bool FMesher::CreateRadius(int n, double r)
 
         // add new nodes at ends of radius
         UpdateUndo();
-        AddNode(Re(i1[j]),Im(i1[j]),c/10000.);
-        AddNode(Re(i2[j]),Im(i2[j]),c/10000.);
-        UnselectAll();
+        problem->addNode(Re(i1[j]),Im(i1[j]),c/10000.);
+        problem->addNode(Re(i2[j]),Im(i2[j]),c/10000.);
+        problem->unselectAll();
 
         // delete the node that is to be replace by a radius;
         n=problem->closestNode(Re(c0),Im(c0));
         problem->nodelist[n]->IsSelected=true;
-        DeleteSelectedNodes();
+        problem->deleteSelectedNodes();
 
         // compute the angle spanned by the new arc;
         phi=arg((i2[j]-p[j])/(i1[j]-p[j]));
@@ -882,7 +871,7 @@ bool FMesher::CreateRadius(int n, double r)
         ar.n0=problem->closestNode(Re(i1[j]),Im(i1[j]));
         ar.n1=problem->closestNode(Re(i2[j]),Im(i2[j]));
         ar.ArcLength=phi/DEG;
-        AddArcSegment(ar);
+        problem->addArcSegment(ar);
 
         return true;
     }
@@ -946,231 +935,6 @@ bool FMesher::CreateRadius(int n, double r)
 //	}
 //}
 
-bool FMesher::DeleteSelectedBlockLabels()
-{
-    auto &labellist = problem->labellist;
-    size_t oldsize = labellist.size();
-
-    if (!labellist.empty())
-    {
-        // remove selected elements
-        labellist.erase(
-                    std::remove_if(labellist.begin(),labellist.end(),
-                                   [](const auto& label){ return label->IsSelected;} ),
-                    labellist.end()
-                    );
-    }
-    labellist.shrink_to_fit();
-
-    return labellist.size() != oldsize;
-}
-
-bool FMesher::DeleteSelectedSegments()
-{
-    auto &linelist = problem->linelist;
-    size_t oldsize = linelist.size();
-
-    if (!linelist.empty())
-    {
-        // remove selected elements
-        linelist.erase(
-                    std::remove_if(linelist.begin(),linelist.end(),
-                                   [](const auto& segm){ return segm->IsSelected;} ),
-                    linelist.end()
-                    );
-    }
-    linelist.shrink_to_fit();
-
-    return linelist.size() != oldsize;
-}
-
-bool FMesher::DeleteSelectedArcSegments()
-{
-    auto &arclist = problem->arclist;
-    size_t oldsize = arclist.size();
-
-    if (!arclist.empty())
-    {
-        // remove selected elements
-        arclist.erase(
-                    std::remove_if(arclist.begin(),arclist.end(),
-                                   [](const auto& arc){ return arc->IsSelected;} ),
-                    arclist.end()
-                    );
-    }
-    arclist.shrink_to_fit();
-
-    return arclist.size() != oldsize;
-}
-
-bool FMesher::DeleteSelectedNodes()
-{
-    auto &nodelist = problem->nodelist;
-    bool changed = false;
-
-    if (nodelist.size() > 0)
-    {
-        int i=0;
-        do
-        {
-            if(nodelist[i]->IsSelected!=0)
-            {
-                changed=true;
-                auto &linelist = problem->linelist;
-                auto &arclist = problem->arclist;
-                // first remove all lines that contain the point;
-                for (int j=0; j<(int)linelist.size(); j++)
-                    if((linelist[j]->n0==i) || (linelist[j]->n1==i))
-                        linelist[j]->ToggleSelect();
-                DeleteSelectedSegments();
-
-                // remove all arcs that contain the point;
-                for (int j=0; j<(int)arclist.size(); j++)
-                    if((arclist[j]->n0==i) || (arclist[j]->n1==i))
-                        arclist[j]->ToggleSelect();
-                DeleteSelectedArcSegments();
-
-                // remove node from the nodelist...
-                nodelist.erase(nodelist.begin()+i);
-
-                // update lines to point to the new node numbering
-                for (int j=0; j<(int)linelist.size(); j++)
-                {
-                    if (linelist[j]->n0>i) linelist[j]->n0--;
-                    if (linelist[j]->n1>i) linelist[j]->n1--;
-                }
-
-                // update arcs to point to the new node numbering
-                for (int j=0; j<(int)arclist.size(); j++)
-                {
-                    if (arclist[j]->n0>i) arclist[j]->n0--;
-                    if (arclist[j]->n1>i) arclist[j]->n1--;
-                }
-            } else
-                i++;
-        } while (i<(int)nodelist.size());
-    }
-
-    nodelist.shrink_to_fit();
-    return changed;
-}
-
-
-bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
-{
-    // don't add if line is degenerate
-    if (asegm.n0==asegm.n1)
-        return false;
-
-    // don't add if the arc is already in the list;
-    for(int i=0; i<(int)problem->arclist.size(); i++){
-        if ((problem->arclist[i]->n0==asegm.n0) && (problem->arclist[i]->n1==asegm.n1) &&
-                (fabs(problem->arclist[i]->ArcLength-asegm.ArcLength)<1.e-02)) return false;
-        // arcs are ``the same'' if start and end points are the same, and if
-        // the arc lengths are relatively close (but a lot farther than
-        // machine precision...
-    }
-
-    // add proposed arc to the linelist
-    asegm.IsSelected = 0;
-
-    CComplex p[2];
-    std::vector < CComplex > newnodes;
-    // check to see if there are intersections
-    for(int i=0; i<(int)problem->linelist.size(); i++)
-    {
-        int j = problem->getLineArcIntersection(*problem->linelist[i],asegm,p);
-        if (j>0)
-            for(int k=0; k<j; k++)
-                newnodes.push_back(p[k]);
-    }
-    for (int i=0; i<(int)problem->arclist.size(); i++)
-    {
-        int j = problem->getArcArcIntersection(asegm,*problem->arclist[i],p);
-        if (j>0)
-            for(int k=0; k<j; k++)
-                newnodes.push_back(p[k]);
-    }
-
-    // add nodes at intersections
-    double t;
-    if (tol==0)
-    {
-        if (problem->nodelist.size()<2) t=1.e-08;
-        else{
-            CComplex p0,p1;
-            p0 = problem->nodelist[0]->CC();
-            p1 = p0;
-            for (int i=1; i<(int)problem->nodelist.size(); i++)
-            {
-                if(problem->nodelist[i]->x<p0.re) p0.re = problem->nodelist[i]->x;
-                if(problem->nodelist[i]->x>p1.re) p1.re = problem->nodelist[i]->x;
-                if(problem->nodelist[i]->y<p0.im) p0.im = problem->nodelist[i]->y;
-                if(problem->nodelist[i]->y>p1.im) p1.im = problem->nodelist[i]->y;
-            }
-            t = abs(p1-p0)*CLOSE_ENOUGH;
-        }
-    }
-    else t = tol;
-
-    for (int i=0; i<(int)newnodes.size(); i++)
-        AddNode(newnodes[i].re,newnodes[i].im,t);
-
-    // add proposed arc segment;
-    problem->arclist.push_back(std::make_unique<CArcSegment>(asegm));
-
-    // check to see if proposed arc passes through other points;
-    // if so, delete arc and create arcs that link intermediate points;
-    // does this by recursive use of AddArcSegment;
-
-    UnselectAll();
-    CComplex c;
-    double R;
-    problem->getCircle(asegm,c,R);
-
-    double dmin = tol;
-    if (tol==0)
-        dmin = fabs(R*PI*asegm.ArcLength/180.)*1.e-05;
-
-    int k = (int)problem->arclist.size()-1;
-    for(int i=0; i<(int)problem->nodelist.size(); i++)
-    {
-        if( (i!=asegm.n0) && (i!=asegm.n1) )
-        {
-            double d=problem->shortestDistanceFromArc(CComplex(problem->nodelist[i]->x,problem->nodelist[i]->y),*problem->arclist[k]);
-
-            //	MsgBox("d=%g dmin=%g",d,dmin);
-            // what is the purpose of this test?
-            //	if (abs(problem->nodelist[i]->CC()-problem->nodelist[asegm.n0]->CC())<2.*dmin) d=2.*dmin;
-            //	if (abs(problem->nodelist[i]->CC()-problem->nodelist[asegm.n1]->CC())<2.*dmin) d=2.*dmin;
-
-
-            if (d<dmin){
-
-                CComplex a0,a1,a2;
-                a0.Set(problem->nodelist[asegm.n0]->x,problem->nodelist[asegm.n0]->y);
-                a1.Set(problem->nodelist[asegm.n1]->x,problem->nodelist[asegm.n1]->y);
-                a2.Set(problem->nodelist[i]->x,problem->nodelist[i]->y);
-                problem->arclist[k]->ToggleSelect();
-                DeleteSelectedArcSegments();
-
-                CArcSegment newarc = asegm;
-                newarc.n1 = i;
-                newarc.ArcLength = arg((a2-c)/(a0-c))*180./PI;
-                AddArcSegment(newarc,dmin);
-
-                newarc = asegm;
-                newarc.n0 = i;
-                newarc.ArcLength = arg((a1-c)/(a2-c))*180./PI;
-                AddArcSegment(newarc,dmin);
-
-                i = problem->nodelist.size();
-            }
-        }
-    }
-
-    return true;
-}
 
 void FMesher::MirrorCopy(double x0, double y0, double x1, double y1, EditMode selector)
 {
@@ -1778,69 +1542,6 @@ bool FMesher::AddBlockLabel(std::unique_ptr<CBlockLabel> &&label, double d)
 }
 
 
-bool FMesher::AddNode(double x, double y, double d)
-{
-    // create an appropriate node and call AddNode on it
-    std::unique_ptr<CNode> node = std::make_unique<CNode>(x,y);
-    return AddNode(std::move(node), d);
-}
-
-bool FMesher::AddNode(std::unique_ptr<CNode> &&node, double d)
-{
-    CComplex c,a0,a1,a2;
-    double R;
-    double x = node->x;
-    double y = node->y;
-
-    // test to see if ``too close'' to existing node...
-    for (int i=0; i<(int)problem->nodelist.size(); i++)
-        if(problem->nodelist[i]->GetDistance(x,y)<d) return false;
-
-    // can't put a node on top of a block label; do same sort of test.
-    for (int i=0;i<(int)problem->labellist.size();i++)
-        if(problem->labellist[i]->GetDistance(x,y)<d) return false;
-
-    // if all is OK, add point in to the node list...
-    problem->nodelist.push_back(std::move(node));
-
-    // test to see if node is on an existing line; if so,
-    // break into two lines;
-
-    for(int i=0, k=(int)problem->linelist.size(); i<k; i++)
-    {
-        if (fabs(problem->shortestDistanceFromSegment(x,y,i))<d)
-        {
-            std::unique_ptr<CSegment> segm;
-            segm = std::make_unique<CSegment>(*problem->linelist[i]);
-            problem->linelist[i]->n1=problem->nodelist.size()-1;
-            segm->n0=problem->nodelist.size()-1;
-            problem->linelist.push_back(std::move(segm));
-        }
-    }
-
-    // test to see if node is on an existing arc; if so,
-    // break into two arcs;
-    for(int i=0, k=(int)problem->arclist.size(); i<k; i++)
-    {
-        if (problem->shortestDistanceFromArc(CComplex(x,y),*problem->arclist[i])<d)
-        {
-            a0.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
-            a1.Set(problem->nodelist[problem->arclist[i]->n1]->x,problem->nodelist[problem->arclist[i]->n1]->y);
-            a2.Set(x,y);
-            problem->getCircle(*problem->arclist[i],c,R);
-
-            std::unique_ptr<CArcSegment> asegm;
-            asegm = std::make_unique<CArcSegment>(*problem->arclist[i]);
-            problem->arclist[i]->n1 = problem->nodelist.size()-1;
-            problem->arclist[i]->ArcLength = arg((a2-c)/(a0-c))*180./PI;
-            asegm->n0 = problem->nodelist.size()-1;
-            asegm->ArcLength = arg((a1-c)/(a2-c))*180./PI;
-            problem->arclist.push_back(std::move(asegm));
-        }
-    }
-    return true;
-}
-
 bool FMesher::AddSegment(int n0, int n1, double tol)
 {
     return AddSegment(n0,n1,nullptr,tol);
@@ -1902,7 +1603,7 @@ bool FMesher::AddSegment(int n0, int n1, const CSegment *parsegm, double tol)
     else t=tol;
 
     for (int i=0; i<(int)newnodes.size(); i++)
-        AddNode(newnodes[i].re,newnodes[i].im,t);
+        problem->addNode(newnodes[i].re,newnodes[i].im,t);
 
     // Add proposed line segment
     problem->linelist.push_back(std::make_unique<CSegment>(segm));
@@ -1911,7 +1612,7 @@ bool FMesher::AddSegment(int n0, int n1, const CSegment *parsegm, double tol)
     // if so, delete line and create lines that link intermediate points;
     // does this by recursive use of AddSegment;
     double d,dmin;
-    UnselectAll();
+    problem->unselectAll();
     if (tol==0)
         dmin = abs(problem->nodelist[n1]->CC()-problem->nodelist[n0]->CC())*1.e-05;
     else dmin = tol;
@@ -1925,7 +1626,7 @@ bool FMesher::AddSegment(int n0, int n1, const CSegment *parsegm, double tol)
             if (abs(problem->nodelist[i]->CC()-problem->nodelist[n1]->CC())<dmin) d=2.*dmin;
             if (d<dmin){
                 problem->linelist[k]->ToggleSelect();
-                DeleteSelectedSegments();
+                problem->deleteSelectedSegments();
                 if(parsegm==NULL)
                 {
                     AddSegment(n0,i,dmin);

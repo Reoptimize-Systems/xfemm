@@ -327,6 +327,189 @@ bool femm::FemmProblem::isMeshed() const
     return !(meshelems.empty() && meshnodes.empty());
 }
 
+bool femm::FemmProblem::addNode(double x, double y, double d)
+{
+    // create an appropriate node and call addNode on it
+    std::unique_ptr<CNode> node = std::make_unique<CNode>(x,y);
+    return addNode(std::move(node), d);
+}
+
+bool femm::FemmProblem::addNode(std::unique_ptr<femm::CNode> &&node, double d)
+{
+    CComplex c,a0,a1,a2;
+    double R;
+    double x = node->x;
+    double y = node->y;
+
+    // test to see if ``too close'' to existing node...
+    for (int i=0; i<(int)nodelist.size(); i++)
+        if(nodelist[i]->GetDistance(x,y)<d) return false;
+
+    // can't put a node on top of a block label; do same sort of test.
+    for (int i=0;i<(int)labellist.size();i++)
+        if(labellist[i]->GetDistance(x,y)<d) return false;
+
+    // if all is OK, add point in to the node list...
+    nodelist.push_back(std::move(node));
+
+    // test to see if node is on an existing line; if so,
+    // break into two lines;
+
+    for(int i=0, k=(int)linelist.size(); i<k; i++)
+    {
+        if (fabs(shortestDistanceFromSegment(x,y,i))<d)
+        {
+            std::unique_ptr<CSegment> segm;
+            segm = std::make_unique<CSegment>(*linelist[i]);
+            linelist[i]->n1=nodelist.size()-1;
+            segm->n0=nodelist.size()-1;
+            linelist.push_back(std::move(segm));
+        }
+    }
+
+    // test to see if node is on an existing arc; if so,
+    // break into two arcs;
+    for(int i=0, k=(int)arclist.size(); i<k; i++)
+    {
+        if (shortestDistanceFromArc(CComplex(x,y),*arclist[i])<d)
+        {
+            a0.Set(nodelist[arclist[i]->n0]->x,nodelist[arclist[i]->n0]->y);
+            a1.Set(nodelist[arclist[i]->n1]->x,nodelist[arclist[i]->n1]->y);
+            a2.Set(x,y);
+            getCircle(*arclist[i],c,R);
+
+            std::unique_ptr<CArcSegment> asegm;
+            asegm = std::make_unique<CArcSegment>(*arclist[i]);
+            arclist[i]->n1 = nodelist.size()-1;
+            arclist[i]->ArcLength = arg((a2-c)/(a0-c))*180./PI;
+            asegm->n0 = nodelist.size()-1;
+            asegm->ArcLength = arg((a1-c)/(a2-c))*180./PI;
+            arclist.push_back(std::move(asegm));
+        }
+    }
+    return true;
+}
+
+
+
+bool femm::FemmProblem::addArcSegment(femm::CArcSegment &asegm, double tol)
+{
+    // don't add if line is degenerate
+    if (asegm.n0==asegm.n1)
+        return false;
+
+    // don't add if the arc is already in the list;
+    for(int i=0; i<(int)arclist.size(); i++){
+        if ((arclist[i]->n0==asegm.n0) && (arclist[i]->n1==asegm.n1) &&
+                (fabs(arclist[i]->ArcLength-asegm.ArcLength)<1.e-02)) return false;
+        // arcs are ``the same'' if start and end points are the same, and if
+        // the arc lengths are relatively close (but a lot farther than
+        // machine precision...
+    }
+
+    // add proposed arc to the linelist
+    asegm.IsSelected = 0;
+
+    CComplex p[2];
+    std::vector < CComplex > newnodes;
+    // check to see if there are intersections
+    for(int i=0; i<(int)linelist.size(); i++)
+    {
+        int j = getLineArcIntersection(*linelist[i],asegm,p);
+        if (j>0)
+            for(int k=0; k<j; k++)
+                newnodes.push_back(p[k]);
+    }
+    for (int i=0; i<(int)arclist.size(); i++)
+    {
+        int j = getArcArcIntersection(asegm,*arclist[i],p);
+        if (j>0)
+            for(int k=0; k<j; k++)
+                newnodes.push_back(p[k]);
+    }
+
+    // add nodes at intersections
+    double t;
+    if (tol==0)
+    {
+        if (nodelist.size()<2) t=1.e-08;
+        else{
+            CComplex p0,p1;
+            p0 = nodelist[0]->CC();
+            p1 = p0;
+            for (int i=1; i<(int)nodelist.size(); i++)
+            {
+                if(nodelist[i]->x<p0.re) p0.re = nodelist[i]->x;
+                if(nodelist[i]->x>p1.re) p1.re = nodelist[i]->x;
+                if(nodelist[i]->y<p0.im) p0.im = nodelist[i]->y;
+                if(nodelist[i]->y>p1.im) p1.im = nodelist[i]->y;
+            }
+            t = abs(p1-p0)*CLOSE_ENOUGH;
+        }
+    }
+    else t = tol;
+
+    for (int i=0; i<(int)newnodes.size(); i++)
+        addNode(newnodes[i].re,newnodes[i].im,t);
+
+    // add proposed arc segment;
+    arclist.push_back(std::make_unique<CArcSegment>(asegm));
+
+    // check to see if proposed arc passes through other points;
+    // if so, delete arc and create arcs that link intermediate points;
+    // does this by recursive use of AddArcSegment;
+
+    unselectAll();
+    CComplex c;
+    double R;
+    getCircle(asegm,c,R);
+
+    double dmin = tol;
+    if (tol==0)
+        dmin = fabs(R*PI*asegm.ArcLength/180.)*1.e-05;
+
+    int k = (int)arclist.size()-1;
+    for(int i=0; i<(int)nodelist.size(); i++)
+    {
+        if( (i!=asegm.n0) && (i!=asegm.n1) )
+        {
+            double d=shortestDistanceFromArc(CComplex(nodelist[i]->x,nodelist[i]->y),*arclist[k]);
+
+            //	MsgBox("d=%g dmin=%g",d,dmin);
+            // what is the purpose of this test?
+            //	if (abs(nodelist[i]->CC()-nodelist[asegm.n0]->CC())<2.*dmin) d=2.*dmin;
+            //	if (abs(nodelist[i]->CC()-nodelist[asegm.n1]->CC())<2.*dmin) d=2.*dmin;
+
+
+            if (d<dmin){
+
+                CComplex a0,a1,a2;
+                a0.Set(nodelist[asegm.n0]->x,nodelist[asegm.n0]->y);
+                a1.Set(nodelist[asegm.n1]->x,nodelist[asegm.n1]->y);
+                a2.Set(nodelist[i]->x,nodelist[i]->y);
+                arclist[k]->ToggleSelect();
+                deleteSelectedArcSegments();
+
+                CArcSegment newarc = asegm;
+                newarc.n1 = i;
+                newarc.ArcLength = arg((a2-c)/(a0-c))*180./PI;
+                addArcSegment(newarc,dmin);
+
+                newarc = asegm;
+                newarc.n0 = i;
+                newarc.ArcLength = arg((a1-c)/(a2-c))*180./PI;
+                addArcSegment(newarc,dmin);
+
+                i = nodelist.size();
+            }
+        }
+    }
+
+    return true;
+}
+
+
+
 // identical in fmesher, FPProc and HPProc
 int femm::FemmProblem::closestArcSegment(double x, double y) const
 {
@@ -555,6 +738,109 @@ bool femm::FemmProblem::consistencyCheckOK() const
         }
     }
     return ok;
+}
+
+bool femm::FemmProblem::deleteSelectedArcSegments()
+{
+    size_t oldsize = arclist.size();
+
+    if (!arclist.empty())
+    {
+        // remove selected elements
+        arclist.erase(
+                    std::remove_if(arclist.begin(),arclist.end(),
+                                   [](const auto& arc){ return arc->IsSelected;} ),
+                    arclist.end()
+                    );
+    }
+    arclist.shrink_to_fit();
+
+    return arclist.size() != oldsize;
+}
+
+bool femm::FemmProblem::deleteSelectedBlockLabels()
+{
+    size_t oldsize = labellist.size();
+
+    if (!labellist.empty())
+    {
+        // remove selected elements
+        labellist.erase(
+                    std::remove_if(labellist.begin(),labellist.end(),
+                                   [](const auto& label){ return label->IsSelected;} ),
+                    labellist.end()
+                    );
+    }
+    labellist.shrink_to_fit();
+
+    return labellist.size() != oldsize;
+}
+
+bool femm::FemmProblem::deleteSelectedNodes()
+{
+    bool changed = false;
+
+    if (nodelist.size() > 0)
+    {
+        int i=0;
+        do
+        {
+            if(nodelist[i]->IsSelected!=0)
+            {
+                changed=true;
+                // first remove all lines that contain the point;
+                for (int j=0; j<(int)linelist.size(); j++)
+                    if((linelist[j]->n0==i) || (linelist[j]->n1==i))
+                        linelist[j]->ToggleSelect();
+                deleteSelectedSegments();
+
+                // remove all arcs that contain the point;
+                for (int j=0; j<(int)arclist.size(); j++)
+                    if((arclist[j]->n0==i) || (arclist[j]->n1==i))
+                        arclist[j]->ToggleSelect();
+                deleteSelectedArcSegments();
+
+                // remove node from the nodelist...
+                nodelist.erase(nodelist.begin()+i);
+
+                // update lines to point to the new node numbering
+                for (int j=0; j<(int)linelist.size(); j++)
+                {
+                    if (linelist[j]->n0>i) linelist[j]->n0--;
+                    if (linelist[j]->n1>i) linelist[j]->n1--;
+                }
+
+                // update arcs to point to the new node numbering
+                for (int j=0; j<(int)arclist.size(); j++)
+                {
+                    if (arclist[j]->n0>i) arclist[j]->n0--;
+                    if (arclist[j]->n1>i) arclist[j]->n1--;
+                }
+            } else
+                i++;
+        } while (i<(int)nodelist.size());
+    }
+
+    nodelist.shrink_to_fit();
+    return changed;
+}
+
+bool femm::FemmProblem::deleteSelectedSegments()
+{
+    size_t oldsize = linelist.size();
+
+    if (!linelist.empty())
+    {
+        // remove selected elements
+        linelist.erase(
+                    std::remove_if(linelist.begin(),linelist.end(),
+                                   [](const auto& segm){ return segm->IsSelected;} ),
+                    linelist.end()
+                    );
+    }
+    linelist.shrink_to_fit();
+
+    return linelist.size() != oldsize;
 }
 
 int femm::FemmProblem::getArcArcIntersection(const femm::CArcSegment &arc0, const femm::CArcSegment &arc1, CComplex *p) const
@@ -828,6 +1114,14 @@ double femm::FemmProblem::shortestDistanceFromArc(CComplex p, const femm::CArcSe
     l=abs(p-a1);
     if(z<l) return z;
     return l;
+}
+
+void femm::FemmProblem::unselectAll()
+{
+    for(auto &node: nodelist) node->IsSelected = false;
+    for(auto &line: linelist) line->IsSelected = false;
+    for(auto &label: labellist) label->IsSelected = false;
+    for(auto &arc: arclist) arc->IsSelected = false;
 }
 
 femm::FemmProblem::FemmProblem(FileType ftype)
