@@ -213,6 +213,21 @@ public:
     bool consistencyCheckOK() const;
 
     /**
+     * @brief Check whether the given node is suitable for creating a radius.
+     * @param n node index
+     * @return \c true if the node can be replaced with a radius, \c false otherwise
+     */
+    bool canCreateRadius(int n) const;
+
+    /**
+     * @brief Create an arc in place of the given node.
+     * @param n the node index
+     * @param r the arc radius
+     * @return \c true if the arc could be created, \c false otherwise
+     */
+    bool createRadius(int n, double r);
+
+    /**
      * @brief Delete all selected arc segments
      * @return \c true, if any segments were deleted, \c false otherwise.
      */
@@ -323,6 +338,19 @@ public:
      * @brief Deselect all nodes, block labels, line segments, and arc segments.
      */
     void unselectAll();
+
+    /**
+     * @brief Revert data to the undo point.
+     */
+    void undo();
+    /**
+     * @brief Revert only linelist to the undo point.
+     */
+    void undoLines();
+    /**
+     * @brief Create an undo point.
+     */
+    void updateUndo();
 public: // data members
     double FileFormat; ///< \brief format version of the file
     double Frequency;  ///< \brief Frequency for harmonic problems [Hz]
@@ -369,6 +397,13 @@ public: // data members
     std::map<std::string, int> lineMap; ///< \brief a map from BrdyName to line index. \sa updateLineMap
     std::map<std::string, int> circuitMap; ///< \brief a map from CircuitName to circuit index. \sa updateCircuitMap
     std::map<std::string, int> nodeMap; ///< \brief a map from PointName to node index. \sa updateNodeMap
+
+private:
+    // lists of nodes, segments, and block labels for undo purposes...
+    std::vector< std::unique_ptr<femm::CNode> >       undonodelist;
+    std::vector< std::unique_ptr<femm::CSegment> >    undolinelist;
+    std::vector< std::unique_ptr<femm::CArcSegment> > undoarclist;
+    std::vector< std::unique_ptr<femm::CBlockLabel> > undolabellist;
 };
 
 } //namespace
