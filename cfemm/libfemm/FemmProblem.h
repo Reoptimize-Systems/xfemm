@@ -138,7 +138,7 @@ public:
      * @param y
      * @return an arc segment index, or -1 if the arclist is empty
      */
-    int closestArcSegment(double x, double y);
+    int closestArcSegment(double x, double y) const;
 
     /**
      * @brief Find the closest block label for the given coordinates
@@ -146,7 +146,7 @@ public:
      * @param y
      * @return a blocklabel index, or -1 if the labellist is empty
      */
-    int closestBlockLabel(double x, double y);
+    int closestBlockLabel(double x, double y) const;
 
     /**
      * @brief Find the closest node for the given coordinates
@@ -154,7 +154,7 @@ public:
      * @param y
      * @return a node index, or -1 if the nodelist is empty
      */
-    int closestNode(double x, double y);
+    int closestNode(double x, double y) const;
 
     /**
      * @brief Find the closest line segment for the given coordinates
@@ -235,8 +235,12 @@ public:
      * @brief LineLength
      * @param i index of line
      * @return the length of the line
+     *
+     * \internal
+     * Original name: LineLength
+     * \endinternal
      */
-    double LineLength(int i);
+    double lengthOfLine(int i) const;
 
     /**
      * @brief shortestDistanceFromSegment computes the distance between a point and the nearest point of a line segment.
@@ -257,7 +261,7 @@ public:
      * @param arc the arc segment index
      * @return the shortest distance
      */
-    double shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc);
+    double shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc) const;
 
 public: // data members
     double FileFormat; ///< \brief format version of the file
