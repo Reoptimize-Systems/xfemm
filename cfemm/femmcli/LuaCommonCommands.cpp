@@ -446,7 +446,7 @@ int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
     }
 
 
-    mesher->UpdateUndo();
+    doc->updateUndo();
     mesher->TranslateCopy(x,y,copies,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by TranslateCopy?
     doc->invalidateMesh();
@@ -1009,6 +1009,7 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
@@ -1037,7 +1038,7 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
         return 0;
     }
 
-    mesher->UpdateUndo();
+    doc->updateUndo();
     mesher->MirrorCopy(m_pax,m_pay,m_pbx,m_pby,editAction);
 
     return 0;
@@ -1091,7 +1092,7 @@ int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
             return 0;
     }
 
-    mesher->UpdateUndo();
+    doc->updateUndo();
     mesher->RotateMove(CComplex(x,y),shiftangle,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by translateMove?
     doc->invalidateMesh();
@@ -1148,7 +1149,7 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
         return 0;
     }
 
-    mesher->UpdateUndo();
+    doc->updateUndo();
     mesher->TranslateMove(x,y,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by translateMove?
     doc->invalidateMesh();
@@ -1301,7 +1302,6 @@ int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
     if (n!=3)
@@ -1315,13 +1315,13 @@ int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
     if (node<0)
         return 0; // catch case where no nodes have been drawn yet;
 
-    if (!mesher->CanCreateRadius(node))
+    if (!doc->canCreateRadius(node))
     {
         lua_error(L, "The specified point is not suitable for conversion into a radius\n");
         return 0;
     }
 
-    if (!mesher->CreateRadius(node,r))
+    if (!doc->createRadius(node,r))
     {
         lua_error(L, "Could not make a radius of the prescribed dimension\n");
         return 0;
@@ -1426,6 +1426,7 @@ int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
@@ -1454,7 +1455,7 @@ int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
     }
 
 
-    mesher->UpdateUndo();
+    doc->updateUndo();
     mesher->ScaleMove(x,y,scalefactor,editAction);
 
     return 0;

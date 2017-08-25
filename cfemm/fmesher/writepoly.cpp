@@ -809,7 +809,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     pbclst.clear();
     ptlst.clear();
 
-    UpdateUndo();
+    problem->updateUndo();
 
     // calculate length used to kludge fine meshing near input node points
     for (i=0, z=0; i<(int)problem->linelist.size(); i++)
@@ -1300,7 +1300,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     plyname = pn.substr(0,pn.find_last_of('.')) + ".edge";
     if((fp=fopen(plyname.c_str(),"rt"))==NULL){
         WarnMessage("Call to triangle was unsuccessful\n");
-        Undo();  problem->unselectAll();
+        problem->undo();  problem->unselectAll();
         return -1;
     }
     fgets(instring,1024,fp);
@@ -1396,7 +1396,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     plyname = pn.substr(0,pn.find_last_of('.')) + ".ele";
     if((fp=fopen(plyname.c_str(),"rt"))==NULL){
         WarnMessage("Call to triangle was unsuccessful");
-        Undo();  problem->unselectAll();
+        problem->undo();  problem->unselectAll();
         return -1;
     }
     fgets(instring,1024,fp);
@@ -1494,7 +1494,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 if (pbclst[j]->nseg==2)
                 {
                     WarnMessage("An (anti)periodic BC is assigned to more than two segments");
-                    Undo();  problem->unselectAll();
+                    problem->undo();  problem->unselectAll();
                     return -1;
                 }
                 pbclst[j]->seg[pbclst[j]->nseg]=i;
@@ -1515,7 +1515,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 if (pbclst[j]->narc==2)
                 {
                     WarnMessage("An (anti)periodic BC is assigned to more than two arcs");
-                    Undo();  problem->unselectAll();
+                    problem->undo();  problem->unselectAll();
                     return -1;
                 }
                 pbclst[j]->seg[pbclst[j]->narc]=i;
@@ -1532,7 +1532,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         if ((pbclst[j]->nseg>0) && (pbclst[j]->narc>0))
         {
             WarnMessage("Can't mix arcs and segments for (anti)periodic BCs");
-            Undo();  problem->unselectAll();
+            problem->undo();  problem->unselectAll();
             return -1;
         }
 
@@ -1556,7 +1556,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                    -problem->lengthOfLine(pbclst[j]->seg[1]))>1.e-06)
             {
                 WarnMessage("(anti)periodic BCs applied to dissimilar segments");
-                Undo();  problem->unselectAll();
+                problem->undo();  problem->unselectAll();
                 return -1;
             }
 
@@ -1582,7 +1582,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                    -problem->arclist[pbclst[j]->seg[1]]->ArcLength)>1.e-06)
             {
                 WarnMessage("(anti)periodic BCs applied to dissimilar arc segments");
-                Undo();  problem->unselectAll();
+                problem->undo();  problem->unselectAll();
                 return -1;
             }
 
@@ -2100,7 +2100,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     plyname = pn.substr(0,pn.find_last_of('.')) + ".pbc";
     if ((fp=fopen(plyname.c_str(),"wt"))==NULL){
         WarnMessage("Couldn't write to specified .pbc file");
-        Undo();  problem->unselectAll();
+        problem->undo();  problem->unselectAll();
         return -1;
     }
     fprintf(fp,"%i\n", (int) ptlst.size());
@@ -2340,8 +2340,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // Now restore boundary segment discretizations that have
     // been mucked up in the process...
-    for(i=0;i<(int)problem->linelist.size();i++)
-        problem->linelist[i]=std::make_unique<CSegment>(*undolinelist[i]);
+    problem->undoLines();
 
     // and save the latest version of the document to make sure
     // any changes to arc discretization get propagated into

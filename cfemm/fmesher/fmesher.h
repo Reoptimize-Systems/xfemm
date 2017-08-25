@@ -84,12 +84,6 @@ public:
 
 	std::string BinDir;
 
-	// lists of nodes, segments, and block labels for undo purposes...
-    std::vector< std::unique_ptr<femm::CNode> >       undonodelist;
-    std::vector< std::unique_ptr<femm::CSegment> >    undolinelist;
-    std::vector< std::unique_ptr<femm::CArcSegment> > undoarclist;
-    std::vector< std::unique_ptr<femm::CBlockLabel> > undolabellist;
-
 	// vectors containing the mesh information
     std::vector< std::unique_ptr<femm::IntPoint> >      meshline;
     std::vector< std::unique_ptr<femm::IntPoint> >      greymeshline;
@@ -111,15 +105,7 @@ public:
 	bool LoadMesh(std::string PathName);
 	int DoNonPeriodicBCTriangulation(std::string PathName);
 	int DoPeriodicBCTriangulation(std::string PathName);
-    /**
-     * @brief Create an undo point.
-     */
-    void UpdateUndo();
-    /**
-     * @brief Revert data to the undo point.
-     */
-	void Undo();
-	//bool OldOnOpenDocument(LPCTSTR lpszPathName);
+    //bool OldOnOpenDocument(LPCTSTR lpszPathName);
 	bool HasPeriodicBC();
 
     /**
@@ -246,19 +232,6 @@ public:
      */
     void TranslateMove(double dx, double dy, femm::EditMode selector);
 
-    /**
-     * @brief Check whether the given node is suitable for creating a radius.
-     * @param n node index
-     * @return \c true if the node can be replaced with a radius, \c false otherwise
-     */
-    bool CanCreateRadius(int n);
-    /**
-     * @brief Create an arc in place of the given node.
-     * @param n the node index
-     * @param r the arc radius
-     * @return \c true if the arc could be created, \c false otherwise
-     */
-    bool CreateRadius(int n, double r);
 private:
 
     virtual bool Initialize(femm::FileType t);

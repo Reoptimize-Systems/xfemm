@@ -740,6 +740,315 @@ bool femm::FemmProblem::consistencyCheckOK() const
     return ok;
 }
 
+bool femm::FemmProblem::canCreateRadius(int n) const
+{
+    // check to see if a selected point, specified by n, can be
+    // converted to a radius.  To be able to be converted to a radius,
+    // the point must be an element of either 2 lines, 2 arcs, or
+    // 1 line and 1 arc.
+
+    int j=0;
+    for (const auto &line: linelist)
+    {
+        if (n==line->n0 || n==line->n1)
+            j++;
+    }
+    for (const auto &arc: arclist)
+    {
+        if (n==arc->n0 || n==arc->n1)
+            j++;
+    }
+
+    return (j==2);
+}
+
+bool femm::FemmProblem::createRadius(int n, double r)
+{
+    // replace the node indexed by n with a radius of r
+
+    if(r<=0)
+        return false;
+
+    int nseg=0;
+    int narc=0;
+    int arc[2],seg[2];
+
+    for(int k=0; k<(int)linelist.size(); k++)
+        if ((linelist[k]->n0==n) || (linelist[k]->n1==n))
+            seg[nseg++]=k;
+    for(int k=0; k<(int)arclist.size(); k++)
+        if ((arclist[k]->n0==n) || (arclist[k]->n1==n))
+            arc[narc++]=k;
+
+    if ((narc+nseg)!=2)
+        return false;
+
+    // there are three valid cases:
+    switch (nseg-narc)
+    {
+    case 0:  // One arc and one line
+    {
+        CComplex c,u,p0,p1,q,p[4],v[8],i1[8],i2[8];
+        double rc,b,R[4],phi;
+        CArcSegment ar;
+
+        // inherit the boundary condition from the arc so that
+        // we can apply it to the newly created arc later;
+        ar.InGroup       =arclist[arc[0]]->InGroup;
+        ar.BoundaryMarkerName=arclist[arc[0]]->BoundaryMarkerName;
+
+        // get the center and radius of the circle associated with the arc;
+        getCircle(*arclist[arc[0]],c,rc);
+
+        // get the locations of the endpoints of the segment;
+        p0=nodelist[n]->CC();
+        if(linelist[seg[0]]->n0==n)
+            p1=nodelist[linelist[seg[0]]->n1]->CC();
+        else
+            p1=nodelist[linelist[seg[0]]->n0]->CC();
+
+        u=(p1-p0)/abs(p1-p0);  // unit vector along the line
+        q=p0 + u*Re((c-p0)/u); // closest point on line to center of circle
+        u=(q-c)/abs(q-c); // unit vector from center to closest point on line;
+
+        p[0]=q+r*u; R[0]=rc+r;
+        p[1]=q-r*u; R[1]=rc+r;
+        p[2]=q+r*u; R[2]=rc-r;
+        p[3]=q-r*u; R[3]=rc-r;
+
+        int j=0;
+        for(int k=0;k<4;k++)
+        {
+            b=R[k]*R[k]-abs(p[k]-c)*abs(p[k]-c);
+            if (b>=0){
+                b=sqrt(b);
+                v[j++]=p[k]+I*b*(p[k]-c)/abs(p[k]-c);
+                v[j++]=p[k]-I*b*(p[k]-c)/abs(p[k]-c);
+            }
+        }
+
+        // locations of the centerpoints that could be for the radius that
+        // we are looking for are stored in v.  We now need to paw through
+        // them to find the one solution that we are after.
+        u=(p1-p0)/abs(p1-p0);  // unit vector along the line
+        int m=0;
+        for(int k=0;k<j;k++)
+        {
+            i1[m]=p0 +u*Re((v[k]-p0)/u); // intersection with the line
+            i2[m]=c + rc*(v[k]-c)/abs(v[k]-c); // intersection with the arc;
+            v[m]=v[k];
+
+            // add this one to the list of possibly valid solutions if
+            // both of the intersection points actually lie on the arc
+            if ( shortestDistanceFromArc(i2[m],*arclist[arc[0]])<(r/10000.) &&
+                 shortestDistanceFromSegment(Re(i1[m]),Im(i1[m]),seg[0])<(r/10000.)
+                 && abs(i1[m]-i2[m])>(r/10000.))
+            {
+                m++;
+                if (m==2) break;
+            }
+
+        }
+
+        if (m==0) return false;
+
+        // But there are also special cases where there could be two answers.
+        // We then pick the solution that has the center point closest to the point to be removed.
+        if(m>1)
+        {
+            if (abs(v[0]-p0)<abs(v[1]-p0)) j=0;
+            else j=1;
+        }
+        else j=0;	// The index of the winning case is in j....
+
+        updateUndo();
+        addNode(Re(i1[j]),Im(i1[j]),r/10000.);
+        addNode(Re(i2[j]),Im(i2[j]),r/10000.);
+        unselectAll();
+
+        // delete the node that is to be replace by a radius;
+        n=closestNode(Re(p0),Im(p0));
+        nodelist[n]->IsSelected=true;
+        deleteSelectedNodes();
+
+        // compute the angle spanned by the new arc;
+        phi=arg((i2[j]-v[j])/(i1[j]-v[j]));
+        if (phi<0)
+        {
+            c=i2[j]; i2[j]=i1[j]; i1[j]=c;
+            phi=fabs(phi);
+        }
+
+        // add in the new radius;
+        ar.n0=closestNode(Re(i1[j]),Im(i1[j]));
+        ar.n1=closestNode(Re(i2[j]),Im(i2[j]));
+        ar.ArcLength=phi/DEG;
+        addArcSegment(ar);
+
+        return true;
+    }
+    case 2:  // Two lines
+    {
+        CComplex p0,p1,p2;
+        double phi,len;
+        CArcSegment ar;
+
+        if (linelist[seg[0]]->n0==n) p1=nodelist[linelist[seg[0]]->n1]->CC();
+        else p1=nodelist[linelist[seg[0]]->n0]->CC();
+
+        if (linelist[seg[1]]->n0==n) p2=nodelist[linelist[seg[1]]->n1]->CC();
+        else p2=nodelist[linelist[seg[1]]->n0]->CC();
+
+        p0=nodelist[n]->CC();
+
+        // get the angle between the lines
+        phi=arg((p2-p0)/(p1-p0));
+
+        // check to see if this case is degenerate
+        if (fabs(phi)>(179.*DEG)) return false;
+
+        // check to see if the points are in the wrong order
+        // and fix it if they are.
+        if (phi<0){
+            p0=p1; p1=p2; p2=p0; p0=nodelist[n]->CC();
+            std::swap(seg[0],seg[1]);
+            phi=fabs(phi);
+        }
+
+        len = r/tan(phi/2.); // distance from p0 to the tangency point;
+
+        // catch the case where the desired radius is too big to fit;
+        if ((abs(p1-p0)<len) || (abs(p2-p0)<len)) return false;
+
+        // compute the locations of the tangency points;
+        p1=len*(p1-p0)/abs(p1-p0)+p0;
+        p2=len*(p2-p0)/abs(p2-p0)+p0;
+
+        // inherit the boundary condition from one of the segments
+        // so that we can apply it to the newly created arc later;
+        ar.BoundaryMarkerName=linelist[seg[0]]->BoundaryMarkerName;
+        ar.InGroup       =linelist[seg[0]]->InGroup;
+
+        // add new nodes at ends of radius
+        updateUndo();
+        addNode(Re(p1),Im(p1),len/10000.);
+        addNode(Re(p2),Im(p2),len/10000.);
+        unselectAll();
+
+        // delete the node that is to be replace by a radius;
+        n=closestNode(Re(p0),Im(p0));
+        nodelist[n]->IsSelected=true;
+        deleteSelectedNodes();
+
+        // add in the new radius;
+        ar.n0=closestNode(Re(p2),Im(p2));
+        ar.n1=closestNode(Re(p1),Im(p1));
+        ar.ArcLength=180.-phi/DEG;
+        addArcSegment(ar);
+
+        return true;
+    }
+    case -2: // Two arcs
+    {
+        CComplex c0,c1,c2,p[8],i1[8],i2[8];
+        double a[8],b[8],c,d[8],x[8],r0,r1,r2,phi;
+        CArcSegment ar;
+
+        r0=r;
+        getCircle(*arclist[arc[0]],c1,r1);
+        getCircle(*arclist[arc[1]],c2,r2);
+        c=abs(c2-c1);
+
+        // solve for all of the different possible cases;
+        a[0]=r1+r0; b[0]=r2+r0;
+        a[1]=r1+r0; b[1]=r2+r0;
+        a[2]=r1-r0; b[2]=r2-r0;
+        a[3]=r1-r0; b[3]=r2-r0;
+        a[4]=r1-r0; b[4]=r2+r0;
+        a[5]=r1-r0; b[5]=r2+r0;
+        a[6]=r1+r0; b[6]=r2-r0;
+        a[7]=r1+r0; b[7]=r2-r0;
+        for(int k=0;k<8;k++){
+            x[k]=(b[k]*b[k]+c*c-a[k]*a[k])/(2.*c*c);
+            d[k]=sqrt(b[k]*b[k]-x[k]*x[k]*c*c);
+        }
+        for(int k=0;k<8;k+=2)
+        {
+            // solve for the center point of the radius for each solution.
+            p[k]  =((1-x[k])*c+I*d[k])*(c2-c1)/abs(c2-c1) + c1;
+            p[k+1]=((1-x[k])*c-I*d[k])*(c2-c1)/abs(c2-c1) + c1;
+        }
+
+        c0=nodelist[n]->CC();
+
+        int j=0;
+        for(int k=0;k<8;k++)
+        {
+            i1[j]=c1 + r1*(p[k]-c1)/abs(p[k]-c1); // compute possible intersection points
+            i2[j]=c2 + r2*(p[k]-c2)/abs(p[k]-c2); // with the arcs;
+            p[j] =p[k];
+
+            // add this one to the list of possibly valid solutions if
+            // both of the intersection points actually lie on the arc
+            if ( shortestDistanceFromArc(i1[j],*arclist[arc[0]])<(r0/10000.) &&
+                 shortestDistanceFromArc(i2[j],*arclist[arc[1]])<(r0/10000.) &&
+                 abs(i1[j]-i2[j])>(r0/10000.))
+            {
+                j++;
+                if (j==2) break;
+            }
+
+        }
+
+        // There could be no valid solutions...
+        if (j==0) return false;
+
+        // But there are also special cases where there could be two answers.
+        // We then pick the solution that has the center point closest to the point to be removed.
+        if(j>1)
+        {
+            if (abs(p[0]-c0)<abs(p[1]-c0)) j=0;
+            else j=1;
+        }
+        else j=0;	// The index of the winning case is in j....
+
+        // inherit the boundary condition from one of the segments
+        // so that we can apply it to the newly created arc later;
+        ar.BoundaryMarkerName=arclist[arc[0]]->BoundaryMarkerName;
+        ar.InGroup=arclist[arc[0]]->InGroup;
+
+        // add new nodes at ends of radius
+        updateUndo();
+        addNode(Re(i1[j]),Im(i1[j]),c/10000.);
+        addNode(Re(i2[j]),Im(i2[j]),c/10000.);
+        unselectAll();
+
+        // delete the node that is to be replace by a radius;
+        n=closestNode(Re(c0),Im(c0));
+        nodelist[n]->IsSelected=true;
+        deleteSelectedNodes();
+
+        // compute the angle spanned by the new arc;
+        phi=arg((i2[j]-p[j])/(i1[j]-p[j]));
+        if (phi<0)
+        {
+            c0=i2[j]; i2[j]=i1[j]; i1[j]=c0;
+            phi=fabs(phi);
+        }
+
+        // add in the new radius;
+        ar.n0=closestNode(Re(i1[j]),Im(i1[j]));
+        ar.n1=closestNode(Re(i2[j]),Im(i2[j]));
+        ar.ArcLength=phi/DEG;
+        addArcSegment(ar);
+
+        return true;
+    }
+    }
+
+    return false;
+}
+
 bool femm::FemmProblem::deleteSelectedArcSegments()
 {
     size_t oldsize = arclist.size();
@@ -1122,6 +1431,41 @@ void femm::FemmProblem::unselectAll()
     for(auto &line: linelist) line->IsSelected = false;
     for(auto &label: labellist) label->IsSelected = false;
     for(auto &arc: arclist) arc->IsSelected = false;
+}
+
+void femm::FemmProblem::undo()
+{
+    for(int i=0; i<(int)undolinelist.size(); i++)
+        linelist[i].swap(undolinelist[i]);
+    for(int i=0; i<(int)undoarclist.size(); i++)
+        arclist[i].swap(undoarclist[i]);
+    for(int i=0; i<(int)undolabellist.size(); i++)
+        labellist[i].swap(undolabellist[i]);
+    // Note(ZaJ): why not nodelist??
+}
+
+void femm::FemmProblem::undoLines()
+{
+    for(int i=0; i<(int)undolinelist.size(); i++)
+        linelist[i].swap(undolinelist[i]);
+}
+
+void femm::FemmProblem::updateUndo()
+{
+    undonodelist.clear();
+    undolinelist.clear();
+    undoarclist.clear();
+    undolabellist.clear();
+
+    // copy each entry
+    for(const auto& node: nodelist)
+        undonodelist.push_back(std::make_unique<CNode>(*node));
+    for(const auto& line: linelist)
+        undolinelist.push_back(std::make_unique<CSegment>(*line));
+    for(const auto& arc: arclist)
+        undoarclist.push_back(std::make_unique<CArcSegment>(*arc));
+    for(const auto& label: labellist)
+        undolabellist.push_back(label->clone());
 }
 
 femm::FemmProblem::FemmProblem(FileType ftype)
