@@ -163,30 +163,6 @@ int FMesher::ClosestBlockLabel(double x, double y)
     return j;
 }
 
-double FMesher::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
-{
-    double R,d,l,z;
-    CComplex a0,a1,c,t;
-
-    a0.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-    a1.Set(problem->nodelist[arc.n1]->x,problem->nodelist[arc.n1]->y);
-    problem->getCircle(arc,c,R);
-    d=abs(p-c);
-
-    if(d==0) return R;
-
-    t=(p-c)/d;
-    l=abs(p-c-R*t);
-    z=arg(t/(a0-c))*180/PI;
-    if ((z>0) && (z<arc.ArcLength)) return l;
-
-    z=abs(p-a0);
-    l=abs(p-a1);
-    if(z<l) return z;
-    return l;
-}
-
-
 double FMesher::ShortestDistance(double p, double q, int segm)
 {
     double t,x[3],y[3];
@@ -321,10 +297,10 @@ int FMesher::ClosestArcSegment(double x, double y)
     }
 
     j=0;
-    d0=ShortestDistanceFromArc(CComplex(x,y),*(problem->arclist[0]));
+    d0=problem->shortestDistanceFromArc(CComplex(x,y),*(problem->arclist[0]));
     for(i=0; i<problem->arclist.size(); i++)
     {
-        d1=ShortestDistanceFromArc(CComplex(x,y),*(problem->arclist[i]));
+        d1=problem->shortestDistanceFromArc(CComplex(x,y),*(problem->arclist[i]));
         if(d1<d0)
         {
             d0=d1;
@@ -827,7 +803,7 @@ bool FMesher::CreateRadius(int n, double r)
 
             // add this one to the list of possibly valid solutions if
             // both of the intersection points actually lie on the arc
-            if ( ShortestDistanceFromArc(i2[m],*problem->arclist[arc[0]])<(r/10000.) &&
+            if ( problem->shortestDistanceFromArc(i2[m],*problem->arclist[arc[0]])<(r/10000.) &&
                  ShortestDistance(Re(i1[m]),Im(i1[m]),seg[0])<(r/10000.)
                  && abs(i1[m]-i2[m])>(r/10000.))
             {
@@ -977,8 +953,8 @@ bool FMesher::CreateRadius(int n, double r)
 
             // add this one to the list of possibly valid solutions if
             // both of the intersection points actually lie on the arc
-            if ( ShortestDistanceFromArc(i1[j],*problem->arclist[arc[0]])<(r0/10000.) &&
-                 ShortestDistanceFromArc(i2[j],*problem->arclist[arc[1]])<(r0/10000.) &&
+            if ( problem->shortestDistanceFromArc(i1[j],*problem->arclist[arc[0]])<(r0/10000.) &&
+                 problem->shortestDistanceFromArc(i2[j],*problem->arclist[arc[1]])<(r0/10000.) &&
                  abs(i1[j]-i2[j])>(r0/10000.))
             {
                 j++;
@@ -1282,7 +1258,7 @@ bool FMesher::AddArcSegment(CArcSegment &asegm, double tol)
     {
         if( (i!=asegm.n0) && (i!=asegm.n1) )
         {
-            double d=ShortestDistanceFromArc(CComplex(problem->nodelist[i]->x,problem->nodelist[i]->y),*problem->arclist[k]);
+            double d=problem->shortestDistanceFromArc(CComplex(problem->nodelist[i]->x,problem->nodelist[i]->y),*problem->arclist[k]);
 
             //	MsgBox("d=%g dmin=%g",d,dmin);
             // what is the purpose of this test?
@@ -1967,7 +1943,7 @@ bool FMesher::AddNode(std::unique_ptr<CNode> &&node, double d)
     // break into two arcs;
     for(int i=0, k=(int)problem->arclist.size(); i<k; i++)
     {
-        if (ShortestDistanceFromArc(CComplex(x,y),*problem->arclist[i])<d)
+        if (problem->shortestDistanceFromArc(CComplex(x,y),*problem->arclist[i])<d)
         {
             a0.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
             a1.Set(problem->nodelist[problem->arclist[i]->n1]->x,problem->nodelist[problem->arclist[i]->n1]->y);

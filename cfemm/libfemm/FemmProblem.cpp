@@ -706,6 +706,29 @@ double femm::FemmProblem::LineLength(int i)
             nodelist[linelist[i]->n1]->CC());
 }
 
+// identical in fmesher, FPProc and HPProc
+double femm::FemmProblem::shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc)
+{
+    double R;
+    CComplex c;
+    getCircle(arc,c,R);
+
+    double d=abs(p-c);
+    if(d==0) return R;
+
+    CComplex a0(nodelist[arc.n0]->x,nodelist[arc.n0]->y);
+    CComplex a1(nodelist[arc.n1]->x,nodelist[arc.n1]->y);
+    CComplex t=(p-c)/d;
+    double l=abs(p-c-R*t);
+    double z=arg(t/(a0-c))*180/PI;
+    if ((z>0) && (z<arc.ArcLength)) return l;
+
+    z=abs(p-a0);
+    l=abs(p-a1);
+    if(z<l) return z;
+    return l;
+}
+
 femm::FemmProblem::FemmProblem(FileType ftype)
     : FileFormat(-1)
     , Frequency(0.0)
