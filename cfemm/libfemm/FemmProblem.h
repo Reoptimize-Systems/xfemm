@@ -205,7 +205,14 @@ public:
      * @return the length of the line
      */
     double LineLength(int i);
-    //double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
+
+    /**
+     * @brief shortestDistanceFromArc computes the distance between a point and the nearest point on an arc segment.
+     * @param p the point
+     * @param arc the arc segment
+     * @return the shortest distance
+     */
+    double shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc);
     //int ClosestArcSegment(double x, double y);
     //int ClosestBlockLabel(double x, double y);
     //int ClosestNode(double x, double y);
