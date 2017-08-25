@@ -1530,7 +1530,7 @@ int femmcli::LuaCommonCommands::luaSelectBlocklabel(lua_State *L)
     if (doc->labellist.empty())
         return 0;
 
-    int node = mesher->ClosestBlockLabel(mx,my);
+    int node = mesher->problem->closestBlockLabel(mx,my);
     doc->labellist[node]->ToggleSelect();
 
     lua_pushnumber(L,doc->labellist[node]->x);

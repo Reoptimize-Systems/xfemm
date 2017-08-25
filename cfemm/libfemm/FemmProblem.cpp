@@ -347,6 +347,27 @@ int femm::FemmProblem::closestArcSegment(double x, double y)
     return idx;
 }
 
+int femm::FemmProblem::closestBlockLabel(double x, double y)
+{
+    if(labellist.size()==0) return -1;
+
+    int idx=0;
+    double d0=labellist[0]->GetDistance(x,y);
+    for(int i=0; i<(int)labellist.size(); i++)
+    {
+        double d1=labellist[i]->GetDistance(x,y);
+        if(d1<d0)
+        {
+            d0=d1;
+            idx=i;
+        }
+    }
+
+    return idx;
+}
+
+
+
 bool femm::FemmProblem::consistencyCheckOK() const
 {
     using std::to_string;

@@ -138,31 +138,6 @@ int FMesher::ClosestNode(double x, double y)
     return j;
 }
 
-int FMesher::ClosestBlockLabel(double x, double y)
-{
-    unsigned int i,j;
-    double d0,d1;
-
-    if(problem->labellist.size()==0)
-    {
-        return -1;
-    }
-
-    j=0;
-    d0=problem->labellist[0]->GetDistance(x,y);
-    for(i=0; i<problem->labellist.size(); i++)
-    {
-        d1=problem->labellist[i]->GetDistance(x,y);
-        if(d1<d0)
-        {
-            d0=d1;
-            j=i;
-        }
-    }
-
-    return j;
-}
-
 double FMesher::ShortestDistance(double p, double q, int segm)
 {
     double t,x[3],y[3];
