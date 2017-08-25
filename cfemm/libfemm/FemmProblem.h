@@ -141,6 +141,14 @@ public:
     int closestArcSegment(double x, double y);
 
     /**
+     * @brief closestBlockLabel find the closest block label for the given coordinates
+     * @param x
+     * @param y
+     * @return a blocklabel index, or -1
+     */
+    int closestBlockLabel(double x, double y);
+
+    /**
      * @brief Run a basic consistency check.
      * In particular, this checks:
      *  * For block labels
@@ -221,7 +229,6 @@ public:
      * @return the shortest distance
      */
     double shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc);
-    //int ClosestBlockLabel(double x, double y);
     //int ClosestNode(double x, double y);
     //int ClosestSegment(double x, double y);
 

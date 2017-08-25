@@ -108,7 +108,6 @@ public:
     //void downstr(char *s);
 
 	int ClosestNode(double x, double y);
-	int ClosestBlockLabel(double x, double y);
 	int ClosestSegment(double x, double y);
 
     // Core functions
