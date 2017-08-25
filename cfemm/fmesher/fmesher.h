@@ -107,8 +107,6 @@ public:
 
     //void downstr(char *s);
 
-	int ClosestSegment(double x, double y);
-
     // Core functions
 	bool LoadMesh(std::string PathName);
 	int DoNonPeriodicBCTriangulation(std::string PathName);
@@ -124,7 +122,6 @@ public:
 	//bool OldOnOpenDocument(LPCTSTR lpszPathName);
 	bool HasPeriodicBC();
     void UnselectAll();
-	double ShortestDistance(double p, double q, int segm);
 
 
     /**

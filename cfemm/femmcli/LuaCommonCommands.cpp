@@ -1676,7 +1676,7 @@ int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
     if (thisDoc->linelist.empty())
         return 0;
 
-    int node = femmState->getMesher()->ClosestSegment(mx,my);
+    int node = femmState->getMesher()->problem->closestSegment(mx,my);
     thisDoc->linelist[node]->ToggleSelect();
 
     lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->x);

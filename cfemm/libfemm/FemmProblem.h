@@ -157,6 +157,14 @@ public:
     int closestNode(double x, double y);
 
     /**
+     * @brief Find the closest line segment for the given coordinates
+     * @param x
+     * @param y
+     * @return a segment index, or -1 if the linelist is empty
+     */
+    int closestSegment(double x, double y) const;
+
+    /**
      * @brief Run a basic consistency check.
      * In particular, this checks:
      *  * For block labels
@@ -231,13 +239,25 @@ public:
     double LineLength(int i);
 
     /**
-     * @brief shortestDistanceFromArc computes the distance between a point and the nearest point on an arc segment.
+     * @brief shortestDistanceFromSegment computes the distance between a point and the nearest point of a line segment.
+     *
+     * Note: this can not be a member function of CSegment,
+     * because the linw segments only store node indices of their points.
      * @param p the point
-     * @param arc the arc segment
+     * @param segm the line segment index
+     * @return the shortest distance
+     */
+    double shortestDistanceFromSegment(double p, double q, int segm) const;
+    /**
+     * @brief shortestDistanceFromArc computes the distance between a point and the nearest point on an arc segment.
+     *
+     * Note: this can not be a member function of CArcSegment,
+     * because the arc segments only store node indices of their points.
+     * @param p the point
+     * @param arc the arc segment index
      * @return the shortest distance
      */
     double shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc);
-    //int ClosestSegment(double x, double y);
 
 public: // data members
     double FileFormat; ///< \brief format version of the file
