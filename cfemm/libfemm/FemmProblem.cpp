@@ -366,6 +366,28 @@ int femm::FemmProblem::closestBlockLabel(double x, double y)
     return idx;
 }
 
+// identical in fmesher, FPProc, and HPProc
+int femm::FemmProblem::closestNode(double x, double y)
+{
+    if(nodelist.size()==0) return -1;
+
+    int idx=0;
+    double d0=nodelist[0]->GetDistance(x,y);
+    for(int i=0; i<(int)nodelist.size(); i++)
+    {
+        double d1=nodelist[i]->GetDistance(x,y);
+        if(d1<d0)
+        {
+            d0=d1;
+            idx=i;
+        }
+    }
+
+    return idx;
+}
+
+
+
 
 
 bool femm::FemmProblem::consistencyCheckOK() const

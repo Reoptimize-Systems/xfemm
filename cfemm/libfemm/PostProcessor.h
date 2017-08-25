@@ -64,14 +64,10 @@ public:
     // member functions
     int InTriangle(double x, double y);
     bool InTriangleTest(double x, double y, int i);
-    int ClosestNode(double x, double y);
     CComplex Ctr(int i);
     double ElmArea(int i);
     double ElmArea(femmsolver::CElement *elm);
 
-    int ClosestArcSegment(double x, double y);
-    void GetCircle(femm::CArcSegment &asegm,CComplex &c, double &R);
-    double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
     double ShortestDistanceFromSegment(double p, double q, int segm);
     void BendContour(double angle, double anglestep);
     CComplex HenrotteVector(int k);
