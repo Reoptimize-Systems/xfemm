@@ -589,7 +589,7 @@ int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
         if (mesherDoc->DoPeriodicBCTriangulation(pathName) != 0)
         {
             //EndWaitCursor();
-            mesherDoc->UnselectAll();
+            mesherDoc->problem->unselectAll();
             lua_error(L, "ei_analyze(): Periodic BC triangulation failed!\n");
             return 0;
         }
