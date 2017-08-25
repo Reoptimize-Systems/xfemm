@@ -110,7 +110,6 @@ public:
 	int ClosestNode(double x, double y);
 	int ClosestBlockLabel(double x, double y);
 	int ClosestSegment(double x, double y);
-	int ClosestArcSegment(double x, double y);
 
     // Core functions
 	bool LoadMesh(std::string PathName);

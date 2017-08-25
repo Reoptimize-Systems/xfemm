@@ -133,6 +133,14 @@ public:
     bool isMeshed() const;
 
     /**
+     * @brief closestArcSegment find the closest arc segment for the given coordinates
+     * @param x
+     * @param y
+     * @return an arc segment index, or -1
+     */
+    int closestArcSegment(double x, double y);
+
+    /**
      * @brief Run a basic consistency check.
      * In particular, this checks:
      *  * For block labels
@@ -213,7 +221,6 @@ public:
      * @return the shortest distance
      */
     double shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc);
-    //int ClosestArcSegment(double x, double y);
     //int ClosestBlockLabel(double x, double y);
     //int ClosestNode(double x, double y);
     //int ClosestSegment(double x, double y);

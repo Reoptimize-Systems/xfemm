@@ -327,6 +327,26 @@ bool femm::FemmProblem::isMeshed() const
     return !(meshelems.empty() && meshnodes.empty());
 }
 
+// identical in fmesher, FPProc and HPProc
+int femm::FemmProblem::closestArcSegment(double x, double y)
+{
+    if(arclist.size()==0) return -1;
+
+    double d0=shortestDistanceFromArc(CComplex(x,y),*arclist[0]);
+    int idx=0;
+    for(int i=0; i<(int)arclist.size(); i++)
+    {
+        double d1=shortestDistanceFromArc(CComplex(x,y),*arclist[i]);
+        if(d1<d0)
+        {
+            d0=d1;
+            idx=i;
+        }
+    }
+
+    return idx;
+}
+
 bool femm::FemmProblem::consistencyCheckOK() const
 {
     using std::to_string;
