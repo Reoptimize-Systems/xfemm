@@ -1934,27 +1934,6 @@ CComplex HPProc::d(int k, int i)
 	return meshelem[k].d[i];
 }
 
-double HPProc::ShortestDistance(double p, double q, int segm)
-{
-	double t,x[3],y[3];
-
-	x[0]=nodelist[linelist[segm].n0].x;
-	y[0]=nodelist[linelist[segm].n0].y;
-	x[1]=nodelist[linelist[segm].n1].x;
-	y[1]=nodelist[linelist[segm].n1].y;
-
-	t=((p-x[0])*(x[1]-x[0]) + (q-y[0])*(y[1]-y[0]))/
-	  ((x[1]-x[0])*(x[1]-x[0]) + (y[1]-y[0])*(y[1]-y[0]));
-
-	if (t>1.) t=1.;
-	if (t<0.) t=0.;
-
-	x[2]=x[0]+t*(x[1]-x[0]);
-	y[2]=y[0]+t*(y[1]-y[0]);
-
-	return sqrt((p-x[2])*(p-x[2]) + (q-y[2])*(q-y[2]));
-}
-
 int HPProc::ClosestSegment(double x, double y)
 {
 	double d0,d1;
@@ -1962,9 +1941,9 @@ int HPProc::ClosestSegment(double x, double y)
 
 	if(linelist.size()==0) return -1;
 
-	d0=ShortestDistance(x,y,0);
+    d0=ShortestDistanceFromSegment(x,y,0);
     for(int i=0;i<(int)linelist.size();i++){
-		d1=ShortestDistance(x,y,i);
+        d1=ShortestDistanceFromSegment(x,y,i);
 		if(d1<d0){
 			d0=d1;
 			j=i;
