@@ -328,7 +328,7 @@ bool femm::FemmProblem::isMeshed() const
 }
 
 // identical in fmesher, FPProc and HPProc
-int femm::FemmProblem::closestArcSegment(double x, double y)
+int femm::FemmProblem::closestArcSegment(double x, double y) const
 {
     if(arclist.size()==0) return -1;
 
@@ -347,7 +347,7 @@ int femm::FemmProblem::closestArcSegment(double x, double y)
     return idx;
 }
 
-int femm::FemmProblem::closestBlockLabel(double x, double y)
+int femm::FemmProblem::closestBlockLabel(double x, double y) const
 {
     if(labellist.size()==0) return -1;
 
@@ -367,7 +367,7 @@ int femm::FemmProblem::closestBlockLabel(double x, double y)
 }
 
 // identical in fmesher, FPProc, and HPProc
-int femm::FemmProblem::closestNode(double x, double y)
+int femm::FemmProblem::closestNode(double x, double y) const
 {
     if(nodelist.size()==0) return -1;
 
@@ -779,7 +779,7 @@ int femm::FemmProblem::getLineArcIntersection(const femm::CSegment &seg, const f
 
 
 
-double femm::FemmProblem::LineLength(int i)
+double femm::FemmProblem::lengthOfLine(int i) const
 {
     return abs(nodelist[linelist[i]->n0]->CC()-
             nodelist[linelist[i]->n1]->CC());
@@ -808,7 +808,7 @@ double femm::FemmProblem::shortestDistanceFromSegment(double p, double q, int se
 
 
 // identical in fmesher, FPProc and HPProc
-double femm::FemmProblem::shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc)
+double femm::FemmProblem::shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc) const
 {
     double R;
     CComplex c;
