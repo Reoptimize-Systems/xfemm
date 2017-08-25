@@ -75,8 +75,8 @@ int femmcli::LuaCommonCommands::luaAddArc(lua_State *L)
     double maxseg = lua_todouble(L,6);
 
     CArcSegment asegm;
-    asegm.n0 = mesher->problem->closestNode(sx,sy);
-    asegm.n1 = mesher->problem->closestNode(ex,ey);
+    asegm.n0 = doc->closestNode(sx,sy);
+    asegm.n1 = doc->closestNode(ex,ey);
     doc->nodelist[asegm.n1]->ToggleSelect();
     //theView->DrawPSLG();
 
@@ -1311,7 +1311,7 @@ int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
     double y = lua_todouble(L,2);
     double r = fabs(lua_todouble(L,3));
 
-    int node = mesher->problem->closestNode(x,y);
+    int node = doc->closestNode(x,y);
     if (node<0)
         return 0; // catch case where no nodes have been drawn yet;
 
@@ -1481,7 +1481,6 @@ int femmcli::LuaCommonCommands::luaSelectArcsegment(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
@@ -1489,7 +1488,7 @@ int femmcli::LuaCommonCommands::luaSelectArcsegment(lua_State *L)
     if (doc->arclist.empty())
         return 0;
 
-    int node = mesher->problem->closestArcSegment(mx,my);
+    int node = doc->closestArcSegment(mx,my);
     doc->arclist[node]->ToggleSelect();
 
     lua_pushnumber(L,doc->nodelist[doc->arclist[node]->n0]->x);
@@ -1522,7 +1521,6 @@ int femmcli::LuaCommonCommands::luaSelectBlocklabel(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
@@ -1530,7 +1528,7 @@ int femmcli::LuaCommonCommands::luaSelectBlocklabel(lua_State *L)
     if (doc->labellist.empty())
         return 0;
 
-    int node = mesher->problem->closestBlockLabel(mx,my);
+    int node = doc->closestBlockLabel(mx,my);
     doc->labellist[node]->ToggleSelect();
 
     lua_pushnumber(L,doc->labellist[node]->x);
@@ -1631,19 +1629,19 @@ int femmcli::LuaCommonCommands::luaSelectNode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
-    if(mesher->problem->nodelist.size() == 0)
+    if(doc->nodelist.size() == 0)
         return 0;
 
-    int node = mesher->problem->closestNode(mx,my);
-    mesher->problem->nodelist[node]->ToggleSelect();
+    int node = doc->closestNode(mx,my);
+    doc->nodelist[node]->ToggleSelect();
 
-    lua_pushnumber(L,mesher->problem->nodelist[node]->x);
-    lua_pushnumber(L,mesher->problem->nodelist[node]->y);
+    lua_pushnumber(L,doc->nodelist[node]->x);
+    lua_pushnumber(L,doc->nodelist[node]->y);
 
     return 2;
 }
