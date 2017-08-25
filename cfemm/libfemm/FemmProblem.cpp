@@ -386,9 +386,25 @@ int femm::FemmProblem::closestNode(double x, double y)
     return idx;
 }
 
+// identical in fmesher, hpproc
+int femm::FemmProblem::closestSegment(double x, double y) const
+{
+    if(linelist.size()==0) return -1;
 
+    int idx=0;
+    double d0=shortestDistanceFromSegment(x,y,0);
+    for(int i=0; i<(int)linelist.size(); i++)
+    {
+        double d1=shortestDistanceFromSegment(x,y,i);
+        if(d1<d0)
+        {
+            d0=d1;
+            idx=i;
+        }
+    }
 
-
+    return idx;
+}
 
 bool femm::FemmProblem::consistencyCheckOK() const
 {
@@ -768,6 +784,28 @@ double femm::FemmProblem::LineLength(int i)
     return abs(nodelist[linelist[i]->n0]->CC()-
             nodelist[linelist[i]->n1]->CC());
 }
+
+// identical in fmesher, hpproc, fpproc
+double femm::FemmProblem::shortestDistanceFromSegment(double p, double q, int segm) const
+{
+    double x0=nodelist[linelist[segm]->n0]->x;
+    double y0=nodelist[linelist[segm]->n0]->y;
+    double x1=nodelist[linelist[segm]->n1]->x;
+    double y1=nodelist[linelist[segm]->n1]->y;
+
+    double t=((p-x0)*(x1-x0) + (q-y0)*(y1-y0))/
+            ((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0));
+
+    if (t>1.) t=1.;
+    if (t<0.) t=0.;
+
+    double x2=x0+t*(x1-x0);
+    double y2=y0+t*(y1-y0);
+
+    return sqrt((p-x2)*(p-x2) + (q-y2)*(q-y2));
+}
+
+
 
 // identical in fmesher, FPProc and HPProc
 double femm::FemmProblem::shortestDistanceFromArc(CComplex p, const femm::CArcSegment &arc)

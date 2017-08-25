@@ -113,27 +113,6 @@ void FMesher::UnselectAll()
 }
 
 
-double FMesher::ShortestDistance(double p, double q, int segm)
-{
-    double t,x[3],y[3];
-
-    x[0]=problem->nodelist[problem->linelist[segm]->n0]->x;
-    y[0]=problem->nodelist[problem->linelist[segm]->n0]->y;
-    x[1]=problem->nodelist[problem->linelist[segm]->n1]->x;
-    y[1]=problem->nodelist[problem->linelist[segm]->n1]->y;
-
-    t=((p-x[0])*(x[1]-x[0]) + (q-y[0])*(y[1]-y[0]))/
-      ((x[1]-x[0])*(x[1]-x[0]) + (y[1]-y[0])*(y[1]-y[0]));
-
-    if (t>1.) t=1.;
-    if (t<0.) t=0.;
-
-    x[2]=x[0]+t*(x[1]-x[0]);
-    y[2]=y[0]+t*(y[1]-y[0]);
-
-    return sqrt((p-x[2])*(p-x[2]) + (q-y[2])*(q-y[2]));
-}
-
 void FMesher::EnforcePSLG(double tol)
 {
     std::vector< std::unique_ptr<CNode>> newnodelist;
@@ -209,31 +188,6 @@ void FMesher::EnforcePSLG(double tol)
 
     UnselectAll();
     return;
-}
-
-int FMesher::ClosestSegment(double x, double y)
-{
-    double d0,d1;
-    unsigned int i,j;
-
-    if(problem->linelist.size()==0)
-    {
-        return -1;
-    }
-
-    j=0;
-    d0=ShortestDistance(x,y,0);
-    for(i=0; i<problem->linelist.size(); i++)
-    {
-        d1=ShortestDistance(x,y,i);
-        if(d1<d0)
-        {
-            d0=d1;
-            j=i;
-        }
-    }
-
-    return j;
 }
 
 femm::FileType FMesher::GetFileType (string PathName)
@@ -729,7 +683,7 @@ bool FMesher::CreateRadius(int n, double r)
             // add this one to the list of possibly valid solutions if
             // both of the intersection points actually lie on the arc
             if ( problem->shortestDistanceFromArc(i2[m],*problem->arclist[arc[0]])<(r/10000.) &&
-                 ShortestDistance(Re(i1[m]),Im(i1[m]),seg[0])<(r/10000.)
+                 problem->shortestDistanceFromSegment(Re(i1[m]),Im(i1[m]),seg[0])<(r/10000.)
                  && abs(i1[m]-i2[m])>(r/10000.))
             {
                 m++;
@@ -1805,7 +1759,7 @@ bool FMesher::AddBlockLabel(std::unique_ptr<CBlockLabel> &&label, double d)
 
     // can't put a block label on a line, either...
     for (int i=0; i<(int)problem->linelist.size(); i++)
-        if(ShortestDistance(x,y,i)<d) return false;
+        if(problem->shortestDistanceFromSegment(x,y,i)<d) return false;
 
     // test to see if ``too close'' to existing node...
     bool exists=false;
@@ -1854,7 +1808,7 @@ bool FMesher::AddNode(std::unique_ptr<CNode> &&node, double d)
 
     for(int i=0, k=(int)problem->linelist.size(); i<k; i++)
     {
-        if (fabs(ShortestDistance(x,y,i))<d)
+        if (fabs(problem->shortestDistanceFromSegment(x,y,i))<d)
         {
             std::unique_ptr<CSegment> segm;
             segm = std::make_unique<CSegment>(*problem->linelist[i]);
@@ -1966,7 +1920,7 @@ bool FMesher::AddSegment(int n0, int n1, const CSegment *parsegm, double tol)
     {
         if( (i!=n0) && (i!=n1) )
         {
-            d=ShortestDistance(problem->nodelist[i]->x,problem->nodelist[i]->y,k);
+            d=problem->shortestDistanceFromSegment(problem->nodelist[i]->x,problem->nodelist[i]->y,k);
             if (abs(problem->nodelist[i]->CC()-problem->nodelist[n0]->CC())<dmin) d=2.*dmin;
             if (abs(problem->nodelist[i]->CC()-problem->nodelist[n1]->CC())<dmin) d=2.*dmin;
             if (d<dmin){
