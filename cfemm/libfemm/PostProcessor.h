@@ -68,7 +68,6 @@ public:
     double ElmArea(int i);
     double ElmArea(femmsolver::CElement *elm);
 
-    double ShortestDistanceFromSegment(double p, double q, int segm);
     void BendContour(double angle, double anglestep);
     CComplex HenrotteVector(int k);
     void FindBoundaryEdges();

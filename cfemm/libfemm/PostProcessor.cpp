@@ -280,31 +280,6 @@ CComplex PostProcessor::HenrotteVector(int k)
 
 
 // identical in FPProc and HPProc
-double PostProcessor::ShortestDistanceFromSegment(double p, double q, int segm)
-{
-    double t,x[3],y[3];
-
-    int n0 = problem->linelist[segm]->n0;
-    int n1 = problem->linelist[segm]->n1;
-    x[0]=problem->nodelist[n0]->x;
-    y[0]=problem->nodelist[n0]->y;
-    x[1]=problem->nodelist[n1]->x;
-    y[1]=problem->nodelist[n1]->y;
-
-    t=((p-x[0])*(x[1]-x[0]) + (q-y[0])*(y[1]-y[0]))/
-            ((x[1]-x[0])*(x[1]-x[0]) + (y[1]-y[0])*(y[1]-y[0]));
-
-    if (t>1.) t=1.;
-    if (t<0.) t=0.;
-
-    x[2]=x[0]+t*(x[1]-x[0]);
-    y[2]=y[0]+t*(y[1]-y[0]);
-
-    return sqrt((p-x[2])*(p-x[2]) + (q-y[2])*(q-y[2]));
-}
-
-
-// identical in FPProc and HPProc
 void PostProcessor::BendContour(double angle, double anglestep)
 {
     if (angle==0) return;
