@@ -658,7 +658,8 @@ int HSolver::AnalyzeProblem(CBigLinProb &L)
 								c1 = -(bta*Ksb*(pow(Tinf,4.) + 3.*pow(Tlast,4.)));
 
 								break;
-							default:
+                            default:
+                                assert(false); // can't happen according to if statement above
 								break;
 						}
 

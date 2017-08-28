@@ -1524,6 +1524,7 @@ CComplex HPProc::BlockIntegral(int inttype)
 	double a,R;
 	double r[3];
 
+    R=0;
     z=0;
     for(int i=0;i<(int)meshelem.size();i++)
 	{
