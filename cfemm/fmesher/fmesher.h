@@ -114,23 +114,6 @@ public:
     // pointer to function to use for triangle to issue warning messages
     int (*TriMessage)(const char * format, ...);
 
-    /**
-     * @brief Translate copies of the selected objects of the selected type.
-     * Each copy is translated by the given amount compared to the previous copy.
-     * @param incx offset
-     * @param incy offset
-     * @param ncopies number of copies
-     * @param selector
-     */
-    void TranslateCopy(double incx, double incy, int ncopies, femm::EditMode selector);
-    /**
-     * @brief Translate the selected objects of the selected type.
-     * @param dx
-     * @param dy
-     * @param selector
-     */
-    void TranslateMove(double dx, double dy, femm::EditMode selector);
-
 private:
 
     virtual bool Initialize(femm::FileType t);

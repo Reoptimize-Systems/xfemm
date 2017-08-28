@@ -447,7 +447,7 @@ int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
 
 
     doc->updateUndo();
-    mesher->TranslateCopy(x,y,copies,editAction);
+    doc->translateCopy(x,y,copies,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by TranslateCopy?
     doc->invalidateMesh();
     mesher->meshline.clear();
@@ -1150,7 +1150,7 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
     }
 
     doc->updateUndo();
-    mesher->TranslateMove(x,y,editAction);
+    doc->translateMove(x,y,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by translateMove?
     doc->invalidateMesh();
     mesher->meshline.clear();
