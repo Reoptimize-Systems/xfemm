@@ -137,7 +137,7 @@ int femmcli::LuaCommonCommands::luaAddBlocklabel(lua_State *L)
         }
         d = abs(p1-p0)*CLOSE_ENOUGH;
     }
-    mesher->problem->addBlockLabel(x,y,d);
+    doc->addBlockLabel(x,y,d);
 
     //BOOL flag=thisDoc->AddBlockLabel(x,y,d);
     //if(flag==TRUE){
@@ -389,7 +389,7 @@ int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
 
 
     // Note(ZaJ): why is mesher->UpdateUndo called in mi_copytranslate but not here?
-    mesher->RotateCopy(CComplex(x,y),angle,copies,editAction);
+    doc->rotateCopy(CComplex(x,y),angle,copies,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by RotateCopy?
     doc->invalidateMesh();
     mesher->meshline.clear();
