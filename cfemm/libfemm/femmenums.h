@@ -23,6 +23,41 @@
 
 namespace femm {
 
+/// enum for the problem type
+enum ProblemType { PLANAR = 0, AXISYMMETRIC = 1};
+
+/// enum for the coordinate system type of a problem
+enum CoordsType { CART = 0, POLAR = 1 };
+
+/// Unit "lfac" for lengths
+enum LengthUnit {
+    LengthInches = 0,
+    LengthMillimeters = 1,
+    LengthCentimeters = 2,
+    LengthMeters = 3,
+    LengthMils = 4,
+    LengthMicrometers = 5
+};
+
+/**
+ * Conversion table to meters.
+ *
+ * Example:
+ * \code
+ * LengthUnit LFAC = LengthInches;
+ * double valueInMeters = valueInLFAC * LengthConvMeters[LFAC];
+ * \endcode
+ */
+constexpr double LengthConvMeters[6] =
+{
+    0.0254,   //inches
+    0.001,    //millimeters
+    0.01,     //centimeters
+    1.,       //meters
+    2.54e-05, //mils
+    1.e-06   //micrometers
+};
+
 /**
  * @brief The EditMode determines which objects are affected by an edit or selection command.
  */

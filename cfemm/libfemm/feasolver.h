@@ -32,6 +32,7 @@
 #ifndef FEASOLVER_H
 #define FEASOLVER_H
 
+#include "femmenums.h"
 #include "fparse.h"
 #include "spars.h"
 #include "CBoundaryProp.h"

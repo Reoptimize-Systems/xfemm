@@ -38,6 +38,7 @@
 #include "CHPointVals.h"
 
 #include "femmcomplex.h"
+#include "femmenums.h"
 #include "fparse.h"
 #include "CArcSegment.h"
 #include "CBlockLabel.h"
