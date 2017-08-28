@@ -1205,6 +1205,16 @@ bool femm::FemmProblem::createRadius(int n, double r)
     return false;
 }
 
+femm::EditMode femm::FemmProblem::defaultEditMode() const
+{
+    return d_EditMode;
+}
+
+void femm::FemmProblem::setDefaultEditMode(femm::EditMode mode)
+{
+    d_EditMode = mode;
+}
+
 bool femm::FemmProblem::deleteSelectedArcSegments()
 {
     size_t oldsize = arclist.size();
@@ -2295,4 +2305,9 @@ femm::FemmProblem::FemmProblem(FileType ftype)
     , filetype(ftype)
     , blockMap()
     , circuitMap()
+    , d_EditMode( EditMode::Invalid )
+    , undonodelist()
+    , undolinelist()
+    , undoarclist()
+    , undolabellist()
 {}

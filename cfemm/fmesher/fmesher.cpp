@@ -70,8 +70,7 @@ FMesher::FMesher()
 
 
 FMesher::FMesher(std::shared_ptr<FemmProblem> p)
-    : d_EditMode(EditMode::Invalid)
-    , problem(p)
+    : problem(p)
     , Verbose(true)
     , WarnMessage(&PrintWarningMsg)
     , TriMessage(nullptr)

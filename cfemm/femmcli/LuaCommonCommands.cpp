@@ -115,7 +115,6 @@ int femmcli::LuaCommonCommands::luaAddBlocklabel(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     double x = lua_todouble(L,1);
     double y = lua_todouble(L,2);
@@ -170,6 +169,7 @@ int femmcli::LuaCommonCommands::luaAddLine(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     double sx=lua_todouble(L,1);
     double sy=lua_todouble(L,2);
@@ -177,9 +177,7 @@ int femmcli::LuaCommonCommands::luaAddLine(lua_State *L)
     double ex=lua_todouble(L,3);
     double ey=lua_todouble(L,4);
 
-    femmState->getMesher()->problem->addSegment(
-                femmState->getMesher()->problem->closestNode(sx,sy),
-                femmState->getMesher()->problem->closestNode(ex,ey));
+    doc->addSegment(doc->closestNode(sx,sy), doc->closestNode(ex,ey));
 
     //BOOL flag=thisDoc->AddSegment(thisDoc->ClosestNode(sx,sy),thisDoc->ClosestNode(ex,ey));
     //if(flag==TRUE)
@@ -235,7 +233,7 @@ int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
         }
         d=abs(p1-p0)*CLOSE_ENOUGH;
     }
-    femmState->getMesher()->problem->addNode(x,y,d);
+    doc->addNode(x,y,d);
 
     //BOOL flag=doc->AddNode(x,y,d);
     //if(flag==TRUE){
@@ -334,8 +332,9 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
 
-    femmState->getMesher()->problem->unselectAll();
+    doc->unselectAll();
     return 0;
 }
 
@@ -378,7 +377,7 @@ int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
     if (n==5) {
         editAction = intToEditMode((int)lua_todouble(L,5));
     } else {
-        editAction = mesher->d_EditMode;
+        editAction = doc->defaultEditMode();
     }
 
     if (editAction == EditMode::Invalid)
@@ -436,7 +435,7 @@ int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
     if (n==4) {
         editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
-        editAction = mesher->d_EditMode;
+        editAction = doc->defaultEditMode();
     }
 
     if (editAction == EditMode::Invalid)
@@ -722,7 +721,6 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedSegments(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     doc->deleteSelectedSegments();
@@ -1010,7 +1008,6 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
 
@@ -1029,7 +1026,7 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
     if (n==5) {
         editAction = intToEditMode((int)lua_todouble(L,5));
     } else {
-        editAction = mesher->d_EditMode;
+        editAction = doc->defaultEditMode();
     }
 
     if (editAction == EditMode::Invalid)
@@ -1084,7 +1081,7 @@ int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
     if (n==4) {
         editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
-        editAction = mesher->d_EditMode;
+        editAction = doc->defaultEditMode();
     }
     if (editAction == EditMode::Invalid)
     {
@@ -1140,7 +1137,7 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
     if (n==3) {
         editAction = intToEditMode((int)lua_todouble(L,3));
     } else {
-        editAction = mesher->d_EditMode;
+        editAction = doc->defaultEditMode();
     }
 
     if (editAction == EditMode::Invalid)
@@ -1427,7 +1424,6 @@ int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
 
@@ -1439,7 +1435,7 @@ int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
     if (n==4) {
         editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
-        editAction = mesher->d_EditMode;
+        editAction = doc->defaultEditMode();
     }
 
     if (editAction == EditMode::Invalid)
@@ -1560,7 +1556,6 @@ int femmcli::LuaCommonCommands::luaSelectGroup(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int group=(int) lua_todouble(L,1);
 
@@ -1604,7 +1599,7 @@ int femmcli::LuaCommonCommands::luaSelectGroup(lua_State *L)
     }
 
     // set default edit mode
-    mesher->d_EditMode = EditMode::EditGroup;
+    doc->setDefaultEditMode( EditMode::EditGroup);
 
     return 0;
 }
@@ -1667,21 +1662,21 @@ int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> thisDoc = femmState->femmDocument();
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
-    if (thisDoc->linelist.empty())
+    if (doc->linelist.empty())
         return 0;
 
-    int node = femmState->getMesher()->problem->closestSegment(mx,my);
-    thisDoc->linelist[node]->ToggleSelect();
+    int node = doc->closestSegment(mx,my);
+    doc->linelist[node]->ToggleSelect();
 
-    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->x);
-    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n0]->y);
-    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n1]->x);
-    lua_pushnumber(L,thisDoc->nodelist[thisDoc->linelist[node]->n1]->y);
+    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n0]->x);
+    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n0]->y);
+    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n1]->x);
+    lua_pushnumber(L,doc->nodelist[doc->linelist[node]->n1]->y);
 
     return 4;
 }
@@ -1707,7 +1702,6 @@ int femmcli::LuaCommonCommands::luaSelectWithinCircle(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n=lua_gettop(L);
     if (n<3)
@@ -1720,7 +1714,7 @@ int femmcli::LuaCommonCommands::luaSelectWithinCircle(lua_State *L)
     if (n>3) {
         editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
-        editAction = mesher->d_EditMode;
+        editAction = doc->defaultEditMode();
     }
 
     if (editAction == EditMode::Invalid)
@@ -1795,7 +1789,6 @@ int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
     int n = lua_gettop(L);
     if (n<4)
@@ -1810,7 +1803,7 @@ int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
     if (n>4) {
         editAction = intToEditMode((int)lua_todouble(L,5));
     } else {
-        editAction = mesher->d_EditMode;
+        editAction = doc->defaultEditMode();
     }
 
     if (editAction == EditMode::Invalid)
@@ -1885,7 +1878,7 @@ int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
 }
 
 /**
- * @brief Set the default mesher EditMode.
+ * @brief Set the default document EditMode.
  * @param L
  * @return 0
  * \ingroup LuaCommon
@@ -1904,7 +1897,7 @@ int femmcli::LuaCommonCommands::luaSetEditMode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
     EditMode mode;
     std::string modeString (lua_tostring(L,1));
@@ -1923,7 +1916,7 @@ int femmcli::LuaCommonCommands::luaSetEditMode(lua_State *L)
         return 0;
     }
 
-    mesher->d_EditMode = mode;
+    doc->setDefaultEditMode(mode);
     return 0;
 }
 

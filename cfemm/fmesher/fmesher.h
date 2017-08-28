@@ -78,7 +78,6 @@ public:
     explicit FMesher(std::string);
     explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
 
-    femm::EditMode d_EditMode;
     std::shared_ptr<femm::FemmProblem> problem;
 	bool    Verbose;
 
