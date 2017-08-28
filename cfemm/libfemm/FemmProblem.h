@@ -275,6 +275,9 @@ public:
      */
     bool createRadius(int n, double r);
 
+    femm::EditMode defaultEditMode() const;
+    void setDefaultEditMode( femm::EditMode mode);
+
     /**
      * @brief Delete all selected arc segments
      * @return \c true, if any segments were deleted, \c false otherwise.
@@ -518,6 +521,7 @@ public: // data members
     std::map<std::string, int> nodeMap; ///< \brief a map from PointName to node index. \sa updateNodeMap
 
 private:
+    femm::EditMode d_EditMode;
     // lists of nodes, segments, and block labels for undo purposes...
     std::vector< std::unique_ptr<femm::CNode> >       undonodelist;
     std::vector< std::unique_ptr<femm::CSegment> >    undolinelist;
