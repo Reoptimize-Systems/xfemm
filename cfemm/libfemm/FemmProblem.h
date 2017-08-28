@@ -143,6 +143,30 @@ public:
     bool addArcSegment(femm::CArcSegment &asegm, double tol=0.);
 
     /**
+     * @brief Add a block label to the problem description.
+     * The method ensures that a block label can not be added on top
+     * of another label, node or line.
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @param d minimum distance to next node or label.
+     * @return \c true if the label could be added or a block label already exists at that position, \c false otherwise.
+     */
+    bool addBlockLabel(double x, double y, double d);
+    /**
+     * @brief Add a block label to the problem description.
+     * The method ensures that a block label can not be added on top
+     * of another label, node or line.
+     *
+     * In contrast to the AddBlockLabel(double,double,double), this signature needs an existing CBlockLabel rvalue reference that is invalidated by this call.
+     * Normally, you want to call the other variant.
+     *
+     * @param label the label to add
+     * @param d minimum distance to next node or label.
+     * @return \c true if the label could be added or a block label already exists at that position, \c false otherwise.
+     */
+    bool addBlockLabel(std::unique_ptr<femm::CBlockLabel> &&label, double d);
+
+    /**
      * @brief Add a CNode to the problem description.
      * If necessary, adjust existing CSegments or CArcSegments.
      * The method also ensures that a new node can't be put atop of an existing node or a block label.

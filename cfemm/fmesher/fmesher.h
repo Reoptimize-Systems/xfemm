@@ -132,30 +132,6 @@ public:
     int (*TriMessage)(const char * format, ...);
 
     /**
-     * @brief Add a block label to the problem description.
-     * The method ensures that a block label can not be added on top
-     * of another label, node or line.
-     * @param x x-coordinate
-     * @param y y-coordinate
-     * @param d minimum distance to next node or label.
-     * @return \c true if the label could be added or a block label already exists at that position, \c false otherwise.
-     */
-    bool AddBlockLabel(double x, double y, double d);
-    /**
-     * @brief Add a block label to the problem description.
-     * The method ensures that a block label can not be added on top
-     * of another label, node or line.
-     *
-     * In contrast to the AddBlockLabel(double,double,double), this signature needs an existing CBlockLabel rvalue reference that is invalidated by this call.
-     * Normally, you want to call the other variant.
-     *
-     * @param label the label to add
-     * @param d minimum distance to next node or label.
-     * @return \c true if the label could be added or a block label already exists at that position, \c false otherwise.
-     */
-    bool AddBlockLabel(std::unique_ptr<femm::CBlockLabel> &&label, double d);
-
-    /**
      * @brief Mirror copies of the selected objects about the given line.
      * The line is defined by two points along the line.
      * @param x0 x coordinate of point 0

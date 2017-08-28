@@ -2,6 +2,7 @@
 
 #include "femmconstants.h"
 
+#include <cassert>
 #include <ctgmath>
 #include <fstream>
 #include <iomanip>
@@ -442,6 +443,60 @@ bool femm::FemmProblem::addArcSegment(femm::CArcSegment &asegm, double tol)
 
     return true;
 }
+
+bool femm::FemmProblem::addBlockLabel(double x, double y, double d)
+{
+    std::unique_ptr<CBlockLabel> pt;
+    switch (filetype) {
+    case FileType::MagneticsFile:
+        pt = std::make_unique<CMBlockLabel>();
+        break;
+    case FileType::HeatFlowFile:
+        pt = std::make_unique<CHBlockLabel>();
+        break;
+    case FileType::ElectrostaticsFile:
+        pt = std::make_unique<CSBlockLabel>();
+        break;
+    default:
+        assert(false && "Unhandled file type");
+        break;
+    }
+    pt->x = x;
+    pt->y = y;
+
+    return addBlockLabel(std::move(pt), d);
+}
+
+bool femm::FemmProblem::addBlockLabel(std::unique_ptr<femm::CBlockLabel> &&label, double d)
+{
+    double x = label->x;
+    double y = label->y;
+
+    // can't put a block label on top of an existing node...
+    for (int i=0; i<(int)nodelist.size(); i++)
+        if(nodelist[i]->GetDistance(x,y)<d) return false;
+
+    // can't put a block label on a line, either...
+    for (int i=0; i<(int)linelist.size(); i++)
+        if(shortestDistanceFromSegment(x,y,i)<d) return false;
+
+    // test to see if ``too close'' to existing node...
+    bool exists=false;
+    for (int i=0; i<(int)labellist.size(); i++)
+        if(labellist[i]->GetDistance(x,y)<d) {
+            exists=true;
+            break;
+        }
+
+    // if all is OK, add point in to the node list...
+    if(!exists){
+        labellist.push_back(std::move(label));
+    }
+
+    return true;
+}
+
+
 
 bool femm::FemmProblem::addNode(double x, double y, double d)
 {
