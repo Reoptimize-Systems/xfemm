@@ -399,6 +399,14 @@ public:
     void rotateCopy(CComplex c, double dt, int ncopies, femm::EditMode selector);
 
     /**
+     * @brief Rotate the selected objects of the selected type.
+     * @param c center
+     * @param t angle
+     * @param selector
+     */
+    void rotateMove(CComplex c, double t, femm::EditMode selector);
+
+    /**
      * @brief shortestDistanceFromSegment computes the distance between a point and the nearest point of a line segment.
      *
      * Note: this can not be a member function of CSegment,

@@ -115,14 +115,6 @@ public:
     int (*TriMessage)(const char * format, ...);
 
     /**
-     * @brief Rotate the selected objects of the selected type.
-     * @param c center
-     * @param t angle
-     * @param selector
-     */
-    void RotateMove(CComplex c, double t, femm::EditMode selector);
-
-    /**
      * @brief Scale the selected objects relative to a base point
      * @param bx base-point x
      * @param by base-point y

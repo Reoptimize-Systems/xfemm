@@ -1093,7 +1093,7 @@ int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
     }
 
     doc->updateUndo();
-    mesher->RotateMove(CComplex(x,y),shiftangle,editAction);
+    doc->rotateMove(CComplex(x,y),shiftangle,editAction);
     // Note(ZaJ): shouldn't the invalidation be done by translateMove?
     doc->invalidateMesh();
     mesher->meshline.clear();
