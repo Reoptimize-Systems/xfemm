@@ -407,6 +407,15 @@ public:
     void rotateMove(CComplex c, double t, femm::EditMode selector);
 
     /**
+     * @brief Scale the selected objects relative to a base point
+     * @param bx base-point x
+     * @param by base-point y
+     * @param sf scale factor
+     * @param selector
+     */
+    void scaleMove(double bx, double by, double sf, femm::EditMode selector);
+
+    /**
      * @brief shortestDistanceFromSegment computes the distance between a point and the nearest point of a line segment.
      *
      * Note: this can not be a member function of CSegment,
