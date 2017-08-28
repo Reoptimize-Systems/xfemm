@@ -2054,6 +2054,171 @@ double femm::FemmProblem::shortestDistanceFromArc(CComplex p, const femm::CArcSe
     return l;
 }
 
+void femm::FemmProblem::translateCopy(double incx, double incy, int ncopies, femm::EditMode selector)
+{
+    assert(selector != EditMode::Invalid);
+    for(int nc=0; nc<ncopies; nc++)
+    {
+        // accumulated offsets
+        double dx=((double)(nc+1))*incx;
+        double dy=((double)(nc+1))*incy;
+
+        if (selector==EditMode::EditNodes || selector == EditMode::EditGroup)
+        {
+            for (const auto &node: nodelist)
+            {
+                if (node->IsSelected)
+                {
+                    // create copy
+                    std::unique_ptr<CNode> newnode = std::make_unique<CNode>(*node);
+                    // overwrite coordinates in copy
+                    newnode->x += dx;
+                    newnode->y += dy;
+                    newnode->IsSelected = false;
+                    nodelist.push_back(std::move(newnode));
+                }
+            }
+        }
+
+        if (selector == EditMode::EditLines || selector == EditMode::EditGroup)
+        {
+            for (const auto &line: linelist)
+            {
+                if (line->IsSelected)
+                {
+                    // copy endpoints
+                    std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[line->n0]);
+                    n0->x += dx;
+                    n0->y += dy;
+                    n0->IsSelected = false;
+
+                    std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[line->n1]);
+                    n1->x += dx;
+                    n1->y += dy;
+                    n1->IsSelected = false;
+
+                    // copy line (with identical endpoints)
+                    std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                    newline->IsSelected = false;
+                    // set endpoints
+                    newline->n0 = (int)nodelist.size();
+                    nodelist.push_back(std::move(n0));
+                    newline->n1 = (int)nodelist.size();
+                    nodelist.push_back(std::move(n1));
+                    linelist.push_back(std::move(newline));
+                }
+            }
+        }
+
+        if (selector == EditMode::EditLabels || selector == EditMode::EditGroup)
+        {
+            for (const auto &label: labellist)
+            {
+                if (label->IsSelected)
+                {
+                    std::unique_ptr<CBlockLabel> newlabel = label->clone();
+                    newlabel->x += dx;
+                    newlabel->y += dy;
+                    newlabel->IsSelected = false;
+
+                    labellist.push_back(std::move(newlabel));
+                }
+            }
+        }
+
+        if (selector == EditMode::EditArcs || selector == EditMode::EditGroup)
+        {
+            for (const auto &arc: arclist)
+            {
+                if (arc->IsSelected)
+                {
+                    // copy endpoints
+                    std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[arc->n0]);
+                    n0->x += dx;
+                    n0->y += dy;
+                    n0->IsSelected = false;
+
+                    std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[arc->n1]);
+                    n1->x += dx;
+                    n1->y += dy;
+                    n1->IsSelected = false;
+
+                    // copy arc (with identical endpoints)
+                    std::unique_ptr<CArcSegment> newarc = std::make_unique<CArcSegment>(*arc);
+                    newarc->IsSelected = false;
+                    // set endpoints
+                    newarc->n0 = (int)nodelist.size();
+                    nodelist.push_back(std::move(n0));
+                    newarc->n1 = (int)nodelist.size();
+                    nodelist.push_back(std::move(n1));
+                    arclist.push_back(std::move(newarc));
+                }
+            }
+        }
+    }
+
+    enforcePSLG();
+}
+
+void femm::FemmProblem::translateMove(double dx, double dy, femm::EditMode selector)
+{
+    assert(selector != EditMode::Invalid);
+    bool processNodes = (selector == EditMode::EditNodes);
+
+    if (selector == EditMode::EditLines || selector == EditMode::EditGroup)
+    {
+        // select end points of selected lines:
+        for (auto &line: linelist)
+        {
+            if (line->IsSelected)
+            {
+                nodelist[line->n0]->IsSelected = true;
+                nodelist[line->n1]->IsSelected = true;
+            }
+        }
+        // make sure to translate endpoints
+        processNodes = true;
+    }
+    if (selector == EditMode::EditArcs || selector == EditMode::EditGroup)
+    {
+        // select end points of selected arcs:
+        for (auto &arc: arclist)
+        {
+            if (arc->IsSelected)
+            {
+                nodelist[arc->n0]->IsSelected = true;
+                nodelist[arc->n1]->IsSelected = true;
+            }
+        }
+        // make sure to translate endpoints
+        processNodes = true;
+    }
+
+    if (selector == EditMode::EditLabels || selector == EditMode::EditGroup)
+    {
+        for (auto &lbl: labellist)
+        {
+            if (lbl->IsSelected)
+            {
+                lbl->x += dx;
+                lbl->y += dy;
+            }
+        }
+    }
+    if (processNodes)
+    {
+        for (auto &node: nodelist)
+        {
+            if (node->IsSelected)
+            {
+                node->x += dx;
+                node->y += dy;
+            }
+        }
+    }
+    enforcePSLG();
+}
+
 void femm::FemmProblem::unselectAll()
 {
     for(auto &node: nodelist) node->IsSelected = false;
