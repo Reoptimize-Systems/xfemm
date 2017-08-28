@@ -1308,6 +1308,84 @@ bool femm::FemmProblem::deleteSelectedSegments()
     return linelist.size() != oldsize;
 }
 
+void femm::FemmProblem::enforcePSLG(double tol)
+{
+    std::vector< std::unique_ptr<CNode>> newnodelist;
+    std::vector< std::unique_ptr<CSegment>> newlinelist;
+    std::vector< std::unique_ptr<CArcSegment>> newarclist;
+    std::vector< std::unique_ptr<CBlockLabel>> newlabellist;
+
+    // save existing objects into new*list:
+    newnodelist.swap(nodelist);
+    newlinelist.swap(linelist);
+    newarclist.swap(arclist);
+    newlabellist.swap(labellist);
+
+    // find out what tolerance is so that there are not nodes right on
+    // top of each other;
+    double d = tol;
+    if (tol==0)
+    {
+        if (newnodelist.size()==1)
+            d = 1.e-08;
+        else
+        {
+            CComplex p0 = newnodelist[0]->CC();
+            CComplex p1 = p0;
+            for (int i=1; i<(int)newnodelist.size(); i++)
+            {
+                if(newnodelist[i]->x<p0.re) p0.re = newnodelist[i]->x;
+                if(newnodelist[i]->x>p1.re) p1.re = newnodelist[i]->x;
+                if(newnodelist[i]->y<p0.im) p0.im = newnodelist[i]->y;
+                if(newnodelist[i]->y>p1.im) p1.im = newnodelist[i]->y;
+            }
+            d = abs(p1-p0)*CLOSE_ENOUGH;
+        }
+    }
+
+    // put in all of the nodes;
+    for (auto &node: newnodelist)
+    {
+        addNode(std::move(node), d);
+    }
+
+    // put in all of the lines;
+    for (const auto &line: newlinelist)
+    {
+        // Note(ZaJ): the original code uses a variant of AddSegment that uses coordinates instead of node indices.
+        // since I don't see any advantage to that, I just use the regular AddSegment method:
+        //CComplex p0 (newnodelist[line->n0]->x, newnodelist[line->n0]->y);
+        //CComplex p1 (newnodelist[line->n1]->x, newnodelist[line->n1]->y);
+        //AddSegment(p0,p1,newlinelist[i]);
+
+        // using the raw pointer is ok here, because AddSegment creates a copy anyways
+        addSegment(line->n0, line->n1, line.get(), d);
+    }
+
+    // put in all of the arcs;
+    for (const auto &arc: newarclist)
+    {
+        // Note(ZaJ): the original code uses a variant of AddArcSegment that uses coordinates instead of the node indices
+        // since I don't see any advantage to that, I just use the regular AddArcSegment method:
+        //CComplex p0 (newnodelist[arc->n0]->x, newnodelist[arc->n0]->y);
+        //CComplex p1 (newnodelist[arc->n1]->x, newnodelist[arc->n1]->y);
+        //AddArcSegment(p0,p1,newarclist[i]);
+
+        // using the raw pointer is ok here, because AddArcSegment creates a copy anyways
+        addArcSegment(*arc.get(), d);
+    }
+
+    // put in all of the block labels;
+    for (auto &label: newlabellist)
+    {
+        addBlockLabel(std::move(label), d);
+    }
+
+    unselectAll();
+}
+
+
+
 int femm::FemmProblem::getArcArcIntersection(const femm::CArcSegment &arc0, const femm::CArcSegment &arc1, CComplex *p) const
 {
     CComplex a0,a1,t,c0,c1;
@@ -1535,6 +1613,131 @@ double femm::FemmProblem::lengthOfLine(int i) const
     return abs(nodelist[linelist[i]->n0]->CC()-
             nodelist[linelist[i]->n1]->CC());
 }
+
+void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, femm::EditMode selector)
+{
+    assert(selector != EditMode::Invalid);
+    CComplex x=x0 + I*y0;
+    CComplex p=(x1-x0) + I*(y1-y0);
+    if(abs(p)==0)
+        return;
+    p/=abs(p);
+
+    if (selector==EditMode::EditNodes || selector == EditMode::EditGroup)
+    {
+        for (const auto &node: nodelist)
+        {
+            if (node->IsSelected)
+            {
+                CComplex y (node->x,node->y);
+                y = (y-x) / p;
+                y = p*y.Conj()+x;
+                // create copy
+                std::unique_ptr<CNode> newnode = std::make_unique<CNode>(*node);
+                // overwrite coordinates in copy
+                newnode->x = y.re;
+                newnode->y = y.im;
+                newnode->IsSelected = false;
+                nodelist.push_back(std::move(newnode));
+            }
+        }
+    }
+    if (selector == EditMode::EditLines || selector == EditMode::EditGroup)
+    {
+        for (const auto &line: linelist)
+        {
+            if (line->IsSelected)
+            {
+                // copy endpoints
+                std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[line->n0]);
+                CComplex y0 (n0->x,n0->y);
+                y0 = (y0-x) / p;
+                y0 = p*y0.Conj()+x;
+                n0->x = y0.re;
+                n0->y = y0.im;
+                n0->IsSelected = false;
+
+                std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[line->n1]);
+                CComplex y1 (n1->x,n1->y);
+                y1 = (y1-x) / p;
+                y1 = p*y1.Conj()+x;
+                n1->x = y1.re;
+                n1->y = y1.im;
+                n1->IsSelected = false;
+
+                // copy line (with identical endpoints)
+                std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                newline->IsSelected = false;
+                // set endpoints
+                newline->n0 = (int)nodelist.size();
+                nodelist.push_back(std::move(n0));
+                newline->n1 = (int)nodelist.size();
+                nodelist.push_back(std::move(n1));
+                linelist.push_back(std::move(newline));
+            }
+        }
+    }
+
+    if (selector == EditMode::EditLabels || selector == EditMode::EditGroup)
+    {
+        for (const auto &label: labellist)
+        {
+            if (label->IsSelected)
+            {
+                std::unique_ptr<CBlockLabel> newlabel = label->clone();
+                CComplex y (label->x,label->y);
+                y = (y-x) / p;
+                y = p*y.Conj()+x;
+                newlabel->x = y.re;
+                newlabel->y = y.im;
+                newlabel->IsSelected = false;
+                // set specific problem parameters:
+                if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(newlabel.get()))
+                    ptr->MagDir = (180./PI)*arg(p*conj(exp(I*ptr->MagDir*PI/180.)/p));
+
+                labellist.push_back(std::move(newlabel));
+            }
+        }
+    }
+    if (selector == EditMode::EditArcs || selector == EditMode::EditGroup)
+    {
+        for (const auto &arc: arclist)
+        {
+            if (arc->IsSelected)
+            {
+                // copy endpoints
+                std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[arc->n0]);
+                CComplex y0 (n0->x,n0->y);
+                y0 = (y0-x) / p;
+                y0 = p*y0.Conj()+x;
+                n0->x = y0.re;
+                n0->y = y0.im;
+                n0->IsSelected = false;
+
+                std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[arc->n1]);
+                CComplex y1 (n1->x,n1->y);
+                y1 = (y1-x) / p;
+                y1 = p*y1.Conj()+x;
+                n1->x = y1.re;
+                n1->y = y1.im;
+                n1->IsSelected = false;
+
+                // copy arc (with identical endpoints)
+                std::unique_ptr<CArcSegment> newarc = std::make_unique<CArcSegment>(*arc);
+                newarc->IsSelected = false;
+                // set endpoints
+                newarc->n0 = (int)nodelist.size();
+                nodelist.push_back(std::move(n0));
+                newarc->n1 = (int)nodelist.size();
+                nodelist.push_back(std::move(n1));
+                arclist.push_back(std::move(newarc));
+            }
+        }
+    }
+    enforcePSLG();
+}
+
+
 
 // identical in fmesher, hpproc, fpproc
 double femm::FemmProblem::shortestDistanceFromSegment(double p, double q, int segm) const

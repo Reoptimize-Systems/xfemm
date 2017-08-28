@@ -108,39 +108,11 @@ public:
     //bool OldOnOpenDocument(LPCTSTR lpszPathName);
 	bool HasPeriodicBC();
 
-    /**
-     * @brief EnforcePSLG
-     * Makes sure that there are no:
-     * 1. no duplicate points
-     * 2. no intersections between line segments, lines and arcs, or arcs
-     * 3. no duplicate block labels
-     * 4. no overlapping lines or arcs.
-     *
-     * @param tol tolerance
-     *
-     * \internal
-     * We do this by cleaning out the various lists, and rebuilding them
-     * using the ``add'' functions that ensure that things come out right.
-     */
-    void EnforcePSLG(double tol=0);
-	void FancyEnforcePSLG(double tol);
-
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
 
     // pointer to function to use for triangle to issue warning messages
     int (*TriMessage)(const char * format, ...);
-
-    /**
-     * @brief Mirror copies of the selected objects about the given line.
-     * The line is defined by two points along the line.
-     * @param x0 x coordinate of point 0
-     * @param y0 y coordinate of point 0
-     * @param x1 x coordinate of point 1
-     * @param y1 y coordinate of point 1
-     * @param selector
-     */
-    void MirrorCopy(double x0, double y0, double x1, double y1, femm::EditMode selector);
 
     /**
      * @brief Rotate copies of the selected objects of the selected type.
