@@ -137,7 +137,7 @@ int femmcli::LuaCommonCommands::luaAddBlocklabel(lua_State *L)
         }
         d = abs(p1-p0)*CLOSE_ENOUGH;
     }
-    mesher->AddBlockLabel(x,y,d);
+    mesher->problem->addBlockLabel(x,y,d);
 
     //BOOL flag=thisDoc->AddBlockLabel(x,y,d);
     //if(flag==TRUE){

@@ -168,7 +168,7 @@ void FMesher::EnforcePSLG(double tol)
     // put in all of the block labels;
     for (auto &label: newlabellist)
     {
-        AddBlockLabel(std::move(label), d);
+        problem->addBlockLabel(std::move(label), d);
     }
 
     problem->unselectAll();
@@ -1138,59 +1138,6 @@ void FMesher::TranslateMove(double dx, double dy, femm::EditMode selector)
         }
     }
     EnforcePSLG();
-}
-
-
-bool FMesher::AddBlockLabel(double x, double y, double d)
-{
-    std::unique_ptr<CBlockLabel> pt;
-    switch (problem->filetype) {
-    case FileType::MagneticsFile:
-        pt = std::make_unique<CMBlockLabel>();
-        break;
-    case FileType::HeatFlowFile:
-        pt = std::make_unique<CHBlockLabel>();
-        break;
-    case FileType::ElectrostaticsFile:
-        pt = std::make_unique<CSBlockLabel>();
-        break;
-    default:
-        assert(false && "Unhandled file type");
-        break;
-    }
-    pt->x = x;
-    pt->y = y;
-
-    return AddBlockLabel(std::move(pt), d);
-}
-
-bool FMesher::AddBlockLabel(std::unique_ptr<CBlockLabel> &&label, double d)
-{
-    double x = label->x;
-    double y = label->y;
-
-    // can't put a block label on top of an existing node...
-    for (int i=0; i<(int)problem->nodelist.size(); i++)
-        if(problem->nodelist[i]->GetDistance(x,y)<d) return false;
-
-    // can't put a block label on a line, either...
-    for (int i=0; i<(int)problem->linelist.size(); i++)
-        if(problem->shortestDistanceFromSegment(x,y,i)<d) return false;
-
-    // test to see if ``too close'' to existing node...
-    bool exists=false;
-    for (int i=0; i<(int)problem->labellist.size(); i++)
-        if(problem->labellist[i]->GetDistance(x,y)<d) {
-            exists=true;
-            break;
-        }
-
-    // if all is OK, add point in to the node list...
-    if(!exists){
-        problem->labellist.push_back(std::move(label));
-    }
-
-    return true;
 }
 
 
