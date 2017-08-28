@@ -1456,7 +1456,7 @@ int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
 
 
     doc->updateUndo();
-    mesher->ScaleMove(x,y,scalefactor,editAction);
+    doc->scaleMove(x,y,scalefactor,editAction);
 
     return 0;
 }

@@ -1943,6 +1943,66 @@ void femm::FemmProblem::rotateMove(CComplex c, double t, femm::EditMode selector
     enforcePSLG();
 }
 
+void femm::FemmProblem::scaleMove(double bx, double by, double sf, femm::EditMode selector)
+{
+    assert(selector != EditMode::Invalid);
+    bool processNodes = (selector == EditMode::EditNodes);
+
+    if (selector==EditMode::EditLines || selector==EditMode::EditGroup)
+    {
+        for (const auto& line: linelist)
+        {
+            if (line->IsSelected)
+            {
+                nodelist[line->n0]->IsSelected = true;
+                nodelist[line->n1]->IsSelected = true;
+            }
+        }
+        processNodes = true;
+    }
+
+    if (selector==EditMode::EditArcs || selector==EditMode::EditGroup)
+    {
+        for (const auto &arc: arclist)
+        {
+            if (arc->IsSelected)
+            {
+                nodelist[arc->n0]->IsSelected = true;
+                nodelist[arc->n1]->IsSelected = true;
+            }
+        }
+        processNodes = true;
+    }
+
+    if (selector==EditMode::EditLabels || selector==EditMode::EditGroup)
+    {
+        for (auto &label: labellist)
+        {
+            if (label->IsSelected)
+            {
+                label->x = bx+sf*(label->x - bx);
+                label->y = by+sf*(label->y - by);
+                label->MaxArea *= (sf*sf);
+            }
+        }
+    }
+
+    if (processNodes)
+    {
+        for (auto &node : nodelist)
+        {
+            if (node->IsSelected)
+            {
+                node->x = bx+sf*(node->x - bx);
+                node->y = by+sf*(node->y - by);
+            }
+        }
+    }
+    enforcePSLG();
+}
+
+
+
 
 
 
