@@ -334,7 +334,7 @@ public:
 
     /**
      * @brief getCircle computes the matching circle to an arc segment.
-     * @param asegm the arc segment
+     * @param arc the arc segment
      * @param c the center of the circle, packed as CComplex (output variable)
      * @param R the radius of the circle (output variable)
      */
@@ -424,6 +424,7 @@ public:
      * Note: this can not be a member function of CSegment,
      * because the linw segments only store node indices of their points.
      * @param p the point
+     * @param q the point
      * @param segm the line segment index
      * @return the shortest distance
      */
