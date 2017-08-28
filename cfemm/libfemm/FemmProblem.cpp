@@ -1868,6 +1868,83 @@ void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::Edi
     enforcePSLG();
 }
 
+void femm::FemmProblem::rotateMove(CComplex c, double t, femm::EditMode selector)
+{
+    assert(selector != EditMode::Invalid);
+    bool processNodes = (selector == EditMode::EditNodes);
+
+    const CComplex z = exp(I*t*PI/180);
+
+    if(selector==EditMode::EditLines || selector==EditMode::EditGroup)
+    {
+        for (const auto &line: linelist)
+        {
+            if (line->IsSelected)
+            {
+                nodelist[line->n0]->IsSelected = true;
+                nodelist[line->n1]->IsSelected = true;
+            }
+        }
+        processNodes = true;
+    }
+
+    if(selector==EditMode::EditArcs || selector==EditMode::EditGroup)
+    {
+        for (const auto &arc: arclist)
+        {
+            if (arc->IsSelected)
+            {
+                nodelist[arc->n0]->IsSelected = true;
+                nodelist[arc->n1]->IsSelected = true;
+            }
+        }
+        processNodes = true;
+    }
+
+    if(selector==EditMode::EditLabels || selector==EditMode::EditGroup)
+    {
+        for (auto &label: labellist)
+        {
+            if (label->IsSelected)
+            {
+                CComplex x (label->x, label->y);
+                x = (x-c)*z+c;
+                label->x = x.re;
+                label->y = x.im;
+
+                for (const auto &bprop : blockproplist)
+                {
+                    CMMaterialProp *prop = dynamic_cast<CMMaterialProp*>(bprop.get());
+                    if (prop
+                            && prop->BlockName == label->BlockTypeName
+                            && prop->H_c != 0)
+                    {
+                        if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(label.get()))
+                            ptr->MagDir += t;
+                    }
+                }
+            }
+        }
+    }
+
+    if(processNodes)
+    {
+        for (auto &node : nodelist)
+        {
+            if (node->IsSelected)
+            {
+                CComplex x(node->x,node->y);
+                x = (x-c)*z+c;
+                node->x = x.re;
+                node->y = x.im;
+            }
+        }
+    }
+    enforcePSLG();
+}
+
+
+
 
 
 
