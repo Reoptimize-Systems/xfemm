@@ -1039,7 +1039,7 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
     }
 
     doc->updateUndo();
-    mesher->MirrorCopy(m_pax,m_pay,m_pbx,m_pby,editAction);
+    doc->mirrorCopy(m_pax,m_pay,m_pbx,m_pby,editAction);
 
     return 0;
 }
