@@ -132,29 +132,6 @@ public:
     int (*TriMessage)(const char * format, ...);
 
     /**
-     * @brief Add a line (CSegment) to the problem description
-     * The method checks for intersections, splits existing lines/arcs accordingly,
-     * and adds nodes at intersections as needed.
-     * It is ensured that a new line can not be added twice, and that no degenerate lines are added (with start point == end point)
-     * @param n0 index of start node
-     * @param n1 index of end node
-     * @param tol tolerance, i.e. minimum distance between nodes
-     * @return \c true, if the line could be added, \c false otherwise.
-     */
-    bool AddSegment(int n0, int n1, double tol=0.);
-    /**
-     * @brief Add a line (CSegment) to the problem description
-     * The method checks for intersections, splits existing lines/arcs accordingly,
-     * and adds nodes at intersections as needed.
-     * It is ensured that a new line can not be added twice, and that no degenerate lines are added (with start point == end point)
-     * @param n0 index of start node
-     * @param n1 index of end node
-     * @param parsegm
-     * @param tol tolerance, i.e. minimum distance between nodes
-     * @return \c true, if the line could be added, \c false otherwise.
-     */
-    bool AddSegment(int n0, int n1, const femm::CSegment *parsegm, double tol=0.);
-    /**
      * @brief Add a block label to the problem description.
      * The method ensures that a block label can not be added on top
      * of another label, node or line.
