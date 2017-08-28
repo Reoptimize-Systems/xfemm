@@ -115,15 +115,6 @@ public:
     int (*TriMessage)(const char * format, ...);
 
     /**
-     * @brief Rotate copies of the selected objects of the selected type.
-     * Each copy is rotated by the given amount compared to the previous copy.
-     * @param c center
-     * @param dt (incremental) angle in degrees
-     * @param ncopies number of copies
-     * @param selector
-     */
-    void RotateCopy(CComplex c, double dt, int ncopies, femm::EditMode selector);
-    /**
      * @brief Rotate the selected objects of the selected type.
      * @param c center
      * @param t angle

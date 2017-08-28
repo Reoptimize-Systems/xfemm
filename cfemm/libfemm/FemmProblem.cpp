@@ -1737,6 +1737,139 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
     enforcePSLG();
 }
 
+void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::EditMode selector)
+{
+    assert(selector != EditMode::Invalid);
+    for(int nc=0; nc<ncopies; nc++)
+    {
+        // accumulated angle
+        double t = ((double) (nc+1))*dt;
+
+        CComplex z = exp(I*t*PI/180);
+
+        if (selector==EditMode::EditNodes || selector == EditMode::EditGroup)
+        {
+            for (const auto &node: nodelist)
+            {
+                if (node->IsSelected)
+                {
+                    CComplex x (node->x, node->y);
+                    x=(x-c)*z+c;
+                    // create copy
+                    std::unique_ptr<CNode> newnode = std::make_unique<CNode>(*node);
+                    // overwrite coordinates in copy
+                    newnode->x = x.re;
+                    newnode->y = x.im;
+                    newnode->IsSelected = false;
+                    nodelist.push_back(std::move(newnode));
+                }
+            }
+        }
+
+        if (selector == EditMode::EditLines || selector == EditMode::EditGroup)
+        {
+            for (const auto &line: linelist)
+            {
+                if (line->IsSelected)
+                {
+                    // copy endpoints
+                    std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[line->n0]);
+                    CComplex x0 (n0->x,n0->y);
+                    x0 = (x0-c)*z+c;
+                    n0->x = x0.re;
+                    n0->y = x0.im;
+                    n0->IsSelected = false;
+
+                    std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[line->n1]);
+                    CComplex x1 (n1->x,n1->y);
+                    x1 = (x1-c)*z+c;
+                    n1->x = x1.re;
+                    n1->y = x1.im;
+                    n1->IsSelected = false;
+
+                    // copy line (with identical endpoints)
+                    std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                    newline->IsSelected = false;
+                    // set endpoints
+                    newline->n0 = (int)nodelist.size();
+                    nodelist.push_back(std::move(n0));
+                    newline->n1 = (int)nodelist.size();
+                    nodelist.push_back(std::move(n1));
+                    linelist.push_back(std::move(newline));
+                }
+            }
+        }
+
+        if (selector == EditMode::EditArcs || selector == EditMode::EditGroup)
+        {
+            for (const auto &arc: arclist)
+            {
+                if (arc->IsSelected)
+                {
+                    // copy endpoints
+                    std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[arc->n0]);
+                    CComplex x0 (n0->x,n0->y);
+                    x0 = (x0-c)*z+c;
+                    n0->x = x0.re;
+                    n0->y = x0.im;
+                    n0->IsSelected = false;
+
+                    std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[arc->n1]);
+                    CComplex x1 (n1->x,n1->y);
+                    x1 = (x1-c)*z+c;
+                    n1->x = x1.re;
+                    n1->y = x1.im;
+                    n1->IsSelected = false;
+
+                    // copy arc (with identical endpoints)
+                    std::unique_ptr<CArcSegment> newarc = std::make_unique<CArcSegment>(*arc);
+                    newarc->IsSelected = false;
+                    // set endpoints
+                    newarc->n0 = (int)nodelist.size();
+                    nodelist.push_back(std::move(n0));
+                    newarc->n1 = (int)nodelist.size();
+                    nodelist.push_back(std::move(n1));
+                    arclist.push_back(std::move(newarc));
+                }
+            }
+        }
+
+        if (selector == EditMode::EditLabels || selector == EditMode::EditGroup)
+        {
+            for (const auto &label: labellist)
+            {
+                if (label->IsSelected)
+                {
+                    std::unique_ptr<CBlockLabel> newlabel = label->clone();
+                    CComplex x(label->x,label->y);
+                    x = (x-c)*z+c;
+                    newlabel->x = x.re;
+                    newlabel->y = x.im;
+                    newlabel->IsSelected = false;
+
+                    for (const auto &bprop: blockproplist)
+                    {
+                        CMMaterialProp *prop = dynamic_cast<CMMaterialProp*>(bprop.get());
+                        if (prop
+                                && prop->BlockName == newlabel->BlockTypeName
+                                && prop->H_c != 0)
+                        {
+                            if (CMBlockLabel *ptr=dynamic_cast<CMBlockLabel*>(newlabel.get()))
+                                ptr->MagDir += t;
+                        }
+                    }
+
+                    labellist.push_back(std::move(newlabel));
+                }
+            }
+        }
+    }
+
+    enforcePSLG();
+}
+
+
+
 
 
 // identical in fmesher, hpproc, fpproc
