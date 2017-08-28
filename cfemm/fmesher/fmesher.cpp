@@ -149,7 +149,7 @@ void FMesher::EnforcePSLG(double tol)
         //AddSegment(p0,p1,newlinelist[i]);
 
         // using the raw pointer is ok here, because AddSegment creates a copy anyways
-        AddSegment(line->n0, line->n1, line.get(), d);
+        problem->addSegment(line->n0, line->n1, line.get(), d);
     }
 
     // put in all of the arcs;
@@ -1193,108 +1193,6 @@ bool FMesher::AddBlockLabel(std::unique_ptr<CBlockLabel> &&label, double d)
     return true;
 }
 
-
-bool FMesher::AddSegment(int n0, int n1, double tol)
-{
-    return AddSegment(n0,n1,nullptr,tol);
-}
-
-bool FMesher::AddSegment(int n0, int n1, const CSegment *parsegm, double tol)
-{
-    double xi,yi,t;
-    CComplex p[2];
-    CSegment segm;
-    std::vector < CComplex > newnodes;
-
-    // don't add if line is degenerate
-    if (n0==n1) return false;
-
-    // don't add if the line is already in the list;
-    for (int i=0; i<(int)problem->linelist.size(); i++){
-        if ((problem->linelist[i]->n0==n0) && (problem->linelist[i]->n1==n1)) return false;
-        if ((problem->linelist[i]->n0==n1) && (problem->linelist[i]->n1==n0)) return false;
-    }
-
-    // add proposed line to the linelist
-    segm.BoundaryMarkerName="<None>";
-    if (parsegm!=NULL) segm=*parsegm;
-    segm.IsSelected=0;
-    segm.n0=n0; segm.n1=n1;
-
-    // check to see if there are intersections with segments
-    for (int i=0; i<(int)problem->linelist.size(); i++)
-        if(problem->getIntersection(n0,n1,i,&xi,&yi)) newnodes.push_back(CComplex(xi,yi));
-
-    // check to see if there are intersections with arcs
-    for (int i=0; i<(int)problem->arclist.size(); i++){
-        int j = problem->getLineArcIntersection(segm,*problem->arclist[i],p);
-        if (j>0)
-            for(int k=0;k<j;k++)
-                newnodes.push_back(p[k]);
-    }
-
-    // add nodes at intersections
-    if (tol==0)
-    {
-        if (problem->nodelist.size()<2)
-            t = 1.e-08;
-        else{
-            CComplex p0,p1;
-            p0 = problem->nodelist[0]->CC();
-            p1 = p0;
-            for (int i=1; i<(int)problem->nodelist.size(); i++)
-            {
-                if(problem->nodelist[i]->x<p0.re) p0.re=problem->nodelist[i]->x;
-                if(problem->nodelist[i]->x>p1.re) p1.re=problem->nodelist[i]->x;
-                if(problem->nodelist[i]->y<p0.im) p0.im=problem->nodelist[i]->y;
-                if(problem->nodelist[i]->y>p1.im) p1.im=problem->nodelist[i]->y;
-            }
-            t=abs(p1-p0)*CLOSE_ENOUGH;
-        }
-    }
-    else t=tol;
-
-    for (int i=0; i<(int)newnodes.size(); i++)
-        problem->addNode(newnodes[i].re,newnodes[i].im,t);
-
-    // Add proposed line segment
-    problem->linelist.push_back(std::make_unique<CSegment>(segm));
-
-    // check to see if proposed line passes through other points;
-    // if so, delete line and create lines that link intermediate points;
-    // does this by recursive use of AddSegment;
-    double d,dmin;
-    problem->unselectAll();
-    if (tol==0)
-        dmin = abs(problem->nodelist[n1]->CC()-problem->nodelist[n0]->CC())*1.e-05;
-    else dmin = tol;
-
-    for (int i=0, k=problem->linelist.size()-1; i<(int)problem->nodelist.size(); i++)
-    {
-        if( (i!=n0) && (i!=n1) )
-        {
-            d=problem->shortestDistanceFromSegment(problem->nodelist[i]->x,problem->nodelist[i]->y,k);
-            if (abs(problem->nodelist[i]->CC()-problem->nodelist[n0]->CC())<dmin) d=2.*dmin;
-            if (abs(problem->nodelist[i]->CC()-problem->nodelist[n1]->CC())<dmin) d=2.*dmin;
-            if (d<dmin){
-                problem->linelist[k]->ToggleSelect();
-                problem->deleteSelectedSegments();
-                if(parsegm==NULL)
-                {
-                    AddSegment(n0,i,dmin);
-                    AddSegment(i,n1,dmin);
-                }
-                else{
-                    AddSegment(n0,i,&segm,dmin);
-                    AddSegment(i,n1,&segm,dmin);
-                }
-                i=problem->nodelist.size();
-            }
-        }
-    }
-
-    return true;
-}
 
 //void FMesher::OnEditMatprops()
 //{

@@ -177,7 +177,7 @@ int femmcli::LuaCommonCommands::luaAddLine(lua_State *L)
     double ex=lua_todouble(L,3);
     double ey=lua_todouble(L,4);
 
-    femmState->getMesher()->AddSegment(
+    femmState->getMesher()->problem->addSegment(
                 femmState->getMesher()->problem->closestNode(sx,sy),
                 femmState->getMesher()->problem->closestNode(ex,ey));
 

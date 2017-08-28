@@ -133,6 +133,16 @@ public:
     bool isMeshed() const;
 
     /**
+     * @brief Add an arc segment to the problem description.
+     * This method takes care of intersections with other nodes or lines, and splits the arc segment if necessary.
+     * No degenerate arc segments (with start point == end point) can be added.
+     * @param asegm the proposed arc segment.
+     * @param tol tolerance, i.e. minimum distance between arc segment and nodes
+     * @return \c true if the arc segment could be added, \c false otherwise.
+     */
+    bool addArcSegment(femm::CArcSegment &asegm, double tol=0.);
+
+    /**
      * @brief Add a CNode to the problem description.
      * If necessary, adjust existing CSegments or CArcSegments.
      * The method also ensures that a new node can't be put atop of an existing node or a block label.
@@ -157,14 +167,28 @@ public:
     bool addNode(std::unique_ptr<femm::CNode> &&node, double d);
 
     /**
-     * @brief Add an arc segment to the problem description.
-     * This method takes care of intersections with other nodes or lines, and splits the arc segment if necessary.
-     * No degenerate arc segments (with start point == end point) can be added.
-     * @param asegm the proposed arc segment.
-     * @param tol tolerance, i.e. minimum distance between arc segment and nodes
-     * @return \c true if the arc segment could be added, \c false otherwise.
+     * @brief Add a line (CSegment) to the problem description
+     * The method checks for intersections, splits existing lines/arcs accordingly,
+     * and adds nodes at intersections as needed.
+     * It is ensured that a new line can not be added twice, and that no degenerate lines are added (with start point == end point)
+     * @param n0 index of start node
+     * @param n1 index of end node
+     * @param tol tolerance, i.e. minimum distance between nodes
+     * @return \c true, if the line could be added, \c false otherwise.
      */
-    bool addArcSegment(femm::CArcSegment &asegm, double tol=0.);
+    bool addSegment(int n0, int n1, double tol=0.);
+    /**
+     * @brief Add a line (CSegment) to the problem description
+     * The method checks for intersections, splits existing lines/arcs accordingly,
+     * and adds nodes at intersections as needed.
+     * It is ensured that a new line can not be added twice, and that no degenerate lines are added (with start point == end point)
+     * @param n0 index of start node
+     * @param n1 index of end node
+     * @param parsegm
+     * @param tol tolerance, i.e. minimum distance between nodes
+     * @return \c true, if the line could be added, \c false otherwise.
+     */
+    bool addSegment(int n0, int n1, const femm::CSegment *parsegm, double tol=0.);
 
     /**
      * @brief Find the closest arc segment for the given coordinates

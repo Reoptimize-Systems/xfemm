@@ -327,71 +327,6 @@ bool femm::FemmProblem::isMeshed() const
     return !(meshelems.empty() && meshnodes.empty());
 }
 
-bool femm::FemmProblem::addNode(double x, double y, double d)
-{
-    // create an appropriate node and call addNode on it
-    std::unique_ptr<CNode> node = std::make_unique<CNode>(x,y);
-    return addNode(std::move(node), d);
-}
-
-bool femm::FemmProblem::addNode(std::unique_ptr<femm::CNode> &&node, double d)
-{
-    CComplex c,a0,a1,a2;
-    double R;
-    double x = node->x;
-    double y = node->y;
-
-    // test to see if ``too close'' to existing node...
-    for (int i=0; i<(int)nodelist.size(); i++)
-        if(nodelist[i]->GetDistance(x,y)<d) return false;
-
-    // can't put a node on top of a block label; do same sort of test.
-    for (int i=0;i<(int)labellist.size();i++)
-        if(labellist[i]->GetDistance(x,y)<d) return false;
-
-    // if all is OK, add point in to the node list...
-    nodelist.push_back(std::move(node));
-
-    // test to see if node is on an existing line; if so,
-    // break into two lines;
-
-    for(int i=0, k=(int)linelist.size(); i<k; i++)
-    {
-        if (fabs(shortestDistanceFromSegment(x,y,i))<d)
-        {
-            std::unique_ptr<CSegment> segm;
-            segm = std::make_unique<CSegment>(*linelist[i]);
-            linelist[i]->n1=nodelist.size()-1;
-            segm->n0=nodelist.size()-1;
-            linelist.push_back(std::move(segm));
-        }
-    }
-
-    // test to see if node is on an existing arc; if so,
-    // break into two arcs;
-    for(int i=0, k=(int)arclist.size(); i<k; i++)
-    {
-        if (shortestDistanceFromArc(CComplex(x,y),*arclist[i])<d)
-        {
-            a0.Set(nodelist[arclist[i]->n0]->x,nodelist[arclist[i]->n0]->y);
-            a1.Set(nodelist[arclist[i]->n1]->x,nodelist[arclist[i]->n1]->y);
-            a2.Set(x,y);
-            getCircle(*arclist[i],c,R);
-
-            std::unique_ptr<CArcSegment> asegm;
-            asegm = std::make_unique<CArcSegment>(*arclist[i]);
-            arclist[i]->n1 = nodelist.size()-1;
-            arclist[i]->ArcLength = arg((a2-c)/(a0-c))*180./PI;
-            asegm->n0 = nodelist.size()-1;
-            asegm->ArcLength = arg((a1-c)/(a2-c))*180./PI;
-            arclist.push_back(std::move(asegm));
-        }
-    }
-    return true;
-}
-
-
-
 bool femm::FemmProblem::addArcSegment(femm::CArcSegment &asegm, double tol)
 {
     // don't add if line is degenerate
@@ -507,6 +442,172 @@ bool femm::FemmProblem::addArcSegment(femm::CArcSegment &asegm, double tol)
 
     return true;
 }
+
+bool femm::FemmProblem::addNode(double x, double y, double d)
+{
+    // create an appropriate node and call addNode on it
+    std::unique_ptr<CNode> node = std::make_unique<CNode>(x,y);
+    return addNode(std::move(node), d);
+}
+
+bool femm::FemmProblem::addNode(std::unique_ptr<femm::CNode> &&node, double d)
+{
+    CComplex c,a0,a1,a2;
+    double R;
+    double x = node->x;
+    double y = node->y;
+
+    // test to see if ``too close'' to existing node...
+    for (int i=0; i<(int)nodelist.size(); i++)
+        if(nodelist[i]->GetDistance(x,y)<d) return false;
+
+    // can't put a node on top of a block label; do same sort of test.
+    for (int i=0;i<(int)labellist.size();i++)
+        if(labellist[i]->GetDistance(x,y)<d) return false;
+
+    // if all is OK, add point in to the node list...
+    nodelist.push_back(std::move(node));
+
+    // test to see if node is on an existing line; if so,
+    // break into two lines;
+
+    for(int i=0, k=(int)linelist.size(); i<k; i++)
+    {
+        if (fabs(shortestDistanceFromSegment(x,y,i))<d)
+        {
+            std::unique_ptr<CSegment> segm;
+            segm = std::make_unique<CSegment>(*linelist[i]);
+            linelist[i]->n1=nodelist.size()-1;
+            segm->n0=nodelist.size()-1;
+            linelist.push_back(std::move(segm));
+        }
+    }
+
+    // test to see if node is on an existing arc; if so,
+    // break into two arcs;
+    for(int i=0, k=(int)arclist.size(); i<k; i++)
+    {
+        if (shortestDistanceFromArc(CComplex(x,y),*arclist[i])<d)
+        {
+            a0.Set(nodelist[arclist[i]->n0]->x,nodelist[arclist[i]->n0]->y);
+            a1.Set(nodelist[arclist[i]->n1]->x,nodelist[arclist[i]->n1]->y);
+            a2.Set(x,y);
+            getCircle(*arclist[i],c,R);
+
+            std::unique_ptr<CArcSegment> asegm;
+            asegm = std::make_unique<CArcSegment>(*arclist[i]);
+            arclist[i]->n1 = nodelist.size()-1;
+            arclist[i]->ArcLength = arg((a2-c)/(a0-c))*180./PI;
+            asegm->n0 = nodelist.size()-1;
+            asegm->ArcLength = arg((a1-c)/(a2-c))*180./PI;
+            arclist.push_back(std::move(asegm));
+        }
+    }
+    return true;
+}
+
+bool femm::FemmProblem::addSegment(int n0, int n1, double tol)
+{
+    return addSegment(n0,n1,nullptr,tol);
+}
+
+bool femm::FemmProblem::addSegment(int n0, int n1, const femm::CSegment *parsegm, double tol)
+{
+    double xi,yi,t;
+    CComplex p[2];
+    CSegment segm;
+    std::vector < CComplex > newnodes;
+
+    // don't add if line is degenerate
+    if (n0==n1) return false;
+
+    // don't add if the line is already in the list;
+    for (int i=0; i<(int)linelist.size(); i++){
+        if ((linelist[i]->n0==n0) && (linelist[i]->n1==n1)) return false;
+        if ((linelist[i]->n0==n1) && (linelist[i]->n1==n0)) return false;
+    }
+
+    // add proposed line to the linelist
+    segm.BoundaryMarkerName="<None>";
+    if (parsegm!=NULL) segm=*parsegm;
+    segm.IsSelected=0;
+    segm.n0=n0; segm.n1=n1;
+
+    // check to see if there are intersections with segments
+    for (int i=0; i<(int)linelist.size(); i++)
+        if(getIntersection(n0,n1,i,&xi,&yi)) newnodes.push_back(CComplex(xi,yi));
+
+    // check to see if there are intersections with arcs
+    for (int i=0; i<(int)arclist.size(); i++){
+        int j = getLineArcIntersection(segm,*arclist[i],p);
+        if (j>0)
+            for(int k=0;k<j;k++)
+                newnodes.push_back(p[k]);
+    }
+
+    // add nodes at intersections
+    if (tol==0)
+    {
+        if (nodelist.size()<2)
+            t = 1.e-08;
+        else{
+            CComplex p0,p1;
+            p0 = nodelist[0]->CC();
+            p1 = p0;
+            for (int i=1; i<(int)nodelist.size(); i++)
+            {
+                if(nodelist[i]->x<p0.re) p0.re=nodelist[i]->x;
+                if(nodelist[i]->x>p1.re) p1.re=nodelist[i]->x;
+                if(nodelist[i]->y<p0.im) p0.im=nodelist[i]->y;
+                if(nodelist[i]->y>p1.im) p1.im=nodelist[i]->y;
+            }
+            t=abs(p1-p0)*CLOSE_ENOUGH;
+        }
+    }
+    else t=tol;
+
+    for (int i=0; i<(int)newnodes.size(); i++)
+        addNode(newnodes[i].re,newnodes[i].im,t);
+
+    // Add proposed line segment
+    linelist.push_back(std::make_unique<CSegment>(segm));
+
+    // check to see if proposed line passes through other points;
+    // if so, delete line and create lines that link intermediate points;
+    // does this by recursive use of AddSegment;
+    double d,dmin;
+    unselectAll();
+    if (tol==0)
+        dmin = abs(nodelist[n1]->CC()-nodelist[n0]->CC())*1.e-05;
+    else dmin = tol;
+
+    for (int i=0, k=linelist.size()-1; i<(int)nodelist.size(); i++)
+    {
+        if( (i!=n0) && (i!=n1) )
+        {
+            d=shortestDistanceFromSegment(nodelist[i]->x,nodelist[i]->y,k);
+            if (abs(nodelist[i]->CC()-nodelist[n0]->CC())<dmin) d=2.*dmin;
+            if (abs(nodelist[i]->CC()-nodelist[n1]->CC())<dmin) d=2.*dmin;
+            if (d<dmin){
+                linelist[k]->ToggleSelect();
+                deleteSelectedSegments();
+                if(parsegm==NULL)
+                {
+                    addSegment(n0,i,dmin);
+                    addSegment(i,n1,dmin);
+                }
+                else{
+                    addSegment(n0,i,&segm,dmin);
+                    addSegment(i,n1,&segm,dmin);
+                }
+                i=nodelist.size();
+            }
+        }
+    }
+
+    return true;
+}
+
 
 
 
