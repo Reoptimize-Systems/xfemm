@@ -978,6 +978,7 @@ int femmcli::LuaCommonCommands::luaLoadSolution(lua_State *L)
 
     femmState->invalidateSolutionData();
     auto fpproc = femmState->getFPProc();
+    assert(fpproc);
     if (!fpproc->OpenDocument(solutionFile))
     {
         std::string msg = "loadsolution(): error while loading solution file:\n";

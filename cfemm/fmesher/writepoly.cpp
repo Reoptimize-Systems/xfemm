@@ -699,13 +699,18 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     string rootname = pn.substr(0,pn.find_last_of('.'));
 
+    // The -j switch prevents
+    //  duplicated input vertices, or vertices `eaten' by holes, from
+    //  appearing in the output .node file.  Thus, if two input vertices
+    //  have exactly the same coordinates, only the first appears in the
+    //  output.
     if (Verbose)
     {
-        sprintf(CommandLine, "-pPq%feAazI", problem->MinAngle);
+        sprintf(CommandLine, "-jpPq%feAazI", problem->MinAngle);
     }
     else
     {
-        sprintf(CommandLine, "-pPq%feAazQI", problem->MinAngle);
+        sprintf(CommandLine, "-jpPq%feAazQI", problem->MinAngle);
     }
 
     tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
