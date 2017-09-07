@@ -32,8 +32,6 @@
 #include "fparse.h"
 #include "IntPoint.h"
 
-#include "triangle.h"
-
 #include <algorithm>
 #include <cassert>
 #include <cmath>
