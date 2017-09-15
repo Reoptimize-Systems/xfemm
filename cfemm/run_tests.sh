@@ -115,6 +115,17 @@ check_hsolver()
 	return $retval
 }
 
+checks="$checks check_esolver"
+check_esolver()
+{
+	prefix="$1"
+	init_check esolver
+	run $bindir/fmesher test/test.fee > test/fmesher.out || return 1
+	run $bindir/esolver test/test > test/esolver.out || return 1
+	platform_diff "$PWD/"test/test.res.check "$PWD/"test/test.res || return 1
+}
+
+
 checks="$checks check_femmcli"
 check_femmcli()
 {
