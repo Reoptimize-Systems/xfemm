@@ -33,6 +33,7 @@
 
 #include <vector>
 
+namespace femm {
 
 class PostProcessor
 {
@@ -76,4 +77,6 @@ public:
     void (*WarnMessage)(const char*);
     //	void MsgBox(const char* message);
 };
+
+} //namespace
 #endif
