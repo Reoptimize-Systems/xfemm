@@ -68,7 +68,7 @@ double sqr(double x)
 /**
  * Constructor for the PostProcessor class.
  */
-PostProcessor::PostProcessor()
+femm::PostProcessor::PostProcessor()
 {
     // set some default values for problem definition
     d_LineIntegralPoints = 400;
@@ -98,7 +98,7 @@ PostProcessor::PostProcessor()
 /**
  * Destructor for the PostProcessor class.
  */
-PostProcessor::~PostProcessor()
+femm::PostProcessor::~PostProcessor()
 {
     free(LengthConv);
     for(uint i=0; i<problem->meshnodes.size(); i++)
@@ -109,7 +109,7 @@ PostProcessor::~PostProcessor()
 
 
 // identical in FPProc and HPProc
-int PostProcessor::InTriangle(double x, double y)
+int femm::PostProcessor::InTriangle(double x, double y)
 {
     static int k;
     int j,hi,lo,sz;
@@ -167,7 +167,7 @@ int PostProcessor::InTriangle(double x, double y)
 }
 
 // FPProc and HPProc differ, but I'm not sure whether hpproc could just use this version instead
-bool PostProcessor::InTriangleTest(double x, double y, int i)
+bool femm::PostProcessor::InTriangleTest(double x, double y, int i)
 {
 
     if ((i < 0) || (i >= int(problem->meshelems.size()))) return false;
@@ -209,7 +209,7 @@ bool PostProcessor::InTriangleTest(double x, double y, int i)
 }
 
 // identical in FPProc and HPProc
-CComplex PostProcessor::Ctr(int i)
+CComplex femm::PostProcessor::Ctr(int i)
 {
     CComplex c = 0;
     for(int j=0; j<3; j++)
@@ -223,7 +223,7 @@ CComplex PostProcessor::Ctr(int i)
 }
 
 // identical in FPProc and HPProc
-double PostProcessor::ElmArea(int i)
+double femm::PostProcessor::ElmArea(int i)
 {
     int n[3];
     for(int j=0; j<3; j++) n[j]=problem->meshelems[i]->p[j];
@@ -236,7 +236,7 @@ double PostProcessor::ElmArea(int i)
 }
 
 // identical in FPProc and HPProc
-double PostProcessor::ElmArea(femmsolver::CElement *elm)
+double femm::PostProcessor::ElmArea(femmsolver::CElement *elm)
 {
     int n[3];
     for(int j=0; j<3; j++) n[j]=elm->p[j];
@@ -250,7 +250,7 @@ double PostProcessor::ElmArea(femmsolver::CElement *elm)
 
 
 // identical in FPProc and HPProc
-CComplex PostProcessor::HenrotteVector(int k)
+CComplex femm::PostProcessor::HenrotteVector(int k)
 {
     int n[3];
     double b[3],c[3];
@@ -280,7 +280,7 @@ CComplex PostProcessor::HenrotteVector(int k)
 
 
 // identical in FPProc and HPProc
-void PostProcessor::BendContour(double angle, double anglestep)
+void femm::PostProcessor::BendContour(double angle, double anglestep)
 {
     if (angle==0) return;
     if (anglestep==0) anglestep=1;
@@ -332,7 +332,7 @@ void PostProcessor::BendContour(double angle, double anglestep)
 
 
 // identical in FPProc and HPProc
-void PostProcessor::FindBoundaryEdges()
+void femm::PostProcessor::FindBoundaryEdges()
 {
     int i, j;
     static int plus1mod3[3] = {1, 2, 0};
