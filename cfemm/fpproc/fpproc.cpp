@@ -62,15 +62,18 @@ using namespace femm;
 
 // FPProc construction/destruction
 
+namespace {
 double sqr(double x)
 {
     return x*x;
 }
+} // anonymous namespace
 
 /**
  * Constuctor for the FPProc class.
  */
 FPProc::FPProc()
+    : PProcIface()
 {
     // set some default values for problem definition
     d_LineIntegralPoints = 400;

@@ -23,7 +23,7 @@
 #include "FemmProblem.h"
 #include "fmesher.h"
 #include "fsolver.h"
-#include "fpproc.h"
+#include "PostProcessor.h"
 
 #include <memory>
 
@@ -49,8 +49,8 @@ namespace femmcli
  *    via fmesher::FMesher::AddNode()) to the FemmProblem.
  *  * The FMesher directly uses the same shared FemmProblem,
  *    but stores mesh data internally and saves it to disk.
- *  * The FSolver reads and writes data from/to disk.
- *  * The FPProc post processor reads and writes data from/to disk.
+ *  * The solver reads and writes data from/to disk.
+ *  * The post processor reads and writes data from/to disk.
  *
  * Data flow
  * ---------
@@ -67,7 +67,7 @@ namespace femmcli
  *    → the mesh files are removed, and a solution file \c .ans is generated
  * 5. LuaMagneticsCommands::luaLoadSolution() reads the solution file into memory.
  *    The solution data is available for lua commands (mo_*).<br/>
- *    → the data is in memory in FPProc
+ *    → the data is in memory in postProcessor
  *
  * Multiple documents
  * ------------------
@@ -92,11 +92,11 @@ public:
 
     /**
      * @brief Returns the current magnetics post-processor.
-     * If FPProc was not yet initialized, a new FPProc is initialized.
+     * If postProcessor was not yet initialized, a new postProcessor is initialized.
      * If the current document is not a magnetics document, a null pointer is returned.
-     * @return an FPProc object, or null on document file type mismatch.
+     * @return an postProcessor object, or null on document file type mismatch.
      */
-    const std::shared_ptr<FPProc> getFPProc();
+    const std::shared_ptr<femm::PProcIface> getPostProcessor();
 
     /**
      * @brief Returns the current FMesher
@@ -111,7 +111,7 @@ public:
     const std::shared_ptr<fmesher::FMesher> getMesher();
 
     /**
-     * @brief Invalidate the current solution data stored in FPProc.
+     * @brief Invalidate the current solution data stored in postProcessor.
      * When a new solution is available, call this method before loading it.
      */
     void invalidateSolutionData();
@@ -146,7 +146,7 @@ private:
     struct ProblemSet {
         std::shared_ptr<femm::FemmProblem> document;
         std::shared_ptr<fmesher::FMesher> mesher;
-        std::shared_ptr<FPProc> fpproc;
+        std::shared_ptr<femm::PProcIface> postProcessor;
     };
 
     ProblemSet current;

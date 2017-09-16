@@ -47,6 +47,7 @@
 #include "CNode.h"
 #include "CPointProp.h"
 #include "CSegment.h"
+#include "PostProcessor.h"
 
 #include <vector>
 
@@ -62,7 +63,7 @@
 
 using std::string;
 
-class FPProc
+class FPProc : public femm::PProcIface
 {
 
 // Attributes
@@ -229,7 +230,7 @@ public:
     void ClearDocument();
     bool NewDocument();
 //     virtual void Serialize(CArchive& ar);
-    bool OpenDocument(std::string lpszPathName);
+    bool OpenDocument(std::string lpszPathName) override;
 
 // Implementation
 public:
