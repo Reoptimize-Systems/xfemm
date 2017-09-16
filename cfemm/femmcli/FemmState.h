@@ -114,7 +114,7 @@ public:
      * @brief Invalidate the current solution data stored in postProcessor.
      * When a new solution is available, call this method before loading it.
      */
-    void invalidateSolutionData();
+    void closeSolution();
 
     /**
      * @brief Close and discard the current problem set.

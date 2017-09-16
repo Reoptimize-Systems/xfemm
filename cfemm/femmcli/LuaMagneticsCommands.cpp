@@ -116,7 +116,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_detachdefault", LuaCommonCommands::luaDetachDefault);
     li.addFunction("mi_detach_outer_space", LuaCommonCommands::luaDetachOuterSpace);
     li.addFunction("mi_detachouterspace", LuaCommonCommands::luaDetachOuterSpace);
-    li.addFunction("mo_close", luaExitPost);
+    li.addFunction("mo_close", LuaCommonCommands::luaExitPost);
     li.addFunction("mi_close", LuaCommonCommands::luaExitPre);
     li.addFunction("mi_getboundingbox", LuaCommonCommands::luaGetBoundingBox);
     li.addFunction("mo_get_circuit_properties", luaGetCircuitProperties);
@@ -1017,29 +1017,6 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
 
-    return 0;
-}
-
-/**
- * @brief Closes the current post-processor instance.
- * Invalidates the post-processor data of the FemmProblem.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mo_close()}
- *
- * ### FEMM source:
- * - \femm42{femm/femmviewLua.cpp,lua_exitpost()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaExitPost(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    femmState->invalidateSolutionData();
     return 0;
 }
 

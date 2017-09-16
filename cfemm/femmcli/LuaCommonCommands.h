@@ -60,6 +60,7 @@ int luaDeleteSelectedNodes(lua_State *L);
 int luaDeleteSelectedSegments(lua_State *L);
 int luaDetachDefault(lua_State *L);
 int luaDetachOuterSpace(lua_State *L);
+int luaExitPost(lua_State *L);
 int luaExitPre(lua_State *L);
 int luaGetBoundingBox(lua_State *L);
 int luaGetProblemInfo(lua_State *L);
