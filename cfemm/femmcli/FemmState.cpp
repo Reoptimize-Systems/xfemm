@@ -35,14 +35,14 @@ void femmcli::FemmState::setDocument(std::shared_ptr<femm::FemmProblem> doc)
     current.document = doc;
 }
 
-const std::shared_ptr<FPProc> femmcli::FemmState::getFPProc()
+const std::shared_ptr<femm::PProcIface> femmcli::FemmState::getPostProcessor()
 {
-    if (!current.fpproc)
+    if (!current.postProcessor)
     {
         if (current.document && current.document->filetype == femm::FileType::MagneticsFile)
-            current.fpproc = std::make_shared<FPProc>();
+            current.postProcessor = std::make_shared<FPProc>();
     }
-    return current.fpproc;
+    return current.postProcessor;
 }
 
 const std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
@@ -56,14 +56,14 @@ const std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
 
 void femmcli::FemmState::invalidateSolutionData()
 {
-    current.fpproc.reset();
+    current.postProcessor.reset();
 }
 
 void femmcli::FemmState::close()
 {
     current.document.reset();
     current.mesher.reset();
-    current.fpproc.reset();
+    current.postProcessor.reset();
 }
 
 void femmcli::FemmState::deactivateProblemSet()

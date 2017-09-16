@@ -35,6 +35,24 @@
 
 namespace femm {
 
+/**
+ * @brief The PProcIface class is the minimum shared interface required to provide a uniform API to postprocessor classes.
+ * This class allows a minimum effort solution to have a shared interface as is required by the xfemm lua interface,
+ * without having to deduplicate all code just now.
+ */
+class PProcIface
+{
+public:
+    virtual ~PProcIface();
+    virtual bool OpenDocument( std::string solutionFile ) = 0;
+
+protected:
+    PProcIface();
+};
+
+/**
+ * @brief The PostProcessor class provides all functionality that is shared between the different postprocessors.
+ */
 class PostProcessor
 {
 public:

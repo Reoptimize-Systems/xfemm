@@ -475,7 +475,7 @@ int femmcli::LuaMagneticsCommands::luaAddContourPoint(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -837,7 +837,7 @@ int femmcli::LuaMagneticsCommands::luaBendContourLine(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -865,7 +865,7 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -972,8 +972,7 @@ int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1008,7 +1007,7 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1070,7 +1069,7 @@ int femmcli::LuaMagneticsCommands::luaGetCircuitProperties(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1134,7 +1133,7 @@ int femmcli::LuaMagneticsCommands::luaGetElement(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1233,7 +1232,7 @@ int femmcli::LuaMagneticsCommands::luaGetMeshNode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
 
     int idx = (int)lua_todouble(L,1);
     idx--; // convert to 0-based indexing
@@ -1272,7 +1271,7 @@ int femmcli::LuaMagneticsCommands::luaGetPointValuess(lua_State *L)
     }
 
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1331,7 +1330,7 @@ int femmcli::LuaMagneticsCommands::luaBGradient(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1398,8 +1397,7 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1457,7 +1455,7 @@ int femmcli::LuaMagneticsCommands::luaLineIntegral(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1881,7 +1879,7 @@ int femmcli::LuaMagneticsCommands::luaNumElements(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -1909,7 +1907,7 @@ int femmcli::LuaMagneticsCommands::luaNumNodes(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus\n");
@@ -2058,7 +2056,7 @@ int femmcli::LuaMagneticsCommands::luaSelectOutputBlocklabel(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");
@@ -2116,7 +2114,7 @@ int femmcli::LuaMagneticsCommands::luaAddContourPointFromNode(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = femmState->getFPProc();
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
     if (!fpproc)
     {
         lua_error(L,"No magnetics output in focus");

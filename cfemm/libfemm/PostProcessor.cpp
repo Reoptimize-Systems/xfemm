@@ -58,11 +58,12 @@ static char THIS_FILE[] = __FILE__;
 //using namespace std;
 using namespace femm;
 
-// PostProcessor construction/destruction
-
-double sqr(double x)
+PProcIface::~PProcIface()
 {
-    return x*x;
+}
+
+PProcIface::PProcIface()
+{
 }
 
 /**
@@ -387,4 +388,3 @@ void femm::PostProcessor::FindBoundaryEdges()
     } // End of Main Loop
 
 }
-
