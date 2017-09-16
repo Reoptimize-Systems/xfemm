@@ -71,7 +71,6 @@ int luaSelectOutputBlocklabel(lua_State *L);
 int luaAddContourPointFromNode(lua_State *L);
 int luaSetArcsegmentProperty(lua_State *L);
 int luaSetBlocklabelProperty(lua_State *L);
-int luaSetFocus(lua_State *L);
 int luaSetNodeProperty(lua_State *L);
 int luaSetPrevious(lua_State *L);
 int luaSetSegmentProperty(lua_State *L);
