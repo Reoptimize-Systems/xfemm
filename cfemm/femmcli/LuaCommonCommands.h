@@ -82,6 +82,7 @@ int luaSelectSegment(lua_State *L);
 int luaSelectWithinCircle(lua_State *L);
 int luaSelectWithinRectangle(lua_State *L);
 int luaSetEditMode(lua_State *L);
+int luaSetFocus(lua_State *L);
 int luaSetGroup(lua_State *L);
 }
 

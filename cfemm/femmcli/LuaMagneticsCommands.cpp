@@ -266,10 +266,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_show_points", LuaInstance::luaNOP);
     li.addFunction("mo_showpoints", LuaInstance::luaNOP);
     li.addFunction("mo_smooth", LuaInstance::luaNOP);
-    li.addFunction("mi_set_focus", luaSetFocus);
-    li.addFunction("mi_setfocus", luaSetFocus);
-    li.addFunction("mo_set_focus", luaSetFocus);
-    li.addFunction("mo_setfocus", luaSetFocus);
+    li.addFunction("mi_set_focus", LuaCommonCommands::luaSetFocus);
+    li.addFunction("mi_setfocus", LuaCommonCommands::luaSetFocus);
+    li.addFunction("mo_set_focus", LuaCommonCommands::luaSetFocus);
+    li.addFunction("mo_setfocus", LuaCommonCommands::luaSetFocus);
     li.addFunction("mi_refresh_view", LuaInstance::luaNOP);
     li.addFunction("mi_refreshview", LuaInstance::luaNOP);
     li.addFunction("mo_show_vector_plot", LuaInstance::luaNOP);
@@ -2307,48 +2307,6 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProperty(lua_State *L)
         }
     }
 
-    return 0;
-}
-
-/**
- * @brief Set the currently active problem set.
- *
- * Switches the magnetics input file upon which Lua commands are to act.
- * If more than one magnetics input file is being edited at a time, this command
- * can be used to switch between files so that the mutiple files can be operated upon
- * programmatically via Lua.
- *
- * \remark In contrast to femm42, xfemm switches \b both input file and output file.
- * @param L
- * @return 0
- * \ingroup LuaMM
- * - \femm42{femm/femmeLua.cpp,lua_switchfocus()}
- *
- * \internal
- * ### Implements:
- * - \lua{mi_setfocus("documentname")}
- * - \lua{mo_setfocus("documentname")}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeviewLua.cpp,lua_switchfocus()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaSetFocus(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-
-    int n = lua_gettop(L);
-    if (n==0)
-        return 0;
-    // deviation from femm42: femm42 uses lua_tostring(L,n)
-    std::string title = lua_tostring(L,1);
-
-    if (!femmState->activateProblemSet(title))
-    {
-        std::string msg = "No document matches " + title + "\n";
-        lua_error(L, msg.c_str());
-    }
     return 0;
 }
 

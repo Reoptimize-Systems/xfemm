@@ -1218,7 +1218,7 @@ int femmcli::LuaCommonCommands::luaNumElements(lua_State *L)
 /**
  * @brief Get the number of nodes in the output mesh.
  * @param L
- * @return 0 if no magnetics output in focus, 1 otherwise.
+ * @return 0 if no output in focus, 1 otherwise.
  * \ingroup LuaMM
  *
  * \internal
@@ -2004,6 +2004,51 @@ int femmcli::LuaCommonCommands::luaSetEditMode(lua_State *L)
     }
 
     doc->setDefaultEditMode(mode);
+    return 0;
+}
+
+/**
+ * @brief Set the currently active problem set.
+ *
+ * Switches the input file upon which Lua commands are to act.
+ * If more than one input file is being edited at a time, this command
+ * can be used to switch between files so that the mutiple files can be operated upon
+ * programmatically via Lua.
+ *
+ * \remark In contrast to femm42, xfemm switches \b both input file and output file.
+ * @param L
+ * @return 0
+ * \ingroup LuaMM
+ * - \femm42{femm/femmeLua.cpp,lua_switchfocus()}
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mi_setfocus("documentname")}
+ * - \lua{mo_setfocus("documentname")}
+ * - \lua{ei_setfocus("documentname")}
+ * - \lua{eo_setfocus("documentname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmeviewLua.cpp,lua_switchfocus()}
+ * - \femm42{femm/beladrawLua.cpp,lua_switchfocus()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSetFocus(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+
+    int n = lua_gettop(L);
+    if (n==0)
+        return 0;
+    // deviation from femm42: femm42 uses lua_tostring(L,n)
+    std::string title = lua_tostring(L,1);
+
+    if (!femmState->activateProblemSet(title))
+    {
+        std::string msg = "No document matches " + title + "\n";
+        lua_error(L, msg.c_str());
+    }
     return 0;
 }
 
