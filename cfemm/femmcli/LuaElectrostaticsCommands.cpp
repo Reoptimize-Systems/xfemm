@@ -236,10 +236,10 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_makeplot", LuaInstance::luaNOP);
     li.addFunction("eo_maximize", LuaInstance::luaNOP);
     li.addFunction("eo_minimize", LuaInstance::luaNOP);
-    li.addFunction("eo_num_elements", luaNumElements);
-    li.addFunction("eo_numelements", luaNumElements);
-    li.addFunction("eo_num_nodes", luaNumNodes);
-    li.addFunction("eo_numnodes", luaNumNodes);
+    li.addFunction("eo_num_elements", LuaCommonCommands::luaNumElements);
+    li.addFunction("eo_numelements", LuaCommonCommands::luaNumElements);
+    li.addFunction("eo_num_nodes", LuaCommonCommands::luaNumNodes);
+    li.addFunction("eo_numnodes", LuaCommonCommands::luaNumNodes);
     li.addFunction("eo_refresh_view", LuaInstance::luaNOP);
     li.addFunction("eo_refreshview", LuaInstance::luaNOP);
     li.addFunction("eo_reload", LuaCommonCommands::luaLoadSolution);
@@ -1146,44 +1146,6 @@ int femmcli::LuaElectrostaticsCommands::luaNewDocument(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
     femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::ElectrostaticsFile));
     return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_num_elements}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_numelements()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaNumElements(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_num_nodes}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_numnodes()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaNumNodes(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
