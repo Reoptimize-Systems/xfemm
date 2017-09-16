@@ -231,6 +231,8 @@ public:
     bool NewDocument();
 //     virtual void Serialize(CArchive& ar);
     bool OpenDocument(std::string lpszPathName) override;
+    int numElements() const override;
+    int numNodes() const override;
 
 // Implementation
 public:

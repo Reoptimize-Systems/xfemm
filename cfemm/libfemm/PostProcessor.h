@@ -44,7 +44,18 @@ class PProcIface
 {
 public:
     virtual ~PProcIface();
+
     virtual bool OpenDocument( std::string solutionFile ) = 0;
+    /**
+     * @brief numElements is the same as meshelem.size()
+     * @return the number of elements in the output mesh
+     */
+    virtual int numElements() const = 0;
+    /**
+     * @brief numNodesis the same as meshnode.size()
+     * @return the numer of nodes in the output mesh
+     */
+    virtual int numNodes() const = 0;
 
 protected:
     PProcIface();

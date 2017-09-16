@@ -68,6 +68,8 @@ int luaLoadSolution(lua_State *L);
 int luaMirrorCopy(lua_State *L);
 int luaMoveRotate(lua_State *L);
 int luaMoveTranslate(lua_State *L);
+int luaNumElements(lua_State *L);
+int luaNumNodes(lua_State *L);
 int luaPurgeMesh(lua_State *L);
 int luaSaveDocument(lua_State *L);
 int luaScaleMove(lua_State *L);
