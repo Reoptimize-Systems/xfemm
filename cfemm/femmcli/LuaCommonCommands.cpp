@@ -1003,7 +1003,11 @@ int femmcli::LuaCommonCommands::luaLoadSolution(lua_State *L)
 
     femmState->closeSolution();
     auto pproc = femmState->getPostProcessor();
-    assert(pproc);
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus!");
+        return 0;
+    }
     if (!pproc->OpenDocument(solutionFile))
     {
         std::string msg = "loadsolution(): error while loading solution file:\n";
