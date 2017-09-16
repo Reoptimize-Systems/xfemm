@@ -64,8 +64,6 @@ int luaModifyConductorProperty(lua_State *L);
 int luaModifyMaterialProperty(lua_State *L);
 int luaModifyPointProperty(lua_State *L);
 int luaNewDocument(lua_State *L);
-int luaNumElements(lua_State *L);
-int luaNumNodes(lua_State *L);
 int luaProblemDefinition(lua_State *L);
 int luaSelectConductor(lua_State *L);
 int luaSelectOutputBlocklabel(lua_State *L);

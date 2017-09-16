@@ -1196,9 +1196,11 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mo_numelements()} Returns the number of elements in the in focus magnets output mesh.
+ * - \lua{eo_numelements()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmviewLua.cpp,lua_numelements()}
+ * - \femm42{femm/belaviewLua.cpp,lua_numelements()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaNumElements(lua_State *L)
@@ -1224,9 +1226,11 @@ int femmcli::LuaCommonCommands::luaNumElements(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mo_numnodes()} Returns the number of nodes in the in focus magnetics output mesh.
+ * - \lua{eo_numnodes()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmviewLua.cpp,lua_numnodes()}
+ * - \femm42{femm/belaviewLua.cpp,lua_numnodes()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaNumNodes(lua_State *L)
