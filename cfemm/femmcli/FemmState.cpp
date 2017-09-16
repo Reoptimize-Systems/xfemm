@@ -30,6 +30,8 @@ const std::shared_ptr<femm::FemmProblem> femmcli::FemmState::femmDocument()
 
 void femmcli::FemmState::setDocument(std::shared_ptr<femm::FemmProblem> doc)
 {
+    // FIXME(ZaJ): maybe it's better to deactivate the current problem set instead?
+    //            -> create a test case and cross-check with femm
     // invalidate current state
     close();
     current.document = doc;
@@ -54,7 +56,7 @@ const std::shared_ptr<fmesher::FMesher> femmcli::FemmState::getMesher()
     return current.mesher;
 }
 
-void femmcli::FemmState::invalidateSolutionData()
+void femmcli::FemmState::closeSolution()
 {
     current.postProcessor.reset();
 }

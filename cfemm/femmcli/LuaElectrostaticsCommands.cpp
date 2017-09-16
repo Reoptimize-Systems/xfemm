@@ -203,7 +203,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_clearblock", luaClearBlock);
     li.addFunction("eo_clear_contour", luaClearContourPoint);
     li.addFunction("eo_clearcontour", luaClearContourPoint);
-    li.addFunction("eo_close", luaExitPost);
+    li.addFunction("eo_close", LuaCommonCommands::luaExitPost);
     li.addFunction("eo_get_conductor_properties", luaGetCircuitProperties);
     li.addFunction("eo_getconductorproperties", luaGetCircuitProperties);
     li.addFunction("eo_get_element", luaGetElement);
@@ -707,25 +707,6 @@ int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_close}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_exitpost()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaExitPost(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

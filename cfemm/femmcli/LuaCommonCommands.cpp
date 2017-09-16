@@ -791,6 +791,31 @@ int femmcli::LuaCommonCommands::luaDetachOuterSpace(lua_State *L)
 }
 
 /**
+ * @brief Closes the current post-processor instance.
+ * Invalidates the post-processor data of the FemmProblem.
+ * @param L
+ * @return 0
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_close()}
+ * - \lua{eo_close}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_exitpost()}
+ * - \femm42{femm/belaviewLua.cpp,lua_exitpost()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaExitPost(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    femmState->closeSolution();
+    return 0;
+}
+
+/**
  * @brief Closes the current pre-processor instance.
  * @param L
  * @return 0
@@ -976,7 +1001,7 @@ int femmcli::LuaCommonCommands::luaLoadSolution(lua_State *L)
     std::string solutionFile = doc->pathName.substr(0,dotpos);
     solutionFile += femm::outputExtensionForFileType(doc->filetype);
 
-    femmState->invalidateSolutionData();
+    femmState->closeSolution();
     auto pproc = femmState->getPostProcessor();
     assert(pproc);
     if (!pproc->OpenDocument(solutionFile))
