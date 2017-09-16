@@ -1159,6 +1159,63 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
 }
 
 /**
+ * @brief Return the number of elements in the output mesh.
+ * @param L
+ * @return 1
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_numelements()} Returns the number of elements in the in focus magnets output mesh.
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_numelements()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaNumElements(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    auto pproc = femmState->getPostProcessor();
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+    lua_pushnumber(L,pproc->numElements());
+    return 1;
+}
+
+/**
+ * @brief Get the number of nodes in the output mesh.
+ * @param L
+ * @return 0 if no magnetics output in focus, 1 otherwise.
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_numnodes()} Returns the number of nodes in the in focus magnetics output mesh.
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_numnodes()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaNumNodes(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    auto pproc = femmState->getPostProcessor();
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus\n");
+        return 0;
+    }
+
+    lua_pushnumber(L,pproc->numNodes());
+    return 1;
+}
+
+/**
  * @brief Clear mesh data.
  * @param L
  * @return 0

@@ -178,10 +178,10 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_movetranslate", LuaCommonCommands::luaMoveTranslate);
     li.addFunction("mi_new_document", luaNewDocument);
     li.addFunction("mi_newdocument", luaNewDocument);
-    li.addFunction("mo_num_elements", luaNumElements);
-    li.addFunction("mo_numelements", luaNumElements);
-    li.addFunction("mo_num_nodes", luaNumNodes);
-    li.addFunction("mo_numnodes", luaNumNodes);
+    li.addFunction("mo_num_elements", LuaCommonCommands::luaNumElements);
+    li.addFunction("mo_numelements", LuaCommonCommands::luaNumElements);
+    li.addFunction("mo_num_nodes", LuaCommonCommands::luaNumNodes);
+    li.addFunction("mo_numnodes", LuaCommonCommands::luaNumNodes);
     li.addFunction("mi_setprevious", luaSetPrevious);
     li.addFunction("mi_prob_def", luaProblemDefinition);
     li.addFunction("mi_probdef", luaProblemDefinition);
@@ -1859,63 +1859,6 @@ int femmcli::LuaMagneticsCommands::luaNewDocument(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
     femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::MagneticsFile));
     return 0;
-}
-
-/**
- * @brief Return the number of elements in the output mesh.
- * @param L
- * @return 1
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mo_numelements()} Returns the number of elements in the in focus magnets output mesh.
- *
- * ### FEMM source:
- * - \femm42{femm/femmviewLua.cpp,lua_numelements()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaNumElements(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
-    if (!fpproc)
-    {
-        lua_error(L,"No magnetics output in focus");
-        return 0;
-    }
-    lua_pushnumber(L,(int) fpproc->meshelem.size());
-    return 1;
-}
-
-/**
- * @brief Get the number of nodes in the output mesh.
- * @param L
- * @return 0 if no magnetics output in focus, 1 otherwise.
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mo_numnodes()} Returns the number of nodes in the in focus magnetics output mesh.
- *
- * ### FEMM source:
- * - \femm42{femm/femmviewLua.cpp,lua_numnodes()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaNumNodes(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
-    if (!fpproc)
-    {
-        lua_error(L,"No magnetics output in focus\n");
-        return 0;
-    }
-
-    lua_pushnumber(L,(int) fpproc->meshnode.size());
-    return 1;
 }
 
 /**

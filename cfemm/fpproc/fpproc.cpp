@@ -1461,6 +1461,16 @@ bool FPProc::OpenDocument(string pathname)
     return true;
 }
 
+int FPProc::numElements() const
+{
+    return (int) meshelem.size();
+}
+
+int FPProc::numNodes() const
+{
+    return (int) meshnode.size();
+}
+
 
 int FPProc::InTriangle(double x, double y)
 {
