@@ -64,12 +64,12 @@ protected:
 /**
  * @brief The PostProcessor class provides all functionality that is shared between the different postprocessors.
  */
-class PostProcessor
+class PostProcessor : public PProcIface
 {
 public:
-
-    PostProcessor();
     virtual ~PostProcessor();
+    int numElements() const override;
+    int numNodes() const override;
 
     std::shared_ptr<femm::FemmProblem> problem;
     // General problem attributes
@@ -105,6 +105,9 @@ public:
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
     //	void MsgBox(const char* message);
+
+protected:
+    PostProcessor();
 };
 
 } //namespace

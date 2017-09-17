@@ -108,6 +108,17 @@ femm::PostProcessor::~PostProcessor()
     free(NumList);
 }
 
+int PostProcessor::numElements() const
+{
+    return (int) problem->meshelems.size();
+}
+
+int PostProcessor::numNodes() const
+{
+    return (int) problem->meshnodes.size();
+}
+
+
 
 // identical in FPProc and HPProc
 int femm::PostProcessor::InTriangle(double x, double y)
