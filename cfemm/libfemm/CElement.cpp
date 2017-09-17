@@ -20,6 +20,13 @@
 */
 #include "CElement.h"
 
+#include "stringTools.h"
+
+#include <istream>
+#include <sstream>
+
+using femm::trim;
+
 femmsolver::CElement::CElement()
     : p{0,0,0}
     , e{0,0,0}
@@ -51,9 +58,70 @@ femmsolver::CMElement::~CMElement()
 {
 }
 
+femmsolver::CMElement femmsolver::CMElement::fromStream(std::istream &input, std::ostream &)
+{
+    std::string line;
+    // read whole line to prevent reading from the next line if a line is malformed/too short
+    std::getline(input, line);
+    trim(line);
+    std::istringstream inputStream(line);
+
+    CMElement e;
+    // scan in data
+    inputStream >> e.p[0];
+    inputStream >> e.p[1];
+    inputStream >> e.p[2];
+    inputStream >> e.lbl;
+
+    return e;
+}
+
 femmsolver::CHElement::CHElement()
     : CElement()
     , D(0)
     , d{0,0,0}
 {
+}
+
+femmsolver::CHElement femmsolver::CHElement::fromStream(std::istream &input, std::ostream &)
+{
+    std::string line;
+    // read whole line to prevent reading from the next line if a line is malformed/too short
+    std::getline(input, line);
+    trim(line);
+    std::istringstream inputStream(line);
+
+    CHElement e;
+    // scan in data
+    inputStream >> e.p[0];
+    inputStream >> e.p[1];
+    inputStream >> e.p[2];
+    inputStream >> e.lbl;
+
+    return e;
+}
+
+femmsolver::CSElement::CSElement()
+    : CElement()
+    , D(0)
+    , d{0,0,0}
+{
+}
+
+femmsolver::CSElement femmsolver::CSElement::fromStream(std::istream &input, std::ostream &)
+{
+    std::string line;
+    // read whole line to prevent reading from the next line if a line is malformed/too short
+    std::getline(input, line);
+    trim(line);
+    std::istringstream inputStream(line);
+
+    CSElement e;
+    // scan in data
+    inputStream >> e.p[0];
+    inputStream >> e.p[1];
+    inputStream >> e.p[2];
+    inputStream >> e.lbl;
+
+    return e;
 }
