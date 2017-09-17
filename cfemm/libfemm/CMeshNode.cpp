@@ -26,16 +26,21 @@
 */
 #include "CMeshNode.h"
 
-#include <cstdlib>
-#include <cmath>
-#include "fullmatrix.h"
 #include "femmcomplex.h"
 #include "femmconstants.h"
+#include "fullmatrix.h"
+#include "stringTools.h"
+
+#include <cstdlib>
+#include <cmath>
+#include <istream>
+#include <sstream>
 
 #define ElementsPerSkinDepth 10
 
 using namespace std;
 using namespace femmsolver;
+using femm::trim;
 
 // CMeshNode construction
 CMeshNode::CMeshNode()
@@ -61,6 +66,24 @@ CMMeshNode::CMMeshNode()
 {
 }
 
+CMMeshNode CMMeshNode::fromStream(istream &input, ostream &)
+{
+    std::string line;
+    // read whole line to prevent reading from the next line if a line is malformed/too short
+    std::getline(input, line);
+    trim(line);
+    std::istringstream inputStream(line);
+
+    CMMeshNode n;
+    // scan in data
+    inputStream >> n.x;
+    inputStream >> n.y;
+    inputStream >> n.A.re;
+    inputStream >> n.A.im; // 4th field only applies when problem->Frequency is 0
+
+    return n;
+}
+
 CHMeshNode::CHMeshNode()
     : CMeshNode()
     , T(0)
@@ -68,9 +91,45 @@ CHMeshNode::CHMeshNode()
 {
 }
 
+CHMeshNode CHMeshNode::fromStream(istream &input, ostream &)
+{
+    std::string line;
+    // read whole line to prevent reading from the next line if a line is malformed/too short
+    std::getline(input, line);
+    trim(line);
+    std::istringstream inputStream(line);
+
+    CHMeshNode n;
+    // scan in data
+    inputStream >> n.x;
+    inputStream >> n.y;
+    inputStream >> n.T;
+    inputStream >> n.Q;
+
+    return n;
+}
+
 CSMeshNode::CSMeshNode()
     : CMeshNode()
     , Q(false)
     , IsSelected(false)
 {
+}
+
+CSMeshNode CSMeshNode::fromStream(istream &input, ostream &)
+{
+    std::string line;
+    // read whole line to prevent reading from the next line if a line is malformed/too short
+    std::getline(input, line);
+    trim(line);
+    std::istringstream inputStream(line);
+
+    CSMeshNode n;
+    // scan in data
+    inputStream >> n.x;
+    inputStream >> n.y;
+    inputStream >> n.V;
+    inputStream >> n.Q;
+
+    return n;
 }
