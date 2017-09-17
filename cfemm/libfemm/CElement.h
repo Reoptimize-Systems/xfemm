@@ -21,8 +21,10 @@
 #ifndef FEMM_CELEMENT_H
 #define FEMM_CELEMENT_H
 
-#include <string>
 #include "femmcomplex.h"
+
+#include <iostream>
+#include <string>
 
 namespace femmsolver {
 
@@ -50,6 +52,15 @@ class CMElement : public CElement
 public:
     CMElement();
     virtual ~CMElement();
+
+    /**
+     * @brief fromStream constructs a CMElement from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CMElement
+     */
+    static CMElement fromStream( std::istream &input, std::ostream &err = std::cerr );
+
     CComplex mu1,mu2;
     CComplex B1,B2;
     CComplex b1[3],b2[3];
@@ -60,11 +71,48 @@ class CHElement : public CElement
 {
 public:
     CHElement();
+    /**
+     * @brief fromStream constructs a CHElement from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHElement
+     */
+    static CHElement fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     CComplex D;		// elemental flux density
     CComplex d[3];  // smoothed flux density at corners
 
 private:
+};
+
+/**
+ * @brief The CSElement class
+ * This seems to be the same as the CHElement class.
+ *
+ * \internal
+ * ### FEMM reference source:
+ * - \femm42{femm/bv_problem.h,CElement}
+ */
+class CSElement : public CElement
+{
+public:
+    CSElement();
+    /**
+     * @brief fromStream constructs a CHElement from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHElement
+     * \internal
+     * ### FEMM reference source:
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::OnOpenDocument()}
+     * \endinternal
+     */
+    static CSElement fromStream( std::istream &input, std::ostream &err = std::cerr );
+
+    CComplex D;    // elemental flux density
+    CComplex d[3];  // smoothed flux density at corners
+
+    //CComplex E(); unused?
 };
 
 }
