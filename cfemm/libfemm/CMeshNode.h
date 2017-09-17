@@ -27,8 +27,10 @@
 #ifndef FEMM_CMESHNODE_H
 #define FEMM_CMESHNODE_H
 
-#include <string>
 #include "femmcomplex.h"
+
+#include <iostream>
+#include <string>
 
 namespace femmsolver {
 
@@ -51,6 +53,14 @@ class CMMeshNode : public CMeshNode
 {
 public:
     CMMeshNode();
+    /**
+     * @brief fromStream constructs a CMMeshNode from an input stream (usually an input file stream)
+     * \note If Frequency is 0, make sure to clear A.im!
+     * @param input
+     * @param err output stream for error messages
+     * @return a CMMeshNode
+     */
+    static CMMeshNode fromStream( std::istream &input, std::ostream &err = std::cerr );
     CComplex A;
 };
 
@@ -58,6 +68,14 @@ class CHMeshNode : public CMeshNode
 {
 public:
     CHMeshNode();
+
+    /**
+     * @brief fromStream constructs a CHMeshNode from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CHMeshNode
+     */
+    static CHMeshNode fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     double T;  ///< temperature at the node
     /**
@@ -72,12 +90,24 @@ public:
  *
  * \internal
  * ### FEMM reference source:
- * - \femm42{bv_problem.h}
+ * - \femm42{femm/bv_problem.h}
  */
 class CSMeshNode : public CMeshNode
 {
 public:
     CSMeshNode();
+
+    /**
+     * @brief fromStream constructs a CSMeshNode from an input stream (usually an input file stream)
+     * @param input
+     * @param err output stream for error messages
+     * @return a CSMeshNode
+     * \internal
+     * ### FEMM reference source:
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::OnOpenDocument()}
+     * \endinternal
+     */
+    static CSMeshNode fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     double V;
     bool Q;
