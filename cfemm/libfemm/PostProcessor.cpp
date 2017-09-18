@@ -102,7 +102,7 @@ femm::PostProcessor::PostProcessor()
 femm::PostProcessor::~PostProcessor()
 {
     free(LengthConv);
-    for(uint i=0; i<problem->meshnodes.size(); i++)
+    for(uint i=0; i<meshnodes.size(); i++)
         if(ConList[i]!=NULL) free(ConList[i]);
     free(ConList);
     free(NumList);
@@ -110,12 +110,12 @@ femm::PostProcessor::~PostProcessor()
 
 int PostProcessor::numElements() const
 {
-    return (int) problem->meshelems.size();
+    return (int) meshelems.size();
 }
 
 int PostProcessor::numNodes() const
 {
-    return (int) problem->meshnodes.size();
+    return (int) meshnodes.size();
 }
 
 
@@ -127,7 +127,7 @@ int femm::PostProcessor::InTriangle(double x, double y)
     int j,hi,lo,sz;
     double z;
 
-    sz = problem->meshelems.size();
+    sz = meshelems.size();
 
     if ((k < 0) || (k >= sz)) k = 0;
 
@@ -149,10 +149,10 @@ int femm::PostProcessor::InTriangle(double x, double y)
         lo--;
         if (lo < 0)   lo = sz - 1;
 
-        CComplex hiCtr = problem->meshelems[hi]->ctr;
+        CComplex hiCtr = meshelems[hi]->ctr;
         z = (hiCtr.re - x) * (hiCtr.re - x) + (hiCtr.im - y) * (hiCtr.im - y);
 
-        if (z <= problem->meshelems[hi]->rsqr)
+        if (z <= meshelems[hi]->rsqr)
         {
             if (InTriangleTest(x,y,hi))
             {
@@ -161,10 +161,10 @@ int femm::PostProcessor::InTriangle(double x, double y)
             }
         }
 
-        CComplex loCtr = problem->meshelems[lo]->ctr;
+        CComplex loCtr = meshelems[lo]->ctr;
         z = (loCtr.re-x)*(loCtr.re-x) + (loCtr.im-y)*(loCtr.im-y);
 
-        if (z <= problem->meshelems[lo]->rsqr)
+        if (z <= meshelems[lo]->rsqr)
         {
             if (InTriangleTest(x,y,lo))
             {
@@ -182,7 +182,7 @@ int femm::PostProcessor::InTriangle(double x, double y)
 bool femm::PostProcessor::InTriangleTest(double x, double y, int i)
 {
 
-    if ((i < 0) || (i >= int(problem->meshelems.size()))) return false;
+    if ((i < 0) || (i >= int(meshelems.size()))) return false;
 
     int j,k;
     double z;
@@ -193,25 +193,25 @@ bool femm::PostProcessor::InTriangleTest(double x, double y, int i)
 
         if (k == 3) k = 0;
 
-        int p_k = problem->meshelems[i]->p[k];
-        int p_j = problem->meshelems[i]->p[j];
+        int p_k = meshelems[i]->p[k];
+        int p_j = meshelems[i]->p[j];
         // Case 1: p[k]>p[j]
         if (p_k > p_j)
         {
-            z = (problem->meshnodes[p_k]->x - problem->meshnodes[p_j]->x) *
-                    (y - problem->meshnodes[p_j]->y) -
-                    (problem->meshnodes[p_k]->y - problem->meshnodes[p_j]->y) *
-                    (x - problem->meshnodes[p_j]->x);
+            z = (meshnodes[p_k]->x - meshnodes[p_j]->x) *
+                    (y - meshnodes[p_j]->y) -
+                    (meshnodes[p_k]->y - meshnodes[p_j]->y) *
+                    (x - meshnodes[p_j]->x);
 
             if(z<0) return false;
         }
         //Case 2: p[k]<p[j]
         else
         {
-            z = (problem->meshnodes[p_j]->x - problem->meshnodes[p_k]->x) *
-                    (y - problem->meshnodes[p_k]->y) -
-                    (problem->meshnodes[p_j]->y - problem->meshnodes[p_k]->y) *
-                    (x - problem->meshnodes[p_k]->x);
+            z = (meshnodes[p_j]->x - meshnodes[p_k]->x) *
+                    (y - meshnodes[p_k]->y) -
+                    (meshnodes[p_j]->y - meshnodes[p_k]->y) *
+                    (x - meshnodes[p_k]->x);
 
             if (z > 0) return false;
         }
@@ -226,8 +226,8 @@ CComplex femm::PostProcessor::Ctr(int i)
     CComplex c = 0;
     for(int j=0; j<3; j++)
     {
-        int p_j = problem->meshelems[i]->p[j];
-        CComplex p(problem->meshnodes[ p_j ]->x/3., problem->meshnodes[ p_j ]->y/3.);
+        int p_j = meshelems[i]->p[j];
+        CComplex p(meshnodes[ p_j ]->x/3., meshnodes[ p_j ]->y/3.);
         c+=p;
     }
 
@@ -238,12 +238,12 @@ CComplex femm::PostProcessor::Ctr(int i)
 double femm::PostProcessor::ElmArea(int i)
 {
     int n[3];
-    for(int j=0; j<3; j++) n[j]=problem->meshelems[i]->p[j];
+    for(int j=0; j<3; j++) n[j]=meshelems[i]->p[j];
 
-    double b0=problem->meshnodes[n[1]]->y - problem->meshnodes[n[2]]->y;
-    double b1=problem->meshnodes[n[2]]->y - problem->meshnodes[n[0]]->y;
-    double c0=problem->meshnodes[n[2]]->x - problem->meshnodes[n[1]]->x;
-    double c1=problem->meshnodes[n[0]]->x - problem->meshnodes[n[2]]->x;
+    double b0=meshnodes[n[1]]->y - meshnodes[n[2]]->y;
+    double b1=meshnodes[n[2]]->y - meshnodes[n[0]]->y;
+    double c0=meshnodes[n[2]]->x - meshnodes[n[1]]->x;
+    double c1=meshnodes[n[0]]->x - meshnodes[n[2]]->x;
     return (b0*c1-b1*c0)/2.;
 }
 
@@ -253,10 +253,10 @@ double femm::PostProcessor::ElmArea(femmsolver::CElement *elm)
     int n[3];
     for(int j=0; j<3; j++) n[j]=elm->p[j];
 
-    double b0=problem->meshnodes[n[1]]->y - problem->meshnodes[n[2]]->y;
-    double b1=problem->meshnodes[n[2]]->y - problem->meshnodes[n[0]]->y;
-    double c0=problem->meshnodes[n[2]]->x - problem->meshnodes[n[1]]->x;
-    double c1=problem->meshnodes[n[0]]->x - problem->meshnodes[n[2]]->x;
+    double b0=meshnodes[n[1]]->y - meshnodes[n[2]]->y;
+    double b1=meshnodes[n[2]]->y - meshnodes[n[0]]->y;
+    double c0=meshnodes[n[2]]->x - meshnodes[n[1]]->x;
+    double c1=meshnodes[n[0]]->x - meshnodes[n[2]]->x;
     return (b0*c1-b1*c0)/2.;
 }
 
@@ -269,22 +269,22 @@ CComplex femm::PostProcessor::HenrotteVector(int k)
 
     for(int i=0; i<3; i++)
     {
-        n[i] = problem->meshelems[k]->p[i];
+        n[i] = meshelems[k]->p[i];
     }
 
-    b[0]=problem->meshnodes[n[1]]->y - problem->meshnodes[n[2]]->y;
-    b[1]=problem->meshnodes[n[2]]->y - problem->meshnodes[n[0]]->y;
-    b[2]=problem->meshnodes[n[0]]->y - problem->meshnodes[n[1]]->y;
-    c[0]=problem->meshnodes[n[2]]->x - problem->meshnodes[n[1]]->x;
-    c[1]=problem->meshnodes[n[0]]->x - problem->meshnodes[n[2]]->x;
-    c[2]=problem->meshnodes[n[1]]->x - problem->meshnodes[n[0]]->x;
+    b[0]=meshnodes[n[1]]->y - meshnodes[n[2]]->y;
+    b[1]=meshnodes[n[2]]->y - meshnodes[n[0]]->y;
+    b[2]=meshnodes[n[0]]->y - meshnodes[n[1]]->y;
+    c[0]=meshnodes[n[2]]->x - meshnodes[n[1]]->x;
+    c[1]=meshnodes[n[0]]->x - meshnodes[n[2]]->x;
+    c[2]=meshnodes[n[1]]->x - meshnodes[n[0]]->x;
 
     double da = (b[0] * c[1] - b[1] * c[0]);
 
     CComplex v = 0;
     for(int i=0; i<3; i++)
     {
-        v -= problem->meshnodes[n[i]]->msk * (b[i] + I * c[i]) / (da * LengthConv[problem->LengthUnits]);  // grad
+        v -= meshnodes[n[i]]->msk * (b[i] + I * c[i]) / (da * LengthConv[problem->LengthUnits]);  // grad
     }
 
     return v;
@@ -351,10 +351,10 @@ void femm::PostProcessor::FindBoundaryEdges()
     static int minus1mod3[3] = {2, 0, 1};
 
     // Init all elements' neigh to be unfinished.
-    for(i = 0; i < (int)problem->meshelems.size(); i ++)
+    for(i = 0; i < (int)meshelems.size(); i ++)
     {
         for(j = 0; j < 3; j ++)
-            problem->meshelems[i]->n[j] = 0;
+            meshelems[i]->n[j] = 0;
     }
 
     int orgi, desti;
@@ -362,15 +362,15 @@ void femm::PostProcessor::FindBoundaryEdges()
     bool done;
 
     // Loop all elements, to find and set there neighs.
-    for(i = 0; i < (int)problem->meshelems.size(); i ++)
+    for(i = 0; i < (int)meshelems.size(); i ++)
     {
         for(j = 0; j < 3; j ++)
         {
-            if(problem->meshelems[i]->n[j] == 0)
+            if(meshelems[i]->n[j] == 0)
             {
                 // Get this edge's org and dest node index,
-                orgi = problem->meshelems[i]->p[plus1mod3[j]];
-                desti = problem->meshelems[i]->p[minus1mod3[j]];
+                orgi = meshelems[i]->p[plus1mod3[j]];
+                desti = meshelems[i]->p[minus1mod3[j]];
                 done = false;
                 // Find this edge's neigh from the org node's list
                 for(ni = 0; ni < NumList[orgi]; ni ++)
@@ -379,20 +379,20 @@ void femm::PostProcessor::FindBoundaryEdges()
                     ei = ConList[orgi][ni];
                     if (ei == i) continue; // Skip myself.
                     // Check this Element's 3 vert to see if there exist dest node.
-                    if(problem->meshelems[ei]->p[0] == desti) {
+                    if(meshelems[ei]->p[0] == desti) {
                         done = true;
                         break;
-                    } else if(problem->meshelems[ei]->p[1] == desti) {
+                    } else if(meshelems[ei]->p[1] == desti) {
                         done = true;
                         break;
-                    } else if(problem->meshelems[ei]->p[2] == desti) {
+                    } else if(meshelems[ei]->p[2] == desti) {
                         done = true;
                         break;
                     }
                 }
                 if (!done) {
                     // This edge must be a Boundary Edge.
-                    problem->meshelems[i]->n[j] = 1;
+                    meshelems[i]->n[j] = 1;
                 }
             } // Finish One Edge
         } // End of One Element Loop
