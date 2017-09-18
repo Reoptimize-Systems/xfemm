@@ -46,7 +46,6 @@ namespace femm {
  *
  * \note
  * Currently, the FemmProblem is only used by the mesher and in lua code.
- * I.e. the mesh data is currently unused here.
  *
  * \internal
  * In contrast to FEMM42 and older XFemm classes we use vectors of pointers, not vectors of objects.
@@ -78,7 +77,7 @@ public:
      * \internal
      * When adding a new file type, you need to check that all peculiarities are handled here.
      * E.g. the name of the conductor property section varies with file type.
-     * For now, the following file types are fully supported: electrostatics, heat flow.
+     * For now, the following file types are fully supported: electromagnetics, electrostatics, heat flow.
      *
      * ### FEMM source:
      *  - \femm42{femm/beladrawDoc.cpp,OnSaveDocument()}
@@ -119,18 +118,6 @@ public:
      * Call this function whenever the node properties change (i.e. whenever a new element is added or a PointName changes).
      */
     void updateNodeMap();
-
-    /**
-     * @brief Invalidate the mesh data if the problem was already meshed.
-     * Call this method whenever you change the problem structure.
-     */
-    void invalidateMesh();
-
-    /**
-     * @brief meshed
-     * @return \c true, if the problem contains mesh data, \c false otherwise.
-     */
-    bool isMeshed() const;
 
     /**
      * @brief Add an arc segment to the problem description.
@@ -505,12 +492,6 @@ public: // data members
     std::vector< std::unique_ptr<CBoundaryProp>> lineproplist;
     std::vector< std::unique_ptr<CMaterialProp>> blockproplist;
     std::vector< std::unique_ptr<CCircuit>> circproplist;
-
-    bool solved;
-    // vectors containing the mesh information
-    // currently, the mesh part of FemmProblem is not used at all
-    std::vector< std::unique_ptr<femmsolver::CMeshNode>>   meshnodes;
-    std::vector< std::unique_ptr<femmsolver::CElement>> meshelems;
 
     std::string pathName; ///< \brief pathname of the associated (.fem) file, if any.
     //std::string solutionFile; ///< \brief pathname of the associated solution file (.ans), if any.

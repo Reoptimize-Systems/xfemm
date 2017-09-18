@@ -71,7 +71,6 @@ public:
     int numElements() const override;
     int numNodes() const override;
 
-    std::shared_ptr<femm::FemmProblem> problem;
     // General problem attributes
     double *LengthConv;
     bool    Smooth;
@@ -83,6 +82,10 @@ public:
     // Some default behaviors
     int  d_LineIntegralPoints;
     bool bHasMask;
+
+    // mesh data
+    std::vector< std::unique_ptr<femmsolver::CMeshNode>>   meshnodes;
+    std::vector< std::unique_ptr<femmsolver::CElement>> meshelems;
 
     // List of elements connected to each node;
     int *NumList;
@@ -108,6 +111,7 @@ public:
 
 protected:
     PostProcessor();
+    std::unique_ptr<femm::FemmProblem> problem;
 };
 
 } //namespace

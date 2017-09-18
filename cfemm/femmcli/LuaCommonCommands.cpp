@@ -389,8 +389,7 @@ int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
 
     // Note(ZaJ): why is mesher->UpdateUndo called in mi_copytranslate but not here?
     doc->rotateCopy(CComplex(x,y),angle,copies,editAction);
-    // Note(ZaJ): shouldn't the invalidation be done by RotateCopy?
-    doc->invalidateMesh();
+    femmState->closeSolution();
     mesher->meshline.clear();
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
@@ -447,8 +446,7 @@ int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
 
     doc->updateUndo();
     doc->translateCopy(x,y,copies,editAction);
-    // Note(ZaJ): shouldn't the invalidation be done by TranslateCopy?
-    doc->invalidateMesh();
+    femmState->closeSolution();
     mesher->meshline.clear();
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
@@ -1121,8 +1119,7 @@ int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
 
     doc->updateUndo();
     doc->rotateMove(CComplex(x,y),shiftangle,editAction);
-    // Note(ZaJ): shouldn't the invalidation be done by translateMove?
-    doc->invalidateMesh();
+    femmState->closeSolution();
     mesher->meshline.clear();
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
@@ -1178,8 +1175,7 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
 
     doc->updateUndo();
     doc->translateMove(x,y,editAction);
-    // Note(ZaJ): shouldn't the invalidation be done by translateMove?
-    doc->invalidateMesh();
+    femmState->closeSolution();
     mesher->meshline.clear();
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
@@ -1271,7 +1267,7 @@ int femmcli::LuaCommonCommands::luaPurgeMesh(lua_State *L)
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
-    doc->invalidateMesh();
+    femmState->closeSolution();
     mesher->meshline.clear();
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
@@ -1414,7 +1410,7 @@ int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
         lua_error(L, "Could not make a radius of the prescribed dimension\n");
         return 0;
     }
-    doc->invalidateMesh();
+    femmState->closeSolution();
 
     return 0;
 }

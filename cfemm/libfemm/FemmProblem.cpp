@@ -317,17 +317,6 @@ void femm::FemmProblem::updateNodeMap()
     }
 }
 
-void femm::FemmProblem::invalidateMesh()
-{
-    meshnodes.clear();
-    meshelems.clear();
-}
-
-bool femm::FemmProblem::isMeshed() const
-{
-    return !(meshelems.empty() && meshnodes.empty());
-}
-
 bool femm::FemmProblem::addArcSegment(femm::CArcSegment &asegm, double tol)
 {
     // don't add if line is degenerate
@@ -2297,9 +2286,6 @@ femm::FemmProblem::FemmProblem(FileType ftype)
     , lineproplist()
     , blockproplist()
     , circproplist()
-    , solved(false)
-    , meshnodes()
-    , meshelems()
     , pathName()
     //, solutionFile()
     , filetype(ftype)
