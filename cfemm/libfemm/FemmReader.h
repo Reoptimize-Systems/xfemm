@@ -29,6 +29,16 @@ namespace femm {
 enum ParserResult { F_FILE_OK, F_FILE_UNKNOWN_TYPE, F_FILE_NOT_OPENED, F_FILE_MALFORMED};
 
 /**
+ * @brief The SolutionReader interface is used by FemmReader to parse solution data if the solution tag is encountered.
+ */
+class SolutionReader {
+public:
+    virtual ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) = 0;
+protected:
+    virtual ~SolutionReader(){}
+};
+
+/**
  * \brief The FemmReader class implements a parser for the Femm file format.
  * To allow for subtle differences between different flavors of the file format,
  * it is possible to define a handler function for tokens not handled by default.
@@ -66,11 +76,21 @@ public:
      * @param errorpipe
      */
     FemmReader(std::shared_ptr<FemmProblem>problem, std::ostream &errorpipe);
+    /**
+     * @brief FemmReader constructor for also reading solution data
+     * @param problem The FemmProblem that shall contain the data.
+     * @param r The SolutionReader to be called
+     * @param errorpipe
+     */
+    FemmReader(std::shared_ptr<FemmProblem>problem, SolutionReader *r, std::ostream &errorpipe);
     virtual ~FemmReader();
 
     /**
      * @brief Parse the given file and store the data in the associated data object.
      * This also sets the PathName of the FemmProblem.
+     *
+     * If a SolutionReader was set, but no solution is encountered, \c F_FILE_MALFORMED is returned
+     * If no SolutionReader was set, but a solution is encountered, a diagnostic is issued and parsing stops.
      * @param file
      * @return
      */
@@ -101,6 +121,7 @@ protected:
     virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err);
 
     std::shared_ptr<FemmProblem> problem;
+    SolutionReader *solutionReader;
 private:
     bool ignoreUnhandled;
     /// \brief Reference to the error message stream
