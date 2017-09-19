@@ -39,8 +39,24 @@ template< class PointPropT
 FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
 ::FemmReader( std::shared_ptr<FemmProblem> problem, std::ostream &err)
     : problem(problem)
+    , solutionReader(nullptr)
     , ignoreUnhandled(false)
     , err(err)
+{
+}
+
+template< class PointPropT
+          , class BoundaryPropT
+          , class BlockPropT
+          , class CircuitPropT
+          , class BlockLabelT
+          >
+FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
+::FemmReader(std::shared_ptr<FemmProblem> problem, SolutionReader *r, std::ostream &errorpipe)
+    : problem(problem)
+    , solutionReader(r)
+    , ignoreUnhandled(false)
+    , err(errorpipe)
 {
 }
 
@@ -79,6 +95,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 
     string token;
     bool success = true;
+    bool readSolutionData = false;
     while (input && success)
     {
         nextToken(input, &token);
@@ -512,6 +529,12 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             continue;
         }
 
+        if (token == "[solution]")
+        {
+            readSolutionData = true;
+            break;
+        }
+
         // fall-through; token was not used
         if (!handleToken(token, input, err))
         {
@@ -534,6 +557,20 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
     problem->updateCircuitMap();
     problem->updateLineMap();
     problem->updateNodeMap();
+
+    if (readSolutionData && success)
+    {
+        if (solutionReader)
+            return solutionReader->parseSolution(input,err);
+        else
+            err << "Ignoring solution data...\n";
+    } else {
+        if (solutionReader)
+        {
+            err << "File contains no solution!\n";
+            return F_FILE_MALFORMED;
+        }
+    }
 
     return success ? F_FILE_OK : F_FILE_MALFORMED;
 }
