@@ -71,6 +71,7 @@ public:
     int numElements() const override;
     int numNodes() const override;
 
+protected:
     // General problem attributes
     double *LengthConv;
     bool    Smooth;

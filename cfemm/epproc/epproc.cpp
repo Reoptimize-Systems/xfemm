@@ -16,7 +16,42 @@
  */
 
 #include "epproc.h"
+#include "CMeshNode.h"
 
 ElectrostaticsPostProcessor::~ElectrostaticsPostProcessor()
 {
+}
+
+femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &input, std::ostream &err)
+{
+    using femmsolver::CSMeshNode;
+    using femmsolver::CSElement;
+    // read in meshnodes;
+    int k;
+    input >> k;
+    meshnodes.reserve(k);
+    for(int i=0;i<k;i++)
+    {
+        meshnodes.push_back(std::make_unique<CSMeshNode>(CSMeshNode::fromStream(input,err)));
+    }
+
+    // read in elements;
+    input >> k;
+    meshelems.reserve(k);
+    for(int i=0;i<k;i++)
+    {
+        CSElement elm = CSElement::fromStream(input,err);
+        elm.blk = problem->labellist[elm.lbl]->BlockType;
+        meshelems.push_back(std::make_unique<CSElement>(elm));
+    }
+
+    // read in circuit data;
+    input >> k;
+    for(int i=0;i<k;i++)
+    {
+        //fgets(s,1024,fp);
+        //sscanf(s,"%lf  %lf",&circproplist[i].V,&circproplist[i].q);
+    }
+
+    return femm::F_FILE_OK;
 }
