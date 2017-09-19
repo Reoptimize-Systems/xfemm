@@ -18,13 +18,17 @@
 #ifndef EPPROC_H
 #define EPPROC_H
 
+#include "FemmReader.h"
 #include "PostProcessor.h"
 
-class ElectrostaticsPostProcessor : public femm::PostProcessor
+class ElectrostaticsPostProcessor :
+        public femm::PostProcessor,
+        public femm::SolutionReader
 {
 public:
     ElectrostaticsPostProcessor();
     virtual ~ElectrostaticsPostProcessor();
+    virtual femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
 };
 
 #endif
