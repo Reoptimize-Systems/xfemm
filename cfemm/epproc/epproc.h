@@ -28,7 +28,8 @@ class ElectrostaticsPostProcessor :
 public:
     ElectrostaticsPostProcessor();
     virtual ~ElectrostaticsPostProcessor();
-    virtual femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
+    femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
+    bool OpenDocument( std::string solutionFile ) override;
 };
 
 #endif
