@@ -71,6 +71,8 @@ public:
     int numElements() const override;
     int numNodes() const override;
 
+    void addContourPoint(CComplex p);
+
 protected:
     // General problem attributes
     double *LengthConv;

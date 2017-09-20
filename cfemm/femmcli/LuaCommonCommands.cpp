@@ -149,6 +149,38 @@ int femmcli::LuaCommonCommands::luaAddBlocklabel(lua_State *L)
 }
 
 /**
+ * @brief Add a contour point.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_addcontour(x,y)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_addcontour()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaAddContourPoint(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    CComplex z(lua_todouble(L,1),lua_todouble(L,2));
+
+    pproc->addContourPoint(z);
+
+    return 0;
+}
+
+/**
  * @brief Add a new line segment between two given points.
  * In other words, add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)
  * @param L

@@ -193,8 +193,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_zoomnatural", LuaInstance::luaNOP);
     li.addFunction("ei_zoom_out", LuaInstance::luaNOP);
     li.addFunction("ei_zoomout", LuaInstance::luaNOP);
-    li.addFunction("eo_add_contour", luaAddContourPoint);
-    li.addFunction("eo_addcontour", luaAddContourPoint);
+    li.addFunction("eo_add_contour", LuaCommonCommands::luaAddContourPoint);
+    li.addFunction("eo_addcontour", LuaCommonCommands::luaAddContourPoint);
     li.addFunction("eo_bend_contour", luaBendContourLine);
     li.addFunction("eo_bendcontour", luaBendContourLine);
     li.addFunction("eo_block_integral", luaBlockIntegral);
@@ -348,25 +348,6 @@ int femmcli::LuaElectrostaticsCommands::luaAddConductorProperty(lua_State *L)
     femmState->femmDocument()->updateCircuitMap();
 
     return 0;
-}
-
-/**
- * @brief Add a contour point.
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_addcontour(x,y)}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_addcontour()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaAddContourPoint(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
 }
 
 /**

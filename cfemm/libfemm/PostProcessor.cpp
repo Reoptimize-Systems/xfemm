@@ -118,6 +118,12 @@ int PostProcessor::numNodes() const
     return (int) meshnodes.size();
 }
 
+void PostProcessor::addContourPoint(CComplex p)
+{
+    if (contour.empty() || p!=contour.back())
+            contour.push_back(p);
+}
+
 
 
 // identical in FPProc and HPProc
