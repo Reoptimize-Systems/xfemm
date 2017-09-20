@@ -38,6 +38,7 @@ class CMeshNode
 {
 public:
     CMeshNode();
+    virtual ~CMeshNode() = default;
 
     double x,y;
     double msk;

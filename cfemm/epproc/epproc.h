@@ -30,6 +30,47 @@ public:
     virtual ~ElectrostaticsPostProcessor();
     femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
     bool OpenDocument( std::string solutionFile ) override;
+
+private:
+    /**
+     * @brief AECF
+     * Computes the permeability correction factor for axisymmetric
+     * external regions.  This is sort of a kludge, but it's the best
+     * way I could fit it in.  The structure of the code wasn't really
+     * designed to have a permeability that varies with position in a
+     * continuous way.
+     * @param k
+     * @return
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int)}
+     * \endinternal
+     */
+    double AECF(int k);
+    /**
+     * @brief AECF
+     * Correction factor for a point within the element, rather than
+     * for the center of the element.
+     * @param k
+     * @param p
+     * @return
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int,CComplex)}
+     * \endinternal
+     */
+    double AECF(int k, CComplex p);
+    /**
+     * @brief GetElementD
+     * @param k
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::GetElementD(int)}
+     * \endinternal
+     */
+    void GetElementD(int k);
+
+    double A_High;
+    double A_Low;
+    double A_lb;
+    double A_ub;
 };
 
 #endif
