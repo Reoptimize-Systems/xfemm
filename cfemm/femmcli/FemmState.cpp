@@ -19,6 +19,7 @@
 
 #include "fmesher.h"
 #include "fpproc.h"
+#include "epproc.h"
 
 #include <memory>
 
@@ -43,6 +44,8 @@ const std::shared_ptr<femm::PProcIface> femmcli::FemmState::getPostProcessor()
     {
         if (current.document && current.document->filetype == femm::FileType::MagneticsFile)
             current.postProcessor = std::make_shared<FPProc>();
+        if (current.document && current.document->filetype == femm::FileType::ElectrostaticsFile)
+            current.postProcessor = std::make_shared<ElectrostaticsPostProcessor>();
     }
     return current.postProcessor;
 }
