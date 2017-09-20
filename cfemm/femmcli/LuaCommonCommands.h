@@ -39,6 +39,7 @@ namespace LuaCommonCommands
 {
 int luaAddArc(lua_State *L);
 int luaAddBlocklabel(lua_State *L);
+int luaAddContourPoint(lua_State *L);
 int luaAddLine(lua_State *L);
 int luaAddNode(lua_State *L);
 int luaAttachDefault(lua_State *L);
