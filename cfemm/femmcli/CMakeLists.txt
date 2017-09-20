@@ -6,7 +6,7 @@ add_library(femmcli STATIC
     LuaMagneticsCommands.cpp
     )
 target_include_directories(femmcli PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
-target_link_libraries(femmcli PUBLIC femm fmesher esolver fsolver fpproc)
+target_link_libraries(femmcli PUBLIC femm fmesher epproc esolver fsolver fpproc)
 
 add_executable(femmcli-bin
     main.cpp

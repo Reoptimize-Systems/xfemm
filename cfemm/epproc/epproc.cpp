@@ -26,6 +26,11 @@
 
 using namespace femm;
 
+ElectrostaticsPostProcessor::ElectrostaticsPostProcessor()
+    : PostProcessor()
+{
+}
+
 ElectrostaticsPostProcessor::~ElectrostaticsPostProcessor()
 {
 }
