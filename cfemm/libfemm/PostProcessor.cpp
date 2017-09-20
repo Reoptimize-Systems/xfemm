@@ -74,8 +74,8 @@ femm::PostProcessor::PostProcessor()
     // set some default values for problem definition
     d_LineIntegralPoints = 400;
     Smooth = true;
-    NumList = NULL;
-    ConList = NULL;
+    NumList = nullptr;
+    ConList = nullptr;
     bHasMask = false;
     LengthConv = (double *)calloc(6,sizeof(double));
     LengthConv[0] = 0.0254;   //inches
@@ -102,10 +102,14 @@ femm::PostProcessor::PostProcessor()
 femm::PostProcessor::~PostProcessor()
 {
     free(LengthConv);
-    for(uint i=0; i<meshnodes.size(); i++)
-        if(ConList[i]!=NULL) free(ConList[i]);
-    free(ConList);
-    free(NumList);
+    if (ConList)
+    {
+        for(uint i=0; i<meshnodes.size(); i++)
+            if(ConList[i]!=NULL) free(ConList[i]);
+        free(ConList);
+    }
+    if (NumList)
+        free(NumList);
 }
 
 int PostProcessor::numElements() const
