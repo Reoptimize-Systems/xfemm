@@ -20,6 +20,7 @@
 #include "fparse.h"
 #include "stringTools.h"
 
+#include <cassert>
 #include <fstream>
 #include <ios>
 #include <iostream>
@@ -37,12 +38,13 @@ template< class PointPropT
           , class BlockLabelT
           >
 FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
-::FemmReader( std::shared_ptr<FemmProblem> problem, std::ostream &err)
+::FemmReader( FemmProblem *problem, std::ostream &err)
     : problem(problem)
     , solutionReader(nullptr)
     , ignoreUnhandled(false)
     , err(err)
 {
+    assert(problem);
 }
 
 template< class PointPropT
@@ -52,12 +54,13 @@ template< class PointPropT
           , class BlockLabelT
           >
 FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT>
-::FemmReader(std::shared_ptr<FemmProblem> problem, SolutionReader *r, std::ostream &errorpipe)
+::FemmReader(FemmProblem *problem, SolutionReader *r, std::ostream &errorpipe)
     : problem(problem)
     , solutionReader(r)
     , ignoreUnhandled(false)
     , err(errorpipe)
 {
+    assert(problem);
 }
 
 template< class PointPropT
@@ -621,8 +624,13 @@ template class femm::FemmReader<
         , femm::CMBlockLabel
         >;
 
-MagneticsReader::MagneticsReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)
+MagneticsReader::MagneticsReader(FemmProblem *problem, ostream &errorpipe)
     : FemmReader_type(problem, errorpipe)
+{
+}
+
+MagneticsReader::MagneticsReader(FemmProblem *problem, SolutionReader *r, ostream &errorpipe)
+    : FemmReader_type(problem,r,errorpipe)
 {
 }
 
@@ -648,8 +656,13 @@ template class femm::FemmReader<
         , femm::CHBlockLabel
         >;
 
-HeatFlowReader::HeatFlowReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)
+HeatFlowReader::HeatFlowReader(FemmProblem *problem, ostream &errorpipe)
     : FemmReader_type(problem, errorpipe)
+{
+}
+
+HeatFlowReader::HeatFlowReader(FemmProblem *problem, SolutionReader *r, ostream &errorpipe)
+    : FemmReader_type(problem,r,errorpipe)
 {
 }
 
@@ -673,7 +686,12 @@ template class femm::FemmReader<
         , femm::CSBlockLabel
         >;
 
-ElectrostaticsReader::ElectrostaticsReader(std::shared_ptr<FemmProblem> problem, ostream &errorpipe)
+ElectrostaticsReader::ElectrostaticsReader(FemmProblem *problem, ostream &errorpipe)
     : FemmReader_type(problem, errorpipe)
+{
+}
+
+ElectrostaticsReader::ElectrostaticsReader(FemmProblem *problem, SolutionReader *r, ostream &errorpipe)
+    : FemmReader_type(problem,r,errorpipe)
 {
 }

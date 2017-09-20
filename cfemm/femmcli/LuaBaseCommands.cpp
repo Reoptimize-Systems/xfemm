@@ -185,14 +185,14 @@ int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
     case femm::FileType::MagneticsFile:
     {
         femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::MagneticsFile));
-        femm::MagneticsReader reader(femmState->femmDocument(), err);
+        femm::MagneticsReader reader(femmState->femmDocument().get(), err);
         ok = (reader.parse(filename)==F_FILE_OK);
     }
         break;
     case FileType::ElectrostaticsFile:
     {
         femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::ElectrostaticsFile));
-        femm::ElectrostaticsReader reader(femmState->femmDocument(), err);
+        femm::ElectrostaticsReader reader(femmState->femmDocument().get(), err);
         ok = (reader.parse(filename)==F_FILE_OK);
     }
         break;

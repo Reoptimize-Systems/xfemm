@@ -75,14 +75,14 @@ public:
      * @param problem The FemmProblem that shall contain the data.
      * @param errorpipe
      */
-    FemmReader(std::shared_ptr<FemmProblem>problem, std::ostream &errorpipe);
+    FemmReader(FemmProblem *problem, std::ostream &errorpipe);
     /**
      * @brief FemmReader constructor for also reading solution data
      * @param problem The FemmProblem that shall contain the data.
      * @param r The SolutionReader to be called
      * @param errorpipe
      */
-    FemmReader(std::shared_ptr<FemmProblem>problem, SolutionReader *r, std::ostream &errorpipe);
+    FemmReader(FemmProblem *problem, SolutionReader *r, std::ostream &errorpipe);
     virtual ~FemmReader();
 
     /**
@@ -120,7 +120,7 @@ protected:
      */
     virtual bool handleToken(const std::string &token, std::istream &input, std::ostream &err);
 
-    std::shared_ptr<FemmProblem> problem;
+    FemmProblem *problem;
     SolutionReader *solutionReader;
 private:
     bool ignoreUnhandled;
@@ -137,7 +137,8 @@ class MagneticsReader : public FemmReader<
         >
 {
 public:
-    MagneticsReader(std::shared_ptr<FemmProblem> problem, std::ostream &errorpipe);
+    MagneticsReader(FemmProblem *problem, std::ostream &errorpipe);
+    MagneticsReader(FemmProblem *problem, SolutionReader *r, std::ostream &errorpipe);
 protected:
     bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 };
@@ -151,7 +152,8 @@ class HeatFlowReader : public FemmReader<
         >
 {
 public:
-    HeatFlowReader(std::shared_ptr<FemmProblem> problem, std::ostream &errorpipe);
+    HeatFlowReader(FemmProblem *problem, std::ostream &errorpipe);
+    HeatFlowReader(FemmProblem *problem, SolutionReader *r, std::ostream &errorpipe);
 protected:
     bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 };
@@ -165,7 +167,8 @@ class ElectrostaticsReader : public FemmReader<
         >
 {
 public:
-    ElectrostaticsReader(std::shared_ptr<FemmProblem> problem, std::ostream &errorpipe);
+    ElectrostaticsReader(FemmProblem *problem, std::ostream &errorpipe);
+    ElectrostaticsReader(FemmProblem *problem, SolutionReader *r, std::ostream &errorpipe);
 };
 } //namespace
 

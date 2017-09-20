@@ -34,15 +34,15 @@ int main(int argc, char ** argv)
 
     if (MeshObj.problem->filetype == FileType::MagneticsFile)
     {
-        MagneticsReader femReader (MeshObj.problem, std::cerr);
+        MagneticsReader femReader (MeshObj.problem.get(), std::cerr);
         status = femReader.parse(FilePath);
     } else if (MeshObj.problem->filetype == FileType::HeatFlowFile)
     {
-        HeatFlowReader fehReader (MeshObj.problem, std::cerr);
+        HeatFlowReader fehReader (MeshObj.problem.get(), std::cerr);
         status = fehReader.parse(FilePath);
     } else if (MeshObj.problem->filetype == FileType::ElectrostaticsFile)
     {
-        ElectrostaticsReader feeReader (MeshObj.problem, std::cerr);
+        ElectrostaticsReader feeReader (MeshObj.problem.get(), std::cerr);
         status = feeReader.parse(FilePath);
     } else {
         std::cout << "File type not supported!" << std::endl;
