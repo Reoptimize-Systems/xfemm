@@ -72,6 +72,21 @@ public:
     int numNodes() const override;
 
     void addContourPoint(CComplex p);
+    /**
+     * @brief Adds a contour point at the closest input point to (x,y).
+     *
+     * If the selected point and a previous selected points lie at the ends of an arcsegment,
+     * a contour is added that traces along the arcsegment.
+     * @param mx x coordinate
+     * @param my y coordinate
+     *
+     * \internal
+     * ### FEMM sources:
+     * - \femm42{femm/belaviewLua.cpp,lua_selectline()}
+     * - \femm42{femm/femmviewLua.cpp,lua_selectline()}
+     * \endinternal
+     */
+    void addContourPointFromNode(double mx, double my);
     void bendContour(double angle, double anglestep);
     void clearContour();
 

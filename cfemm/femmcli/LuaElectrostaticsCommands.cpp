@@ -251,8 +251,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_savemetafile", LuaInstance::luaNOP);
     li.addFunction("eo_select_block", luaSelectOutputBlocklabel);
     li.addFunction("eo_selectblock", luaSelectOutputBlocklabel);
-    li.addFunction("eo_select_point", luaAddContourPointFromNode);
-    li.addFunction("eo_selectpoint", luaAddContourPointFromNode);
+    li.addFunction("eo_select_point", LuaCommonCommands::luaAddContourPointFromNode);
+    li.addFunction("eo_selectpoint", LuaCommonCommands::luaAddContourPointFromNode);
     li.addFunction("eo_set_edit_mode", LuaInstance::luaNOP);
     li.addFunction("eo_seteditmode", LuaInstance::luaNOP);
     li.addFunction("eo_set_focus", LuaCommonCommands::luaSetFocus);
@@ -1205,25 +1205,6 @@ int femmcli::LuaElectrostaticsCommands::luaSelectOutputBlocklabel(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_select_point}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_selectline()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaAddContourPointFromNode(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }
