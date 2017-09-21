@@ -302,7 +302,7 @@ CComplex femm::PostProcessor::HenrotteVector(int k)
 
 
 // identical in FPProc and HPProc
-void femm::PostProcessor::BendContour(double angle, double anglestep)
+void femm::PostProcessor::bendContour(double angle, double anglestep)
 {
     if (angle==0) return;
     if (anglestep==0) anglestep=1;

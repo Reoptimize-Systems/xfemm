@@ -46,7 +46,6 @@ int luaAddContourPointFromNode(lua_State *L);
 int luaAddMaterialProperty(lua_State *L);
 int luaAddPointProperty(lua_State *L);
 int luaAnalyze(lua_State *L);
-int luaBendContourLine(lua_State *L);
 int luaBlockIntegral(lua_State *L);
 int luaClearBlock(lua_State *L);
 int luaClearContourPoint(lua_State *L);

@@ -345,6 +345,43 @@ int femmcli::LuaCommonCommands::luaAttachOuterSpace(lua_State *L)
 }
 
 /**
+ * @brief Bend the end of the contour line.
+ * Replaces the straight line formed by the last two
+ * points in the contour by an arc that spans angle degrees. The arc is actually composed
+ * of many straight lines, each of which is constrained to span no more than anglestep
+ * degrees.
+ *
+ * The angle parameter can take on values from -180 to 180 degrees.
+ * The anglestep parameter must be greater than zero.
+ * If there are less than two points defined in the contour, this command is ignored.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_bendcontour}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_bendcontour()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaBendContourLine(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    pproc->bendContour(lua_todouble(L,1),lua_todouble(L,2));
+    return 0;
+}
+
+/**
  * @brief Unselect all selected nodes, blocks, segments and arc segments.
  * @param L
  * @return 0
