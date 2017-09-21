@@ -90,6 +90,12 @@ public:
     void bendContour(double angle, double anglestep);
     void clearContour();
 
+    /**
+     * @brief Unselect all block labels.
+     * This also invalidates the mask, if one has been made.
+     */
+    void clearBlockSelection();
+
 protected:
     // General problem attributes
     double *LengthConv;

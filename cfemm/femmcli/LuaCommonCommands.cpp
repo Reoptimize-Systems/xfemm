@@ -421,6 +421,36 @@ int femmcli::LuaCommonCommands::luaBendContourLine(lua_State *L)
 }
 
 /**
+ * @brief Clear output block label selection and reset some settings.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_clearblock}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_clearblock()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaClearBlockSelection(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    pproc->clearBlockSelection();
+    //pproc->d_EditMode = EditNodes;
+    return 0;
+}
+
+/**
  * @brief Clear the contour line.
  * @param L
  * @return 0
