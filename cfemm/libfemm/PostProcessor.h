@@ -72,6 +72,7 @@ public:
     int numNodes() const override;
 
     void addContourPoint(CComplex p);
+    void bendContour(double angle, double anglestep);
 
 protected:
     // General problem attributes
@@ -104,7 +105,6 @@ protected:
     double ElmArea(int i);
     double ElmArea(femmsolver::CElement *elm);
 
-    void BendContour(double angle, double anglestep);
     CComplex HenrotteVector(int k);
     void FindBoundaryEdges();
 
