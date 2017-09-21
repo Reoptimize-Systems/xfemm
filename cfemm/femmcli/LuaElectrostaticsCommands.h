@@ -48,7 +48,6 @@ int luaAddPointProperty(lua_State *L);
 int luaAnalyze(lua_State *L);
 int luaBlockIntegral(lua_State *L);
 int luaClearBlock(lua_State *L);
-int luaClearContourPoint(lua_State *L);
 int luaExitPost(lua_State *L);
 int luaGetCircuitProperties(lua_State *L);
 int luaGetElement(lua_State *L);

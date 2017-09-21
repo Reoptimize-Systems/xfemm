@@ -201,8 +201,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_blockintegral", luaBlockIntegral);
     li.addFunction("eo_clear_block", luaClearBlock);
     li.addFunction("eo_clearblock", luaClearBlock);
-    li.addFunction("eo_clear_contour", luaClearContourPoint);
-    li.addFunction("eo_clearcontour", luaClearContourPoint);
+    li.addFunction("eo_clear_contour", LuaCommonCommands::luaClearContourPoint);
+    li.addFunction("eo_clearcontour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("eo_close", LuaCommonCommands::luaExitPost);
     li.addFunction("eo_get_conductor_properties", luaGetCircuitProperties);
     li.addFunction("eo_getconductorproperties", luaGetCircuitProperties);
@@ -650,25 +650,6 @@ int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaClearBlock(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_clear_contour}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_clearcontour()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaClearContourPoint(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

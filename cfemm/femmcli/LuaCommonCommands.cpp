@@ -382,6 +382,37 @@ int femmcli::LuaCommonCommands::luaBendContourLine(lua_State *L)
 }
 
 /**
+ * @brief Clear the contour line.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_clearcontour}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_clearcontour()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaClearContourPoint(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    //theView->EraseUserContour(TRUE);
+    pproc->clearContour();
+
+    return 0;
+}
+
+/**
  * @brief Unselect all selected nodes, blocks, segments and arc segments.
  * @param L
  * @return 0

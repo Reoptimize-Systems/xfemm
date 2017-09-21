@@ -73,6 +73,7 @@ public:
 
     void addContourPoint(CComplex p);
     void bendContour(double angle, double anglestep);
+    void clearContour();
 
 protected:
     // General problem attributes
