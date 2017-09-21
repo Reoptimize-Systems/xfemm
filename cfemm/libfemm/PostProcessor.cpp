@@ -125,9 +125,133 @@ int PostProcessor::numNodes() const
 void PostProcessor::addContourPoint(CComplex p)
 {
     if (contour.empty() || p!=contour.back())
-            contour.push_back(p);
+        contour.push_back(p);
 }
 
+void PostProcessor::addContourPointFromNode(double mx, double my)
+{
+    if (!problem->nodelist.empty())
+    {
+        int n0=problem->closestNode(mx,my);
+
+        int lineno=-1;
+        int arcno=-1;
+        CComplex z(problem->nodelist[n0]->x,problem->nodelist[n0]->y);
+        if (contour.empty())
+        {
+            contour.push_back(z);
+            //theView->DrawUserContour(FALSE);
+            return;
+        }
+        //check to see if point is the same as last point in the contour;
+        CComplex y = contour.back();
+
+        if ((y.re==z.re) && (y.im==z.im))
+            return;
+
+        int n1 = problem->closestNode(y.re,y.im);
+        CComplex x(problem->nodelist[n1]->x,problem->nodelist[n1]->y);
+
+        //check to see if this point and the last point are ends of an
+        //input segment;
+        double d1=1.e08;
+
+        if (abs(x-y)<1.e-08)
+        {
+            for(int k=0; k<(int)problem->linelist.size(); k++)
+            {
+                if((problem->linelist[k]->n0==n1) && (problem->linelist[k]->n1==n0))
+                {
+                    double d2=fabs(problem->shortestDistanceFromSegment(mx,my,k));
+                    if(d2<d1)
+                    {
+                        lineno=k;
+                        d1=d2;
+                    }
+                }
+                if((problem->linelist[k]->n0==n0) && (problem->linelist[k]->n1==n1))
+                {
+                    double d2=fabs(problem->shortestDistanceFromSegment(mx,my,k));
+                    if(d2<d1){
+                        lineno=k;
+                        d1=d2;
+                    }
+                }
+            }
+        }
+        bool reverseOrder = false;
+        //check to see if this point and last point are ends of an
+        // arc segment; if so, add entire arc to the contour;
+        if (abs(x-y)<1.e-08)
+        {
+            for(int k=0;k<(int)problem->arclist.size();k++)
+            {
+                if((problem->arclist[k]->n0==n1) && (problem->arclist[k]->n1==n0))
+                {
+                    double d2=problem->shortestDistanceFromArc(CComplex(mx,my),
+                                                              *problem->arclist[k].get());
+                    if(d2<d1){
+                        arcno=k;
+                        lineno=-1;
+                        reverseOrder=true;
+                        d1=d2;
+                    }
+                }
+                if((problem->arclist[k]->n0==n0) && (problem->arclist[k]->n1==n1))
+                {
+                    double d2=problem->shortestDistanceFromArc(CComplex(mx,my),
+                                                              *problem->arclist[k].get());
+                    if(d2<d1){
+                        arcno=k;
+                        lineno=-1;
+                        reverseOrder=false;
+                        d1=d2;
+                    }
+                }
+            }
+        }
+        if((lineno<0) && (arcno<0))
+        {
+            contour.push_back(z);
+            //theView->DrawUserContour(FALSE);
+        }
+        if(lineno>=0)
+        {
+            int size=(int) contour.size();
+            if(size>1)
+            {
+                if(abs(contour[size-2]-z)<1.e-08)
+                    return;
+            }
+            contour.push_back(z);
+            //theView->DrawUserContour(FALSE);
+        }
+        if(arcno>=0){
+            int k=arcno;
+            double R;
+            problem->getCircle(*problem->arclist[k].get(),x,R);
+            int arcsegments=(int) ceil(problem->arclist[k]->ArcLength/problem->arclist[k]->MaxSideLength);
+            if(reverseOrder)
+                z=exp(I*problem->arclist[k]->ArcLength*PI/(180.*((double) arcsegments)) );
+            else
+                z=exp(-I*problem->arclist[k]->ArcLength*PI/(180.*((double) arcsegments)) );
+
+            for(int i=0; i<arcsegments; i++)
+            {
+                y=(y-x)*z+x;
+                int size=(int) contour.size();
+                if(size>1)
+                {
+                    if(abs(contour[size-2]-y)<1.e-08)
+                        return;
+                }
+                contour.push_back(y);
+                //theView->DrawUserContour(FALSE);
+            }
+        }
+    }
+
+}
 
 
 // identical in FPProc and HPProc

@@ -181,6 +181,45 @@ int femmcli::LuaCommonCommands::luaAddContourPoint(lua_State *L)
 }
 
 /**
+ * @brief Adds a contour point at the closest input point to (x,y).
+ *
+ * If the selected point and a previous selected points lie at the ends of an arcsegment,
+ * a contour is added that traces along the arcsegment.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_selectpoint}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_selectline()}
+ * - \femm42{femm/femmviewLua.cpp,lua_selectline()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaAddContourPointFromNode(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+    // Note(ZaJ): editAction should not be relevant to anything this method does
+    //theView->EditAction=1; // make sure things update OK
+
+    double mx = lua_todouble(L,1);
+    double my = lua_todouble(L,2);
+
+    // note: compared to FEMM42, a huge portion of the code has been moved into this method:
+    pproc->addContourPointFromNode(mx,my);
+    return 0;
+}
+
+/**
  * @brief Add a new line segment between two given points.
  * In other words, add a new line segment from node closest to (x1,y1) to node closest to (x2,y2)
  * @param L
