@@ -45,6 +45,7 @@ int luaAddNode(lua_State *L);
 int luaAttachDefault(lua_State *L);
 int luaAttachOuterSpace(lua_State *L);
 int luaBendContourLine(lua_State *L);
+int luaClearContourPoint(lua_State *L);
 int luaClearSelected(lua_State *L);
 int luaCopyRotate(lua_State *L);
 int luaCopyTranslate(lua_State *L);

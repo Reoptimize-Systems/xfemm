@@ -352,6 +352,11 @@ void femm::PostProcessor::bendContour(double angle, double anglestep)
     }
 }
 
+void PostProcessor::clearContour()
+{
+    contour.clear();
+}
+
 
 // identical in FPProc and HPProc
 void femm::PostProcessor::FindBoundaryEdges()
