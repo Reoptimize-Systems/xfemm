@@ -127,8 +127,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_getmaterial", luaGetMaterialFromLib);
     li.addFunction("mo_get_node", luaGetMeshNode);
     li.addFunction("mo_getnode", luaGetMeshNode);
-    li.addFunction("mo_get_point_values", luaGetPointValuess);
-    li.addFunction("mo_getpointvalues", luaGetPointValuess);
+    li.addFunction("mo_get_point_values", luaGetPointValues);
+    li.addFunction("mo_getpointvalues", luaGetPointValues);
     li.addFunction("mi_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("mo_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("mo_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
@@ -1236,7 +1236,7 @@ int femmcli::LuaMagneticsCommands::luaGetMeshNode(lua_State *L)
  * - \femm42{femm/femmviewLua.cpp,lua_getpointvals()}
  * \endinternal
  */
-int femmcli::LuaMagneticsCommands::luaGetPointValuess(lua_State *L)
+int femmcli::LuaMagneticsCommands::luaGetPointValues(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     // for compatibility with 4.0 and 4.1 Lua implementation
