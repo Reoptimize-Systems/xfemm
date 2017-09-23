@@ -1095,6 +1095,38 @@ int femmcli::LuaCommonCommands::luaGetElement(lua_State *L)
 }
 
 /**
+ * @brief Get position of a mesh node.
+ * @param L
+ * @return 2 if the node was found, 0 otherwise
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_getnode(n)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_getnode()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaGetMeshNode(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+
+    int idx = (int)lua_todouble(L,1);
+    idx--; // convert to 0-based indexing
+
+    const auto node = pproc->getMeshNode(idx);
+    if (!node)
+        return 0;
+
+    lua_pushnumber(L, node->x);
+    lua_pushnumber(L, node->y);
+    return 2;
+}
+
+/**
  * @brief Get information about the problem description.
  * Returns info on problem description. Returns four values
  * 1. problem type

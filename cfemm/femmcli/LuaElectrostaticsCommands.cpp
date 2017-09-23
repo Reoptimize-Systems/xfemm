@@ -209,8 +209,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_getconductorproperties", luaGetConductorProperties);
     li.addFunction("eo_get_element", LuaCommonCommands::luaGetElement);
     li.addFunction("eo_getelement", LuaCommonCommands::luaGetElement);
-    li.addFunction("eo_get_node", luaGetMeshNode);
-    li.addFunction("eo_getnode", luaGetMeshNode);
+    li.addFunction("eo_get_node", LuaCommonCommands::luaGetMeshNode);
+    li.addFunction("eo_getnode", LuaCommonCommands::luaGetMeshNode);
     li.addFunction("eo_get_point_values", luaGetPointValues);
     li.addFunction("eo_getpointvalues", luaGetPointValues);
     li.addFunction("eo_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
@@ -758,25 +758,6 @@ int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
     msg.append(err.str());
     lua_error(L, msg.c_str());
     return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_get_node}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_getnode()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaGetMeshNode(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
 }
 
 /**

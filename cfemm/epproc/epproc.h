@@ -32,6 +32,7 @@ public:
     bool OpenDocument( std::string solutionFile ) override;
 
     const femmsolver::CSElement *getMeshElement(int idx) const override;
+    const femmsolver::CSMeshNode *getMeshNode(int idx) const override;
 private:
     /**
      * @brief AECF

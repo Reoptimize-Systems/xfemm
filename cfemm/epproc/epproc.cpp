@@ -183,6 +183,14 @@ const CSElement *ElectrostaticsPostProcessor::getMeshElement(int idx) const
     return reinterpret_cast<CSElement*>(meshelems[idx].get());
 }
 
+const CSMeshNode *ElectrostaticsPostProcessor::getMeshNode(int idx) const
+{
+    if (idx<0 || idx>=(int)meshnodes.size())
+        return nullptr;
+    // we *know* that only CSMeshNodes are in meshnodes
+    return reinterpret_cast<CSMeshNode*>(meshnodes[idx].get());
+}
+
 double ElectrostaticsPostProcessor::AECF(int k)
 {
     // Computes the permeability correction factor for axisymmetric
