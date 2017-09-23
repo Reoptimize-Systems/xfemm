@@ -381,6 +381,11 @@ double femm::PostProcessor::ElmArea(int i)
     return (b0*c1-b1*c0)/2.;
 }
 
+const FemmProblem *PostProcessor::getProblem() const
+{
+    return problem.get();
+}
+
 // identical in FPProc and HPProc
 double femm::PostProcessor::ElmArea(femmsolver::CElement *elm)
 {

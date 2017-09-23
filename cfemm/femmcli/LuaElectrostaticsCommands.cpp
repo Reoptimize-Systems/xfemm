@@ -19,6 +19,7 @@
 #include "LuaElectrostaticsCommands.h"
 #include "LuaCommonCommands.h"
 
+#include "epproc.h"
 #include "esolver.h"
 #include "femmconstants.h"
 #include "femmenums.h"
@@ -206,8 +207,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_close", LuaCommonCommands::luaExitPost);
     li.addFunction("eo_get_conductor_properties", luaGetCircuitProperties);
     li.addFunction("eo_getconductorproperties", luaGetCircuitProperties);
-    li.addFunction("eo_get_element", luaGetElement);
-    li.addFunction("eo_getelement", luaGetElement);
+    li.addFunction("eo_get_element", LuaCommonCommands::luaGetElement);
+    li.addFunction("eo_getelement", LuaCommonCommands::luaGetElement);
     li.addFunction("eo_get_node", luaGetMeshNode);
     li.addFunction("eo_getnode", luaGetMeshNode);
     li.addFunction("eo_get_point_values", luaGetPointValues);
@@ -650,25 +651,6 @@ int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaGetCircuitProperties(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_get_element}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_getelement()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaGetElement(lua_State *L)
 {
     lua_error(L, "Not implemented"); return 0;
 }

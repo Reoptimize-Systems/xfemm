@@ -31,6 +31,7 @@ public:
     femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
     bool OpenDocument( std::string solutionFile ) override;
 
+    const femmsolver::CSElement *getMeshElement(int idx) const override;
 private:
     /**
      * @brief AECF

@@ -71,6 +71,14 @@ public:
     int numElements() const override;
     int numNodes() const override;
 
+    /**
+     * @brief getMeshElement gets an element from meshelems.
+     *
+     * @param idx element index
+     * @return the element, or a \c nullptr if idx is invalid
+     */
+    virtual const femmsolver::CElement *getMeshElement(int idx) const = 0;
+
     void addContourPoint(CComplex p);
     /**
      * @brief Adds a contour point at the closest input point to (x,y).
@@ -96,6 +104,9 @@ public:
      */
     void clearBlockSelection();
 
+    double ElmArea(int i);
+
+    const femm::FemmProblem *getProblem() const;
 protected:
     // General problem attributes
     double *LengthConv;
@@ -124,7 +135,6 @@ protected:
     int InTriangle(double x, double y);
     bool InTriangleTest(double x, double y, int i);
     CComplex Ctr(int i);
-    double ElmArea(int i);
     double ElmArea(femmsolver::CElement *elm);
 
     CComplex HenrotteVector(int k);
