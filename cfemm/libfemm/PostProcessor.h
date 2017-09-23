@@ -78,6 +78,7 @@ public:
      * @return the element, or a \c nullptr if idx is invalid
      */
     virtual const femmsolver::CElement *getMeshElement(int idx) const = 0;
+    virtual const femmsolver::CMeshNode *getMeshNode(int idx) const = 0;
 
     void addContourPoint(CComplex p);
     /**

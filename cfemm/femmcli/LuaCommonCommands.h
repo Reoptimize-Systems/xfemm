@@ -69,6 +69,7 @@ int luaExitPost(lua_State *L);
 int luaExitPre(lua_State *L);
 int luaGetBoundingBox(lua_State *L);
 int luaGetElement(lua_State *L);
+int luaGetMeshNode(lua_State *L);
 int luaGetProblemInfo(lua_State *L);
 int luaGetTitle(lua_State *L);
 int luaLoadSolution(lua_State *L);
