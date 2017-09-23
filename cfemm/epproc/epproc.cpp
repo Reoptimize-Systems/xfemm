@@ -175,6 +175,14 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     return true;
 }
 
+const CSElement *ElectrostaticsPostProcessor::getMeshElement(int idx) const
+{
+    if (idx <0 || idx >= (int)meshelems.size())
+        return nullptr;
+    // we *know* that only CSElements are in meshelems
+    return reinterpret_cast<CSElement*>(meshelems[idx].get());
+}
+
 double ElectrostaticsPostProcessor::AECF(int k)
 {
     // Computes the permeability correction factor for axisymmetric

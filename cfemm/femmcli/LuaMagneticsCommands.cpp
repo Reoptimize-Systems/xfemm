@@ -1094,7 +1094,7 @@ int femmcli::LuaMagneticsCommands::luaGetCircuitProperties(lua_State *L)
  * 6. element area using the length unit defined for the problem
  * 7. group number associated with the element
  * @param L
- * @return 0
+ * @return 0 on invalid index, 7 otherwise.
  * \ingroup LuaMM
  *
  * \internal

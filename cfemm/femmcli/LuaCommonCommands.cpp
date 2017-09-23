@@ -1041,6 +1041,60 @@ int femmcli::LuaCommonCommands::luaGetBoundingBox(lua_State *L)
 }
 
 /**
+ * @brief Get data of indexed element.
+ * GetElement[n] returns the following proprerties for the nth element:
+ * 1. Index of first element node
+ * 2. Index of second element node
+ * 3. Index of third element node
+ * 4. x (or r) coordinate of the element centroid
+ * 5. y (or z) coordinate of the element centroid
+ * 6. element area using the length unit defined for the problem
+ * 7. group number associated with the element
+ *
+ * @param L
+ * @return 0 on invalid index, 7 otherwise.
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_getelement(n)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_getelement()}
+ * - \femm42{femm/femmviewLua.cpp,lua_getelement()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaGetElement(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    // Note: in lua code, indices start at 1.
+    int idx=(int) lua_todouble(L,1);
+    idx--;
+
+    const auto elem = pproc->getMeshElement(idx);
+    if (!elem)
+        return 0;
+
+    lua_pushnumber(L,elem->p[0]+1);
+    lua_pushnumber(L,elem->p[1]+1);
+    lua_pushnumber(L,elem->p[2]+1);
+    lua_pushnumber(L,Re(elem->ctr));
+    lua_pushnumber(L,Im(elem->ctr));
+    lua_pushnumber(L,pproc->ElmArea(idx));
+    lua_pushnumber(L,pproc->getProblem()->labellist[elem->lbl]->InGroup);
+
+    return 7;
+}
+
+/**
  * @brief Get information about the problem description.
  * Returns info on problem description. Returns four values
  * 1. problem type
