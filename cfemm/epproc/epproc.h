@@ -18,6 +18,7 @@
 #ifndef EPPROC_H
 #define EPPROC_H
 
+#include "CSPointVals.h"
 #include "FemmReader.h"
 #include "PostProcessor.h"
 
@@ -33,6 +34,9 @@ public:
 
     const femmsolver::CSElement *getMeshElement(int idx) const override;
     const femmsolver::CSMeshNode *getMeshNode(int idx) const override;
+
+    bool getPointValues(double x, double y, femm::CSPointVals &u) const;
+    void getPointValues(double x, double y, double k, femm::CSPointVals &u) const;
 private:
     /**
      * @brief AECF
@@ -47,7 +51,7 @@ private:
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int)}
      * \endinternal
      */
-    double AECF(int k);
+    double AECF(int k) const ;
     /**
      * @brief AECF
      * Correction factor for a point within the element, rather than
@@ -59,7 +63,7 @@ private:
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int,CComplex)}
      * \endinternal
      */
-    double AECF(int k, CComplex p);
+    double AECF(int k, CComplex p) const;
     /**
      * @brief GetElementD
      * @param k
@@ -68,6 +72,18 @@ private:
      * \endinternal
      */
     void GetElementD(int k);
+
+    /**
+     * @brief getPointD
+     * @param x
+     * @param y
+     * @param D
+     * @param elm a reference to the element that contains the point of interest.
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::GetPointD()}
+     * \endinternal
+     */
+    void getPointD(double x, double y, CComplex &D, const femmsolver::CSElement &elm) const;
 
     double A_High;
     double A_Low;

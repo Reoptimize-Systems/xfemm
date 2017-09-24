@@ -19,6 +19,7 @@
 #include "LuaElectrostaticsCommands.h"
 #include "LuaCommonCommands.h"
 
+#include "CSPointVals.h"
 #include "epproc.h"
 #include "esolver.h"
 #include "femmconstants.h"
@@ -761,14 +762,14 @@ int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Get the solution values for a point.
  * @param L
- * @return 0
+ * @return 0 on error (e.g. point not in triangle), otherwise 8
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{eo_get_point_values}
+ * - \lua{eo_getpointvalues(X,Y)}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_getpointvals()}
@@ -776,7 +777,35 @@ int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaGetPointValues(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<ElectrostaticsPostProcessor> pproc = std::dynamic_pointer_cast<ElectrostaticsPostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No electrostatics output in focus");
+        return 0;
+    }
+
+    double px,py;
+    px=lua_tonumber(L,1).re;
+    py=lua_tonumber(L,2).re;
+
+    CSPointVals u;
+    if(pproc->getPointValues(px, py, u))
+    {
+        lua_pushnumber(L,u.V);
+        lua_pushnumber(L,u.D.re);
+        lua_pushnumber(L,u.D.im);
+        lua_pushnumber(L,u.E.re);
+        lua_pushnumber(L,u.E.im);
+        lua_pushnumber(L,u.e.re);
+        lua_pushnumber(L,u.e.im);
+        lua_pushnumber(L,u.nrg);
+        return 8;
+    }
+
+    return 0;
 }
 
 /**

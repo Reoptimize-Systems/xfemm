@@ -133,8 +133,8 @@ protected:
     std::vector< CComplex > contour;
 
     // member functions
-    int InTriangle(double x, double y);
-    bool InTriangleTest(double x, double y, int i);
+    int InTriangle(double x, double y) const;
+    bool InTriangleTest(double x, double y, int i) const;
     CComplex Ctr(int i);
     double ElmArea(femmsolver::CElement *elm);
 

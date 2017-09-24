@@ -191,7 +191,52 @@ const CSMeshNode *ElectrostaticsPostProcessor::getMeshNode(int idx) const
     return reinterpret_cast<CSMeshNode*>(meshnodes[idx].get());
 }
 
-double ElectrostaticsPostProcessor::AECF(int k)
+bool ElectrostaticsPostProcessor::getPointValues(double x, double y, CSPointVals &u) const
+{
+    int k = InTriangle(x,y);
+    if (k<0)
+        return false;
+    getPointValues(x,y,k,u);
+    return true;
+}
+
+void ElectrostaticsPostProcessor::getPointValues(double x, double y, double k, CSPointVals &u) const
+{
+    int n[3];
+    for(int i=0; i<3; i++)
+        n[i]=meshelems[k]->p[i];
+
+    double a[3],b[3],c[3];
+    const auto &n0 = meshnodes[n[0]];
+    const auto &n1 = meshnodes[n[1]];
+    const auto &n2 = meshnodes[n[2]];
+    a[0]=n1->x * n2->y - n2->x * n1->y;
+    a[1]=n2->x * n0->y - n0->x * n2->y;
+    a[2]=n0->x * n1->y - n1->x * n0->y;
+    b[0]=n1->y - n2->y;
+    b[1]=n2->y - n0->y;
+    b[2]=n0->y - n1->y;
+    c[0]=n2->x - n1->x;
+    c[1]=n0->x - n2->x;
+    c[2]=n1->x - n0->x;
+
+    double da=(b[0]*c[1]-b[1]*c[0]);
+
+    getPointD(x,y,u.D,*getMeshElement(k));
+    const CSMaterialProp *prop = dynamic_cast<CSMaterialProp *>(problem->blockproplist[meshelems[k]->blk].get());
+    u.e=prop->ex + I*prop->ey;
+    u.e/=AECF(k,x+I*y);
+
+    u.V=0;
+    for(int i=0;i<3;i++)
+        u.V+=getMeshNode(i)->V*(a[i]+b[i]*x+c[i]*y)/(da);
+    u.E.re = u.D.re/(u.e.re*eo);
+    u.E.im = u.D.im/(u.e.im*eo);
+
+    u.nrg=Re(u.D*conj(u.E))/2.;
+}
+
+double ElectrostaticsPostProcessor::AECF(int k) const
 {
     // Computes the permeability correction factor for axisymmetric
     // external regions.  This is sort of a kludge, but it's the best
@@ -206,7 +251,7 @@ double ElectrostaticsPostProcessor::AECF(int k)
     return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
 }
 
-double ElectrostaticsPostProcessor::AECF(int k, CComplex p)
+double ElectrostaticsPostProcessor::AECF(int k, CComplex p) const
 {
     // Correction factor for a point within the element, rather than
     // for the center of the element.
@@ -243,4 +288,32 @@ void ElectrostaticsPostProcessor::GetElementD(int k)
     CSElement *elem = dynamic_cast<CSElement*>(meshelems[k].get());
     CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
     elem->D = eo*(E.re*mat->ex + I*E.im*mat->ey)/AECF(k);
+}
+
+void ElectrostaticsPostProcessor::getPointD(double x, double y, CComplex &D, const CSElement &elm) const
+{
+    // elm is a reference to the element that contains the point of interest.
+    if(!Smooth){
+        D=elm.D;
+        return;
+    }
+
+    const auto &n0 = meshnodes[elm.p[0]];
+    const auto &n1 = meshnodes[elm.p[1]];
+    const auto &n2 = meshnodes[elm.p[2]];
+    double a[3],b[3],c[3];
+    a[0]=n1->x * n2->y - n2->x * n1->y;
+    a[1]=n2->x * n0->y - n0->x * n2->y;
+    a[2]=n0->x * n1->y - n1->x * n0->y;
+    b[0]=n1->y - n2->y;
+    b[1]=n2->y - n0->y;
+    b[2]=n0->y - n1->y;
+    c[0]=n2->x - n1->x;
+    c[1]=n0->x - n2->x;
+    c[2]=n1->x - n0->x;
+    double da=(b[0]*c[1]-b[1]*c[0]);
+
+    D=0;
+    for(int i=0;i<3;i++)
+        D+=(elm.d[i]*(a[i]+b[i]*x+c[i]*y)/da);
 }
