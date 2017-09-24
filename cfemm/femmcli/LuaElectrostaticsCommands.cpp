@@ -253,6 +253,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_savemetafile", LuaInstance::luaNOP);
     li.addFunction("eo_select_block", LuaCommonCommands::luaSelectOutputBlocklabel);
     li.addFunction("eo_selectblock", LuaCommonCommands::luaSelectOutputBlocklabel);
+    li.addFunction("eo_select_conductor", luaSelectConductor);
+    li.addFunction("eo_selectconductor", luaSelectConductor);
     li.addFunction("eo_select_point", LuaCommonCommands::luaAddContourPointFromNode);
     li.addFunction("eo_selectpoint", LuaCommonCommands::luaAddContourPointFromNode);
     li.addFunction("eo_set_edit_mode", LuaInstance::luaNOP);
@@ -1172,14 +1174,22 @@ int femmcli::LuaElectrostaticsCommands::luaProblemDefinition(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Selects all nodes, segments, and arc segments that are part
+ * of the conductor specified by the string ("name").
+ *
+ * This command is used to select conductors for the purposes of the
+ * “weighted stress tensor” force and torque integrals, where the
+ * conductors are points or surfaces, rather than regions (i.e. can’t
+ * be selected with eo_selectblock).
+ *
+ * This command is specific to electrostatics problems.
  * @param L
  * @return 0
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{eo_select_conductor}
+ * - \lua{eo_selectconductor}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_selectconductor()}
@@ -1187,7 +1197,29 @@ int femmcli::LuaElectrostaticsCommands::luaProblemDefinition(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaSelectConductor(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<ElectrostaticsPostProcessor> pproc = std::dynamic_pointer_cast<ElectrostaticsPostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No electrostatics output in focus");
+        return 0;
+    }
+    int n=lua_gettop(L);
+    if (n==0)
+        return 0;
+
+    std::string conductorName = lua_tostring(L,1);
+
+    // find conductor index
+    const auto doc = pproc->getProblem();
+    auto searchResult = doc->circuitMap.find(conductorName);
+    if ( searchResult == doc->circuitMap.end())
+        return 0;
+    int idx = searchResult->second;
+    pproc->selectConductor(idx);
+
+    return 0;
 }
 
 /**

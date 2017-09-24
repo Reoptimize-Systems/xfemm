@@ -246,6 +246,26 @@ void ElectrostaticsPostProcessor::getPointValues(double x, double y, double k, C
     u.nrg=Re(u.D*conj(u.E))/2.;
 }
 
+void ElectrostaticsPostProcessor::selectConductor(int idx)
+{
+    for (auto &node: problem->nodelist)
+        if (idx == node->InConductor)
+            node->ToggleSelect();
+    for (auto &line: problem->linelist)
+        if (idx == line->InConductor)
+            line->ToggleSelect();
+    for (auto &arc: problem->arclist)
+        if (idx == arc->InConductor)
+            arc->ToggleSelect();
+    for (auto &mnode: meshnodes)
+    {
+        // reinterpret_cast is safe because we know only CSMeshNodes are in meshnodes.
+        CSMeshNode *snode = reinterpret_cast<CSMeshNode*>(mnode.get());
+        if (idx == snode->Q)
+            snode->IsSelected = ! snode->IsSelected;
+    }
+}
+
 double ElectrostaticsPostProcessor::AECF(int k) const
 {
     // Computes the permeability correction factor for axisymmetric
