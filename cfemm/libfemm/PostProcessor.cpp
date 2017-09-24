@@ -497,6 +497,18 @@ void PostProcessor::clearBlockSelection()
     }
 }
 
+void PostProcessor::toggleSelectionForGroup(int group)
+{
+    for (auto &block : problem->labellist)
+    {
+        if (group==0 || block->InGroup == group)
+        {
+            block->ToggleSelect();
+        }
+    }
+    bHasMask = false;
+}
+
 
 // identical in FPProc and HPProc
 void femm::PostProcessor::FindBoundaryEdges()

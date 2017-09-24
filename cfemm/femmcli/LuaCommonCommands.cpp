@@ -1221,6 +1221,51 @@ int femmcli::LuaCommonCommands::luaGetTitle(lua_State *L)
 }
 
 /**
+ * @brief (De)select output block labels associated with block labels in a given group.
+ * Selects all of the blocks that are labeled by block labels that are
+ * members of group n.
+ * If no number is specified (e.g. eo_groupselectblock() ), all blocks
+ * are selected.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_groupselectblock}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_groupselectblock()}
+ * - \femm42{femm/femmviewLua.cpp,lua_groupselectblock()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaGroupSelectBlock(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    //pproc->d_EditMode = EditLabels;
+
+    if (pproc->numElements() > 0)
+    {
+        int n = lua_gettop(L);
+        int group = 0;
+        if (n>0)
+            group = (int)lua_todouble(L,1);
+
+        pproc->toggleSelectionForGroup(group);
+    }
+
+    return 0;
+}
+
+/**
  * @brief Load the solution and run the postprocessor on it.
  * @param L
  * @return 0

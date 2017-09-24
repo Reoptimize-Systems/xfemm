@@ -72,6 +72,7 @@ int luaGetElement(lua_State *L);
 int luaGetMeshNode(lua_State *L);
 int luaGetProblemInfo(lua_State *L);
 int luaGetTitle(lua_State *L);
+int luaGroupSelectBlock(lua_State *L);
 int luaLoadSolution(lua_State *L);
 int luaMirrorCopy(lua_State *L);
 int luaMoveRotate(lua_State *L);
