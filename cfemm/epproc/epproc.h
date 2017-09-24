@@ -32,6 +32,8 @@ public:
     femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
     bool OpenDocument( std::string solutionFile ) override;
 
+    void clearSelection() override;
+
     const femmsolver::CSElement *getMeshElement(int idx) const override;
     const femmsolver::CSMeshNode *getMeshNode(int idx) const override;
 
