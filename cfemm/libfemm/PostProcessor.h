@@ -104,6 +104,12 @@ public:
      * This also invalidates the mask, if one has been made.
      */
     void clearBlockSelection();
+    /**
+     * @brief toggles the selection for all BlockLabels in a group.
+     * This also invalidates the mask, if one has been made.
+     * @param groupIdx the group index, or 0 for all.
+     */
+    void toggleSelectionForGroup(int group);
 
     double ElmArea(int i);
 

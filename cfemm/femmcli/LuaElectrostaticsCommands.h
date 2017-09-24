@@ -50,7 +50,6 @@ int luaExitPost(lua_State *L);
 int luaGetConductorProperties(lua_State *L);
 int luaGetMaterialFromLib(lua_State *L);
 int luaGetPointValues(lua_State *L);
-int luaGroupSelectBlock(lua_State *L);
 int luaLineIntegral(lua_State *L);
 int luaModifyBoundaryProperty(lua_State *L);
 int luaModifyConductorProperty(lua_State *L);

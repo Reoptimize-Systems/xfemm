@@ -220,8 +220,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_gettitle", LuaCommonCommands::luaGetTitle);
     li.addFunction("eo_grid_snap", LuaInstance::luaNOP);
     li.addFunction("eo_gridsnap", LuaInstance::luaNOP);
-    li.addFunction("eo_group_select_block", luaGroupSelectBlock);
-    li.addFunction("eo_groupselectblock", luaGroupSelectBlock);
+    li.addFunction("eo_group_select_block", LuaCommonCommands::luaGroupSelectBlock);
+    li.addFunction("eo_groupselectblock", LuaCommonCommands::luaGroupSelectBlock);
     li.addFunction("eo_hide_contour_plot", LuaInstance::luaNOP);
     li.addFunction("eo_hidecontourplot", LuaInstance::luaNOP);
     li.addFunction("eo_hide_density_plot", LuaInstance::luaNOP);
@@ -806,25 +806,6 @@ int femmcli::LuaElectrostaticsCommands::luaGetPointValues(lua_State *L)
     }
 
     return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_group_select_block}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_groupselectblock()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaGroupSelectBlock(lua_State *L)
-{
-    lua_error(L, "Not implemented"); return 0;
 }
 
 /**
