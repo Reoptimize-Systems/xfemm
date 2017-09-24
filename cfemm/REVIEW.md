@@ -26,3 +26,8 @@ This is a list of issues I encountered during porting of code from FEMM42 to xfe
   With EditMode lines or arcs, IsSelected of the copied endpoints is not cleared.
 - CFemmeDoc::TranslateCopy():  
   With EditMode lines or arcs, IsSelected of the copied endpoints is not cleared.
+
+### femm/belaviewLua.cpp
+
+- lua_lineintegral():
+  Returns 2 values even when only one value should be returned.

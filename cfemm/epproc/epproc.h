@@ -51,6 +51,20 @@ public:
      * @param idx the conductor index
      */
     void selectConductor(int idx);
+
+    /**
+     * @brief Calculate the line integral for the defined contour.
+     * intType | results[0] | results[1]
+     * --------|------------|-----------
+     *    0    | E.t        | n/a
+     *    1    | D.n        | average D.n over the surface
+     *    2    | Contour length       | Contour area
+     *    3    | Stress Tensor Force  | Stress Tensor Force (imaginary part)
+     *    4    | Stress Tensor Torque | n/a
+     * @param intType
+     * @param results
+     */
+    void lineIntegral(int intType, double (&results)[2]) const;
 private:
     /**
      * @brief AECF

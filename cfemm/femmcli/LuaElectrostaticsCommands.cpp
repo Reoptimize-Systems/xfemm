@@ -811,14 +811,14 @@ int femmcli::LuaElectrostaticsCommands::luaGetPointValues(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief  Calculate the line integral for the defined contour.
  * @param L
- * @return 0
+ * @return 0 on error, otherwise 1 or 2 (depending on integral type)
  * \ingroup LuaES
  *
  * \internal
  * ### Implements:
- * - \lua{eo_line_integral}
+ * - \lua{eo_lineintegral(type)}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_lineintegral()}
@@ -826,7 +826,39 @@ int femmcli::LuaElectrostaticsCommands::luaGetPointValues(lua_State *L)
  */
 int femmcli::LuaElectrostaticsCommands::luaLineIntegral(lua_State *L)
 {
-    lua_error(L, "Not implemented"); return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<ElectrostaticsPostProcessor> pproc = std::dynamic_pointer_cast<ElectrostaticsPostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No electrostatics output in focus");
+        return 0;
+    }
+
+    int type=(int) lua_todouble(L,1);
+    // 0 - E.t
+    // 1 - D.n
+    // 2 - Cont length
+    // 3 - Force from stress tensor
+    // 4 - Torque from stress tensor
+
+    if (type<0 || type >4)
+    {
+        std::string msg = "Invalid line integral selected " + std::to_string(type) + "\n";
+        lua_error(L,msg.c_str());
+        return 0;
+
+    }
+
+    double z[2] = {0,0};
+    pproc->lineIntegral(type,z);
+
+    lua_pushnumber(L,z[0]);
+    if (type==0 || type==4)
+        return 1;
+
+    lua_pushnumber(L,z[1]);
+    return 2;
 }
 
 /**
