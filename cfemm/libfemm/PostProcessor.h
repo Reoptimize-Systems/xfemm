@@ -68,17 +68,6 @@ class PostProcessor : public PProcIface
 {
 public:
     virtual ~PostProcessor();
-    int numElements() const override;
-    int numNodes() const override;
-
-    /**
-     * @brief getMeshElement gets an element from meshelems.
-     *
-     * @param idx element index
-     * @return the element, or a \c nullptr if idx is invalid
-     */
-    virtual const femmsolver::CElement *getMeshElement(int idx) const = 0;
-    virtual const femmsolver::CMeshNode *getMeshNode(int idx) const = 0;
 
     void addContourPoint(CComplex p);
     /**
@@ -97,13 +86,44 @@ public:
      */
     void addContourPointFromNode(double mx, double my);
     void bendContour(double angle, double anglestep);
-    void clearContour();
 
     /**
      * @brief Unselect all block labels.
      * This also invalidates the mask, if one has been made.
      */
     void clearBlockSelection();
+
+    /**
+     * @brief Remove all contour points.
+     */
+    void clearContour();
+
+    /**
+     * @brief Unselect all items.
+     * \internal
+     * Virtual, because ElectrostaticsPostProcessor needs to override.
+     * \endinternal
+     */
+    virtual void clearSelection();
+
+    double ElmArea(int i);
+
+    /**
+     * @brief getMeshElement gets an element from meshelems.
+     *
+     * @param idx element index
+     * @return the element, or a \c nullptr if idx is invalid
+     */
+    virtual const femmsolver::CElement *getMeshElement(int idx) const = 0;
+
+    virtual const femmsolver::CMeshNode *getMeshNode(int idx) const = 0;
+
+    const femm::FemmProblem *getProblem() const;
+
+    int numElements() const override;
+
+    int numNodes() const override;
+
     /**
      * @brief toggles the selection for all BlockLabels in a group.
      * This also invalidates the mask, if one has been made.
@@ -111,9 +131,6 @@ public:
      */
     void toggleSelectionForGroup(int group);
 
-    double ElmArea(int i);
-
-    const femm::FemmProblem *getProblem() const;
 protected:
     // General problem attributes
     double *LengthConv;

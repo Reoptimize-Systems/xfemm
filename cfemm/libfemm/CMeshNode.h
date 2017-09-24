@@ -112,7 +112,7 @@ public:
 
     double V;
     bool Q;
-    bool IsSelected; //Note(ZaJ) why is this only in the electrostatics?
+    bool IsSelected; ///< Only needed by electrostatics to compute the  “weighted stress tensor” force and torque integrals.
 };
 
 } //namespace

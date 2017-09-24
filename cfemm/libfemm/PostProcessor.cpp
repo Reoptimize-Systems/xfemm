@@ -487,10 +487,15 @@ void PostProcessor::clearContour()
     contour.clear();
 }
 
+void PostProcessor::clearSelection()
+{
+    problem->unselectAll();
+    bHasMask = false;
+}
+
 void PostProcessor::clearBlockSelection()
 {
     bHasMask = false;
-    // CbelaviewDoc::lua_clearblock does call unselectAll() instead:
     for(auto &block: problem->labellist)
     {
         block->IsSelected = false;

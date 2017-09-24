@@ -445,7 +445,7 @@ int femmcli::LuaCommonCommands::luaClearBlockSelection(lua_State *L)
         return 0;
     }
 
-    pproc->clearBlockSelection();
+    pproc->clearSelection();
     //pproc->d_EditMode = EditNodes;
     return 0;
 }

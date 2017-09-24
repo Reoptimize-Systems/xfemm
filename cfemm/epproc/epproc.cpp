@@ -175,6 +175,16 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     return true;
 }
 
+void ElectrostaticsPostProcessor::clearSelection()
+{
+    PostProcessor::clearSelection();
+    for (auto &node: meshnodes) {
+        // reinterpret_cast is safe because we know only CSMeshNodes are in meshnodes.
+        CSMeshNode *snode = reinterpret_cast<CSMeshNode*>(node.get());
+        snode->IsSelected = false;
+    }
+}
+
 const CSElement *ElectrostaticsPostProcessor::getMeshElement(int idx) const
 {
     if (idx <0 || idx >= (int)meshelems.size())
