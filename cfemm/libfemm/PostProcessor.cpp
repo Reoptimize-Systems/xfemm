@@ -254,8 +254,8 @@ void PostProcessor::addContourPointFromNode(double mx, double my)
 }
 
 
-// identical in FPProc and HPProc
-int femm::PostProcessor::InTriangle(double x, double y)
+// identical in EPProc, FPProc and HPProc
+int femm::PostProcessor::InTriangle(double x, double y) const
 {
     static int k;
     int j,hi,lo,sz;
@@ -312,8 +312,9 @@ int femm::PostProcessor::InTriangle(double x, double y)
     return (-1);
 }
 
+// EPProc  and FPProc are identical
 // FPProc and HPProc differ, but I'm not sure whether hpproc could just use this version instead
-bool femm::PostProcessor::InTriangleTest(double x, double y, int i)
+bool femm::PostProcessor::InTriangleTest(double x, double y, int i) const
 {
 
     if ((i < 0) || (i >= int(meshelems.size()))) return false;
