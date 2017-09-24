@@ -122,6 +122,19 @@ int PostProcessor::numNodes() const
     return (int) meshnodes.size();
 }
 
+bool PostProcessor::selectBlocklabel(double px, double py)
+{
+    int idx = InTriangle(px,py);
+    if (idx >= 0)
+    {
+
+        bHasMask = false;
+        problem->labellist[meshelems[idx]->lbl]->ToggleSelect();
+        return true;
+    }
+    return false;
+}
+
 void PostProcessor::addContourPoint(CComplex p)
 {
     if (contour.empty() || p!=contour.back())

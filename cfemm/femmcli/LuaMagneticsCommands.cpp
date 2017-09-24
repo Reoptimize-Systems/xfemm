@@ -1959,7 +1959,7 @@ int femmcli::LuaMagneticsCommands::luaProblemDefinition(lua_State * L)
 }
 
 /**
- * @brief Select the (postprocessor) block label containing the given point
+ * @brief Select the postprocessor block label containing the given point
  * @param L
  * @return 0
  * \ingroup LuaMM

@@ -58,7 +58,6 @@ int luaModifyPointProperty(lua_State *L);
 int luaNewDocument(lua_State *L);
 int luaProblemDefinition(lua_State *L);
 int luaSelectConductor(lua_State *L);
-int luaSelectOutputBlocklabel(lua_State *L);
 int luaSetArcsegmentProperty(lua_State *L);
 int luaSetBlocklabelProperty(lua_State *L);
 int luaSetFocus(lua_State *L);
