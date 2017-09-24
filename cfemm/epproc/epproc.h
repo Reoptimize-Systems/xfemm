@@ -39,6 +39,18 @@ public:
 
     bool getPointValues(double x, double y, femm::CSPointVals &u) const;
     void getPointValues(double x, double y, double k, femm::CSPointVals &u) const;
+
+    /**
+      * @brief Toggles selection for all nodes, segments, and arc segments that are part
+      * of the conductor specified by the index.
+      *
+      * This command is used to select conductors for the purposes of the
+      * “weighted stress tensor” force and torque integrals, where the
+      * conductors are points or surfaces, rather than regions (i.e. can’t
+      * be selected with eo_selectblock).
+     * @param idx the conductor index
+     */
+    void selectConductor(int idx);
 private:
     /**
      * @brief AECF
