@@ -125,6 +125,15 @@ public:
     int numNodes() const override;
 
     /**
+     * @brief  Toggle the selection of the block that contains point (x,y).
+     *
+     * @param px x coordinate of the point
+     * @param py y coordinate of the point
+     * @return \c true, if a matching block label was found, \c false otherwise.
+     */
+    bool selectBlocklabel(double px, double py);
+
+    /**
      * @brief toggles the selection for all BlockLabels in a group.
      * This also invalidates the mask, if one has been made.
      * @param groupIdx the group index, or 0 for all.

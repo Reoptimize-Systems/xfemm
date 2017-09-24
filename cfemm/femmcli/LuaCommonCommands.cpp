@@ -2030,6 +2030,43 @@ int femmcli::LuaCommonCommands::luaSelectNode(lua_State *L)
 }
 
 /**
+ * @brief (De)select the postprocessor block label containing the given point.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_selectblock(X,Y)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_selectblock()}
+ * - \femm42{femm/femmviewLua.cpp,lua_selectblock()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSelectOutputBlocklabel(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    double px=lua_todouble(L,1);
+    double py=lua_todouble(L,2);
+
+    if (pproc->numElements()>0)
+    {
+        pproc->selectBlocklabel(px,py);
+    }
+
+    return 0;
+}
+
+/**
  * @brief Select the line closest to a given point.
  * @param L
  * @return 0 on error, 4 on success
