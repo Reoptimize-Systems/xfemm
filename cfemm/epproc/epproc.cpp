@@ -29,7 +29,7 @@ using namespace femm;
 using namespace femmsolver;
 
 namespace {
-double sqr(double x)
+constexpr double sqr(double x)
 {
     return x*x;
 }
@@ -263,6 +263,243 @@ void ElectrostaticsPostProcessor::selectConductor(int idx)
         CSMeshNode *snode = reinterpret_cast<CSMeshNode*>(mnode.get());
         if (idx == snode->Q)
             snode->IsSelected = ! snode->IsSelected;
+    }
+}
+
+void ElectrostaticsPostProcessor::lineIntegral(int intType, double (&results)[2]) const
+{
+    // inttype  Integral
+    //    0  E.t
+    //    1  D.n
+    //    2  Contour length
+    //    3  Stress Tensor Force
+    //    4  Stress Tensor Torque
+    // inttype==0 => E.t
+    if(intType==0){
+        int k = (int)contour.size();
+
+        CSPointVals u;
+        getPointValues(contour[0].re,contour[0].im, u);
+        results[0] = u.V;
+        getPointValues(contour[k-1].re,contour[k-1].im,u);
+        results[0]-= u.V;
+    }
+
+    // inttype==1 => D.n
+    if(intType==1)
+    {
+        int NumPlotPoints=d_LineIntegralPoints;
+
+        results[0]=0;
+        results[1]=0;
+        bool flag;
+        for(int k=1; k<(int)contour.size();k++)
+        {
+            double dz = abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
+            int elm = -1;
+            for(int i=0;i<NumPlotPoints;i++)
+            {
+                double u=(((double) i)+0.5)/((double) NumPlotPoints);
+                CComplex pt=contour[k-1] + u*(contour[k] - contour[k-1]);
+                CComplex t=contour[k]-contour[k-1];
+                t/=abs(t);
+                CComplex n=I*t;
+                pt+=n*1.e-06;
+
+                if (elm<0) elm=InTriangle(pt.re,pt.im);
+                else if (! InTriangleTest(pt.re,pt.im,elm))
+                {
+                    flag=false;
+                    for(int j=0;j<3;j++)
+                    {
+                        for(int m=0; m<NumList[meshelems[elm]->p[j]]; m++)
+                        {
+                            elm=ConList[meshelems[elm]->p[j]][m];
+                            if (InTriangleTest(pt.re,pt.im,elm))
+                            {
+                                flag=true;
+                                m=100;
+                                j=3;
+                            }
+                        }
+                    }
+                    if (!flag)
+                        elm=InTriangle(pt.re,pt.im);
+                }
+                CSPointVals v;
+                if(elm>=0)
+                {
+                    getPointValues(pt.re,pt.im,elm,v);
+                    flag=true;
+                }
+                else flag=false;
+
+                if(flag){
+                    double Dn = Re(v.D/n);
+
+                    double d;
+                    if (problem->ProblemType==AXISYMMETRIC)
+                        d=2.*PI*pt.re*sqr(LengthConv[problem->LengthUnits]);
+                    else
+                        d=problem->Depth*LengthConv[problem->LengthUnits];
+
+                    results[0]+=(Dn*dz*d);
+                    results[1]+=dz*d;
+                }
+            }
+        }
+        results[1]=results[0]/results[1]; // Average D.n over the surface;
+    }
+
+    // inttype==2 => Contour Length
+    if(intType==2)
+    {
+        results[0]=0;
+        results[1]=0;
+        int k=(int) contour.size();
+        for(int i=0;i<k-1;i++)
+            results[0]+=abs(contour[i+1]-contour[i]);
+        results[0]*=LengthConv[problem->LengthUnits];
+
+        if(problem->ProblemType==AXISYMMETRIC)
+        {
+            for(int i=0;i<k-1;i++)
+            {
+                results[1]+=(PI*(contour[i].re+contour[i+1].re)*
+                        abs(contour[i+1]-contour[i]));
+            }
+            results[1]*=sqr(LengthConv[problem->LengthUnits]);
+        } else {
+            results[1]=results[0]*problem->Depth;
+        }
+    }
+
+    // inttype==3 => Stress Tensor Force
+    if(intType==3)
+    {
+        results[0]=0;
+        results[1]=0;
+        int NumPlotPoints=d_LineIntegralPoints;
+        bool flag;
+
+        for(int k=1;k<(int)contour.size();k++)
+        {
+            double dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
+            int elm=-1;
+            for(int i=0; i<NumPlotPoints;i++)
+            {
+                double u=(((double) i)+0.5)/((double) NumPlotPoints);
+                CComplex pt=contour[k-1] + u*(contour[k] - contour[k-1]);
+                CComplex t=contour[k]-contour[k-1];
+                t/=abs(t);
+                CComplex n=I*t;
+                pt+=n*1.e-06;
+
+                if (elm<0) elm=InTriangle(pt.re,pt.im);
+                else if (!InTriangleTest(pt.re,pt.im,elm))
+                {
+                    flag=false;
+                    for(int j=0;j<3;j++)
+                        for(int m=0;m<NumList[meshelems[elm]->p[j]];m++)
+                        {
+                            elm=ConList[meshelems[elm]->p[j]][m];
+                            if (InTriangleTest(pt.re,pt.im,elm))
+                            {
+                                flag=true;
+                                m=100;
+                                j=3;
+                            }
+                        }
+                    if (!flag) elm=InTriangle(pt.re,pt.im);
+                }
+                CSPointVals v;
+                if(elm>=0)
+                {
+                    getPointValues(pt.re,pt.im,elm,v);
+                    flag = true;
+                } else flag=false;
+
+                if(flag)
+                {
+                    double Hn= Re(v.E/n);
+                    double Bn= Re(v.D/n);
+                    double BH= Re(v.D*conj(v.E));
+                    double dF1=v.E.re*Bn + v.D.re*Hn - n.re*BH;
+                    double dF2=v.E.im*Bn + v.D.im*Hn - n.im*BH;
+
+                    double dza=dz*LengthConv[problem->LengthUnits];
+                    if(problem->ProblemType==AXISYMMETRIC){
+                        dza*=2.*PI*pt.re*LengthConv[problem->LengthUnits];
+                        dF1=0;
+                    }
+                    else dza*=problem->Depth;
+
+                    results[0]+=(dF1*dza/2.);
+                    results[1]+=(dF2*dza/2.);
+                }
+            }
+        }
+    }
+
+    // inttype==4 => Stress Tensor Torque
+    if(intType==4)
+    {
+        int NumPlotPoints=d_LineIntegralPoints;
+        bool flag;
+
+        results[0]=results[1]=0;
+        for(int k=1;k<(int)contour.size();k++)
+        {
+            double dz=abs(contour[k]-contour[k-1])/((double) NumPlotPoints);
+            int elm=-1;
+            for(int i=0;i<NumPlotPoints;i++)
+            {
+                double u=(((double) i)+0.5)/((double) NumPlotPoints);
+                CComplex pt=contour[k-1]+ u*(contour[k] - contour[k-1]);
+                CComplex t=contour[k]-contour[k-1];
+                t/=abs(t);
+                CComplex n=I*t;
+                pt+=n*1.e-6;
+
+                if (elm<0) elm=InTriangle(pt.re,pt.im);
+                else if (!InTriangleTest(pt.re,pt.im,elm))
+                {
+                    flag=false;
+                    for(int j=0;j<3;j++)
+                        for(int m=0;m<NumList[meshelems[elm]->p[j]];m++)
+                        {
+                            elm=ConList[meshelems[elm]->p[j]][m];
+                            if (InTriangleTest(pt.re,pt.im,elm))
+                            {
+                                flag=true;
+                                m=100;
+                                j=3;
+                            }
+                        }
+                    if (!flag) elm=InTriangle(pt.re,pt.im);
+                }
+                CSPointVals v;
+                if(elm>=0)
+                {
+                    getPointValues(pt.re,pt.im,elm,v);
+                    flag = true;
+                }
+                else flag=false;
+
+                if(flag)
+                {
+                    double Hn= Re(v.E/n);
+                    double Bn= Re(v.D/n);
+                    double BH= Re(v.D*conj(v.E));
+                    double dF1=v.E.re*Bn + v.D.re*Hn - n.re*BH;
+                    double dF2=v.E.im*Bn + v.D.im*Hn - n.im*BH;
+                    double dT= pt.re*dF2 - dF1*pt.im;
+                    double dza=dz*sqr(LengthConv[problem->LengthUnits]);
+
+                    results[0]+=(dT*dza*problem->Depth/2.);
+                }
+            }
+        }
     }
 }
 
