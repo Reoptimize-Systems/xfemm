@@ -87,10 +87,10 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
 bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
 {
     std::stringstream err;
-    problem = std::make_unique<FemmProblem>(FileType::ElectrostaticsFile);
+    problem = std::make_shared<FemmProblem>(FileType::ElectrostaticsFile);
 
     // read data from file
-    ElectrostaticsReader reader(problem.get(),this,err);
+    ElectrostaticsReader reader(problem,this,err);
     if (reader.parse(solutionFile) != F_FILE_OK)
         return false;
 
@@ -100,7 +100,8 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     // element centroids and radii;
     for(int i=0; i<(int)meshelems.size(); i++)
     {
-        CSElement *e = dynamic_cast<CSElement*>(meshelems[i].get());
+        // reinterpret_cast possible because there can only be CSElements for our problem type
+        CSElement *e = reinterpret_cast<CSElement*>(meshelems[i].get());
         e->ctr=Ctr(i);
         e->rsqr=0;
         for(int j=0;j<3;j++)

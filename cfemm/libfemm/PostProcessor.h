@@ -179,7 +179,7 @@ protected:
 
 protected:
     PostProcessor();
-    std::unique_ptr<femm::FemmProblem> problem;
+    std::shared_ptr<femm::FemmProblem> problem;
 };
 
 } //namespace
