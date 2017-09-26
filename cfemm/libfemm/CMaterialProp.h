@@ -39,6 +39,13 @@ public:
     virtual ~CMaterialProp();
 
     std::string BlockName;
+
+    /**
+     * @brief isAir is used by PostProcessor::makeMask().
+     * @return \c true, if the material has the properties of air, \c false otherwise
+     */
+    virtual bool isAir() const = 0;
+
     /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and
@@ -107,6 +114,7 @@ public:
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
 
+    virtual bool isAir() const override;
     /**
      * @brief CMaterialProp is used in the fpproc and fpproc never uses the toStream method.
      * Therefore, this implementation just calls assert(false).
@@ -188,6 +196,13 @@ public:
      * @return a CHMaterialProp
      */
     static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+
+    /**
+     * @brief isAir is not relevant to heat flow problems and therefore always returns false.
+     * @return \c false
+     */
+    bool isAir() const override;
+
     virtual void toStream( std::ostream &out ) const override;
 private:
 };
@@ -213,6 +228,7 @@ public:
      * @return a CSMaterialProp
      */
     static CSMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    bool isAir() const override;
     virtual void toStream( std::ostream &out ) const override;
 private:
 };

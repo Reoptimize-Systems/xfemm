@@ -47,6 +47,7 @@ CMeshNode::CMeshNode()
     : x(0.)
     , y(0.)
     , msk(0)
+    , Q(0)
 {
 }
 
@@ -64,6 +65,7 @@ CMMeshNode::CMMeshNode()
     : CMeshNode()
     , A(0)
 {
+    Q = -2; // hack for PostProcessor::makeMask; Q is not used in magnetics problems
 }
 
 CMMeshNode CMMeshNode::fromStream(istream &input, ostream &)
@@ -87,7 +89,6 @@ CMMeshNode CMMeshNode::fromStream(istream &input, ostream &)
 CHMeshNode::CHMeshNode()
     : CMeshNode()
     , T(0)
-    , Q(0)
 {
 }
 
@@ -111,7 +112,6 @@ CHMeshNode CHMeshNode::fromStream(istream &input, ostream &)
 
 CSMeshNode::CSMeshNode()
     : CMeshNode()
-    , Q(false)
     , IsSelected(false)
 {
 }

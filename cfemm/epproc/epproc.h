@@ -32,6 +32,7 @@ public:
     femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
     bool OpenDocument( std::string solutionFile ) override;
 
+    CComplex blockIntegral(int inttype) const;
     void clearSelection() override;
 
     const femmsolver::CSElement *getMeshElement(int idx) const override;
@@ -40,6 +41,7 @@ public:
     bool getPointValues(double x, double y, femm::CSPointVals &u) const;
     void getPointValues(double x, double y, double k, femm::CSPointVals &u) const;
 
+    bool isSelectionOnAxis() const override;
     /**
       * @brief Toggles selection for all nodes, segments, and arc segments that are part
       * of the conductor specified by the index.

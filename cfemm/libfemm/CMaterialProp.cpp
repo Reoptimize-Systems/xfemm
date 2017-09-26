@@ -675,6 +675,19 @@ double CMMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
     return DoEnergy(b1,b2);
 }
 
+bool CMMaterialProp::isAir() const
+{
+    // from femm/makemask.cpp
+    if ((mu_x!=1) || (mu_y!=1)) return false;
+    if (BHpoints!=0) return false;
+    if (LamType!=0) return false;
+    if (H_c!=0) return false;
+    if((J.re!=0) || (J.im!=0)) return false;
+    if (Cduct!=0) return false;
+    if ((Theta_hn!=0) || (Theta_hx!=0) || (Theta_hy!=0)) return false;
+    return true;
+}
+
 void CMMaterialProp::toStream(ostream &) const
 {
     assert(false && "CMMaterialProp::toStream() should never be called. Did you mean to call CMSolverMaterialProp::toStream()?");
@@ -1348,6 +1361,11 @@ CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err
     return prop;
 }
 
+bool CHMaterialProp::isAir() const
+{
+    return false;
+}
+
 void CHMaterialProp::toStream(std::ostream &out) const
 {
     out << "  <BeginBlock>\n";
@@ -1426,6 +1444,14 @@ CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err)
     }
 
     return prop;
+}
+
+bool CSMaterialProp::isAir() const
+{
+    // from femm/bv_makemask.cpp
+    if ((ex!=1) || (ey!=1)) return false;
+    if (qv!=0) return false;
+    return true;
 }
 
 void CSMaterialProp::toStream(ostream &out) const

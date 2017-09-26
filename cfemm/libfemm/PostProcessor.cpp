@@ -26,17 +26,16 @@
 */
 #include "PostProcessor.h"
 
-#include <cstdlib>
-#include <string>
-#include <cstring>
-#include <cstdio>
-#include <cmath>
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "fparse.h"
-#include "lua.h"
-#include "lualib.h"
+#include "spars.h"
 
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string>
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -368,6 +367,38 @@ bool femm::PostProcessor::InTriangleTest(double x, double y, int i) const
     return true;
 }
 
+bool PostProcessor::isKosher(int k) const
+{
+    // If:
+    //    1) this is an axisymmetric problem;
+    //    2) the selected geometry lies along the r=0 axis, and
+    //    3) we have a node on the r=0 axis that we are trying to determine
+    //     if we should set to zero.
+    // This routine determines whether the node is at the extents of
+    // the r=0 domain (or lies at a break in some sub-interval).
+    //
+    // Returns TRUE if it is OK to define the node as zero;
+
+    if((problem->ProblemType==PLANAR) || (meshnodes[k]->x>1.e-6)) return true;
+
+    int score=0;
+    for(int i=0;i<NumList[k];i++)
+    {
+        for(int j=0;j<3;j++)
+        {
+            int n=meshelems[ConList[k][i]]->p[j];
+            if((n!=k) && (meshnodes[n]->x<1.e-6))
+            {
+                score++;
+                if(score>1)
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 // identical in FPProc and HPProc
 CComplex femm::PostProcessor::Ctr(int i)
 {
@@ -395,9 +426,261 @@ double femm::PostProcessor::ElmArea(int i)
     return (b0*c1-b1*c0)/2.;
 }
 
+const std::vector<std::unique_ptr<femmsolver::CMeshNode> > &PostProcessor::getMeshNodes() const
+{
+    return meshnodes;
+}
+
 const FemmProblem *PostProcessor::getProblem() const
 {
     return problem.get();
+}
+
+bool PostProcessor::isSelectionOnAxis() const
+{
+    if (problem->ProblemType!=AXISYMMETRIC)
+        return false;
+
+    for (const auto &elem: meshelems)
+    {
+        if(problem->labellist[elem->lbl]->IsSelected)
+        {
+            for(int j=0;j<3;j++)
+                if(meshnodes[elem->p[j]]->x<1.e-6)
+                    return true;
+        }
+    }
+    return false;
+}
+
+// femm42 also has a #ifdef'ed simple version of the algorithm, that we don't bother to replicate here
+bool PostProcessor::makeMask()
+{
+    if(bHasMask) return true;
+
+    CBigLinProb L;
+    double Me[3][3],be[3];     // element matrix;
+    double p[3],q[3];       // element shape parameters;
+    int n[3];               // numbers of nodes for a particular element;
+
+
+    static int plus1mod3[3] = {1, 2, 0};
+    static int minus1mod3[3] = {2, 0, 1};
+
+    // figure out bandwidth--helps speed somethings up;
+    int NumEls=(int) meshelems.size();
+    int bw=0;
+    for(int i=0;i<NumEls;i++)
+    {
+        for(int j=0;j<3;j++)
+        {
+            int k=(j+1) % 3;
+            int d=abs(meshelems[i]->p[j]-meshelems[i]->p[k]);
+            if (d>bw) bw=d;
+        }
+    }
+    bw++;
+
+    int NumNodes=(int) meshnodes.size();
+    L.Create(NumNodes,bw);
+
+    // Sort through materials to see if they denote air;
+    int *matflag=(int*)calloc(problem->blockproplist.size(),sizeof(int));
+    int *lblflag=(int*)calloc(problem->labellist.size(),sizeof(int));
+    for(int i=0;i<(int)problem->blockproplist.size();i++)
+    {
+        // k==0 for air, k==1 for other than air
+        matflag[i] = (problem->blockproplist[i]->isAir()) ? 0 : 1;
+    }
+
+    // Now, sort through the labels to see which ones correspond to air blocks.
+    for(int i=0;i<(int)problem->labellist.size();i++)
+    {
+        lblflag[i]=matflag[problem->labellist[i]->BlockType];
+        // FIXME(ZaJ): for magnetics, we need this here, too:
+        // if(blocklist[i].InCircuit>=0) lblflag[i]=1;
+    }
+    free(matflag);
+
+    // Determine which nodal values should be fixed
+    // and what values they should be fixed at;
+    for(int i=0;i<NumNodes;i++){
+        // Note(ZaJ): I have added the field Q to CMeshNode, and set it to -2 for CMMeshNode
+        //            this makes the code here equivalent to the fpproc implementation
+        if (meshnodes[i]->Q!=-2) L.V[i]=0;
+        else L.V[i]=-1;
+    }
+
+    // if the problem is axisymmetric, does the selection lie along r=0?
+    bool bOnAxis=isSelectionOnAxis();
+
+    // Figure out which nodes are exterior edges and set them to zero;
+    for(int i=0;i<NumEls;i++)
+    {
+        for(int j=0;j<3;j++)
+        {
+            if (meshelems[i]->n[j] == 1)
+            {
+                int k;
+                k=meshelems[i]->p[plus1mod3[j]];
+                if((!bOnAxis) || (isKosher(k))) L.V[k]=0;
+                k=meshelems[i]->p[minus1mod3[j]];
+                if((!bOnAxis) || (isKosher(k))) L.V[k]=0;
+            }
+        }
+    }
+
+    // Set all nodes in a selected block equal to 1;
+    for(int i=0;i<NumEls;i++)
+    {
+        if(problem->labellist[meshelems[i]->lbl]->IsSelected)
+        {
+            for(int j=0;j<3;j++){
+                L.V[meshelems[i]->p[j]]=1;
+            }
+        }
+        else if(lblflag[meshelems[i]->lbl]!=0)
+        {
+            for(int j=0;j<3;j++) L.V[meshelems[i]->p[j]]=0;
+        }
+    }
+    // Any nodes that have point currents applied to them but are not in the
+    // selected region should also be set to zero so that they don't mess up
+    // the force calculation
+    if(problem->nodeproplist.size()>0)
+    {
+        CComplex *p=(CComplex *)calloc(problem->nodelist.size(),sizeof(CComplex));
+        int npts = 0;
+        for(int i=0;i<(int)problem->nodelist.size();i++)
+            if(problem->nodelist[i]->BoundaryMarker>=0)
+            {
+                p[npts]=problem->nodelist[i]->CC();
+                npts++;
+            }
+
+        if(npts>0)
+            for(int i=0;i<NumNodes;i++)
+                for(int j=0;j<npts;j++)
+                    if(abs(p[j]-meshnodes[i]->CC())<1.e-8)
+                    {
+                        if (L.V[i]<0) L.V[i]=0.;
+                        npts--;
+                        if(npts>0){
+                            p[j]=p[npts];
+                            j=npts;
+                        }
+                        else{
+                            j=npts;
+                            i=NumNodes;
+                        }
+                    }
+        free(p);
+    }
+
+    // ugly filetype check, but I couldn't think of a nice way to isolate this better...
+    // currentflow files need the same treatment...
+    if (problem->filetype == femm::FileType::ElectrostaticsFile)
+    {
+        for(int i=0;i<NumNodes;i++)
+        {
+            const femmsolver::CSMeshNode *node = reinterpret_cast<femmsolver::CSMeshNode*>(meshnodes[i].get());
+            if (node->IsSelected==true) L.V[i]=1;
+        }
+    }
+    // build up element matrices;
+    for(int i=0;i<NumEls;i++)
+    {
+        // zero out Me;
+        for(int j=0;j<3;j++)
+        {
+            for(int k=0;k<3;k++) Me[j][k]=0;
+            be[j]=0;
+        }
+
+        // Determine shape parameters.
+        // l == element side lengths;
+        // p corresponds to the `b' parameter in Allaire
+        // q corresponds to the `c' parameter in Allaire
+
+        for(int k=0;k<3;k++) n[k] = meshelems[i]->p[k];
+        p[0]=meshnodes[n[1]]->y - meshnodes[n[2]]->y;
+        p[1]=meshnodes[n[2]]->y - meshnodes[n[0]]->y;
+        p[2]=meshnodes[n[0]]->y - meshnodes[n[1]]->y;
+        q[0]=meshnodes[n[2]]->x - meshnodes[n[1]]->x;
+        q[1]=meshnodes[n[0]]->x - meshnodes[n[2]]->x;
+        q[2]=meshnodes[n[1]]->x - meshnodes[n[0]]->x;
+
+        double area = (p[0]*q[1]-p[1]*q[0])/2.; //element area
+
+        // quick check for consistency--
+        // if the block is not air and is not selected,
+        // all of the nodes in the block better be defined
+        // to be zero;  Otherwise, the region for force
+        // integration has been selected in an invalid way;
+        if ((!problem->labellist[meshelems[i]->lbl]->IsSelected) && (lblflag[meshelems[i]->lbl]))
+        {
+            int k=0;
+            for(int j=0;j<3;j++) if (L.V[n[j]]==0) k++;
+            if(k<3){
+                std::string outmsg = "The selected region is invalid. A valid selection\n"
+                                     "cannot abut a region which is not free space.";
+                WarnMessage(outmsg.c_str());
+                free(lblflag);
+                return false;
+            }
+        }
+        free(lblflag);
+
+        // Each element weighted by its region's
+        // mesh size specification;
+        double v=problem->labellist[meshelems[i]->lbl]->MaxArea;
+        if (v<=0) v=sqrt(area); else v=sqrt(v);
+
+        // build element matrix;
+        for(int j=0;j<3;j++)
+            for(int k=0;k<3;k++)
+                Me[j][k]+=v*(p[j]*p[k]+q[j]*q[k])/area;
+
+        // process any prescribed nodal values;
+        // doing it here saves a lot of time.
+        for(int j=0;j<3;j++)
+        {
+            if(L.V[n[j]]>=0)
+            {
+                for(int k=0;k<3;k++)
+                {
+                    if(j!=k){
+                        be[k]-=Me[k][j]*L.V[n[j]];
+                        Me[k][j]=0;
+                        Me[j][k]=0;
+                    }
+                }
+                be[j]=L.V[n[j]]*Me[j][j];
+            }
+        }
+
+        // combine block matrices into global matrices;
+        for (int j=0;j<3;j++)
+        {
+            for (int k=j;k<3;k++)
+                if(Me[j][k]!=0)
+                    L.Put(L.Get(n[j],n[k])-Me[j][k],n[j],n[k]);
+            L.b[n[j]]-=be[j];
+        }
+    }
+
+    // solve the problem;
+    if (!L.PCGSolve(false))
+        return false;
+
+    // Process the results to get one row of elements
+    // that runs down the center of the gap away from boundaries.
+    for(int i=0;i<NumNodes;i++)
+        if (L.V[i]>0.5) meshnodes[i]->msk = 1;
+        else meshnodes[i]->msk = 0;
+
+    bHasMask=true;
+    return true;
 }
 
 // identical in FPProc and HPProc
