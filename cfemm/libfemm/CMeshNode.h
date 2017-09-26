@@ -46,6 +46,11 @@ public:
     double GetDistance(double xo, double yo);
     CComplex CC();
 
+    /**
+     * @brief Q boundary flag
+     * Indicates whether the node lies on a boundary, or in a conductor, or none.
+     */
+    int Q;
 private:
 
 };
@@ -79,11 +84,6 @@ public:
     static CHMeshNode fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     double T;  ///< temperature at the node
-    /**
-     * @brief Q boundary flag
-     * Indicates whether the node lies on a boundary, or in a conductor, or none.
-     */
-    int Q;
 };
 
 /**
@@ -111,7 +111,6 @@ public:
     static CSMeshNode fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     double V;
-    bool Q;
     bool IsSelected; ///< Only needed by electrostatics to compute the  “weighted stress tensor” force and torque integrals.
 };
 

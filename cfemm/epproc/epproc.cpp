@@ -176,6 +176,11 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     return true;
 }
 
+CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
+{
+   return CComplex();
+}
+
 void ElectrostaticsPostProcessor::clearSelection()
 {
     PostProcessor::clearSelection();
@@ -245,6 +250,24 @@ void ElectrostaticsPostProcessor::getPointValues(double x, double y, double k, C
     u.E.im = u.D.im/(u.e.im*eo);
 
     u.nrg=Re(u.D*conj(u.E))/2.;
+}
+
+bool ElectrostaticsPostProcessor::isSelectionOnAxis() const
+{
+    if (problem->ProblemType!=AXISYMMETRIC)
+        return false;
+
+    if (PostProcessor::isSelectionOnAxis())
+        return true;
+    for (auto &mnode: meshnodes)
+    {
+        // reinterpret_cast is safe because we know only CSMeshNodes are in meshnodes.
+        CSMeshNode *snode = reinterpret_cast<CSMeshNode*>(mnode.get());
+        if ((snode->IsSelected) && (snode->x<1.e-6))
+            return true;
+    }
+
+    return false;
 }
 
 void ElectrostaticsPostProcessor::selectConductor(int idx)

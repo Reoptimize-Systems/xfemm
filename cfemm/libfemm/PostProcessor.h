@@ -118,8 +118,40 @@ public:
 
     virtual const femmsolver::CMeshNode *getMeshNode(int idx) const = 0;
 
+    const std::vector< std::unique_ptr<femmsolver::CMeshNode>> &getMeshNodes() const;
+
+    /**
+     * @brief getProblem
+     * @return a const pointer to the problem description
+     */
     const femm::FemmProblem *getProblem() const;
 
+    /**
+     * @brief isSelectionOnAxis
+     * Only meaningful for axisymmetric problems.
+     *
+     * @return \c true, if the selection has items that lie on r=0.
+     *
+     * \internal
+     * Virtual, because ElectrostaticsPostProcessor needs to override.
+     *
+     * \note Originally part of MakeMask.
+     * \endinternal
+     */
+    virtual bool isSelectionOnAxis() const;
+
+    /**
+     * @brief makeMask
+     * @return \c true, if a mask was established, \c false otherwise.
+     * \internal
+     * Electrostatics and current flow problems share the same implementation,
+     * magnetics problems use a slightly different implementation.
+     * ### FEMM sources:
+     * - \femm42{femm/bv_makemask.cpp}
+     * - \femm42{femm/cv_makemask.cpp}
+     * \endinternal
+     */
+    virtual bool makeMask();
     int numElements() const override;
 
     int numNodes() const override;
@@ -167,6 +199,29 @@ protected:
     // member functions
     int InTriangle(double x, double y) const;
     bool InTriangleTest(double x, double y, int i) const;
+
+    /**
+     * @brief isKosher
+     * If:
+     *    1) this is an axisymmetric problem;
+     *    2) the selected geometry lies along the r=0 axis, and
+     *    3) we have a node on the r=0 axis that we are trying to determine
+     *     if we should set to zero.
+     * This routine determines whether the node is at the extents of
+     * the r=0 domain (or lies at a break in some sub-interval).
+     *
+     * @param k a mesh node index
+     * @return \c true, if it is Ok to define the node as zero, \c false otherwise.
+     *
+     * \internal
+     * ### FEMM sources (identical implementation):
+     * - \femm42{femm/bv_makemask.cpp}
+     * - \femm42{femm/cv_makemask.cpp}
+     * - \femm42{femm/makemask.cpp}
+     * \endinternal
+     */
+    bool isKosher(int k) const;
+
     CComplex Ctr(int i);
     double ElmArea(femmsolver::CElement *elm);
 
