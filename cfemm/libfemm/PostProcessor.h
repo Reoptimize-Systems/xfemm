@@ -106,7 +106,7 @@ public:
      */
     virtual void clearSelection();
 
-    double ElmArea(int i);
+    double ElmArea(int i) const;
 
     /**
      * @brief getMeshElement gets an element from meshelems.
@@ -225,7 +225,7 @@ protected:
     CComplex Ctr(int i);
     double ElmArea(femmsolver::CElement *elm);
 
-    CComplex HenrotteVector(int k);
+    CComplex HenrotteVector(int k) const;
     void FindBoundaryEdges();
 
     // pointer to function to call when issuing warning messages
