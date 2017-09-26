@@ -414,7 +414,7 @@ CComplex femm::PostProcessor::Ctr(int i)
 }
 
 // identical in FPProc and HPProc
-double femm::PostProcessor::ElmArea(int i)
+double femm::PostProcessor::ElmArea(int i) const
 {
     int n[3];
     for(int j=0; j<3; j++) n[j]=meshelems[i]->p[j];
@@ -698,7 +698,7 @@ double femm::PostProcessor::ElmArea(femmsolver::CElement *elm)
 
 
 // identical in FPProc and HPProc
-CComplex femm::PostProcessor::HenrotteVector(int k)
+CComplex femm::PostProcessor::HenrotteVector(int k) const
 {
     int n[3];
     double b[3],c[3];

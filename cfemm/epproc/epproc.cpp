@@ -115,7 +115,7 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
 
     // Find flux density in each element;
     for(int i=0;i<(int)meshelems.size();i++)
-        GetElementD(i);
+        getElementD(i);
 
     // Find extreme values of A;
     CSMeshNode *node = dynamic_cast<CSMeshNode*>(meshnodes[0].get());
@@ -178,7 +178,132 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
 
 CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
 {
-   return CComplex();
+    CComplex result=0;
+    for(int i=0;i<(int)meshelems.size();i++)
+    {
+        if((problem->labellist[meshelems[i]->lbl]->IsSelected) && (inttype<5))
+        {
+            double R=0; // for axisymmetric problems
+            // compute some useful quantities employed by most integrals...
+            double a=ElmArea(i)*sqr(LengthConv[problem->LengthUnits]);
+            if(problem->ProblemType==AXISYMMETRIC){
+                double r[3];
+                for(int k=0;k<3;k++)
+                    r[k]=meshnodes[meshelems[i]->p[k]]->x*LengthConv[problem->LengthUnits];
+                R=(r[0]+r[1]+r[2])/3.;
+            }
+
+            // now, compute the desired integral;
+            switch(inttype)
+            {
+            case 0: // stored energy
+                if(problem->ProblemType==AXISYMMETRIC)
+                    a*=(2.*PI*R);
+                else
+                    a*=problem->Depth;
+                result+=a*Re(getMeshElement(i)->D*conj(E(i)))/2.;
+                break;
+
+            case 1: // cross-section area
+                result+=a;
+                break;
+
+            case 2: // volume
+                if(problem->ProblemType==AXISYMMETRIC)
+                    a*=(2.*PI*R);
+                else
+                    a*=problem->Depth;
+                result+=a;
+                break;
+
+            case 3: // D
+                if(problem->ProblemType==AXISYMMETRIC)
+                    a*=(2.*PI*R);
+                else
+                    a*=problem->Depth;
+                result+=a*getMeshElement(i)->D;
+                break;
+
+            case 4: // E
+                if(problem->ProblemType==AXISYMMETRIC)
+                    a*=(2.*PI*R);
+                else a*=problem->Depth;
+                result+=a*E(i);
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        // integrals that need to be evaluated over all elements,
+        // regardless of which elements are actually selected.
+        if(inttype>4)
+        {
+            double a=ElmArea(i)*sqr(LengthConv[problem->LengthUnits]);
+            if(problem->ProblemType==AXISYMMETRIC){
+                double r[3];
+                for(int k=0;k<3;k++)
+                    r[k]=meshnodes[meshelems[i]->p[k]]->x*LengthConv[problem->LengthUnits];
+                double R=(r[0]+r[1]+r[2])/3.;
+                a*=(2.*PI*R);
+            }
+            else a*=problem->Depth;
+
+            switch(inttype)
+            {
+            case 5:
+            {
+                double B1=Re(getMeshElement(i)->D);
+                double B2=Im(getMeshElement(i)->D);
+                CComplex c=HenrotteVector(i);
+
+                // x (or r) direction Henrotte force, SS part.
+                double y;
+                if(problem->ProblemType==PLANAR){
+                    y=(((B1*B1) - (B2*B2))*Re(c) + 2.*(B1*B2)*Im(c))/(2.*eo)*AECF(i);
+                    result.re += (a*y);
+                } else {
+                    // y (or z) direction Henrotte force, SS part
+                    y=(((B2*B2) - (B1*B1))*Im(c) + 2.*(B1*B2)*Re(c))/(2.*eo)*AECF(i);
+                }
+                result.im += (a*y);
+                break;
+            }
+
+            case 6: // Henrotte torque, SS part.
+            {
+                if(problem->ProblemType!=PLANAR) break;
+                double B1=Re(getMeshElement(i)->D);
+                double B2=Im(getMeshElement(i)->D);
+                CComplex c=HenrotteVector(i);
+
+                double F1 = (((B1*B1) - (B2*B2))*Re(c) +
+                      2.*(B1*B2)*Im(c))/(2.*eo);
+                double F2 = (((B2*B2) - (B1*B1))*Im(c) +
+                      2.*(B1*B2)*Re(c))/(2.*eo);
+
+                c=0;
+                for(int k=0;k<3;k++)
+                    c+=meshnodes[meshelems[i]->p[k]]->CC()*LengthConv[problem->LengthUnits]/3.;
+
+                double y=Re(c)*F2 -Im(c)*F1;
+                y*=AECF(i);
+                result+=(a*y);
+
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+
+    // Integrals 3 and 4 are averages over the selected volume;
+    // Need to divide by the block volme to get the average.
+    if((inttype==3) || (inttype==4)) result/=blockIntegral(2);
+
+    return result;
 }
 
 void ElectrostaticsPostProcessor::clearSelection()
@@ -554,7 +679,17 @@ double ElectrostaticsPostProcessor::AECF(int k, CComplex p) const
     return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
 }
 
-void ElectrostaticsPostProcessor::GetElementD(int k)
+CComplex ElectrostaticsPostProcessor::E(int k) const
+{
+    const femmsolver::CSElement *elem = getMeshElement(k);
+    const CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
+    // return average electric field intensity for the kth element
+    return (elem->D.re/mat->ex + I*elem->D.im/mat->ey)/eo * AECF(k);
+
+    // AECF(k) part corrects permittivity for axisymmetric external region;
+}
+
+void ElectrostaticsPostProcessor::getElementD(int k)
 {
     int n[3];
     for(int i=0;i<3;i++)

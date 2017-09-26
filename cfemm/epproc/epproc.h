@@ -32,6 +32,25 @@ public:
     femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
     bool OpenDocument( std::string solutionFile ) override;
 
+    /**
+     * @brief  Calculate a block integral for the selected blocks.
+     *
+     * intType | Integral type
+     * --------|--------------
+     * 0       | Stored Energy
+     * 1       | Block Cross-section
+     * 2       | Block Volume
+     * 3       | Average D over the block
+     * 4       | Average E over the block
+     * 5       | Weighted Stress Tensor Force
+     * 6       | Weighted Stress Tensor Torque
+     *
+     * @param inttype
+     * @return the result of the computation
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::BlockIntegral(int)}
+     * \endinternal
+     */
     CComplex blockIntegral(int inttype) const;
     void clearSelection() override;
 
@@ -94,6 +113,17 @@ private:
      * \endinternal
      */
     double AECF(int k, CComplex p) const;
+
+    /**
+     * @brief Calculate the average electric field density for the given element.
+     * @param k
+     * @return the field density
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::E(int)}
+     * \endinternal
+     */
+    CComplex E(int k) const;
+
     /**
      * @brief GetElementD
      * @param k
@@ -101,7 +131,7 @@ private:
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::GetElementD(int)}
      * \endinternal
      */
-    void GetElementD(int k);
+    void getElementD(int k);
 
     /**
      * @brief getPointD
