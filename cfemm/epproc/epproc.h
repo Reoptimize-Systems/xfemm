@@ -58,7 +58,7 @@ public:
     const femmsolver::CSMeshNode *getMeshNode(int idx) const override;
 
     bool getPointValues(double x, double y, femm::CSPointVals &u) const;
-    void getPointValues(double x, double y, double k, femm::CSPointVals &u) const;
+    void getPointValues(double x, double y, int k, femm::CSPointVals &u) const;
 
     bool isSelectionOnAxis() const override;
     /**
@@ -94,25 +94,25 @@ private:
      * way I could fit it in.  The structure of the code wasn't really
      * designed to have a permeability that varies with position in a
      * continuous way.
-     * @param k
+     * @param elem
      * @return
      * \internal
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int)}
      * \endinternal
      */
-    double AECF(int k) const ;
+    double AECF(const femmsolver::CElement *elem) const;
     /**
      * @brief AECF
      * Correction factor for a point within the element, rather than
      * for the center of the element.
-     * @param k
+     * @param elem
      * @param p
      * @return
      * \internal
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int,CComplex)}
      * \endinternal
      */
-    double AECF(int k, CComplex p) const;
+    double AECF(const femmsolver::CElement *elem, CComplex p) const;
 
     /**
      * @brief Calculate the average electric field density for the given element.
@@ -122,7 +122,7 @@ private:
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::E(int)}
      * \endinternal
      */
-    CComplex E(int k) const;
+    CComplex E(const femmsolver::CSElement *elem) const;
 
     /**
      * @brief GetElementD

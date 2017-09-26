@@ -181,7 +181,8 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
     CComplex result=0;
     for(int i=0;i<(int)meshelems.size();i++)
     {
-        if((problem->labellist[meshelems[i]->lbl]->IsSelected) && (inttype<5))
+        auto elem = getMeshElement(i);
+        if((problem->labellist[elem->lbl]->IsSelected) && (inttype<5))
         {
             double R=0; // for axisymmetric problems
             // compute some useful quantities employed by most integrals...
@@ -189,7 +190,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
             if(problem->ProblemType==AXISYMMETRIC){
                 double r[3];
                 for(int k=0;k<3;k++)
-                    r[k]=meshnodes[meshelems[i]->p[k]]->x*LengthConv[problem->LengthUnits];
+                    r[k]=meshnodes[elem->p[k]]->x*LengthConv[problem->LengthUnits];
                 R=(r[0]+r[1]+r[2])/3.;
             }
 
@@ -201,7 +202,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
                     a*=(2.*PI*R);
                 else
                     a*=problem->Depth;
-                result+=a*Re(getMeshElement(i)->D*conj(E(i)))/2.;
+                result+=a*Re(elem->D*conj(E(elem)))/2.;
                 break;
 
             case 1: // cross-section area
@@ -221,14 +222,14 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
                     a*=(2.*PI*R);
                 else
                     a*=problem->Depth;
-                result+=a*getMeshElement(i)->D;
+                result+=a*elem->D;
                 break;
 
             case 4: // E
                 if(problem->ProblemType==AXISYMMETRIC)
                     a*=(2.*PI*R);
                 else a*=problem->Depth;
-                result+=a*E(i);
+                result+=a*E(elem);
                 break;
 
             default:
@@ -244,7 +245,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
             if(problem->ProblemType==AXISYMMETRIC){
                 double r[3];
                 for(int k=0;k<3;k++)
-                    r[k]=meshnodes[meshelems[i]->p[k]]->x*LengthConv[problem->LengthUnits];
+                    r[k]=meshnodes[elem->p[k]]->x*LengthConv[problem->LengthUnits];
                 double R=(r[0]+r[1]+r[2])/3.;
                 a*=(2.*PI*R);
             }
@@ -254,18 +255,18 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
             {
             case 5:
             {
-                double B1=Re(getMeshElement(i)->D);
-                double B2=Im(getMeshElement(i)->D);
+                double B1=Re(elem->D);
+                double B2=Im(elem->D);
                 CComplex c=HenrotteVector(i);
 
                 // x (or r) direction Henrotte force, SS part.
                 double y;
                 if(problem->ProblemType==PLANAR){
-                    y=(((B1*B1) - (B2*B2))*Re(c) + 2.*(B1*B2)*Im(c))/(2.*eo)*AECF(i);
+                    y=(((B1*B1) - (B2*B2))*Re(c) + 2.*(B1*B2)*Im(c))/(2.*eo)*AECF(elem);
                     result.re += (a*y);
                 } else {
                     // y (or z) direction Henrotte force, SS part
-                    y=(((B2*B2) - (B1*B1))*Im(c) + 2.*(B1*B2)*Re(c))/(2.*eo)*AECF(i);
+                    y=(((B2*B2) - (B1*B1))*Im(c) + 2.*(B1*B2)*Re(c))/(2.*eo)*AECF(elem);
                 }
                 result.im += (a*y);
                 break;
@@ -274,8 +275,8 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
             case 6: // Henrotte torque, SS part.
             {
                 if(problem->ProblemType!=PLANAR) break;
-                double B1=Re(getMeshElement(i)->D);
-                double B2=Im(getMeshElement(i)->D);
+                double B1=Re(elem->D);
+                double B2=Im(elem->D);
                 CComplex c=HenrotteVector(i);
 
                 double F1 = (((B1*B1) - (B2*B2))*Re(c) +
@@ -285,10 +286,10 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
 
                 c=0;
                 for(int k=0;k<3;k++)
-                    c+=meshnodes[meshelems[i]->p[k]]->CC()*LengthConv[problem->LengthUnits]/3.;
+                    c+=meshnodes[elem->p[k]]->CC()*LengthConv[problem->LengthUnits]/3.;
 
                 double y=Re(c)*F2 -Im(c)*F1;
-                y*=AECF(i);
+                y*=AECF(elem);
                 result+=(a*y);
 
                 break;
@@ -341,7 +342,7 @@ bool ElectrostaticsPostProcessor::getPointValues(double x, double y, CSPointVals
     return true;
 }
 
-void ElectrostaticsPostProcessor::getPointValues(double x, double y, double k, CSPointVals &u) const
+void ElectrostaticsPostProcessor::getPointValues(double x, double y, int k, CSPointVals &u) const
 {
     int n[3];
     for(int i=0; i<3; i++)
@@ -363,10 +364,11 @@ void ElectrostaticsPostProcessor::getPointValues(double x, double y, double k, C
 
     double da=(b[0]*c[1]-b[1]*c[0]);
 
-    getPointD(x,y,u.D,*getMeshElement(k));
-    const CSMaterialProp *prop = dynamic_cast<CSMaterialProp *>(problem->blockproplist[meshelems[k]->blk].get());
+    auto elem=getMeshElement(k);
+    getPointD(x,y,u.D,*elem);
+    const CSMaterialProp *prop = dynamic_cast<CSMaterialProp *>(problem->blockproplist[elem->blk].get());
     u.e=prop->ex + I*prop->ey;
-    u.e/=AECF(k,x+I*y);
+    u.e/=AECF(elem,x+I*y);
 
     u.V=0;
     for(int i=0;i<3;i++)
@@ -652,7 +654,7 @@ void ElectrostaticsPostProcessor::lineIntegral(int intType, double (&results)[2]
     }
 }
 
-double ElectrostaticsPostProcessor::AECF(int k) const
+double ElectrostaticsPostProcessor::AECF(const CElement *elem) const
 {
     // Computes the permeability correction factor for axisymmetric
     // external regions.  This is sort of a kludge, but it's the best
@@ -661,30 +663,29 @@ double ElectrostaticsPostProcessor::AECF(int k) const
     // continuous way.
 
     if (problem->ProblemType == PLANAR) return 1.; // no correction for planar problems
-    if (!problem->labellist[meshelems[k]->lbl]->IsExternal) return 1; // only need to correct for external regions
+    if (!problem->labellist[elem->lbl]->IsExternal) return 1; // only need to correct for external regions
 
-    double r=abs(meshelems[k]->ctr-I*problem->extZo);
+    double r=abs(elem->ctr-I*problem->extZo);
     return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
 }
 
-double ElectrostaticsPostProcessor::AECF(int k, CComplex p) const
+double ElectrostaticsPostProcessor::AECF(const CElement *elem, CComplex p) const
 {
     // Correction factor for a point within the element, rather than
     // for the center of the element.
     if (problem->ProblemType == PLANAR) return 1.; // no correction for planar problems
-    if (!problem->labellist[meshelems[k]->lbl]->IsExternal) return 1; // only need to correct for external regions
+    if (!problem->labellist[elem->lbl]->IsExternal) return 1; // only need to correct for external regions
     double r=abs(p-I*problem->extZo);
     if (r==0)
-        return AECF(k);
+        return AECF(elem);
     return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
 }
 
-CComplex ElectrostaticsPostProcessor::E(int k) const
+CComplex ElectrostaticsPostProcessor::E(const CSElement *elem) const
 {
-    const femmsolver::CSElement *elem = getMeshElement(k);
     const CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
     // return average electric field intensity for the kth element
-    return (elem->D.re/mat->ex + I*elem->D.im/mat->ey)/eo * AECF(k);
+    return (elem->D.re/mat->ex + I*elem->D.im/mat->ey)/eo * AECF(elem);
 
     // AECF(k) part corrects permittivity for axisymmetric external region;
 }
@@ -713,7 +714,7 @@ void ElectrostaticsPostProcessor::getElementD(int k)
 
     CSElement *elem = dynamic_cast<CSElement*>(meshelems[k].get());
     CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
-    elem->D = eo*(E.re*mat->ex + I*E.im*mat->ey)/AECF(k);
+    elem->D = eo*(E.re*mat->ex + I*E.im*mat->ey)/AECF(elem);
 }
 
 void ElectrostaticsPostProcessor::getPointD(double x, double y, CComplex &D, const CSElement &elm) const
