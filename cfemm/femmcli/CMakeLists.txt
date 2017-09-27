@@ -16,4 +16,6 @@ set_target_properties(femmcli-bin
     PROPERTIES OUTPUT_NAME femmcli)
 
 target_link_libraries(femmcli-bin femm femmcli esolver fsolver)
+
+add_subdirectory(test)
 # vi:expandtab:tabstop=2 shiftwidth=2:

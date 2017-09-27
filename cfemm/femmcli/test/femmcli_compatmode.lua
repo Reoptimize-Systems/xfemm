@@ -1,4 +1,4 @@
--- 03_compatmode.lua
+-- femmcli_compatmode.lua
 -- OUTPUT:
 -- SUCCESS
 

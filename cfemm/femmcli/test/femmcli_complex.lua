@@ -1,4 +1,4 @@
--- 02_complex.lua
+-- femmcli_complex.lua
 -- OUTPUT:
 -- 2+I + 3
 -- SUCCESS
