@@ -13,3 +13,5 @@ set_target_properties(esolver-bin
     PROPERTIES OUTPUT_NAME esolver)
 
 target_link_libraries(esolver-bin esolver)
+
+add_subdirectory(test)

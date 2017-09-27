@@ -21,3 +21,5 @@ set_target_properties(fmesher-bin
     PROPERTIES OUTPUT_NAME fmesher)
 
 target_link_libraries(fmesher-bin fmesher femm)
+
+add_subdirectory(test)
