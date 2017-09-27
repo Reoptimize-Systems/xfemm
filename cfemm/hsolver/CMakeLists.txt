@@ -12,3 +12,5 @@ set_target_properties(hsolver-bin
     PROPERTIES OUTPUT_NAME hsolver)
 
 target_link_libraries(hsolver-bin hsolver)
+
+add_subdirectory(test)
