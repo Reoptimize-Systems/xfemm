@@ -18,4 +18,9 @@ set_target_properties(femmcli-bin
 target_link_libraries(femmcli-bin femm femmcli esolver fsolver)
 
 add_subdirectory(test)
-# vi:expandtab:tabstop=2 shiftwidth=2:
+
+install(
+    TARGETS femmcli-bin
+    RUNTIME DESTINATION bin
+    COMPONENT "cli")
+# vi:expandtab:tabstop=4 shiftwidth=4:

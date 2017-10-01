@@ -39,3 +39,26 @@ add_subdirectory(fsolver)
 add_subdirectory(fpproc)
 add_subdirectory(hsolver)
 add_subdirectory(hpproc)
+
+install(
+   FILES LICENSE-FEMM.txt LICENSE-Lua.txt LICENSE-triangle.txt
+   DESTINATION doc/xfemm
+   )
+
+
+## installer support using cpack (this section should come last):
+set(CPACK_PACKAGE_NAME "xfemm")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/../README.txt")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "xfemm - cross platform FEMM")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "xfemm")
+# maybe find a more useful vendor name?
+set(CPACK_PACKAGE_VENDOR "xfemm.sf.net")
+set(CPACK_PACKAGE_VERSION "1.6.0")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "6")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/INSTALL-MESSAGE.txt")
+
+# allow user to add bin dir to path:
+set(CPACK_NSIS_MODIFY_PATH "ON")
+include(CPack)

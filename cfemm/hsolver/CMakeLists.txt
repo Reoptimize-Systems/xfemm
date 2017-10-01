@@ -14,3 +14,9 @@ set_target_properties(hsolver-bin
 target_link_libraries(hsolver-bin hsolver)
 
 add_subdirectory(test)
+
+install(
+    TARGETS hsolver-bin
+    RUNTIME DESTINATION bin
+    COMPONENT "cli")
+# vi:expandtab:tabstop=4 shiftwidth=4:

@@ -15,3 +15,9 @@ set_target_properties(esolver-bin
 target_link_libraries(esolver-bin esolver)
 
 add_subdirectory(test)
+
+install(
+    TARGETS esolver-bin
+    RUNTIME DESTINATION bin
+    COMPONENT "cli")
+# vi:expandtab:tabstop=4 shiftwidth=4:

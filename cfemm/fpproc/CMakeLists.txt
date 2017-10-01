@@ -11,3 +11,9 @@ add_executable(fpproc-test
     )
 
 target_link_libraries(fpproc-test fpproc)
+install(
+    TARGETS fpproc-test
+    RUNTIME DESTINATION bin
+    COMPONENT "cli (debug)"
+    CONFIGURATIONS "Debug")
+# vi:expandtab:tabstop=4 shiftwidth=4:
