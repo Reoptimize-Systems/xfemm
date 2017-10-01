@@ -103,7 +103,7 @@ femm::PostProcessor::~PostProcessor()
     free(LengthConv);
     if (ConList)
     {
-        for(uint i=0; i<meshnodes.size(); i++)
+        for(int i=0; i<(int)meshnodes.size(); i++)
             if(ConList[i]!=NULL) free(ConList[i]);
         free(ConList);
     }
