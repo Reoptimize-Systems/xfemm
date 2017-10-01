@@ -23,3 +23,9 @@ set_target_properties(fmesher-bin
 target_link_libraries(fmesher-bin fmesher femm)
 
 add_subdirectory(test)
+
+install(
+    TARGETS fmesher-bin
+    RUNTIME DESTINATION bin
+    COMPONENT "cli")
+# vi:expandtab:tabstop=4 shiftwidth=4:

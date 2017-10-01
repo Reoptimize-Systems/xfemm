@@ -10,3 +10,10 @@ add_executable(hpproc-test
     )
 
 target_link_libraries(hpproc-test hpproc)
+
+install(
+    TARGETS hpproc-test
+    RUNTIME DESTINATION bin
+    COMPONENT "cli (debug)"
+    CONFIGURATIONS "Debug")
+# vi:expandtab:tabstop=4 shiftwidth=4:
