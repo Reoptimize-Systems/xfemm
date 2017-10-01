@@ -8,7 +8,6 @@ Run "femmcli --help" for usage information.
 Known issues
 ------------
 
- - Electrostatics commands are missing (pending)
  - Heat flow commands are missing
  - Current flow commands are missing (current flow is absent from xfemm)
 
