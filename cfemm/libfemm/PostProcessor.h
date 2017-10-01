@@ -168,7 +168,7 @@ public:
     /**
      * @brief toggles the selection for all BlockLabels in a group.
      * This also invalidates the mask, if one has been made.
-     * @param groupIdx the group index, or 0 for all.
+     * @param group the group index, or 0 for all.
      */
     void toggleSelectionForGroup(int group);
 
