@@ -179,7 +179,7 @@ int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
     std::string filename = lua_tostring(L,1);
 
     std::stringstream err;
-    bool ok;
+    bool ok = false;
 
     switch (fmesher::FMesher::GetFileType(filename)) {
     case femm::FileType::MagneticsFile:
