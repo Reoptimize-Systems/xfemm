@@ -12,3 +12,4 @@ endfunction()
 
 test_fmesher(Temp.fem)
 test_fmesher(split_seg_err_test.fem)
+# vi:expandtab:tabstop=4 shiftwidth=4:
