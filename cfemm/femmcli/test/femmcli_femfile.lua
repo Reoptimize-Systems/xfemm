@@ -11,3 +11,5 @@ open("femmcli_femfile.fem")
 mi_saveas("femmcli_femfile.result.fem")
 mi_analyze()
 mi_loadsolution()
+
+write("SUCCESS\n")

@@ -11,3 +11,5 @@ assert( ceil( 4.5 ) == 5 )
 
 -- make sure pi is defined:
 assert( abs(PI - 3.14159265358979) < .00000000000001 )
+
+write("SUCCESS\n")
