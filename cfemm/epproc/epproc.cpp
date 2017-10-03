@@ -21,6 +21,7 @@
 #include "femmconstants.h"
 #include "FemmProblem.h"
 #include "FemmReader.h"
+#include "stringTools.h"
 
 #include <string>
 #include <sstream>
@@ -48,9 +49,10 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
 {
     using femmsolver::CSMeshNode;
     using femmsolver::CSElement;
-    // read in meshnodes;
+
     int k;
-    input >> k;
+    // read in meshnodes;
+    parseValue(input, k, err);
     meshnodes.reserve(k);
     for(int i=0;i<k;i++)
     {
@@ -58,7 +60,7 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
     }
 
     // read in elements;
-    input >> k;
+    parseValue(input, k, err);
     meshelems.reserve(k);
     auto &labellist = problem->labellist;
     for(int i=0;i<k;i++)
@@ -92,7 +94,10 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     // read data from file
     ElectrostaticsReader reader(problem,this,err);
     if (reader.parse(solutionFile) != F_FILE_OK)
+    {
+        PrintWarningMsg(err.str().c_str());
         return false;
+    }
 
     // scale depth to meters for internal computations;
     if(problem->Depth==-1) problem->Depth=1; else problem->Depth*=LengthConv[problem->LengthUnits];

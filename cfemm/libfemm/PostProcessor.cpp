@@ -269,7 +269,7 @@ void PostProcessor::addContourPointFromNode(double mx, double my)
 // identical in EPProc, FPProc and HPProc
 int femm::PostProcessor::InTriangle(double x, double y) const
 {
-    static int k;
+    static int k=0;
     int j,hi,lo,sz;
     double z;
 
@@ -464,8 +464,8 @@ bool PostProcessor::makeMask()
     int n[3];               // numbers of nodes for a particular element;
 
 
-    static int plus1mod3[3] = {1, 2, 0};
-    static int minus1mod3[3] = {2, 0, 1};
+    const static int plus1mod3[3] = {1, 2, 0};
+    const static int minus1mod3[3] = {2, 0, 1};
 
     // figure out bandwidth--helps speed somethings up;
     int NumEls=(int) meshelems.size();
@@ -815,8 +815,8 @@ void PostProcessor::toggleSelectionForGroup(int group)
 void femm::PostProcessor::FindBoundaryEdges()
 {
     int i, j;
-    static int plus1mod3[3] = {1, 2, 0};
-    static int minus1mod3[3] = {2, 0, 1};
+    const static int plus1mod3[3] = {1, 2, 0};
+    const static int minus1mod3[3] = {2, 0, 1};
 
     // Init all elements' neigh to be unfinished.
     for(i = 0; i < (int)meshelems.size(); i ++)

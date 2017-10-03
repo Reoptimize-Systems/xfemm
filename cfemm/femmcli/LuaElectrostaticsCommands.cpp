@@ -853,6 +853,11 @@ int femmcli::LuaElectrostaticsCommands::luaGetPointValues(lua_State *L)
         lua_pushnumber(L,u.nrg);
         return 8;
     }
+    if (luaInstance->getGlobal("XFEMM_VERBOSE") != 0)
+    {
+        std::string msg = "No point value at " + std::to_string(px) + ", " + std::to_string(py) + "\n";
+        PrintWarningMsg(msg.c_str());
+    }
 
     return 0;
 }
