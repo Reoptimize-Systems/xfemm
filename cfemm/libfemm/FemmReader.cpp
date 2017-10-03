@@ -89,19 +89,20 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
     input.open(file.c_str(), std::ifstream::in);
     if (!input.is_open())
     {
-        err << "Couldn't read from specified .fem file\n";
+        err << "Couldn't read from file " << file<< "\n";
         return F_FILE_NOT_OPENED;
     }
     problem->pathName = file;
 
     // parse the file
 
-    string token;
     bool success = true;
     bool readSolutionData = false;
     while (input && success)
     {
+        string token;
         nextToken(input, &token);
+
         if (input.eof())
             break;
 
@@ -534,6 +535,8 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 
         if (token == "[solution]")
         {
+            // discard rest of current input line
+            getline(input,token);
             readSolutionData = true;
             break;
         }
