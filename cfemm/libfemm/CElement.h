@@ -40,8 +40,8 @@ public:
 
     int p[3]; ///< nodes at the corners of the element
     int e[3]; ///< boundary condition applied to each edge of the element
-    int blk;  ///< block property applied to the element
-    int lbl;  ///< block label associated with the element
+    int blk;  ///< block property applied to the element, i.e. an index into the CMaterialProp list (blockproplist)
+    int lbl;  ///< block label associated with the element, i.e. an index into the CBlockLabel list (labellist)
     CComplex ctr;
     double rsqr;
     int n[3]; ///< 3 ints to store elem's neighbouring elements

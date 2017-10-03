@@ -23,6 +23,7 @@
 #include "FemmReader.h"
 #include "stringTools.h"
 
+#include <cassert>
 #include <string>
 #include <sstream>
 
@@ -49,6 +50,9 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
 {
     using femmsolver::CSMeshNode;
     using femmsolver::CSElement;
+
+    // FemmReader also reads holes -> we need to purge them:
+    problem->purgeHoles();
 
     int k;
     // read in meshnodes;
@@ -718,7 +722,10 @@ void ElectrostaticsPostProcessor::getElementD(int k)
     }
 
     CSElement *elem = dynamic_cast<CSElement*>(meshelems[k].get());
+    assert(elem->blk >= 0);
+    assert(elem->blk < (int)problem->blockproplist.size());
     CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
+    assert(mat);
     elem->D = eo*(E.re*mat->ex + I*E.im*mat->ey)/AECF(elem);
 }
 
