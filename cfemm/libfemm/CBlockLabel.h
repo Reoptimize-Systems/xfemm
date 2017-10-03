@@ -96,6 +96,7 @@ public:
 
     /**
      * @brief hasBlockType
+     * A block label without block type is a hole.
      * @return \c true, if BlockTypeName is set, \c false otherwise.
      */
     bool hasBlockType() const;

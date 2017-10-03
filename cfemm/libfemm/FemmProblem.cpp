@@ -1736,6 +1736,11 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
     enforcePSLG();
 }
 
+void femm::FemmProblem::purgeHoles()
+{
+    std::remove_if(labellist.begin(),labellist.end(), [](auto &lbl){ return !lbl->hasBlockType();});
+}
+
 void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::EditMode selector)
 {
     assert(selector != EditMode::Invalid);
