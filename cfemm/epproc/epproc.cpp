@@ -182,6 +182,87 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
         }
     }
 
+    // Find extreme values of potential
+    d_PlotBounds[0][0]=A_Low;
+    d_PlotBounds[0][1]=A_High;
+    PlotBounds[0][0]=d_PlotBounds[0][0];
+    PlotBounds[0][1]=d_PlotBounds[0][1];
+
+    for(int i=0;i<(int)meshelems.size();i++)
+    {
+        auto elem = reinterpret_cast<CSElement*>(meshelems[i].get());
+        getNodalD(elem->d,i);
+    }
+
+    // Find extreme values of D and E;
+    const auto &labellist = problem->labellist;
+    int externalElements=0;
+    for (const auto& elem : meshelems)
+    {
+        const auto sElem = reinterpret_cast<CSElement*>(elem.get());
+        if (labellist[sElem->lbl]->IsExternal)
+            externalElements++;
+    }
+    d_PlotBounds[1][0]=abs(getMeshElement(externalElements)->D);
+    d_PlotBounds[1][1]=d_PlotBounds[1][0];
+    d_PlotBounds[2][0]=abs(E(getMeshElement(0)));
+    d_PlotBounds[2][1]=d_PlotBounds[2][0];
+    for (const auto& elem : meshelems)
+    {
+        const auto sElem = reinterpret_cast<CSElement*>(elem.get());
+        if(!labellist[sElem->lbl]->IsExternal){
+            double b=abs(sElem->D);
+            if(b>d_PlotBounds[1][1]) d_PlotBounds[1][1]=b;
+            if(b<d_PlotBounds[1][0]) d_PlotBounds[1][0]=b;
+
+            b=abs(E(sElem));
+            if(b>d_PlotBounds[2][1]) d_PlotBounds[2][1]=b;
+            if(b<d_PlotBounds[2][0]) d_PlotBounds[2][0]=b;
+        }
+    }
+    PlotBounds[1][0]=d_PlotBounds[1][0];
+    PlotBounds[1][1]=d_PlotBounds[1][1];
+    PlotBounds[2][0]=d_PlotBounds[2][0];
+    PlotBounds[2][1]=d_PlotBounds[2][1];
+
+    // // Choose bounds based on the type of contour plot
+    // // currently in play
+    // POSITION pos = GetFirstViewPosition();
+    // CbelaviewView *theView=(CbelaviewView *)GetNextView(pos);
+
+    // Build adjacency information for each element.
+    FindBoundaryEdges();
+
+    // Check to see if any regions are multiply defined
+    // (i.e. tagged by more than one block label). If so,
+    // display an error message and mark the problem blocks.
+    bMultiplyDefinedLabels = false;
+    for(int k=0;k<(int)labellist.size();k++)
+    {
+        assert(labellist[k]);
+        const auto label = reinterpret_cast<CSBlockLabel*>(labellist[k].get());
+        int i=InTriangle(label->x,label->y);
+        if(i>=0)
+        {
+            const auto& elem = getMeshElement(i);
+            if(elem->lbl!=k)
+            {
+                auto elemLabel = reinterpret_cast<CSBlockLabel*>(labellist[elem->lbl].get());
+                elemLabel->IsSelected=true;
+                if (!bMultiplyDefinedLabels)
+                {
+                    std::string msg;
+                    msg = "Some regions in the problem have been defined\n"
+                          "by more than one block label.  These potentially\n"
+                          "problematic regions will appear as selected in\n"
+                          "the initial view.";
+                    PrintWarningMsg(msg.c_str());
+                    bMultiplyDefinedLabels=true;
+                }
+            }
+        }
+    }
+
     return true;
 }
 
@@ -374,6 +455,7 @@ void ElectrostaticsPostProcessor::getPointValues(double x, double y, int k, CSPo
     double da=(b[0]*c[1]-b[1]*c[0]);
 
     auto elem=getMeshElement(k);
+    //std::cerr << "meshelems["<<k<<"] = " << *elem;
     getPointD(x,y,u.D,*elem);
     const CSMaterialProp *prop = dynamic_cast<CSMaterialProp *>(problem->blockproplist[elem->blk].get());
     u.e=prop->ex + I*prop->ey;
@@ -729,10 +811,179 @@ void ElectrostaticsPostProcessor::getElementD(int k)
     elem->D = eo*(E.re*mat->ex + I*E.im*mat->ey)/AECF(elem);
 }
 
+// almost the same as hpproc::GetNodalD; differences noted by comments
+void ElectrostaticsPostProcessor::getNodalD(CComplex *d, int N) const
+{
+    int i,j,k,n,m,p,eos,nos,qn;
+    int lf,rt;
+    double xi,yi,ii,xx,xy,yy,iv,xv,yv,dx,dy,dv,Ex,Ey,det;
+    static int q[21];
+    bool flag;
+
+    const auto &elem = getMeshElement(N);
+    for(i=0;i<3;i++)
+    {
+        j=elem->p[i];
+        lf=rt=-1;
+        flag=false;
+        for(eos=0;eos<NumList[j];eos++) if(ConList[j][eos]==N) break;
+
+        // scan ccw
+        for(k=0,m=eos,qn=0;k<NumList[j];k++)
+        {
+            n=ConList[j][m];
+            const auto &conElem = getMeshElement(n);
+            if(!isSameMaterial(*elem,*conElem)) break;
+
+            // figure out which node is the next one in the ccw direction
+            // Note that the ConList has been sorted in ccw order,
+            // and the nodes in each element are sorted in ccw order,
+            // making this task a bit easier.  The next node
+            // ends up in the variable p
+            for(nos=0;nos<3;nos++) if(conElem->p[nos]==j) break;
+            if(nos==3) break;
+            nos--;
+            if(nos<0) nos=2;
+            p=conElem->p[nos];
+
+            // add this node to the list.  We can have a max of 20 nodes,
+            // which should never actually occur (usually about 6 to 8)
+            if (qn<20) q[qn++]=p;
+
+            // if this is a fixed boundary, get out of the loop;
+            if ((meshnodes[j]->Q!=-2) && (meshnodes[p]->Q!=-2)){
+                rt=p;
+                break;
+            }
+
+            m++; if(m==NumList[j]) m=0;
+        }
+
+        // scan cw
+        for(k=0,m=eos;k<NumList[j];k++)
+        {
+            n=ConList[j][m];
+            const auto &conElem = getMeshElement(n);
+            if(!isSameMaterial(*elem,*conElem)) break;
+
+            // figure out which node is the next one in the cw direction
+            // The next node ends up in the variable p
+            for(nos=0;nos<3;nos++) if(conElem->p[nos]==j) break;
+            if(nos==3) break;
+            nos++;
+            if(nos>2) nos=0;
+            p=conElem->p[nos];
+
+            // add this node to the list.  We can have a max of 20 nodes,
+            // which should never actually occur (usually about 6 to 8)
+            if (qn<20) q[qn++]=p;
+
+            // if this node has a fixed definition, get out of the loop;
+            if((meshnodes[j]->Q!=-2) &&(meshnodes[p]->Q!=-2)){
+                lf=p;
+                break;
+            }
+
+            m--; if(m<0) m=NumList[j]-1;
+        }
+
+        // catch some annoying special cases;
+        if ((lf==rt) && (rt!=-1) && (meshnodes[j]->Q!=-2))
+        {
+            // The node of interest is at the end of a conductor; not much to
+            // do but punt;
+            d[i]=elem->D;
+            flag=true;
+        }
+        else if ((rt!=-1) && (meshnodes[j]->Q!=-2) && (lf==-1))
+        {
+            // Another instance of a node at the
+            // end of a conductor; punt!
+            d[i]=elem->D;
+            flag=true;
+        }
+        else if ((lf!=-1) && (meshnodes[j]->Q!=-2) && (rt==-1))
+        {
+            // Another instance of a node at the
+            // end of a conductor; punt!
+            d[i]=elem->D;
+            flag=true;
+        }
+        else if((lf==-1) && (rt==-1) && (meshnodes[j]->Q!=-2))
+        {
+            // The node of interest is an isolated charge. Again, not much to
+            // do but punt;
+            d[i]=elem->D;
+            flag=true;
+        }
+        else if((lf!=-1) && (rt!=-1) && (meshnodes[j]->Q!=-2))
+        {
+
+            // The node of interest is on some boundary where the charge is fixed.
+            // if the angle is shallow enough, we can just do the regular thing;
+            // Otherwise, we punt.
+            CComplex x,y;
+            x=meshnodes[lf]->CC()-meshnodes[j]->CC(); x/=abs(x);
+            y=meshnodes[j]->CC()-meshnodes[rt]->CC(); y/=abs(y);
+            if(std::abs(arg(x/y))>10.0001*PI/180.)
+            {
+                // if the angle is greater than 10 degrees, punt;
+                d[i]=elem->D;
+                flag=true;
+            }
+        }
+
+        if(flag==false)
+        {
+            // The nominal case.
+            // Fit a plane through the nodes in the list to solve for E.
+            // Then, multiply by permittivity to get D.
+            xi=yi=ii=xx=xy=yy=iv=xv=yv=0;
+
+            q[qn++]=j;
+
+            for(k=0;k<qn;k++)
+            {
+                dx=meshnodes[q[k]]->x-meshnodes[j]->x;
+                dy=meshnodes[q[k]]->y-meshnodes[j]->y;
+                // Note(ZaJ): hpproc -> dv=meshnodes[j]->T-meshnodes[q[k]]->T;
+                dv=getMeshNode(j)->V-getMeshNode(q[k])->V;
+
+                ii+=1.;
+                xi+=dx;
+                yi+=dy;
+                xx+=dx*dx;
+                xy+=dx*dy;
+                yy+=dy*dy;
+                iv+=dv;
+                xv+=dx*dv;
+                yv+=dy*dv;
+            }
+            det=(-(ii*xy*xy) + 2*xi*xy*yi - xx*yi*yi - xi*xi*yy + ii*xx*yy)*LengthConv[problem->LengthUnits];
+
+            if (det==0) d[i]=elem->D;
+            else{
+                Ex=(iv*xy*yi - xv*yi*yi - ii*xy*yv + xi*yi*yv - iv*xi*yy + ii*xv*yy)/det;
+                Ey=(iv*xi*xy - ii*xv*xy + xi*xv*yi - iv*xx*yi - xi*xi*yv + ii*xx*yv)/det;
+                CComplex kn;
+                // Note(ZaJ): hpproc:
+                // kn=problem->blockproplist[elem->blk]->GetK(meshnodes[j]->T);
+                auto bprop = reinterpret_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
+                kn = bprop->ex*eo;
+                d[i]= Re(kn)*Ex + I*Im(kn)*Ey;
+                d[i]/=AECF(elem,meshnodes[j]->CC());
+            }
+        }
+    }
+}
+
+
+
 void ElectrostaticsPostProcessor::getPointD(double x, double y, CComplex &D, const CSElement &elm) const
 {
     // elm is a reference to the element that contains the point of interest.
     if(!Smooth){
+        //std::cerr << "!Smooth -> D = " << elm.D.re << "+" << elm.D.im << "i\n";
         D=elm.D;
         return;
     }
@@ -754,5 +1005,16 @@ void ElectrostaticsPostProcessor::getPointD(double x, double y, CComplex &D, con
 
     D=0;
     for(int i=0;i<3;i++)
+    {
+        //std::cerr << "D += " << elm.d[i] << " * ( "<<a[i]<<" + "<<b[i]<<" * "<<x<<" + "<<c[i]<<" * "<<y<<" ) / " <<da << "\n";
         D+=(elm.d[i]*(a[i]+b[i]*x+c[i]*y)/da);
+    }
+}
+
+bool ElectrostaticsPostProcessor::isSameMaterial(const CSElement &e1, const CSElement &e2) const
+{
+    CSMaterialProp *m1 = reinterpret_cast<CSMaterialProp *>(problem->blockproplist[e1.blk].get());
+    CSMaterialProp *m2 = reinterpret_cast<CSMaterialProp *>(problem->blockproplist[e2.blk].get());
+
+    return ((m1->ex==m2->ex) &&  (m1->ey==m2->ey));
 }

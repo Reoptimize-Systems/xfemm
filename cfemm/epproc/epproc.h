@@ -133,6 +133,8 @@ private:
      */
     void getElementD(int k);
 
+    void getNodalD(CComplex *d, int N) const;
+
     /**
      * @brief getPointD
      * @param x
@@ -144,6 +146,17 @@ private:
      * \endinternal
      */
     void getPointD(double x, double y, CComplex &D, const femmsolver::CSElement &elm) const;
+
+    /**
+     * @brief isSameMaterial
+     * @param e1 material 1
+     * @param e2 material 2
+     * @return \c true, if the materials of e1 and e2 are the same, \c false otherwise
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::IsSameMaterial(int,int)}
+     * \endinternal
+     */
+    bool isSameMaterial(const femmsolver::CSElement &e1, const femmsolver::CSElement &e2) const;
 
     double A_High;
     double A_Low;
