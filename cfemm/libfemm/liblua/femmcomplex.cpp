@@ -827,3 +827,8 @@ CComplex Chop( const CComplex& a, double tol)
 
 	return b;
 }
+
+std::ostream &operator<<(std::ostream &os, const CComplex &a)
+{
+    return os << a.re << "+" << a.im <<"i";
+}
