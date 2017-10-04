@@ -22,6 +22,7 @@
 #ifndef CCOMPLEX_H
 #define CCOMPLEX_H
 
+#include <ostream>
 
 class CComplex
 {
@@ -154,7 +155,7 @@ CComplex pow( const CComplex& x, double y);
 CComplex pow( const CComplex& x,  const CComplex& y);
 CComplex Chop( const CComplex& a, double tol=1.e-12);
 
-
+std::ostream& operator<< (std::ostream& os, const CComplex& c);
 
 
 #endif // CCOMPLEX check
