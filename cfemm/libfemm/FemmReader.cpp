@@ -355,7 +355,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             success &= expectChar(input, '=', err);
             int k;
             success &= parseValue(input, k, err);
-            if (k>0) problem->labellist.reserve(problem->labellist.size()+k);
+            if (k>0 && !solutionReader) problem->labellist.reserve(problem->labellist.size()+k);
 
             // labellist contains both BlockLabels and holes. Therefore we can't use labellist.size:
             int num=0;
@@ -363,18 +363,22 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             std::string line;
             while (num < k && getline(input, line))
             {
-                size_t pos;
-                std::unique_ptr<BlockLabelT> label;
-                label = std::make_unique<BlockLabelT>();
+                // holes are not relevant for the post processor -> skip them when reading the solution
+                if (!solutionReader)
+                {
+                    size_t pos;
+                    std::unique_ptr<BlockLabelT> label;
+                    label = std::make_unique<BlockLabelT>();
 
-                trim(line);
-                label->x = std::stod(line, &pos);
-                line = line.substr(pos);
-                label->y = std::stod(line, &pos);
-                line = line.substr(pos);
-                label->InGroup = std::stoi(line, &pos);
+                    trim(line);
+                    label->x = std::stod(line, &pos);
+                    line = line.substr(pos);
+                    label->y = std::stod(line, &pos);
+                    line = line.substr(pos);
+                    label->InGroup = std::stoi(line, &pos);
 
-                problem->labellist.push_back(std::move(label));
+                    problem->labellist.push_back(std::move(label));
+                }
                 num++;
             }
             // message will be printed after parsing is done

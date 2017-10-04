@@ -51,9 +51,6 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
     using femmsolver::CSMeshNode;
     using femmsolver::CSElement;
 
-    // FemmReader also reads holes -> we need to purge them:
-    problem->purgeHoles();
-
     int k;
     // read in meshnodes;
     parseValue(input, k, err);
