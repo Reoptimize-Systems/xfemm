@@ -379,12 +379,6 @@ public:
     void mirrorCopy(double x0, double y0, double x1, double y1, femm::EditMode selector);
 
     /**
-     * @brief Delete all block labels that are holes.
-     * This method is used by the post processor to purge data about holes from the problem description.
-     */
-    void purgeHoles();
-
-    /**
      * @brief Rotate copies of the selected objects of the selected type.
      * Each copy is rotated by the given amount compared to the previous copy.
      * @param c center
