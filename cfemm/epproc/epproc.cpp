@@ -452,7 +452,6 @@ void ElectrostaticsPostProcessor::getPointValues(double x, double y, int k, CSPo
     double da=(b[0]*c[1]-b[1]*c[0]);
 
     auto elem=getMeshElement(k);
-    //std::cerr << "meshelems["<<k<<"] = " << *elem;
     getPointD(x,y,u.D,*elem);
     const CSMaterialProp *prop = dynamic_cast<CSMaterialProp *>(problem->blockproplist[elem->blk].get());
     u.e=prop->ex + I*prop->ey;
@@ -965,9 +964,9 @@ void ElectrostaticsPostProcessor::getNodalD(CComplex *d, int N) const
                 CComplex kn;
                 // Note(ZaJ): hpproc:
                 // kn=problem->blockproplist[elem->blk]->GetK(meshnodes[j]->T);
+                // d[i]= Re(kn)*Ex + I*Im(kn)*Ey;
                 auto bprop = reinterpret_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
-                kn = bprop->ex*eo;
-                d[i]= Re(kn)*Ex + I*Im(kn)*Ey;
+                d[i] = bprop->ex * Ex * eo + I * bprop->ey * Ey * eo;
                 d[i]/=AECF(elem,meshnodes[j]->CC());
             }
         }
@@ -980,7 +979,6 @@ void ElectrostaticsPostProcessor::getPointD(double x, double y, CComplex &D, con
 {
     // elm is a reference to the element that contains the point of interest.
     if(!Smooth){
-        //std::cerr << "!Smooth -> D = " << elm.D.re << "+" << elm.D.im << "i\n";
         D=elm.D;
         return;
     }
@@ -1003,7 +1001,6 @@ void ElectrostaticsPostProcessor::getPointD(double x, double y, CComplex &D, con
     D=0;
     for(int i=0;i<3;i++)
     {
-        //std::cerr << "D += " << elm.d[i] << " * ( "<<a[i]<<" + "<<b[i]<<" * "<<x<<" + "<<c[i]<<" * "<<y<<" ) / " <<da << "\n";
         D+=(elm.d[i]*(a[i]+b[i]*x+c[i]*y)/da);
     }
 }
