@@ -44,6 +44,8 @@ test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem")
 test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans")
 test_lua(femmcli_matlib)
 test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem")
+test_lua(femmcli_epproc)
+test_lua_setup(femmcli_epproc "femmcli_epproc.fee")
 
 # different working directory
 add_test(NAME femmcli_chdir.lua
