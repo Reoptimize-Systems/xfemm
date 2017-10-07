@@ -124,12 +124,12 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
         getElementD(i);
 
     // Find extreme values of A;
-    CSMeshNode *node = dynamic_cast<CSMeshNode*>(meshnodes[0].get());
+    CSMeshNode *node = reinterpret_cast<CSMeshNode*>(meshnodes[0].get());
     A_Low=node->V;
     A_High=node->V;
     for(int i=1;i<(int)meshnodes.size();i++)
     {
-        node = dynamic_cast<CSMeshNode*>(meshnodes[i].get());
+        node = reinterpret_cast<CSMeshNode*>(meshnodes[i].get());
         if (node->V>A_High) A_High=node->V;
         if (node->V<A_Low)  A_Low =node->V;
     }
@@ -459,7 +459,7 @@ void ElectrostaticsPostProcessor::getPointValues(double x, double y, int k, CSPo
 
     u.V=0;
     for(int i=0;i<3;i++)
-        u.V+=getMeshNode(i)->V*(a[i]+b[i]*x+c[i]*y)/(da);
+        u.V+=getMeshNode(n[i])->V*(a[i]+b[i]*x+c[i]*y)/(da);
     u.E.re = u.D.re/(u.e.re*eo);
     u.E.im = u.D.im/(u.e.im*eo);
 
