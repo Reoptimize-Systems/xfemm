@@ -24,6 +24,7 @@
 #include "stringTools.h"
 
 #include <cassert>
+#include <cmath>
 #include <string>
 #include <sstream>
 
