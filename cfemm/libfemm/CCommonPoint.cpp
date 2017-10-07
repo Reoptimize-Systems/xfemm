@@ -30,8 +30,7 @@
 */
 #include "CCommonPoint.h"
 
-#include <algorithm> //std::swap, pre C++11
-#include <utility>   //std::swap, since C++11
+#include <utility>   //std::swap
 using std::swap;
 
 // CCommonPoint construction
