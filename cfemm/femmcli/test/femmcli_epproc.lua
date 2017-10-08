@@ -1,7 +1,7 @@
 -- femmcli_epproc.lua
 -- The file femmcli_epproc.fee is the same as cfemm/esolver/test/test.fee
--- OUTPUT:
 -- SUCCESS
+showconsole()
 
 SUCCESS=1
 
