@@ -22,6 +22,7 @@
 #include "femmenums.h"
 #include "FemmState.h"
 #include "LuaInstance.h"
+#include "stringTools.h"
 
 #include <lua.h>
 
@@ -2569,5 +2570,46 @@ int femmcli::LuaCommonCommands::luaSetGroup(lua_State *L)
 
     doc->unselectAll();
 
+    return 0;
+}
+
+/**
+ * @brief This function controls whether or not smoothing is applied to the F and G/D and E/B and H fields.
+ * Setting flag equal to "on" turns on smoothing, and setting flag to "off" turns off smoothing.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_smooth("flag")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/belaviewLua.cpp,lua_smoothing()}
+ * - \femm42{femm/hviewLua.cpp,lua_smoothing()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSetSmoothing(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    std::string flag (lua_tostring(L,1));
+    to_lower(flag);
+    if (flag == "on")
+    {
+        pproc->setSmoothing(true);
+    } else if (flag == "off")
+    {
+        pproc->setSmoothing(false);
+    } else {
+        lua_error(L, "Unknown option for smoothing");
+    }
     return 0;
 }

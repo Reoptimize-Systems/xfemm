@@ -277,7 +277,7 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_showpoints", LuaInstance::luaNOP);
     li.addFunction("eo_show_vector_plot", LuaInstance::luaNOP);
     li.addFunction("eo_showvectorplot", LuaInstance::luaNOP);
-    li.addFunction("eo_smooth", LuaInstance::luaNOP);
+    li.addFunction("eo_smooth", LuaCommonCommands::luaSetSmoothing);
     li.addFunction("eo_zoom_in", LuaInstance::luaNOP);
     li.addFunction("eo_zoomin", LuaInstance::luaNOP);
     li.addFunction("eo_zoom", LuaInstance::luaNOP);

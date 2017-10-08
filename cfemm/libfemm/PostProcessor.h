@@ -166,11 +166,18 @@ public:
     bool selectBlocklabel(double px, double py);
 
     /**
+     * @brief setSmoothing
+     * @param value
+     */
+    void setSmoothing(bool value);
+
+    /**
      * @brief toggles the selection for all BlockLabels in a group.
      * This also invalidates the mask, if one has been made.
      * @param group the group index, or 0 for all.
      */
     void toggleSelectionForGroup(int group);
+
 
 protected:
     // General problem attributes

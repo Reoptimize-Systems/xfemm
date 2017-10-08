@@ -93,6 +93,7 @@ int luaSelectWithinRectangle(lua_State *L);
 int luaSetEditMode(lua_State *L);
 int luaSetFocus(lua_State *L);
 int luaSetGroup(lua_State *L);
+int luaSetSmoothing(lua_State *L);
 }
 
 } /* namespace femmcli*/

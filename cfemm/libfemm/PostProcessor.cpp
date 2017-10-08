@@ -134,6 +134,11 @@ bool PostProcessor::selectBlocklabel(double px, double py)
     return false;
 }
 
+void PostProcessor::setSmoothing(bool value)
+{
+    Smooth = value;
+}
+
 void PostProcessor::addContourPoint(CComplex p)
 {
     if (contour.empty() || p!=contour.back())
@@ -809,7 +814,6 @@ void PostProcessor::toggleSelectionForGroup(int group)
     }
     bHasMask = false;
 }
-
 
 // identical in FPProc and HPProc
 void femm::PostProcessor::FindBoundaryEdges()
