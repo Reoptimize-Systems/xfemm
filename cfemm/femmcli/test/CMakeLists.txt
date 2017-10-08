@@ -20,16 +20,35 @@ function(test_lua_setup testname)
     endforeach()
 endfunction()
 
-## test_lua_check(<name> <suffix> <file>)
+## test_lua_check(<name> <suffix> <file> <excluded_platform>...)
 # Add a test <name>.check.<suffix> that compares an output file of <name>.lua with <file>.
+# If <excluded_platform> is set, the test will be disabled on this/these platforms.
 function(test_lua_check testname suffix file)
-    # convert check file to native line endings:
-    configure_file("${CMAKE_CURRENT_LIST_DIR}/${file}.check" "${CMAKE_CURRENT_BINARY_DIR}/${file}.check" @ONLY NEWLINE_STYLE ${NEWLINE_NATIVE})
-    add_test(NAME ${testname}.check.${suffix}
-        COMMAND "${CMAKE_COMMAND}"
-        -E compare_files "${file}" "${file}.check"
-        )
-    set_tests_properties(${testname}.check.${suffix} PROPERTIES DEPENDS ${testname}.lua)
+    set(enabled TRUE)
+    if(ARGN)
+        foreach(var IN LISTS ARGN)
+            if(DEFINED "${var}")
+                #message("${testname} disabled (${var})")
+                set(enabled FALSE)
+                break()
+            endif()
+        endforeach()
+    endif()
+
+    # DISABLED property was introduced in cmake 3.9
+    # skip test alltogether in earlier versions
+    if(enabled OR NOT "${CMAKE_VERSION}" VERSION_LESS 3.9)
+        # convert check file to native line endings:
+        configure_file("${CMAKE_CURRENT_LIST_DIR}/${file}.check" "${CMAKE_CURRENT_BINARY_DIR}/${file}.check" @ONLY NEWLINE_STYLE ${NEWLINE_NATIVE})
+        add_test(NAME ${testname}.check.${suffix}
+            COMMAND "${CMAKE_COMMAND}"
+            -E compare_files "${file}" "${file}.check"
+            )
+        set_tests_properties(${testname}.check.${suffix} PROPERTIES DEPENDS ${testname}.lua)
+        if(NOT enabled)
+            set_tests_properties(${testname}.check.${suffix} PROPERTIES DISABLED TRUE)
+        endif()
+    endif()
 endfunction()
 
 ############################################################
@@ -40,12 +59,14 @@ test_lua(femmcli_compatmode)
 test_lua(femmcli_trace)
 test_lua(femmcli_femfile)
 test_lua_setup(femmcli_femfile "femmcli_femfile.fem")
-test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem")
-test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans")
+# these tests are on a hair trigger - don't enable them for windows builds
+test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem" WIN32)
+test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans" WIN32)
 test_lua(femmcli_fpproc)
 test_lua_setup(femmcli_fpproc "femmcli_fpproc.fem")
 test_lua(femmcli_matlib)
-test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem")
+# these tests are on a hair trigger - don't enable them for windows builds
+test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem" WIN32)
 test_lua(femmcli_epproc)
 test_lua_setup(femmcli_epproc "femmcli_epproc.fee")
 
