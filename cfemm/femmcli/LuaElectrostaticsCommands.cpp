@@ -1378,10 +1378,12 @@ int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProperty(lua_State *L)
  *
  * \internal
  * ### Implements:
- * - \lua{ei_set_block_prop("blockname", automesh, meshsize, group)}
+ * - \lua{ei_setblockprop("blockname", automesh, meshsize, group)}
+ * - \lua{hi_setblockprop("blockname", automesh, meshsize, group)}
  *
  * ### FEMM sources:
  * - \femm42{femm/beladrawLua.cpp,lua_setblockprop()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_setblockprop()}
  * \endinternal
  */
 int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProperty(lua_State *L)

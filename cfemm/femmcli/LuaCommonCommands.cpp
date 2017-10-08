@@ -53,10 +53,12 @@ using std::swap;
  * ### Implements:
  * - \lua{mi_addarc(x1,y1,x2,y2,angle,maxseg)}
  * - \lua{ei_add_arc(x1,y1,x2,y2,angle,maxseg)}
+ * - \lua{hi_add_arc(x1,y1,x2,y2,angle,maxseg)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_addarc()}
  * - \femm42{femm/beladrawLua.cpp,lua_addarc()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addarc()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAddArc(lua_State *L)
@@ -104,10 +106,12 @@ int femmcli::LuaCommonCommands::luaAddArc(lua_State *L)
  * ### Implements:
  * - \lua{mi_addblocklabel(x,y)}
  * - \lua{ei_add_block_label(x,y)}
+ * - \lua{hi_add_block_label(x,y)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_addlabel()}
  * - \femm42{femm/beladrawLua.cpp,lua_addlabel()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addlabel()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAddBlocklabel(lua_State *L)
@@ -157,9 +161,11 @@ int femmcli::LuaCommonCommands::luaAddBlocklabel(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{eo_addcontour(x,y)}
+ * - \lua{ho_addcontour(x,y)}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_addcontour()}
+ * - \femm42{femm/hviewLua.cpp,lua_addcontour()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAddContourPoint(lua_State *L)
@@ -191,11 +197,13 @@ int femmcli::LuaCommonCommands::luaAddContourPoint(lua_State *L)
  *
  * \internal
  * ### Implements:
- * - \lua{eo_selectpoint}
+ * - \lua{eo_selectpoint()}
+ * - \lua{ho_selectpoint()}
  *
  * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_selectline()}
  * - \femm42{femm/femmviewLua.cpp,lua_selectline()}
+ * - \femm42{femm/belaviewLua.cpp,lua_selectline()}
+ * - \femm42{femm/hviewLua.cpp,lua_selectline()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAddContourPointFromNode(lua_State *L)
@@ -229,11 +237,13 @@ int femmcli::LuaCommonCommands::luaAddContourPointFromNode(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mi_addsegment(x1,y1,x2,y2)}
- * - \lua{ei_add_segment(x1,y1,x2,y2)}
+ * - \lua{ei_addsegment(x1,y1,x2,y2)}
+ * - \lua{hi_addsegment(x1,y1,x2,y2)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_addline()}
  * - \femm42{femm/beladrawLua.cpp,lua_addline()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addline()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAddLine(lua_State *L)
@@ -271,11 +281,13 @@ int femmcli::LuaCommonCommands::luaAddLine(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mi_addnode(x,y)}
- * - \lua{ei_add_node(x,y)}
+ * - \lua{ei_addnode(x,y)}
+ * - \lua{hi_addnode(x,y)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_addnode()}
  * - \femm42{femm/beladrawLua.cpp,lua_addnode()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addnode()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
@@ -328,10 +340,12 @@ int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
  * ### Implements:
  * - \lua{mi_attachdefault()}
  * - \lua{ei_attachdefault()}
+ * - \lua{hi_attachdefault()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_attachdefault()}
  * - \femm42{femm/beladrawLua.cpp,lua_attachdefault()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_attachdefault()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAttachDefault(lua_State *L)
@@ -362,10 +376,12 @@ int femmcli::LuaCommonCommands::luaAttachDefault(lua_State *L)
  * ### Implements:
  * - \lua{mi_attachouterspace()}
  * - \lua{ei_attachouterspace()}
+ * - \lua{hi_attachouterspace()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_attachouterspace()}
  * - \femm42{femm/beladrawLua.cpp,lua_attachouterspace()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_attachouterspace()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAttachOuterSpace(lua_State *L)
@@ -400,9 +416,11 @@ int femmcli::LuaCommonCommands::luaAttachOuterSpace(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{eo_bendcontour}
+ * - \lua{ho_bendcontour}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_bendcontour()}
+ * - \femm42{femm/hviewLua.cpp,lua_bendcontour()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaBendContourLine(lua_State *L)
@@ -429,9 +447,11 @@ int femmcli::LuaCommonCommands::luaBendContourLine(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{eo_clearblock}
+ * - \lua{ho_clearblock}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_clearblock()}
+ * - \femm42{femm/hviewLua.cpp,lua_clearblock()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaClearBlockSelection(lua_State *L)
@@ -459,9 +479,11 @@ int femmcli::LuaCommonCommands::luaClearBlockSelection(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{eo_clearcontour}
+ * - \lua{ho_clearcontour}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_clearcontour()}
+ * - \femm42{femm/hviewLua.cpp,lua_clearcontour()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaClearContourPoint(lua_State *L)
@@ -491,10 +513,12 @@ int femmcli::LuaCommonCommands::luaClearContourPoint(lua_State *L)
  * ### Implements:
  * - \lua{mi_clearselected()}
  * - \lua{ei_clearselected()}
+ * - \lua{hi_clearselected()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_clearselected()}
  * - \femm42{femm/beladrawLua.cpp,lua_clearselected()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_clearselected()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
@@ -517,10 +541,12 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
  * ### Implements:
  * - \lua{mi_copyrotate(bx, by, angle, copies, (editaction) )}
  * - \lua{ei_copyrotate(bx, by, angle, copies, (editaction) )}
+ * - \lua{hi_copyrotate(bx, by, angle, copies, (editaction) )}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_copy_rotate()}
  * - \femm42{femm/beladrawLua.cpp,lua_copy_rotate()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_copy_rotate()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
@@ -576,9 +602,12 @@ int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
  * ### Implements:
  * - \lua{mi_copytranslate(dx, dy, copies, (editaction))}
  * - \lua{ei_copytranslate(dx, dy, copies, (editaction))}
+ * - \lua{hi_copytranslate(dx, dy, copies, (editaction))}
+ *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_copy_translate()}
  * - \femm42{femm/beladrawLua.cpp,lua_copy_translate()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_copy_translate()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
@@ -633,10 +662,12 @@ int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
  * ### Implements:
  * - \lua{mi_deleteboundprop("propname")}
  * - \lua{ei_deleteboundprop("propname")}
+ * - \lua{hi_deleteboundprop("propname")}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_delboundprop()}
  * - \femm42{femm/beladrawLua.cpp,lua_delboundprop()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_delboundprop()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeleteBoundaryProperty(lua_State *L)
@@ -667,10 +698,12 @@ int femmcli::LuaCommonCommands::luaDeleteBoundaryProperty(lua_State *L)
  * ### Implements:
  * - \lua{mi_deletecircuit("circuitname")}
  * - \lua{ei_deleteconductor("circuitname")}
+ * - \lua{hi_deleteconductor("circuitname")}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_delcircuitprop()}
  * - \femm42{femm/beladrawLua.cpp,lua_delcircuitprop()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_delcircuitprop()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeleteCircuitProperty(lua_State *L)
@@ -701,10 +734,12 @@ int femmcli::LuaCommonCommands::luaDeleteCircuitProperty(lua_State *L)
  * ### Implements:
  * - \lua{mi_deletematerial("materialname")} deletes the material named "materialname".
  * - \lua{ei_deletematerial("materialname")} deletes the material named "materialname".
+ * - \lua{hi_deletematerial("materialname")} deletes the material named "materialname".
 
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_delmatprop()}
  * - \femm42{femm/beladrawLua.cpp,lua_delmatprop()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_delmatprop()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeleteMaterial(lua_State *L)
@@ -735,10 +770,12 @@ int femmcli::LuaCommonCommands::luaDeleteMaterial(lua_State *L)
  * ### Implements:
  * - \lua{mi_deletepointprop("pointpropname")} deletes the point property named "pointpropname"
  * - \lua{ei_deletepointprop("pointpropname")} deletes the point property named "pointpropname"
+ * - \lua{hi_deletepointprop("pointpropname")} deletes the point property named "pointpropname"
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_delpointprop()}
  * - \femm42{femm/beladrawLua.cpp,lua_delpointprop()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_delpointprop()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeletePointProperty(lua_State *L)
@@ -769,10 +806,12 @@ int femmcli::LuaCommonCommands::luaDeletePointProperty(lua_State *L)
  * ### Implements:
  * - \lua{mi_deleteselected()}
  * - \lua{ei_deleteselected()}
+ * - \lua{hi_deleteselected()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_deleteselected()}
  * - \femm42{femm/beladrawLua.cpp,lua_deleteselected()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_deleteselected()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeleteSelected(lua_State *L)
@@ -799,10 +838,12 @@ int femmcli::LuaCommonCommands::luaDeleteSelected(lua_State *L)
  * ### Implements:
  * - \lua{mi_deleteselectedarcsegments()}
  * - \lua{ei_deleteselectedarcsegments()}
+ * - \lua{hi_deleteselectedarcsegments()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_deleteselectedarcsegments()}
  * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedarcsegments()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_deleteselectedarcsegments()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeleteSelectedArcSegments(lua_State *L)
@@ -825,10 +866,12 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedArcSegments(lua_State *L)
  * ### Implements:
  * - \lua{mi_deleteselectedlabels()}
  * - \lua{ei_deleteselectedlabels()}
+ * - \lua{hi_deleteselectedlabels()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_deleteselectedlabels()}
  * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedlabels()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_deleteselectedlabels()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeleteSelectedBlockLabels(lua_State *L)
@@ -851,10 +894,12 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedBlockLabels(lua_State *L)
  * ### Implements:
  * - \lua{mi_deleteselectednodes()}
  * - \lua{ei_deleteselectednodes()}
+ * - \lua{hi_deleteselectednodes()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_deleteselectednodes()}
  * - \femm42{femm/beladrawLua.cpp,lua_deleteselectednodes()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_deleteselectednodes()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeleteSelectedNodes(lua_State *L)
@@ -878,10 +923,12 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedNodes(lua_State *L)
  * ### Implements:
  * - \lua{mi_deleteselectedsegments()}
  * - \lua{ei_deleteselectedsegments()}
+ * - \lua{hi_deleteselectedsegments()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_deleteselectedsegments()}
  * - \femm42{femm/beladrawLua.cpp,lua_deleteselectedsegments()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_deleteselectedsegments()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDeleteSelectedSegments(lua_State *L)
@@ -905,10 +952,12 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedSegments(lua_State *L)
  * ### Implements:
  * - \lua{mi_detachdefault()}
  * - \lua{ei_detachdefault()}
+ * - \lua{hi_detachdefault()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_detachdefault()}
  * - \femm42{femm/beladrawLua.cpp,lua_detachdefault()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_detachdefault()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDetachDefault(lua_State *L)
@@ -936,10 +985,12 @@ int femmcli::LuaCommonCommands::luaDetachDefault(lua_State *L)
  * ### Implements:
  * - \lua{mi_detachouterspace()}
  * - \lua{ei_detachouterspace()}
+ * - \lua{hi_detachouterspace()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_detachouterspace()}
  * - \femm42{femm/beladrawLua.cpp,lua_detachouterspace()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_detachouterspace()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDetachOuterSpace(lua_State *L)
@@ -967,11 +1018,13 @@ int femmcli::LuaCommonCommands::luaDetachOuterSpace(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mo_close()}
- * - \lua{eo_close}
+ * - \lua{eo_close()}
+ * - \lua{ho_close()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmviewLua.cpp,lua_exitpost()}
  * - \femm42{femm/belaviewLua.cpp,lua_exitpost()}
+ * - \femm42{femm/hviewLua.cpp,lua_exitpost()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaExitPost(lua_State *L)
@@ -1016,10 +1069,12 @@ int femmcli::LuaCommonCommands::luaExitPre(lua_State *L)
  * ### Implements:
  * - \lua{mi_getboundingbox()}<br> \b undocumented in manual42
  * - \lua{ei_getboundingbox()}<br> \b undocumented in manual42
+ * - \lua{hi_getboundingbox()}<br> \b undocumented in manual42
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_getboundingbox()}
  * - \femm42{femm/beladrawLua.cpp,lua_getboundingbox()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_getboundingbox()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaGetBoundingBox(lua_State *L)
@@ -1058,10 +1113,12 @@ int femmcli::LuaCommonCommands::luaGetBoundingBox(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{eo_getelement(n)}
+ * - \lua{ho_getelement(n)}
  *
  * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_getelement()}
  * - \femm42{femm/femmviewLua.cpp,lua_getelement()}
+ * - \femm42{femm/belaviewLua.cpp,lua_getelement()}
+ * - \femm42{femm/hviewLua.cpp,lua_getelement()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaGetElement(lua_State *L)
@@ -1103,9 +1160,11 @@ int femmcli::LuaCommonCommands::luaGetElement(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{eo_getnode(n)}
+ * - \lua{ho_getnode(n)}
  *
  * ### FEMM sources:
  * - \femm42{femm/belaviewLua.cpp,lua_getnode()}
+ * - \femm42{femm/hviewLua.cpp,lua_getnode()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaGetMeshNode(lua_State *L)
@@ -1143,10 +1202,16 @@ int femmcli::LuaCommonCommands::luaGetMeshNode(lua_State *L)
  * - \lua{mo_getprobleminfo()}
  * - \lua{ei_getprobleminfo()}
  * - \lua{eo_getprobleminfo()}
+ * - \lua{hi_getprobleminfo()}
+ * - \lua{ho_getprobleminfo()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_getprobleminfo()}
+ * - \femm42{femm/femmeviewLua.cpp,lua_getprobleminfo()}
  * - \femm42{femm/beladrawLua.cpp,lua_getprobleminfo()}
+ * - \femm42{femm/belaviewLua.cpp,lua_getprobleminfo()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_getprobleminfo()}
+ * - \femm42{femm/hviewLua.cpp,lua_getprobleminfo()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaGetProblemInfo(lua_State *L)
@@ -1204,10 +1269,16 @@ int femmcli::LuaCommonCommands::luaGetProblemInfo(lua_State *L)
  * - \lua{mo_gettitle()}
  * - \lua{ei_gettitle()}
  * - \lua{eo_gettitle()}
+ * - \lua{hi_gettitle()}
+ * - \lua{ho_gettitle()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_gettitle()}
+ * - \femm42{femm/femmviewLua.cpp,lua_gettitle()}
  * - \femm42{femm/beladrawLua.cpp,lua_gettitle()}
+ * - \femm42{femm/belaviewLua.cpp,lua_gettitle()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_gettitle()}
+ * - \femm42{femm/hviewLua.cpp,lua_gettitle()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaGetTitle(lua_State *L)
@@ -1232,11 +1303,12 @@ int femmcli::LuaCommonCommands::luaGetTitle(lua_State *L)
  *
  * \internal
  * ### Implements:
- * - \lua{eo_groupselectblock}
+ * - \lua{eo_groupselectblock()}
+ * - \lua{ho_groupselectblock()}
  *
  * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_groupselectblock()}
  * - \femm42{femm/femmviewLua.cpp,lua_groupselectblock()}
+ * - \femm42{femm/hviewLua.cpp,lua_groupselectblock()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaGroupSelectBlock(lua_State *L)
@@ -1277,10 +1349,16 @@ int femmcli::LuaCommonCommands::luaGroupSelectBlock(lua_State *L)
  * - \lua{mo_reload()}
  * - \lua{ei_loadsolution()}
  * - \lua{eo_reload()}
+ * - \lua{hi_loadsolution()}
+ * - \lua{ho_reload()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_runpost()}
+ * - \femm42{femm/femmviewLua.cpp,lua_runpost()}
  * - \femm42{femm/beladrawLua.cpp,lua_runpost()}
+ * - \femm42{femm/belaviewLua.cpp,lua_runpost()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_runpost()}
+ * - \femm42{femm/hviewLua.cpp,lua_runpost()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaLoadSolution(lua_State *L)
@@ -1325,10 +1403,12 @@ int femmcli::LuaCommonCommands::luaLoadSolution(lua_State *L)
  * ### Implements:
  * - \lua{mi_mirror(x1,y1,x2,y2,(editaction))}
  * - \lua{ei_mirror(x1,y1,x2,y2,(editaction))}
+ * - \lua{hi_mirror(x1,y1,x2,y2,(editaction))}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_mirror()}
  * - \femm42{femm/beladrawLua.cpp,lua_mirror()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_mirror()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
@@ -1379,10 +1459,12 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
  * ### Implements:
  * - \lua{mi_moverotate(bx,by,shiftangle,(editaction))}
  * - \lua{ei_moverotate(bx,by,shiftangle,(editaction))}
+ * - \lua{hi_moverotate(bx,by,shiftangle,(editaction))}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_move_rotate()}
  * - \femm42{femm/beladrawLua.cpp,lua_move_rotate()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_move_rotate()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
@@ -1437,10 +1519,12 @@ int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
  * ### Implements:
  * - \lua{mi_movetranslate(dx,dy,(editaction))}
  * - \lua{ei_movetranslate(dx,dy,(editaction))}
+ * - \lua{hi_movetranslate(dx,dy,(editaction))}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_move_translate()}
  * - \femm42{femm/beladrawLua.cpp,lua_move_translate()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_move_translate()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
@@ -1493,10 +1577,12 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
  * ### Implements:
  * - \lua{mo_numelements()} Returns the number of elements in the in focus magnets output mesh.
  * - \lua{eo_numelements()}
+ * - \lua{ho_numelements()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmviewLua.cpp,lua_numelements()}
  * - \femm42{femm/belaviewLua.cpp,lua_numelements()}
+ * - \femm42{femm/hviewLua.cpp,lua_numelements()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaNumElements(lua_State *L)
@@ -1523,10 +1609,12 @@ int femmcli::LuaCommonCommands::luaNumElements(lua_State *L)
  * ### Implements:
  * - \lua{mo_numnodes()} Returns the number of nodes in the in focus magnetics output mesh.
  * - \lua{eo_numnodes()}
+ * - \lua{ho_numnodes()}
  *
  * ### FEMM source:
  * - \femm42{femm/femmviewLua.cpp,lua_numnodes()}
  * - \femm42{femm/belaviewLua.cpp,lua_numnodes()}
+ * - \femm42{femm/hviewLua.cpp,lua_numnodes()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaNumNodes(lua_State *L)
@@ -1554,10 +1642,12 @@ int femmcli::LuaCommonCommands::luaNumNodes(lua_State *L)
  * ### Implements:
  * - \lua{mi_purgemesh()} clears the mesh out of both the screen and memory.
  * - \lua{ei_purgemesh()} clears the mesh out of both the screen and memory.
+ * - \lua{hi_purgemesh()} clears the mesh out of both the screen and memory.
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_purge_mesh()}
  * - \femm42{femm/beladrawLua.cpp,lua_purge_mesh()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_purge_mesh()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaPurgeMesh(lua_State *L)
@@ -1589,16 +1679,20 @@ int femmcli::LuaCommonCommands::luaPurgeMesh(lua_State *L)
  * ### Implements:
  * - \lua{mi_createmesh()} runs triangle to create a mesh.
  * - \lua{ei_createmesh()} runs triangle to create a mesh.
+ * - \lua{hi_createmesh()} runs triangle to create a mesh.
  *
  * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_create_mesh()}
- *
- * #### Additional source:
  * - \femm42{femm/femmeLua.cpp,lua_create_mesh()}: extracts thisDoc (=mesherDoc) and the accompanying FemmeViewDoc, calls CFemmeView::lnuMakeMesh()
  * - \femm42{femm/beladrawLua.cpp,lua_create_mesh()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_create_mesh()}
+ *
+ * #### Additional source:
  * - \femm42{femm/FemmeDoc.cpp,CFemmeView::lnuMakeMesh()}: calls OnMakeMesh
  * - \femm42{femm/FemmeView.cpp,CFemmeView::OnMakeMesh()}: does the things we do here directly...
+ * - \femm42{femm/beladrawLua.cpp,CbeladrawView::lnuMakeMesh()}
  * - \femm42{femm/beladrawView.cpp,CbeladrawView::OnMakeMesh()}
+ * - \femm42{femm/HDRAWLUA.cpp,hdrawView::lnuMakeMesh()}
+ * - \femm42{femm/hdrawView.cpp,ChdrawView::OnMakeMesh()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaCreateMesh(lua_State *L)
@@ -1675,10 +1769,12 @@ int femmcli::LuaCommonCommands::luaCreateMesh(lua_State *L)
  * ### Implements:
  * - \lua{mi_createradius(x,y,r)}
  * - \lua{ei_createradius(x,y,r)}
+ * - \lua{hi_createradius(x,y,r)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_createradius()}
  * - \femm42{femm/beladrawLua.cpp,lua_createradius()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_createradius()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
@@ -1727,10 +1823,12 @@ int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
  * ### Implements:
  * - \lua{mi_defineouterspace(Zo,Ro,Ri)}
  * - \lua{ei_defineouterspace(Zo,Ro,Ri)}
+ * - \lua{hi_defineouterspace(Zo,Ro,Ri)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_defineouterspace()}
  * - \femm42{femm/beladrawLua.cpp,lua_defineouterspace()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_defineouterspace()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaDefineOuterSpace(lua_State *L)
@@ -1800,10 +1898,12 @@ int femmcli::LuaCommonCommands::luaSaveDocument(lua_State *L)
  * ### Implements:
  * - \lua{mi_scale(bx,by,scalefactor,(editaction))}
  * - \lua{ei_scale(bx,by,scalefactor,(editaction))}
+ * - \lua{hi_scale(bx,by,scalefactor,(editaction))}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_scale()}
  * - \femm42{femm/beladrawLua.cpp,lua_scale()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_scale()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
@@ -1853,11 +1953,13 @@ int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mi_selectarcsegment(x,y)}
- * - \lua{ei_select_arcsegment(x,y)}
+ * - \lua{ei_selectarcsegment(x,y)}
+ * - \lua{hi_selectarcsegment(x,y)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_selectarcsegment()}
  * - \femm42{femm/beladrawLua.cpp,lua_selectarcsegment()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_selectarcsegment()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSelectArcsegment(lua_State *L)
@@ -1893,11 +1995,13 @@ int femmcli::LuaCommonCommands::luaSelectArcsegment(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mi_selectlabel(x,y)}
- * - \lua{ei_select_label(x,y)}
+ * - \lua{ei_selectlabel(x,y)}
+ * - \lua{hi_selectlabel(x,y)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_selectlabel()}
  * - \femm42{femm/beladrawLua.cpp,lua_selectlabel()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_selectlabel()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSelectBlocklabel(lua_State *L)
@@ -1932,10 +2036,12 @@ int femmcli::LuaCommonCommands::luaSelectBlocklabel(lua_State *L)
  * ### Implements:
  * - \lua{mi_selectgroup(n)}
  * - \lua{ei_selectgroup(n)}
+ * - \lua{hi_selectgroup(n)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_selectgroup()}
  * - \femm42{femm/beladrawLua.cpp,lua_selectgroup()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_selectgroup()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSelectGroup(lua_State *L)
@@ -2001,11 +2107,13 @@ int femmcli::LuaCommonCommands::luaSelectGroup(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mi_selectnode(x,y)}
- * - \lua{ei_select_node(x,y)}
+ * - \lua{ei_selectnode(x,y)}
+ * - \lua{hi_selectnode(x,y)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_selectnode()}
  * - \femm42{femm/beladrawLua.cpp,lua_selectnode()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_selectnode()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSelectNode(lua_State *L)
@@ -2038,10 +2146,12 @@ int femmcli::LuaCommonCommands::luaSelectNode(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{eo_selectblock(X,Y)}
+ * - \lua{ho_selectblock(X,Y)}
  *
  * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_selectblock()}
  * - \femm42{femm/femmviewLua.cpp,lua_selectblock()}
+ * - \femm42{femm/belaviewLua.cpp,lua_selectblock()}
+ * - \femm42{femm/hviewLua.cpp,lua_selectblock()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSelectOutputBlocklabel(lua_State *L)
@@ -2075,11 +2185,13 @@ int femmcli::LuaCommonCommands::luaSelectOutputBlocklabel(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{mi_selectsegment(x,y)}
- * - \lua{ei_select_segment(x,y)}
+ * - \lua{ei_selectsegment(x,y)}
+ * - \lua{hi_selectsegment(x,y)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_selectsegment()}
  * - \femm42{femm/beladrawLua.cpp,lua_selectsegment()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_selectsegment()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
@@ -2115,10 +2227,12 @@ int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
  * ### Implements:
  * - \lua{mi_selectcircle(x,y,R,(editmode))}
  * - \lua{ei_selectcircle(x,y,R,(editmode))}
+ * - \lua{hi_selectcircle(x,y,R,(editmode))}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_selectcircle()}
  * - \femm42{femm/beladrawLua.cpp,lua_selectcircle()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_selectcircle()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSelectWithinCircle(lua_State *L)
@@ -2202,10 +2316,12 @@ int femmcli::LuaCommonCommands::luaSelectWithinCircle(lua_State *L)
  * ### Implements:
  * - \lua{mi_selectrectangle(x1,y1,x2,y2,(editmode))}
  * - \lua{ei_selectrectangle(x1,y1,x2,y2,(editmode))}
+ * - \lua{hi_selectrectangle(x1,y1,x2,y2,(editmode))}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_selectrectangle()}
  * - \femm42{femm/beladrawLua.cpp,lua_selectrectangle()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_selectrectangle()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
@@ -2311,10 +2427,12 @@ int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
  * ### Implements:
  * - \lua{mi_seteditmode(editmode)}
  * - \lua{ei_seteditmode(editmode)}
+ * - \lua{hi_seteditmode(editmode)}
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_seteditmode()}
  * - \femm42{femm/beladrawLua.cpp,lua_seteditmode()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_seteditmode()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSetEditMode(lua_State *L)
@@ -2356,7 +2474,6 @@ int femmcli::LuaCommonCommands::luaSetEditMode(lua_State *L)
  * @param L
  * @return 0
  * \ingroup LuaMM
- * - \femm42{femm/femmeLua.cpp,lua_switchfocus()}
  *
  * \internal
  * ### Implements:
@@ -2364,10 +2481,16 @@ int femmcli::LuaCommonCommands::luaSetEditMode(lua_State *L)
  * - \lua{mo_setfocus("documentname")}
  * - \lua{ei_setfocus("documentname")}
  * - \lua{eo_setfocus("documentname")}
+ * - \lua{hi_setfocus("documentname")}
+ * - \lua{ho_setfocus("documentname")}
  *
  * ### FEMM source:
+ * - \femm42{femm/femmeLua.cpp,lua_switchfocus()}
  * - \femm42{femm/femmeviewLua.cpp,lua_switchfocus()}
  * - \femm42{femm/beladrawLua.cpp,lua_switchfocus()}
+ * - \femm42{femm/belaviewLua.cpp,lua_switchfocus()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_switchfocus()}
+ * - \femm42{femm/hviewLua.cpp,lua_switchfocus()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSetFocus(lua_State *L)
@@ -2399,10 +2522,12 @@ int femmcli::LuaCommonCommands::luaSetFocus(lua_State *L)
  * ### Implements:
  * - \lua{mi_setgroup(n)} Set the group associated of the selected items to n
  * - \lua{ei_setgroup(n)} Set the group associated of the selected items to n
+ * - \lua{hi_setgroup(n)} Set the group associated of the selected items to n
  *
  * ### FEMM source:
  * - \femm42{femm/femmeLua.cpp,lua_setgroup()}
  * - \femm42{femm/beladrawLua.cpp,lua_setgroup()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_setgroup()}
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaSetGroup(lua_State *L)
