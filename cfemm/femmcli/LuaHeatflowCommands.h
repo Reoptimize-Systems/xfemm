@@ -15,8 +15,8 @@
  * along with the source code.
  */
 
-#ifndef LUAELECTROSTATICSCOMMANDS_H
-#define LUAELECTROSTATICSCOMMANDS_H
+#ifndef LUAHEATFLOWCOMMANDS_H
+#define LUAHEATFLOWCOMMANDS_H
 
 struct lua_State;
 
@@ -28,11 +28,11 @@ namespace femmcli
 {
 
 /**
- * LuaElectrostaticsCommands provides the lua commands related to electrostatics.
- * The Lua magnetics command set is described in sections 3.5 and 3.6 of the FEMM manual.
+ * LuaHeatflowCommands provides the lua commands related to Heatflow.
+ * The Lua magnetics command set is described in sections 3.7 and 3.8 of the FEMM manual.
  *
  */
-namespace LuaElectrostaticsCommands
+namespace LuaHeatflowCommands
 {
 /**
  * @brief Register the common command set with the given LuaInstance
@@ -67,6 +67,6 @@ int luaSetSegmentProperty(lua_State *L);
 
 } /* namespace FemmLua*/
 
-#endif /* LUAELECTROSTATICSCOMMANDS_H */
+#endif /* LUAHEATFLOWCOMMANDS_H */
 // vi:expandtab:tabstop=4 shiftwidth=4:
 

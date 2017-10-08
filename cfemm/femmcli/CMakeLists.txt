@@ -3,10 +3,16 @@ add_library(femmcli STATIC
     LuaBaseCommands.cpp
     LuaCommonCommands.cpp
     LuaElectrostaticsCommands.cpp
+    LuaHeatflowCommands.cpp
     LuaMagneticsCommands.cpp
     )
 target_include_directories(femmcli PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
-target_link_libraries(femmcli PUBLIC femm fmesher epproc esolver fsolver fpproc)
+target_link_libraries(femmcli
+    PUBLIC femm fmesher
+    esolver epproc
+    fsolver fpproc
+    hsolver hpproc
+    )
 
 add_executable(femmcli-bin
     main.cpp
@@ -15,7 +21,7 @@ add_executable(femmcli-bin
 set_target_properties(femmcli-bin
     PROPERTIES OUTPUT_NAME femmcli)
 
-target_link_libraries(femmcli-bin femm femmcli esolver fsolver)
+target_link_libraries(femmcli-bin femm femmcli )
 
 add_subdirectory(test)
 
