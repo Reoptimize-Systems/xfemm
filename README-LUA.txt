@@ -8,7 +8,7 @@ Run "femmcli --help" for usage information.
 Known issues
 ------------
 
- - Heat flow commands are missing
+ - Heat flow commands are missing (pending)
  - Current flow commands are missing (current flow is absent from xfemm)
 
 
