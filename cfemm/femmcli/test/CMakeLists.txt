@@ -69,6 +69,8 @@ test_lua(femmcli_matlib)
 test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem" WIN32)
 test_lua(femmcli_epproc)
 test_lua_setup(femmcli_epproc "femmcli_epproc.fee")
+#test_lua(femmcli_hpproc)
+#test_lua_setup(femmcli_hpproc "femmcli_epproc.fee")
 
 # different working directory
 add_test(NAME femmcli_chdir.lua
