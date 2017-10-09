@@ -64,15 +64,12 @@ using std::string;
 
 // HPProc construction/destruction
 
-double sqr(double x)
+namespace {
+constexpr double sqr(double x)
 {
     return x*x;
 }
-
-double sq(double x)
-{
-	return x*x;
-}
+} // anon namespace
 
 /**
  * Constuctor for the HPProc class.
@@ -1648,7 +1645,7 @@ void HPProc::LineIntegral(int inttype, double *z)
 					Fn = Re(v.F/n);
 
                     if (problemType==AXISYMMETRIC)
-						d=2.*PI*pt.re*sq(LengthConv[LengthUnits]);
+                        d=2.*PI*pt.re*sqr(LengthConv[LengthUnits]);
 					else
 						d=Depth*LengthConv[LengthUnits];
 
@@ -1720,7 +1717,7 @@ void HPProc::LineIntegral(int inttype, double *z)
 
                 if(flag==true){
                     if (problemType==AXISYMMETRIC)
-						d=2.*PI*pt.re*sq(LengthConv[LengthUnits]);
+                        d=2.*PI*pt.re*sqr(LengthConv[LengthUnits]);
 					else
 						d=Depth*LengthConv[LengthUnits];
 

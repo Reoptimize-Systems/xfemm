@@ -60,9 +60,14 @@ template class FEASolver<
 #define _strnicmp strncasecmp
 #endif
 
+namespace {
 //conversion to internal working units of mm
-double units[]={25.4,1.,10.,1000.,0.0254,0.001};
-double sq(double x){ return x*x; }
+constexpr double units[]={25.4,1.,10.,1000.,0.0254,0.001};
+constexpr double sqr(double x)
+{
+    return x*x;
+}
+} // anon namespace
 
 using namespace std;
 using namespace femm;
@@ -461,8 +466,8 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 		q[2]=meshnode[n[1]].x - meshnode[n[0]].x;
 		for(j=0,k=1;j<3;k++,j++){
 			if (k==3) k=0;
-			l[j]=sqrt( sq(meshnode[n[k]].x-meshnode[n[j]].x) +
-					   sq(meshnode[n[k]].y-meshnode[n[j]].y) );
+			l[j]=sqrt( sqr(meshnode[n[k]].x-meshnode[n[j]].x) +
+					   sqr(meshnode[n[k]].y-meshnode[n[j]].y) );
 		}
 		a=(p[0]*q[1]-p[1]*q[0])/2.;
 		r=(meshnode[n[0]].x+meshnode[n[1]].x+meshnode[n[2]].x)/3.;
