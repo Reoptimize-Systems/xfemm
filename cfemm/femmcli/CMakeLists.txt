@@ -21,7 +21,7 @@ add_executable(femmcli-bin
 set_target_properties(femmcli-bin
     PROPERTIES OUTPUT_NAME femmcli)
 
-target_link_libraries(femmcli-bin femm femmcli )
+target_link_libraries(femmcli-bin femmcli )
 
 add_subdirectory(test)
 
