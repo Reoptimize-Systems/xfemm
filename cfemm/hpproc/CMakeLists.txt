@@ -16,4 +16,6 @@ install(
     RUNTIME DESTINATION bin
     COMPONENT "cli (debug)"
     CONFIGURATIONS "Debug")
+
+add_subdirectory(test)
 # vi:expandtab:tabstop=4 shiftwidth=4:

@@ -24,17 +24,35 @@
         richard.crozier@yahoo.co.uk
 */
 
-#include <iostream>
-#include <cstdio>
 #include "hpproc.h"
 #include "femmcomplex.h"
+
+#include <cstdio>
+#include <iostream>
 
 using namespace std;
 
 
-int main()
+int main(int argc, char **argv)
 {
-    string mystr;
+    string doc;
+    if (argc<=1)
+        doc = "./test/Temp0.anh";
+    else if (argc >= 2)
+        doc = argv[1];
+
+    FILE *of = stdout;
+    if (argc == 3)
+    {
+        of = fopen(argv[2], "w");
+        if (!of)
+        {
+            printf("Could not open file %s for writing!\n",argv[2]);
+            return 1;
+        }
+    }
+
+
     HPProc testHPProc;
     CComplex out;
     CHPointVals u;
@@ -42,8 +60,7 @@ int main()
 
     cout << "HPProc Loaded!" << endl;
 
-
-    int test = testHPProc.OpenDocument("./test/Temp0.anh");
+    int test = testHPProc.OpenDocument(doc);
 
     if (test==true)
     {
@@ -67,57 +84,58 @@ int main()
 
 
         out = testHPProc.BlockIntegral(0);
-        printf ("Block Temperature Integral for block 0 %f\n", out.Re());
+        fprintf (of, "Block Temperature Integral for block 0 %f\n", out.Re());
 
         out = testHPProc.BlockIntegral(1);
-        printf ("Block Cross-section Area Integral for block 0 %f\n", out.Re());
+        fprintf (of, "Block Cross-section Area Integral for block 0 %f\n", out.Re());
 
         out = testHPProc.BlockIntegral(2);
-        printf ("Block Volume Integral for block 0 %f\n", out.Re());
+        fprintf (of, "Block Volume Integral for block 0 %f\n", out.Re());
 
         out = testHPProc.BlockIntegral(3);
-        printf ("Block Average F Integral for block 0 Fx: %f, Fy: %f\n", out.Re(), out.Im());
+        fprintf (of, "Block Average F Integral for block 0 Fx: %f, Fy: %f\n", out.Re(), out.Im());
 
         out = testHPProc.BlockIntegral(4);
-        printf ("Block Average G Integral for block 0 Gx: %f, Gy: %f\n", out.Re(), out.Im());
+        fprintf (of, "Block Average G Integral for block 0 Gx: %f, Gy: %f\n", out.Re(), out.Im());
 
         testHPProc.Smooth = false;
 
-        printf ("Field Smoothing OFF\n");
+        fprintf (of, "Field Smoothing OFF\n");
 
         // get point values
         x = 0.01;
         y = 0.01;
         testHPProc.GetPointValues(x, y, u);
-        printf ("Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
+        fprintf (of, "Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
                 x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
 
         // get point values
         x = 0.005;
         y = 0.005;
         testHPProc.GetPointValues(x, y, u);
-        printf ("Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
+        fprintf (of, "Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
                 x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
 
         testHPProc.Smooth = true;
 
-        printf ("Field Smoothing ON\n");
+        fprintf (of, "Field Smoothing ON\n");
 
         // get point values
         x = 0.01;
         y = 0.01;
         testHPProc.GetPointValues(x, y, u);
-        printf ("Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
+        fprintf (of, "Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
                 x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
 
         // get point values
         x = 0.005;
         y = 0.005;
         testHPProc.GetPointValues(x, y, u);
-        printf ("Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
+        fprintf (of, "Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
                 x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
 
+        return 0;
     }
 
-    return 0;
+    return 1;
 }

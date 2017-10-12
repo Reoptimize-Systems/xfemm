@@ -1,0 +1,15 @@
+Block Temperature Integral for block 0 307.576410
+Block Cross-section Area Integral for block 0 0.000337
+Block Volume Integral for block 0 0.006750
+Block Average F Integral for block 0 Fx: 538.207211, Fy: 323.658499
+Block Average G Integral for block 0 Gx: 107.641442, Gy: 161.829250
+Field Smoothing OFF
+Point vals at x = 0.010000, y = 0.010000
+T: 308.641342	Fx: 1846.609865	Fy: 767.228504	Kx: 0.026722	Ky: 0.026722	Gx: 69104.021433	Gy: 28711.302790
+Point vals at x = 0.005000, y = 0.005000
+T: 310.166430	Fx: 342.652400	Fy: -37.388764	Kx: 5.000000	Ky: 2.000000	Gx: 68.530480	Gy: -18.694382
+Field Smoothing ON
+Point vals at x = 0.010000, y = 0.010000
+T: 308.641342	Fx: 102794.172310	Fy: 23490.856182	Kx: 5.000000	Ky: 2.000000	Gx: 20558.834462	Gy: 11745.428091
+Point vals at x = 0.005000, y = 0.005000
+T: 310.166430	Fx: 327.588978	Fy: -31.309127	Kx: 5.000000	Ky: 2.000000	Gx: 65.517796	Gy: -15.654563
