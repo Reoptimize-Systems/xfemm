@@ -904,5 +904,42 @@ void femm::PostProcessor::FindBoundaryEdges()
             } // Finish One Edge
         } // End of One Element Loop
     } // End of Main Loop
+}
 
+// identical in hpproc and epproc
+void PostProcessor::getPointD(double x, double y, CComplex &D, const femmsolver::CElement &element) const
+{
+    // this method is only valid for heatflow and electrostatics problems; otherwise punt
+    if (problem->filetype != FileType::HeatFlowFile && problem->filetype != FileType::ElectrostaticsFile )
+        return;
+
+    // now we know that we can safely use a reinterpret_cast
+    const auto elm = reinterpret_cast<const femmsolver::CHSElement&>(element);
+
+    // elm is a reference to the element that contains the point of interest.
+    if(!Smooth){
+        D=elm.D;
+        return;
+    }
+
+    const auto &n0 = meshnodes[elm.p[0]];
+    const auto &n1 = meshnodes[elm.p[1]];
+    const auto &n2 = meshnodes[elm.p[2]];
+    double a[3],b[3],c[3];
+    a[0]=n1->x * n2->y - n2->x * n1->y;
+    a[1]=n2->x * n0->y - n0->x * n2->y;
+    a[2]=n0->x * n1->y - n1->x * n0->y;
+    b[0]=n1->y - n2->y;
+    b[1]=n2->y - n0->y;
+    b[2]=n0->y - n1->y;
+    c[0]=n2->x - n1->x;
+    c[1]=n0->x - n2->x;
+    c[2]=n1->x - n0->x;
+    double da=(b[0]*c[1]-b[1]*c[0]);
+
+    D=0;
+    for(int i=0;i<3;i++)
+    {
+        D+=(elm.d[i]*(a[i]+b[i]*x+c[i]*y)/da);
+    }
 }

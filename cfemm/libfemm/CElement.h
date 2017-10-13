@@ -67,53 +67,40 @@ public:
     double magdir;
 };
 
-class CHElement : public CElement
-{
-public:
-    CHElement();
-    /**
-     * @brief fromStream constructs a CHElement from an input stream (usually an input file stream)
-     * @param input
-     * @param err output stream for error messages
-     * @return a CHElement
-     */
-    static CHElement fromStream( std::istream &input, std::ostream &err = std::cerr );
-
-    CComplex D;		// elemental flux density
-    CComplex d[3];  // smoothed flux density at corners
-
-private:
-};
-
 /**
- * @brief The CSElement class
- * This seems to be the same as the CHElement class.
+ * @brief The CHSElement class
+ * This class is shared between heatflow and electrostatics, because both implementations are identical.
  *
  * \internal
  * ### FEMM reference source:
  * - \femm42{femm/bv_problem.h,CElement}
+ * - \femm42{femm/hv_problem.h,CElement}
  */
-class CSElement : public CElement
+class CHSElement : public CElement
 {
 public:
-    CSElement();
+    CHSElement();
     /**
-     * @brief fromStream constructs a CHElement from an input stream (usually an input file stream)
+     * @brief fromStream constructs a CHSElement from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
-     * @return a CHElement
+     * @return a CHSElement
      * \internal
      * ### FEMM reference source:
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::OnOpenDocument()}
      * \endinternal
      */
-    static CSElement fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CHSElement fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     CComplex D;    // elemental flux density
     CComplex d[3];  // smoothed flux density at corners
 
     //CComplex E(); unused?
 };
+
+// interim-solution until everything is moved to the new type:
+using CHElement = CHSElement;
+using CSElement = CHSElement;
 
 }
 #endif
