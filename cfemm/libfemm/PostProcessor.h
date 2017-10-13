@@ -204,8 +204,36 @@ protected:
     std::vector< CComplex > contour;
 
     // member functions
+    /**
+     * @brief AECF
+     * Computes the permeability correction factor for axisymmetric
+     * external regions.  This is sort of a kludge, but it's the best
+     * way I could fit it in.  The structure of the code wasn't really
+     * designed to have a permeability that varies with position in a
+     * continuous way.
+     * @param elem
+     * @return
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int)}
+     * \endinternal
+     */
+    double AECF(const femmsolver::CElement *elem) const;
+    /**
+     * @brief AECF
+     * Correction factor for a point within the element, rather than
+     * for the center of the element.
+     * @param elem
+     * @param p
+     * @return
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int,CComplex)}
+     * \endinternal
+     */
+    double AECF(const femmsolver::CElement *elem, CComplex p) const;
+
     int InTriangle(double x, double y) const;
-    bool InTriangleTest(double x, double y, int i) const;
+    // currently virtual until we merge hpproc version of it:
+    virtual bool InTriangleTest(double x, double y, int i) const;
 
     /**
      * @brief isKosher
@@ -228,6 +256,17 @@ protected:
      * \endinternal
      */
     bool isKosher(int k) const;
+
+    /**
+     * @brief isSameMaterial
+     * @param e1 material 1
+     * @param e2 material 2
+     * @return \c true, if the materials of e1 and e2 are the same, \c false otherwise
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::IsSameMaterial(int,int)}
+     * \endinternal
+     */
+    bool isSameMaterial(const femmsolver::CElement &e1, const femmsolver::CElement &e2) const;
 
     CComplex Ctr(int i);
     double ElmArea(femmsolver::CElement *elm);

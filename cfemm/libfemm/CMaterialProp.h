@@ -47,6 +47,13 @@ public:
     virtual bool isAir() const = 0;
 
     /**
+     * @brief isSameMaterialAs is used by IsSameMaterial in the postprocessor to determine if two block properties can be considered the same.
+     * @param other
+     * @return \c true, if both materials can be said to be the same, \c false otherwise.
+     */
+    virtual bool isSameMaterialAs(const CMaterialProp *other) const = 0;
+
+    /**
      * @brief toStream serializes the data and inserts it into \p out.
      * This virtual method is called by the \c operator<<() and
      * needs to be overridden by any subclass.
@@ -115,6 +122,12 @@ public:
 
 
     virtual bool isAir() const override;
+    /**
+     * @brief this is not (yet?) used for magnetics problems
+     * @param other
+     * @return \c false
+     */
+    bool isSameMaterialAs(const CMaterialProp *other) const override;
     /**
      * @brief CMaterialProp is used in the fpproc and fpproc never uses the toStream method.
      * Therefore, this implementation just calls assert(false).
@@ -202,6 +215,7 @@ public:
      * @return \c false
      */
     bool isAir() const override;
+    bool isSameMaterialAs(const CMaterialProp *other) const override;
 
     virtual void toStream( std::ostream &out ) const override;
 private:
@@ -229,6 +243,12 @@ public:
      */
     static CSMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
     bool isAir() const override;
+    /**
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::IsSameMaterial(int,int)}
+     * \endinternal
+     */
+    bool isSameMaterialAs(const CMaterialProp *other) const override;
     virtual void toStream( std::ostream &out ) const override;
 private:
 };

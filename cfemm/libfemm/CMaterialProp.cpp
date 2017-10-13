@@ -688,6 +688,12 @@ bool CMMaterialProp::isAir() const
     return true;
 }
 
+bool CMMaterialProp::isSameMaterialAs(const CMaterialProp *other) const
+{
+    // stub
+    return false;
+}
+
 void CMMaterialProp::toStream(ostream &) const
 {
     assert(false && "CMMaterialProp::toStream() should never be called. Did you mean to call CMSolverMaterialProp::toStream()?");
@@ -1366,6 +1372,38 @@ bool CHMaterialProp::isAir() const
     return false;
 }
 
+bool CHMaterialProp::isSameMaterialAs(const CMaterialProp *other) const
+{
+    // Are the same material trivially if they are the same block type
+    if (other == this) return true;
+
+    const CHMaterialProp *m2 = dynamic_cast<const CHMaterialProp*>(other);
+
+    // If the materials are linear and have the same Kx and Ky, we
+    // can say that they are the same material;
+    if ((Kx==m2->Kx) &&
+        (Ky==m2->Ky) &&
+        (npts==0) &&
+        (m2->npts==0)) return true;
+
+    // If the materials are nonlinear and have all of the same T-k points,
+    // they are the same material;
+    if (npts>0){
+        if (npts==m2->npts)
+        {
+            for(int k=0;k<npts;k++)
+            {
+                if ((Kn[k].re!=m2->Kn[k].re) ||
+                    (Kn[k].im!=m2->Kn[k].im))
+                    return false;
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void CHMaterialProp::toStream(std::ostream &out) const
 {
     out << "  <BeginBlock>\n";
@@ -1452,6 +1490,15 @@ bool CSMaterialProp::isAir() const
     if ((ex!=1) || (ey!=1)) return false;
     if (qv!=0) return false;
     return true;
+}
+
+bool CSMaterialProp::isSameMaterialAs(const CMaterialProp *other) const
+{
+    // Are the same material trivially if they are the same block type
+    if (other == this) return true;
+
+    const CSMaterialProp *m2 = dynamic_cast<const CSMaterialProp*>(other);
+    return (m2 != nullptr && (ex==m2->ex) &&  (ey==m2->ey));
 }
 
 void CSMaterialProp::toStream(ostream &out) const
