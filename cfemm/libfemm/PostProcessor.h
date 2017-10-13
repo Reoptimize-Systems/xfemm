@@ -231,6 +231,19 @@ protected:
      */
     double AECF(const femmsolver::CElement *elem, CComplex p) const;
 
+    /**
+     * @brief getPointD
+     * @param x
+     * @param y
+     * @param D
+     * @param elm a reference to the element that contains the point of interest.
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::GetPointD()}
+     * - \femm42{femm/hviewDoc.cpp,ChviewDoc::GetPointD()}
+     * \endinternal
+     */
+    void getPointD(double x, double y, CComplex &D, const femmsolver::CElement &element) const;
+
     int InTriangle(double x, double y) const;
     // currently virtual until we merge hpproc version of it:
     virtual bool InTriangleTest(double x, double y, int i) const;
@@ -258,12 +271,16 @@ protected:
     bool isKosher(int k) const;
 
     /**
-     * @brief isSameMaterial
-     * @param e1 material 1
-     * @param e2 material 2
+     * @brief Check if two mesh elements have the same material.
+     * Materials are compared based on their properties.
+     *
+     * @param e1 element 1
+     * @param e2 element 2
      * @return \c true, if the materials of e1 and e2 are the same, \c false otherwise
      * \internal
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::IsSameMaterial(int,int)}
+     *
+     * \note Instead of having different IsSameMaterial implementations, the real logic has been shifted to CMaterialProp.
      * \endinternal
      */
     bool isSameMaterial(const femmsolver::CElement &e1, const femmsolver::CElement &e2) const;

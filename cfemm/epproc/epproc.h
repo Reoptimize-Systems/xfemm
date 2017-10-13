@@ -54,7 +54,7 @@ public:
     CComplex blockIntegral(int inttype) const;
     void clearSelection() override;
 
-    const femmsolver::CSElement *getMeshElement(int idx) const override;
+    const femmsolver::CHSElement *getMeshElement(int idx) const override;
     const femmsolver::CSMeshNode *getMeshNode(int idx) const override;
 
     bool getPointValues(double x, double y, femm::CSPointVals &u) const;
@@ -95,7 +95,7 @@ private:
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::E(int)}
      * \endinternal
      */
-    CComplex E(const femmsolver::CSElement *elem) const;
+    CComplex E(const femmsolver::CHSElement *elem) const;
 
     /**
      * @brief GetElementD
@@ -115,18 +115,6 @@ private:
      * \endinternal
      */
     void getNodalD(CComplex *d, int N) const;
-
-    /**
-     * @brief getPointD
-     * @param x
-     * @param y
-     * @param D
-     * @param elm a reference to the element that contains the point of interest.
-     * \internal
-     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::GetPointD()}
-     * \endinternal
-     */
-    void getPointD(double x, double y, CComplex &D, const femmsolver::CSElement &elm) const;
 
     double A_High;
     double A_Low;

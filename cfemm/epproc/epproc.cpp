@@ -50,7 +50,7 @@ ElectrostaticsPostProcessor::~ElectrostaticsPostProcessor()
 femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &input, std::ostream &err)
 {
     using femmsolver::CSMeshNode;
-    using femmsolver::CSElement;
+    using femmsolver::CHSElement;
 
     int k;
     // read in meshnodes;
@@ -67,9 +67,9 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
     auto &labellist = problem->labellist;
     for(int i=0;i<k;i++)
     {
-        CSElement elm = CSElement::fromStream(input,err);
+        CHSElement elm = CHSElement::fromStream(input,err);
         elm.blk = labellist[elm.lbl]->BlockType;
-        meshelems.push_back(std::make_unique<CSElement>(elm));
+        meshelems.push_back(std::make_unique<CHSElement>(elm));
     }
 
     // read in circuit data;
@@ -108,7 +108,7 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     for(int i=0; i<(int)meshelems.size(); i++)
     {
         // reinterpret_cast possible because there can only be CSElements for our problem type
-        CSElement *e = reinterpret_cast<CSElement*>(meshelems[i].get());
+        CHSElement *e = reinterpret_cast<CHSElement*>(meshelems[i].get());
         e->ctr=Ctr(i);
         e->rsqr=0;
         for(int j=0;j<3;j++)
@@ -188,7 +188,7 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
 
     for(int i=0;i<(int)meshelems.size();i++)
     {
-        auto elem = reinterpret_cast<CSElement*>(meshelems[i].get());
+        auto elem = reinterpret_cast<CHSElement*>(meshelems[i].get());
         getNodalD(elem->d,i);
     }
 
@@ -197,7 +197,7 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     int externalElements=0;
     for (const auto& elem : meshelems)
     {
-        const auto sElem = reinterpret_cast<CSElement*>(elem.get());
+        const auto sElem = reinterpret_cast<CHSElement*>(elem.get());
         if (labellist[sElem->lbl]->IsExternal)
             externalElements++;
     }
@@ -207,7 +207,7 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     d_PlotBounds[2][1]=d_PlotBounds[2][0];
     for (const auto& elem : meshelems)
     {
-        const auto sElem = reinterpret_cast<CSElement*>(elem.get());
+        const auto sElem = reinterpret_cast<CHSElement*>(elem.get());
         if(!labellist[sElem->lbl]->IsExternal){
             double b=abs(sElem->D);
             if(b>d_PlotBounds[1][1]) d_PlotBounds[1][1]=b;
@@ -405,12 +405,12 @@ void ElectrostaticsPostProcessor::clearSelection()
     }
 }
 
-const CSElement *ElectrostaticsPostProcessor::getMeshElement(int idx) const
+const CHSElement *ElectrostaticsPostProcessor::getMeshElement(int idx) const
 {
     if (idx <0 || idx >= (int)meshelems.size())
         return nullptr;
     // we *know* that only CSElements are in meshelems
-    return reinterpret_cast<CSElement*>(meshelems[idx].get());
+    return reinterpret_cast<CHSElement*>(meshelems[idx].get());
 }
 
 const CSMeshNode *ElectrostaticsPostProcessor::getMeshNode(int idx) const
@@ -742,7 +742,7 @@ void ElectrostaticsPostProcessor::lineIntegral(int intType, double (&results)[2]
     }
 }
 
-CComplex ElectrostaticsPostProcessor::E(const CSElement *elem) const
+CComplex ElectrostaticsPostProcessor::E(const CHSElement *elem) const
 {
     const CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
     // return average electric field intensity for the kth element
@@ -773,7 +773,7 @@ void ElectrostaticsPostProcessor::getElementD(int k)
         E-=node->V*(b[i]+I*c[i])/(da*LengthConv[problem->LengthUnits]);
     }
 
-    CSElement *elem = dynamic_cast<CSElement*>(meshelems[k].get());
+    CHSElement *elem = dynamic_cast<CHSElement*>(meshelems[k].get());
     assert(elem->blk >= 0);
     assert(elem->blk < (int)problem->blockproplist.size());
     CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
@@ -948,33 +948,3 @@ void ElectrostaticsPostProcessor::getNodalD(CComplex *d, int N) const
 }
 
 
-
-void ElectrostaticsPostProcessor::getPointD(double x, double y, CComplex &D, const CSElement &elm) const
-{
-    // elm is a reference to the element that contains the point of interest.
-    if(!Smooth){
-        D=elm.D;
-        return;
-    }
-
-    const auto &n0 = meshnodes[elm.p[0]];
-    const auto &n1 = meshnodes[elm.p[1]];
-    const auto &n2 = meshnodes[elm.p[2]];
-    double a[3],b[3],c[3];
-    a[0]=n1->x * n2->y - n2->x * n1->y;
-    a[1]=n2->x * n0->y - n0->x * n2->y;
-    a[2]=n0->x * n1->y - n1->x * n0->y;
-    b[0]=n1->y - n2->y;
-    b[1]=n2->y - n0->y;
-    b[2]=n0->y - n1->y;
-    c[0]=n2->x - n1->x;
-    c[1]=n0->x - n2->x;
-    c[2]=n1->x - n0->x;
-    double da=(b[0]*c[1]-b[1]*c[0]);
-
-    D=0;
-    for(int i=0;i<3;i++)
-    {
-        D+=(elm.d[i]*(a[i]+b[i]*x+c[i]*y)/da);
-    }
-}
