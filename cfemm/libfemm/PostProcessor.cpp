@@ -404,6 +404,11 @@ bool PostProcessor::isKosher(int k) const
     return true;
 }
 
+bool PostProcessor::isSameMaterial(const femmsolver::CElement &e1, const femmsolver::CElement &e2) const
+{
+    return (problem->blockproplist[e1.blk]->isSameMaterialAs(problem->blockproplist[e2.blk].get()));
+}
+
 // identical in FPProc and HPProc
 CComplex femm::PostProcessor::Ctr(int i)
 {
@@ -814,6 +819,36 @@ void PostProcessor::toggleSelectionForGroup(int group)
     }
     bHasMask = false;
 }
+
+// identical in epproc and hpproc
+double PostProcessor::AECF(const femmsolver::CElement *elem) const
+{
+    // Computes the permeability correction factor for axisymmetric
+    // external regions.  This is sort of a kludge, but it's the best
+    // way I could fit it in.  The structure of the code wasn't really
+    // designed to have a permeability that varies with position in a
+    // continuous way.
+
+    if (problem->ProblemType == PLANAR) return 1.; // no correction for planar problems
+    if (!problem->labellist[elem->lbl]->IsExternal) return 1; // only need to correct for external regions
+
+    double r=abs(elem->ctr-I*problem->extZo);
+    return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
+}
+
+// identical in epproc and hpproc
+double PostProcessor::AECF(const femmsolver::CElement *elem, CComplex p) const
+{
+    // Correction factor for a point within the element, rather than
+    // for the center of the element.
+    if (problem->ProblemType == PLANAR) return 1.; // no correction for planar problems
+    if (!problem->labellist[elem->lbl]->IsExternal) return 1; // only need to correct for external regions
+    double r=abs(p-I*problem->extZo);
+    if (r==0)
+        return AECF(elem);
+    return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
+}
+
 
 // identical in FPProc and HPProc
 void femm::PostProcessor::FindBoundaryEdges()

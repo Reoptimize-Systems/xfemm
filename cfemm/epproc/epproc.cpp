@@ -742,33 +742,6 @@ void ElectrostaticsPostProcessor::lineIntegral(int intType, double (&results)[2]
     }
 }
 
-double ElectrostaticsPostProcessor::AECF(const CElement *elem) const
-{
-    // Computes the permeability correction factor for axisymmetric
-    // external regions.  This is sort of a kludge, but it's the best
-    // way I could fit it in.  The structure of the code wasn't really
-    // designed to have a permeability that varies with position in a
-    // continuous way.
-
-    if (problem->ProblemType == PLANAR) return 1.; // no correction for planar problems
-    if (!problem->labellist[elem->lbl]->IsExternal) return 1; // only need to correct for external regions
-
-    double r=abs(elem->ctr-I*problem->extZo);
-    return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
-}
-
-double ElectrostaticsPostProcessor::AECF(const CElement *elem, CComplex p) const
-{
-    // Correction factor for a point within the element, rather than
-    // for the center of the element.
-    if (problem->ProblemType == PLANAR) return 1.; // no correction for planar problems
-    if (!problem->labellist[elem->lbl]->IsExternal) return 1; // only need to correct for external regions
-    double r=abs(p-I*problem->extZo);
-    if (r==0)
-        return AECF(elem);
-    return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
-}
-
 CComplex ElectrostaticsPostProcessor::E(const CSElement *elem) const
 {
     const CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
@@ -1004,12 +977,4 @@ void ElectrostaticsPostProcessor::getPointD(double x, double y, CComplex &D, con
     {
         D+=(elm.d[i]*(a[i]+b[i]*x+c[i]*y)/da);
     }
-}
-
-bool ElectrostaticsPostProcessor::isSameMaterial(const CSElement &e1, const CSElement &e2) const
-{
-    CSMaterialProp *m1 = reinterpret_cast<CSMaterialProp *>(problem->blockproplist[e1.blk].get());
-    CSMaterialProp *m2 = reinterpret_cast<CSMaterialProp *>(problem->blockproplist[e2.blk].get());
-
-    return ((m1->ex==m2->ex) &&  (m1->ey==m2->ey));
 }

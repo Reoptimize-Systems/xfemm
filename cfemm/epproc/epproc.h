@@ -88,33 +88,6 @@ public:
     void lineIntegral(int intType, double (&results)[2]) const;
 private:
     /**
-     * @brief AECF
-     * Computes the permeability correction factor for axisymmetric
-     * external regions.  This is sort of a kludge, but it's the best
-     * way I could fit it in.  The structure of the code wasn't really
-     * designed to have a permeability that varies with position in a
-     * continuous way.
-     * @param elem
-     * @return
-     * \internal
-     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int)}
-     * \endinternal
-     */
-    double AECF(const femmsolver::CElement *elem) const;
-    /**
-     * @brief AECF
-     * Correction factor for a point within the element, rather than
-     * for the center of the element.
-     * @param elem
-     * @param p
-     * @return
-     * \internal
-     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::AECF(int,CComplex)}
-     * \endinternal
-     */
-    double AECF(const femmsolver::CElement *elem, CComplex p) const;
-
-    /**
      * @brief Calculate the average electric field density for the given element.
      * @param k
      * @return the field density
@@ -154,17 +127,6 @@ private:
      * \endinternal
      */
     void getPointD(double x, double y, CComplex &D, const femmsolver::CSElement &elm) const;
-
-    /**
-     * @brief isSameMaterial
-     * @param e1 material 1
-     * @param e2 material 2
-     * @return \c true, if the materials of e1 and e2 are the same, \c false otherwise
-     * \internal
-     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::IsSameMaterial(int,int)}
-     * \endinternal
-     */
-    bool isSameMaterial(const femmsolver::CSElement &e1, const femmsolver::CSElement &e2) const;
 
     double A_High;
     double A_Low;
