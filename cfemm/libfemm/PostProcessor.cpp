@@ -31,6 +31,7 @@
 #include "fparse.h"
 #include "spars.h"
 
+#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -848,6 +849,207 @@ double PostProcessor::AECF(const femmsolver::CElement *elem, CComplex p) const
         return AECF(elem);
     return (r*r)/(problem->extRo*problem->extRi); // permeability gets divided by this factor;
 }
+
+// almost the same in epproc and hpproc; differences noted by comments
+void PostProcessor::getNodalD(CComplex *d, int N) const
+{
+    // this method is only valid for heatflow and electrostatics problems; otherwise punt
+    if (problem->filetype != FileType::HeatFlowFile && problem->filetype != FileType::ElectrostaticsFile )
+        return;
+
+    int i,j,k,n,m,p,eos,nos,qn;
+    int lf,rt;
+    double xi,yi,ii,xx,xy,yy,iv,xv,yv,dx,dy,dv,Ex,Ey,det;
+    static int q[21];
+    bool flag;
+
+    const auto *elem = reinterpret_cast<const femmsolver::CHSElement*>(meshelems[N].get());
+    for(i=0;i<3;i++)
+    {
+        j=elem->p[i];
+        lf=rt=-1;
+        flag=false;
+        for(eos=0;eos<NumList[j];eos++) if(ConList[j][eos]==N) break;
+
+        // scan ccw
+        for(k=0,m=eos,qn=0;k<NumList[j];k++)
+        {
+            n=ConList[j][m];
+            const auto &conElem = getMeshElement(n);
+            if(!isSameMaterial(*elem,*conElem)) break;
+
+            // figure out which node is the next one in the ccw direction
+            // Note that the ConList has been sorted in ccw order,
+            // and the nodes in each element are sorted in ccw order,
+            // making this task a bit easier.  The next node
+            // ends up in the variable p
+            for(nos=0;nos<3;nos++) if(conElem->p[nos]==j) break;
+            if(nos==3) break;
+            nos--;
+            if(nos<0) nos=2;
+            p=conElem->p[nos];
+
+            // add this node to the list.  We can have a max of 20 nodes,
+            // which should never actually occur (usually about 6 to 8)
+            if (qn<20) q[qn++]=p;
+
+            // if this is a fixed boundary, get out of the loop;
+            if ((meshnodes[j]->Q!=-2) && (meshnodes[p]->Q!=-2)){
+                rt=p;
+                break;
+            }
+
+            m++; if(m==NumList[j]) m=0;
+        }
+
+        // scan cw
+        for(k=0,m=eos;k<NumList[j];k++)
+        {
+            n=ConList[j][m];
+            const auto &conElem = getMeshElement(n);
+            if(!isSameMaterial(*elem,*conElem)) break;
+
+            // figure out which node is the next one in the cw direction
+            // The next node ends up in the variable p
+            for(nos=0;nos<3;nos++) if(conElem->p[nos]==j) break;
+            if(nos==3) break;
+            nos++;
+            if(nos>2) nos=0;
+            p=conElem->p[nos];
+
+            // add this node to the list.  We can have a max of 20 nodes,
+            // which should never actually occur (usually about 6 to 8)
+            if (qn<20) q[qn++]=p;
+
+            // if this node has a fixed definition, get out of the loop;
+            if((meshnodes[j]->Q!=-2) &&(meshnodes[p]->Q!=-2)){
+                lf=p;
+                break;
+            }
+
+            m--; if(m<0) m=NumList[j]-1;
+        }
+
+        // catch some annoying special cases;
+        if ((lf==rt) && (rt!=-1) && (meshnodes[j]->Q!=-2))
+        {
+            // The node of interest is at the end of a conductor; not much to
+            // do but punt;
+            d[i]=elem->D;
+            flag=true;
+        }
+        else if ((rt!=-1) && (meshnodes[j]->Q!=-2) && (lf==-1))
+        {
+            // Another instance of a node at the
+            // end of a conductor; punt!
+            d[i]=elem->D;
+            flag=true;
+        }
+        else if ((lf!=-1) && (meshnodes[j]->Q!=-2) && (rt==-1))
+        {
+            // Another instance of a node at the
+            // end of a conductor; punt!
+            d[i]=elem->D;
+            flag=true;
+        }
+        else if((lf==-1) && (rt==-1) && (meshnodes[j]->Q!=-2))
+        {
+            // The node of interest is an isolated charge. Again, not much to
+            // do but punt;
+            d[i]=elem->D;
+            flag=true;
+        }
+        else if((lf!=-1) && (rt!=-1) && (meshnodes[j]->Q!=-2))
+        {
+
+            // The node of interest is on some boundary where the charge is fixed.
+            // if the angle is shallow enough, we can just do the regular thing;
+            // Otherwise, we punt.
+            CComplex x,y;
+            x=meshnodes[lf]->CC()-meshnodes[j]->CC(); x/=abs(x);
+            y=meshnodes[j]->CC()-meshnodes[rt]->CC(); y/=abs(y);
+            if(std::abs(arg(x/y))>10.0001*PI/180.)
+            {
+                // if the angle is greater than 10 degrees, punt;
+                d[i]=elem->D;
+                flag=true;
+            }
+        }
+
+        if(flag==false)
+        {
+            // The nominal case.
+            // Fit a plane through the nodes in the list to solve for E.
+            // Then, multiply by permittivity to get D.
+            xi=yi=ii=xx=xy=yy=iv=xv=yv=0;
+
+            q[qn++]=j;
+
+            for(k=0;k<qn;k++)
+            {
+                dx=meshnodes[q[k]]->x-meshnodes[j]->x;
+                dy=meshnodes[q[k]]->y-meshnodes[j]->y;
+                switch (problem->filetype) {
+                case FileType::ElectrostaticsFile:
+                {
+                    const auto nodej = reinterpret_cast<femmsolver::CSMeshNode*>(meshnodes[j].get());
+                    const auto nodek = reinterpret_cast<femmsolver::CSMeshNode*>(meshnodes[q[k]].get());
+                    dv=nodej->V-nodek->V;
+                }
+                    break;
+                case FileType::HeatFlowFile:
+                {
+                    const auto nodej = reinterpret_cast<femmsolver::CHMeshNode*>(meshnodes[j].get());
+                    const auto nodek = reinterpret_cast<femmsolver::CHMeshNode*>(meshnodes[q[k]].get());
+                    dv=nodej->T-nodek->T;
+                }
+                    break;
+                default:
+                    assert(false && "Impossible file type at this point.");
+                    break;
+                }
+
+                ii+=1.;
+                xi+=dx;
+                yi+=dy;
+                xx+=dx*dx;
+                xy+=dx*dy;
+                yy+=dy*dy;
+                iv+=dv;
+                xv+=dx*dv;
+                yv+=dy*dv;
+            }
+            det=(-(ii*xy*xy) + 2*xi*xy*yi - xx*yi*yi - xi*xi*yy + ii*xx*yy)*LengthConv[problem->LengthUnits];
+
+            if (det==0) d[i]=elem->D;
+            else{
+                Ex=(iv*xy*yi - xv*yi*yi - ii*xy*yv + xi*yi*yv - iv*xi*yy + ii*xv*yy)/det;
+                Ey=(iv*xi*xy - ii*xv*xy + xi*xv*yi - iv*xx*yi - xi*xi*yv + ii*xx*yv)/det;
+                switch (problem->filetype) {
+                case FileType::ElectrostaticsFile:
+                {
+                    const auto bprop = reinterpret_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
+                    d[i] = bprop->ex * Ex * eo + I * bprop->ey * Ey * eo;
+                    d[i]/=AECF(elem,meshnodes[j]->CC());
+                }
+                    break;
+                case FileType::HeatFlowFile:
+                {
+                    const auto nodej = reinterpret_cast<femmsolver::CHMeshNode*>(meshnodes[j].get());
+                    const auto bprop = reinterpret_cast<CHMaterialProp*>(problem->blockproplist[elem->blk].get());
+                    CComplex kn=bprop->GetK(nodej->T);
+                    d[i]= Re(kn)*Ex + I*Im(kn)*Ey;
+                }
+                    break;
+                default:
+                    assert(false && "Impossible file type at this point.");
+                    break;
+                }
+            }
+        }
+    }
+}
+
 
 
 // identical in FPProc and HPProc
