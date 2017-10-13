@@ -769,11 +769,11 @@ void ElectrostaticsPostProcessor::getElementD(int k)
     CComplex E(0);
     for(int i=0;i<3;i++)
     {
-        CSMeshNode *node = dynamic_cast<CSMeshNode*>(meshnodes[n[i]].get());
+        CSMeshNode *node = reinterpret_cast<CSMeshNode*>(meshnodes[n[i]].get());
         E-=node->V*(b[i]+I*c[i])/(da*LengthConv[problem->LengthUnits]);
     }
 
-    CHSElement *elem = dynamic_cast<CHSElement*>(meshelems[k].get());
+    CHSElement *elem = reinterpret_cast<CHSElement*>(meshelems[k].get());
     assert(elem->blk >= 0);
     assert(elem->blk < (int)problem->blockproplist.size());
     CSMaterialProp *mat = dynamic_cast<CSMaterialProp*>(problem->blockproplist[elem->blk].get());
