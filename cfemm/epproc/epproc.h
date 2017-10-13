@@ -99,6 +99,7 @@ private:
 
     /**
      * @brief GetElementD
+     * Compute and fill in the D value of a mesh element.
      * @param k
      * \internal
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::GetElementD(int)}
