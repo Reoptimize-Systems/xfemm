@@ -232,7 +232,20 @@ protected:
     double AECF(const femmsolver::CElement *elem, CComplex p) const;
 
     /**
+     * @brief getNodalD computes D for node N
+     * \note This command only is implemented for heatflow and magnetics problems.
+     * @param d the output parameter
+     * @param N
+     * \internal
+     * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::GetNodalD(CComplex*,int)}
+     * - \femm42{femm/hviewDoc.cpp,ChviewDoc::GetNodalD(CComplex*,int)}
+     * \endinternal
+     */
+    void getNodalD(CComplex *d, int N) const;
+
+    /**
      * @brief getPointD
+     * \note This command only is implemented for heatflow and magnetics problems.
      * @param x
      * @param y
      * @param D
