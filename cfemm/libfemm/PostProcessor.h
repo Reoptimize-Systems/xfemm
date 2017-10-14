@@ -185,6 +185,10 @@ protected:
     bool    Smooth;
     bool    bMultiplyDefinedLabels;
 
+    // Note(ZaJ): these are not equal for all file types:
+    // heat flow and electrostatics just use [4][2],
+    // magnetics uses [9][2],
+    // current flow uses [20][2]
     double  PlotBounds[9][2];
     double  d_PlotBounds[9][2];
 
