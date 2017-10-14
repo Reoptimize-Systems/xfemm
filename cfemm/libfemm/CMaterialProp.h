@@ -200,7 +200,7 @@ public:
     CHMaterialProp();
     virtual ~CHMaterialProp();
     CHMaterialProp( const CHMaterialProp & );
-    CComplex GetK(double t);
+    CComplex GetK(double t) const;
 
     /**
      * @brief fromStream constructs a CHMaterialProp from an input stream (usually an input file stream)
