@@ -1271,7 +1271,7 @@ CHMaterialProp::CHMaterialProp( const CHMaterialProp & other)
     }
 }
 
-CComplex CHMaterialProp::GetK(double t)
+CComplex CHMaterialProp::GetK(double t) const
 {
     int i,j;
 
