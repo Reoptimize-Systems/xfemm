@@ -73,16 +73,14 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
     }
 
     // read in circuit data;
-    // first clear original circuit data:
     auto &circproplist = problem->circproplist;
-    circproplist.clear();
-    input >> k;
-    circproplist.reserve(k);
+    parseValue(input, k, err);
     for(int i=0;i<k;i++)
     {
-        circproplist.push_back(
-                    std::make_unique<CSCircuit>(CSCircuit::fromStream(input,err))
-                    );
+        auto circuit = reinterpret_cast<CSCircuit*>(circproplist[i].get());
+        // partially overwrite circuit data:
+        input >> circuit->V;
+        input >> circuit->q;
     }
 
     return femm::F_FILE_OK;
@@ -153,11 +151,13 @@ bool ElectrostaticsPostProcessor::OpenDocument(std::string solutionFile)
     // build list;
     for(int i=0;i<(int)meshnodes.size();i++) NumList[i]=0;
     for(int i=0;i<(int)meshelems.size();i++)
+    {
         for(int j=0;j<3;j++){
             int k=meshelems[i]->p[j];
             ConList[k][NumList[k]]=i;
             NumList[k]++;
         }
+    }
 
     // sort each connection list so that the elements are
     // arranged in a counter-clockwise order
