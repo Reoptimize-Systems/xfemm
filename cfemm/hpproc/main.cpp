@@ -64,73 +64,66 @@ int main(int argc, char **argv)
 
     if (test==true)
     {
-        for(int i=0; i<(int)(testHPProc.blocklist.size()); i++)
-        {
-            if (testHPProc.blocklist[i].IsSelected == true)
-            {
-                testHPProc.blocklist[i].IsSelected = false;
-            }
-        }
+        testHPProc.clearSelection();
 
        // for(int j=0; j<(int)(testHPProc.blocklist.size()); j++)
         {
           //  if (testHPProc.blocklist[j].InGroup==3)
             {
-                testHPProc.blocklist[0].ToggleSelect();
+                testHPProc.getProblem()->labellist[0]->ToggleSelect();
             }
 
          //   testHPProc.bHasMask = false;
         }
 
-
-        out = testHPProc.BlockIntegral(0);
+        out = testHPProc.blockIntegral(0);
         fprintf (of, "Block Temperature Integral for block 0 %f\n", out.Re());
 
-        out = testHPProc.BlockIntegral(1);
+        out = testHPProc.blockIntegral(1);
         fprintf (of, "Block Cross-section Area Integral for block 0 %f\n", out.Re());
 
-        out = testHPProc.BlockIntegral(2);
+        out = testHPProc.blockIntegral(2);
         fprintf (of, "Block Volume Integral for block 0 %f\n", out.Re());
 
-        out = testHPProc.BlockIntegral(3);
+        out = testHPProc.blockIntegral(3);
         fprintf (of, "Block Average F Integral for block 0 Fx: %f, Fy: %f\n", out.Re(), out.Im());
 
-        out = testHPProc.BlockIntegral(4);
+        out = testHPProc.blockIntegral(4);
         fprintf (of, "Block Average G Integral for block 0 Gx: %f, Gy: %f\n", out.Re(), out.Im());
 
-        testHPProc.Smooth = false;
+        testHPProc.setSmoothing(false);
 
         fprintf (of, "Field Smoothing OFF\n");
 
         // get point values
         x = 0.01;
         y = 0.01;
-        testHPProc.GetPointValues(x, y, u);
+        testHPProc.getPointValues(x, y, u);
         fprintf (of, "Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
                 x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
 
         // get point values
         x = 0.005;
         y = 0.005;
-        testHPProc.GetPointValues(x, y, u);
+        testHPProc.getPointValues(x, y, u);
         fprintf (of, "Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
                 x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
 
-        testHPProc.Smooth = true;
+        testHPProc.setSmoothing(true);
 
         fprintf (of, "Field Smoothing ON\n");
 
         // get point values
         x = 0.01;
         y = 0.01;
-        testHPProc.GetPointValues(x, y, u);
+        testHPProc.getPointValues(x, y, u);
         fprintf (of, "Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
                 x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
 
         // get point values
         x = 0.005;
         y = 0.005;
-        testHPProc.GetPointValues(x, y, u);
+        testHPProc.getPointValues(x, y, u);
         fprintf (of, "Point vals at x = %f, y = %f\nT: %f\tFx: %f\tFy: %f\tKx: %f\tKy: %f\tGx: %f\tGy: %f\n",
                 x, y, u.T, u.F.Re(), u.F.Im(), u.K.Re(), u.K.Im(), u.G.Re(), u.G.Im());
 
