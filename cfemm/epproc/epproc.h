@@ -22,9 +22,9 @@
 #include "FemmReader.h"
 #include "PostProcessor.h"
 
-class ElectrostaticsPostProcessor :
-        public femm::PostProcessor,
-        public femm::SolutionReader
+class ElectrostaticsPostProcessor
+        : public femm::PostProcessor
+        , public femm::SolutionReader
 {
 public:
     ElectrostaticsPostProcessor();
