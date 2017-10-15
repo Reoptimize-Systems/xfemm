@@ -51,8 +51,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_addarc", LuaCommonCommands::luaAddArc);
     li.addFunction("hi_add_block_label", LuaCommonCommands::luaAddBlocklabel);
     li.addFunction("hi_addblocklabel", LuaCommonCommands::luaAddBlocklabel);
-    //li.addFunction("hi_add_bound_prop", luaAddBoundaryProperty);
-    //li.addFunction("hi_addboundprop", luaAddBoundaryProperty);
+    li.addFunction("hi_add_bound_prop", luaAddBoundaryProperty);
+    li.addFunction("hi_addboundprop", luaAddBoundaryProperty);
     //li.addFunction("hi_add_conductor_prop", luaAddConductorProperty);
     //li.addFunction("hi_addconductorprop", luaAddConductorProperty);
     //li.addFunction("hi_add_material", luaAddMaterialProperty);
@@ -288,4 +288,40 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("ho_zoomnatural", LuaInstance::luaNOP);
     li.addFunction("ho_zoom_out", LuaInstance::luaNOP);
     li.addFunction("ho_zoomout", LuaInstance::luaNOP);
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_addboundprop("boundpropname", BdryFormat, Tset, qs, Tinf, h, beta)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addboundprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaAddBoundaryProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    std::unique_ptr<CHBoundaryProp> m = std::make_unique<CHBoundaryProp>();
+
+    int n=lua_gettop(L);
+    if (n>0) m->BdryName = lua_tostring(L,1);
+    if(n>1) m->BdryFormat=(int) lua_todouble(L,2);
+    if(n>2) m->Tset=lua_todouble(L,3);
+    if(n>3) m->qs=lua_todouble(L,4);
+    if(n>4) m->Tinf=lua_todouble(L,5);
+    if(n>5) m->h=lua_todouble(L,6);
+    if(n>6) m->beta=lua_todouble(L,7);
+
+    doc->lineproplist.push_back(std::move(m));
+    doc->updateLineMap();
+    return 0;
 }
