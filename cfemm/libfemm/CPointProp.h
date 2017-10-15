@@ -97,7 +97,14 @@ public:
      */
     static CHPointProp fromStream( std::istream &input, std::ostream &err = std::cerr );
 
-    double V; ///< \brief Fixed temperature in Kelvin. \code<Tp>\endcode
+    /**
+     * @brief Fixed temperature in Kelvin.
+     *
+     * \note CPointProp in \femm42{femm/hd_nosebl.h} calls this field "T".
+     *
+     * \code<Tp>\endcode
+     */
+    double V;
     double qp; ///< \brief Point heat generation in Watt per meter. \code<qp>\endcode
 
     virtual void toStream( std::ostream &out ) const override;

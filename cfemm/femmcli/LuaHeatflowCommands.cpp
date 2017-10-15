@@ -59,8 +59,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_addmaterial", luaAddMaterialProperty);
     li.addFunction("hi_add_node", LuaCommonCommands::luaAddNode);
     li.addFunction("hi_addnode", LuaCommonCommands::luaAddNode);
-    //li.addFunction("hi_add_point_prop", luaAddPointProperty);
-    //li.addFunction("hi_addpointprop", luaAddPointProperty);
+    li.addFunction("hi_add_point_prop", luaAddPointProperty);
+    li.addFunction("hi_addpointprop", luaAddPointProperty);
     li.addFunction("hi_add_segment", LuaCommonCommands::luaAddLine);
     li.addFunction("hi_addsegment", LuaCommonCommands::luaAddLine);
     //li.addFunction("hi_add_tk_point", luaAddtkpoint);
@@ -394,5 +394,37 @@ int femmcli::LuaHeatflowCommands::luaAddMaterialProperty(lua_State *L)
 
     femmState->femmDocument()->blockproplist.push_back(std::move(m));
     femmState->femmDocument()->updateBlockMap();
+    return 0;
+}
+
+/**
+ * @brief Add a new point property.
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_addpointprop("pointpropname",Tp,qp)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addpointprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaAddPointProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    std::unique_ptr<CHPointProp> m = std::make_unique<CHPointProp>();
+    int n=lua_gettop(L);
+
+    if (n>0) m->PointName = lua_tostring(L,1);
+    if (n>1) m->V = lua_todouble(L,2); // called T in ChdrawDoc's CPointProp
+    if (n>2) m->qp = lua_todouble(L,3);
+
+    doc->nodeproplist.push_back(std::move(m));
+    doc->updateNodeMap();
     return 0;
 }
