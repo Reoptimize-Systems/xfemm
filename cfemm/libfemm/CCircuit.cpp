@@ -157,6 +157,13 @@ CHConductor CHConductor::fromStream(std::istream &input, std::ostream &err)
         {
             nextToken(input, &token);
 
+            if( token == "<conductorname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &prop.CircName, err);
+                continue;
+            }
+
             if( token == "<tc>" )
             {
                 expectChar(input, '=', err);

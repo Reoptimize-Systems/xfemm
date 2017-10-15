@@ -1042,5 +1042,12 @@ bool HSolver::handleToken(const string &token, istream &input, ostream &err)
         parseValue(input, dT, err);
         return true;
     }
+    if( token == "[frequency]")
+    {
+        err << "Warning: [frequency] is not an allowed parameter for heat flow problems!\n";
+        std::string line;
+        std::getline(input, line); // ignore line
+        return true;
+    }
     return false;
 }
