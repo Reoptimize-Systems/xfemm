@@ -2419,6 +2419,65 @@ int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
 }
 
 /**
+ * @brief Set properties for selected block labels
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_setblockprop("blockname", automesh, meshsize, group)}
+ * - \lua{hi_setblockprop("blockname", automesh, meshsize, group)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/beladrawLua.cpp,lua_setblockprop()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_setblockprop()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSetBlocklabelProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    // default values
+    int blocktypeidx = -1;
+    std::string blocktype = "<None>";
+    bool automesh = true;
+    double meshsize = 0;
+    int group = 0;
+
+    int n=lua_gettop(L);
+
+    // Note: blockname may be 0 (as in number 0, not string "0").
+    //       In that case, the block labels have no block type.
+    if (n>0 && !lua_isnil(L,1))
+    {
+        blocktype = lua_tostring(L,1);
+        if (doc->blockMap.count(blocktype))
+            blocktypeidx = doc->blockMap[blocktype];
+    }
+    if (n>1) automesh = (lua_todouble(L,2) != 0);
+    if (n>2) meshsize = lua_todouble(L,3);
+    if (n>3) group = (int) lua_todouble(L,4);
+
+    for (auto &label : doc->labellist)
+    {
+        if (label->IsSelected)
+        {
+            label->MaxArea = PI*meshsize*meshsize/4.;
+            label->BlockTypeName = blocktype;
+            label->BlockType = blocktypeidx;
+            label->InGroup = group;
+            if(automesh)
+                label->MaxArea = 0;
+        }
+    }
+
+    return 0;
+}
+
+/**
  * @brief Set the default document EditMode.
  * @param L
  * @return 0
