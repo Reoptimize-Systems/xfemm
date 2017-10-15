@@ -168,8 +168,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_selectsegment", LuaCommonCommands::luaSelectSegment);
     li.addFunction("ei_set_arcsegment_prop", luaSetArcsegmentProperty);
     li.addFunction("ei_setarcsegmentprop", luaSetArcsegmentProperty);
-    li.addFunction("ei_set_block_prop", luaSetBlocklabelProperty);
-    li.addFunction("ei_setblockprop", luaSetBlocklabelProperty);
+    li.addFunction("ei_set_block_prop", LuaCommonCommands::luaSetBlocklabelProperty);
+    li.addFunction("ei_setblockprop", LuaCommonCommands::luaSetBlocklabelProperty);
     li.addFunction("ei_set_edit_mode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("ei_seteditmode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("ei_set_focus", LuaCommonCommands::luaSetFocus);
@@ -1364,67 +1364,6 @@ int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProperty(lua_State *L)
             doc->arclist[i]->InGroup = group;
             doc->arclist[i]->InConductor = inconductoridx;
             doc->arclist[i]->InConductorName = inconductor;
-        }
-    }
-
-    return 0;
-}
-
-/**
- * @brief Set properties for selected block labels
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_setblockprop("blockname", automesh, meshsize, group)}
- * - \lua{hi_setblockprop("blockname", automesh, meshsize, group)}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_setblockprop()}
- * - \femm42{femm/HDRAWLUA.cpp,lua_setblockprop()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaSetBlocklabelProperty(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    // default values
-    int blocktypeidx = -1;
-    std::string blocktype = "<None>";
-    bool automesh = true;
-    double meshsize = 0;
-    int group = 0;
-
-    int n=lua_gettop(L);
-
-    // Note: blockname may be 0 (as in number 0, not string "0").
-    //       In that case, the block labels have no block type.
-    if (n>0 && !lua_isnil(L,1))
-    {
-        blocktype = lua_tostring(L,1);
-        if (doc->blockMap.count(blocktype))
-            blocktypeidx = doc->blockMap[blocktype];
-    }
-    if (n>1) automesh = (lua_todouble(L,2) != 0);
-    if (n>2) meshsize = lua_todouble(L,3);
-    if (n>3) group = (int) lua_todouble(L,4);
-
-    for (int i=0; i<(int) doc->labellist.size(); i++)
-    {
-        CSBlockLabel *labelPtr = dynamic_cast<CSBlockLabel*>(doc->labellist[i].get());
-        assert(labelPtr);
-        if (labelPtr->IsSelected)
-        {
-            labelPtr->MaxArea = PI*meshsize*meshsize/4.;
-            labelPtr->BlockTypeName = blocktype;
-            labelPtr->BlockType = blocktypeidx;
-            labelPtr->InGroup = group;
-            if(automesh)
-                labelPtr->MaxArea = 0;
         }
     }
 
