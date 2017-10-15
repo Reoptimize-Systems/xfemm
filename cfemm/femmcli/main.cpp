@@ -14,6 +14,7 @@
 #include "LuaBaseCommands.h"
 #include "LuaInstance.h"
 #include "LuaElectrostaticsCommands.h"
+#include "LuaHeatflowCommands.h"
 #include "LuaMagneticsCommands.h"
 #include "stringTools.h"
 
@@ -54,6 +55,7 @@ int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool 
     LuaBaseCommands::registerCommands(li);
     LuaMagneticsCommands::registerCommands(li);
     LuaElectrostaticsCommands::registerCommands(li);
+    LuaHeatflowCommands::registerCommands(li);
     li.enableTracing(luaTrace);
     li.setBaseDir(luaBaseDir);
     // canned initialization
