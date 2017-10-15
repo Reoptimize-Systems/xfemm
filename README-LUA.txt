@@ -36,4 +36,4 @@ It prints information about the (current) lua stack frame.
 ### Global variable "XFEMM_VERBOSE"
 
 Set to 1 to increase verbosity.
-Currently affects: mi_analyze, ei_analyze.
+Currently affects: mi_analyze, ei_analyze, hi_analyze.
