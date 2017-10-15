@@ -55,8 +55,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_addboundprop", luaAddBoundaryProperty);
     li.addFunction("hi_add_conductor_prop", luaAddConductorProperty);
     li.addFunction("hi_addconductorprop", luaAddConductorProperty);
-    //li.addFunction("hi_add_material", luaAddMaterialProperty);
-    //li.addFunction("hi_addmaterial", luaAddMaterialProperty);
+    li.addFunction("hi_add_material", luaAddMaterialProperty);
+    li.addFunction("hi_addmaterial", luaAddMaterialProperty);
     li.addFunction("hi_add_node", LuaCommonCommands::luaAddNode);
     li.addFunction("hi_addnode", LuaCommonCommands::luaAddNode);
     //li.addFunction("hi_add_point_prop", luaAddPointProperty);
@@ -356,5 +356,43 @@ int femmcli::LuaHeatflowCommands::luaAddConductorProperty(lua_State *L)
     femmState->femmDocument()->circproplist.push_back(std::move(m));
     femmState->femmDocument()->updateCircuitMap();
 
+    return 0;
+}
+
+/**
+ * @brief Add a new material property.
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_add_material("materialname", kx, ky, qv, kt)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addmatprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaAddMaterialProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+
+    std::unique_ptr<CHMaterialProp> m = std::make_unique<CHMaterialProp>();
+    int n=lua_gettop(L);
+
+    if (n>0) {
+        m->BlockName = lua_tostring(L,1);
+    }
+    if (n>1) {
+          m->Kx = lua_todouble(L,2);
+          m->Ky = m->Kx;
+    }
+    if(n>2) m->Ky = lua_todouble(L,3);
+    if(n>3) m->qv = lua_todouble(L,4);
+    if(n>3) m->Kt = lua_todouble(L,5);
+
+    femmState->femmDocument()->blockproplist.push_back(std::move(m));
+    femmState->femmDocument()->updateBlockMap();
     return 0;
 }
