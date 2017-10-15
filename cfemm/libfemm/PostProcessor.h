@@ -253,7 +253,7 @@ protected:
      * @param x
      * @param y
      * @param D
-     * @param elm a reference to the element that contains the point of interest.
+     * @param element a reference to the element that contains the point of interest.
      * \internal
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::GetPointD()}
      * - \femm42{femm/hviewDoc.cpp,ChviewDoc::GetPointD()}
