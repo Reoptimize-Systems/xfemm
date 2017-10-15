@@ -170,8 +170,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_selectrectangle", LuaCommonCommands::luaSelectWithinRectangle);
     li.addFunction("hi_select_segment", LuaCommonCommands::luaSelectSegment);
     li.addFunction("hi_selectsegment", LuaCommonCommands::luaSelectSegment);
-    //li.addFunction("hi_set_block_prop", luaSetBlocklabelProperty); // es --> merge
-    //li.addFunction("hi_setblockprop", luaSetBlocklabelProperty); // es --> merge
+    li.addFunction("hi_set_block_prop", LuaCommonCommands::luaSetBlocklabelProperty);
+    li.addFunction("hi_setblockprop", LuaCommonCommands::luaSetBlocklabelProperty);
     li.addFunction("hi_set_edit_mode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("hi_seteditmode", LuaCommonCommands::luaSetEditMode);
     li.addFunction("hi_set_focus", LuaCommonCommands::luaSetFocus);
@@ -209,14 +209,14 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("ho_clear_contour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("ho_clearcontour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("ho_close", LuaCommonCommands::luaExitPost);
-    li.addFunction("ho_get_conductor_properties", luaGetConductorProperties);
-    li.addFunction("ho_getconductorproperties", luaGetConductorProperties);
+    //li.addFunction("ho_get_conductor_properties", luaGetConductorProperties);
+    //li.addFunction("ho_getconductorproperties", luaGetConductorProperties);
     li.addFunction("ho_get_element", LuaCommonCommands::luaGetElement);
     li.addFunction("ho_getelement", LuaCommonCommands::luaGetElement);
     li.addFunction("ho_get_node", LuaCommonCommands::luaGetMeshNode);
     li.addFunction("ho_getnode", LuaCommonCommands::luaGetMeshNode);
-    li.addFunction("ho_get_point_values", luaGetPointValues);
-    li.addFunction("ho_getpointvalues", luaGetPointValues);
+    //li.addFunction("ho_get_point_values", luaGetPointValues);
+    //li.addFunction("ho_getpointvalues", luaGetPointValues);
     li.addFunction("ho_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("ho_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("ho_get_title", LuaCommonCommands::luaGetTitle);
