@@ -65,8 +65,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_addsegment", LuaCommonCommands::luaAddLine);
     //li.addFunction("hi_add_tk_point", luaAddtkpoint);
     //li.addFunction("hi_addtkpoint", luaAddtkpoint);
-    //li.addFunction("hi_analyse", luaAnalyze);
-    //li.addFunction("hi_analyze", luaAnalyze);
+    li.addFunction("hi_analyse", luaAnalyze);
+    li.addFunction("hi_analyze", luaAnalyze);
     li.addFunction("hi_attach_default", LuaCommonCommands::luaAttachDefault);
     li.addFunction("hi_attachdefault", LuaCommonCommands::luaAttachDefault);
     li.addFunction("hi_attach_outer_space", LuaCommonCommands::luaAttachOuterSpace);
@@ -426,5 +426,201 @@ int femmcli::LuaHeatflowCommands::luaAddPointProperty(lua_State *L)
 
     doc->nodeproplist.push_back(std::move(m));
     doc->updateNodeMap();
+    return 0;
+}
+
+/**
+ * @brief Mesh the problem description, save it, and run the solver.
+ * If the global variable "XFEMM_VERBOSE" is set to 1, the mesher and solver is more verbose and prints statistics.
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_analyze(flag)}
+ *   Parameter flag (0,1) determines visibility of hsolv window and is ignored on xfemm.
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_analyze()}
+ * - \femm42{femm/hdrawView.cpp,ChdrawView::OnMenuAnalyze()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaAnalyze(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
+
+    // check to see if all blocklabels are kosher...
+    if (doc->labellist.size()==0){
+        std::string msg = "No block information has been defined\n"
+                          "Cannot analyze the problem";
+        lua_error(L, msg.c_str());
+        return 0;
+    }
+
+    bool hasMissingBlockProps = false;
+    for(int i=0; i<(int)doc->labellist.size(); i++)
+    {
+        // note(ZaJ): this can be done better by break;ing from the k loop
+        int j=0;
+        for(int k=0; k<(int)doc->blockproplist.size(); k++)
+        {
+            if (doc->labellist[i]->BlockTypeName != doc->blockproplist[k]->BlockName)
+                j++;
+        }
+        // if block type set but not found:
+        if ((j==(int)doc->blockproplist.size())
+                && (doc->labellist[i]->hasBlockType())
+                )
+        {
+            //if(!hasMissingBlockProps) OnBlockOp();
+            hasMissingBlockProps = true;
+            doc->labellist[i]->IsSelected = true;
+        }
+    }
+
+    if (hasMissingBlockProps)
+    {
+        //InvalidateRect(NULL);
+        std::string ermsg = "Material properties have not\n"
+                            "been defined for all block labels.\n"
+                            "Cannot analyze the problem";
+        lua_error(L,ermsg.c_str());
+        return 0;
+    }
+
+
+    if (doc->ProblemType==AXISYMMETRIC)
+    {
+        // check to see if all of the input points are on r>=0 for axisymmetric problems.
+        for (int k=0; k<(int)doc->nodelist.size(); k++)
+        {
+            if (doc->nodelist[k]->x < -(1.e-6))
+            {
+                //InvalidateRect(NULL);
+                std::string ermsg = "The problem domain must lie in\n"
+                                    "r>=0 for axisymmetric problems.\n"
+                                    "Cannot analyze the problem.";
+                lua_error(L,ermsg.c_str());
+                return 0;
+            }
+        }
+
+        // check to see if all block defined to be in an axisymmetric external region are isotropic
+        bool hasAnisotropicMaterial = false;
+        bool hasExteriorProps = true;
+        for (int k=0; k<(int)doc->labellist.size(); k++)
+        {
+            if (doc->labellist[k]->IsExternal)
+            {
+                if ((doc->extRo==0) || (doc->extRi==0))
+                    hasExteriorProps = false;
+
+                for(int i=0; i<(int)doc->blockproplist.size(); i++)
+                {
+                    if (doc->labellist[k]->BlockTypeName == doc->blockproplist[i]->BlockName)
+                    {
+                        CHMaterialProp *prop = dynamic_cast<CHMaterialProp*>(doc->blockproplist[i].get());
+                        assert(prop);
+                        if(prop->Kx != prop->Ky)
+                            hasAnisotropicMaterial = true;
+                        // TODO ZaJ: check if this can be merged with LuaMagneticsCommands::luaAnalze
+                    }
+                }
+            }
+        }
+        if (hasAnisotropicMaterial)
+        {
+            //InvalidateRect(NULL);
+            std::string ermsg = "Only istropic materials are\n"
+                                "allowed in axisymmetric external regions.\n"
+                                "Cannot analyze the problem";
+            lua_error(L,ermsg.c_str());
+            return 0;
+        }
+
+        if (!hasExteriorProps)
+        {
+            //InvalidateRect(NULL);
+            std::string ermsg = "Some block labels have been specific as placed in\n"
+                                "an axisymmetric exterior region, but no properties\n"
+                                "have been adequately defined for the exterior region\n"
+                                "Cannot analyze the problem";
+            lua_error(L,ermsg.c_str());
+            return 0;
+        }
+    }
+
+    std::string pathName = doc->pathName;
+    if (pathName.empty())
+    {
+        lua_error(L,"A data file must be loaded,\nor the current data must saved.");
+        return 0;
+    }
+    if (!doc->saveFEMFile(pathName))
+    {
+        lua_error(L, "hi_analyze(): Could not save fem file!\n");
+        return 0;
+    }
+    if (!doc->consistencyCheckOK())
+    {
+        lua_error(L,"hi_analyze(): consistency check failed before meshing!\n");
+        return 0;
+    }
+
+    //BeginWaitCursor();
+    std::shared_ptr<fmesher::FMesher> mesherDoc = femmState->getMesher();
+    // allow setting verbosity from lua:
+    const bool verbose = (luaInstance->getGlobal("XFEMM_VERBOSE") != 0);
+    mesherDoc->Verbose = verbose;
+    if (mesherDoc->HasPeriodicBC()){
+        if (mesherDoc->DoPeriodicBCTriangulation(pathName) != 0)
+        {
+            //EndWaitCursor();
+            mesherDoc->problem->unselectAll();
+            lua_error(L, "hi_analyze(): Periodic BC triangulation failed!\n");
+            return 0;
+        }
+    }
+    else{
+        if (mesherDoc->DoNonPeriodicBCTriangulation(pathName) != 0)
+        {
+            //EndWaitCursor();
+            lua_error(L, "hi_analyze(): Nonperiodic BC triangulation failed!\n");
+            return 0;
+        }
+    }
+    //EndWaitCursor();
+    if (!doc->consistencyCheckOK())
+    {
+        lua_error(L,"hi_analyze(): consistency check failed after meshing!\n");
+        return 0;
+    }
+
+    HSolver theSolver;
+    // filename.feh -> filename
+    std::size_t dotpos = doc->pathName.find_last_of(".");
+    theSolver.PathName = doc->pathName.substr(0,dotpos);
+    theSolver.WarnMessage = &PrintWarningMsg;
+    theSolver.PrintMessage = &PrintWarningMsg;
+    if (!theSolver.LoadProblemFile())
+    {
+        lua_error(L, "hi_analyze(): problem initializing solver!");
+        return 0;
+    }
+    assert( doc->ACSolver == theSolver.ACSolver);
+    assert( doc->lineproplist.size() == theSolver.lineproplist.size());
+    assert( doc->nodeproplist.size() == theSolver.nodeproplist.size());
+    assert( doc->blockproplist.size() == theSolver.blockproplist.size());
+    // the solver may create additional circprops upon loading:
+    assert( doc->circproplist.size() <= theSolver.circproplist.size());
+    // holes are not read by the solver, which means that the solver may have fewer blocklabels:
+    assert( doc->labellist.size() >= theSolver.labellist.size());
+    if (!theSolver.runSolver(verbose))
+    {
+        lua_error(L, "solver failed.");
+    }
     return 0;
 }
