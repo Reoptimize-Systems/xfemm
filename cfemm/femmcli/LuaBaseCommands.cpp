@@ -146,6 +146,8 @@ int femmcli::LuaBaseCommands::luaNewDocument(lua_State *L)
             femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::ElectrostaticsFile));
             break;
         case 2: // heat flow
+            femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::HeatFlowFile));
+            break;
         case 3: // current flow
             debug << "NOP: newdocument("<<docType<<")" << std::endl;
             break;
@@ -196,8 +198,14 @@ int femmcli::LuaBaseCommands::luaOpenDocument(lua_State *L)
         ok = (reader.parse(filename)==F_FILE_OK);
     }
         break;
-    case FileType::CurrentFlowFile:
     case FileType::HeatFlowFile:
+    {
+        femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::HeatFlowFile));
+        femm::HeatFlowReader reader(femmState->femmDocument(), err);
+        ok = (reader.parse(filename)==F_FILE_OK);
+    }
+        break;
+    case FileType::CurrentFlowFile:
     case FileType::Unknown:
         std::string msg = "File not supported: " + filename;
         lua_error(L, msg.c_str());

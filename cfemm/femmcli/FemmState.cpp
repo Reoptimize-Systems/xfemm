@@ -20,6 +20,7 @@
 #include "fmesher.h"
 #include "fpproc.h"
 #include "epproc.h"
+#include "hpproc.h"
 
 #include <memory>
 
@@ -40,12 +41,14 @@ void femmcli::FemmState::setDocument(std::shared_ptr<femm::FemmProblem> doc)
 
 const std::shared_ptr<femm::PProcIface> femmcli::FemmState::getPostProcessor()
 {
-    if (!current.postProcessor)
+    if (!current.postProcessor && current.document)
     {
-        if (current.document && current.document->filetype == femm::FileType::MagneticsFile)
+        if (current.document->filetype == femm::FileType::MagneticsFile)
             current.postProcessor = std::make_shared<FPProc>();
-        if (current.document && current.document->filetype == femm::FileType::ElectrostaticsFile)
+        if (current.document->filetype == femm::FileType::ElectrostaticsFile)
             current.postProcessor = std::make_shared<ElectrostaticsPostProcessor>();
+        if (current.document->filetype == femm::FileType::HeatFlowFile)
+            current.postProcessor = std::make_shared<HPProc>();
     }
     return current.postProcessor;
 }
