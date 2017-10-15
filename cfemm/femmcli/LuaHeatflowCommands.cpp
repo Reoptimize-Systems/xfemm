@@ -53,8 +53,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_addblocklabel", LuaCommonCommands::luaAddBlocklabel);
     li.addFunction("hi_add_bound_prop", luaAddBoundaryProperty);
     li.addFunction("hi_addboundprop", luaAddBoundaryProperty);
-    //li.addFunction("hi_add_conductor_prop", luaAddConductorProperty);
-    //li.addFunction("hi_addconductorprop", luaAddConductorProperty);
+    li.addFunction("hi_add_conductor_prop", luaAddConductorProperty);
+    li.addFunction("hi_addconductorprop", luaAddConductorProperty);
     //li.addFunction("hi_add_material", luaAddMaterialProperty);
     //li.addFunction("hi_addmaterial", luaAddMaterialProperty);
     li.addFunction("hi_add_node", LuaCommonCommands::luaAddNode);
@@ -291,7 +291,7 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add a new boundary property with a given name.
  * @param L
  * @return 0
  * \ingroup LuaHF
@@ -323,5 +323,38 @@ int femmcli::LuaHeatflowCommands::luaAddBoundaryProperty(lua_State *L)
 
     doc->lineproplist.push_back(std::move(m));
     doc->updateLineMap();
+    return 0;
+}
+
+/**
+ * @brief Add a new circuit property with a given name.
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_addconductorprop("conductorname", Tc, qc, conductortype)}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addcircuitprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaAddConductorProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::unique_ptr<CHConductor> m = std::make_unique<CHConductor>();
+    int n=lua_gettop(L);
+
+    if(n>0) m->CircName=lua_tostring(L,1);
+    if(n>1) m->V=lua_todouble(L,2); // ChdrawDoc calls the Tc parameter "T", not "V"
+    if(n>2) m->q=lua_todouble(L,3);
+    if(n>3) m->CircType=(int) lua_todouble(L,4);
+
+
+    femmState->femmDocument()->circproplist.push_back(std::move(m));
+    femmState->femmDocument()->updateCircuitMap();
+
     return 0;
 }

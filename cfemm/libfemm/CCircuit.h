@@ -141,6 +141,8 @@ public:
     /**
      * @brief V thermal conductivity(?)
      *
+     * \note CCircuit in \femm42{femm/hd_nosebl.h} names this field (maybe more appropriately) "T".
+     *
      * Unit: ?
      * \verbatim
      * <tc>
