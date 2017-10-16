@@ -63,8 +63,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_addpointprop", luaAddPointProperty);
     li.addFunction("hi_add_segment", LuaCommonCommands::luaAddLine);
     li.addFunction("hi_addsegment", LuaCommonCommands::luaAddLine);
-    //li.addFunction("hi_add_tk_point", luaAddtkpoint);
-    //li.addFunction("hi_addtkpoint", luaAddtkpoint);
+    li.addFunction("hi_add_tk_point", luaAddtkpoint);
+    li.addFunction("hi_addtkpoint", luaAddtkpoint);
     li.addFunction("hi_analyse", luaAnalyze);
     li.addFunction("hi_analyze", luaAnalyze);
     li.addFunction("hi_attach_default", LuaCommonCommands::luaAttachDefault);
@@ -73,8 +73,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_attachouterspace", LuaCommonCommands::luaAttachOuterSpace);
     li.addFunction("hi_clear_selected", LuaCommonCommands::luaClearSelected);
     li.addFunction("hi_clearselected", LuaCommonCommands::luaClearSelected);
-    //li.addFunction("hi_clear_tk_points", luaCleartkpoints);
-    //li.addFunction("hi_cleartkpoints", luaCleartkpoints);
+    li.addFunction("hi_clear_tk_points", luaCleartkpoints);
+    li.addFunction("hi_cleartkpoints", luaCleartkpoints);
     li.addFunction("hi_close", LuaCommonCommands::luaExitPre);
     li.addFunction("hi_copy_rotate", LuaCommonCommands::luaCopyRotate);
     li.addFunction("hi_copyrotate", LuaCommonCommands::luaCopyRotate);
@@ -123,20 +123,20 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_maximize", LuaInstance::luaNOP);
     li.addFunction("hi_minimize", LuaInstance::luaNOP);
     li.addFunction("hi_mirror", LuaCommonCommands::luaMirrorCopy);
-    //li.addFunction("hi_modify_bound_prop", luaModifyBoundaryProperty);
-    //li.addFunction("hi_modifyboundprop", luaModifyBoundaryProperty);
-    //li.addFunction("hi_modify_conductor_prop", luaModifyConductorProperty);
-    //li.addFunction("hi_modifyconductorprop", luaModifyConductorProperty);
-    //li.addFunction("hi_modify_material", luaModifyMaterialProperty);
-    //li.addFunction("hi_modifymaterial", luaModifyMaterialProperty);
-    //li.addFunction("hi_modify_point_prop", luaModifyPointProperty);
-    //li.addFunction("hi_modifypointprop", luaModifyPointProperty);
+    li.addFunction("hi_modify_bound_prop", luaModifyBoundaryProperty);
+    li.addFunction("hi_modifyboundprop", luaModifyBoundaryProperty);
+    li.addFunction("hi_modify_conductor_prop", luaModifyConductorProperty);
+    li.addFunction("hi_modifyconductorprop", luaModifyConductorProperty);
+    li.addFunction("hi_modify_material", luaModifyMaterialProperty);
+    li.addFunction("hi_modifymaterial", luaModifyMaterialProperty);
+    li.addFunction("hi_modify_point_prop", luaModifyPointProperty);
+    li.addFunction("hi_modifypointprop", luaModifyPointProperty);
     li.addFunction("hi_move_rotate", LuaCommonCommands::luaMoveRotate);
     li.addFunction("hi_moverotate", LuaCommonCommands::luaMoveRotate);
     li.addFunction("hi_move_translate", LuaCommonCommands::luaMoveTranslate);
     li.addFunction("hi_movetranslate", LuaCommonCommands::luaMoveTranslate);
-    //li.addFunction("hi_new_document", luaNewdocument);
-    //li.addFunction("hi_newdocument", luaNewdocument);
+    li.addFunction("hi_new_document", luaNewDocument);
+    li.addFunction("hi_newdocument", luaNewDocument);
     li.addFunction("hi_prob_def", luaProblemDefinition);
     li.addFunction("hi_probdef", luaProblemDefinition);
     li.addFunction("hi_purge_mesh", LuaCommonCommands::luaPurgeMesh);
@@ -180,10 +180,10 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_setgrid", LuaInstance::luaNOP);
     li.addFunction("hi_set_group", LuaCommonCommands::luaSetGroup);
     li.addFunction("hi_setgroup", LuaCommonCommands::luaSetGroup);
-    //li.addFunction("hi_set_node_prop", luaSetNodeProperty);
-    //li.addFunction("hi_setnodeprop", luaSetNodeProperty);
-    //li.addFunction("hi_set_segment_prop", luaSetSegmentProperty);
-    //li.addFunction("hi_setsegmentprop", luaSetSegmentProperty);
+    li.addFunction("hi_set_node_prop", luaSetNodeProperty);
+    li.addFunction("hi_setnodeprop", luaSetNodeProperty);
+    li.addFunction("hi_set_segment_prop", luaSetSegmentProperty);
+    li.addFunction("hi_setsegmentprop", luaSetSegmentProperty);
     li.addFunction("hi_show_grid", LuaInstance::luaNOP);
     li.addFunction("hi_showgrid", LuaInstance::luaNOP);
     li.addFunction("hi_show_mesh", LuaInstance::luaNOP);
@@ -202,21 +202,21 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("ho_addcontour", LuaCommonCommands::luaAddContourPoint);
     li.addFunction("ho_bend_contour", LuaCommonCommands::luaBendContourLine);
     li.addFunction("ho_bendcontour", LuaCommonCommands::luaBendContourLine);
-    //li.addFunction("ho_block_integral", luaBlockintegral);
-    //li.addFunction("ho_blockintegral", luaBlockintegral);
+    li.addFunction("ho_block_integral", luaBlockIntegral);
+    li.addFunction("ho_blockintegral", luaBlockIntegral);
     li.addFunction("ho_clear_block", LuaCommonCommands::luaClearBlockSelection);
     li.addFunction("ho_clearblock", LuaCommonCommands::luaClearBlockSelection);
     li.addFunction("ho_clear_contour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("ho_clearcontour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("ho_close", LuaCommonCommands::luaExitPost);
-    //li.addFunction("ho_get_conductor_properties", luaGetConductorProperties);
-    //li.addFunction("ho_getconductorproperties", luaGetConductorProperties);
+    li.addFunction("ho_get_conductor_properties", luaGetConductorProperties);
+    li.addFunction("ho_getconductorproperties", luaGetConductorProperties);
     li.addFunction("ho_get_element", LuaCommonCommands::luaGetElement);
     li.addFunction("ho_getelement", LuaCommonCommands::luaGetElement);
     li.addFunction("ho_get_node", LuaCommonCommands::luaGetMeshNode);
     li.addFunction("ho_getnode", LuaCommonCommands::luaGetMeshNode);
-    //li.addFunction("ho_get_point_values", luaGetPointValues);
-    //li.addFunction("ho_getpointvalues", luaGetPointValues);
+    li.addFunction("ho_get_point_values", luaGetPointValues);
+    li.addFunction("ho_getpointvalues", luaGetPointValues);
     li.addFunction("ho_get_problem_info", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("ho_getprobleminfo", LuaCommonCommands::luaGetProblemInfo);
     li.addFunction("ho_get_title", LuaCommonCommands::luaGetTitle);
@@ -235,8 +235,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("ho_hidemesh", LuaInstance::luaNOP);
     li.addFunction("ho_hide_points", LuaInstance::luaNOP);
     li.addFunction("ho_hidepoints", LuaInstance::luaNOP);
-    //li.addFunction("ho_line_integral", luaLineIntegral);
-    //li.addFunction("ho_lineintegral", luaLineIntegral);
+    li.addFunction("ho_line_integral", luaLineIntegral);
+    li.addFunction("ho_lineintegral", luaLineIntegral);
     li.addFunction("ho_make_plot", LuaInstance::luaNOP);
     li.addFunction("ho_makeplot", LuaInstance::luaNOP);
     li.addFunction("ho_maximize", LuaInstance::luaNOP);
@@ -256,8 +256,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("ho_savemetafile", LuaInstance::luaNOP);
     li.addFunction("ho_select_block", LuaCommonCommands::luaSelectOutputBlocklabel);
     li.addFunction("ho_selectblock", LuaCommonCommands::luaSelectOutputBlocklabel);
-    //li.addFunction("ho_select_conductor", luaSelectConductor);
-    //li.addFunction("ho_selectconductor", luaSelectConductor);
+    li.addFunction("ho_select_conductor", luaSelectConductor);
+    li.addFunction("ho_selectconductor", luaSelectConductor);
     li.addFunction("ho_select_point", LuaCommonCommands::luaAddContourPointFromNode);
     li.addFunction("ho_selectpoint", LuaCommonCommands::luaAddContourPointFromNode);
     li.addFunction("ho_set_edit_mode", LuaInstance::luaNOP);
@@ -772,4 +772,315 @@ int femmcli::LuaHeatflowCommands::luaProblemDefinition(lua_State *L)
     doc->dT=dT;
 
     return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ho_blockintegral}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/hviewLua.cpp,lua_blockintegral()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaBlockIntegral(lua_State *L)
+{
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ho_close}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/hviewLua.cpp,lua_exitpost()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaExitPost(lua_State *L)
+{
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ho_getconductorproperties}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/hviewLua.cpp,lua_getcircuitprops()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaGetConductorProperties(lua_State *L)
+{
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ho_getpointvalues}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/hviewLua.cpp,lua_getpointvals()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaGetPointValues(lua_State *L)
+{
+   lua_error(L,"Not implemented!");
+   return 0;
+
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ho_lineintegral}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/hviewLua.cpp,lua_lineintegral()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaLineIntegral(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_modifyboundprop}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_modboundprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaModifyBoundaryProperty(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_modifyconductorprop}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_modcircprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaModifyConductorProperty(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_modifymaterial}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_modmatprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaModifyMaterialProperty(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_modifypointprop}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_modpointprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaModifyPointProperty(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_newdocument}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_newdocument()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaNewDocument(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ho_selectconductor}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/hviewLua.cpp,lua_selectconductor()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaSelectConductor(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_setnodeprop}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_setnodeprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaSetNodeProperty(lua_State *L)
+{
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_setsegmentprop}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_setsegmentprop()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaSetSegmentProperty(lua_State *L)
+{
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_addtkpoint}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_addtkpoint()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaAddtkpoint(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
+}
+
+/**
+ * @brief FIXME not implemented
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_cleartkpoints}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_cleartkpoints()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaCleartkpoints(lua_State *L)
+{
+
+   lua_error(L,"Not implemented!");
+   return 0;
 }
