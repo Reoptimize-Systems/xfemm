@@ -137,8 +137,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_movetranslate", LuaCommonCommands::luaMoveTranslate);
     //li.addFunction("hi_new_document", luaNewdocument);
     //li.addFunction("hi_newdocument", luaNewdocument);
-    //li.addFunction("hi_prob_def", luaProblemDefinition);
-    //li.addFunction("hi_probdef", luaProblemDefinition);
+    li.addFunction("hi_prob_def", luaProblemDefinition);
+    li.addFunction("hi_probdef", luaProblemDefinition);
     li.addFunction("hi_purge_mesh", LuaCommonCommands::luaPurgeMesh);
     li.addFunction("hi_purgemesh", LuaCommonCommands::luaPurgeMesh);
     li.addFunction("hi_read_dxf", LuaInstance::luaNOP);
@@ -679,5 +679,97 @@ int femmcli::LuaHeatflowCommands::luaGetMaterialFromLib(lua_State *L)
     std::string msg = "Couldn't load \"" + matname + "\" from the materials library\n";
     msg.append(err.str());
     lua_error(L, msg.c_str());
+    return 0;
+}
+
+/**
+ * @brief Change problem definition.
+ * Only the parameters that are set are changed.
+ *
+ * @param L
+ * @return 0
+ * \ingroup LuaHF
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{hi_probdef(units,type,precision,(depth),(minangle),(prevSolution),(dT)}
+ *
+ * \note The FEMM42 manual does not mention the \c prevSolution and \c dT parameters.
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/HDRAWLUA.cpp,lua_prob_def()}
+ * \endinternal
+ */
+int femmcli::LuaHeatflowCommands::luaProblemDefinition(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
+
+    // argument count
+    int n=lua_gettop(L);
+
+    // Length Units
+    std::string units (lua_tostring(L,1));
+    if(units=="inches") doc->LengthUnits = LengthInches;
+    else if(units=="millimeters") doc->LengthUnits = LengthMillimeters;
+    else if(units=="centimeters") doc->LengthUnits = LengthCentimeters;
+    else if(units=="meters") doc->LengthUnits = LengthMeters;
+    else if(units=="mills") doc->LengthUnits = LengthMils;
+    else if(units=="mils") doc->LengthUnits = LengthMils;
+    else if(units=="micrometers") doc->LengthUnits = LengthMicrometers;
+    else
+    {
+        std::string msg  = "Unknown length unit " + units;
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    // Problem type
+    std::string type (lua_tostring(L,2));
+    if(type=="planar") doc->ProblemType = PLANAR;
+    else if(type=="axi") doc->ProblemType = AXISYMMETRIC;
+    else
+    {
+        std::string msg =  "Unknown problem type " + type;
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    double precision = lua_tonumber(L,3).re;
+    if (precision < 1.e-16 || precision >1.e-8)
+    {
+        std::string msg = "Invalid Precision " + std::to_string(precision);
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+    doc->Precision = precision;
+    if (n==3) return 0;
+
+    // Note: mi_probdef does fabs(Depth) instead
+    doc->Depth = lua_tonumber(L,4).re;
+    if (doc->Depth < 0)
+        doc->Depth = 1;
+    if (n==4) return 0;
+
+    double minAngle = lua_tonumber(L,5).re;
+    if ((minAngle>=1.) && (minAngle<=33.8))
+    {
+        doc->MinAngle = minAngle;
+    }
+    if (n==5) return 0;
+
+    // Test to see if the previous solution and specified time step are consistent
+    std::string prev = lua_tostring(L,6);
+
+    double dT = lua_tonumber(L,7).re;
+    if (prev.empty())
+        dT = 0;
+
+    if (dT==0) prev = "";
+
+    doc->PrevSoln=prev;
+    doc->dT=dT;
+
     return 0;
 }
