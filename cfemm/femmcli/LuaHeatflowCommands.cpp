@@ -280,7 +280,7 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("ho_showpoints", LuaInstance::luaNOP);
     li.addFunction("ho_show_vector_plot", LuaInstance::luaNOP);
     li.addFunction("ho_showvectorplot", LuaInstance::luaNOP);
-    //li.addFunction("ho_smooth", luaSmoothing); // -> FIXME; implement for others as well
+    li.addFunction("ho_smooth", LuaCommonCommands::luaSetSmoothing);
     li.addFunction("ho_zoom_in", LuaInstance::luaNOP);
     li.addFunction("ho_zoomin", LuaInstance::luaNOP);
     li.addFunction("ho_zoom", LuaInstance::luaNOP);

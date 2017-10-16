@@ -25,6 +25,7 @@
 #include "FemmState.h"
 #include "fpproc.h"
 #include "LuaInstance.h"
+#include "stringTools.h"
 
 #include <lua.h>
 
@@ -265,7 +266,7 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_shownames", LuaInstance::luaNOP);
     li.addFunction("mo_show_points", LuaInstance::luaNOP);
     li.addFunction("mo_showpoints", LuaInstance::luaNOP);
-    li.addFunction("mo_smooth", LuaInstance::luaNOP);
+    li.addFunction("mo_smooth", luaSetSmoothing);
     li.addFunction("mi_set_focus", LuaCommonCommands::luaSetFocus);
     li.addFunction("mi_setfocus", LuaCommonCommands::luaSetFocus);
     li.addFunction("mo_set_focus", LuaCommonCommands::luaSetFocus);
@@ -2418,6 +2419,47 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProperty(lua_State *L)
         }
     }
 
+    return 0;
+}
+
+
+/**
+ * @brief This function controls whether or not smoothing is applied to the F and G/D and E/B and H fields.
+ * Setting flag equal to "on" turns on smoothing, and setting flag to "off" turns off smoothing.
+ * @param L
+ * @return 0
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_smooth}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/femmviewLua.cpp,lua_smoothing()}
+ * \endinternal
+ */
+int femmcli::LuaMagneticsCommands::luaSetSmoothing(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    std::string flag (lua_tostring(L,1));
+    to_lower(flag);
+    if (flag == "on")
+    {
+        fpproc->Smooth = true;
+    } else if (flag == "off")
+    {
+        fpproc->Smooth = false;
+    } else {
+        lua_error(L, "Unknown option for smoothing");
+    }
     return 0;
 }
 
