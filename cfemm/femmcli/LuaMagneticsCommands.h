@@ -73,6 +73,7 @@ int luaSetArcsegmentProperty(lua_State *L);
 int luaSetBlocklabelProperty(lua_State *L);
 int luaSetNodeProperty(lua_State *L);
 int luaSetPrevious(lua_State *L);
+int luaSetSmoothing(lua_State *L);
 int luaSetSegmentProperty(lua_State *L);
 }
 

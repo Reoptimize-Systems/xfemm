@@ -2642,6 +2642,7 @@ int femmcli::LuaCommonCommands::luaSetGroup(lua_State *L)
  * \internal
  * ### Implements:
  * - \lua{eo_smooth("flag")}
+ * - \lua{ho_smooth("flag")}
  *
  * ### FEMM source:
  * - \femm42{femm/belaviewLua.cpp,lua_smoothing()}
