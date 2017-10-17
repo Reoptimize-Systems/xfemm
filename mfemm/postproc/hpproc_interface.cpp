@@ -12,6 +12,7 @@
 #include "mex.h"
 #include "hpproc.h"
 #include "hpproc_interface.h"
+#include "femmenums.h"
 
 
 using namespace std;
@@ -384,15 +385,9 @@ int HPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxA
 
     int k;
 
-    if (theHPProc.getMeshElements().size()>0)
+    if (theHPProc.numElements()>0)
     {
-        k = theHPProc.InTriangle(px[0],py[0]);
-
-        if(k>=0)
-        {
-            theHPProc.bHasMask = false;
-            theHPProc.blocklist[theHPProc.getMeshElement(k)->lbl].ToggleSelect();
-        }
+        theHPProc.selectBlocklabel(px[0],py[0]);
     }
 
     return 0;
@@ -425,15 +420,7 @@ int HPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
     if ((mrows==0) | (ncols==0))
     {
         // select all the blocks
-        theHPProc.bHasMask = false;
-
-        for(int i=0; i<theHPProc.blocklist.size(); i++)
-        {
-            if (theHPProc.blocklist[i].IsSelected == false)
-            {
-                theHPProc.blocklist[i].IsSelected = true;
-            }
-        }
+        theHPProc.toggleSelectionForGroup(0);
     }
     else
     {
@@ -442,7 +429,7 @@ int HPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
         // get a pointer to the actual data
         pgroup = mxGetPr(prhs[2]);
 
-        if (theHPProc.getMeshElements().size()>0)
+        if (theHPProc.numElements()>0)
         {
             k = 0;
 
@@ -451,15 +438,7 @@ int HPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
                 k = (int)pgroup[0];
             }
 
-            for(j=0; j<theHPProc.blocklist.size(); j++)
-            {
-                if ((theHPProc.blocklist[j].InGroup==k) || (pgroup[0]==0))
-                {
-                    theHPProc.blocklist[j].ToggleSelect();
-                }
-
-                theHPProc.bHasMask = false;
-            }
+            theHPProc.toggleSelectionForGroup(k);
         }
     }
 
@@ -468,15 +447,7 @@ int HPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
 
 int HPProc_interface::clearblock()
 {
-    theHPProc.bHasMask = false;
-
-    for(int i=0; i<theHPProc.blocklist.size(); i++)
-    {
-        if (theHPProc.blocklist[i].IsSelected == true)
-        {
-            theHPProc.blocklist[i].IsSelected = false;
-        }
-    }
+    theHPProc.clearSelection();
 
     return 0;
 }
@@ -515,9 +486,9 @@ int HPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
     CComplex z;
 
     bool flg = false;
-    for(unsigned int i=0; i<theHPProc.blocklist.size(); i++)
+    for(unsigned int i=0; i<theHPProc.getProblem()->labellist.size(); i++)
     {
-        if (theHPProc.blocklist[i].IsSelected==true)
+        if (theHPProc.getProblem()->labellist[i]->IsSelected)
         {
             flg = true;
         }
@@ -541,7 +512,7 @@ int HPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 //        theHPProc.MakeMask();
 //    }
 
-    z = theHPProc.BlockIntegral(type);
+    z = theHPProc.blockIntegral(type);
 
     switch (type)
     {
@@ -595,13 +566,13 @@ int HPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
 
 int HPProc_interface::smoothon()
 {
-    theHPProc.Smooth = true;
+    theHPProc.setSmoothing(true);
     return 0;
 }
 
 int HPProc_interface::smoothoff()
 {
-    theHPProc.Smooth = false;
+    theHPProc.setSmoothing(false);
     return 0;
 }
 
@@ -613,9 +584,9 @@ int HPProc_interface::getprobleminfo(int nlhs, mxArray *plhs[], int nrhs, const 
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(3), (mwSize)(1), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    outpointer[0] = theHPProc.problemType;
-    outpointer[1] = theHPProc.Depth;
-    outpointer[2] = theHPProc.LengthConv[theHPProc.LengthUnits];
+    outpointer[0] = theHPProc.getProblem()->problemType;
+    outpointer[1] = theHPProc.getProblem()->Depth;
+    outpointer[2] = femm::LengthConvMeters[theHPProc.getProblem()->LengthUnits];
 
     return 3;
 }
@@ -632,11 +603,11 @@ int HPProc_interface::getconductorprops(int nlhs, mxArray *plhs[], int nrhs, con
     }
 
     // ok we need to find the correct entry for the circuit name
-    NumCircuits = theHPProc.circproplist.size();
+    NumCircuits = theHPProc.getProblem()->circproplist.size();
 
     for(int i=0; i<NumCircuits; i++)
     {
-        if(strcmp(theHPProc.circproplist[i].CircName.c_str(), circuitname) == 0)
+        if(strcmp(theHPProc.getProblem()->circproplist[i]->CircName.c_str(), circuitname) == 0)
         {
             k = i;
             i = NumCircuits; // that will break it
@@ -650,8 +621,9 @@ int HPProc_interface::getconductorprops(int nlhs, mxArray *plhs[], int nrhs, con
         mexErrMsgTxt("Unknown circuit");
     }
 
-    double temperature = theHPProc.circproplist[k].V;
-    double flux = theHPProc.circproplist[k].q;
+	 const femm::CHConductor *conductor = dynamic_cast<femm::CHConductor*>(theHPProc.getProblem()->circproplist[k].get());
+    double temperature = conductor->V;
+    double flux = conductor->q;
 
     /*  set the output pointer to the output matrix */
     plhs[0] = mxCreateDoubleMatrix( (mwSize)(2), (mwSize)(1), mxREAL);
@@ -681,7 +653,7 @@ int HPProc_interface::numnodes(int nlhs, mxArray *plhs[], int nrhs, const mxArra
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-	outpointer[0] = (double)theHPProc.meshnode.size();
+	outpointer[0] = (double)theHPProc.numNodes();
 
 	return 1;
 }
@@ -703,7 +675,7 @@ int HPProc_interface::numelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-	outpointer[0] = (double)theHPProc.getMeshElements().size();
+	outpointer[0] = (double)theHPProc.numElements();
 
 	return 1;
 }
@@ -740,7 +712,7 @@ int HPProc_interface::getelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-    int numelms = theHPProc.getMeshElements().size();
+    int numelms = theHPProc.numElements();
     int i = 0;
 
     // check no invalid element numbers have been requested
@@ -770,7 +742,7 @@ int HPProc_interface::getelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
         outpointer[i+3*(int)mxrows] = Re(theHPProc.getMeshElement(n)->ctr);
         outpointer[i+4*(int)mxrows] = Im(theHPProc.getMeshElement(n)->ctr);
         outpointer[i+5*(int)mxrows] = theHPProc.ElmArea(n);
-        outpointer[i+6*(int)mxrows] = theHPProc.blocklist[theHPProc.getMeshElement(n)->lbl].InGroup;
+        outpointer[i+6*(int)mxrows] = theHPProc.getProblem()->labellist[theHPProc.getMeshElement(n)->lbl]->InGroup;
     }
 
 	return 7;
@@ -807,7 +779,7 @@ int HPProc_interface::getcentroids(int nlhs, mxArray *plhs[], int nrhs, const mx
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-    int numelms = theHPProc.getMeshElements().size();
+    int numelms = theHPProc.numElements();
     int i = 0;
 
     // check no invalid element numbers have been requested
@@ -869,7 +841,7 @@ int HPProc_interface::getareas(int nlhs, mxArray *plhs[], int nrhs, const mxArra
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-    int numelms = theHPProc.getMeshElements().size();
+    int numelms = theHPProc.numElements();
     int i = 0;
 
     // check no invalid element numbers have been requested
@@ -931,7 +903,7 @@ int HPProc_interface::getvertices(int nlhs, mxArray *plhs[], int nrhs, const mxA
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-    int numelms = theHPProc.getMeshElements().size();
+    int numelms = theHPProc.numElements();
     int i = 0;
 
     // check no invalid element numbers have been requested
@@ -955,12 +927,12 @@ int HPProc_interface::getvertices(int nlhs, mxArray *plhs[], int nrhs, const mxA
         // copy the element info to the matlab array at the
         // appropriate locations
         int n = (int)std::floor(p_elmnos[i]) - 1;
-        outpointer[i] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[0]].x;
-        outpointer[i+(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[0]].y;
-        outpointer[i+2*(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[1]].x;
-        outpointer[i+3*(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[1]].y;
-        outpointer[i+4*(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[2]].x;
-        outpointer[i+5*(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[2]].y;
+        outpointer[i] = theHPProc.getMeshNode(theHPProc.getMeshElement(n)->p[0])->x;
+        outpointer[i+(int)mxrows] = theHPProc.getMeshNode(theHPProc.getMeshElement(n)->p[0])->y;
+        outpointer[i+2*(int)mxrows] = theHPProc.getMeshNode(theHPProc.getMeshElement(n)->p[1])->x;
+        outpointer[i+3*(int)mxrows] = theHPProc.getMeshNode(theHPProc.getMeshElement(n)->p[1])->y;
+        outpointer[i+4*(int)mxrows] = theHPProc.getMeshNode(theHPProc.getMeshElement(n)->p[2])->x;
+        outpointer[i+5*(int)mxrows] = theHPProc.getMeshNode(theHPProc.getMeshElement(n)->p[2])->y;
     }
 
 	return 0;
@@ -1010,9 +982,9 @@ int HPProc_interface::countGroupElements (int groupno)
     int numingroup = 0;
 
     // count group elements
-    for (int i = 0; i < theHPProc.getMeshElements().size (); i++)
+    for (int i = 0; i < theHPProc.numElements(); i++)
     {
-        if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
+        if (theHPProc.getProblem()->labellist[theHPProc.getMeshElement(i)->lbl]->InGroup == groupno)
         {
             numingroup++;
         }
@@ -1048,7 +1020,7 @@ int HPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
                            "group no, must be a scalar.");
     }
 
-    int numelms = theHPProc.getMeshElements().size();
+    int numelms = theHPProc.numElements();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
     int i = 0;
@@ -1063,7 +1035,7 @@ int HPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
 
         for(i=0; i < numelms; i++)
         {
-            if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
+            if (theHPProc.getProblem()->labellist[theHPProc.getMeshElement(i)->lbl]->InGroup == groupno)
             {
                 // copy the element info to the matlab array at the
                 // appropriate locations
@@ -1073,7 +1045,7 @@ int HPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
                 outpointer[n+3*numingroup] = Re(theHPProc.getMeshElement(i)->ctr);
                 outpointer[n+4*numingroup] = Im(theHPProc.getMeshElement(i)->ctr);
                 outpointer[n+5*numingroup] = theHPProc.ElmArea(i);
-                outpointer[n+6*numingroup] = theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup;
+                outpointer[n+6*numingroup] = theHPProc.getProblem()->labellist[theHPProc.getMeshElement(i)->lbl]->InGroup;
 
                 n++;
             }
@@ -1114,7 +1086,7 @@ int HPProc_interface::getgroupcentroids(int nlhs, mxArray *plhs[], int nrhs, con
                            "group no, must be a scalar.");
     }
 
-    int numelms = theHPProc.getMeshElements().size();
+    int numelms = theHPProc.numElements();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
     int i = 0;
@@ -1131,7 +1103,7 @@ int HPProc_interface::getgroupcentroids(int nlhs, mxArray *plhs[], int nrhs, con
 
         for(i = 0; i < numelms; i++)
         {
-            if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
+            if (theHPProc.getProblem()->labellist[theHPProc.getMeshElement(i)->lbl]->InGroup == groupno)
             {
                 // copy the element info to the matlab array at the
                 // appropriate locations
@@ -1177,7 +1149,7 @@ int HPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
                            "group no, must be a scalar.");
     }
 
-    int numelms = theHPProc.getMeshElements().size();
+    int numelms = theHPProc.numElements();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
     int i = 0;
@@ -1194,7 +1166,7 @@ int HPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
 
         for(i = 0; i < numelms; i++)
         {
-            if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
+            if (theHPProc.getProblem()->labellist[theHPProc.getMeshElement(i)->lbl]->InGroup == groupno)
             {
                 // copy the element info to the matlab array at the
                 // appropriate locations
@@ -1239,7 +1211,7 @@ int HPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
                            "group no, must be a scalar.");
     }
 
-    int numelms = theHPProc.getMeshElements().size();
+    int numelms = theHPProc.numElements();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
     int i = 0;
@@ -1255,15 +1227,15 @@ int HPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
 
         for(i = 0; i < numelms; i++)
         {
-            if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
+            if (theHPProc.getProblem()->labellist[theHPProc.getMeshElement(i)->lbl]->InGroup == groupno)
             {
 
-                outpointer[n] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[0]].x;
-                outpointer[n+numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[0]].y;
-                outpointer[n+2*numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[1]].x;
-                outpointer[n+3*numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[1]].y;
-                outpointer[n+4*numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[2]].x;
-                outpointer[n+5*numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[2]].y;
+                outpointer[n] = theHPProc.getMeshNode(theHPProc.getMeshElement(i)->p[0])->x;
+                outpointer[n+numingroup] = theHPProc.getMeshNode(theHPProc.getMeshElement(i)->p[0])->y;
+                outpointer[n+2*numingroup] = theHPProc.getMeshNode(theHPProc.getMeshElement(i)->p[1])->x;
+                outpointer[n+3*numingroup] = theHPProc.getMeshNode(theHPProc.getMeshElement(i)->p[1])->y;
+                outpointer[n+4*numingroup] = theHPProc.getMeshNode(theHPProc.getMeshElement(i)->p[2])->x;
+                outpointer[n+5*numingroup] = theHPProc.getMeshNode(theHPProc.getMeshElement(i)->p[2])->y;
 
                 n++;
             }
