@@ -140,6 +140,12 @@ void PostProcessor::setSmoothing(bool value)
     Smooth = value;
 }
 
+void PostProcessor::setMessageCallback(PostProcessor::MessageCB msgFun)
+{
+    if (msgFun)
+        WarnMessage = msgFun;
+}
+
 void PostProcessor::addContourPoint(CComplex p)
 {
     if (contour.empty() || p!=contour.back())

@@ -67,6 +67,11 @@ protected:
 class PostProcessor : public PProcIface
 {
 public:
+    /**
+     * @brief Type for message callback functions.
+     */
+    typedef void (*MessageCB)(const char*);
+
     virtual ~PostProcessor();
 
     void addContourPoint(CComplex p);
@@ -170,6 +175,13 @@ public:
      * @param value
      */
     void setSmoothing(bool value);
+
+    /**
+     * @brief setMessageCallback sets the internal WarnMessage function.
+     * If you don't call this method, WarnMessage defaults to \c printf().
+     * @param msgFun function to call for message output
+     */
+    void setMessageCallback( MessageCB msgFun);
 
     /**
      * @brief toggles the selection for all BlockLabels in a group.
@@ -309,7 +321,7 @@ protected:
     void FindBoundaryEdges();
 
     // pointer to function to call when issuing warning messages
-    void (*WarnMessage)(const char*);
+    MessageCB WarnMessage;
     //	void MsgBox(const char* message);
 
 protected:
