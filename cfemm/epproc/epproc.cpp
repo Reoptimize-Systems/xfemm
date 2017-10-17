@@ -275,7 +275,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
             double R=0; // for axisymmetric problems
             // compute some useful quantities employed by most integrals...
             double a=ElmArea(i)*sqr(LengthConv[problem->LengthUnits]);
-            if(problem->ProblemType==AXISYMMETRIC){
+            if(problem->problemType==AXISYMMETRIC){
                 double r[3];
                 for(int k=0;k<3;k++)
                     r[k]=meshnodes[elem->p[k]]->x*LengthConv[problem->LengthUnits];
@@ -286,7 +286,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
             switch(inttype)
             {
             case 0: // stored energy
-                if(problem->ProblemType==AXISYMMETRIC)
+                if(problem->problemType==AXISYMMETRIC)
                     a*=(2.*PI*R);
                 else
                     a*=problem->Depth;
@@ -298,7 +298,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
                 break;
 
             case 2: // volume
-                if(problem->ProblemType==AXISYMMETRIC)
+                if(problem->problemType==AXISYMMETRIC)
                     a*=(2.*PI*R);
                 else
                     a*=problem->Depth;
@@ -306,7 +306,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
                 break;
 
             case 3: // D
-                if(problem->ProblemType==AXISYMMETRIC)
+                if(problem->problemType==AXISYMMETRIC)
                     a*=(2.*PI*R);
                 else
                     a*=problem->Depth;
@@ -314,7 +314,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
                 break;
 
             case 4: // E
-                if(problem->ProblemType==AXISYMMETRIC)
+                if(problem->problemType==AXISYMMETRIC)
                     a*=(2.*PI*R);
                 else a*=problem->Depth;
                 result+=a*E(elem);
@@ -330,7 +330,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
         if(inttype>4)
         {
             double a=ElmArea(i)*sqr(LengthConv[problem->LengthUnits]);
-            if(problem->ProblemType==AXISYMMETRIC){
+            if(problem->problemType==AXISYMMETRIC){
                 double r[3];
                 for(int k=0;k<3;k++)
                     r[k]=meshnodes[elem->p[k]]->x*LengthConv[problem->LengthUnits];
@@ -349,7 +349,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
 
                 // x (or r) direction Henrotte force, SS part.
                 double y;
-                if(problem->ProblemType==PLANAR){
+                if(problem->problemType==PLANAR){
                     y=(((B1*B1) - (B2*B2))*Re(c) + 2.*(B1*B2)*Im(c))/(2.*eo)*AECF(elem);
                     result.re += (a*y);
                 } else {
@@ -362,7 +362,7 @@ CComplex ElectrostaticsPostProcessor::blockIntegral(int inttype) const
 
             case 6: // Henrotte torque, SS part.
             {
-                if(problem->ProblemType!=PLANAR) break;
+                if(problem->problemType!=PLANAR) break;
                 double B1=Re(elem->D);
                 double B2=Im(elem->D);
                 CComplex c=HenrotteVector(i);
@@ -469,7 +469,7 @@ void ElectrostaticsPostProcessor::getPointValues(double x, double y, int k, CSPo
 
 bool ElectrostaticsPostProcessor::isSelectionOnAxis() const
 {
-    if (problem->ProblemType!=AXISYMMETRIC)
+    if (problem->problemType!=AXISYMMETRIC)
         return false;
 
     if (PostProcessor::isSelectionOnAxis())
@@ -577,7 +577,7 @@ void ElectrostaticsPostProcessor::lineIntegral(int intType, double (&results)[2]
                     double Dn = Re(v.D/n);
 
                     double d;
-                    if (problem->ProblemType==AXISYMMETRIC)
+                    if (problem->problemType==AXISYMMETRIC)
                         d=2.*PI*pt.re*sqr(LengthConv[problem->LengthUnits]);
                     else
                         d=problem->Depth*LengthConv[problem->LengthUnits];
@@ -600,7 +600,7 @@ void ElectrostaticsPostProcessor::lineIntegral(int intType, double (&results)[2]
             results[0]+=abs(contour[i+1]-contour[i]);
         results[0]*=LengthConv[problem->LengthUnits];
 
-        if(problem->ProblemType==AXISYMMETRIC)
+        if(problem->problemType==AXISYMMETRIC)
         {
             for(int i=0;i<k-1;i++)
             {
@@ -667,7 +667,7 @@ void ElectrostaticsPostProcessor::lineIntegral(int intType, double (&results)[2]
                     double dF2=v.E.im*Bn + v.D.im*Hn - n.im*BH;
 
                     double dza=dz*LengthConv[problem->LengthUnits];
-                    if(problem->ProblemType==AXISYMMETRIC){
+                    if(problem->problemType==AXISYMMETRIC){
                         dza*=2.*PI*pt.re*LengthConv[problem->LengthUnits];
                         dF1=0;
                     }

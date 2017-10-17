@@ -1223,7 +1223,7 @@ int femmcli::LuaCommonCommands::luaGetProblemInfo(lua_State *L)
 
     int num=0;
 
-    lua_pushnumber(L,doc->ProblemType);
+    lua_pushnumber(L,doc->problemType);
     num++;
     if (doc->filetype == FileType::MagneticsFile)
     {

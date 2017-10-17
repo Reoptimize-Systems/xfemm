@@ -676,7 +676,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     }
 
 
-    if (doc->ProblemType==AXISYMMETRIC)
+    if (doc->problemType==AXISYMMETRIC)
     {
         // check to see if all of the input points are on r>=0 for axisymmetric problems.
         for (int k=0; k<(int)doc->nodelist.size(); k++)
@@ -1920,8 +1920,8 @@ int femmcli::LuaMagneticsCommands::luaProblemDefinition(lua_State * L)
 
     // Problem type
     std::string type (lua_tostring(L,3));
-    if(type=="planar") magDoc->ProblemType = PLANAR;
-    else if(type=="axi") magDoc->ProblemType = AXISYMMETRIC;
+    if(type=="planar") magDoc->problemType = PLANAR;
+    else if(type=="axi") magDoc->problemType = AXISYMMETRIC;
     else
     {
         std::string msg =  "Unknown problem type " + type;

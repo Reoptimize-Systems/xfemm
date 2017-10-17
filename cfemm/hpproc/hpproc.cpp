@@ -595,7 +595,7 @@ CComplex HPProc::blockIntegral(int inttype)
 		{
 			// compute some useful quantities employed by most integrals...
             a=ElmArea(i)*pow(LengthConv[problem->LengthUnits],2.);
-            if(problem->ProblemType==1){
+            if(problem->problemType==1){
                 for(int k=0;k<3;k++)
                     r[k]=meshnodes[meshelems[i]->p[k]]->x*LengthConv[problem->LengthUnits];
 				R=(r[0]+r[1]+r[2])/3.;
@@ -605,7 +605,7 @@ CComplex HPProc::blockIntegral(int inttype)
 			switch(inttype)
 			{
 				case 0: // T
-                    if(problem->ProblemType==1) a*=(2.*PI*R); else a*=problem->Depth;
+                    if(problem->problemType==1) a*=(2.*PI*R); else a*=problem->Depth;
                     T=0;
                     for (int k=0;k<3;k++)
                         T+=getMeshNode(meshelems[i]->p[k])->T/3.;
@@ -617,17 +617,17 @@ CComplex HPProc::blockIntegral(int inttype)
 					break;
 
 				case 2: // volume
-                    if(problem->ProblemType==1) a*=(2.*PI*R); else a*=problem->Depth;
+                    if(problem->problemType==1) a*=(2.*PI*R); else a*=problem->Depth;
 					z+=a;
 					break;
 
 				case 3: // F
-                    if(problem->ProblemType==1) a*=(2.*PI*R); else a*=problem->Depth;
+                    if(problem->problemType==1) a*=(2.*PI*R); else a*=problem->Depth;
                     z+=a*getMeshElement(i)->D;
 					break;
 
 				case 4: // G
-                    if(problem->ProblemType==1) a*=(2.*PI*R); else a*=problem->Depth;
+                    if(problem->problemType==1) a*=(2.*PI*R); else a*=problem->Depth;
                     z+=a*E(getMeshElement(i));
 					break;
 
@@ -710,7 +710,7 @@ void HPProc::lineIntegral(int inttype, double *z)
                 if(flag==true){
 					Fn = Re(v.F/n);
 
-                    if (problem->ProblemType==AXISYMMETRIC)
+                    if (problem->problemType==AXISYMMETRIC)
                         d=2.*PI*pt.re*sqr(LengthConv[problem->LengthUnits]);
 					else
                         d=problem->Depth*LengthConv[problem->LengthUnits];
@@ -731,7 +731,7 @@ void HPProc::lineIntegral(int inttype, double *z)
 			z[0]+=abs(contour[i+1]-contour[i]);
         z[0]*=LengthConv[problem->LengthUnits];
 
-        if(problem->ProblemType==1){
+        if(problem->problemType==1){
 			for(i=0,z[1]=0;i<k-1;i++)
 				z[1]+=(PI*(contour[i].re+contour[i+1].re)*
 						abs(contour[i+1]-contour[i]));
@@ -782,7 +782,7 @@ void HPProc::lineIntegral(int inttype, double *z)
                 else flag=false;
 
                 if(flag==true){
-                    if (problem->ProblemType==AXISYMMETRIC)
+                    if (problem->problemType==AXISYMMETRIC)
                         d=2.*PI*pt.re*sqr(LengthConv[problem->LengthUnits]);
 					else
                         d=problem->Depth*LengthConv[problem->LengthUnits];
@@ -866,7 +866,7 @@ CComplex HPProc::e(const femmsolver::CHSElement *elem, int i) const
 	// return nodal temperature gradient for the ith node of the kth element
 	double aecf=1;
 
-    if((problem->ProblemType==AXISYMMETRIC) && (problem->labellist[elem->lbl]->IsExternal))
+    if((problem->problemType==AXISYMMETRIC) && (problem->labellist[elem->lbl]->IsExternal))
 	{
 		// correct for axisymmetric external region
         double x=meshnodes[elem->p[i]]->x;

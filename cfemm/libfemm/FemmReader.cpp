@@ -170,8 +170,8 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             success &= expectChar(input, '=', err);
             nextToken(input, &token);
 
-            if( token == "planar" ) problem->ProblemType=PLANAR;
-            else if( token == "axisymmetric" ) problem->ProblemType=AXISYMMETRIC;
+            if( token == "planar" ) problem->problemType=PLANAR;
+            else if( token == "axisymmetric" ) problem->problemType=AXISYMMETRIC;
             else err << "Unknown problem type:" << token << "\n";
             continue;
         }
