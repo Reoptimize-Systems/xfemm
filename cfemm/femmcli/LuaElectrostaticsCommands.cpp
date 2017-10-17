@@ -487,7 +487,7 @@ int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
     }
 
 
-    if (doc->ProblemType==AXISYMMETRIC)
+    if (doc->problemType==AXISYMMETRIC)
     {
         // check to see if all of the input points are on r>=0 for axisymmetric problems.
         for (int k=0; k<(int)doc->nodelist.size(); k++)
@@ -1223,8 +1223,8 @@ int femmcli::LuaElectrostaticsCommands::luaProblemDefinition(lua_State *L)
 
     // Problem type
     std::string type (lua_tostring(L,2));
-    if(type=="planar") esDoc->ProblemType = PLANAR;
-    else if(type=="axi") esDoc->ProblemType = AXISYMMETRIC;
+    if(type=="planar") esDoc->problemType = PLANAR;
+    else if(type=="axi") esDoc->problemType = AXISYMMETRIC;
     else
     {
         std::string msg =  "Unknown problem type " + type;

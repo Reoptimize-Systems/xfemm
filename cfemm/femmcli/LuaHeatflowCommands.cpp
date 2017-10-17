@@ -492,7 +492,7 @@ int femmcli::LuaHeatflowCommands::luaAnalyze(lua_State *L)
     }
 
 
-    if (doc->ProblemType==AXISYMMETRIC)
+    if (doc->problemType==AXISYMMETRIC)
     {
         // check to see if all of the input points are on r>=0 for axisymmetric problems.
         for (int k=0; k<(int)doc->nodelist.size(); k++)
@@ -727,8 +727,8 @@ int femmcli::LuaHeatflowCommands::luaProblemDefinition(lua_State *L)
 
     // Problem type
     std::string type (lua_tostring(L,2));
-    if(type=="planar") doc->ProblemType = PLANAR;
-    else if(type=="axi") doc->ProblemType = AXISYMMETRIC;
+    if(type=="planar") doc->problemType = PLANAR;
+    else if(type=="axi") doc->problemType = AXISYMMETRIC;
     else
     {
         std::string msg =  "Unknown problem type " + type;

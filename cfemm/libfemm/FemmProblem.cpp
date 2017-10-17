@@ -79,7 +79,7 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
         break;
     }
 
-    if (ProblemType == femm::PLANAR)
+    if (problemType == femm::PLANAR)
     {
         output << "[ProblemType] =  planar\n";
     } else {
@@ -2269,7 +2269,7 @@ femm::FemmProblem::FemmProblem(FileType ftype)
     , Depth(1)
     , LengthUnits(LengthInches)
     , Coords(CART)
-    , ProblemType(PLANAR)
+    , problemType(PLANAR)
     , extZo(0)
     , extRo(0)
     , extRi(0)

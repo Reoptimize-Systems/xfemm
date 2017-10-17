@@ -469,7 +469,7 @@ public: // data members
     double Depth;      ///< \brief typical length in z-direction [lfac]
     femm::LengthUnit  LengthUnits;  ///< \brief Unit for lengths. Also referred to as \em lfac.
     femm::CoordsType  Coords;  ///< \brief definition of the coordinate system
-    femm::ProblemType ProblemType; ///< \brief The 2D problem is either planar or axisymmetric
+    femm::ProblemType problemType; ///< \brief The 2D problem is either planar or axisymmetric
     // axisymmetric external region parameters
     double extZo;  ///< \brief center of exterior [lfac], only valid for axisymmetric problems
     double extRo;  ///< \brief radius of exterior [lfac], only valid for axisymmetric problems

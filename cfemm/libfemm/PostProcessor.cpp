@@ -391,7 +391,7 @@ bool PostProcessor::isKosher(int k) const
     //
     // Returns TRUE if it is OK to define the node as zero;
 
-    if((problem->ProblemType==PLANAR) || (meshnodes[k]->x>1.e-6)) return true;
+    if((problem->problemType==PLANAR) || (meshnodes[k]->x>1.e-6)) return true;
 
     int score=0;
     for(int i=0;i<NumList[k];i++)
@@ -460,7 +460,7 @@ bool PostProcessor::hasMultiplyDefinedLabels() const
 
 bool PostProcessor::isSelectionOnAxis() const
 {
-    if (problem->ProblemType!=AXISYMMETRIC)
+    if (problem->problemType!=AXISYMMETRIC)
         return false;
 
     for (const auto &elem: meshelems)
@@ -851,7 +851,7 @@ double PostProcessor::AECF(const femmsolver::CElement *elem) const
     // designed to have a permeability that varies with position in a
     // continuous way.
 
-    if (problem->ProblemType == PLANAR) return 1.; // no correction for planar problems
+    if (problem->problemType == PLANAR) return 1.; // no correction for planar problems
     if (!problem->labellist[elem->lbl]->IsExternal) return 1; // only need to correct for external regions
 
     double r=abs(elem->ctr-I*problem->extZo);
@@ -863,7 +863,7 @@ double PostProcessor::AECF(const femmsolver::CElement *elem, CComplex p) const
 {
     // Correction factor for a point within the element, rather than
     // for the center of the element.
-    if (problem->ProblemType == PLANAR) return 1.; // no correction for planar problems
+    if (problem->problemType == PLANAR) return 1.; // no correction for planar problems
     if (!problem->labellist[elem->lbl]->IsExternal) return 1; // only need to correct for external regions
     double r=abs(p-I*problem->extZo);
     if (r==0)
