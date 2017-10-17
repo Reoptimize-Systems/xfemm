@@ -56,6 +56,9 @@ public:
 
     CComplex blockIntegral(int inttype);
 
+    double getA_High() const;
+    double getA_Low() const;
+
     virtual const femmsolver::CHSElement *getMeshElement(int idx) const;
     virtual const femmsolver::CHMeshNode *getMeshNode(int idx) const;
 
@@ -66,10 +69,13 @@ public:
 
     bool OpenDocument(std::string solutionFile);
     femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
+
 protected:
-	// General problem attributes
-	double  A_High, A_Low;
-	double	A_lb, A_ub;
+    // General problem attributes
+    double  A_High;
+    double A_Low;
+    double	A_lb;
+    double A_ub;
 
 	// member functions
     bool InTriangleTest(double x, double y, int i) const override;
