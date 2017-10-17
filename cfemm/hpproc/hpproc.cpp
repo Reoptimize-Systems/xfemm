@@ -836,6 +836,16 @@ ParserResult HPProc::parseSolution(std::istream &input, std::ostream &err)
     return femm::F_FILE_OK;
 }
 
+double HPProc::getA_High() const
+{
+    return A_High;
+}
+
+double HPProc::getA_Low() const
+{
+    return A_Low;
+}
+
 
 CComplex HPProc::E(const femmsolver::CHSElement *elem) const
 {
