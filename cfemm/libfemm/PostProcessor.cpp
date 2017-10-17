@@ -453,6 +453,11 @@ const FemmProblem *PostProcessor::getProblem() const
     return problem.get();
 }
 
+bool PostProcessor::hasMultiplyDefinedLabels() const
+{
+    return bMultiplyDefinedLabels;
+}
+
 bool PostProcessor::isSelectionOnAxis() const
 {
     if (problem->ProblemType!=AXISYMMETRIC)
