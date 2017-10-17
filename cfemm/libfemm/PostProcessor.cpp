@@ -837,6 +837,11 @@ const std::vector<CComplex> &PostProcessor::getContour() const
     return contour;
 }
 
+const std::vector<std::unique_ptr<femmsolver::CElement> > &PostProcessor::getMeshElements() const
+{
+    return meshelems;
+}
+
 // identical in epproc and hpproc
 double PostProcessor::AECF(const femmsolver::CElement *elem) const
 {

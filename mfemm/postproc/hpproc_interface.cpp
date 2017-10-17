@@ -25,7 +25,7 @@ void HPProcInterfaceWarning(const char* warningmsg)
 
 HPProc_interface::HPProc_interface()
 {
-    theHPProc.WarnMessage = &HPProcInterfaceWarning;
+    theHPProc.setMessageCallback( &HPProcInterfaceWarning);
 }
 
 //HPProc_interface::HPProc_interface(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -78,7 +78,7 @@ int HPProc_interface::opendocument(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     // Generate error if any regions are multiply defined
     // (i.e. tagged by more than one block label)
-    if (theHPProc.bMultiplyDefinedLabels)
+    if (theHPProc.hasMultiplyDefinedLabels())
         mexErrMsgIdAndTxt( "MFEMM:hpproc:regionsmultiplydefined",
                            "Some regions in the problem have been defined by more than one block label.");
 
@@ -95,8 +95,8 @@ int HPProc_interface::temperaturebounds(int nlhs, mxArray *plhs[], int nrhs, con
     // get a pointer to the start of the actual output data array
     outpointerRe = mxGetPr(plhs[0]);
     
-    outpointerRe[0] = theHPProc.A_Low;
-    outpointerRe[1] = theHPProc.A_High;
+    outpointerRe[0] = theHPProc.getA_Low();
+    outpointerRe[1] = theHPProc.getA_High();
     
     return 0;
 }
@@ -149,7 +149,7 @@ int HPProc_interface::getpointvals(int nlhs, mxArray *plhs[], int nrhs, const mx
     {
 		 CHPointVals u;
 
-        if(theHPProc.GetPointValues(px[i], py[i], u)==true)
+        if(theHPProc.getPointValues(px[i], py[i], u)==true)
         {
             // copy the point values to the matlab array at the
             // appropriate locations
@@ -221,36 +221,20 @@ int HPProc_interface::addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxAr
                            "x and y must be row vectors of the same size.");
     }
 
-    for (int ind=0; ind<mxrows; ind++)
+    for (int ind=0; ind<(int)mxrows; ind++)
     {
-
-        z.Set(px[ind],py[ind]);
-
-        nconpts = theHPProc.contour.size();
-
-        if(nconpts>0)
-        {
-            if (z != theHPProc.contour[nconpts-1])
-            {
-                theHPProc.contour.push_back(z);
-            }
-        }
-        else
-        {
-            theHPProc.contour.push_back(z);
-        }
-
+        theHPProc.addContourPointFromNode(px[ind],py[ind]);
     }
 
     // now return the actual points in the current contour
-    plhs[0] = mxCreateDoubleMatrix( (mwSize)(theHPProc.contour.size()), (mwSize)(2), mxREAL);
+    plhs[0] = mxCreateDoubleMatrix( (mwSize)(theHPProc.getContour().size()), (mwSize)(2), mxREAL);
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
-    nconpts = theHPProc.contour.size();
+    nconpts = theHPProc.getContour().size();
     for (int ind=0; ind<nconpts; ind++)
     {
-        outpointer[ind] = theHPProc.contour[ind].re;
-        outpointer[ind+nconpts] = theHPProc.contour[ind].im;
+        outpointer[ind] = theHPProc.getContour()[ind].re;
+        outpointer[ind+nconpts] = theHPProc.getContour()[ind].im;
     }
 
     return 0;
@@ -258,7 +242,7 @@ int HPProc_interface::addcontour(int nlhs, mxArray *plhs[], int nrhs, const mxAr
 
 int HPProc_interface::clearcontour()
 {
-    theHPProc.contour.clear();
+    theHPProc.clearContour();
 
     return 0;
 }
@@ -307,7 +291,7 @@ int HPProc_interface::lineintegral(int nlhs, mxArray *plhs[], int nrhs, const mx
 
     // Create an array of CComplex to hold the results of the integral
     z = (double *)calloc(2,sizeof(double));
-    theHPProc.LineIntegral(type,z);
+    theHPProc.lineIntegral(type,z);
 
     switch(type)
     {
@@ -400,14 +384,14 @@ int HPProc_interface::selectblock(int nlhs, mxArray *plhs[], int nrhs, const mxA
 
     int k;
 
-    if (theHPProc.meshelem.size()>0)
+    if (theHPProc.getMeshElements().size()>0)
     {
         k = theHPProc.InTriangle(px[0],py[0]);
 
         if(k>=0)
         {
             theHPProc.bHasMask = false;
-            theHPProc.blocklist[theHPProc.meshelem[k].lbl].ToggleSelect();
+            theHPProc.blocklist[theHPProc.getMeshElement(k)->lbl].ToggleSelect();
         }
     }
 
@@ -458,7 +442,7 @@ int HPProc_interface::groupselectblock(int nlhs, mxArray *plhs[], int nrhs, cons
         // get a pointer to the actual data
         pgroup = mxGetPr(prhs[2]);
 
-        if (theHPProc.meshelem.size()>0)
+        if (theHPProc.getMeshElements().size()>0)
         {
             k = 0;
 
@@ -719,7 +703,7 @@ int HPProc_interface::numelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-	outpointer[0] = (double)theHPProc.meshelem.size();
+	outpointer[0] = (double)theHPProc.getMeshElements().size();
 
 	return 1;
 }
@@ -756,7 +740,7 @@ int HPProc_interface::getelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-    int numelms = theHPProc.meshelem.size();
+    int numelms = theHPProc.getMeshElements().size();
     int i = 0;
 
     // check no invalid element numbers have been requested
@@ -780,13 +764,13 @@ int HPProc_interface::getelements(int nlhs, mxArray *plhs[], int nrhs, const mxA
         // copy the element info to the matlab array at the
         // appropriate locations
         int n = (int)std::floor(p_elmnos[i]) - 1;
-        outpointer[i] = theHPProc.meshelem[n].p[0]+1;
-        outpointer[i+(int)mxrows] = theHPProc.meshelem[n].p[1]+1;
-        outpointer[i+2*(int)mxrows] = theHPProc.meshelem[n].p[2]+1;
-        outpointer[i+3*(int)mxrows] = Re(theHPProc.meshelem[n].ctr);
-        outpointer[i+4*(int)mxrows] = Im(theHPProc.meshelem[n].ctr);
+        outpointer[i] = theHPProc.getMeshElement(n)->p[0]+1;
+        outpointer[i+(int)mxrows] = theHPProc.getMeshElement(n)->p[1]+1;
+        outpointer[i+2*(int)mxrows] = theHPProc.getMeshElement(n)->p[2]+1;
+        outpointer[i+3*(int)mxrows] = Re(theHPProc.getMeshElement(n)->ctr);
+        outpointer[i+4*(int)mxrows] = Im(theHPProc.getMeshElement(n)->ctr);
         outpointer[i+5*(int)mxrows] = theHPProc.ElmArea(n);
-        outpointer[i+6*(int)mxrows] = theHPProc.blocklist[theHPProc.meshelem[n].lbl].InGroup;
+        outpointer[i+6*(int)mxrows] = theHPProc.blocklist[theHPProc.getMeshElement(n)->lbl].InGroup;
     }
 
 	return 7;
@@ -823,7 +807,7 @@ int HPProc_interface::getcentroids(int nlhs, mxArray *plhs[], int nrhs, const mx
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-    int numelms = theHPProc.meshelem.size();
+    int numelms = theHPProc.getMeshElements().size();
     int i = 0;
 
     // check no invalid element numbers have been requested
@@ -847,8 +831,8 @@ int HPProc_interface::getcentroids(int nlhs, mxArray *plhs[], int nrhs, const mx
         // copy the element info to the matlab array at the
         // appropriate locations
         int n = (int)std::floor(p_elmnos[i]) - 1;
-        outpointer[i] = Re(theHPProc.meshelem[n].ctr);
-        outpointer[i+(int)mxrows] = Im(theHPProc.meshelem[n].ctr);
+        outpointer[i] = Re(theHPProc.getMeshElement(n)->ctr);
+        outpointer[i+(int)mxrows] = Im(theHPProc.getMeshElement(n)->ctr);
     }
 
 	return 0;
@@ -885,7 +869,7 @@ int HPProc_interface::getareas(int nlhs, mxArray *plhs[], int nrhs, const mxArra
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-    int numelms = theHPProc.meshelem.size();
+    int numelms = theHPProc.getMeshElements().size();
     int i = 0;
 
     // check no invalid element numbers have been requested
@@ -947,7 +931,7 @@ int HPProc_interface::getvertices(int nlhs, mxArray *plhs[], int nrhs, const mxA
     // get a pointer to the start of the actual output data array
     outpointer = mxGetPr(plhs[0]);
 
-    int numelms = theHPProc.meshelem.size();
+    int numelms = theHPProc.getMeshElements().size();
     int i = 0;
 
     // check no invalid element numbers have been requested
@@ -971,12 +955,12 @@ int HPProc_interface::getvertices(int nlhs, mxArray *plhs[], int nrhs, const mxA
         // copy the element info to the matlab array at the
         // appropriate locations
         int n = (int)std::floor(p_elmnos[i]) - 1;
-        outpointer[i] = theHPProc.meshnode[theHPProc.meshelem[n].p[0]].x;
-        outpointer[i+(int)mxrows] = theHPProc.meshnode[theHPProc.meshelem[n].p[0]].y;
-        outpointer[i+2*(int)mxrows] = theHPProc.meshnode[theHPProc.meshelem[n].p[1]].x;
-        outpointer[i+3*(int)mxrows] = theHPProc.meshnode[theHPProc.meshelem[n].p[1]].y;
-        outpointer[i+4*(int)mxrows] = theHPProc.meshnode[theHPProc.meshelem[n].p[2]].x;
-        outpointer[i+5*(int)mxrows] = theHPProc.meshnode[theHPProc.meshelem[n].p[2]].y;
+        outpointer[i] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[0]].x;
+        outpointer[i+(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[0]].y;
+        outpointer[i+2*(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[1]].x;
+        outpointer[i+3*(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[1]].y;
+        outpointer[i+4*(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[2]].x;
+        outpointer[i+5*(int)mxrows] = theHPProc.meshnode[theHPProc.getMeshElement(n)->p[2]].y;
     }
 
 	return 0;
@@ -1026,9 +1010,9 @@ int HPProc_interface::countGroupElements (int groupno)
     int numingroup = 0;
 
     // count group elements
-    for (int i = 0; i < theHPProc.meshelem.size (); i++)
+    for (int i = 0; i < theHPProc.getMeshElements().size (); i++)
     {
-        if (theHPProc.blocklist[theHPProc.meshelem[i].lbl].InGroup == groupno)
+        if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
         {
             numingroup++;
         }
@@ -1064,7 +1048,7 @@ int HPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
                            "group no, must be a scalar.");
     }
 
-    int numelms = theHPProc.meshelem.size();
+    int numelms = theHPProc.getMeshElements().size();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
     int i = 0;
@@ -1079,17 +1063,17 @@ int HPProc_interface::getgroupelements(int nlhs, mxArray *plhs[], int nrhs, cons
 
         for(i=0; i < numelms; i++)
         {
-            if (theHPProc.blocklist[theHPProc.meshelem[i].lbl].InGroup == groupno)
+            if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
             {
                 // copy the element info to the matlab array at the
                 // appropriate locations
-                outpointer[n] = theHPProc.meshelem[i].p[0]+1;
-                outpointer[n+numingroup] = theHPProc.meshelem[i].p[1]+1;
-                outpointer[n+2*numingroup] = theHPProc.meshelem[i].p[2]+1;
-                outpointer[n+3*numingroup] = Re(theHPProc.meshelem[i].ctr);
-                outpointer[n+4*numingroup] = Im(theHPProc.meshelem[i].ctr);
+                outpointer[n] = theHPProc.getMeshElement(i)->p[0]+1;
+                outpointer[n+numingroup] = theHPProc.getMeshElement(i)->p[1]+1;
+                outpointer[n+2*numingroup] = theHPProc.getMeshElement(i)->p[2]+1;
+                outpointer[n+3*numingroup] = Re(theHPProc.getMeshElement(i)->ctr);
+                outpointer[n+4*numingroup] = Im(theHPProc.getMeshElement(i)->ctr);
                 outpointer[n+5*numingroup] = theHPProc.ElmArea(i);
-                outpointer[n+6*numingroup] = theHPProc.blocklist[theHPProc.meshelem[i].lbl].InGroup;
+                outpointer[n+6*numingroup] = theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup;
 
                 n++;
             }
@@ -1130,7 +1114,7 @@ int HPProc_interface::getgroupcentroids(int nlhs, mxArray *plhs[], int nrhs, con
                            "group no, must be a scalar.");
     }
 
-    int numelms = theHPProc.meshelem.size();
+    int numelms = theHPProc.getMeshElements().size();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
     int i = 0;
@@ -1147,12 +1131,12 @@ int HPProc_interface::getgroupcentroids(int nlhs, mxArray *plhs[], int nrhs, con
 
         for(i = 0; i < numelms; i++)
         {
-            if (theHPProc.blocklist[theHPProc.meshelem[i].lbl].InGroup == groupno)
+            if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
             {
                 // copy the element info to the matlab array at the
                 // appropriate locations
-                outpointer[n] = Re(theHPProc.meshelem[i].ctr);
-                outpointer[n+numingroup] = Im(theHPProc.meshelem[i].ctr);
+                outpointer[n] = Re(theHPProc.getMeshElement(i)->ctr);
+                outpointer[n+numingroup] = Im(theHPProc.getMeshElement(i)->ctr);
 
                 n++;
             }
@@ -1193,7 +1177,7 @@ int HPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
                            "group no, must be a scalar.");
     }
 
-    int numelms = theHPProc.meshelem.size();
+    int numelms = theHPProc.getMeshElements().size();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
     int i = 0;
@@ -1210,7 +1194,7 @@ int HPProc_interface::getgroupareas(int nlhs, mxArray *plhs[], int nrhs, const m
 
         for(i = 0; i < numelms; i++)
         {
-            if (theHPProc.blocklist[theHPProc.meshelem[i].lbl].InGroup == groupno)
+            if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
             {
                 // copy the element info to the matlab array at the
                 // appropriate locations
@@ -1255,7 +1239,7 @@ int HPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
                            "group no, must be a scalar.");
     }
 
-    int numelms = theHPProc.meshelem.size();
+    int numelms = theHPProc.getMeshElements().size();
     int groupno = (int)p_gpno[0];
     int numingroup = countGroupElements (groupno);
     int i = 0;
@@ -1271,15 +1255,15 @@ int HPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
 
         for(i = 0; i < numelms; i++)
         {
-            if (theHPProc.blocklist[theHPProc.meshelem[i].lbl].InGroup == groupno)
+            if (theHPProc.blocklist[theHPProc.getMeshElement(i)->lbl].InGroup == groupno)
             {
 
-                outpointer[n] = theHPProc.meshnode[theHPProc.meshelem[i].p[0]].x;
-                outpointer[n+numingroup] = theHPProc.meshnode[theHPProc.meshelem[i].p[0]].y;
-                outpointer[n+2*numingroup] = theHPProc.meshnode[theHPProc.meshelem[i].p[1]].x;
-                outpointer[n+3*numingroup] = theHPProc.meshnode[theHPProc.meshelem[i].p[1]].y;
-                outpointer[n+4*numingroup] = theHPProc.meshnode[theHPProc.meshelem[i].p[2]].x;
-                outpointer[n+5*numingroup] = theHPProc.meshnode[theHPProc.meshelem[i].p[2]].y;
+                outpointer[n] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[0]].x;
+                outpointer[n+numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[0]].y;
+                outpointer[n+2*numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[1]].x;
+                outpointer[n+3*numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[1]].y;
+                outpointer[n+4*numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[2]].x;
+                outpointer[n+5*numingroup] = theHPProc.meshnode[theHPProc.getMeshElement(i)->p[2]].y;
 
                 n++;
             }
