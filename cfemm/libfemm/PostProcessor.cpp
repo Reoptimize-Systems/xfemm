@@ -170,7 +170,7 @@ void PostProcessor::addContourPointFromNode(double mx, double my)
         //check to see if point is the same as last point in the contour;
         CComplex y = contour.back();
 
-        if ((y.re==z.re) && (y.im==z.im))
+        if (y==z)
             return;
 
         int n1 = problem->closestNode(y.re,y.im);
@@ -830,6 +830,11 @@ void PostProcessor::toggleSelectionForGroup(int group)
         }
     }
     bHasMask = false;
+}
+
+const std::vector<CComplex> &PostProcessor::getContour() const
+{
+    return contour;
 }
 
 // identical in epproc and hpproc

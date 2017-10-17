@@ -113,6 +113,8 @@ public:
 
     double ElmArea(int i) const;
 
+    const std::vector<CComplex> &getContour() const;
+
     /**
      * @brief getMeshElement gets an element from meshelems.
      *
