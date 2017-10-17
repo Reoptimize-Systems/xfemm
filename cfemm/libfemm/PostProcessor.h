@@ -132,6 +132,15 @@ public:
     const femm::FemmProblem *getProblem() const;
 
     /**
+     * @brief See if any regions are multiply defined (i.e. tagged by more than one block label).
+     * A problem with multiply defined regions is invalid.
+     * \note This check is computed in openDocument().
+     *
+     * @return \c true, if if any regions are multiply defined, \c false otherwise.
+     */
+    bool hasMultiplyDefinedLabels() const;
+
+    /**
      * @brief isSelectionOnAxis
      * Only meaningful for axisymmetric problems.
      *
