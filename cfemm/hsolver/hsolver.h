@@ -69,7 +69,7 @@ public:
     // mesh information
     femm::CNode *meshnode;
 
-	// Vector containing previous solution for time-transient analysis
+    // Vector containing previous solution for time-transient analysis, only valid when dT!=0
 	double *Tprev;
 
 

@@ -77,9 +77,9 @@ using namespace femm;
 // HSolver construction/destruction
 
 HSolver::HSolver()
+    : meshnode(nullptr)
+    , Tprev(nullptr)
 {
-	meshnode=NULL;
-	Tprev=NULL;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
@@ -96,8 +96,16 @@ HSolver::~HSolver()
 void HSolver::CleanUp()
 {
     FEASolver_type::CleanUp();
-    if (meshnode!=NULL)		 delete[] meshnode;
-    if (Tprev!=NULL)		 delete[] Tprev;
+    if (meshnode)
+    {
+        delete[] meshnode;
+        meshnode = nullptr;
+    }
+    if (Tprev)
+    {
+        delete[] Tprev;
+        Tprev = nullptr;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -118,7 +126,15 @@ bool HSolver::LoadProblemFile ()
 
 int HSolver::LoadPrev()
 {
-    if (previousSolutionFile.empty()) return true;
+    if (previousSolutionFile.empty())
+    {
+        if (dT!=0)
+        {
+            dT = 0;
+            WarnMessage("Warning: no previous solution set even though dT is non-zero. Resetting dT...\n");
+        }
+        return true;
+    }
 
 	FILE *fp;
     double x,y;
