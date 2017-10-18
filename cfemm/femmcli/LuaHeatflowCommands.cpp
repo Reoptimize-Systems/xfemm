@@ -1036,14 +1036,14 @@ int femmcli::LuaHeatflowCommands::luaModifyMaterialProperty(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a point property.
  * @param L
  * @return 0
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{hi_modifypointprop}
+ * - \lua{hi_modifypointprop("PointName",propnum,value)}
  *
  * ### FEMM sources:
  * - \femm42{femm/HDRAWLUA.cpp,lua_modpointprop()}
@@ -1051,9 +1051,43 @@ int femmcli::LuaHeatflowCommands::luaModifyMaterialProperty(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaModifyPointProperty(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-   lua_error(L,"Not implemented!");
-   return 0;
+    // find the index of the material to modify;
+    std::string PointName = lua_tostring(L,1);
+    CHPointProp *p = nullptr;
+    for (const auto &prop:doc->nodeproplist)
+    {
+        if (PointName==prop->PointName) {
+            p = dynamic_cast<CHPointProp*>(prop.get());
+            break;
+        }
+    }
+    // get out of here if there's no matching material
+    if (p==nullptr)
+        return 0;
+
+    int modprop=(int) lua_todouble(L,2);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+        p->PointName = lua_tostring(L,3);
+        break;
+    case 1:
+        // field T in HDRAWLUA
+        p->V = lua_todouble(L,3);
+        break;
+    case 2:
+        p->qp = lua_todouble(L,3);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
 /**
