@@ -633,6 +633,7 @@ static void constructor_part (LexState *ls, Constdesc *cd)
             goto case_default;
         /* else go through to recfields */
     }
+        /* FALLTHROUGH */
     case '[':    /* constructor_part -> recfields */
     {
         cd->n = recfields(ls);

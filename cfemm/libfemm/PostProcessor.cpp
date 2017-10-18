@@ -1032,18 +1032,19 @@ void PostProcessor::getNodalD(CComplex *d, int N) const
                 {
                     const auto nodej = reinterpret_cast<femmsolver::CSMeshNode*>(meshnodes[j].get());
                     const auto nodek = reinterpret_cast<femmsolver::CSMeshNode*>(meshnodes[q[k]].get());
-                    dv=nodej->V-nodek->V;
+                    dv=nodej->V - nodek->V;
                 }
                     break;
                 case FileType::HeatFlowFile:
                 {
                     const auto nodej = reinterpret_cast<femmsolver::CHMeshNode*>(meshnodes[j].get());
                     const auto nodek = reinterpret_cast<femmsolver::CHMeshNode*>(meshnodes[q[k]].get());
-                    dv=nodej->T-nodek->T;
+                    dv=nodej->T - nodek->T;
                 }
                     break;
                 default:
                     assert(false && "Impossible file type at this point.");
+                    return;
                     break;
                 }
 

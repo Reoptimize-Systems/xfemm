@@ -705,6 +705,7 @@ static int str_format (lua_State *L)
                     break;
                 }
             }
+                /* FALLTHROUGH */
             default:  /* also treat cases 'pnLlh' */
                 lua_error(L, "invalid option in `format'");
             }

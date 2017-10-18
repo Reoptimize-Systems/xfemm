@@ -360,7 +360,7 @@ bool FPProc::OpenDocument(string pathname)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
-                    i=k;
+                    break;
                 }
             k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
@@ -368,7 +368,7 @@ bool FPProc::OpenDocument(string pathname)
                     if(v[i]=='\"')
                     {
                         v[i]=0;
-                        i=-1;
+                        break;
                     }
                 }
             ProblemNote=v;
@@ -416,7 +416,7 @@ bool FPProc::OpenDocument(string pathname)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
-                    i=k;
+                    break;
                 }
             k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
@@ -424,7 +424,7 @@ bool FPProc::OpenDocument(string pathname)
                     if(v[i]=='\"')
                     {
                         v[i]=0;
-                        i=-1;
+                        break;
                     }
                 }
             PProp.PointName=v;
@@ -489,7 +489,7 @@ bool FPProc::OpenDocument(string pathname)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
-                    i=k;
+                    break;
                 }
             k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
@@ -497,7 +497,7 @@ bool FPProc::OpenDocument(string pathname)
                     if(v[i]=='\"')
                     {
                         v[i]=0;
-                        i=-1;
+                        break;
                     }
                 }
             BProp.BdryName = v;
@@ -616,7 +616,7 @@ bool FPProc::OpenDocument(string pathname)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
-                    i=k;
+                    break;
                 }
             k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
@@ -624,7 +624,7 @@ bool FPProc::OpenDocument(string pathname)
                     if(v[i]=='\"')
                     {
                         v[i]=0;
-                        i=-1;
+                        break;
                     }
                 }
             MProp.BlockName=v;
@@ -786,7 +786,7 @@ bool FPProc::OpenDocument(string pathname)
                 if(v[i]=='\"')
                 {
                     v=v+i+1;
-                    i=k;
+                    break;
                 }
             k=std::strlen(v);
             if(k>0) for(i=k-1; i>=0; i--)
@@ -794,7 +794,7 @@ bool FPProc::OpenDocument(string pathname)
                     if(v[i]=='\"')
                     {
                         v[i]=0;
-                        i=-1;
+                        break;
                     }
                 }
             CProp.CircName=v;

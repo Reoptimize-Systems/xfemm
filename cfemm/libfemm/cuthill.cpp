@@ -233,7 +233,7 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
                 {
                     j=numcon[i];
                     n0=i;
-                    i=NumNodes;
+                    break;
                 }
 
 
@@ -245,7 +245,7 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
                     j=numcon[i];
                     n0=i;
                 }
-                if(j==2) i=NumNodes;	// break out if j==2,
+                if(j==2) break;	// break out if j==2,
                 // because this is the
                 // best we can do
             }
