@@ -58,7 +58,6 @@ int luaNewDocument(lua_State *L);
 int luaProblemDefinition(lua_State *L);
 int luaSetArcsegmentProperty(lua_State *L);
 int luaSetFocus(lua_State *L);
-int luaSetSegmentProperty(lua_State *L);
 }
 
 } /* namespace FemmLua*/

@@ -180,8 +180,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("ei_setgroup", LuaCommonCommands::luaSetGroup);
     li.addFunction("ei_set_node_prop", LuaCommonCommands::luaSetNodeProperty);
     li.addFunction("ei_setnodeprop", LuaCommonCommands::luaSetNodeProperty);
-    li.addFunction("ei_set_segment_prop", luaSetSegmentProperty);
-    li.addFunction("ei_setsegmentprop", luaSetSegmentProperty);
+    li.addFunction("ei_set_segment_prop", LuaCommonCommands::luaSetSegmentProperty);
+    li.addFunction("ei_setsegmentprop", LuaCommonCommands::luaSetSegmentProperty);
     li.addFunction("ei_show_grid", LuaInstance::luaNOP);
     li.addFunction("ei_showgrid", LuaInstance::luaNOP);
     li.addFunction("ei_show_mesh", LuaInstance::luaNOP);
@@ -1248,75 +1248,6 @@ int femmcli::LuaElectrostaticsCommands::luaSetArcsegmentProperty(lua_State *L)
             doc->arclist[i]->InGroup = group;
             doc->arclist[i]->InConductor = inconductoridx;
             doc->arclist[i]->InConductorName = inconductor;
-        }
-    }
-
-    return 0;
-}
-
-/**
- * @brief Set properties for the selected segments.
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{ei_setsegmentprop("propname", elementsize, automesh, hide, group, "inconductor")}
- *
- * ### FEMM sources:
- * - \femm42{femm/beladrawLua.cpp,lua_setsegmentprop()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaSetSegmentProperty(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    int boundpropidx = -1;
-    std::string boundprop = "<None>";
-    if (!lua_isnil(L,1))
-    {
-        boundprop = lua_tostring(L,1);
-        if (doc->lineMap.count(boundprop))
-            boundpropidx = doc->lineMap[boundprop];
-        else
-            debug << "Property " << boundprop << " has no index!\n";
-    }
-    double elesize = lua_todouble(L,2);
-    bool automesh = (lua_todouble(L,3) != 0);
-    bool hide = (lua_todouble(L,4) != 0);
-    int group = (int) lua_todouble(L,5);
-
-    int inconductoridx = -1;
-    std::string inconductor = "<None>";
-    if (!lua_isnil(L,6))
-    {
-        inconductor = lua_tostring(L,6);
-        if (doc->circuitMap.count(inconductor))
-            inconductoridx = doc->circuitMap[inconductor];
-        else
-            debug << "Conductor " << inconductor << " has no index!\n";
-    }
-
-    for (int i=0; i<(int)doc->linelist.size(); i++)
-    {
-        if (doc->linelist[i]->IsSelected)
-        {
-            if (automesh)
-                doc->linelist[i]->MaxSideLength = -1;
-            else{
-                if (elesize>0)
-                    doc->linelist[i]->MaxSideLength = elesize;
-                else elesize = -1;
-            }
-            doc->linelist[i]->BoundaryMarker = boundpropidx;
-            doc->linelist[i]->BoundaryMarkerName = boundprop;
-            doc->linelist[i]->Hidden = hide;
-            doc->linelist[i]->InGroup = group;
-            doc->linelist[i]->InConductor = inconductoridx;
-            doc->linelist[i]->InConductorName = inconductor;
         }
     }
 

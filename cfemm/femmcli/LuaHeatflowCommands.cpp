@@ -182,8 +182,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("hi_setgroup", LuaCommonCommands::luaSetGroup);
     li.addFunction("hi_set_node_prop", LuaCommonCommands::luaSetNodeProperty);
     li.addFunction("hi_setnodeprop", LuaCommonCommands::luaSetNodeProperty);
-    li.addFunction("hi_set_segment_prop", luaSetSegmentProperty);
-    li.addFunction("hi_setsegmentprop", luaSetSegmentProperty);
+    li.addFunction("hi_set_segment_prop", LuaCommonCommands::luaSetSegmentProperty);
+    li.addFunction("hi_setsegmentprop", LuaCommonCommands::luaSetSegmentProperty);
     li.addFunction("hi_show_grid", LuaInstance::luaNOP);
     li.addFunction("hi_showgrid", LuaInstance::luaNOP);
     li.addFunction("hi_show_mesh", LuaInstance::luaNOP);
@@ -1109,26 +1109,6 @@ int femmcli::LuaHeatflowCommands::luaNewDocument(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
     femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::HeatFlowFile));
     return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaHF
- *
- * \internal
- * ### Implements:
- * - \lua{hi_setsegmentprop}
- *
- * ### FEMM sources:
- * - \femm42{femm/HDRAWLUA.cpp,lua_setsegmentprop()}
- * \endinternal
- */
-int femmcli::LuaHeatflowCommands::luaSetSegmentProperty(lua_State *L)
-{
-   lua_error(L,"Not implemented!");
-   return 0;
 }
 
 /**
