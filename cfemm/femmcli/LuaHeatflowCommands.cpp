@@ -795,14 +795,14 @@ int femmcli::LuaHeatflowCommands::luaBlockIntegral(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Get the solution values for a point.
  * @param L
  * @return 0
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{ho_getpointvalues}
+ * - \lua{ho_getpointvalues(X,Y)}
  *
  * ### FEMM sources:
  * - \femm42{femm/hviewLua.cpp,lua_getpointvals()}
@@ -810,9 +810,40 @@ int femmcli::LuaHeatflowCommands::luaBlockIntegral(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaGetPointValues(lua_State *L)
 {
-   lua_error(L,"Not implemented!");
-   return 0;
+    auto luaInstance = LuaInstance::instance(L);
 
+    auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<HPProc> pproc = std::dynamic_pointer_cast<HPProc>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No heat flow output in focus");
+        return 0;
+    }
+
+    double px,py;
+    px=lua_tonumber(L,1).re;
+    py=lua_tonumber(L,2).re;
+
+    CHPointVals u;
+    if(pproc->getPointValues(px, py, u))
+    {
+        lua_pushnumber(L,u.T);
+        lua_pushnumber(L,u.F.re);
+        lua_pushnumber(L,u.F.im);
+        lua_pushnumber(L,u.G.re);
+        lua_pushnumber(L,u.G.im);
+        lua_pushnumber(L,u.K.re);
+        lua_pushnumber(L,u.K.im);
+
+        return 7;
+    }
+    if (luaInstance->getGlobal("XFEMM_VERBOSE") != 0)
+    {
+        std::string msg = "No point value at " + std::to_string(px) + ", " + std::to_string(py) + "\n";
+        PrintWarningMsg(msg.c_str());
+    }
+
+    return 0;
 }
 
 /**
