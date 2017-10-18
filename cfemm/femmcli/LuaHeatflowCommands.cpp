@@ -974,14 +974,14 @@ int femmcli::LuaHeatflowCommands::luaModifyConductorProperty(lua_State *L)
 
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a material.
  * @param L
  * @return 0
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{hi_modifymaterial}
+ * - \lua{hi_modifymaterial("BlockName",propnum,value)}
  *
  * ### FEMM sources:
  * - \femm42{femm/HDRAWLUA.cpp,lua_modmatprop()}
@@ -989,9 +989,50 @@ int femmcli::LuaHeatflowCommands::luaModifyConductorProperty(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaModifyMaterialProperty(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-   lua_error(L,"Not implemented!");
-   return 0;
+    // find the index of the material to modify;
+    std::string BlockName = lua_tostring(L,1);
+    CHMaterialProp *m = nullptr;
+    for (auto &prop: doc->blockproplist)
+    {
+        if (BlockName==prop->BlockName) {
+            m = dynamic_cast<CHMaterialProp*>(prop.get());
+            break;
+        }
+    }
+
+    // get out of here if there's no matching material
+    if (m==nullptr)
+        return 0;
+
+    int modprop=(int) lua_todouble(L,2);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+        m->BlockName = lua_tostring(L,3);
+        doc->updateBlockMap();
+        break;
+    case 1:
+        m->Kx = lua_todouble(L,3);
+        break;
+    case 2:
+        m->Ky = lua_todouble(L,3);
+        break;
+    case 3:
+        m->qv = lua_todouble(L,3);
+        break;
+    case 4:
+        m->Kt = lua_todouble(L,3);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
 /**
