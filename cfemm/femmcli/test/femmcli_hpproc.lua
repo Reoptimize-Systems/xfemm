@@ -35,22 +35,12 @@ failed=0
 -- FIXME: error margin needs sane values
 print("Checks against femm42 output:")
 failed = failed + check("T", T, 304.8641290114103, 2)
-failed = failed + check("Fx", Fx, 0.2199070927061962, 2)
-failed = failed + check("Fy", Fy, 0.1428113935654898, 2)
-failed = failed + check("Gx", Gx, 8.313999477015031, 2)
-failed = failed + check("Gy", Gy, 5.399252187839117, 2)
+failed = failed + check("Fx", Fx, 0.2199070927061962, 4)
+failed = failed + check("Fy", Fy, 0.1428113935654898, 4)
+failed = failed + check("Gx", Gx, 8.313999477015031, 4)
+failed = failed + check("Gy", Gy, 5.399252187839117, 4)
 failed = failed + check("kx", kx, 0.02645021728882154, 2)
 failed = failed + check("ky", ky, 0.02645021728882154, 2)
-
--- xfemm output before lua integration:
-print("Checks against known pre-lua xfemm output:")
-failed = failed + check("T", T, 304.864129, 0.1)
-failed = failed + check("Fx", Fx, 0.219907, 0.1)
-failed = failed + check("Fy", Fy, 0.142811, 0.1)
-failed = failed + check("Gx", Gx, 8.313999, 0.1)
-failed = failed + check("Gy", Gy, 5.399252, 0.1)
-failed = failed + check("kx", kx, 0.026450, 0.1)
-failed = failed + check("ky", ky, 0.026450, 0.1)
 
 assert(failed==0)
 write("SUCCESS\n")
