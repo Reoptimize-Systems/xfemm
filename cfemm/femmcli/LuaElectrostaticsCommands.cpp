@@ -206,8 +206,8 @@ void femmcli::LuaElectrostaticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("eo_clear_contour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("eo_clearcontour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("eo_close", LuaCommonCommands::luaExitPost);
-    li.addFunction("eo_get_conductor_properties", luaGetConductorProperties);
-    li.addFunction("eo_getconductorproperties", luaGetConductorProperties);
+    li.addFunction("eo_get_conductor_properties", LuaCommonCommands::luaGetConductorProperties);
+    li.addFunction("eo_getconductorproperties", LuaCommonCommands::luaGetConductorProperties);
     li.addFunction("eo_get_element", LuaCommonCommands::luaGetElement);
     li.addFunction("eo_getelement", LuaCommonCommands::luaGetElement);
     li.addFunction("eo_get_node", LuaCommonCommands::luaGetMeshNode);
@@ -685,73 +685,6 @@ int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *L)
 
     return 2;
 }
-
-/**
- * @brief Get information about a conductor property.
- * Two values are returned:
- * * electrostatics:
- *   1. voltage of the specified conductor
- *   2. charge carried on the specified conductor.
- * * heat flow:
- *   1. temperature of the specified conductor
- *   2. total heat flux through the specified conductor.
- * * current flow:
- *   1. voltage of the specified conductor
- *   2. current on the specified conductor.
- *
- * \note except mo_getcircuitproperties, all three modules use the same implementation.
- *
- * \note For now, this still only works for CSCircuit, because the V and q are not part of the base class.
- *
- * @param L
- * @return 0
- * \ingroup LuaES
- *
- * \internal
- * ### Implements:
- * - \lua{eo_getconductorproperties("conductor")}
- * - \lua{ho_getconductorproperties("conductor")}
- * - \lua{co_getconductorproperties("conductor")}
- *
- * ### FEMM sources:
- * - \femm42{femm/belaviewLua.cpp,lua_getcircuitprops()}
- * - \femm42{femm/hviewLua.cpp,lua_getcircuitprops()}
- * - \femm42{femm/CVIEWLUA.cpp,lua_getcircuitprops()}
- * \endinternal
- */
-int femmcli::LuaElectrostaticsCommands::luaGetConductorProperties(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
-    if (!pproc)
-    {
-        lua_error(L,"No output in focus");
-        return 0;
-    }
-
-    std::string conductorname = lua_tostring(L,1);
-
-    const auto doc = pproc->getProblem();
-    // ok we need to find the correct entry for the circuit name
-    auto searchResult = doc->circuitMap.find(conductorname);
-    // get out of here if there's no matching circuit
-    if (searchResult == doc->circuitMap.end())
-    {
-        debug << "getconductorproperties(): No conductor of name " << conductorname << "\n";
-        return 0;
-    }
-    int idx = searchResult->second;
-
-    const CSCircuit *conductor = dynamic_cast<CSCircuit*>(doc->circproplist[idx].get());
-    assert(conductor);
-    lua_pushnumber(L,conductor->V);
-    lua_pushnumber(L,conductor->q);
-
-    return 2;
-}
-
-
 
 /**
  * @brief Read the file matlib.dat and extract a named material property.

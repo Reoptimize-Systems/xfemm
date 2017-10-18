@@ -1097,6 +1097,91 @@ int femmcli::LuaCommonCommands::luaGetBoundingBox(lua_State *L)
 }
 
 /**
+ * @brief Get information about a conductor property.
+ * Two values are returned:
+ * * electrostatics:
+ *   1. voltage of the specified conductor
+ *   2. charge carried on the specified conductor.
+ * * heat flow:
+ *   1. temperature of the specified conductor
+ *   2. total heat flux through the specified conductor.
+ * * current flow:
+ *   1. voltage of the specified conductor
+ *   2. current on the specified conductor.
+ *
+ * \note except mo_getcircuitproperties, all three modules can use the same implementation.
+ *
+ *
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_getconductorproperties("conductor")}
+ * - \lua{ho_getconductorproperties("conductor")}
+ * - \lua{co_getconductorproperties("conductor")} (not yet implemented)
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_getcircuitprops()}
+ * - \femm42{femm/hviewLua.cpp,lua_getcircuitprops()}
+ * - \femm42{femm/CVIEWLUA.cpp,lua_getcircuitprops()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaGetConductorProperties(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+
+    std::string conductorname = lua_tostring(L,1);
+
+    const auto doc = pproc->getProblem();
+    // ok we need to find the correct entry for the circuit name
+    auto searchResult = doc->circuitMap.find(conductorname);
+    // get out of here if there's no matching circuit
+    if (searchResult == doc->circuitMap.end())
+    {
+        debug << "getconductorproperties(): No conductor of name " << conductorname << "\n";
+        return 0;
+    }
+    int idx = searchResult->second;
+
+    double V=0;
+    double q=0;
+    switch (doc->filetype) {
+    case FileType::ElectrostaticsFile:
+    {
+        const CSCircuit *conductor = dynamic_cast<CSCircuit*>(doc->circproplist[idx].get());
+        assert(conductor);
+        V = conductor->V;
+        q = conductor->q;
+    }
+        break;
+    case FileType::HeatFlowFile:
+    {
+        const CHConductor *conductor = dynamic_cast<CHConductor*>(doc->circproplist[idx].get());
+        assert(conductor);
+        V = conductor->V;
+        q = conductor->q;
+        break;
+    }
+    default:
+        assert(false);
+        break;
+    }
+    lua_pushnumber(L,V);
+    lua_pushnumber(L,q);
+
+    return 2;
+}
+
+/**
  * @brief Get data of indexed element.
  * GetElement[n] returns the following proprerties for the nth element:
  * 1. Index of first element node

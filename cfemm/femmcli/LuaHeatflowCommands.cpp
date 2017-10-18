@@ -209,8 +209,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("ho_clear_contour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("ho_clearcontour", LuaCommonCommands::luaClearContourPoint);
     li.addFunction("ho_close", LuaCommonCommands::luaExitPost);
-    li.addFunction("ho_get_conductor_properties", luaGetConductorProperties);
-    li.addFunction("ho_getconductorproperties", luaGetConductorProperties);
+    li.addFunction("ho_get_conductor_properties", LuaCommonCommands::luaGetConductorProperties);
+    li.addFunction("ho_getconductorproperties", LuaCommonCommands::luaGetConductorProperties);
     li.addFunction("ho_get_element", LuaCommonCommands::luaGetElement);
     li.addFunction("ho_getelement", LuaCommonCommands::luaGetElement);
     li.addFunction("ho_get_node", LuaCommonCommands::luaGetMeshNode);
@@ -789,46 +789,6 @@ int femmcli::LuaHeatflowCommands::luaProblemDefinition(lua_State *L)
  * \endinternal
  */
 int femmcli::LuaHeatflowCommands::luaBlockIntegral(lua_State *L)
-{
-   lua_error(L,"Not implemented!");
-   return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaHF
- *
- * \internal
- * ### Implements:
- * - \lua{ho_close}
- *
- * ### FEMM sources:
- * - \femm42{femm/hviewLua.cpp,lua_exitpost()}
- * \endinternal
- */
-int femmcli::LuaHeatflowCommands::luaExitPost(lua_State *L)
-{
-   lua_error(L,"Not implemented!");
-   return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaHF
- *
- * \internal
- * ### Implements:
- * - \lua{ho_getconductorproperties}
- *
- * ### FEMM sources:
- * - \femm42{femm/hviewLua.cpp,lua_getcircuitprops()}
- * \endinternal
- */
-int femmcli::LuaHeatflowCommands::luaGetConductorProperties(lua_State *L)
 {
    lua_error(L,"Not implemented!");
    return 0;
