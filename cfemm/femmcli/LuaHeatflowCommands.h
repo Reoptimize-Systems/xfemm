@@ -57,7 +57,6 @@ int luaModifyMaterialProperty(lua_State *L);
 int luaModifyPointProperty(lua_State *L);
 int luaNewDocument(lua_State *L);
 int luaProblemDefinition(lua_State *L);
-int luaSetSegmentProperty(lua_State *L);
 }
 
 } /* namespace FemmLua*/
