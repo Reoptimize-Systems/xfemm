@@ -85,6 +85,7 @@ int luaSaveDocument(lua_State *L);
 int luaScaleMove(lua_State *L);
 int luaSelectArcsegment(lua_State *L);
 int luaSelectBlocklabel(lua_State *L);
+int luaSelectConductor(lua_State *L);
 int luaSelectGroup(lua_State *L);
 int luaSelectNode(lua_State *L);
 int luaSelectOutputBlocklabel(lua_State *L);

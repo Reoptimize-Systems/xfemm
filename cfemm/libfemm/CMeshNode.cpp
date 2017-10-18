@@ -48,12 +48,18 @@ CMeshNode::CMeshNode()
     , y(0.)
     , msk(0)
     , Q(0)
+    , IsSelected(false)
 {
 }
 
 CComplex CMeshNode::CC()
 {
     return (x+I*y);
+}
+
+void CMeshNode::ToggleSelect()
+{
+    IsSelected = ! IsSelected;
 }
 
 double CMeshNode::GetDistance(double xo, double yo)
@@ -112,7 +118,6 @@ CHMeshNode CHMeshNode::fromStream(istream &input, ostream &)
 
 CSMeshNode::CSMeshNode()
     : CMeshNode()
-    , IsSelected(false)
 {
 }
 
