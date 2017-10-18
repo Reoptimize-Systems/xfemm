@@ -484,7 +484,7 @@ int HSolver::AnalyzeProblem(CBigLinProb &L)
 	{
 		if (blockproplist[meshele[i].blk].npts>0){
             IsNonlinear=true;
-			i=NumNodes;
+            break;
 		}
 	}
 

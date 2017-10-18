@@ -374,7 +374,7 @@ int femmcli::LuaMagneticsCommands::luaAddBHPoint(lua_State *L)
                 swap(blockprop->Hdata[j],blockprop->Hdata[j+1]);
             }
         }
-        if (!swapped) i=n;
+        if (!swapped) break;
     }
     return 0;
 }
