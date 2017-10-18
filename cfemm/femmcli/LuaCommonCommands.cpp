@@ -2768,6 +2768,75 @@ int femmcli::LuaCommonCommands::luaSetGroup(lua_State *L)
 }
 
 /**
+ * @brief Set the nodal property for selected nodes.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_setnodeprop("propname",groupno, "inconductor")}
+ * - \lua{hi_setnodeprop("propname",groupno, "inconductor")}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/beladrawLua.cpp,lua_setnodeprop()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_setnodeprop()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSetNodeProperty(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    int nodepropidx = -1;
+    std::string nodeprop = "<None>";
+    // Note: propname may be 0 (as in number 0, not string "0").
+    //       In that case, the arc segments have no boundary property.
+    if (!lua_isnil(L,1))
+    {
+        nodeprop = lua_tostring(L,1);
+        if (doc->nodeMap.count(nodeprop))
+            nodepropidx = doc->nodeMap[nodeprop];
+        else
+            debug << "Property " << nodeprop << " has no index!\n";
+    }
+    int groupno=(int) lua_todouble(L,2);
+
+    if (groupno<0)
+    {
+        std::string msg = "Invalid group no " + std::to_string(groupno);
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    int inconductoridx = -1;
+    std::string inconductor = "<None>";
+    if (!lua_isnil(L,3))
+    {
+        inconductor = lua_tostring(L,3);
+        if (doc->circuitMap.count(inconductor))
+            inconductoridx = doc->circuitMap[inconductor];
+        else
+            debug << "Conductor " << inconductor << " has no index!\n";
+    }
+    // check to see how many (if any) nodes are selected.
+    for(int i=0; i<(int)doc->nodelist.size(); i++)
+    {
+        if(doc->nodelist[i]->IsSelected)
+        {
+            doc->nodelist[i]->InGroup = groupno;
+            doc->nodelist[i]->BoundaryMarker = nodepropidx;
+            doc->nodelist[i]->BoundaryMarkerName = nodeprop;
+            doc->nodelist[i]->InConductor = inconductoridx;
+            doc->nodelist[i]->InConductorName = inconductor;
+        }
+    }
+
+    return 0;
+}
+
+/**
  * @brief This function controls whether or not smoothing is applied to the F and G/D and E/B and H fields.
  * Setting flag equal to "on" turns on smoothing, and setting flag to "off" turns off smoothing.
  * @param L
