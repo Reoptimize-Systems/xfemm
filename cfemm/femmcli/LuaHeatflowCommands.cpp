@@ -1091,14 +1091,14 @@ int femmcli::LuaHeatflowCommands::luaModifyPointProperty(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Create a new heat flow document
  * @param L
  * @return 0
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{hi_newdocument}
+ * - \lua{hi_newdocument()}
  *
  * ### FEMM sources:
  * - \femm42{femm/HDRAWLUA.cpp,lua_newdocument()}
@@ -1106,9 +1106,9 @@ int femmcli::LuaHeatflowCommands::luaModifyPointProperty(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaNewDocument(lua_State *L)
 {
-
-   lua_error(L,"Not implemented!");
-   return 0;
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
+    femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::HeatFlowFile));
+    return 0;
 }
 
 /**
