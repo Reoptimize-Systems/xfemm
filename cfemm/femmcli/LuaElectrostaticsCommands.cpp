@@ -1092,7 +1092,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyPointProperty(lua_State *L)
 }
 
 /**
- * @brief Create a new magnetics document.
+ * @brief Create a new electrostatics document.
  * @param L
  * @return 0
  * \ingroup LuaES
