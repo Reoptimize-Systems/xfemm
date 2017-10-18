@@ -907,14 +907,14 @@ int femmcli::LuaHeatflowCommands::luaModifyBoundaryProperty(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify the given conductor property.
  * @param L
  * @return 0
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{hi_modifyconductorprop}
+ * - \lua{hi_modifyconductorprop("CondName",propnum,value)}
  *
  * ### FEMM sources:
  * - \femm42{femm/HDRAWLUA.cpp,lua_modcircprop()}
@@ -922,9 +922,54 @@ int femmcli::LuaHeatflowCommands::luaModifyBoundaryProperty(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaModifyConductorProperty(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-   lua_error(L,"Not implemented!");
-   return 0;
+    if (doc->circproplist.empty())
+        return 0;
+
+    // find the index of the material to modify;
+    std::string CircName = lua_tostring(L,1);
+
+    auto searchResult = doc->circuitMap.find(CircName);
+    // get out of here if there's no matching circuit
+    if (searchResult == doc->circuitMap.end())
+    {
+        debug << "hi_modcondprop(): No conductor of name " << CircName << "\n";
+        return 0;
+    }
+    int idx = searchResult->second;
+
+    int modprop=(int) lua_todouble(L,2);
+    CHConductor *prop = dynamic_cast<CHConductor*>(doc->circproplist[idx].get());
+    assert(prop);
+    // now, modify the specified attribute...
+    switch(modprop)
+    {
+    case 0:
+    {
+        std::string newName;
+        if (!lua_isnil(L,3))
+            newName = lua_tostring(L,3);
+        prop->CircName = newName;
+        break;
+    }
+    case 1:
+        prop->CircType = (int) lua_todouble(L,3);
+        break;
+    case 2:
+        // called T in HDRAWLUA.cpp
+        prop->V = lua_todouble(L,3);
+        break;
+    case 3:
+        prop->q = lua_todouble(L,3);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
 
