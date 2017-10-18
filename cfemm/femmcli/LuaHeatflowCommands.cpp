@@ -605,6 +605,8 @@ int femmcli::LuaHeatflowCommands::luaAnalyze(lua_State *L)
     theSolver.PathName = doc->pathName.substr(0,dotpos);
     theSolver.WarnMessage = &PrintWarningMsg;
     theSolver.PrintMessage = &PrintWarningMsg;
+    theSolver.dT = doc->dT;
+    theSolver.previousSolutionFile = doc->PrevSoln;
     if (!theSolver.LoadProblemFile())
     {
         lua_error(L, "hi_analyze(): problem initializing solver!");
