@@ -837,14 +837,14 @@ int femmcli::LuaHeatflowCommands::luaLineIntegral(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Modify a field of a boundary property.
  * @param L
  * @return 0
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{hi_modifyboundprop}
+ * - \lua{hi_modifyboundprop("BdryName",propnum,value)}
  *
  * ### FEMM sources:
  * - \femm42{femm/HDRAWLUA.cpp,lua_modboundprop()}
@@ -852,9 +852,58 @@ int femmcli::LuaHeatflowCommands::luaLineIntegral(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaModifyBoundaryProperty(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-   lua_error(L,"Not implemented!");
-   return 0;
+    // find the index of the boundary property to modify;
+    std::string BdryName = lua_tostring(L,1);
+    CHBoundaryProp *m = nullptr;
+    for (auto &prop: doc->lineproplist)
+    {
+        if (BdryName==prop->BdryName) {
+            m = dynamic_cast<CHBoundaryProp*>(prop.get());
+            break;
+        }
+    }
+    // get out of here if there's no matching material
+    if (m==nullptr)
+    {
+        std::string msg = "Boundary \"" + BdryName + "\" not found!";
+        lua_error(L,msg.c_str());
+        return 0;
+    }
+
+    // now, modify the specified attribute...
+    int modprop=(int) lua_todouble(L,2);
+    switch(modprop)
+    {
+    case 0:
+        m->BdryName = lua_tostring(L,3);
+        doc->updateLineMap();
+        break;
+    case 1:
+        m->BdryFormat = (int)lua_todouble(L,3);
+        break;
+    case 2:
+        m->Tset = lua_todouble(L,3);
+        break;
+    case 3:
+        m->qs = lua_todouble(L,3);
+        break;
+    case 4:
+        m->Tinf = lua_todouble(L,3);
+        break;
+    case 5:
+        m->h = lua_todouble(L,3);
+        break;
+    case 6:
+        m->beta = lua_todouble(L,3);
+        break;
+    default:
+        break;
+    }
+    return 0;
 }
 
 /**
