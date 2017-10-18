@@ -256,8 +256,8 @@ void femmcli::LuaHeatflowCommands::registerCommands(LuaInstance &li)
     li.addFunction("ho_savemetafile", LuaInstance::luaNOP);
     li.addFunction("ho_select_block", LuaCommonCommands::luaSelectOutputBlocklabel);
     li.addFunction("ho_selectblock", LuaCommonCommands::luaSelectOutputBlocklabel);
-    li.addFunction("ho_select_conductor", luaSelectConductor);
-    li.addFunction("ho_selectconductor", luaSelectConductor);
+    li.addFunction("ho_select_conductor", LuaCommonCommands::luaSelectConductor);
+    li.addFunction("ho_selectconductor", LuaCommonCommands::luaSelectConductor);
     li.addFunction("ho_select_point", LuaCommonCommands::luaAddContourPointFromNode);
     li.addFunction("ho_selectpoint", LuaCommonCommands::luaAddContourPointFromNode);
     li.addFunction("ho_set_edit_mode", LuaInstance::luaNOP);
@@ -1109,27 +1109,6 @@ int femmcli::LuaHeatflowCommands::luaNewDocument(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
     femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::HeatFlowFile));
     return 0;
-}
-
-/**
- * @brief FIXME not implemented
- * @param L
- * @return 0
- * \ingroup LuaHF
- *
- * \internal
- * ### Implements:
- * - \lua{ho_selectconductor}
- *
- * ### FEMM sources:
- * - \femm42{femm/hviewLua.cpp,lua_selectconductor()}
- * \endinternal
- */
-int femmcli::LuaHeatflowCommands::luaSelectConductor(lua_State *L)
-{
-
-   lua_error(L,"Not implemented!");
-   return 0;
 }
 
 /**

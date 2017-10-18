@@ -135,6 +135,23 @@ bool PostProcessor::selectBlocklabel(double px, double py)
     return false;
 }
 
+void PostProcessor::selectConductor(int idx)
+{
+    for (auto &node: problem->nodelist)
+        if (idx == node->InConductor)
+            node->ToggleSelect();
+    for (auto &line: problem->linelist)
+        if (idx == line->InConductor)
+            line->ToggleSelect();
+    for (auto &arc: problem->arclist)
+        if (idx == arc->InConductor)
+            arc->ToggleSelect();
+    for (auto &mnode: meshnodes)
+    {
+        mnode->ToggleSelect();
+    }
+}
+
 void PostProcessor::setSmoothing(bool value)
 {
     Smooth = value;

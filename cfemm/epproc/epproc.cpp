@@ -485,26 +485,6 @@ bool ElectrostaticsPostProcessor::isSelectionOnAxis() const
     return false;
 }
 
-void ElectrostaticsPostProcessor::selectConductor(int idx)
-{
-    for (auto &node: problem->nodelist)
-        if (idx == node->InConductor)
-            node->ToggleSelect();
-    for (auto &line: problem->linelist)
-        if (idx == line->InConductor)
-            line->ToggleSelect();
-    for (auto &arc: problem->arclist)
-        if (idx == arc->InConductor)
-            arc->ToggleSelect();
-    for (auto &mnode: meshnodes)
-    {
-        // reinterpret_cast is safe because we know only CSMeshNodes are in meshnodes.
-        CSMeshNode *snode = reinterpret_cast<CSMeshNode*>(mnode.get());
-        if (idx == snode->Q)
-            snode->IsSelected = ! snode->IsSelected;
-    }
-}
-
 void ElectrostaticsPostProcessor::lineIntegral(int intType, double (&results)[2]) const
 {
     // inttype  Integral

@@ -2112,6 +2112,56 @@ int femmcli::LuaCommonCommands::luaSelectBlocklabel(lua_State *L)
 }
 
 /**
+ * @brief Selects all nodes, segments, and arc segments that are part
+ * of the conductor specified by the string ("name").
+ *
+ * This command is used to select conductors for the purposes of the
+ * “weighted stress tensor” force and torque integrals, where the
+ * conductors are points or surfaces, rather than regions (i.e. can’t
+ * be selected with *o_selectblock).
+ *
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{eo_selectconductor("name")}
+ * - \lua{ho_selectconductor("name")}
+ *
+ * ### FEMM sources:
+ * - \femm42{femm/belaviewLua.cpp,lua_selectconductor()}
+ * - \femm42{femm/hviewLua.cpp,lua_selectconductor()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaSelectConductor(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No output in focus");
+        return 0;
+    }
+    int n=lua_gettop(L);
+    if (n==0)
+        return 0;
+
+    std::string conductorName = lua_tostring(L,1);
+
+    // find conductor index
+    const auto doc = pproc->getProblem();
+    auto searchResult = doc->circuitMap.find(conductorName);
+    if ( searchResult == doc->circuitMap.end())
+        return 0;
+    int idx = searchResult->second;
+    pproc->selectConductor(idx);
+
+    return 0;
+}
+
+/**
  * @brief Select the given group of nodes, segments, arc segments and blocklabels.
  * This function will clear all previously selected elements and leave the editmode in 4 (group)
  * @param L

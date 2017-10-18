@@ -61,17 +61,6 @@ public:
     void getPointValues(double x, double y, int k, femm::CSPointVals &u) const;
 
     bool isSelectionOnAxis() const override;
-    /**
-      * @brief Toggles selection for all nodes, segments, and arc segments that are part
-      * of the conductor specified by the index.
-      *
-      * This command is used to select conductors for the purposes of the
-      * “weighted stress tensor” force and torque integrals, where the
-      * conductors are points or surfaces, rather than regions (i.e. can’t
-      * be selected with eo_selectblock).
-     * @param idx the conductor index
-     */
-    void selectConductor(int idx);
 
     /**
      * @brief Calculate the line integral for the defined contour.

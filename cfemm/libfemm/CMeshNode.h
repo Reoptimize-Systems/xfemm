@@ -51,6 +51,9 @@ public:
      * Indicates whether the node lies on a boundary, or in a conductor, or none.
      */
     int Q;
+
+    bool IsSelected; ///< Used to compute the “weighted stress tensor” force and torque integrals; not used in magnetics problems.
+    void ToggleSelect();
 private:
 
 };
@@ -111,7 +114,6 @@ public:
     static CSMeshNode fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     double V;
-    bool IsSelected; ///< Only needed by electrostatics to compute the  “weighted stress tensor” force and torque integrals.
 };
 
 } //namespace
