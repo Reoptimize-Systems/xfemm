@@ -797,7 +797,7 @@ int femmcli::LuaHeatflowCommands::luaBlockIntegral(lua_State *L)
     std::shared_ptr<HPProc> pproc = std::dynamic_pointer_cast<HPProc>(femmState->getPostProcessor());
     if (!pproc)
     {
-        lua_error(L,"No electrostatics output in focus");
+        lua_error(L,"No heat flow output in focus");
         return 0;
     }
 
@@ -882,14 +882,14 @@ int femmcli::LuaHeatflowCommands::luaGetPointValues(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief  Calculate the line integral for the defined contour.
  * @param L
- * @return 0
+ * @return 0 on error, 2 otherwise.
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{ho_lineintegral}
+ * - \lua{ho_lineintegral(type)}
  *
  * ### FEMM sources:
  * - \femm42{femm/hviewLua.cpp,lua_lineintegral()}
@@ -897,9 +897,41 @@ int femmcli::LuaHeatflowCommands::luaGetPointValues(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaLineIntegral(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<HPProc> pproc = std::dynamic_pointer_cast<HPProc>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No heat flow output in focus");
+        return 0;
+    }
 
-   lua_error(L,"Not implemented!");
-   return 0;
+    int type=(int) lua_todouble(L,1);
+    // 0 - G.t
+    // 1 - F.n
+    // 2 - Contour length
+    // 3 - Average temperature
+
+    // 0 - E.t
+    // 1 - D.n
+    // 2 - Cont length
+    // 3 - Force from stress tensor
+    // 4 - Torque from stress tensor
+
+    if (type<0 || type >3)
+    {
+        std::string msg = "Invalid line integral selected " + std::to_string(type) + "\n";
+        lua_error(L,msg.c_str());
+        return 0;
+
+    }
+
+    double z[2] = {0,0};
+    pproc->lineIntegral(type,z);
+
+    lua_pushnumber(L,z[0]);
+    lua_pushnumber(L,z[1]);
+    return 2;
 }
 
 /**
