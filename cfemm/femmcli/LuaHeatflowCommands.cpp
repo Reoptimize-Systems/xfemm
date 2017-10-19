@@ -1210,14 +1210,14 @@ int femmcli::LuaHeatflowCommands::luaNewDocument(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Add the point (T,k) to the thermal conductivity vs. temperature curve for given material.
  * @param L
  * @return 0
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{hi_addtkpoint}
+ * - \lua{hi_addtkpoint("materialname",T,k)}
  *
  * ### FEMM sources:
  * - \femm42{femm/HDRAWLUA.cpp,lua_addtkpoint()}
@@ -1225,9 +1225,28 @@ int femmcli::LuaHeatflowCommands::luaNewDocument(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaAddtkpoint(lua_State *L)
 {
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-   lua_error(L,"Not implemented!");
-   return 0;
+    // find the index of the material to modify;
+    std::string BlockName = lua_tostring(L,1);
+    CHMaterialProp *m = nullptr;
+    for (auto &prop: doc->blockproplist)
+    {
+        if (BlockName==prop->BlockName) {
+            m = dynamic_cast<CHMaterialProp*>(prop.get());
+            break;
+        }
+    }
+    // get out of here if there's no matching material
+    if (m==nullptr)
+        return 0;
+
+    // now, add the tkpoint for the specified material;
+    m->Kn[m->npts++] = lua_todouble(L,2)+I*lua_todouble(L,3);
+
+    return 0;
 }
 
 /**
