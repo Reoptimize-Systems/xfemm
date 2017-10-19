@@ -623,7 +623,7 @@ int femmcli::LuaElectrostaticsCommands::luaAnalyze(lua_State *L)
 /**
  * @brief Calculate a block integral for the selected blocks.
  * @param L
- * @return 1 or 2 on success, 0 otherwise
+ * @return 2 on success, 0 otherwise
  * \ingroup LuaES
  *
  * \internal

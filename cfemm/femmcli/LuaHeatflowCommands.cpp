@@ -777,14 +777,14 @@ int femmcli::LuaHeatflowCommands::luaProblemDefinition(lua_State *L)
 }
 
 /**
- * @brief FIXME not implemented
+ * @brief Calculate a block integral for the selected blocks
  * @param L
- * @return 0
+ * @return 2 on success, 0 otherwise
  * \ingroup LuaHF
  *
  * \internal
  * ### Implements:
- * - \lua{ho_blockintegral}
+ * - \lua{ho_blockintegral(type)}
  *
  * ### FEMM sources:
  * - \femm42{femm/hviewLua.cpp,lua_blockintegral()}
@@ -792,8 +792,41 @@ int femmcli::LuaHeatflowCommands::luaProblemDefinition(lua_State *L)
  */
 int femmcli::LuaHeatflowCommands::luaBlockIntegral(lua_State *L)
 {
-   lua_error(L,"Not implemented!");
-   return 0;
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<HPProc> pproc = std::dynamic_pointer_cast<HPProc>(femmState->getPostProcessor());
+    if (!pproc)
+    {
+        lua_error(L,"No electrostatics output in focus");
+        return 0;
+    }
+
+    int type = (int) lua_todouble(L,1);
+    if((type<0) || (type>6))
+    {
+        lua_error(L, "Invalid block integral type selected");
+        return 0;
+    }
+    bool hasSelectedItems=false;
+    for (const auto &block: pproc->getProblem()->labellist )
+    {
+        if (block->IsSelected)
+        {
+            hasSelectedItems = true;
+            break;
+        }
+    }
+    if(!hasSelectedItems)
+    {
+        lua_error(L,"Cannot integrate\nNo area has been selected");
+        return 0;
+    }
+    CComplex z=pproc->blockIntegral(type);
+
+    lua_pushnumber(L,z.re);
+    lua_pushnumber(L,z.im);
+
+    return 2;
 }
 
 /**
