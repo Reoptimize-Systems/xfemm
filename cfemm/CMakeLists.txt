@@ -44,6 +44,10 @@ install(
    FILES LICENSE-FEMM.txt LICENSE-Lua.txt LICENSE-triangle.txt
    DESTINATION doc/xfemm
    )
+install(
+   FILES "README-LUA.txt"
+   DESTINATION doc/xfemm
+   )
 
 
 ## installer support using cpack (this section should come last):
