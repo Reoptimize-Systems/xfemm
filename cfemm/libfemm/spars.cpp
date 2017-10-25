@@ -247,8 +247,6 @@ bool CBigLinProb::PCGSolve(int flag)
 //	TheView->SetDlgItemText(IDC_FRAME1,"Conjugate Gradient Solver");
 //	TheView->m_prog1.SetPos(0);
     printf("Conjugate Gradient Solver\n");
-    int prg1=0;
-    int prg2;
 
     // residual with V=0
     MultPC(b,Z);
@@ -275,11 +273,14 @@ bool CBigLinProb::PCGSolve(int flag)
         pAp=Dot(P,U);
         del=res/pAp;
 
-        // step ii)
-        for(i=0; i<n; i++) V[i]+=(del*P[i]);
+        for(i=0; i<n; i++)
+        {
+            // step ii)
+            V[i]+=(del*P[i]);
 
-        // step iii)
-        for(i=0; i<n; i++) R[i]-=(del*U[i]);
+            // step iii)
+            R[i]-=(del*U[i]);
+        }
 
         // step iv)
         MultPC(R,Z);
@@ -292,16 +293,16 @@ bool CBigLinProb::PCGSolve(int flag)
 
         // have we converged yet?
         er=sqrt(res/res_o);
-        prg2=(int) (20.*log10(er)/(log10(Precision)));
-        if(prg2>prg1)
-        {
-            prg1=prg2;
-            prg2=(prg1*5);
-            if(prg2>100) prg2=100;
+//        prg2=(int) (20.*log10(er)/(log10(Precision)));
+//        if(prg2>prg1)
+//        {
+//            prg1=prg2;
+//            prg2=(prg1*5);
+//            if(prg2>100) prg2=100;
 //			TheView->m_prog1.SetPos(prg2);
 //			TheView->InvalidateRect(NULL, FALSE);
 //			TheView->UpdateWindow();
-        }
+//        }
 
     }
     while(er>Precision);
