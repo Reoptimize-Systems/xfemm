@@ -621,12 +621,16 @@ CComplex conj( const CComplex& x)
 
 CComplex exp( const CComplex& x)
 {
-	CComplex y;
+    CComplex y;
 
-	y.re=cos(x.im)*exp(x.re);
-	y.im=sin(x.im)*exp(x.re);
+    const double exp_x = exp(x.re);
+    double sin_x;
+    double cos_x;
+    sincos(x.im, &sin_x, &cos_x);
+    y.re=cos_x*exp_x;
+    y.im=sin_x*exp_x;
 
-	return y;
+    return y;
 }
 
 CComplex sqrt( const CComplex& x)
