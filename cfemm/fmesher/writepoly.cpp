@@ -402,7 +402,8 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
         k = (unsigned int) std::ceil(arc.ArcLength/arc.MaxSideLength);
         segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-        segm.InConductorName=arc.InConductorName; // not relevant for magnetics problems
+        if (problem->filetype != FileType::MagneticsFile)
+            segm.InConductorName=arc.InConductorName; // not relevant for magnetics problems
         problem->getCircle(arc,c,R);
         a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
@@ -942,7 +943,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
         k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
         segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-        segm.InConductorName=arc.InConductorName; // not relevant to magnetics problems
+        if (problem->filetype != FileType::MagneticsFile)
+            segm.InConductorName=arc.InConductorName; // not relevant to magnetics problems
         problem->getCircle(arc,c,R);
         a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
@@ -1743,7 +1745,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             k = (int) ceil(problem->arclist[s0]->ArcLength/problem->arclist[s0]->MaxSideLength);
             segm.BoundaryMarkerName = problem->arclist[s0]->BoundaryMarkerName;
-            segm.InConductorName=problem->arclist[i]->InConductorName; // not relevant for magnetics
+            if (problem->filetype != FileType::MagneticsFile)
+                segm.InConductorName=problem->arclist[i]->InConductorName; // not relevant for magnetics
             problem->getCircle(*problem->arclist[s0],c0,r0);
             problem->getCircle(*problem->arclist[s1],c1,r1);
 
@@ -1951,7 +1954,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
             k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
             segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-            segm.InConductorName=arc.InConductorName;  // not relevant to magnetics problems
+            if (problem->filetype != FileType::MagneticsFile)
+                segm.InConductorName=arc.InConductorName;  // not relevant to magnetics problems
             problem->getCircle(arc,c,R);
             a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
 
