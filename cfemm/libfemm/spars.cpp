@@ -189,7 +189,7 @@ double CBigLinProb::Dot(double *X, double *Y)
     return z;
 }
 
-void CBigLinProb::MultPC(double *X, double *Y)
+void CBigLinProb::MultPC(const double *X, double *Y)
 {
     // Jacobi preconditioner:
     //	int i;
