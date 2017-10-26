@@ -628,7 +628,7 @@ int femmcli::LuaHeatflowCommands::luaAnalyze(lua_State *L)
 }
 
 /**
- * @brief Read the file matlib.dat and extract a named material property.
+ * @brief Read the file heatlib.dat and extract a named material property.
  * @param L
  * @return 0
  * \ingroup LuaHF
@@ -655,7 +655,7 @@ int femmcli::LuaHeatflowCommands::luaGetMaterialFromLib(lua_State *L)
     else
         return 0;
 
-    std::string matlib = luaInstance->getBaseDir() + "matlib.dat";
+    std::string matlib = luaInstance->getBaseDir() + "heatlib.dat";
 
     std::ifstream input;
     input.open(matlib.c_str(), std::ifstream::in);
