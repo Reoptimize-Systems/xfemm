@@ -687,7 +687,7 @@ int femmcli::LuaElectrostaticsCommands::luaBlockIntegral(lua_State *L)
 }
 
 /**
- * @brief Read the file matlib.dat and extract a named material property.
+ * @brief Read the file statlib.dat and extract a named material property.
  * @param L
  * @return 0
  * \ingroup LuaES
@@ -714,7 +714,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
     else
         return 0;
 
-    std::string matlib = luaInstance->getBaseDir() + "matlib.dat";
+    std::string matlib = luaInstance->getBaseDir() + "statlib.dat";
 
     std::ifstream input;
     input.open(matlib.c_str(), std::ifstream::in);
