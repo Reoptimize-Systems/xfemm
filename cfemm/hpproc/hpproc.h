@@ -59,15 +59,15 @@ public:
     double getA_High() const;
     double getA_Low() const;
 
-    virtual const femmsolver::CHSElement *getMeshElement(int idx) const;
-    virtual const femmsolver::CHMeshNode *getMeshNode(int idx) const;
+    virtual const femmsolver::CHSElement *getMeshElement(int idx) const override;
+    virtual const femmsolver::CHMeshNode *getMeshNode(int idx) const override;
 
     bool getPointValues(double x, double y, CHPointVals &u);
     bool getPointValues(double x, double y, int k, CHPointVals &u);
 
     void lineIntegral(int inttype, double *z);
 
-    bool OpenDocument(std::string solutionFile);
+    bool OpenDocument(std::string solutionFile) override;
     femm::ParserResult parseSolution( std::istream &input, std::ostream &err = std::cerr ) override;
 
 protected:
