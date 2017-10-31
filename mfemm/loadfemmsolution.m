@@ -162,6 +162,35 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
             continue;
         end
         
+        % Option to force use of default max mesh, overriding
+        % user choice
+        if strncmpi(q,'[forcemaxmesh]',14)
+            v = StripKey(q);
+            % 0 == do not override user mesh choice
+            % not 0 == do override user mesh choice
+            if str2double(v) == 0
+                FemmProblem.ProbInfo.ForceMaxMeshArea = false;
+            else
+                FemmProblem.ProbInfo.ForceMaxMeshArea = true;
+            end
+            q = fgetl(fid);
+            continue;
+        end
+
+        % Option to use smart meshing
+        if strncmpi(q,'[dosmartmesh]',13)
+            v = StripKey(q);
+            % 0 == do not use smart mesh
+            % not 0 == use smart mesh
+            if str2double(v) == 0
+                FemmProblem.ProbInfo.SmartMesh = false;
+            else
+                FemmProblem.ProbInfo.SmartMesh = true;
+            end
+            q = fgetl(fid);
+            continue;
+        end
+        
         % Units of length used by the problem
         if strncmpi(q,'[lengthunits]',13)
 

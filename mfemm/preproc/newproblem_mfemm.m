@@ -49,6 +49,16 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
 %                   coordinates, 'polar' specifies polar coordinates.
 %                   Default is cartesian type coordinates.
 %
+%   'ForceMaxMesh'- Force the use of a default max mesh size, overriding
+%                   the values in block labels. This is chosen
+%                   algorithmically 
+%
+%
+%   'SmartMesh'   - Boolean value determining whether smart meshing is to
+%                   be used when evaluating the problem. Smart meshing adds
+%                   extra mesh points at corners to force a smoother mesh
+%                   gradient in these areas. Default is true.
+%
 % Output
 %
 % FemmProblem - A structure containing the field 'Probinfo' with the same
@@ -60,7 +70,7 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
 % See also: writefemmfile.m
 %
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2017 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -85,8 +95,13 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     Inputs.Domain = 'Magnetics';
     Inputs.PrevSolutionFile = '';
     Inputs.dT = 0;
+    Inputs.SmartMesh = true;
 
     Inputs = mfemmdeps.parse_pv_pairs(Inputs, varargin);
+    
+    if ~(islogical (Inputs.SmartMesh) && isscalar (Inputs.SmartMesh))
+        error ('SmartMesh must be a scalar logical value (true or false)');
+    end
     
     if ischar(probtype)
 
@@ -186,5 +201,6 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     FemmProblem.BlockLabels = [];
     FemmProblem.PointProps = [];
     FemmProblem.Groups = struct ();
+    
 
 end

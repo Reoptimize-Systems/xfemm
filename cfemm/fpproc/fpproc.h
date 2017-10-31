@@ -149,6 +149,8 @@ public:
     CComplex Ctr(int i);
     double ElmArea(int i);
     double ElmArea(femmsolver::CMElement *elm);
+    double ElmVolume(int i);
+    //double ElmVolume(CElement *elm);
     void GetPointB(double x, double y, CComplex &B1, CComplex &B2, femmsolver::CMElement &elm);
     void GetNodalB(CComplex *b1, CComplex *b2,femmsolver::CMElement &elm);
     /**

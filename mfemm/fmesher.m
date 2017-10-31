@@ -6,7 +6,7 @@ function filename = fmesher(varargin)
 % filename = fmesher(FemmProblem)
 % filename = fmesher(filename)
 % filename = fmesher(FemmProblem, filename)
-%
+% filename = fmesher(..., verbosity)
 % Description
 %
 % fmesher.m creates a finite element mesh of an mfemm FemmProblem structure
@@ -30,7 +30,7 @@ function filename = fmesher(varargin)
 % See also:  mexfmesher, fsolver.m, fpproc.m
 %
 
-% Copyright 2012 Richard Crozier
+% Copyright 2012-2017 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -44,7 +44,16 @@ function filename = fmesher(varargin)
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    if nargin == 1
+    verbosity = 0;
+    haveverbosity = false;
+    if nargin > 1
+        if isscalar(varargin {end})
+            verbosity = varargin {end};
+            haveverbosity = true;
+        end
+    end
+    
+    if (nargin == 1) || (nargin == 2 && haveverbosity == true)
         
         if isstruct(varargin{1})
             
@@ -73,12 +82,12 @@ function filename = fmesher(varargin)
                    'of a .fem file to be meshed.']);
         end
         
-    elseif nargin == 2
+    elseif (nargin == 2 && haveverbosity == false) || (nargin == 3)
         
         if ~isstruct(varargin{1}) || ~ischar(varargin{2})
             error(['If supplying two inputs the first must be a ', ...
                    'a filename with the location where the FemmProblem ', ...
-                   '.fem file to be meshed wil be created, and the ', ...
+                   '.fem file to be meshed will be created, and the ', ...
                    'second a FemmProblem structure.']);
         end
         
@@ -91,6 +100,6 @@ function filename = fmesher(varargin)
         error('Incorrect number of arguments to fmesher.')
     end
 
-    mexfmesher(filename);
+    mexfmesher(filename, verbosity);
 
 end

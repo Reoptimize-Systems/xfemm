@@ -34,7 +34,10 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
 %    generating it. 
 %
 %  'HighlightSegments' - array of segment ids to highlight in the plot by
-%    drawing in red
+%    drawing over in thick red
+%
+%  'HighlightNodes' - array of circle ids to highlight in the plot by
+%    drawing a box around them
 %
 % Output
 %
@@ -66,6 +69,7 @@ function [hfig, hax] = plotfemmproblem(FemmProblem, varargin)
     options.PlotNodes = true;
     options.InitialViewPort = [];
     options.HighlightSegments = [];
+    options.HighlightNodes = [];
     options.ShowSegmentDirections = false;
     options.ProblemStruct = [];
     options.FindGeomProblems = false;
@@ -184,6 +188,17 @@ function makefemmplot(hax,options,w,h)
                         'PlotNodes', false, ...
                         'UserData', 'mfemm', ...
                         'LineSpec', {'Color', 'red', 'LineWidth', 2});
+    end
+    
+    if ~isempty (options.HighlightNodes)
+        hold all
+        scatter (nodes(options.HighlightNodes+1,1), nodes(options.HighlightNodes+1,2), ...
+                       100, ... % marker areas
+                       'Marker', 'square', ...
+                       'MarkerFaceColor', [0.5, 0.5, 0.5] ...
+                       ...'MarkerFaceAlpha', 3/8 ...
+                       );
+        hold off
     end
 
     arclinks = getarclinks_mfemm(FemmProblem);
@@ -328,6 +343,30 @@ function options = plotgeomproblems (FemmProblem, w, h, options)
     % overlapping segments
     
     % overlapping segments and nodes
+    for ind = 1:size (options.ProblemStruct.nodesnearsegs, 1)
+        
+        x = FemmProblem.Nodes(options.ProblemStruct.nodesnearsegs(ind,1)+1).Coords(1);
+        y = FemmProblem.Nodes(options.ProblemStruct.nodesnearsegs(ind,1)+1).Coords(2);
+        
+        plotcircle (x, y, r);
+        
+        line ([x - 2*r, ...
+               x + 2*r], ...
+              [y, ...
+               y], 'Color', 'red', 'UserData', 'mfemm');
+        
+        % Draw a label a little to the right and above the marker showing
+        % the node numbers
+        text( x + 1.025*r, ...
+              y + 1.025*r, ...
+              sprintf ('%d,%d,%e', ...
+                       options.ProblemStruct.nodesnearsegs(ind,1), ...
+                       options.ProblemStruct.nodesnearsegs(ind,2), ...
+                       options.ProblemStruct.nodesnearsegs(ind,3) ), ...
+              'UserData', 'mfemm', ...
+              options.LabelText{:} ...
+              );
+    end
     
     % intersecting segments
     
@@ -421,6 +460,16 @@ function plotblocklabel(w, h, maxtriarea, BlockLabel, options)
               BlockLabel.MagDirFctn, ...
               'UserData', 'mfemm', ...
               options.LabelText{:} );
+    end
+    
+    if isfield (BlockLabel , 'InCircuit') && ~isempty (BlockLabel.InCircuit)
+        
+        text( BlockLabel.Coords(1) - 1.025*(labeld/2), ...
+              BlockLabel.Coords(2) - 1.25*labeld, ...
+              sprintf ('%s : %d', BlockLabel.InCircuit, BlockLabel.Turns), ...
+              'UserData', 'mfemm', ...
+              options.LabelText{:} );
+        
     end
 
     hold off

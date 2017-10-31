@@ -111,9 +111,17 @@ end
 
 % parse optinosl arguements passed as parameter-value pairs
 options.DoCrossBuildWin64 = false;
+options.CrossMexOptsFile = '';
 options.FcnMakeFileArgs = {};
 
 options = mfemmdeps.parse_pv_pairs (options, varargin);
+
+if options.DoCrossBuildWin64
+    if isempty (options.CrossMexOptsFile)
+        error('MJB:mmake:no_crossmexoptsfile', ...
+            'If DoCrossBuildWin64 == true you must supply a path to the corss mex opts shell script using ''CrossMexOptsFile''')
+    end
+end
 
 % if nargin > 3, error('MJB:mmake:arguments','*** Too many arguments'); end;
 
@@ -161,9 +169,11 @@ function [rules, vars] = implicit_mmakefile(options)
     
     % deterine the appropriate file extension for object files
     vars.OPTIMFLAGS = '';
-    if isunix || isoctave
+    if isunix () || isoctave ()
+        vars.OBJ_EXT = 'o';
         ismscompiler = false;
     else
+        vars.OBJ_EXT = 'obj';
         cc = mex.getCompilerConfigurations ('C');
         if strncmpi (cc.Manufacturer, 'Microsoft', 9)
             ismscompiler = true;
@@ -174,12 +184,6 @@ function [rules, vars] = implicit_mmakefile(options)
     vars.PWD = pwd;
     
     vars.MEXFLAGS = '-O'; % Mirror MATLAB's default, but be explicit about it
-    
-    if ispc
-        vars.OBJ_EXT = 'obj';
-    else
-        vars.OBJ_EXT = 'o';
-    end
     
     if isoctave
         vars.CFLAGSKEY   = '-W';
@@ -257,19 +261,19 @@ function [rules, vars] = implicit_mmakefile(options)
             idx = 1;
             rules(idx).target   = {['%.' 'mexw64']};
             rules(idx).deps     = {'%.c'};
-            rules(idx).commands = {'mex ${MEXFLAGS} -f /home/rcrozier/src/rnfoundry-hg/mexopts_win64cross_r2013a.sh ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
+            rules(idx).commands = {'mex ${MEXFLAGS} -f "', options.CrossMexOptsFile, '" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
             idx = idx+1;
             rules(idx).target   = {['%.' 'mexw64']};
             rules(idx).deps     = {'%.cpp'};
-            rules(idx).commands = {'mex ${MEXFLAGS} -f /home/rcrozier/src/rnfoundry-hg/mexopts_win64cross_r2013a.sh ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
+            rules(idx).commands = {'mex ${MEXFLAGS} -f "', options.CrossMexOptsFile, '" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
             idx = idx+1;
             rules(idx).target   = {['%.' vars.OBJ_EXT]}; % Note: in a normal function-style MMakefile.m, variable expansion is performed on targets and deps
             rules(idx).deps     = {'%.c'};
-            rules(idx).commands = {'mex -c ${MEXFLAGS} -f /home/rcrozier/src/rnfoundry-hg/mexopts_win64cross_r2013a.sh ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
+            rules(idx).commands = {'mex -c ${MEXFLAGS} -f "', options.CrossMexOptsFile, '" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
             idx = idx+1;
             rules(idx).target   = {['%.' vars.OBJ_EXT]};
             rules(idx).deps     = {'%.cpp'};
-            rules(idx).commands = {'mex -c ${MEXFLAGS} -f /home/rcrozier/src/rnfoundry-hg/mexopts_win64cross_r2013a.sh ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
+            rules(idx).commands = {'mex -c ${MEXFLAGS} -f "', options.CrossMexOptsFile, '" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
             idx = idx+1;
             rules(idx).target   = {'%.dlm'};
             rules(idx).deps     = {'%.mdl'};
@@ -736,17 +740,29 @@ end
 % exist(*,'file') SEARCHES the path,
 % dir(file) returns bad information for directories.
 function b = file_exist(filename)
-    if isempty (javachk ('jvm'))
+    tmp = javachk ('jvm');
+    if isempty (tmp)
         a = javaObject ('java.io.File', filename);
         b=(a.exists() && ~a.isDirectory);
     else
-        error ('MJB:mmake:file_exist:java', ...
-               'mmake requires java support.');
+        try
+            b = existfile (filename);
+            if b == true
+                [~, msg] = fileattrib (filename);
+                if msg.directory == 1
+                    b = false;
+                end
+            end
+        catch
+            error ('MJB:mmake:file_exist', ...
+                   'mmake requires java support or the existfile function.');
+        end
     end
 end
 
 function t = ftime(filename)
-    if isempty (javachk ('jvm'))
+    tmp = javachk ('jvm');
+    if isempty (tmp)
         a = javaObject ('java.io.File', filename);
         if a.exists()
             t=a.lastModified();
@@ -754,8 +770,17 @@ function t = ftime(filename)
             t=[];
         end
     else
-        error ('MJB:mmake:file_exist:java', ...
-               'mmake requires java support.');
+        if isoctave
+            if existfile (filename)
+                info = stat (filename);
+                t = info.mtime;
+            else
+                t=[];
+            end
+        else
+            error ('MJB:mmake:file_exist:java', ...
+                   'mmake requires java support.');
+        end
     end
 end
 
