@@ -16,6 +16,8 @@ function [rules,vars] = MMakefile_fsolver (varargin)
         vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
     end
     
+    vars.CXXFLAGS = '${CXXFLAGS} -std=c++14';
+    
     vars.LDFLAGS = '${LDFLAGS} -lstdc++';
     
     vars.OBJS = { ...
@@ -162,14 +164,15 @@ function [rules,vars] = MMakefile_fsolver (varargin)
     rules(end).deps = '../cfemm/fsolver/mmesh.h';
 
 
-    rules(3).target = 'tidy';
-    rules(3).commands = {'try; delete(''../cfemm/libfemm/liblua/*.${OBJ_EXT}''); catch; end;', ...
+    rules(end+1).target = 'tidy';
+    rules(end).commands = {'try; delete(''../cfemm/libfemm/liblua/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''../cfemm/libfemm/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''../cfemm/fsolver/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''*.${OBJ_EXT}''); catch; end;'};
-    
-    rules(4).target = 'clean';
-    rules(4).commands = [ rules(3).commands, ...
+	tidyruleind = numel (rules);
+
+    rules(end+1).target = 'clean';
+    rules(end).commands = [ rules(tidyruleind).commands, ...
                          {'try; delete(''*.${MEX_EXT}''); catch; end;'}];
 
 end
