@@ -77,6 +77,7 @@ FMesher::FMesher(std::shared_ptr<FemmProblem> p)
 
 bool FMesher::Initialize(femm::FileType t)
 {
+    DoSmartMesh = false;
 
     // fire up lua
     //initalise_lua();
@@ -119,6 +120,26 @@ femm::FileType FMesher::GetFileType (string PathName)
     {
         return femm::FileType::ElectrostaticsFile;
     }
+            }
+            addFileStr (s);
+        }
+
+        // Option to use smart meshing
+        if( _strnicmp(q,"[dosmartmesh]",13)==0)
+        {
+            int temp = 0;
+            v = StripKey(s);
+            sscanf(v,"%i",&temp);
+            q[0] = '\0';
+            // 0 == do not use smart mesh
+            // not 0 == use smart mesh
+            if (temp == 0)
+            {
+                DoSmartMesh = false;
+            }
+            else
+            {
+                DoSmartMesh = true;
     else
     {
         return femm::FileType::Unknown;

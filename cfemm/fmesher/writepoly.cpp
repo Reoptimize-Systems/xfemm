@@ -325,8 +325,12 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
         if (k==1) // default condition where discretization on line is not specified
         {
-            if (abs(a1-a0)<(3.*dL)) linelst.push_back(std::make_unique<CSegment>(line)); // line is too short to add extra points
-            else{
+            if (abs(a1-a0) < (3.*dL) || DoSmartMesh == false)
+            {
+                linelst.push_back(std::make_unique<CSegment>(line)); // line is too short to add extra points
+            }
+            else
+            {
                 // add extra points at a distance of dL from the ends of the line.
                 // this forces Triangle to finely mesh near corners
                 segm=line;
@@ -473,6 +477,11 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         }
         absdist = (double)(abs(yy-xx)/BoundingBoxFraction);
         DefaultMeshSize = std::pow(absdist,2);
+
+        if (DoSmartMesh == false)
+        {
+            DefaultMeshSize = abs(yy-xx);
+        }
     }
     else DefaultMeshSize=-1;
 
@@ -859,7 +868,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
         if (k == 1) // default condition where discretization on line is not specified
         {
-            if (abs(a1-a0) < (3. * dL)) {
+            if (abs(a1-a0) < (3. * dL) || DoSmartMesh == false)
+            {
                 // line is too short to add extra points
                 linelst.push_back(std::make_unique<CSegment>(segm));
             }
@@ -1041,6 +1051,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         }
         temp = (double)(abs(yy-xx)/BoundingBoxFraction);
         DefaultMeshSize=std::pow(temp,2);
+
+        if (DoSmartMesh == false)
+        {
+            DefaultMeshSize = abs(yy-xx);
+        }
     }
     else DefaultMeshSize=-1;
 

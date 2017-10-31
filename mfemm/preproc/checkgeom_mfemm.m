@@ -48,7 +48,7 @@ function varargout = checkgeom_mfemm(FemmProblem, tol, dodisplay)
 %   the second is the indices of segments, third is the distance between
 %   them.
 %
-% nodesnearsegs: [n x 3 matrix], first column is the indices of labels
+% nodesnearsegs: [n x 3 matrix], first column is the indices of nodes
 %   the second is the indices of segments, third is the distance between
 %   them.
 %
@@ -122,7 +122,11 @@ function varargout = checkgeom_mfemm(FemmProblem, tol, dodisplay)
     problems.labelsandnodes = [d.rowindex, d.columnindex, d.distance];
     
     % check for intersecting segments
-    problems.intersectingsegments = getintersectingsegments(FemmProblem, segcoords);
+    if numel(FemmProblem.Segments) > 1
+        problems.intersectingsegments = getintersectingsegments(FemmProblem, segcoords);
+    else
+        problems.intersectingsegments = [];
+    end
     
     % check for intersecting arc segments
     
@@ -173,13 +177,33 @@ function labnearsegs = labelsnearsegments(labelcoords, segcoords, tol)
 
 end
 
-function d = point_to_line_2D (p, l1, l2)
+function d = point_to_line_2D (x, a, b)
 
-    p = p(:)';
-    l1 = l1(:)';
-    l2 = l2(:)';
-    
-    d = abs( det([p-l1;l2-l1]) ) / norm(l2-l1);
+%     p = p(:)';
+%     l1 = l1(:)';
+%     l2 = l2(:)';
+%     
+%     d = abs( det([p-l1;l2-l1]) ) / norm(l2-l1);
+
+%     x = [0,0]; %some point
+%     a = [1,2]; %segment points a,b
+%     b = [3,5];
+
+    d_ab = norm(a-b);
+    d_ax = norm(a-x);
+    d_bx = norm(b-x);
+
+    if dot(a-b,x-b)*dot(b-a,x-a) >= 0
+        
+        A = [ a,1; 
+              b,1; 
+              x,1 ];
+          
+        d = abs(det(A))/d_ab;        
+        
+    else
+        d = min(d_ax, d_bx);
+    end
 
 end
 
@@ -192,7 +216,7 @@ function nodesnearsegs = unconnnodesnearsegments(FemmProblem, nodecoords, segcoo
         for iind = 1:size(segcoords, 1)
             if (FemmProblem.Segments(iind).n0 ~= ind-1) && (FemmProblem.Segments(iind).n1 ~= ind-1)
                 % if node is not connected to the segment
-                d = point_to_line_2D(nodecoords(ind,:)', segcoords(iind,1:2)', segcoords(iind,3:4)');
+                d = point_to_line_2D(nodecoords(ind,:), segcoords(iind,1:2), segcoords(iind,3:4));
 
                 if d <= tol
                     % store                          node    seg  distance
@@ -207,7 +231,7 @@ end
 function intersectingsegments = getintersectingsegments(FemmProblem, segcoords)
 % finds segments which intersect or are coincident
 %
-    
+     
     out = mfemmdeps.lineSegmentIntersect(segcoords,segcoords);
     
     [intersectingsegments,intersectingsegments(:,2)] = find(out.intAdjacencyMatrix);

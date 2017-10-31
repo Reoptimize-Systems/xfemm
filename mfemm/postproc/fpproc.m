@@ -24,8 +24,8 @@ classdef fpproc < mfemmpproc
     %    getb - get flux density values only at points
     %    geth - get magnetic field intensity values only at points
     %    geta - get magnetic vector potential values only at points
-    %    smoothon - turn on B and H smoothing over mesh elemnts
-    %    smoothff - turn off B and H smoothing over mesh elemnts
+    %    smoothon - turn on B and H smoothing over mesh elements
+    %    smoothoff - turn off B and H smoothing over mesh elements
     %    clearcontour - clear a contour
     %    addcontour - add one or more points to a contour
     %    lineintegral - perform a line integral along a contour
@@ -46,11 +46,13 @@ classdef fpproc < mfemmpproc
     %    getelements - gets information about mesh elements
     %    getcentroids - gets the centroids of mesh elements
     %    getareas - gets the areas of mesh elements
+    %    getvolumes - gets the volumes of mesh elements
     %    numgroupelements - gets the number of elements in groups
     %    getgroupvertices - gets coordinates of mesh vertices in groups
     %    getgroupelements - gets information about mesh elements in groups
     %    getgroupcentroids - gets the centroids of mesh elements in groups
     %    getgroupareas - gets the areas of mesh elements in groups
+    %    getgroupvolumes - gets the volumes of mesh elements in groups
     %
     
 % Copyright 2012-2014 Richard Crozier
@@ -505,6 +507,7 @@ classdef fpproc < mfemmpproc
             %   22  Steady-state weighted stress tensor torque
             %   23  2X component of weighted stress tensor torque
             %   24  R2 (i.e. moment of inertia / density)
+            %   25  2D shape centroid
             %
             % fpproc.blockintegral(type) peforms the desired integral on
             % the currently selected blocks.
@@ -993,7 +996,7 @@ classdef fpproc < mfemmpproc
             %
             % Output
             % 
-            % centr - matrix of (n x 1) values. Each row containing the  
+            % areas - matrix of (n x 1) values. Each row containing the  
             %   area for the element number in 'n'.
             %
             
@@ -1002,6 +1005,35 @@ classdef fpproc < mfemmpproc
             end
             
             areas = fpproc_interface_mex('getareas', this.objectHandle, n(:));
+        
+        end
+        
+        function vols = getvolumes (this, n)
+            % returns area information about elements
+            %
+            % Syntax
+            %
+            % areas = getvolumes ()
+            % areas = getvolumes (n)
+            %
+            % Input
+            %
+            % n - optional matrix of element numbers for which to obtain
+            %   the getvolumes. Element numbers start from 1 (rather than
+            %   zero). The areas of mfemmdeps.every mesh element are returned if
+            %   n is not supplied.
+            %
+            % Output
+            % 
+            % vols - matrix of (n x 1) values. Each row containing the  
+            %   volume for the element number in 'n'.
+            %
+            
+            if nargin < 2
+                n = 1:this.numelements ();
+            end
+            
+            vols = fpproc_interface_mex('getareas', this.objectHandle, n(:));
         
         end
         
@@ -1172,6 +1204,37 @@ classdef fpproc < mfemmpproc
             for ind = 1:numel(groupno)
             
                 areas = [areas; fpproc_interface_mex('getgroupareas', this.objectHandle, groupno(ind))];
+            
+            end
+        
+        end
+        
+        function vols = getgroupvolumes (this, groupno)
+            % returns area information about elements in groups
+            %
+            % Syntax
+            %
+            % areas = getgroupvolumes (groupno)
+            %
+            % Input
+            %
+            % groupno - optional matrix of group numbers for which to obtain
+            %   the element volumes. 
+            %
+            % Output
+            % 
+            % vols - matrix of of volumes.
+            %
+            
+            if nargin ~= 2
+                error ('You must supply a group number.')
+            end
+            
+            vols = [];
+            
+            for ind = 1:numel(groupno)
+            
+                vols = [vols; fpproc_interface_mex('getgroupvolumes', this.objectHandle, groupno(ind))];
             
             end
         

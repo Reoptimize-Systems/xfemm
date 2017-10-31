@@ -10,7 +10,7 @@
 # stop on first error
 set -e
 
-VERSION="1_7"
+VERSION="1_9"
 WORKING_COPY_DIR=$(pwd)
 echo $WORKING_COPY_DIR
 mkdir $WORKING_COPY_DIR/release
@@ -35,6 +35,14 @@ mkdir -p /tmp/$LINUX_64_DIR
 cd /tmp/$LINUX_64_DIR
 cmake -DCMAKE_BUILD_TYPE=Release $LINUX_64_RELEASE_DIR/cfemm
 make
+
+if ! [ -x "$(command -v matlab)" ]; then
+  echo 'matlab is not installed, not building mex files using Matlab.' >&2
+else
+  # buld the mex files using matlab
+  matlab -nodesktop -r "restoredefaultpath; cd('$LINUX_64_RELEASE_DIR/mfemm'); mfemm_setup('Runtests', true, 'ForceMexRecompile', true); quit"
+  #matlab -nodesktop -r "restoredefaultpath; cd('$LINUX_64_RELEASE_DIR/mfemm'); mfemm_setup('Runtests', false, 'ForceMexRecompile', true, 'CrossBuildW64', true); quit"
+fi
 
 # tar up the result in the release directory
 cd $WORKING_COPY_DIR/release
@@ -72,11 +80,17 @@ make
 #cp $WORKING_COPY_DIR/release/xfemm_mingw_win64/windeps/* $WORKING_COPY_DIR/release/xfemm_mingw_win64/cfemm/bin/
 #rm -r $WORKING_COPY_DIR/release/xfemm_mingw_win64/windeps/
 
-# tar up the result in the release directory
-cd $WORKING_COPY_DIR/release
-zip -r xfemm_v${VERSION}_mingw_win64.zip $WIN_64_DIR/
+if ! [ -x "$(command -v matlab)" ]; then
+  echo 'matlab is not installed, not building mex files using Matlab.' >&2
+else
+  # buld the mex files using matlab
+  matlab -nodesktop -r "restoredefaultpath; cd('$WIN_64_RELEASE_DIR/mfemm'); mfemm_setup('Runtests', true, 'ForceMexRecompile', true); quit"
+  #matlab -nodesktop -r "restoredefaultpath; cd('$WIN_64_RELEASE_DIR/mfemm'); mfemm_setup('Runtests', false, 'ForceMexRecompile', true, 'CrossBuildW64', true); quit"
+fi
 
-
+# zip up the result in the release directory
+#cd $WORKING_COPY_DIR/release
+#zip -r xfemm_v${VERSION}_mingw_win64.zip $WIN_64_DIR/
 
 # test
 cd $WORKING_COPY_DIR

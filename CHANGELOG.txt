@@ -1,13 +1,37 @@
-## [1.8] - DATE
+## [1.9] - 2017-04-26
+
+## Modified
+
+- Meshing now supports options forcemaxmesh and dosmartmesh
+
+## fixed
+- mmake.m: corrected missing mfemmdeps package namespace on call
+  to parse_pv_pairs.m
+- fpproc.cpp: added missing return statement to ElmArea
+
+## [1.8] - 2016-09-18
+
+## Notes
+
+Releases now contain compiled binary mexfunctions for matlab
+
+## Modified
+- plotfemmproblem.m: optionally add material labels (or not)
+- fpproc: added ElmVolume method in C++ and also to fpproc.m class
+- fpproc: added 2D shape centroid block integral option
+
 ## Fixed
 - hsolver.cpp: fixed major bug in writing solution file where wrong   
   conversion factor was used to convert from internal units of mm to 
   problem units
-- plotfemmproblem.m: now handle case where there is no MagDirFcn field in 
-  BlockLabel (e.g. in thermal simulation)
+- plotfemmproblem.m: now handle case where there is no MagDirFcn field 
+  in BlockLabel (e.g. in thermal simulation)
 - loadfemmsolution.m: fixed bug where block material numbers were not 
   converted to names for non magnetostatics problems
 - hpproc: fixed annoying debug message about smoothing
+- build system, allow smoother mfemm build with mingw-w64 compiler 
+  suite on windows platform, and make some initial changes to allow
+  cross-build for windows from Linux using MXE (M Cross Environment)
 
 ## [1.7] - 2016-22-06
 ## Modified

@@ -76,7 +76,7 @@ function varargout = mfemm_setup(varargin)
     
     % parse inputs
     Inputs.ForceMexRecompile = false;
-    Inputs.DoDebug = false;
+    Inputs.Debug = false;
     Inputs.Verbose = false;
     Inputs.RunTests = false;
     Inputs.CrossBuildW64 = false;
@@ -93,7 +93,7 @@ function varargout = mfemm_setup(varargin)
     % already exist
     warning off MATLAB:MKDIR:DirectoryExists
     if Inputs.CrossBuildW64
-        mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_', 'win64_cross_build']);
+        mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_', 'win64']);
     else
         mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_' computer('arch')]);
     end
@@ -138,7 +138,7 @@ function varargout = mfemm_setup(varargin)
             if Inputs.CrossBuildW64
                 mfemmdeps.mmake ('', makefilenames{ind}, 'DoCrossBuildWin64', true, 'FcnMakeFileArgs', {'DoCrossBuildWin64', true, 'Verbose', true})
             else
-                mfemmdeps.mmake ('', makefilenames{ind})
+                mfemmdeps.mmake ('', makefilenames{ind}, 'FcnMakeFileArgs', {'Debug', Inputs.Debug, 'Verbose', Inputs.Verbose})
             end
         end
         warning (ws);
@@ -211,7 +211,7 @@ end
 
 function addedtopathmsg ()
 % mfemm_setup has added the directories containing mfiles for mfemm to the
-% search path. This change woill not be saved when you close Matlab/Octave.
+% search path. This change will not be saved when you close Matlab/Octave.
 % You will need to have these directories on the path in future for mfemm
 % to work when you restart Matlab/Octave. You can add them again by using
 % the 'Set path' dialog in Matlab, or using the 'addpath' command, or by

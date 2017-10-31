@@ -96,7 +96,11 @@ int nrhs, const mxArray *prhs[])
 
     /* Copy the string data into buf. */
     status = mxGetString(prhs[0], buf, buflen);
-    mexPrintf("Meshing file:  %s\n", buf);
+    
+    if (verbose != 0.0)
+    {
+        mexPrintf("Meshing file:  %s\n", buf);
+    }
 
     /* NOTE: You could add your own code here to manipulate
        the string */
@@ -110,35 +114,46 @@ int nrhs, const mxArray *prhs[])
     MeshObj.TriMessage = &mexPrintf;
 
     // attempt to discover the file type from the file name
-	 FileType filetype = FMesher::GetFileType (FilePath);
-	 MeshObj.problem->filetype = filetype;
+    FileType filetype = FMesher::GetFileType (FilePath);
+    MeshObj.problem->filetype = filetype;
 
-	 // depending on the file type, instantiate the appropriate reader
-	 if (filetype == FileType::MagneticsFile)
-	 {
-		 MagneticsReader femReader (MeshObj.problem, std::cerr);
-		 status = femReader.parse(FilePath);
-	 } else if (MeshObj.problem->filetype == FileType::HeatFlowFile)
-	 {
-		 HeatFlowReader fehReader (MeshObj.problem, std::cerr);
-		 status = fehReader.parse(FilePath);
-	 } else {
-		 status = F_FILE_UNKNOWN_TYPE;
-	 }
+    if (verbose != 0.0)
+    {
+        mexPrintf("Loading input file: %s\n", FilePath.c_str()); fflush(stdout);
+    }
+    
+    // depending on the file type, instantiate the appropriate reader
+    if (filetype == FileType::MagneticsFile)
+    {
+        MagneticsReader femReader (MeshObj.problem, std::cerr);
+        status = femReader.parse(FilePath);
+    } 
+    else if (MeshObj.problem->filetype == FileType::HeatFlowFile)
+    {
+        HeatFlowReader fehReader (MeshObj.problem, std::cerr);
+        status = fehReader.parse(FilePath);
+    } else {
+        status = F_FILE_UNKNOWN_TYPE;
+    }
 
     if (status != FMesher::F_FILE_OK)
     {
+        if (verbose != 0.0)
+        {
+            mexPrintf("Error loading fem file:  %s\n", FilePath.c_str()); fflush(stdout);
+        }
+        
         switch (status)
         {
             case F_FILE_NOT_OPENED:
                 mexErrMsgIdAndTxt( "MFEMM:fmesher:badfile",
-                                  "The input file %s could not be opened.", FilePath.c_str ());
+                                  "The input file %s could not be opened.", FilePath.c_str ()); fflush(stdout);
             case F_FILE_MALFORMED:
                 mexErrMsgIdAndTxt( "MFEMM:fmesher:malformedfile",
-                                  "The input file appears to be malformed and could not be parsed");
+                                  "The input file appears to be malformed and could not be parsed"); fflush(stdout);
             case F_FILE_UNKNOWN_TYPE:
                 mexErrMsgIdAndTxt( "MFEMM:fmesher:unknownfiletype",
-                                  "The input file problem type could not be determined from its extension.");
+                                  "The input file problem type could not be determined from its extension."); fflush(stdout);
             default:
 
                 break;
@@ -152,8 +167,17 @@ int nrhs, const mxArray *prhs[])
     hasperiodic = MeshObj.HasPeriodicBC();
     if (hasperiodic == true)
     {
+        if (verbose != 0.0)
+        {
+            mexPrintf("Performing non periodic boundary triangulation\n"); fflush(stdout);
+        }
+        
         tristatus = MeshObj.DoPeriodicBCTriangulation(FilePath);
-
+        
+#ifdef DEBUG
+        mexPrintf("MeshObj.DoNonPeriodicBCTriangulation returned %d\n", tristatus); fflush(stdout);
+#endif
+        
         if (tristatus == -1)
         {
             tristatus = -2;
@@ -161,8 +185,17 @@ int nrhs, const mxArray *prhs[])
     }
     else
     {
+        if (verbose != 0.0)
+        {
+            mexPrintf("Performing periodic boundary triangulation\n"); fflush(stdout);
+        }
+        
         tristatus = MeshObj.DoNonPeriodicBCTriangulation(FilePath) ;
 
+#ifdef DEBUG
+        mexPrintf("MeshObj.DoNonPeriodicBCTriangulation returned %d\n", tristatus); fflush(stdout); 
+#endif
+        
         if (tristatus == -1)
         {
             tristatus = -3;

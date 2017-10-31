@@ -77,6 +77,7 @@ public:
     explicit FMesher();
     explicit FMesher(std::string);
     explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
+	bool    DoSmartMesh;
 
     std::shared_ptr<femm::FemmProblem> problem;
 	bool    Verbose;
