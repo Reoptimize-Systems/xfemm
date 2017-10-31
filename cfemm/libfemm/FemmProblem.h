@@ -1,5 +1,5 @@
 /* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
- * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ * Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  * Mechatronics GmbH (LCM)
  *
  * The source code in this file is heavily derived from
@@ -481,6 +481,7 @@ public: // data members
     std::string PrevSoln; ///y \brief   name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
 
     bool    DoForceMaxMeshArea; ///< \brief Property introduced by xfemm.
+    bool    DoSmartMesh; ///< \brief Property introduced by xfemm.
 
     // lists of nodes, segments, and block labels
     std::vector< std::unique_ptr<CNode>> nodelist;

@@ -1,5 +1,5 @@
 /* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
- * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ * Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  * Mechatronics GmbH (LCM)
  *
  * The source code in this file is heavily derived from
@@ -228,6 +228,13 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             success &= expectChar(input, '=', err);
             success &= parseValue(input, problem->DoForceMaxMeshArea, err);
             continue;
+        }
+
+        // Option to use smart meshing
+        if( token == "[dosmartmesh]" )
+        {
+            success &= expectChar(input, '=', err);
+            success &= parseValue(input, problem->DoSmartMesh, err);
         }
 
         // Point Properties
