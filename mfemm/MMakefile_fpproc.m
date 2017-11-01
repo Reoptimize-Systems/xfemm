@@ -18,11 +18,11 @@ function [rules,vars] = MMakefile_fpproc (varargin)
     vars.MEXFLAGS = '${MEXFLAGS} -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
     if isunix && ~mfemmdeps.isoctave ()
         if options.Debug
+            vars.OPTIMFLAGS = '-OO';
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0 -DDEBUG"'];
+        else
             vars.OPTIMFLAGS = '-O2';
             vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
-        else
-            vars.OPTIMFLAGS = '-O0';
-            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0 -DDEBUG"'];
         end
     end
     
