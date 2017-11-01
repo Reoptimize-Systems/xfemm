@@ -1,5 +1,11 @@
 function [rules,vars] = MMakefile_hsolver (varargin)
 
+%     options.DoCrossBuildWin64 = false;
+    options.Verbose = false;
+    options.Debug = false;
+    
+    options = mfemmdeps.parse_pv_pairs (options, varargin);
+    
 %     mfemmdeps.getmfilepath (mfilename);
 
 %     if ispc
@@ -12,8 +18,13 @@ function [rules,vars] = MMakefile_hsolver (varargin)
 %     vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/hsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
     vars.MEXFLAGS = '${MEXFLAGS} -I"../cfemm/hsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
     if isunix && ~mfemmdeps.isoctave ()
-        vars.OPTIMFLAGS = ['-O2'];
-        vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+        if options.Debug
+            vars.OPTIMFLAGS = '-OO';
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0 -DDEBUG"'];
+        else
+            vars.OPTIMFLAGS = '-O2';
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+        end
     end
     
     vars.CXXFLAGS = '${CXXFLAGS} -std=c++14';
