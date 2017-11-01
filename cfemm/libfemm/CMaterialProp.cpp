@@ -688,7 +688,7 @@ bool CMMaterialProp::isAir() const
     return true;
 }
 
-bool CMMaterialProp::isSameMaterialAs(const CMaterialProp *other) const
+bool CMMaterialProp::isSameMaterialAs(const CMaterialProp *) const
 {
     // stub
     return false;

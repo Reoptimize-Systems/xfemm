@@ -17,7 +17,6 @@ int main(int argc, char** argv)
     CComplex out;
 
     char PathName[512];
-    char outstr[1024];
 //    int i;
 
     if (argc < 2)
