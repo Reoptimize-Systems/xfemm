@@ -1,16 +1,22 @@
-add_library(triangle STATIC
-    triangle/triangle.c
-    )
-target_include_directories(triangle PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/triangle> $<INSTALL_INTERFACE:include>)
+find_package(Triangle)
+if (Triangle_FOUND)
+    message("Found triangle version ${Triangle_VERSION}...")
+else()
+    message("Using builtin version of triangle...")
+    add_library(triangle STATIC
+        triangle/triangle.c
+        )
+    target_include_directories(triangle PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/triangle> $<INSTALL_INTERFACE:include>)
+    add_library(Triangle::triangle ALIAS triangle)
+endif()
 
 add_library(fmesher STATIC
     fmesher.cbp
     fmesher.cpp
-    main.cpp
     nosebl.cpp
     writepoly.cpp
     )
-target_link_libraries(fmesher PUBLIC femm PRIVATE triangle)
+target_link_libraries(fmesher PUBLIC femm PRIVATE Triangle::triangle)
 target_include_directories(fmesher PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
 
 add_executable(fmesher-bin
