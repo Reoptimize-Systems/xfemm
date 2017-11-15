@@ -62,6 +62,20 @@ using namespace std;
 using namespace femm;
 using namespace fmesher;
 
+double FMesher::averageLineLength() const
+{
+    double z=0;
+
+    for (const auto &line : problem->linelist)
+    {
+        const CNode &n0 = *problem->nodelist[line->n0];
+        const CNode &n1 = *problem->nodelist[line->n1];
+        CComplex a0(n0.x,n0.y);
+        CComplex a1(n1.x,n1.y);
+        z += (abs(a1-a0) / ((double) problem->linelist.size()));
+    }
+    return z / LineFraction;
+}
 
 /**
  * @brief FMesher::HasPeriodicBC
@@ -285,8 +299,6 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     string plyname;
     std::vector < std::unique_ptr<CNode> >       nodelst;
     std::vector < std::unique_ptr<CSegment> >    linelst;
-    std::vector < std::unique_ptr<CArcSegment> > arclst;
-    std::vector < std::unique_ptr<CBlockLabel> > blocklst;
     CNode node;
     CSegment segm;
     // structures to hold the iinput and output of triangulaye call
@@ -296,15 +308,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     nodelst.clear();
     linelst.clear();
     // calculate length used to kludge fine meshing near input node points
-    for (i=0,z=0;i < problem->linelist.size();i++)
-    {
-        const CNode &n0 = *problem->nodelist[problem->linelist[i]->n0];
-        const CNode &n1 = *problem->nodelist[problem->linelist[i]->n1];
-        a0.Set(n0.x,n0.y);
-        a1.Set(n1.x,n1.y);
-        z += (abs(a1-a0)/((double) problem->linelist.size()));
-    }
-    dL=z/LineFraction;
+    dL = averageLineLength();
 
     // copy node list as it is;
     for(i=0;i<problem->nodelist.size();i++) nodelst.push_back(std::make_unique<CNode>(*problem->nodelist[i]));
@@ -808,8 +812,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     string plyname;
     std::vector < std::unique_ptr<CNode> >             nodelst;
     std::vector < std::unique_ptr<CSegment> >          linelst;
-    std::vector < std::unique_ptr<CArcSegment> >       arclst;
-    std::vector < std::unique_ptr<CBlockLabel> >       blocklst;
     std::vector < std::unique_ptr<CPeriodicBoundary> > pbclst;
     std::vector < std::unique_ptr<CCommonPoint> >      ptlst;
     CNode node;
@@ -827,16 +829,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     problem->updateUndo();
 
     // calculate length used to kludge fine meshing near input node points
-    for (i=0, z=0; i<(int)problem->linelist.size(); i++)
-    {
-        const CSegment &line = *problem->linelist[i];
-        const CNode &n0 = *problem->nodelist[line.n0];
-        const CNode &n1 = *problem->nodelist[line.n1];
-        a0.Set(n0.x,n0.y);
-        a1.Set(n1.x,n1.y);
-        z += (abs(a1-a0) / ((double) problem->linelist.size()));
-    }
-    dL = z / LineFraction;
+    dL = averageLineLength();
 
     // copy node list as it is;
     for(i=0; i<(int)problem->nodelist.size(); i++)

@@ -96,6 +96,15 @@ public:
 public:
 
     static femm::FileType GetFileType(std::string PathName);
+
+    /**
+     * @brief Calculate length used to kludge fine meshing near input node points
+     * @return the average line length
+     * \internal
+     * \note This method does not exist in FEMM42. It contains code that was duplicated in the two triangulation methods.
+     * \endinternal
+     */
+    double averageLineLength() const;
     bool SaveFEMFile(std::string PathName); ///< \deprecated
     bool WriteTriangulationFiles(const struct triangulateio &out, std::string Pathname);
 
