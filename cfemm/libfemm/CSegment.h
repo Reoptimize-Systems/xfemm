@@ -27,6 +27,7 @@
 #ifndef FEMM_CSEGMENT_H
 #define FEMM_CSEGMENT_H
 
+#include <memory>
 #include <string>
 
 namespace femm {
@@ -67,6 +68,12 @@ public:
     std::string InConductorName;      ///< additional property for hpproc
     int cnt; ///< used by mesher for internal book keeping
 
+    /**
+     * @brief clone returns a copy of the CSegment that is memory managed using a unique_ptr.
+     * This is a convenience function to make code more readable.
+     * @return a unique_ptr holding a copy of this object.
+     */
+    std::unique_ptr<CSegment> clone() const;
     /**
      * @brief hasBoundaryMarker
      * @return \c true, if the BoundaryMarker is set, \c false otherwise

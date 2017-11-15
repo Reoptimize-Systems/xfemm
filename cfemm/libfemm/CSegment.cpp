@@ -51,6 +51,11 @@ void CSegment::ToggleSelect()
     IsSelected = !IsSelected;
 }
 
+std::unique_ptr<CSegment> CSegment::clone() const
+{
+    return std::unique_ptr<CSegment>(new CSegment(*this));
+}
+
 bool CSegment::hasBoundaryMarker() const
 {
     return (BoundaryMarker!=-1);
