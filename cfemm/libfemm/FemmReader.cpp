@@ -409,30 +409,29 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while ((int)problem->nodelist.size() < k && getline(input, line))
             {
                 size_t pos;
-                std::unique_ptr<CNode> node;
-                node = std::make_unique<CNode>();
+                CNode node;
 
                 trim(line);
-                node->x = std::stod(line, &pos);
+                node.x = std::stod(line, &pos);
                 line = line.substr(pos);
-                node->y = std::stod(line, &pos);
+                node.y = std::stod(line, &pos);
                 line = line.substr(pos);
-                node->BoundaryMarker = std::stoi(line, &pos);
+                node.BoundaryMarker = std::stoi(line, &pos);
                 // correct for 1-based indexing:
-                node->BoundaryMarker--;
+                node.BoundaryMarker--;
                 line = line.substr(pos);
-                node->InGroup = std::stoi(line, &pos);
+                node.InGroup = std::stoi(line, &pos);
                 line = line.substr(pos);
 
                 if (problem->filetype == femm::FileType::HeatFlowFile ||
                         problem->filetype == femm::FileType::ElectrostaticsFile )
                 {
-                    node->InConductor = std::stoi(line, &pos);
+                    node.InConductor = std::stoi(line, &pos);
                     // correct for 1-based indexing:
-                    node->InConductor--;
+                    node.InConductor--;
                     line = line.substr(pos);
                 }
-                problem->nodelist.push_back(std::move(node));
+                problem->nodelist.push_back(node.clone());
             }
             // message will be printed after parsing is done
             if ((int)problem->nodelist.size() != k)
