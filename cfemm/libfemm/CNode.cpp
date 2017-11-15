@@ -83,6 +83,11 @@ void femm::CNode::ToggleSelect()
     IsSelected = ! IsSelected;
 }
 
+std::unique_ptr<CNode> CNode::clone() const
+{
+    return std::unique_ptr<CNode>(new CNode(*this));
+}
+
 bool CNode::hasBoundaryMarker() const
 {
     return (BoundaryMarker!=-1);
