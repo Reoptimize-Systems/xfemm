@@ -453,33 +453,32 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while ((int)problem->linelist.size() < k && getline(input, line))
             {
                 size_t pos;
-                std::unique_ptr<CSegment> segm;
-                segm = std::make_unique<CSegment>();
+                CSegment segm;
 
                 trim(line);
-                segm->n0 = std::stoi(line, &pos);
+                segm.n0 = std::stoi(line, &pos);
                 line = line.substr(pos);
-                segm->n1 = std::stoi(line, &pos);
+                segm.n1 = std::stoi(line, &pos);
                 line = line.substr(pos);
-                segm->MaxSideLength = std::stod(line, &pos);
+                segm.MaxSideLength = std::stod(line, &pos);
                 line = line.substr(pos);
-                segm->BoundaryMarker = std::stoi(line, &pos);
+                segm.BoundaryMarker = std::stoi(line, &pos);
                 // correct for 1-based indexing:
-                segm->BoundaryMarker--;
+                segm.BoundaryMarker--;
                 line = line.substr(pos);
-                segm->Hidden = (0 != std::stoi(line, &pos));
+                segm.Hidden = (0 != std::stoi(line, &pos));
                 line = line.substr(pos);
-                segm->InGroup = std::stoi(line, &pos);
+                segm.InGroup = std::stoi(line, &pos);
                 line = line.substr(pos);
                 if (problem->filetype == femm::FileType::HeatFlowFile ||
                         problem->filetype == femm::FileType::ElectrostaticsFile )
                 {
-                    segm->InConductor = std::stoi(line, &pos);
+                    segm.InConductor = std::stoi(line, &pos);
                     // correct for 1-based indexing:
-                    segm->InConductor--;
+                    segm.InConductor--;
                     line = line.substr(pos);
                 }
-                problem->linelist.push_back(std::move(segm));
+                problem->linelist.push_back(segm.clone());
             }
             // message will be printed after parsing is done
             if ((int)problem->linelist.size() != k)

@@ -520,7 +520,7 @@ bool femm::FemmProblem::addNode(std::unique_ptr<femm::CNode> &&node, double d)
         if (fabs(shortestDistanceFromSegment(x,y,i))<d)
         {
             std::unique_ptr<CSegment> segm;
-            segm = std::make_unique<CSegment>(*linelist[i]);
+            segm = linelist[i]->clone();
             linelist[i]->n1=nodelist.size()-1;
             segm->n0=nodelist.size()-1;
             linelist.push_back(std::move(segm));
@@ -614,7 +614,7 @@ bool femm::FemmProblem::addSegment(int n0, int n1, const femm::CSegment *parsegm
         addNode(newnodes[i].re,newnodes[i].im,t);
 
     // Add proposed line segment
-    linelist.push_back(std::make_unique<CSegment>(segm));
+    linelist.push_back(segm.clone());
 
     // check to see if proposed line passes through other points;
     // if so, delete line and create lines that link intermediate points;
@@ -1665,7 +1665,7 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
                 n1->IsSelected = false;
 
                 // copy line (with identical endpoints)
-                std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                std::unique_ptr<CSegment> newline = line->clone();
                 newline->IsSelected = false;
                 // set endpoints
                 newline->n0 = (int)nodelist.size();
@@ -1787,7 +1787,7 @@ void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::Edi
                     n1->IsSelected = false;
 
                     // copy line (with identical endpoints)
-                    std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                    std::unique_ptr<CSegment> newline = line->clone();
                     newline->IsSelected = false;
                     // set endpoints
                     newline->n0 = (int)nodelist.size();
@@ -2097,7 +2097,7 @@ void femm::FemmProblem::translateCopy(double incx, double incy, int ncopies, fem
                     n1->IsSelected = false;
 
                     // copy line (with identical endpoints)
-                    std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                    std::unique_ptr<CSegment> newline = line->clone();
                     newline->IsSelected = false;
                     // set endpoints
                     newline->n0 = (int)nodelist.size();
@@ -2254,7 +2254,7 @@ void femm::FemmProblem::updateUndo()
     for(const auto& node: nodelist)
         undonodelist.push_back(node->clone());
     for(const auto& line: linelist)
-        undolinelist.push_back(std::make_unique<CSegment>(*line));
+        undolinelist.push_back(line->clone());
     for(const auto& arc: arclist)
         undoarclist.push_back(std::make_unique<CArcSegment>(*arc));
     for(const auto& label: labellist)

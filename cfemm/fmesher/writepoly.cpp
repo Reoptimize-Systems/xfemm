@@ -332,12 +332,16 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         {
             if (abs(a1-a0) < (3.*dL) || DoSmartMesh == false)
             {
-                linelst.push_back(std::make_unique<CSegment>(line)); // line is too short to add extra points
+                linelst.push_back(line.clone()); // line is too short to add extra points
             }
             else
             {
                 // add extra points at a distance of dL from the ends of the line.
                 // this forces Triangle to finely mesh near corners
+
+                // Note(ZaJ): this is not terribly efficient:
+                // (First copying line to segm, then adding a copy of that to linelst.)
+                // Probably better: auto segm = line.clone(); linelst.push_back(std::move(segm));
                 segm=line;
                 for(j=0;j<3;j++)
                 {
@@ -349,7 +353,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                         nodelst.push_back(node.clone());
                         segm.n0=line.n0;
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
 
                     if(j==1)
@@ -360,7 +364,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                         nodelst.push_back(node.clone());
                         segm.n0=l-1;
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
 
                     if(j==2)
@@ -368,7 +372,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                         l=(int) nodelst.size()-1;
                         segm.n0=l;
                         segm.n1=line.n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
                 }
             }
@@ -384,21 +388,21 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                     nodelst.push_back(node.clone());
                     segm.n0=line.n0;
                     segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
                 else if(j==(k-1))
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
                     segm.n1=line.n1;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
                 else{
                     l=nodelst.size();
                     nodelst.push_back(node.clone());
                     segm.n0=l-1;
                     segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
             }
         }
@@ -419,7 +423,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         if(k==1){
             segm.n0=arc.n0;
             segm.n1=arc.n1;
-            linelst.push_back(std::make_unique<CSegment>(segm));
+            linelst.push_back(segm.clone());
         }
         else for(j=0;j<k;j++)
         {
@@ -430,21 +434,21 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
                 nodelst.push_back(node.clone());
                 segm.n0=arc.n0;
                 segm.n1=l;
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
             else if(j==(k-1))
             {
                 l=nodelst.size()-1;
                 segm.n0=l;
                 segm.n1=arc.n1;
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
             else{
                 l=nodelst.size();
                 nodelst.push_back(node.clone());
                 segm.n0=l-1;
                 segm.n1=l;
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
         }
     }
@@ -863,7 +867,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             if (abs(a1-a0) < (3. * dL) || DoSmartMesh == false)
             {
                 // line is too short to add extra points
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
             else{
                 // add extra points at a distance of dL from the ends of the line.
@@ -879,7 +883,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         nodelst.push_back(node.clone());
                         segm.n0 = line.n0;
                         segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
 
                     if(j == 1)
@@ -891,7 +895,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         nodelst.push_back(node.clone());
                         segm.n0 = l - 1;
                         segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
 
                     if(j == 2)
@@ -899,7 +903,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         l = (int) nodelst.size() - 1;
                         segm.n0 = l;
                         segm.n1 = line.n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
 
                 }
@@ -916,21 +920,21 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                     nodelst.push_back(node.clone());
                     segm.n0=line.n0;
                     segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
                 else if(j == (k-1))
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
                     segm.n1=line.n1;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
                 else{
                     l=nodelst.size();
                     nodelst.push_back(node.clone());
                     segm.n0=l-1;
                     segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
             }
         }
@@ -953,7 +957,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         if(k==1){
             segm.n0=arc.n0;
             segm.n1=arc.n1;
-            linelst.push_back(std::make_unique<CSegment>(segm));
+            linelst.push_back(segm.clone());
         }
         else for(j=0;j<k;j++)
         {
@@ -964,21 +968,21 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 nodelst.push_back(node.clone());
                 segm.n0=arc.n0;
                 segm.n1=l;
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
             else if(j==(k-1))
             {
                 l=nodelst.size()-1;
                 segm.n0=l;
                 segm.n1=arc.n1;
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
             else{
                 l=nodelst.size();
                 nodelst.push_back(node.clone());
                 segm.n0=l-1;
                 segm.n1=l;
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
         }
     }
@@ -1670,8 +1674,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             if (k == 1){
                 // catch the case in which the line
                 // doesn't get subdivided.
-                linelst.push_back(std::make_unique<CSegment>(*problem->linelist[s0]));
-                linelst.push_back(std::make_unique<CSegment>(*problem->linelist[s1]));
+                linelst.push_back(problem->linelist[s0]->clone());
+                linelst.push_back(problem->linelist[s1]->clone());
             }
             else{
                 segm = *problem->linelist[s0];
@@ -1686,14 +1690,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         nodelst.push_back(node0.clone());
                         segm.n0 = problem->linelist[s0]->n0;
                         segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                         pt.x = l;
 
                         l = nodelst.size();
                         nodelst.push_back(node1.clone());
                         segm.n0 = problem->linelist[s1]->n0;
                         segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                         pt.y = l;
 
                         pt.t = pbclst[n]->antiPeriodic;
@@ -1706,12 +1710,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         l = nodelst.size()-2;
                         segm.n0 = l;
                         segm.n1 = problem->linelist[s0]->n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         l = nodelst.size()-1;
                         segm.n0 = l;
                         segm.n1 = problem->linelist[s1]->n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
                     else{
                         l = nodelst.size();
@@ -1721,11 +1725,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
                         segm.n0 = l-2;
                         segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         segm.n0 = l-1;
                         segm.n1 = l+1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         pt.x = l;
                         pt.y = l+1;
@@ -1792,9 +1796,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 // catch the case in which the line
                 // doesn't get subdivided.
                 segm.n0=p0[0]; segm.n1=p0[1];
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
                 segm.n0=p1[0]; segm.n1=p1[1];
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
             else{
                 for(j=0;j<k;j++)
@@ -1810,14 +1814,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         nodelst.push_back(node0.clone());
                         segm.n0=p0[0];
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                         pt.x=l;
 
                         l=nodelst.size();
                         nodelst.push_back(node1.clone());
                         segm.n0=p1[0];
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                         pt.y=l;
 
                         pt.t=pbclst[n]->antiPeriodic;
@@ -1830,12 +1834,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         l=nodelst.size()-2;
                         segm.n0=l;
                         segm.n1=p0[1];
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         l=nodelst.size()-1;
                         segm.n0=l;
                         segm.n1=p1[1];
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
                     else{
                         l=nodelst.size();
@@ -1845,11 +1849,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
                         segm.n0=l-2;
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         segm.n0=l-1;
                         segm.n1=l+1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         pt.x=l;
                         pt.y=l+1;
@@ -1881,7 +1885,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         segm=*problem->linelist[i];
         if (k==1) // default condition where discretization on line is not specified
         {
-            if (abs(a1-a0)<(3.*dL)) linelst.push_back(std::make_unique<CSegment>(segm)); // line is too short to add extra points
+            if (abs(a1-a0)<(3.*dL)) linelst.push_back(segm.clone()); // line is too short to add extra points
             else{
                 // add extra points at a distance of dL from the ends of the line.
                 // this forces Triangle to finely mesh near corners
@@ -1895,7 +1899,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         nodelst.push_back(node.clone());
                         segm.n0=problem->linelist[i]->n0;
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
 
                     if(j==1)
@@ -1906,7 +1910,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         nodelst.push_back(node.clone());
                         segm.n0=l-1;
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
 
                     if(j==2)
@@ -1914,7 +1918,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         l=(int) nodelst.size()-1;
                         segm.n0=l;
                         segm.n1=problem->linelist[i]->n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
 
                 }
@@ -1930,21 +1934,21 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                     nodelst.push_back(node.clone());
                     segm.n0=problem->linelist[i]->n0;
                     segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
                 else if(j==(k-1))
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
                     segm.n1=problem->linelist[i]->n1;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
                 else{
                     l=nodelst.size();
                     nodelst.push_back(node.clone());
                     segm.n0=l-1;
                     segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
             }
         }
@@ -1967,7 +1971,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             if(k==1){
                 segm.n0=arc.n0;
                 segm.n1=arc.n1;
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
             else for(j=0;j<k;j++)
             {
@@ -1978,21 +1982,21 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                     nodelst.push_back(node.clone());
                     segm.n0=arc.n0;
                     segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
                 else if(j==(k-1))
                 {
                     l=nodelst.size()-1;
                     segm.n0=l;
                     segm.n1=arc.n1;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
                 else{
                     l=nodelst.size();
                     nodelst.push_back(node.clone());
                     segm.n0=l-1;
                     segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
+                    linelst.push_back(segm.clone());
                 }
             }
         }
