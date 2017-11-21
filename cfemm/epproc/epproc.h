@@ -57,8 +57,8 @@ public:
     const femmsolver::CHSElement *getMeshElement(int idx) const override;
     const femmsolver::CSMeshNode *getMeshNode(int idx) const override;
 
-    bool getPointValues(double x, double y, femm::CSPointVals &u) const;
-    void getPointValues(double x, double y, int k, femm::CSPointVals &u) const;
+    bool getPointValues(double x, double y, CSPointVals &u) const;
+    void getPointValues(double x, double y, int k, CSPointVals &u) const;
 
     bool isSelectionOnAxis() const override;
 
@@ -78,7 +78,7 @@ public:
 private:
     /**
      * @brief Calculate the average electric field density for the given element.
-     * @param k
+     * @param elem
      * @return the field density
      * \internal
      * - \femm42{femm/belaviewDoc.cpp,CbelaviewDoc::E(int)}
