@@ -145,6 +145,17 @@ private:
                     double dL
                     ) const;
 
+    /**
+     * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
+     * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
+     *
+     * The problem itself is not altered in any way.
+     * @param nodelst
+     * @param linelst
+     */
+    void discretizeInputArcSegments(std::vector <std::unique_ptr<femm::CNode>> &nodelst,
+                    std::vector <std::unique_ptr<femm::CSegment>> &linelst) const;
+
 };
 
 } // namespace femm

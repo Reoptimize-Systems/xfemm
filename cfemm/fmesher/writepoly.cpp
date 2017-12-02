@@ -28,6 +28,7 @@
 // implementation of various incarnations of calls
 // to triangle from the FMesher class
 
+#include <cassert>
 #include <cstdio>
 #include <cmath>
 #include <vector>
@@ -163,6 +164,66 @@ void FMesher::discretizeInputSegments(std::vector<std::unique_ptr<CNode> > &node
                     linelst.push_back(segm.clone());
                 }
             }
+        }
+    }
+}
+
+void FMesher::discretizeInputArcSegments(std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst) const
+{
+    for(int i=0;i<(int)problem->arclist.size();i++)
+    {
+        const CArcSegment &arc = *problem->arclist[i];
+        // smart meshing does not apply to arc segments
+        assert(arc.MaxSideLength != -1);
+
+        // create working copy:
+        CSegment segm = arc;
+        // use the cnt flag to carry a notation
+        // of which line or arc in the input geometry a
+        // particular segment is associated with
+        // (this info is only used in the periodic BC triangulation, and is ignored in the nonperiodic one)
+        segm.cnt=i+problem->linelist.size();
+
+        segm.BoundaryMarkerName=arc.BoundaryMarkerName;
+        if (problem->filetype != FileType::MagneticsFile)
+            segm.InConductorName=arc.InConductorName; // not relevant/compatible to magnetics problems
+
+        int numParts=(int) ceil(arc.ArcLength/arc.MaxSideLength);
+
+        CComplex center;
+        double R=0;
+        problem->getCircle(arc,center,R);
+
+        CComplex a1=exp(I*arc.ArcLength*PI/(((double) numParts)*180.));
+        CComplex a2=problem->nodelist[arc.n0]->CC();
+
+        if(numParts==1){
+            linelst.push_back(segm.clone());
+        }
+        else for(int j=0;j<numParts;j++)
+        {
+            // move point along arc
+            a2=(a2-center)*a1+center;
+            CNode node(a2.re,a2.im);
+            int l = (int)nodelst.size();
+            if(j==0){
+                // first part -> n0 == arc.n0
+                nodelst.push_back(node.clone());
+                segm.n0=arc.n0;
+                segm.n1=l;
+            }
+            else if(j==(numParts-1))
+            {
+                // last part -> n1 == arc.n1 ; endpoint already exists
+                segm.n0=l-1;
+                segm.n1=arc.n1;
+            }
+            else{
+                nodelst.push_back(node.clone());
+                segm.n0=l-1;
+                segm.n1=l;
+            }
+            linelst.push_back(segm.clone());
         }
     }
 }
@@ -382,15 +443,12 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     FILE *fp;
     unsigned int i,j,k;
-    int l,t,NRegionalAttribs,Nholes,tristatus;
-    double R,dL;
-    CComplex a1,a2,c;
+    int t,NRegionalAttribs,Nholes,tristatus;
+    double dL;
     //CStdString s;
     string plyname;
     std::vector < std::unique_ptr<CNode> >       nodelst;
     std::vector < std::unique_ptr<CSegment> >    linelst;
-    CNode node;
-    CSegment segm;
     // structures to hold the iinput and output of triangulaye call
     char CommandLine[512];
     struct triangulateio in, out;
@@ -408,50 +466,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     discretizeInputSegments(nodelst, linelst, dL);
 
     // discretize input arc segments
-    for(i=0;i<problem->arclist.size();i++)
-    {
-        const CArcSegment &arc = *problem->arclist[i];
-        a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-        k = (unsigned int) std::ceil(arc.ArcLength/arc.MaxSideLength);
-        segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-        if (problem->filetype != FileType::MagneticsFile)
-            segm.InConductorName=arc.InConductorName; // not relevant for magnetics problems
-        problem->getCircle(arc,c,R);
-        a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
-
-        if(k==1){
-            segm.n0=arc.n0;
-            segm.n1=arc.n1;
-            linelst.push_back(segm.clone());
-        }
-        else for(j=0;j<k;j++)
-        {
-            a2=(a2-c)*a1+c;
-            node.x=a2.re; node.y=a2.im;
-            if(j==0){
-                l=nodelst.size();
-                nodelst.push_back(node.clone());
-                segm.n0=arc.n0;
-                segm.n1=l;
-                linelst.push_back(segm.clone());
-            }
-            else if(j==(k-1))
-            {
-                l=nodelst.size()-1;
-                segm.n0=l;
-                segm.n1=arc.n1;
-                linelst.push_back(segm.clone());
-            }
-            else{
-                l=nodelst.size();
-                nodelst.push_back(node.clone());
-                segm.n0=l-1;
-                segm.n1=l;
-                linelst.push_back(segm.clone());
-            }
-        }
-    }
-
+    discretizeInputArcSegments(nodelst, linelst);
 
     // create correct output filename;
     string pn = PathName;
@@ -843,51 +858,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     discretizeInputSegments(nodelst, linelst, dL);
 
     // discretize input arc segments
-    for(i=0;i<(int)problem->arclist.size();i++)
-    {
-        const CArcSegment &arc = *problem->arclist[i];
-
-        segm.cnt=i+problem->linelist.size();
-        a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-        k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
-        segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-        if (problem->filetype != FileType::MagneticsFile)
-            segm.InConductorName=arc.InConductorName; // not relevant to magnetics problems
-        problem->getCircle(arc,c,R);
-        a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
-
-        if(k==1){
-            segm.n0=arc.n0;
-            segm.n1=arc.n1;
-            linelst.push_back(segm.clone());
-        }
-        else for(j=0;j<k;j++)
-        {
-            a2=(a2-c)*a1+c;
-            node.x=a2.re; node.y=a2.im;
-            if(j==0){
-                l=nodelst.size();
-                nodelst.push_back(node.clone());
-                segm.n0=arc.n0;
-                segm.n1=l;
-                linelst.push_back(segm.clone());
-            }
-            else if(j==(k-1))
-            {
-                l=nodelst.size()-1;
-                segm.n0=l;
-                segm.n1=arc.n1;
-                linelst.push_back(segm.clone());
-            }
-            else{
-                l=nodelst.size();
-                nodelst.push_back(node.clone());
-                segm.n0=l-1;
-                segm.n1=l;
-                linelst.push_back(segm.clone());
-            }
-        }
-    }
+    discretizeInputArcSegments(nodelst, linelst);
 
 
     // create correct output filename;
