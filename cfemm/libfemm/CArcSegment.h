@@ -32,8 +32,9 @@
 #ifndef FEMM_CARCSEGMENT_H
 #define FEMM_CARCSEGMENT_H
 
-#include <string>
+#include "CSegment.h"
 #include "femmcomplex.h"
+#include <string>
 
 namespace femm {
 
@@ -52,40 +53,13 @@ namespace femm {
  * int   - number of group
  * \endverbatim
  */
-class CArcSegment
+class CArcSegment : public CSegment
 {
 public:
     CArcSegment();
 
-    // start and end point
-    int n0,n1;
     double ArcLength; ///< arc angle [deg]
-    double MaxSideLength; ///< max segment [deg]
-    // BoundaryMarker: see inheriting classes
-    bool Hidden; ///< hide in postproc
-    int InGroup; ///< number of group
-
-    bool IsSelected;
-    void ToggleSelect();
-
-    int BoundaryMarker; ///< boundary property number, 0-indexed
-    int InConductor; ///< additional property for hpproc
-    std::string BoundaryMarkerName; ///< boundary property name
-    std::string InConductorName;  ///< conductor name
-
     bool NormalDirection; ///< mesher-specific property
-    int cnt; ///< used by mesher for internal book keeping
-
-    /**
-     * @brief hasBoundaryMarker
-     * @return \c true, if the BoundaryMarker is set, \c false otherwise
-     */
-    bool hasBoundaryMarker() const;
-    /**
-     * @brief isInConductor
-     * @return \c true, if InConductor is set, \c false otherwise
-     */
-    bool isInConductor() const;
 private:
 
 };
