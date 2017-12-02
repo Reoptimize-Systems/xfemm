@@ -73,6 +73,111 @@ double FMesher::averageLineLength() const
     return z;
 }
 
+void FMesher::discretizeInputSegments(std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, double dL) const
+{
+    for(int i=0; i<(int)problem->linelist.size(); i++)
+    {
+        const CSegment &line = *problem->linelist[i];
+        const CNode &n0 = *problem->nodelist[line.n0];
+        const CNode &n1 = *problem->nodelist[line.n1];
+        const CComplex a0 = n0.CC();
+        const CComplex a1 = n1.CC();
+        // create working copy:
+        CSegment segm = line;
+        // use the cnt flag to carry a notation
+        // of which line or arc in the input geometry a
+        // particular segment is associated with
+        // (this info is only used in the periodic BC triangulation, and is ignored in the nonperiodic one)
+        segm.cnt = i;
+
+        double lineLength = problem->lengthOfLine(line);
+
+        int numParts;
+        if (line.MaxSideLength == -1) {
+            numParts = 1;
+        }
+        else{
+            numParts = (unsigned int) std::ceil(lineLength/line.MaxSideLength);
+        }
+
+        if (numParts == 1) // default condition where discretization on line is not specified
+        {
+            if (lineLength < (3. * dL) || DoSmartMesh == false)
+            {
+                // line is too short to add extra points
+                linelst.push_back(segm.clone());
+            }
+            else{
+                // add extra points at a distance of dL from the ends of the line.
+                // this forces Triangle to finely mesh near corners
+                for(int j=0; j<3; j++)
+                {
+                    if(j==0)
+                    {
+                        CComplex a2 = a0 + dL * (a1-a0) / abs(a1-a0);
+                        CNode node (a2.re, a2.im);
+                        int l = (int) nodelst.size();
+                        nodelst.push_back(node.clone());
+                        segm.n0 = line.n0;
+                        segm.n1 = l;
+                        linelst.push_back(segm.clone());
+                    }
+
+                    if(j == 1)
+                    {
+                        CComplex a2 = a1 + dL * (a0-a1) / abs(a1-a0);
+                        CNode node (a2.re, a2.im);
+                        int l = (int) nodelst.size();
+                        nodelst.push_back(node.clone());
+                        segm.n0 = l - 1;
+                        segm.n1 = l;
+                        linelst.push_back(segm.clone());
+                    }
+
+                    if(j == 2)
+                    {
+                        int l = (int) nodelst.size() - 1;
+                        segm.n0 = l;
+                        segm.n1 = line.n1;
+                        linelst.push_back(segm.clone());
+                    }
+
+                }
+            }
+        }
+        else{
+            for(int j=0; j<numParts; j++)
+            {
+                CComplex a2 = a0 + (a1-a0)*((double) (j+1)) / ((double) numParts);
+                CNode node (a2.re, a2.im);
+                if(j == 0){
+                    // first part -> n0 == line.n0
+                    int l=nodelst.size();
+                    nodelst.push_back(node.clone());
+                    segm.n0=line.n0;
+                    segm.n1=l;
+                    linelst.push_back(segm.clone());
+                }
+                else if(j == (numParts-1))
+                {
+                    // last part -> n1 == line.n1 ; endpoint already exists
+                    int l=nodelst.size()-1;
+                    segm.n0=l;
+                    segm.n1=line.n1;
+                    linelst.push_back(segm.clone());
+                }
+                else{
+                    int l=nodelst.size();
+                    nodelst.push_back(node.clone());
+                    segm.n0=l-1;
+                    segm.n1=l;
+                    linelst.push_back(segm.clone());
+                }
+            }
+        }
+    }
+}
+
 /**
  * @brief FMesher::HasPeriodicBC
  * @return \c true, if there are periodic or antiperiodic boundary conditions, \c false otherwise.
@@ -289,8 +394,8 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     FILE *fp;
     unsigned int i,j,k;
     int l,t,NRegionalAttribs,Nholes,tristatus;
-    double z,R,dL;
-    CComplex a0,a1,a2,c;
+    double R,dL;
+    CComplex a1,a2,c;
     //CStdString s;
     string plyname;
     std::vector < std::unique_ptr<CNode> >       nodelst;
@@ -311,98 +416,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         nodelst.push_back(node->clone());
 
     // discretize input segments
-    for(i=0;i<problem->linelist.size();i++)
-    {
-        const CSegment &line = *problem->linelist[i];
-        const CNode &n0 = *problem->nodelist[line.n0];
-        const CNode &n1 = *problem->nodelist[line.n1];
-        a0.Set(n0.x,n0.y);
-        a1.Set(n1.x,n1.y);
-        if (line.MaxSideLength==-1) k=1;
-        else{
-            z=abs(a1-a0);
-            k=(int) std::ceil(z/line.MaxSideLength);
-        }
-
-        if (k==1) // default condition where discretization on line is not specified
-        {
-            if (abs(a1-a0) < (3.*dL) || DoSmartMesh == false)
-            {
-                linelst.push_back(line.clone()); // line is too short to add extra points
-            }
-            else
-            {
-                // add extra points at a distance of dL from the ends of the line.
-                // this forces Triangle to finely mesh near corners
-
-                // Note(ZaJ): this is not terribly efficient:
-                // (First copying line to segm, then adding a copy of that to linelst.)
-                // Probably better: auto segm = line.clone(); linelst.push_back(std::move(segm));
-                segm=line;
-                for(j=0;j<3;j++)
-                {
-                    if(j==0)
-                    {
-                        a2=a0+dL*(a1-a0)/abs(a1-a0);
-                        node.x=a2.re; node.y=a2.im;
-                        l=(int) nodelst.size();
-                        nodelst.push_back(node.clone());
-                        segm.n0=line.n0;
-                        segm.n1=l;
-                        linelst.push_back(segm.clone());
-                    }
-
-                    if(j==1)
-                    {
-                        a2=a1+dL*(a0-a1)/abs(a1-a0);
-                        node.x=a2.re; node.y=a2.im;
-                        l=(int) nodelst.size();
-                        nodelst.push_back(node.clone());
-                        segm.n0=l-1;
-                        segm.n1=l;
-                        linelst.push_back(segm.clone());
-                    }
-
-                    if(j==2)
-                    {
-                        l=(int) nodelst.size()-1;
-                        segm.n0=l;
-                        segm.n1=line.n1;
-                        linelst.push_back(segm.clone());
-                    }
-                }
-            }
-        }
-        else{
-            segm=line;
-            for(j=0;j<k;j++)
-            {
-                a2=a0+(a1-a0)*((double) (j+1))/((double) k);
-                node.x=a2.re; node.y=a2.im;
-                if(j==0){
-                    l=nodelst.size();
-                    nodelst.push_back(node.clone());
-                    segm.n0=line.n0;
-                    segm.n1=l;
-                    linelst.push_back(segm.clone());
-                }
-                else if(j==(k-1))
-                {
-                    l=nodelst.size()-1;
-                    segm.n0=l;
-                    segm.n1=line.n1;
-                    linelst.push_back(segm.clone());
-                }
-                else{
-                    l=nodelst.size();
-                    nodelst.push_back(node.clone());
-                    segm.n0=l-1;
-                    segm.n1=l;
-                    linelst.push_back(segm.clone());
-                }
-            }
-        }
-    }
+    discretizeInputSegments(nodelst, linelst, dL);
 
     // discretize input arc segments
     for(i=0;i<problem->arclist.size();i++)
@@ -837,104 +851,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         nodelst.push_back(node->clone());
 
     // discretize input segments
-    for(i=0; i<(int)problem->linelist.size(); i++)
-    {
-        const CSegment &line = *problem->linelist[i];
-        // use the cnt flag to carry a notation
-        // of which line or arc in the input geometry a
-        // particular segment is associated with
-        segm = line;
-        segm.cnt = i;
-        const CNode &n0 = *problem->nodelist[line.n0];
-        const CNode &n1 = *problem->nodelist[line.n1];
-        a0.Set(n0.x, n0.y);
-        a1.Set(n1.x, n1.y);
-
-        if (line.MaxSideLength == -1) {
-            k = 1;
-        }
-        else{
-            z = abs(a1-a0);
-            k = (unsigned int) std::ceil(z/line.MaxSideLength);
-        }
-
-        if (k == 1) // default condition where discretization on line is not specified
-        {
-            if (abs(a1-a0) < (3. * dL) || DoSmartMesh == false)
-            {
-                // line is too short to add extra points
-                linelst.push_back(segm.clone());
-            }
-            else{
-                // add extra points at a distance of dL from the ends of the line.
-                // this forces Triangle to finely mesh near corners
-                for(j=0; j<3; j++)
-                {
-                    if(j==0)
-                    {
-                        a2 = a0 + dL * (a1-a0) / abs(a1-a0);
-                        node.x = a2.re;
-                        node.y = a2.im;
-                        l = (int) nodelst.size();
-                        nodelst.push_back(node.clone());
-                        segm.n0 = line.n0;
-                        segm.n1 = l;
-                        linelst.push_back(segm.clone());
-                    }
-
-                    if(j == 1)
-                    {
-                        a2 = a1 + dL * (a0-a1) / abs(a1-a0);
-                        node.x = a2.re;
-                        node.y = a2.im;
-                        l = (int) nodelst.size();
-                        nodelst.push_back(node.clone());
-                        segm.n0 = l - 1;
-                        segm.n1 = l;
-                        linelst.push_back(segm.clone());
-                    }
-
-                    if(j == 2)
-                    {
-                        l = (int) nodelst.size() - 1;
-                        segm.n0 = l;
-                        segm.n1 = line.n1;
-                        linelst.push_back(segm.clone());
-                    }
-
-                }
-            }
-        }
-        else{
-            for(j=0; j<k; j++)
-            {
-                a2 = a0 + (a1-a0)*((double) (j+1)) / ((double) k);
-                node.x = a2.re;
-                node.y = a2.im;
-                if(j == 0){
-                    l=nodelst.size();
-                    nodelst.push_back(node.clone());
-                    segm.n0=line.n0;
-                    segm.n1=l;
-                    linelst.push_back(segm.clone());
-                }
-                else if(j == (k-1))
-                {
-                    l=nodelst.size()-1;
-                    segm.n0=l;
-                    segm.n1=line.n1;
-                    linelst.push_back(segm.clone());
-                }
-                else{
-                    l=nodelst.size();
-                    nodelst.push_back(node.clone());
-                    segm.n0=l-1;
-                    segm.n1=l;
-                    linelst.push_back(segm.clone());
-                }
-            }
-        }
-    }
+    discretizeInputSegments(nodelst, linelst, dL);
 
     // discretize input arc segments
     for(i=0;i<(int)problem->arclist.size();i++)
