@@ -1609,8 +1609,13 @@ int femm::FemmProblem::getLineArcIntersection(const femm::CSegment &seg, const f
 
 double femm::FemmProblem::lengthOfLine(int i) const
 {
-    return abs(nodelist[linelist[i]->n0]->CC()-
-            nodelist[linelist[i]->n1]->CC());
+    return lengthOfLine(*linelist[i]);
+}
+
+double femm::FemmProblem::lengthOfLine(const femm::CSegment &seg) const
+{
+    return abs(nodelist[seg.n0]->CC()-
+            nodelist[seg.n1]->CC());
 }
 
 void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, femm::EditMode selector)

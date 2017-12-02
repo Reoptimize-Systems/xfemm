@@ -366,6 +366,7 @@ public:
      * \endinternal
      */
     double lengthOfLine(int i) const;
+    double lengthOfLine(const femm::CSegment &seg) const;
 
     /**
      * @brief Mirror copies of the selected objects about the given line.
