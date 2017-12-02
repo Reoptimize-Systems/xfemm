@@ -80,7 +80,11 @@ public:
     std::string InConductorName; ///< The name of a conductor, or the special value "<None>".
 
     double GetDistance(double xo, double yo);
-    CComplex CC();
+    /**
+     * @brief CC
+     * @return the coordinates as a complex number
+     */
+    CComplex CC() const;
     void ToggleSelect();
 
     /**
