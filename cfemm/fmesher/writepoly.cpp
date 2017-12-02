@@ -110,39 +110,28 @@ void FMesher::discretizeInputSegments(std::vector<std::unique_ptr<CNode> > &node
             else{
                 // add extra points at a distance of dL from the ends of the line.
                 // this forces Triangle to finely mesh near corners
-                for(int j=0; j<3; j++)
-                {
-                    if(j==0)
-                    {
-                        CComplex a2 = a0 + dL * (a1-a0) / abs(a1-a0);
-                        CNode node (a2.re, a2.im);
-                        int l = (int) nodelst.size();
-                        nodelst.push_back(node.clone());
-                        segm.n0 = line.n0;
-                        segm.n1 = l;
-                        linelst.push_back(segm.clone());
-                    }
+                int l = (int) nodelst.size();
 
-                    if(j == 1)
-                    {
-                        CComplex a2 = a1 + dL * (a0-a1) / abs(a1-a0);
-                        CNode node (a2.re, a2.im);
-                        int l = (int) nodelst.size();
-                        nodelst.push_back(node.clone());
-                        segm.n0 = l - 1;
-                        segm.n1 = l;
-                        linelst.push_back(segm.clone());
-                    }
+                // first part
+                CComplex a2 = a0 + dL * (a1-a0) / abs(a1-a0);
+                CNode node1 (a2.re, a2.im);
+                nodelst.push_back(node1.clone());
+                segm.n0 = line.n0;
+                segm.n1 = l;
+                linelst.push_back(segm.clone());
 
-                    if(j == 2)
-                    {
-                        int l = (int) nodelst.size() - 1;
-                        segm.n0 = l;
-                        segm.n1 = line.n1;
-                        linelst.push_back(segm.clone());
-                    }
+                // middle part
+                a2 = a1 + dL * (a0-a1) / abs(a1-a0);
+                CNode node2 (a2.re, a2.im);
+                nodelst.push_back(node2.clone());
+                segm.n0 = l - 1;
+                segm.n1 = l;
+                linelst.push_back(segm.clone());
 
-                }
+                // end part
+                segm.n0 = l - 1;
+                segm.n1 = line.n1;
+                linelst.push_back(segm.clone());
             }
         }
         else{
