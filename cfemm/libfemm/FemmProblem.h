@@ -248,6 +248,12 @@ public:
     bool consistencyCheckOK() const;
 
     /**
+     * @brief count the number of holes within the block labels
+     * @return the number of block labels that are holes.
+     */
+    int countHoles() const;
+
+    /**
      * @brief Check whether the given node is suitable for creating a radius.
      * @param n node index
      * @return \c true if the node can be replaced with a radius, \c false otherwise
@@ -357,7 +363,7 @@ public:
     std::string getTitle() const;
 
     /**
-     * @brief LineLength
+     * @brief Compute length of line segment.
      * @param i index of line
      * @return the length of the line
      *
@@ -366,6 +372,11 @@ public:
      * \endinternal
      */
     double lengthOfLine(int i) const;
+    /**
+     * @brief Compute length of line segment.
+     * @param seg
+     * @return the length of the line
+     */
     double lengthOfLine(const femm::CSegment &seg) const;
 
     /**
