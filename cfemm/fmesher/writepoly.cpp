@@ -65,16 +65,12 @@ using namespace fmesher;
 double FMesher::averageLineLength() const
 {
     double z=0;
-
+    const double numLines = problem->linelist.size();
     for (const auto &line : problem->linelist)
     {
-        const CNode &n0 = *problem->nodelist[line->n0];
-        const CNode &n1 = *problem->nodelist[line->n1];
-        CComplex a0(n0.x,n0.y);
-        CComplex a1(n1.x,n1.y);
-        z += (abs(a1-a0) / ((double) problem->linelist.size()));
+        z += problem->lengthOfLine(*line) / numLines;
     }
-    return z / LineFraction;
+    return z;
 }
 
 /**
@@ -308,7 +304,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     nodelst.clear();
     linelst.clear();
     // calculate length used to kludge fine meshing near input node points
-    dL = averageLineLength();
+    dL = averageLineLength() / LineFraction;
 
     // copy node list as it is;
     for (const auto &node : problem->nodelist)
@@ -834,7 +830,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     problem->updateUndo();
 
     // calculate length used to kludge fine meshing near input node points
-    dL = averageLineLength();
+    dL = averageLineLength() / LineFraction;
 
     // copy node list as it is;
     for (const auto &node : problem->nodelist)
