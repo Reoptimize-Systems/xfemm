@@ -472,16 +472,9 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     string pn = PathName;
 
     // compute and store the number of holes
-    for(i=0,j=0;i<problem->labellist.size();i++)
-    {
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            j++;
-        }
-    }
-    Nholes = j;
+    Nholes = problem->countHoles();
 
-    NRegionalAttribs = problem->labellist.size() - j;
+    NRegionalAttribs = problem->labellist.size() - Nholes;
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
@@ -890,17 +883,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    }
 
     // write out list of holes;
-    for(i=0,j=0;i<(int)problem->labellist.size();i++)
-    {
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            j++;
-        }
-    }
-
-//    fprintf(fp,"%i\n",j);
-
-    Nholes = j;
+    Nholes = problem->countHoles();
     NRegionalAttribs = problem->labellist.size() - Nholes;
 
     // figure out a good default mesh size for block labels where
@@ -1908,17 +1891,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    }
 
     // write out list of holes;
-    for(i=0,j=0;i<(int)problem->labellist.size();i++)
-    {
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            j++;
-        }
-    }
-
-//    fprintf(fp,"%i\n",j);
-
-    Nholes = j;
+    Nholes = problem->countHoles();
 
     NRegionalAttribs = problem->labellist.size() - Nholes;
 

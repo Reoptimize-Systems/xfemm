@@ -217,13 +217,7 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
         output << "\n";
     }
     // write out list of holes;
-    int numHoles=0;
-    for (const auto &label: labellist)
-    {
-        // count holes
-        if(!label->hasBlockType())
-            numHoles++;
-    }
+    int numHoles=countHoles();
     output << "[NumHoles] = " << numHoles << "\n";
     for (const auto &label: labellist)
     {
@@ -883,6 +877,17 @@ bool femm::FemmProblem::consistencyCheckOK() const
         }
     }
     return ok;
+}
+
+int femm::FemmProblem::countHoles() const
+{
+    int numHoles = 0;
+    for (const auto &label: labellist)
+    {
+        if(!label->hasBlockType())
+            numHoles++;
+    }
+    return numHoles;
 }
 
 bool femm::FemmProblem::canCreateRadius(int n) const
