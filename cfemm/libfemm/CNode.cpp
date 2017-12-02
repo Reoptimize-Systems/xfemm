@@ -68,7 +68,7 @@ CNode::~CNode()
 {
 }
 
-CComplex femm::CNode::CC()
+CComplex femm::CNode::CC() const
 {
     return CComplex(x,y);
 }
