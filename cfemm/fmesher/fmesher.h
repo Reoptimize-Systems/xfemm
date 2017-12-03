@@ -127,36 +127,42 @@ private:
 
     virtual bool Initialize(femm::FileType t);
 	void addFileStr (char * q);
-    /**
-     * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
-     * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
-     *
-     * Where MaxSideLength is not specified (i.e. -1), the segment is either copied verbatim (if smart meshing is disabled),
-     * or further nodes are inserted at distance \p dL from the segment's existing nodes and the segment is split.
-     *
-     * The problem itself is not altered in any way.
-     * @param nodelst
-     * @param linelst
-     * @param dL
-     */
-    void discretizeInputSegments(
-                    std::vector <std::unique_ptr<femm::CNode>> &nodelst,
-                    std::vector <std::unique_ptr<femm::CSegment>> &linelst,
-                    double dL
-                    ) const;
-
-    /**
-     * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
-     * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
-     *
-     * The problem itself is not altered in any way.
-     * @param nodelst
-     * @param linelst
-     */
-    void discretizeInputArcSegments(std::vector <std::unique_ptr<femm::CNode>> &nodelst,
-                    std::vector <std::unique_ptr<femm::CSegment>> &linelst) const;
-
 };
+
+/**
+ * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
+ * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
+ *
+ * Where MaxSideLength is not specified (i.e. -1), the segment is either copied verbatim (if smart meshing is disabled),
+ * or further nodes are inserted at distance \p dL from the segment's existing nodes and the segment is split.
+ *
+ * @param problem
+ * @param nodelst
+ * @param linelst
+ * @param doSmartMesh enable smart meshing
+ * @param dL distance to corner for smart meshing
+ */
+void discretizeInputSegments(
+        const femm::FemmProblem &problem,
+        std::vector <std::unique_ptr<femm::CNode>> &nodelst,
+        std::vector <std::unique_ptr<femm::CSegment>> &linelst,
+        bool doSmartMesh,
+        double dL
+        );
+
+/**
+ * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
+ * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
+ *
+ * @param problem
+ * @param nodelst
+ * @param linelst
+ */
+void discretizeInputArcSegments(
+                const femm::FemmProblem &problem,
+                std::vector <std::unique_ptr<femm::CNode>> &nodelst,
+                std::vector <std::unique_ptr<femm::CSegment>> &linelst
+                );
 
 } // namespace femm
 
