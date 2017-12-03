@@ -74,13 +74,13 @@ double FMesher::averageLineLength() const
     return z;
 }
 
-void FMesher::discretizeInputSegments(std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, double dL) const
+void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, bool doSmartMesh, double dL)
 {
-    for(int i=0; i<(int)problem->linelist.size(); i++)
+    for(int i=0; i<(int)problem.linelist.size(); i++)
     {
-        const CSegment &line = *problem->linelist[i];
-        const CNode &n0 = *problem->nodelist[line.n0];
-        const CNode &n1 = *problem->nodelist[line.n1];
+        const CSegment &line = *problem.linelist[i];
+        const CNode &n0 = *problem.nodelist[line.n0];
+        const CNode &n1 = *problem.nodelist[line.n1];
         const CComplex a0 = n0.CC();
         const CComplex a1 = n1.CC();
         // create working copy:
@@ -91,7 +91,7 @@ void FMesher::discretizeInputSegments(std::vector<std::unique_ptr<CNode> > &node
         // (this info is only used in the periodic BC triangulation, and is ignored in the nonperiodic one)
         segm.cnt = i;
 
-        double lineLength = problem->lengthOfLine(line);
+        double lineLength = problem.lengthOfLine(line);
 
         int numParts;
         if (line.MaxSideLength == -1) {
@@ -103,7 +103,7 @@ void FMesher::discretizeInputSegments(std::vector<std::unique_ptr<CNode> > &node
 
         if (numParts == 1) // default condition where discretization on line is not specified
         {
-            if (lineLength < (3. * dL) || DoSmartMesh == false)
+            if (lineLength < (3. * dL) || doSmartMesh == false)
             {
                 // line is too short to add extra points
                 linelst.push_back(segm.clone());
@@ -168,11 +168,11 @@ void FMesher::discretizeInputSegments(std::vector<std::unique_ptr<CNode> > &node
     }
 }
 
-void FMesher::discretizeInputArcSegments(std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst) const
+void fmesher::discretizeInputArcSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst)
 {
-    for(int i=0;i<(int)problem->arclist.size();i++)
+    for(int i=0;i<(int)problem.arclist.size();i++)
     {
-        const CArcSegment &arc = *problem->arclist[i];
+        const CArcSegment &arc = *problem.arclist[i];
         // smart meshing does not apply to arc segments
         assert(arc.MaxSideLength != -1);
 
@@ -182,20 +182,20 @@ void FMesher::discretizeInputArcSegments(std::vector<std::unique_ptr<CNode> > &n
         // of which line or arc in the input geometry a
         // particular segment is associated with
         // (this info is only used in the periodic BC triangulation, and is ignored in the nonperiodic one)
-        segm.cnt=i+problem->linelist.size();
+        segm.cnt=i+problem.linelist.size();
 
         segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-        if (problem->filetype != FileType::MagneticsFile)
+        if (problem.filetype != FileType::MagneticsFile)
             segm.InConductorName=arc.InConductorName; // not relevant/compatible to magnetics problems
 
         int numParts=(int) ceil(arc.ArcLength/arc.MaxSideLength);
 
         CComplex center;
         double R=0;
-        problem->getCircle(arc,center,R);
+        problem.getCircle(arc,center,R);
 
         CComplex a1=exp(I*arc.ArcLength*PI/(((double) numParts)*180.));
-        CComplex a2=problem->nodelist[arc.n0]->CC();
+        CComplex a2=problem.nodelist[arc.n0]->CC();
 
         if(numParts==1){
             linelst.push_back(segm.clone());
@@ -463,10 +463,10 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         nodelst.push_back(node->clone());
 
     // discretize input segments
-    discretizeInputSegments(nodelst, linelst, dL);
+    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL);
 
     // discretize input arc segments
-    discretizeInputArcSegments(nodelst, linelst);
+    discretizeInputArcSegments(*problem, nodelst, linelst);
 
     // create correct output filename;
     string pn = PathName;
@@ -848,10 +848,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         nodelst.push_back(node->clone());
 
     // discretize input segments
-    discretizeInputSegments(nodelst, linelst, dL);
+    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL);
 
     // discretize input arc segments
-    discretizeInputArcSegments(nodelst, linelst);
+    discretizeInputArcSegments(*problem, nodelst, linelst);
 
 
     // create correct output filename;
