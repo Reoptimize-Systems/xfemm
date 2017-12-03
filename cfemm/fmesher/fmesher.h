@@ -130,6 +130,16 @@ private:
 };
 
 /**
+ * @brief The SegmentFilter enum is used by the discretization functions.
+ * @see discretizeInputSegments
+ * @see discretizeInputArcSegments
+ */
+enum class SegmentFilter {
+    AllSegments ///< Use all segments
+    , OnlyUnselected ///< Only use segments that are not selected
+};
+
+/**
  * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
  * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
  *
@@ -147,7 +157,8 @@ void discretizeInputSegments(
         std::vector <std::unique_ptr<femm::CNode>> &nodelst,
         std::vector <std::unique_ptr<femm::CSegment>> &linelst,
         bool doSmartMesh,
-        double dL
+        double dL,
+        SegmentFilter filter = SegmentFilter::AllSegments
         );
 
 /**
@@ -161,7 +172,8 @@ void discretizeInputSegments(
 void discretizeInputArcSegments(
                 const femm::FemmProblem &problem,
                 std::vector <std::unique_ptr<femm::CNode>> &nodelst,
-                std::vector <std::unique_ptr<femm::CSegment>> &linelst
+                std::vector <std::unique_ptr<femm::CSegment>> &linelst,
+                SegmentFilter filter = SegmentFilter::AllSegments
                 );
 
 } // namespace femm

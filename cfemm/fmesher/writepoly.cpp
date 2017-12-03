@@ -74,11 +74,15 @@ double FMesher::averageLineLength() const
     return z;
 }
 
-void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, bool doSmartMesh, double dL)
+void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, bool doSmartMesh, double dL, SegmentFilter filter)
 {
     for(int i=0; i<(int)problem.linelist.size(); i++)
     {
         const CSegment &line = *problem.linelist[i];
+
+        if (filter == SegmentFilter::OnlyUnselected && line.IsSelected )
+            continue;
+
         const CNode &n0 = *problem.nodelist[line.n0];
         const CNode &n1 = *problem.nodelist[line.n1];
         const CComplex a0 = n0.CC();
@@ -168,11 +172,15 @@ void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<st
     }
 }
 
-void fmesher::discretizeInputArcSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst)
+void fmesher::discretizeInputArcSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, SegmentFilter filter)
 {
     for(int i=0;i<(int)problem.arclist.size();i++)
     {
         const CArcSegment &arc = *problem.arclist[i];
+
+        if (filter == SegmentFilter::OnlyUnselected && arc.IsSelected )
+            continue;
+
         // smart meshing does not apply to arc segments
         assert(arc.MaxSideLength != -1);
 
@@ -816,8 +824,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     FILE *fp;
     int i, j, k, n;
     int l,t,n0,n1,n2,NRegionalAttribs,Nholes,tristatus;
-    double z,R,dL;
-    CComplex a0,a1,a2,c;
+    double z,dL;
+    CComplex a0,a1,a2;
     CComplex b0,b1,b2;
     char instring[1024];
     //string s;
@@ -826,7 +834,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     std::vector < std::unique_ptr<CSegment> >          linelst;
     std::vector < std::unique_ptr<CPeriodicBoundary> > pbclst;
     std::vector < std::unique_ptr<CCommonPoint> >      ptlst;
-    CNode node;
     CSegment segm;
     CPeriodicBoundary pbc;
     CCommonPoint pt;
@@ -1726,138 +1733,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // "normal" way and write .poly file.
 
     // discretize input segments
-    for(i=0;i<(int)problem->linelist.size();i++)
-    if(problem->linelist[i]->IsSelected==0){
-
-        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
-        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
-
-        if (problem->linelist[i]->MaxSideLength==-1) k=1;
-        else{
-            z=abs(a1-a0);
-            k=(int) ceil(z/problem->linelist[i]->MaxSideLength);
-        }
-
-        segm=*problem->linelist[i];
-        if (k==1) // default condition where discretization on line is not specified
-        {
-            if (abs(a1-a0)<(3.*dL)) linelst.push_back(segm.clone()); // line is too short to add extra points
-            else{
-                // add extra points at a distance of dL from the ends of the line.
-                // this forces Triangle to finely mesh near corners
-                for(j=0;j<3;j++)
-                {
-                    if(j==0)
-                    {
-                        a2=a0+dL*(a1-a0)/abs(a1-a0);
-                        node.x=a2.re; node.y=a2.im;
-                        l=(int) nodelst.size();
-                        nodelst.push_back(node.clone());
-                        segm.n0=problem->linelist[i]->n0;
-                        segm.n1=l;
-                        linelst.push_back(segm.clone());
-                    }
-
-                    if(j==1)
-                    {
-                        a2=a1+dL*(a0-a1)/abs(a1-a0);
-                        node.x=a2.re; node.y=a2.im;
-                        l=(int) nodelst.size();
-                        nodelst.push_back(node.clone());
-                        segm.n0=l-1;
-                        segm.n1=l;
-                        linelst.push_back(segm.clone());
-                    }
-
-                    if(j==2)
-                    {
-                        l=(int) nodelst.size()-1;
-                        segm.n0=l;
-                        segm.n1=problem->linelist[i]->n1;
-                        linelst.push_back(segm.clone());
-                    }
-
-                }
-            }
-        }
-        else{
-            for(j=0;j<k;j++)
-            {
-                a2=a0+(a1-a0)*((double) (j+1))/((double) k);
-                node.x=a2.re; node.y=a2.im;
-                if(j==0){
-                    l=nodelst.size();
-                    nodelst.push_back(node.clone());
-                    segm.n0=problem->linelist[i]->n0;
-                    segm.n1=l;
-                    linelst.push_back(segm.clone());
-                }
-                else if(j==(k-1))
-                {
-                    l=nodelst.size()-1;
-                    segm.n0=l;
-                    segm.n1=problem->linelist[i]->n1;
-                    linelst.push_back(segm.clone());
-                }
-                else{
-                    l=nodelst.size();
-                    nodelst.push_back(node.clone());
-                    segm.n0=l-1;
-                    segm.n1=l;
-                    linelst.push_back(segm.clone());
-                }
-            }
-        }
-    }
+    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL, SegmentFilter::OnlyUnselected);
 
     // discretize input arc segments
-    for(i=0;i<(int)problem->arclist.size();i++)
-    {
-        const CArcSegment &arc = *problem->arclist[i];
-        if(arc.IsSelected==0)
-        {
-            a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-            k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
-            segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-            if (problem->filetype != FileType::MagneticsFile)
-                segm.InConductorName=arc.InConductorName;  // not relevant to magnetics problems
-            problem->getCircle(arc,c,R);
-            a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
-
-            if(k==1){
-                segm.n0=arc.n0;
-                segm.n1=arc.n1;
-                linelst.push_back(segm.clone());
-            }
-            else for(j=0;j<k;j++)
-            {
-                a2=(a2-c)*a1+c;
-                node.x=a2.re; node.y=a2.im;
-                if(j==0){
-                    l=nodelst.size();
-                    nodelst.push_back(node.clone());
-                    segm.n0=arc.n0;
-                    segm.n1=l;
-                    linelst.push_back(segm.clone());
-                }
-                else if(j==(k-1))
-                {
-                    l=nodelst.size()-1;
-                    segm.n0=l;
-                    segm.n1=arc.n1;
-                    linelst.push_back(segm.clone());
-                }
-                else{
-                    l=nodelst.size();
-                    nodelst.push_back(node.clone());
-                    segm.n0=l-1;
-                    segm.n1=l;
-                    linelst.push_back(segm.clone());
-                }
-            }
-        }
-    }
-
+    discretizeInputArcSegments(*problem, nodelst, linelst, SegmentFilter::OnlyUnselected);
 
     // create correct output filename;
     pn = PathName;
