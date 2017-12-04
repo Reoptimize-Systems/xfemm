@@ -140,6 +140,18 @@ enum class SegmentFilter {
 };
 
 /**
+ * @brief Figure out a good default mesh size for block labels where mesh size isn't explicitly specified.
+ * @param nodelst
+ * @param doSmartMesh
+ * @return a suitable mesh size, or -1 if nodelst is empty.
+ *
+ * \internal
+ * This function contains code originally duplicated in both DoPeriodicBCTriangulation and DoNonPeriodicBCTriangulation.
+ * \endinternal
+ */
+double defaultMeshSizeHeuristics(const std::vector<std::unique_ptr<femm::CNode>> &nodelst, bool doSmartMesh);
+
+/**
  * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
  * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
  *
@@ -151,6 +163,10 @@ enum class SegmentFilter {
  * @param linelst
  * @param doSmartMesh enable smart meshing
  * @param dL distance to corner for smart meshing
+ *
+ * \internal
+ * This function contains code originally duplicated in both DoPeriodicBCTriangulation and DoNonPeriodicBCTriangulation.
+ * \endinternal
  */
 void discretizeInputSegments(
         const femm::FemmProblem &problem,
@@ -168,6 +184,10 @@ void discretizeInputSegments(
  * @param problem
  * @param nodelst
  * @param linelst
+ *
+ * \internal
+ * This function contains code originally duplicated in both DoPeriodicBCTriangulation and DoNonPeriodicBCTriangulation.
+ * \endinternal
  */
 void discretizeInputArcSegments(
                 const femm::FemmProblem &problem,
