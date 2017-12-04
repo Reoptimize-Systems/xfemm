@@ -74,6 +74,31 @@ double FMesher::averageLineLength() const
     return z;
 }
 
+double fmesher::defaultMeshSizeHeuristics(const std::vector<std::unique_ptr<CNode> > &nodelst, bool doSmartMesh)
+{
+    if (nodelst.empty())
+        return -1;
+
+    // compute minimum and maximum x/y values
+    CComplex min=nodelst[0]->CC();
+    CComplex max=min;
+    for(const auto &node: nodelst)
+    {
+        if (node->x < min.re) min.re = node->x;
+        if (node->y < min.im) min.im = node->y;
+        if (node->x > max.re) max.re = node->x;
+        if (node->y > max.im) max.im = node->y;
+    }
+
+    if (doSmartMesh)
+    {
+        double absdist = abs(max-min)/BoundingBoxFraction;
+        return absdist * absdist;
+    } else {
+        return abs(max-min);
+    }
+}
+
 void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, bool doSmartMesh, double dL, SegmentFilter filter)
 {
     for(int i=0; i<(int)problem.linelist.size(); i++)
@@ -486,28 +511,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
-    CComplex xx,yy;
-    double absdist;
-    double DefaultMeshSize;
-    if (nodelst.size()>1)
-    {
-        xx=nodelst[0]->CC(); yy=xx;
-        for(k=0;k<nodelst.size();k++)
-        {
-            if (nodelst[k]->x<Re(xx)) xx.re=nodelst[k]->x;
-            if (nodelst[k]->y<Im(xx)) xx.im=nodelst[k]->y;
-            if (nodelst[k]->x>Re(yy)) yy.re=nodelst[k]->x;
-            if (nodelst[k]->y>Im(yy)) yy.im=nodelst[k]->y;
-        }
-        absdist = (double)(abs(yy-xx)/BoundingBoxFraction);
-        DefaultMeshSize = std::pow(absdist,2);
-
-        if (DoSmartMesh == false)
-        {
-            DefaultMeshSize = abs(yy-xx);
-        }
-    }
-    else DefaultMeshSize=-1;
+    double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
 
 //    for(i=0,k=0;i<blocklist.size();i++)
 //        if(blocklist[i]->BlockTypeName=="<No Mesh>")
@@ -895,28 +899,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
-    CComplex xx,yy;
-    double temp;
-    double DefaultMeshSize;
-    if (nodelst.size()>1)
-    {
-        xx=nodelst[0]->CC(); yy=xx;
-        for(k=0;k<(int)nodelst.size();k++)
-        {
-            if (nodelst[k]->x<Re(xx)) xx.re=nodelst[k]->x;
-            if (nodelst[k]->y<Im(xx)) xx.im=nodelst[k]->y;
-            if (nodelst[k]->x>Re(yy)) yy.re=nodelst[k]->x;
-            if (nodelst[k]->y>Im(yy)) yy.im=nodelst[k]->y;
-        }
-        temp = (double)(abs(yy-xx)/BoundingBoxFraction);
-        DefaultMeshSize=std::pow(temp,2);
-
-        if (DoSmartMesh == false)
-        {
-            DefaultMeshSize = abs(yy-xx);
-        }
-    }
-    else DefaultMeshSize=-1;
+    double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
 
 //    for(i=0,k=0;i<blocklist.size();i++)
 //        if(blocklist[i]->BlockTypeName=="<No Mesh>")
