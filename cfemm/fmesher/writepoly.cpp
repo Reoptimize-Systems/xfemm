@@ -27,13 +27,6 @@
 
 // implementation of various incarnations of calls
 // to triangle from the FMesher class
-
-#include <cassert>
-#include <cstdio>
-#include <cmath>
-#include <vector>
-#include <string>
-#include <malloc.h>
 #include "fmesher.h"
 #include "fparse.h"
 #include "IntPoint.h"
@@ -43,6 +36,14 @@
 #include "triangle.h"
 //}
 
+
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <malloc.h>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 #ifndef REAL
 #define REAL double
@@ -62,6 +63,80 @@
 using namespace std;
 using namespace femm;
 using namespace fmesher;
+
+namespace {
+
+/**
+ * @brief The TriangulateHelper class encapsulates the interface to triangle,
+ * so that the rest of the code doesn't have to deal with changes in its api.
+ *
+ * All memory that is allocated by its member functions is freed in the destructor.
+ */
+class TriangulateHelper {
+    using nodelist_t = std::vector<std::unique_ptr<CNode> >;
+    using linelist_t = std::vector<std::unique_ptr<CSegment> >;
+public:
+    TriangulateHelper();
+    ~TriangulateHelper();
+
+    /**
+     * @brief Build a point list and point marker list as input for triangle.
+     * The point marker list is later used to make the connection of meshed nodes back to original nodes.
+     * @param nodelst
+     * @param problem
+     * @param generateMarkers whether or not to generate the point marker list (if \c false, the markers are set to zero)
+     * @return
+     */
+    bool initPointsWithMarkers( const nodelist_t &nodelst, const FemmProblem &problem, bool generateMarkers=true);
+    bool initSegmentsWithMarkers( const linelist_t &linelst, const FemmProblem &problem, bool generateMarkers=true);
+
+    // pointer to function to call when issuing warning messages
+    void (*WarnMessage)(const char*);
+
+    // pointer to function to use for triangle to issue warning messages
+    int (*TriMessage)(const char * format, ...);
+private:
+    struct triangulateio in;
+    struct triangulateio out;
+};
+
+/**
+ * @brief Initialize a triangulateio to all zero.
+ * @param io
+ */
+void initialize(struct triangulateio &io)
+{
+    io.pointlist = nullptr;
+    io.pointattributelist = nullptr;
+    io.pointmarkerlist = nullptr;
+    io.numberofpoints = 0;
+    io.numberofpointattributes = 0;
+
+    io.trianglelist = nullptr;
+    io.triangleattributelist = nullptr;
+    io.trianglearealist = nullptr;
+    io.neighborlist = nullptr;
+    io.numberoftriangles = 0;
+    io.numberofcorners = 0;
+    io.numberoftriangleattributes = 0;
+
+    io.segmentlist = nullptr;
+    io.segmentmarkerlist = nullptr;
+    io.numberofsegments = 0;
+
+    io.holelist = nullptr;
+    io.numberofholes = 0;
+
+    io.regionlist = nullptr;
+    io.numberofregions = 0;
+
+    io.edgelist = nullptr;
+    io.edgemarkerlist = nullptr;
+    io.normlist = nullptr;
+    io.numberofedges = 0;
+}
+
+}
 
 double FMesher::averageLineLength() const
 {
@@ -546,49 +621,10 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     // **********         call triangle       ***********
 
-    in.numberofpoints = nodelst.size();
-
-    in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
-    if (in.pointlist == NULL) {
-        WarnMessage("Point list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i=0; i < (unsigned int)(2 * in.numberofpoints - 1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2]->x;
-        in.pointlist[i+1] = nodelst[i/2]->y;
-    }
-
-    in.numberofpointattributes = 0;
-
-    in.pointattributelist = (REAL *) NULL;
-
-    // Initialise the pointmarkerlist
-    in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
-    if (in.pointmarkerlist == NULL) {
-        WarnMessage("Point marker list for triangulation is null!\n");
-        return false;
-    }
-
-    t = 0;
-    // write out node marker list
-    for(i=0;i<nodelst.size();i++)
-    {
-        for(j=0,t=0;j<problem->nodeproplist.size ();j++)
-                if(problem->nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName) t = j + 2;
-
-        if (problem->filetype != femm::FileType::MagneticsFile)
-        {
-            // include conductor number;
-            for(j = 0; j < problem->circproplist.size (); j++)
-            {
-                // add the conductor number using a mask
-                if(problem->circproplist[j]->CircName == nodelst[i]->InConductorName) t += ((j+1) * 0x10000);
-            }
-        }
-
-        in.pointmarkerlist[i] = t;
+        TriangulateHelper triHelper;
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem))
+            return false;
     }
 
     in.numberofsegments = linelst.size();
@@ -927,35 +963,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // **********         call triangle       ***********
 
-    in.numberofpoints = nodelst.size();
-
-    in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
-    if (in.pointlist == NULL) {
-        WarnMessage("Point list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i=0; i < (2 * in.numberofpoints-1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2]->x;
-        in.pointlist[i+1] = nodelst[i/2]->y;
-    }
-
-    in.numberofpointattributes = 0;
-
-    in.pointattributelist = (REAL *) NULL;
-
-    // Initialise the pointmarkerlist
-    in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
-    if (in.pointmarkerlist == NULL) {
-        WarnMessage("Point marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    // write out node marker list
-    for(i=0; i < (int)nodelst.size(); i++)
-    {
-        in.pointmarkerlist[i] = 0;
+        TriangulateHelper triHelper;
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem, false))
+            return false;
     }
 
     in.numberofsegments = linelst.size();
@@ -1836,48 +1847,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // call triangle with -Y flag.
 
-    in.numberofpoints = nodelst.size();
-
-    in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
-    if (in.pointlist == NULL) {
-        WarnMessage("Point list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i=0; i < (2 * in.numberofpoints-1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2]->x;
-        in.pointlist[i+1] = nodelst[i/2]->y;
+        TriangulateHelper triHelper;
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem))
+            return false;
     }
-
-    in.numberofpointattributes = 0;
-
-    in.pointattributelist = (REAL *) NULL;
-
-    // Initialise the pointmarkerlist
-    in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
-    if (in.pointmarkerlist == NULL) {
-        WarnMessage("Point marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    t = 0;
-    // write out node marker list
-    for(i=0;i<(int)nodelst.size ();i++)
-    {
-        for(j=0,t=0; j < (int)problem->nodeproplist.size (); j++)
-                if(problem->nodeproplist[j]->PointName == nodelst[i]->BoundaryMarkerName) t = j + 2;
-
-        if (problem->filetype != femm::FileType::MagneticsFile)
-        {
-            // include conductor number;
-            for(j=0; j < (int)problem->circproplist.size (); j++)
-                if(problem->circproplist[j]->CircName == nodelst[i]->InConductorName) t += ((j+1) * 0x10000);
-        }
-
-        in.pointmarkerlist[i] = t;
-    }
-
     in.numberofsegments = linelst.size();
 
     // Initialise the segmentlist
@@ -2075,4 +2049,85 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     problem->saveFEMFile(pn);
 
     return 0;
+}
+
+TriangulateHelper::TriangulateHelper()
+    : WarnMessage(&PrintWarningMsg)
+    , TriMessage(nullptr)
+{
+    initialize(in);
+    initialize(out);
+}
+
+TriangulateHelper::~TriangulateHelper()
+{
+    if (in.pointlist) { free(in.pointlist); }
+    if (in.pointattributelist) { free(in.pointattributelist); }
+    if (in.pointmarkerlist) { free(in.pointmarkerlist); }
+    if (in.regionlist) { free(in.regionlist); }
+    if (in.segmentlist) { free(in.segmentlist); }
+    if (in.segmentmarkerlist) { free(in.segmentmarkerlist); }
+    if (in.holelist) { free(in.holelist); }
+
+    if (out.pointlist) { free(out.pointlist); }
+    if (out.pointattributelist) { free(out.pointattributelist); }
+    if (out.pointmarkerlist) { free(out.pointmarkerlist); }
+    if (out.trianglelist) { free(out.trianglelist); }
+    if (out.triangleattributelist) { free(out.triangleattributelist); }
+    if (out.trianglearealist) { free(out.trianglearealist); }
+    if (out.neighborlist) { free(out.neighborlist); }
+    if (out.segmentlist) { free(out.segmentlist); }
+    if (out.segmentmarkerlist) { free(out.segmentmarkerlist); }
+    if (out.edgelist) { free(out.edgelist); }
+    if (out.edgemarkerlist) { free(out.edgemarkerlist); }
+}
+
+bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_t &nodelst, const FemmProblem &problem, bool generateMarkers)
+{
+    in.numberofpoints = nodelst.size();
+
+    in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
+    if (!in.pointlist) {
+        WarnMessage("Point list for triangulation is null!\n");
+        return false;
+    }
+
+    for(int i=0; i < in.numberofpoints; i++)
+    {
+        in.pointlist[2*i] = nodelst[i]->x;
+        in.pointlist[2*i+1] = nodelst[i]->y;
+    }
+
+    // Initialise the pointmarkerlist
+    in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
+    if (!in.pointmarkerlist) {
+        WarnMessage("Point marker list for triangulation is null!\n");
+        return false;
+    }
+
+    // write out node marker list
+    for(int i=0; i<(int)nodelst.size(); i++)
+    {
+        int t=0;
+        if (generateMarkers)
+        {
+            for(int j=0; j<(int)problem.nodeproplist.size(); j++)
+                if(problem.nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName)
+                    t = j + 2;
+
+            if (problem.filetype != femm::FileType::MagneticsFile)
+            {
+                // include conductor number;
+                for(int j = 0; j < (int)problem.circproplist.size(); j++)
+                {
+                    // add the conductor number using a mask
+                    if(problem.circproplist[j]->CircName == nodelst[i]->InConductorName)
+                        t += ((j+1) * 0x10000);
+                }
+            }
+        }
+
+        in.pointmarkerlist[i] = t;
+    }
+    return true;
 }
