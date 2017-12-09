@@ -66,6 +66,15 @@ using namespace fmesher;
 
 namespace {
 
+enum class PointMarkerInfo {
+    None ///< Use zero / Don't store information in marker list
+    , FromProblem ///< Generate marker info using the problem descripton
+};
+enum class SegmentMarkerInfo {
+    FromCnt ///< Generate marker infor from cnt field of segments.
+    , FromProblem ///< Generate marker info using the problem descripton
+};
+
 /**
  * @brief The TriangulateHelper class encapsulates the interface to triangle,
  * so that the rest of the code doesn't have to deal with changes in its api.
@@ -84,11 +93,17 @@ public:
      * The point marker list is later used to make the connection of meshed nodes back to original nodes.
      * @param nodelst
      * @param problem
-     * @param generateMarkers whether or not to generate the point marker list (if \c false, the markers are set to zero)
-     * @return
+     * @return \c true on success, \c false on (allocation) error
      */
-    bool initPointsWithMarkers( const nodelist_t &nodelst, const FemmProblem &problem, bool generateMarkers=true);
-    bool initSegmentsWithMarkers( const linelist_t &linelst, const FemmProblem &problem, bool generateMarkers=true);
+    bool initPointsWithMarkers(const nodelist_t &nodelst, const FemmProblem &problem, PointMarkerInfo info);
+    /**
+     * @brief Build a segment list and segment marker list as input for triangle.
+     * The segment marker list is later used to make the connection of meshed arcs/lines back to original arcs/lines.
+     * @param linelst
+     * @param problem
+     * @return \c true on success, \c false on (allocation) error
+     */
+    bool initSegmentsWithMarkers(const linelist_t &linelst, const FemmProblem &problem, SegmentMarkerInfo info);
 
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
@@ -551,7 +566,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     FILE *fp;
     unsigned int i,j,k;
-    int t,NRegionalAttribs,Nholes,tristatus;
+    int NRegionalAttribs,Nholes,tristatus;
     double dL;
     //CStdString s;
     string plyname;
@@ -623,60 +638,11 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     {
         TriangulateHelper triHelper;
-        if (!triHelper.initPointsWithMarkers(nodelst,*problem))
+        triHelper.WarnMessage = WarnMessage;
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::FromProblem))
             return false;
-    }
-
-    in.numberofsegments = linelst.size();
-
-    // Initialise the segmentlist
-    in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
-    if (in.segmentlist == NULL) {
-        WarnMessage("Segment list for triangulation is null!\n");
-        return -1;
-    }
-    // Initialise the segmentmarkerlist
-    in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
-    if (in.segmentmarkerlist == NULL) {
-        WarnMessage("Segment marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    // build the segmentlist
-    for(i=0; i < (unsigned int)(2*in.numberofsegments - 1); i = i + 2)
-    {
-            in.segmentlist[i] = linelst[i/2]->n0;
-
-            in.segmentlist[i+1] = linelst[i/2]->n1;
-    }
-
-    // now build the segment marker list
-    t = 0;
-
-    // construct the segment list
-    for(i=0;i<linelst.size();i++)
-    {
-        for(j=0,t=0; j < problem->lineproplist.size (); j++)
-        {
-                if (problem->lineproplist[j]->BdryName == linelst[i]->BoundaryMarkerName)
-                {
-                    t = -(j+2);
-                }
-        }
-
-        if (problem->filetype != femm::FileType::MagneticsFile)
-        {
-            // include conductor number;
-            for (j=0; j < problem->circproplist.size (); j++)
-            {
-                if (problem->circproplist[j]->CircName == linelst[i]->InConductorName)
-                {
-                    t -= ((j+1) * 0x10000);
-                }
-            }
-        }
-
-        in.segmentmarkerlist[i] = t;
+        if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromProblem))
+            return false;
     }
 
     in.numberofholes = Nholes;
@@ -965,44 +931,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     {
         TriangulateHelper triHelper;
-        if (!triHelper.initPointsWithMarkers(nodelst,*problem, false))
+        triHelper.WarnMessage = WarnMessage;
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::None))
             return false;
-    }
-
-    in.numberofsegments = linelst.size();
-
-    // Initialise the segmentlist
-    in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
-    if (in.segmentlist == NULL) {
-        WarnMessage("Segment list for triangulation is null!\n");
-        return -1;
-    }
-    // Initialise the segmentmarkerlist
-    in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
-    if (in.segmentmarkerlist == NULL) {
-        WarnMessage("Segment marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    // build the segmentlist
-    for(i=0; i < (2*in.numberofsegments - 1); i = i + 2)
-    {
-            in.segmentlist[i] = linelst[i/2]->n0;
-
-            in.segmentlist[i+1] = linelst[i/2]->n1;
-
-            //PRINTF("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
-    }
-
-    // now build the segment marker list
-    t = 0;
-
-    // construct the segment marker list
-    for(i=0; i < (int)linelst.size(); i++)
-    {
-        t = -(linelst[i]->cnt+2);
-
-        in.segmentmarkerlist[i] = t;
+        if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromCnt))
+            return false;
     }
 
     in.numberofholes = Nholes;
@@ -1849,52 +1782,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     {
         TriangulateHelper triHelper;
-        if (!triHelper.initPointsWithMarkers(nodelst,*problem))
+        triHelper.WarnMessage = WarnMessage;
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::FromProblem))
             return false;
-    }
-    in.numberofsegments = linelst.size();
-
-    // Initialise the segmentlist
-    in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
-    if (in.segmentlist == NULL) {
-        WarnMessage("Segment list for triangulation is null!\n");
-        return -1;
-    }
-
-    // Initialise the segmentmarkerlist
-    in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
-    if (in.segmentmarkerlist == NULL) {
-        WarnMessage("Segment marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    // build the segmentlist
-    for(i=0; i < (2*in.numberofsegments - 1); i = i + 2)
-    {
-            in.segmentlist[i] = linelst[i/2]->n0;
-
-            in.segmentlist[i+1] = linelst[i/2]->n1;
-
-            //PRINTF("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
-    }
-
-    // now build the segment marker list
-    t = 0;
-
-    // construct the segment list
-    for(i=0; i < (int)linelst.size (); i++)
-    {
-        for(j=0,t=0; j < (int)problem->lineproplist.size (); j++)
-                if(problem->lineproplist[j]->BdryName==linelst[i]->BoundaryMarkerName) t = -(j+2);
-
-        if (problem->filetype != femm::FileType::MagneticsFile)
-        {
-            // include conductor number;
-            for(j=0; j < (int)problem->circproplist.size (); j++)
-                if(problem->circproplist[j]->CircName == linelst[i]->InConductorName) t -= ((j+1) * 0x10000);
-        }
-
-        in.segmentmarkerlist[i] = t;
+        if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromProblem))
+            return false;
     }
 
     in.numberofholes = Nholes;
@@ -2082,7 +1974,7 @@ TriangulateHelper::~TriangulateHelper()
     if (out.edgemarkerlist) { free(out.edgemarkerlist); }
 }
 
-bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_t &nodelst, const FemmProblem &problem, bool generateMarkers)
+bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_t &nodelst, const FemmProblem &problem, PointMarkerInfo info)
 {
     in.numberofpoints = nodelst.size();
 
@@ -2106,10 +1998,10 @@ bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_
     }
 
     // write out node marker list
-    for(int i=0; i<(int)nodelst.size(); i++)
+    for(int i=0; i<in.numberofpoints; i++)
     {
         int t=0;
-        if (generateMarkers)
+        if (info==PointMarkerInfo::FromProblem)
         {
             for(int j=0; j<(int)problem.nodeproplist.size(); j++)
                 if(problem.nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName)
@@ -2128,6 +2020,64 @@ bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_
         }
 
         in.pointmarkerlist[i] = t;
+    }
+    return true;
+}
+
+bool TriangulateHelper::initSegmentsWithMarkers(const TriangulateHelper::linelist_t &linelst, const FemmProblem &problem, SegmentMarkerInfo info)
+{
+    in.numberofsegments = linelst.size();
+
+    // Initialise the segmentlist
+    in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
+    if (!in.segmentlist) {
+        WarnMessage("Segment list for triangulation is null!\n");
+        return false;
+    }
+    // Initialise the segmentmarkerlist
+    in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
+    if (!in.segmentmarkerlist) {
+        WarnMessage("Segment marker list for triangulation is null!\n");
+        return false;
+    }
+
+    // build the segmentlist
+    for(int i=0; i<in.numberofsegments; i++)
+    {
+            in.segmentlist[2*i] = linelst[i]->n0;
+            in.segmentlist[2*i+1] = linelst[i]->n1;
+    }
+
+    // now build the segment marker list
+    // construct the segment list
+    for(int i=0; i<in.numberofsegments; i++)
+    {
+        int t=0;
+        if (info==SegmentMarkerInfo::FromProblem)
+        {
+            for(int j=0; j <(int)problem.lineproplist.size(); j++)
+            {
+                if (problem.lineproplist[j]->BdryName == linelst[i]->BoundaryMarkerName)
+                {
+                    t = -(j+2);
+                }
+            }
+
+            if (problem.filetype != femm::FileType::MagneticsFile)
+            {
+                // include conductor number;
+                for (int j=0; j <(int)problem.circproplist.size(); j++)
+                {
+                    if (problem.circproplist[j]->CircName == linelst[i]->InConductorName)
+                    {
+                        t -= ((j+1) * 0x10000);
+                    }
+                }
+            }
+        } else {
+            t = -(linelst[i]->cnt+2);
+        }
+        in.segmentmarkerlist[i] = t;
     }
     return true;
 }
