@@ -80,6 +80,7 @@ enum class SegmentMarkerInfo {
  * so that the rest of the code doesn't have to deal with changes in its api.
  *
  * All memory that is allocated by its member functions is freed in the destructor.
+ * Don't call initialization functions more than once.
  */
 class TriangulateHelper {
     using nodelist_t = std::vector<std::unique_ptr<CNode> >;
@@ -104,6 +105,16 @@ public:
      * @return \c true on success, \c false on (allocation) error
      */
     bool initSegmentsWithMarkers(const linelist_t &linelst, const FemmProblem &problem, SegmentMarkerInfo info);
+
+    /**
+     * @brief Build a list of holes and regions as input for triangle.
+     * This translates the CBlockLabel info for triangle.
+     * @param problem
+     * @param forceMaxMeshArea if \c true, this enforces an upper bound (defaultMeshSize) for the size of regional attributes
+     * @param defaultMeshSize size of regional attributes that are not valid (i.e. <=0 or over the upper bound (if enforced))
+     * @return \c true on success, \c false on (allocation) error
+     */
+    bool initHolesAndRegions(const FemmProblem &problem, bool forceMaxMeshArea, double defaultMeshSize);
 
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
@@ -565,8 +576,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     //     return true;
 
     FILE *fp;
-    unsigned int i,j,k;
-    int NRegionalAttribs,Nholes,tristatus;
+    int tristatus;
     double dL;
     //CStdString s;
     string plyname;
@@ -593,11 +603,6 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     // create correct output filename;
     string pn = PathName;
-
-    // compute and store the number of holes
-    Nholes = problem->countHoles();
-
-    NRegionalAttribs = problem->labellist.size() - Nholes;
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
@@ -643,75 +648,8 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             return false;
         if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromProblem))
             return false;
-    }
-
-    in.numberofholes = Nholes;
-    in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
-    if (in.holelist == NULL) {
-        WarnMessage("Hole list for triangulation is null!\n");
-        return -1;
-    }
-
-    // Construct the holes array
-    for(i=0, k=0; i < problem->labellist.size(); i++)
-    {
-        // we search through the block list looking for blocks that have
-        // the tag <no mesh>
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            in.holelist[k] = problem->labellist[i]->x;
-            in.holelist[k+1] = problem->labellist[i]->y;
-            k = k + 2;
-        }
-    }
-
-    in.numberofregions = NRegionalAttribs;
-    in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
-    if (in.regionlist == NULL) {
-        WarnMessage("Region list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i = 0, j = 0, k = 0; i < problem->labellist.size(); i++)
-    {
-        if(problem->labellist[i]->hasBlockType())
-        {
-            in.regionlist[j] = problem->labellist[i]->x;
-            in.regionlist[j+1] = problem->labellist[i]->y;
-            in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
-
-//            if (blocklist[i]->MaxArea>0 && (blocklist[i]->MaxArea<DefaultMeshSize))
-//            {
-//                in.regionlist[j+3] = blocklist[i]->MaxArea;  // Area constraint
-//            }
-//            else
-//            {
-//                in.regionlist[j+3] = DefaultMeshSize;
-//            }
-
-            // Area constraint
-            if (problem->labellist[i]->MaxArea <= 0)
-            {
-                // if no mesh size has been specified use the default
-                in.regionlist[j+3] = DefaultMeshSize;
-            }
-            else if ((problem->labellist[i]->MaxArea > DefaultMeshSize) && (problem->DoForceMaxMeshArea))
-            {
-                // if the user has specied that FEMM should choose an
-                // upper mesh size limit, regardles of their choice,
-                // and their choice is less than that limit, change it
-                // to that limit
-                in.regionlist[j+3] = DefaultMeshSize;
-            }
-            else
-            {
-                // Use the user's choice of mesh size
-                in.regionlist[j+3] = problem->labellist[i]->MaxArea;
-            }
-
-            j = j + 4;
-            k++;
-        }
+        if (!triHelper.initHolesAndRegions(*problem, problem->DoForceMaxMeshArea, DefaultMeshSize))
+            return false;
     }
 
     // Finally, we have no triangle area constraints so initialize to null
@@ -829,7 +767,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     //     return true;
     FILE *fp;
     int i, j, k, n;
-    int l,t,n0,n1,n2,NRegionalAttribs,Nholes,tristatus;
+    int l,t,n0,n1,n2,tristatus;
     double z,dL;
     CComplex a0,a1,a2;
     CComplex b0,b1,b2;
@@ -895,10 +833,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i]->n0,linelst[i]->n1,t);
 //    }
 
-    // write out list of holes;
-    Nholes = problem->countHoles();
-    NRegionalAttribs = problem->labellist.size() - Nholes;
-
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
     double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
@@ -936,64 +870,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             return false;
         if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromCnt))
             return false;
-    }
-
-    in.numberofholes = Nholes;
-    if(Nholes > 0)
-    {
-        in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
-        if (in.holelist == NULL) {
-            WarnMessage("Hole list for triangulation is null!\n");
-            return -1;
-        }
-
-        // Construct the holes array
-        for(i=0, k=0; i < (int)problem->labellist.size(); i++)
-        {
-            // we search through the block list looking for blocks that have
-            // the tag <no mesh>
-            if(!problem->labellist[i]->hasBlockType())
-            {
-                //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i]->x, blocklist[i]->y);
-                in.holelist[k] = problem->labellist[i]->x;
-                in.holelist[k+1] = problem->labellist[i]->y;
-                k = k + 2;
-            }
-        }
-    }
-    else
-    {
-        in.holelist = (REAL *) NULL;
-    }
-
-    in.numberofregions = NRegionalAttribs;
-    in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
-    if (in.regionlist == NULL) {
-        WarnMessage("Region list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i = 0, j = 0, k = 0; i < (int)problem->labellist.size(); i++)
-    {
-        if(problem->labellist[i]->hasBlockType())
-        {
-
-            in.regionlist[j] = problem->labellist[i]->x;
-            in.regionlist[j+1] = problem->labellist[i]->y;
-            in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
-
-            if (problem->labellist[i]->MaxArea > 0 && (problem->labellist[i]->MaxArea<DefaultMeshSize))
-            {
-                in.regionlist[j+3] = problem->labellist[i]->MaxArea;  // Area constraint
-            }
-            else
-            {
-                in.regionlist[j+3] = DefaultMeshSize;
-            }
-
-            j = j + 4;
-            k++;
-        }
+        if (!triHelper.initHolesAndRegions(*problem, true, DefaultMeshSize))
+            return false;
     }
 
     // Finally, we have no triangle area constraints so initialize to null
@@ -1696,11 +1574,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i]->n0,linelst[i]->n1,t);
 //    }
 
-    // write out list of holes;
-    Nholes = problem->countHoles();
-
-    NRegionalAttribs = problem->labellist.size() - Nholes;
-
 //    for(i=0,k=0;i<blocklist.size();i++)
 //        if(blocklist[i]->BlockTypeName=="<No Mesh>")
 //        {
@@ -1787,58 +1660,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             return false;
         if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromProblem))
             return false;
+        if (!triHelper.initHolesAndRegions(*problem, true, DefaultMeshSize))
+            return false;
     }
 
-    in.numberofholes = Nholes;
-    in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
-    if (in.holelist == NULL) {
-        WarnMessage("Hole list for triangulation is null!\n");
-        return -1;
-    }
-
-    // Construct the holes array
-    for(i=0, k=0; i < (int)problem->labellist.size(); i++)
-    {
-        // we search through the block list looking for blocks that have
-        // the tag <no mesh>
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            in.holelist[k] = problem->labellist[i]->x;
-            in.holelist[k+1] = problem->labellist[i]->y;
-            k = k + 2;
-        }
-    }
-
-
-    in.numberofregions = NRegionalAttribs;
-    in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
-    if (in.regionlist == NULL) {
-        WarnMessage("Error: Memory unable to be allocated.\n");
-        return -1;
-    }
-
-    for(i = 0, j = 0, k = 0; i < (int)problem->labellist.size(); i++)
-    {
-        if(problem->labellist[i]->hasBlockType())
-        {
-
-            in.regionlist[j] = problem->labellist[i]->x;
-            in.regionlist[j+1] = problem->labellist[i]->y;
-            in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
-
-            if (problem->labellist[i]->MaxArea>0 && (problem->labellist[i]->MaxArea<DefaultMeshSize))
-            {
-                in.regionlist[j+3] = problem->labellist[i]->MaxArea;  // Area constraint
-            }
-            else
-            {
-                in.regionlist[j+3] = DefaultMeshSize;
-            }
-
-            j = j + 4;
-            k++;
-        }
-    }
 
     // Finally, we have no triangle area constraints so initialize to null
     in.trianglearealist = (REAL *) NULL;
@@ -1976,6 +1801,10 @@ TriangulateHelper::~TriangulateHelper()
 
 bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_t &nodelst, const FemmProblem &problem, PointMarkerInfo info)
 {
+    // calling this method on an already initialized object would leak memory
+    if (in.numberofpoints!=0)
+        return false;
+
     in.numberofpoints = nodelst.size();
 
     in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
@@ -2026,6 +1855,10 @@ bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_
 
 bool TriangulateHelper::initSegmentsWithMarkers(const TriangulateHelper::linelist_t &linelst, const FemmProblem &problem, SegmentMarkerInfo info)
 {
+    // calling this method on an already initialized object would leak memory
+    if (in.numberofsegments!=0)
+        return false;
+
     in.numberofsegments = linelst.size();
 
     // Initialise the segmentlist
@@ -2080,4 +1913,86 @@ bool TriangulateHelper::initSegmentsWithMarkers(const TriangulateHelper::linelis
         in.segmentmarkerlist[i] = t;
     }
     return true;
+}
+
+bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool forceMaxMeshArea, double defaultMeshSize)
+{
+    // calling this method on an already initialized object would leak memory
+    if (in.numberofholes!=0)
+        return false;
+
+    in.numberofholes = problem.countHoles();
+    if(in.numberofholes > 0)
+    {
+        in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
+        if (!in.holelist) {
+            WarnMessage("Hole list for triangulation is null!\n");
+            return false;
+        }
+
+        // Construct the holes array
+        int k=0;
+        for(const auto &label: problem.labellist)
+        {
+            // we search through the block list looking for blocks that have
+            // the tag <no mesh>
+            if(!label->hasBlockType())
+            {
+                //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i]->x, blocklist[i]->y);
+                in.holelist[k++] = label->x;
+                in.holelist[k++] = label->y;
+            }
+        }
+    }
+
+    in.numberofregions = problem.labellist.size() - in.numberofholes;
+    in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
+    if (!in.regionlist) {
+        WarnMessage("Region list for triangulation is null!\n");
+        return false;
+    }
+
+    int j=0;
+    int k=0;
+    for(const auto & label: problem.labellist)
+    {
+        if(label->hasBlockType())
+        {
+            in.regionlist[j] = label->x;
+            in.regionlist[j+1] = label->y;
+            in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
+
+            // Note(ZaJ): this is the code that was used in the periodic bc triangulation:
+            //  if (label->MaxArea>0 && (label->MaxArea<defaultMeshSize))
+            //      in.regionlist[j+3] = label->MaxArea;  // Area constraint
+            //  else
+            //      in.regionlist[j+3] = defaultMeshSize;
+            // ... which is equivalent to the code below (if forceMaxMeshArea is true).
+            // ... the code below is a copy of the nonperiodic case (if forceMaxMeshArea is set to problem->DoForceMaxMeshArea)
+
+            // Area constraint
+            if (label->MaxArea <= 0)
+            {
+                // if no mesh size has been specified use the default
+                in.regionlist[j+3] = defaultMeshSize;
+            }
+            else if ((label->MaxArea > defaultMeshSize) && (forceMaxMeshArea))
+            {
+                // if the user has specied that FEMM should choose an
+                // upper mesh size limit, regardles of their choice,
+                // and their choice is less than that limit, change it
+                // to that limit
+                in.regionlist[j+3] = defaultMeshSize;
+            }
+            else
+            {
+                // Use the user's choice of mesh size
+                in.regionlist[j+3] = label->MaxArea;
+            }
+
+            j += 4;
+            k++;
+        }
+    }
+    return false;
 }
