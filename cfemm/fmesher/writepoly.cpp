@@ -139,6 +139,8 @@ public:
     void suppressExteriorSteinerPoints();
     /**
      * @brief Purge vertices that are not part of the final triangulation from the triangulation output.
+     * Should be safe to add all the time, but I didn't test with periodic bc triangulation.
+     * Therefore only used with nonperiodic triangulation.
      */
     void suppressUnusedVertices();
 
