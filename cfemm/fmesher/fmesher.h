@@ -106,7 +106,6 @@ public:
      */
     double averageLineLength() const;
     bool SaveFEMFile(std::string PathName); ///< \deprecated
-    bool WriteTriangulationFiles(const struct triangulateio &out, std::string Pathname);
 
     //void downstr(char *s);
 

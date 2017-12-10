@@ -116,14 +116,38 @@ public:
      */
     bool initHolesAndRegions(const FemmProblem &problem, bool forceMaxMeshArea, double defaultMeshSize);
 
+    /**
+     * @brief triangulate
+     * The values of minAngle and suppressExteriourSteinerPoints are applied.
+     * @param verbose
+     * @return
+     */
+    int triangulate(bool verbose);
+
+    bool writeTriangulationFiles(std::string Pathname) const;
+
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
 
     // pointer to function to use for triangle to issue warning messages
     int (*TriMessage)(const char * format, ...);
+
+    void setMinAngle(double value);
+    /**
+     * @brief Suppress insertion of Steiner points on the mesh boundary.
+     */
+    void suppressExteriorSteinerPoints();
+    /**
+     * @brief Purge vertices that are not part of the final triangulation from the triangulation output.
+     */
+    void suppressUnusedVertices();
+
 private:
     struct triangulateio in;
     struct triangulateio out;
+    double m_minAngle;
+    bool m_suppressExteriorSteinerPoints; ///< Default: false
+    bool m_suppressUnusedVertices; ///< Default: false
 };
 
 /**
@@ -437,7 +461,7 @@ bool FMesher::HasPeriodicBC()
 }
 
 
-bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string PathName)
+bool TriangulateHelper::writeTriangulationFiles(string PathName) const
 {
     FILE *fp;
     int i, j, nexttriattrib;
@@ -576,15 +600,11 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     //     return true;
 
     FILE *fp;
-    int tristatus;
     double dL;
     //CStdString s;
     string plyname;
     std::vector < std::unique_ptr<CNode> >       nodelst;
     std::vector < std::unique_ptr<CSegment> >    linelst;
-    // structures to hold the iinput and output of triangulaye call
-    char CommandLine[512];
-    struct triangulateio in, out;
 
     nodelst.clear();
     linelst.clear();
@@ -644,107 +664,21 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     {
         TriangulateHelper triHelper;
         triHelper.WarnMessage = WarnMessage;
+        triHelper.TriMessage = this->TriMessage;
         if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::FromProblem))
-            return false;
+            return -1;
         if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromProblem))
-            return false;
+            return -1;
         if (!triHelper.initHolesAndRegions(*problem, problem->DoForceMaxMeshArea, DefaultMeshSize))
-            return false;
+            return -1;
+        triHelper.setMinAngle(problem->MinAngle);
+        triHelper.suppressUnusedVertices();
+        int tristatus = triHelper.triangulate(Verbose);
+        if (tristatus != 0)
+            return tristatus;
+
+        triHelper.writeTriangulationFiles(PathName);
     }
-
-    // Finally, we have no triangle area constraints so initialize to null
-    in.trianglearealist = (REAL *) NULL;
-
-    /* Make necessary initializations so that Triangle can return a */
-    /*   triangulation in `out'  */
-
-    out.pointlist = (REAL *) NULL;            /* Not needed if -N switch used. */
-    /* Not needed if -N switch used or number of point attributes is zero: */
-    out.pointattributelist = (REAL *) NULL;
-    out.pointmarkerlist = (int *) NULL; /* Not needed if -N or -B switch used. */
-    out.trianglelist = (int *) NULL;          /* Not needed if -E switch used. */
-    /* Not needed if -E switch used or number of triangle attributes is zero: */
-    out.triangleattributelist = (REAL *) NULL;
-    /* No triangle area constraints */
-    out.trianglearealist = (REAL *) NULL;
-    out.neighborlist = (int *) NULL;         /* Needed only if -n switch used. */
-    /* Needed only if segments are output (-p or -c) and -P not used: */
-    out.segmentlist = (int *) NULL;
-    /* Needed only if segments are output (-p or -c) and -P and -B not used: */
-    out.segmentmarkerlist = (int *) NULL;
-    out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
-    out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
-
-    string rootname = pn.substr(0,pn.find_last_of('.'));
-
-    // The -j switch prevents
-    //  duplicated input vertices, or vertices `eaten' by holes, from
-    //  appearing in the output .node file.  Thus, if two input vertices
-    //  have exactly the same coordinates, only the first appears in the
-    //  output.
-    if (Verbose)
-    {
-        sprintf(CommandLine, "-jpPq%feAazI", problem->MinAngle);
-    }
-    else
-    {
-        sprintf(CommandLine, "-jpPq%feAazQI", problem->MinAngle);
-    }
-
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
-
-    // copy the exit status status of the triangle library from the global variable, eueghh.
-    //trilibrary_exit_code;
-    if (tristatus != 0)
-    {
-        // free allocated memory
-        if (in.pointlist != NULL) { free(in.pointlist); }
-        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-        if (in.regionlist != NULL) { free(in.regionlist); }
-        if (in.segmentlist != NULL) { free(in.segmentlist); }
-        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-        if (in.holelist != NULL) { free(in.holelist); }
-
-        if (out.pointlist != NULL) { free(out.pointlist); }
-        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-        if (out.trianglelist != NULL) { free(out.trianglelist); }
-        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-        if (out.neighborlist != NULL) { free(out.neighborlist); }
-        if (out.segmentlist != NULL) { free(out.segmentlist); }
-        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-        if (out.edgelist != NULL) { free(out.edgelist); }
-        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
-
-        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
-        WarnMessage(msg.c_str());
-        return tristatus;
-    }
-
-    WriteTriangulationFiles(out, PathName);
-
-    // free allocated memory
-    if (in.pointlist != NULL) { free(in.pointlist); }
-    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-    if (in.regionlist != NULL) { free(in.regionlist); }
-    if (in.segmentlist != NULL) { free(in.segmentlist); }
-    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-    if (in.holelist != NULL) { free(in.holelist); }
-
-    if (out.pointlist != NULL) { free(out.pointlist); }
-    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-    if (out.trianglelist != NULL) { free(out.trianglelist); }
-    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-    if (out.neighborlist != NULL) { free(out.neighborlist); }
-    if (out.segmentlist != NULL) { free(out.segmentlist); }
-    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-    if (out.edgelist != NULL) { free(out.edgelist); }
-    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
     return 0;
 }
@@ -767,7 +701,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     //     return true;
     FILE *fp;
     int i, j, k, n;
-    int l,t,n0,n1,n2,tristatus;
+    int l,t,n0,n1,n2;
     double z,dL;
     CComplex a0,a1,a2;
     CComplex b0,b1,b2;
@@ -781,8 +715,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     CSegment segm;
     CPeriodicBoundary pbc;
     CCommonPoint pt;
-    char CommandLine[512];
-    struct triangulateio in, out;
 
     nodelst.clear();
     linelst.clear();
@@ -866,115 +798,22 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         TriangulateHelper triHelper;
         triHelper.WarnMessage = WarnMessage;
+        triHelper.TriMessage = this->TriMessage;
+
         if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::None))
-            return false;
+            return -1;
         if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromCnt))
-            return false;
+            return -1;
         if (!triHelper.initHolesAndRegions(*problem, true, DefaultMeshSize))
-            return false;
+            return -1;
+
+        triHelper.setMinAngle(problem->MinAngle);
+        int tristatus = triHelper.triangulate(Verbose);
+        if (tristatus != 0)
+            return tristatus;
+
+        triHelper.writeTriangulationFiles(PathName);
     }
-
-    // Finally, we have no triangle area constraints so initialize to null
-    in.trianglearealist = (REAL *) NULL;
-
-    /* Make necessary initializations so that Triangle can return a */
-    /*   triangulation in `out'  */
-
-    out.pointlist = (REAL *) NULL;            /* Not needed if -N switch used. */
-    /* Not needed if -N switch used or number of point attributes is zero: */
-    out.pointattributelist = (REAL *) NULL;
-    out.pointmarkerlist = (int *) NULL; /* Not needed if -N or -B switch used. */
-    out.trianglelist = (int *) NULL;          /* Not needed if -E switch used. */
-    /* Not needed if -E switch used or number of triangle attributes is zero: */
-    out.triangleattributelist = (REAL *) NULL;
-    /* No triangle area constraints */
-    out.trianglearealist = (REAL *) NULL;
-    out.neighborlist = (int *) NULL;         /* Needed only if -n switch used. */
-    /* Needed only if segments are output (-p or -c) and -P not used: */
-    out.segmentlist = (int *) NULL;
-    /* Needed only if segments are output (-p or -c) and -P and -B not used: */
-    out.segmentmarkerlist = (int *) NULL;
-    out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
-    out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
-
-    string rootname = pn.substr(0,pn.find_last_of('.'));
-
-    // An explaination of the input parameters used for Triangle
-    //
-    // -p Triangulates a Planar Straight Line Graph, i.e. list of segments.
-    // -P Suppresses the output .poly file.
-    // -q Quality mesh generation with no angles smaller than specified in the following number
-    // -e Outputs a list of edges of the triangulation.
-    // -A Assigns a regional attribute to each triangle that identifies what segment-bounded region it belongs to.
-    // -a Imposes a maximum triangle area constraint.
-    // -z Numbers all items starting from zero (rather than one)
-    // -I Suppresses mesh iteration numbers
-    //
-    // See http://www.cs.cmu.edu/~quake/triangle.switch.html for more info
-    if (Verbose)
-    {
-        sprintf(CommandLine, "-pPq%feAazI", problem->MinAngle);
-    }
-    else
-    {
-        // -Q silences output
-        sprintf(CommandLine, "-pPq%feAazQI", problem->MinAngle);
-    }
-
-    // call triangulate (Triangle as library) to perform the meshing
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
-
-    if (tristatus != 0)
-    {
-        // free allocated memory
-        if (in.pointlist != NULL) { free(in.pointlist); }
-        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-        if (in.regionlist != NULL) { free(in.regionlist); }
-        if (in.segmentlist != NULL) { free(in.segmentlist); }
-        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-        if (in.holelist != NULL) { free(in.holelist); }
-
-        if (out.pointlist != NULL) { free(out.pointlist); }
-        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-        if (out.trianglelist != NULL) { free(out.trianglelist); }
-        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-        if (out.neighborlist != NULL) { free(out.neighborlist); }
-        if (out.segmentlist != NULL) { free(out.segmentlist); }
-        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-        if (out.edgelist != NULL) { free(out.edgelist); }
-        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
-
-        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
-        WarnMessage(msg.c_str());
-        return tristatus;
-    }
-
-    WriteTriangulationFiles(out, PathName);
-
-    // free allocated memory
-    if (in.pointlist != NULL) { free(in.pointlist); }
-    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-    if (in.regionlist != NULL) { free(in.regionlist); }
-    if (in.segmentlist != NULL) { free(in.segmentlist); }
-    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-    if (in.holelist != NULL) { free(in.holelist); }
-
-    if (out.pointlist != NULL) { free(out.pointlist); }
-    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-    if (out.trianglelist != NULL) { free(out.trianglelist); }
-    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-    if (out.neighborlist != NULL) { free(out.neighborlist); }
-    if (out.segmentlist != NULL) { free(out.segmentlist); }
-    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-    if (out.edgelist != NULL) { free(out.edgelist); }
-    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
-
 
     // So far, so good.  Now, read back in the .edge file
     // to make sure the points in the segments and arc
@@ -1652,106 +1491,26 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     fclose(fp);
 
     // call triangle with -Y flag.
-
     {
         TriangulateHelper triHelper;
         triHelper.WarnMessage = WarnMessage;
+        triHelper.TriMessage = this->TriMessage;
+
         if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::FromProblem))
-            return false;
+            return -1;
         if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromProblem))
-            return false;
+            return -1;
         if (!triHelper.initHolesAndRegions(*problem, true, DefaultMeshSize))
-            return false;
+            return -1;
+
+        triHelper.setMinAngle(problem->MinAngle);
+        triHelper.suppressExteriorSteinerPoints();
+        int tristatus = triHelper.triangulate(Verbose);
+        if (tristatus != 0)
+            return tristatus;
+
+        triHelper.writeTriangulationFiles(PathName);
     }
-
-
-    // Finally, we have no triangle area constraints so initialize to null
-    in.trianglearealist = (REAL *) NULL;
-
-    /* Make necessary initializations so that Triangle can return a */
-    /* triangulation in `out' */
-
-    out.pointlist = (REAL *) NULL;            /* Not needed if -N switch used. */
-    /* Not needed if -N switch used or number of point attributes is zero: */
-    out.pointattributelist = (REAL *) NULL;
-    out.pointmarkerlist = (int *) NULL; /* Not needed if -N or -B switch used. */
-    out.trianglelist = (int *) NULL;          /* Not needed if -E switch used. */
-    /* Not needed if -E switch used or number of triangle attributes is zero: */
-    out.triangleattributelist = (REAL *) NULL;
-    /* No triangle area constraints */
-    out.trianglearealist = (REAL *) NULL;
-    out.neighborlist = (int *) NULL;         /* Needed only if -n switch used. */
-    /* Needed only if segments are output (-p or -c) and -P not used: */
-    out.segmentlist = (int *) NULL;
-    /* Needed only if segments are output (-p or -c) and -P and -B not used: */
-    out.segmentmarkerlist = (int *) NULL;
-    out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
-    out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
-
-    rootname = pn.substr(0,pn.find_last_of('.'));
-
-    if (Verbose)
-    {
-        sprintf(CommandLine,"-pPq%feAazIY", problem->MinAngle);
-    }
-    else
-    {
-        sprintf(CommandLine,"-pPq%feAazQIY", problem->MinAngle);
-    }
-
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
-
-    // copy the exit status status of the triangle library from the global variable, eueghh.
-    //trilibrary_exit_code;
-    if (tristatus != 0)
-    {
-        if (in.pointlist != NULL) { free(in.pointlist); }
-        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-        if (in.regionlist != NULL) { free(in.regionlist); }
-        if (in.segmentlist != NULL) { free(in.segmentlist); }
-        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-        if (in.holelist != NULL) { free(in.holelist); }
-
-        if (out.pointlist != NULL) { free(out.pointlist); }
-        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-        if (out.trianglelist != NULL) { free(out.trianglelist); }
-        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-        if (out.neighborlist != NULL) { free(out.neighborlist); }
-        if (out.segmentlist != NULL) { free(out.segmentlist); }
-        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-        if (out.edgelist != NULL) { free(out.edgelist); }
-        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
-
-        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
-        WarnMessage(msg.c_str());
-        return tristatus;
-    }
-
-    WriteTriangulationFiles(out, PathName);
-
-    // now deallocate memory where necessary
-    if (in.pointlist != NULL) { free(in.pointlist); }
-    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-    if (in.regionlist != NULL) { free(in.regionlist); }
-    if (in.segmentlist != NULL) { free(in.segmentlist); }
-    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-    if (in.holelist != NULL) { free(in.holelist); }
-
-    if (out.pointlist != NULL) { free(out.pointlist); }
-    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-    if (out.trianglelist != NULL) { free(out.trianglelist); }
-    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-    if (out.neighborlist != NULL) { free(out.neighborlist); }
-    if (out.segmentlist != NULL) { free(out.segmentlist); }
-    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-    if (out.edgelist != NULL) { free(out.edgelist); }
-    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
     problem->unselectAll();
 
@@ -1771,6 +1530,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 TriangulateHelper::TriangulateHelper()
     : WarnMessage(&PrintWarningMsg)
     , TriMessage(nullptr)
+    , m_minAngle(0.)
+    , m_suppressExteriorSteinerPoints(false)
 {
     initialize(in);
     initialize(out);
@@ -1995,4 +1756,58 @@ bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool for
         }
     }
     return false;
+}
+
+int TriangulateHelper::triangulate(bool verbose)
+{
+    // An explaination of the input parameters used for Triangle
+    //
+    // -p Triangulates a Planar Straight Line Graph, i.e. list of segments.
+    // -P Suppresses the output .poly file.
+    // -q Quality mesh generation with no angles smaller than specified in the following number
+    // -e Outputs a list of edges of the triangulation.
+    // -A Assigns a regional attribute to each triangle that identifies what segment-bounded region it belongs to.
+    // -a Imposes a maximum triangle area constraint.
+    // -z Numbers all items starting from zero (rather than one)
+    // -I Suppresses mesh iteration numbers
+    // -j prevents duplicated input vertices, or vertices `eaten' by holes,
+    //    from appearing in the output .node file.  Thus, if two input vertices
+    //    have exactly the same coordinates, only the first appears in the
+    //    output.
+    // -Y Suppresses the creation of Steiner points on the exterior boundary.
+    //
+    // See http://www.cs.cmu.edu/~quake/triangle.switch.html for more info
+    std::string triArgs = "-pPq" + to_string(m_minAngle) + "eAaz" + (verbose?"":"Q") + "I";
+    if (m_suppressUnusedVertices)
+        triArgs += "j";
+    if (m_suppressExteriorSteinerPoints)
+        triArgs += "Y";
+
+    // this is a mess, but building the string with std::string is more flexible than sprintf
+    // (and the triangulate api is ancient)
+    char cmdline[512];
+    sprintf(cmdline, "%s",triArgs.c_str());
+
+    int tristatus = ::triangulate(cmdline, &in, &out, (struct triangulateio *) nullptr, this->TriMessage);
+    if (tristatus!=0)
+    {
+        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
+        WarnMessage(msg.c_str());
+    }
+    return tristatus;
+}
+
+void TriangulateHelper::setMinAngle(double value)
+{
+    m_minAngle = value;
+}
+
+void TriangulateHelper::suppressExteriorSteinerPoints()
+{
+    m_suppressExteriorSteinerPoints = true;
+}
+
+void TriangulateHelper::suppressUnusedVertices()
+{
+    m_suppressUnusedVertices = true;
 }
