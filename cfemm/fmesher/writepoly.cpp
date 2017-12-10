@@ -1564,7 +1564,10 @@ bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_
 {
     // calling this method on an already initialized object would leak memory
     if (in.numberofpoints!=0)
+    {
+        WarnMessage("initPointsWithMarkers called twice!\n");
         return false;
+    }
 
     in.numberofpoints = nodelst.size();
 
@@ -1618,7 +1621,10 @@ bool TriangulateHelper::initSegmentsWithMarkers(const TriangulateHelper::linelis
 {
     // calling this method on an already initialized object would leak memory
     if (in.numberofsegments!=0)
+    {
+        WarnMessage("initSegmentsWithMarkers called twice!\n");
         return false;
+    }
 
     in.numberofsegments = linelst.size();
 
@@ -1680,7 +1686,10 @@ bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool for
 {
     // calling this method on an already initialized object would leak memory
     if (in.numberofholes!=0)
+    {
+        WarnMessage("initHolesAndRegions called twice!\n");
         return false;
+    }
 
     in.numberofholes = problem.countHoles();
     if(in.numberofholes > 0)
@@ -1755,7 +1764,7 @@ bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool for
             k++;
         }
     }
-    return false;
+    return true;
 }
 
 int TriangulateHelper::triangulate(bool verbose)
