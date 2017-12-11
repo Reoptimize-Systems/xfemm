@@ -33,7 +33,12 @@
 #include "femmconstants.h"
 #include "CCommonPoint.h"
 //extern "C" {
+#ifdef XFEMM_BUILTIN_TRIANGLE
 #include "triangle.h"
+#else
+#include "triangle.h"
+#include "triangle_api.h"
+#endif
 //}
 
 
@@ -145,8 +150,14 @@ public:
     void suppressUnusedVertices();
 
 private:
+#ifdef XFEMM_BUILTIN_TRIANGLE
     struct triangulateio in;
     struct triangulateio out;
+#else
+    triangleio in;
+    triangleio out;
+    context *ctx;
+#endif
     double m_minAngle;
     bool m_suppressExteriorSteinerPoints; ///< Default: false
     bool m_suppressUnusedVertices; ///< Default: false
@@ -156,7 +167,11 @@ private:
  * @brief Initialize a triangulateio to all zero.
  * @param io
  */
+#ifdef XFEMM_BUILTIN_TRIANGLE
 void initialize(struct triangulateio &io)
+#else
+void initialize(triangleio &io)
+#endif
 {
     io.pointlist = nullptr;
     io.pointattributelist = nullptr;
@@ -184,7 +199,9 @@ void initialize(struct triangulateio &io)
 
     io.edgelist = nullptr;
     io.edgemarkerlist = nullptr;
-    io.normlist = nullptr;
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    io.normlist = nullptr; // only used by voronoi diagram
+#endif
     io.numberofedges = 0;
 }
 
@@ -1537,6 +1554,9 @@ TriangulateHelper::TriangulateHelper()
 {
     initialize(in);
     initialize(out);
+#ifndef XFEMM_BUILTIN_TRIANGLE
+    ctx = triangle_context_create();
+#endif
 }
 
 TriangulateHelper::~TriangulateHelper()
@@ -1560,6 +1580,9 @@ TriangulateHelper::~TriangulateHelper()
     if (out.segmentmarkerlist) { free(out.segmentmarkerlist); }
     if (out.edgelist) { free(out.edgelist); }
     if (out.edgemarkerlist) { free(out.edgemarkerlist); }
+#ifndef XFEMM_BUILTIN_TRIANGLE
+    triangle_context_destroy(ctx);
+#endif
 }
 
 bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_t &nodelst, const FemmProblem &problem, PointMarkerInfo info)
@@ -1799,13 +1822,32 @@ int TriangulateHelper::triangulate(bool verbose)
     char cmdline[512];
     sprintf(cmdline, "%s",triArgs.c_str());
 
+#ifdef XFEMM_BUILTIN_TRIANGLE
     int tristatus = ::triangulate(cmdline, &in, &out, (struct triangulateio *) nullptr, this->TriMessage);
     if (tristatus!=0)
     {
         std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
         WarnMessage(msg.c_str());
+        return tristatus;
     }
-    return tristatus;
+#else
+    // parse options
+    int tristatus = triangle_context_options(ctx, cmdline);
+    if (tristatus != TRI_OK)
+    {
+        WarnMessage("Invalid option string for triangle!\n");
+        return tristatus;
+    }
+    // Triangulate the polygon.
+    tristatus = triangle_mesh_create(ctx, &in);
+    if (tristatus != TRI_OK)
+    {
+        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
+        WarnMessage(msg.c_str());
+        return tristatus;
+    }
+#endif
+    return 0;
 }
 
 void TriangulateHelper::setMinAngle(double value)
