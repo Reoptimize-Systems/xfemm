@@ -6,7 +6,8 @@ else()
     add_library(triangle STATIC
         triangle/triangle.c
         )
-    add_library(Triangle::triangle ALIAS triangle)
+    # a bit of a dirty hack to make the link line nicer:
+    add_library(Triangle::triangle-api ALIAS triangle)
     target_include_directories(triangle PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/triangle> $<INSTALL_INTERFACE:include>)
     target_compile_definitions(triangle INTERFACE XFEMM_BUILTIN_TRIANGLE)
 endif()
@@ -17,7 +18,7 @@ add_library(fmesher STATIC
     nosebl.cpp
     writepoly.cpp
     )
-target_link_libraries(fmesher PUBLIC femm PRIVATE Triangle::triangle)
+target_link_libraries(fmesher PUBLIC femm PRIVATE Triangle::triangle-api)
 target_include_directories(fmesher PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
 
 add_executable(fmesher-bin
