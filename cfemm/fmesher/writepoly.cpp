@@ -155,7 +155,6 @@ private:
     struct triangulateio out;
 #else
     triangleio in;
-    triangleio out;
     context *ctx;
 #endif
     double m_minAngle;
@@ -483,53 +482,63 @@ bool FMesher::HasPeriodicBC()
 bool TriangulateHelper::writeTriangulationFiles(string PathName) const
 {
     FILE *fp;
-    int i, j, nexttriattrib;
     std::string msg;
 
     // write the .edge file
     string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".edge";
 
+    // check to see if we are ready to write an edge datafile;
+
+    if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
+        msg = "Couldn't write to specified .edge file\n";
+        WarnMessage(msg.c_str());
+        return false;
+    }
+#ifdef XFEMM_BUILTIN_TRIANGLE
+
     if (out.numberofedges > 0)
     {
-        // check to see if we are ready to write an edge datafile;
-
-        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            msg = "Couldn't write to specified .edge file\n";
-            WarnMessage(msg.c_str());
-            return false;
-        }
-
         // write number of edges, number of boundary markers, 0 or 1
         fprintf(fp, "%i\t%i\n", out.numberofedges, 1);
 
         // write the edges in the format
         // <edge #> <endpoint> <endpoint> [boundary marker]
         // Endpoints are indices into the corresponding .edge file.
-        for(i=0; i < 2 * (out.numberofedges) - 1; i = i + 2)
+        for(int i=0; i < 2 * (out.numberofedges) - 1; i = i + 2)
         {
             fprintf(fp, "%i\t%i\t%i\t%i\n", i/2, out.edgelist[i], out.edgelist[i+1], out.edgemarkerlist[i/2]);
         }
 
         fclose(fp);
-
     } else {
         WarnMessage("No edges to write!\n");
     }
+#else
+    int status = triangle_write_edges(ctx, fp);
+    fclose(fp);
+    if (status != TRI_OK)
+    {
+        msg = "Failed to write to specified .edge file\n";
+        WarnMessage(msg.c_str());
+        return false;
+    }
+#endif
 
     // write the .ele file
     plyname = PathName.substr(0, PathName.find_last_of('.')) + ".ele";
 
+
+    // check to see if we are ready to write a .ele datafile containing
+    // thr triangle elements
+
+    if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
+        WarnMessage("Couldn't write to specified .ele file");
+        return false;
+    }
+
+#ifdef XFEMM_BUILTIN_TRIANGLE
     if (out.numberoftriangles > 0)
     {
-
-        // check to see if we are ready to write a .ele datafile containing
-        // thr triangle elements
-
-        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            WarnMessage("Couldn't write to specified .ele file");
-            return false;
-        }
-
         // write number of triangle elements, number of corners per triangle and
         // the number of attributes per triangle
         fprintf(fp, "%i\t%i\t%i\n", out.numberoftriangles, out.numberofcorners, out.numberoftriangleattributes);
@@ -537,13 +546,13 @@ bool TriangulateHelper::writeTriangulationFiles(string PathName) const
         // write the triangle info to the file with the format
         // <triangle #> <node> <node> <node> ... [attributes]
         // Endpoints are indices into the corresponding .node file.
-        for(i=0, nexttriattrib=0; i < (out.numberofcorners) * (out.numberoftriangles) - (out.numberofcorners - 1); i = i + (out.numberofcorners))
+        for(int i=0, nexttriattrib=0; i < (out.numberofcorners) * (out.numberoftriangles) - (out.numberofcorners - 1); i = i + (out.numberofcorners))
         {
             // print the triangle number
             fprintf(fp, "%i\t", i / (out.numberofcorners));
 
             // print the corner nodes
-            for (j = 0; j < (out.numberofcorners); j++)
+            for (int j = 0; j < (out.numberofcorners); j++)
             {
                 fprintf(fp, "%i\t", out.trianglelist[i+j]);
             }
@@ -551,7 +560,7 @@ bool TriangulateHelper::writeTriangulationFiles(string PathName) const
             // print the triangle attributes, if there are any
             if (out.numberoftriangleattributes > 0)
             {
-                for(j = 0; j < (out.numberoftriangleattributes); j++)
+                for(int j = 0; j < (out.numberoftriangleattributes); j++)
                 {
                     fprintf(fp, "%.17g\t", out.triangleattributelist[nexttriattrib+j]);
                 }
@@ -567,34 +576,53 @@ bool TriangulateHelper::writeTriangulationFiles(string PathName) const
         fclose(fp);
 
     }
+#else
+    status = triangle_write_elements(ctx, fp);
+    fclose(fp);
+    if (status != TRI_OK)
+    {
+        msg = "Failed to write to specified .ele file\n";
+        WarnMessage(msg.c_str());
+        return false;
+    }
+#endif
 
     // write the .node file
     plyname = PathName.substr(0, PathName.find_last_of('.')) + ".node";
 
+    // check to see if we are ready to write a .node datafile containing
+    // the nodes
+
+    if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
+        WarnMessage("Couldn't write to specified .node file");
+        return false;
+    }
+
+#ifdef XFEMM_BUILTIN_TRIANGLE
     if (out.numberofpoints > 0)
     {
-
-        // check to see if we are ready to write a .node datafile containing
-        // the nodes
-
-        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            WarnMessage("Couldn't write to specified .node file");
-            return false;
-        }
-
         // <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>
         fprintf(fp, "%i\t%i\t%i\t%i\n", out.numberofpoints, 2, 0, 1);
         //fprintf(fp, "%i\t%i\t%i\n", out.numberofpoints, 2, out.numberofpoints, 1);
 
         // <vertex #> <x> <y> [attributes] [boundary marker]
-        for(i = 0; i < (2 * out.numberofpoints) - 1; i = i + 2)
+        for(int i = 0; i < (2 * out.numberofpoints) - 1; i = i + 2)
         {
             fprintf(fp, "%i\t%.17g\t%.17g\t%i\n", i/2, out.pointlist[i], out.pointlist[i+1], out.pointmarkerlist[i/2]);
         }
 
         fclose(fp);
-
     }
+#else
+    status = triangle_write_nodes(ctx, fp);
+    fclose(fp);
+    if (status != TRI_OK)
+    {
+        msg = "Failed to write to specified .node file\n";
+        WarnMessage(msg.c_str());
+        return false;
+    }
+#endif
 
     return true;
 
@@ -1553,8 +1581,9 @@ TriangulateHelper::TriangulateHelper()
     , m_suppressExteriorSteinerPoints(false)
 {
     initialize(in);
-    initialize(out);
-#ifndef XFEMM_BUILTIN_TRIANGLE
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    initialize(out); // triangle-api writes to input struct
+#else
     ctx = triangle_context_create();
 #endif
 }
@@ -1569,6 +1598,7 @@ TriangulateHelper::~TriangulateHelper()
     if (in.segmentmarkerlist) { free(in.segmentmarkerlist); }
     if (in.holelist) { free(in.holelist); }
 
+#ifdef XFEMM_BUILTIN_TRIANGLE
     if (out.pointlist) { free(out.pointlist); }
     if (out.pointattributelist) { free(out.pointattributelist); }
     if (out.pointmarkerlist) { free(out.pointmarkerlist); }
@@ -1580,7 +1610,7 @@ TriangulateHelper::~TriangulateHelper()
     if (out.segmentmarkerlist) { free(out.segmentmarkerlist); }
     if (out.edgelist) { free(out.edgelist); }
     if (out.edgemarkerlist) { free(out.edgemarkerlist); }
-#ifndef XFEMM_BUILTIN_TRIANGLE
+#else
     triangle_context_destroy(ctx);
 #endif
 }
