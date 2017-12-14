@@ -33,10 +33,8 @@
 #include "femmconstants.h"
 #include "CCommonPoint.h"
 //extern "C" {
-#ifdef XFEMM_BUILTIN_TRIANGLE
 #include "triangle.h"
-#else
-#include "triangle.h"
+#ifndef XFEMM_BUILTIN_TRIANGLE
 #include "triangle_api.h"
 #endif
 //}
