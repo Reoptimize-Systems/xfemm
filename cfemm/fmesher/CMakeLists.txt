@@ -9,7 +9,6 @@ else()
     # a bit of a dirty hack to make the link line nicer:
     add_library(Triangle::triangle-api ALIAS triangle)
     target_include_directories(triangle PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/triangle> $<INSTALL_INTERFACE:include>)
-    target_compile_definitions(triangle INTERFACE XFEMM_BUILTIN_TRIANGLE)
 endif()
 
 add_library(fmesher STATIC
