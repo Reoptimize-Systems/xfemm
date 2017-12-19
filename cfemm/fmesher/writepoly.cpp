@@ -43,6 +43,8 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+#include <fstream>
+#include <iomanip>
 #include <malloc.h>
 #include <stdexcept>
 #include <string>
@@ -127,6 +129,14 @@ public:
      */
     int triangulate(bool verbose);
 
+    /**
+     * @brief Write an input file for triangle.
+     * Normally, the \c.poly file is not used because triangle is called directly as a library.
+     * This function is intended as a debugging aid.
+     * @param filename the complete file name ending in ".poly"
+     * @return \c true, if writing succeeded, \c false otherwise.
+     */
+    bool writePolyFile(std::string filename) const;
     bool writeTriangulationFiles(std::string Pathname) const;
 
     // pointer to function to call when issuing warning messages
@@ -482,6 +492,13 @@ bool TriangulateHelper::writeTriangulationFiles(string PathName) const
     FILE *fp;
     std::string msg;
 
+#ifndef XFEMM_BUILTIN_TRIANGLE
+    if (triangle_check_mesh(ctx)!=0)
+    {
+        WarnMessage("Mesh has topological inconsistencies!\n");
+        return false;
+    }
+#endif
     // write the .edge file
     string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".edge";
 
@@ -1845,6 +1862,11 @@ int TriangulateHelper::triangulate(bool verbose)
     if (m_suppressExteriorSteinerPoints)
         triArgs += "Y";
 
+#ifdef DEBUG_TRIANGLE
+    writePolyFile("debug.poly");
+    std::cerr << triArgs << "\n";
+#endif
+
     // this is a mess, but building the string with std::string is more flexible than sprintf
     // (and the triangulate api is ancient)
     char cmdline[512];
@@ -1877,6 +1899,47 @@ int TriangulateHelper::triangulate(bool verbose)
 #endif
     return 0;
 }
+
+#ifdef DEBUG_TRIANGLE
+bool TriangulateHelper::writePolyFile(string filename) const
+{
+    std::ofstream polyFile (filename);
+    // set floating point precision once for the whole stream
+    polyFile << std::setprecision(17);
+    // when filling to a width, adjust to the left
+    polyFile.setf(std::ios::left);
+
+    polyFile << in.numberofpoints << " 2  0  1\n";
+    for (int i=0; i < in.numberofpoints; i++)
+    {
+        polyFile << i << " " << in.pointlist[2*i] << " " << in.pointlist[2*i+1] << " " << in.pointmarkerlist[i] << "\n";
+    }
+
+    polyFile << in.numberofsegments << " 1\n";
+    for (int i=0; i < in.numberofsegments; i++)
+    {
+        polyFile << i << " " << in.segmentlist[2*i] << " " << in.segmentlist[2*i+1] << " " << in.segmentmarkerlist[i] <<"\n";
+    }
+
+    polyFile << in.numberofholes << "\n";
+    for (int i=0; i < in.numberofholes; i++)
+    {
+        polyFile << i << " " << in.holelist[2*i] << " " << in.holelist[2*i+1] << "\n";
+    }
+
+    polyFile << in.numberofregions << "\n";
+    for (int i=0; i < in.numberofregions; i++)
+    {
+        int j=4*i;
+        polyFile << i << " "
+                 << in.regionlist[j] << " "
+                 << in.regionlist[j+1] << " "
+                 << in.regionlist[j+2] << " "
+                 << in.regionlist[j+3] << "\n";
+    }
+    return true;
+}
+#endif
 
 void TriangulateHelper::setMinAngle(double value)
 {
