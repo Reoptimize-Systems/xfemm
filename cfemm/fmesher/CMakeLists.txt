@@ -27,7 +27,7 @@ add_executable(fmesher-bin
 set_target_properties(fmesher-bin
     PROPERTIES OUTPUT_NAME fmesher)
 
-target_link_libraries(fmesher-bin fmesher)
+target_link_libraries(fmesher-bin fmesher Triangle::triangle-api)
 
 add_subdirectory(test)
 

@@ -1,8 +1,11 @@
-#include <iostream>
-#include <string.h>
 #include "fmesher.h"
 #include "FemmReader.h"
+#include "femmversion.h"
 
+#include <triangle_version.h>
+
+#include <iostream>
+#include <string.h>
 using namespace femm;
 using namespace fmesher;
 
@@ -18,14 +21,39 @@ int main(int argc, char ** argv)
         std::cout << "Enter file name:" << std::endl;
         getline(std::cin,FilePath);
     }
-    else if(argc > 2)
-    {
-        std::cout << "Too many input arguments" << std::endl;
-        return -4;
-    }
-    else
-    {
-        FilePath = argv[1];
+    else {
+        for(int i=1; i<argc; i++)
+        {
+            const std::string arg { argv[i] };
+
+            if (arg[0] != '-')
+            {
+                // positional argument
+                if (! FilePath.empty())
+                {
+                    std::cout << "Too many input arguments" << std::endl;
+                    return -4;
+                }
+                FilePath = arg;
+            } else {
+                if ( arg == "--version" )
+                {
+                    std::cout << "fmesher version " << FEMM_VERSION_STRING << "\n";
+                    std::cout << "triangle version " << TRIANGLE_VERSION << "\n";
+#ifndef NDEBUG
+                    std::cout << "assertions enabled\n";
+#endif
+                    return 0;
+                }
+                if ( arg == "--help" || arg == "-h" )
+                {
+                    std::cout << "Usage: " << argv[0] << " <femfile>\n";
+                    std::cout << "       " << argv[0] << " [-h|--help] [--version]\n";
+                    std::cout << "\n";
+                    return 0;
+                }
+            }
+        }
     }
 
     // attempt to discover the file type from the file name

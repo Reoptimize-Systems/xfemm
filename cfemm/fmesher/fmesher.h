@@ -55,9 +55,6 @@
 #define BoundingBoxFraction 100.0
 #endif
 
-// forward definition
-struct triangulateio;
-
 namespace fmesher
 {
 
