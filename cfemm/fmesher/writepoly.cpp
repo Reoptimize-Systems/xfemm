@@ -124,10 +124,17 @@ public:
     /**
      * @brief triangulate
      * The values of minAngle and suppressExteriourSteinerPoints are applied.
-     * @param verbose
+     * @param verbose Verbosity of triangle
      * @return
      */
     int triangulate(bool verbose);
+
+    /**
+     * @brief Create a parameter list for consumption of triangle
+     * @param verbose Verbosity of triangle
+     * @return
+     */
+    std::string triangulateParams(bool verbose=false) const;
 
     /**
      * @brief Write an input file for triangle.
@@ -136,7 +143,7 @@ public:
      * @param filename the complete file name ending in ".poly"
      * @return \c true, if writing succeeded, \c false otherwise.
      */
-    bool writePolyFile(std::string filename) const;
+    bool writePolyFile(std::string filename, std::string comment) const;
     bool writeTriangulationFiles(std::string Pathname) const;
 
     // pointer to function to call when issuing warning messages
@@ -735,6 +742,11 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             return -1;
         triHelper.setMinAngle(problem->MinAngle);
         triHelper.suppressUnusedVertices();
+        if (writePolyFiles)
+        {
+            string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".poly";
+            triHelper.writePolyFile(plyname, triHelper.triangulateParams());
+        }
         int tristatus = triHelper.triangulate(Verbose);
         if (tristatus != 0)
             return tristatus;
@@ -870,6 +882,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             return -1;
 
         triHelper.setMinAngle(problem->MinAngle);
+        if (writePolyFiles)
+        {
+            string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".raw.poly";
+            triHelper.writePolyFile(plyname, triHelper.triangulateParams());
+        }
         int tristatus = triHelper.triangulate(Verbose);
         if (tristatus != 0)
             return tristatus;
@@ -1567,6 +1584,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
         triHelper.setMinAngle(problem->MinAngle);
         triHelper.suppressExteriorSteinerPoints();
+        if (writePolyFiles)
+        {
+            string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".poly";
+            triHelper.writePolyFile(plyname, triHelper.triangulateParams());
+        }
         int tristatus = triHelper.triangulate(Verbose);
         if (tristatus != 0)
             return tristatus;
@@ -1839,34 +1861,7 @@ bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool for
 
 int TriangulateHelper::triangulate(bool verbose)
 {
-    // An explaination of the input parameters used for Triangle
-    //
-    // -p Triangulates a Planar Straight Line Graph, i.e. list of segments.
-    // -P Suppresses the output .poly file.
-    // -q Quality mesh generation with no angles smaller than specified in the following number
-    // -e Outputs a list of edges of the triangulation.
-    // -A Assigns a regional attribute to each triangle that identifies what segment-bounded region it belongs to.
-    // -a Imposes a maximum triangle area constraint.
-    // -z Numbers all items starting from zero (rather than one)
-    // -I Suppresses mesh iteration numbers
-    // -j prevents duplicated input vertices, or vertices `eaten' by holes,
-    //    from appearing in the output .node file.  Thus, if two input vertices
-    //    have exactly the same coordinates, only the first appears in the
-    //    output.
-    // -Y Suppresses the creation of Steiner points on the exterior boundary.
-    //
-    // See http://www.cs.cmu.edu/~quake/triangle.switch.html for more info
-    std::string triArgs = "-pPq" + to_string(m_minAngle) + "eAaz" + (verbose?"":"Q") + "I";
-    if (m_suppressUnusedVertices)
-        triArgs += "j";
-    if (m_suppressExteriorSteinerPoints)
-        triArgs += "Y";
-
-#ifdef DEBUG_TRIANGLE
-    writePolyFile("debug.poly");
-    std::cerr << triArgs << "\n";
-#endif
-
+    std::string triArgs = triangulateParams(verbose);
     // this is a mess, but building the string with std::string is more flexible than sprintf
     // (and the triangulate api is ancient)
     char cmdline[512];
@@ -1900,8 +1895,35 @@ int TriangulateHelper::triangulate(bool verbose)
     return 0;
 }
 
-#ifdef DEBUG_TRIANGLE
-bool TriangulateHelper::writePolyFile(string filename) const
+string TriangulateHelper::triangulateParams(bool verbose) const
+{
+    // An explaination of the input parameters used for Triangle
+    //
+    // -p Triangulates a Planar Straight Line Graph, i.e. list of segments.
+    // -P Suppresses the output .poly file.
+    // -q Quality mesh generation with no angles smaller than specified in the following number
+    // -e Outputs a list of edges of the triangulation.
+    // -A Assigns a regional attribute to each triangle that identifies what segment-bounded region it belongs to.
+    // -a Imposes a maximum triangle area constraint.
+    // -z Numbers all items starting from zero (rather than one)
+    // -I Suppresses mesh iteration numbers
+    // -j prevents duplicated input vertices, or vertices `eaten' by holes,
+    //    from appearing in the output .node file.  Thus, if two input vertices
+    //    have exactly the same coordinates, only the first appears in the
+    //    output.
+    // -Y Suppresses the creation of Steiner points on the exterior boundary.
+    //
+    // See http://www.cs.cmu.edu/~quake/triangle.switch.html for more info
+    std::string triArgs = "-pPq" + to_string(m_minAngle) + "eAaz" + (verbose?"":"Q") + "I";
+    if (m_suppressUnusedVertices)
+        triArgs += "j";
+    if (m_suppressExteriorSteinerPoints)
+        triArgs += "Y";
+
+    return triArgs;
+}
+
+bool TriangulateHelper::writePolyFile(string filename, std::string comment) const
 {
     std::ofstream polyFile (filename);
     // set floating point precision once for the whole stream
@@ -1937,9 +1959,10 @@ bool TriangulateHelper::writePolyFile(string filename) const
                  << in.regionlist[j+2] << " "
                  << in.regionlist[j+3] << "\n";
     }
+
+    polyFile << "# " << comment << "\n";
     return true;
 }
-#endif
 
 void TriangulateHelper::setMinAngle(double value)
 {

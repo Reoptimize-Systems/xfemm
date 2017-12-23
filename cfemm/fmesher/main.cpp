@@ -12,8 +12,8 @@ using namespace fmesher;
 int main(int argc, char ** argv)
 {
 
-    FMesher MeshObj;
     std::string FilePath;
+    bool writePoly = false;
 
     if (argc < 2)
     {
@@ -36,6 +36,8 @@ int main(int argc, char ** argv)
                 }
                 FilePath = arg;
             } else {
+                if ( arg == "--write-poly")
+                    writePoly = true;
                 if ( arg == "--version" )
                 {
                     std::cout << "fmesher version " << FEMM_VERSION_STRING << "\n";
@@ -47,7 +49,7 @@ int main(int argc, char ** argv)
                 }
                 if ( arg == "--help" || arg == "-h" )
                 {
-                    std::cout << "Usage: " << argv[0] << " <femfile>\n";
+                    std::cout << "Usage: " << argv[0] << " [--write-poly] <femfile>\n";
                     std::cout << "       " << argv[0] << " [-h|--help] [--version]\n";
                     std::cout << "\n";
                     return 0;
@@ -56,6 +58,8 @@ int main(int argc, char ** argv)
         }
     }
 
+    FMesher MeshObj;
+    MeshObj.writePolyFiles = writePoly;
     // attempt to discover the file type from the file name
     MeshObj.problem->filetype = FMesher::GetFileType (FilePath);
     ParserResult status = F_FILE_UNKNOWN_TYPE;
