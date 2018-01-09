@@ -127,6 +127,8 @@ FPProc::~FPProc()
 {
     unsigned int i;
 
+    ClearDocument();
+
     free(LengthConv);
     for(i=0; i<meshnode.size(); i++)
         if(ConList[i]!=NULL) free(ConList[i]);
