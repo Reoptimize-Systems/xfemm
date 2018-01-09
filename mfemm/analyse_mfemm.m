@@ -7,6 +7,9 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
 % Syntax
 %
 % [ansfilename, femfilename] = analyse_mfemm(femprob)
+% [...] = analyse_mfemm(..., usefemm)
+% [...] = analyse_mfemm(..., quiet)
+% [...] = analyse_mfemm(..., keepmesh)
 %
 % Input
 %
@@ -14,12 +17,12 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
 %     be analysed, or an mfemm FemmProblem structure. If a structure the
 %     problem will be written to a temporary file before evaluation.
 %
+%   usefemm - (optional) if true, forces the use of the original femm
+%     interface to analyse the problem. If not supplied defaults to false.
+%
 %   quiet - (optional) if true the output from fmesher and fsolver is not
 %     displayed, if false, it is printed to the command line. Defaults to
 %     true if not supplied.
-%
-%   usefemm - (optional) if true, forces the use of the original femm
-%     interface to analyse the problem. If not supplied defaults to false.
 %
 %   keepmesh - (optional) if true, and not using FEMM, allows the mesh
 %    files to be kept after loading by fsolver.
@@ -37,7 +40,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
 % See also: fmesher.m, fsolver.m, fpproc.m, hsolver.m, hpproc.m
 % 
 
-% Copyright 2013-2014 Richard Crozier
+% Copyright 2013-2018 Richard Crozier
 % 
 %    Licensed under the Apache License, Version 2.0 (the "License");
 %    you may not use this file except in compliance with the License.
@@ -113,11 +116,11 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
                 else
                     % mesh the problem using fmesher
                     fprintf(1, 'Meshing mfemm problem ...\n');
-                    fmesher(femprob);
+                    fmesher(femfilename);
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
-                    fsolver(femprob(1:end-4), true, ~keepmesh);
+                    fsolver(femfilename(1:end-4), true, ~keepmesh);
                     fprintf(1, 'mfemm problem solved ...\n');
                 end
                 
@@ -142,11 +145,11 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
                 else
                     % mesh the problem using fmesher
                     fprintf(1, 'Meshing mfemm problem ...\n');
-                    fmesher(femprob);
+                    fmesher(femfilename);
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
-                    hsolver(femprob(1:end-4), true, ~keepmesh);
+                    hsolver(femfilename(1:end-4), true, ~keepmesh);
                     fprintf(1, 'mfemm problem solved ...\n');
                 end
                 
