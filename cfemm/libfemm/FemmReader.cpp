@@ -85,6 +85,8 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 ::parse(const std::string &file)
 {
     std::ifstream input;
+    std::streampos linestart;
+    string line;
 
     input.open(file.c_str(), std::ifstream::in);
     if (!input.is_open())
@@ -96,15 +98,46 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 
     // parse the file
 
+#ifdef DEBUG_PARSER
+    std::cout << "FemmReader starting parsing" << std::endl;
+#endif // DEBUG_PARSER
+
     bool success = true;
     bool readSolutionData = false;
-    while (input && success)
+    while (input.good() && success)
     {
+        if (!input.eof())
+        {
+            // store the current position so we can examine the line in the event of failure
+            linestart = input.tellg();
+            // store it
+            std::getline(input, line);
+            // go back to start of line
+            input.seekg(linestart);
+        }
+
+        if (line.empty())
+        {
+#ifdef DEBUG_PARSER
+            std::cout << "current line is empty, moving on" << std::endl;
+#endif // DEBUG_PARSER
+            continue;
+        }
+
+#ifdef DEBUG_PARSER
+        std::cout << "current line reads:" << std::endl
+                  << line << std::endl;
+#endif // DEBUG_PARSER
+
         string token;
-        nextToken(input, &token);
 
         if (input.eof())
+        {
+            success = true;
             break;
+        }
+
+        nextToken(input, &token);
 
         if( token == "[format]")
         {
@@ -235,6 +268,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         {
             success &= expectChar(input, '=', err);
             success &= parseValue(input, problem->DoSmartMesh, err);
+            continue;
         }
 
         // Point Properties
