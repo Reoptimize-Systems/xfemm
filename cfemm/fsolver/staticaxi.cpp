@@ -375,26 +375,45 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                     SNPRINTF(magbuff, sizeof magbuff, "r=%.17g\nz=%.17g\nx=r\ny=z\ntheta=%.17g\nR=%.17g\nreturn %s",
                                  (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn.c_str()));
                     str = magbuff;
+
                     lua_State *lua = theLua->getLuaState();
+
                     top1=lua_gettop(lua);
-                    if(theLua->doString(str)!=0)
+
+                    int lua_error_code = theLua->doString(str, femm::LuaInstance::LuaStackMode::Unsafe);
+
+                    if(lua_error_code != 0)
                     {
-                        //MsgBox("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn);
-                        printf("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn.c_str());
-                        //exit(7);
+                        if (lua_error_code==LUA_ERRRUN)
+                            WarnMessage("Lua run Error (LUA_ERRRUN) when evaluating magnetization direction function");
+                        if (lua_error_code==LUA_ERRMEM)
+                            WarnMessage("Lua memory Error (LUA_ERRMEM) when evaluating magnetization direction function");
+                        if (lua_error_code==LUA_ERRERR)
+                            WarnMessage("Lua user error error (LUA_ERRERR) when evaluating magnetization direction function");
+                        if (lua_error_code==LUA_ERRFILE)
+                            WarnMessage("Lua file error (LUA_ERRFILE) when evaluating magnetization direction function");
+
+                        SNPRINTF(magbuff, sizeof magbuff,
+                                 "Lua error occurred when evaluating:\n\"%s\"",
+                                 labellist[El->lbl].MagDirFctn.c_str());
+
+                        WarnMessage(magbuff);
+
                         return -7;
                     }
+
                     top2=lua_gettop(lua);
                     if (top2!=top1)
                     {
                         str=lua_tostring(lua,-1);
                         if (str.length()==0)
                         {
-//					MsgBox( "\"%s\" does not evaluate to a numerical value",
-//						labellist[El->lbl].MagDirFctn);
-                            printf("\"%s\" does not evaluate to a numerical value",
-                                   labellist[El->lbl].MagDirFctn.c_str());
-//					exit(7);
+                            SNPRINTF(magbuff, sizeof magbuff,
+                                     "\"%s\" does not evaluate to a numerical value",
+                                     labellist[El->lbl].MagDirFctn.c_str());
+
+                            WarnMessage (magbuff);
+
                             return -7;
                         }
                         else t=Re(lua_tonumber(lua,-1));
