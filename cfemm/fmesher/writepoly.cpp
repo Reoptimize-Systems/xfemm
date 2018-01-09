@@ -498,6 +498,7 @@ bool TriangulateHelper::writeTriangulationFiles(string PathName) const
 {
     FILE *fp;
     std::string msg;
+    std::string plyname;
 
 #ifndef XFEMM_BUILTIN_TRIANGLE
     if (triangle_check_mesh(ctx)!=0)
@@ -506,8 +507,46 @@ bool TriangulateHelper::writeTriangulationFiles(string PathName) const
         return false;
     }
 #endif
+
+    // write the .node file
+    plyname = PathName.substr(0, PathName.find_last_of('.')) + ".node";
+
+    // check to see if we are ready to write a .node datafile containing
+    // the nodes
+
+    if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
+        WarnMessage("Couldn't write to specified .node file");
+        return false;
+    }
+
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    if (out.numberofpoints > 0)
+    {
+        // <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>
+        fprintf(fp, "%i\t%i\t%i\t%i\n", out.numberofpoints, 2, 0, 1);
+        //fprintf(fp, "%i\t%i\t%i\n", out.numberofpoints, 2, out.numberofpoints, 1);
+
+        // <vertex #> <x> <y> [attributes] [boundary marker]
+        for(int i = 0; i < (2 * out.numberofpoints) - 1; i = i + 2)
+        {
+            fprintf(fp, "%i\t%.17g\t%.17g\t%i\n", i/2, out.pointlist[i], out.pointlist[i+1], out.pointmarkerlist[i/2]);
+        }
+
+        fclose(fp);
+    }
+#else
+    int status = triangle_write_nodes(ctx, fp);
+    fclose(fp);
+    if (status != TRI_OK)
+    {
+        msg = "Failed to write to specified .node file\n";
+        WarnMessage(msg.c_str());
+        return false;
+    }
+#endif
+
     // write the .edge file
-    string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".edge";
+    plyname = PathName.substr(0, PathName.find_last_of('.')) + ".edge";
 
     // check to see if we are ready to write an edge datafile;
 
@@ -536,7 +575,8 @@ bool TriangulateHelper::writeTriangulationFiles(string PathName) const
         WarnMessage("No edges to write!\n");
     }
 #else
-    int status = triangle_write_edges(ctx, fp);
+    // Note: triangle_write_edges also numbers the edges, which is required for writing the .ele file
+    status = triangle_write_edges(ctx, fp);
     fclose(fp);
     if (status != TRI_OK)
     {
@@ -608,46 +648,7 @@ bool TriangulateHelper::writeTriangulationFiles(string PathName) const
         return false;
     }
 #endif
-
-    // write the .node file
-    plyname = PathName.substr(0, PathName.find_last_of('.')) + ".node";
-
-    // check to see if we are ready to write a .node datafile containing
-    // the nodes
-
-    if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-        WarnMessage("Couldn't write to specified .node file");
-        return false;
-    }
-
-#ifdef XFEMM_BUILTIN_TRIANGLE
-    if (out.numberofpoints > 0)
-    {
-        // <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>
-        fprintf(fp, "%i\t%i\t%i\t%i\n", out.numberofpoints, 2, 0, 1);
-        //fprintf(fp, "%i\t%i\t%i\n", out.numberofpoints, 2, out.numberofpoints, 1);
-
-        // <vertex #> <x> <y> [attributes] [boundary marker]
-        for(int i = 0; i < (2 * out.numberofpoints) - 1; i = i + 2)
-        {
-            fprintf(fp, "%i\t%.17g\t%.17g\t%i\n", i/2, out.pointlist[i], out.pointlist[i+1], out.pointmarkerlist[i/2]);
-        }
-
-        fclose(fp);
-    }
-#else
-    status = triangle_write_nodes(ctx, fp);
-    fclose(fp);
-    if (status != TRI_OK)
-    {
-        msg = "Failed to write to specified .node file\n";
-        WarnMessage(msg.c_str());
-        return false;
-    }
-#endif
-
     return true;
-
 }
 
 /**
