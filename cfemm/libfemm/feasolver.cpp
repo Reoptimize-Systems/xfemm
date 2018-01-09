@@ -78,6 +78,7 @@ FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshEleme
     , comment()
     , ACSolver(0)
     , DoForceMaxMeshArea(false)
+    , DoSmartMesh(true)
     , bMultiplyDefinedLabels(false)
     , BandWidth(0)
     , meshele()
@@ -139,6 +140,7 @@ void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     comment.clear();
     ACSolver = 0;
     DoForceMaxMeshArea = false;
+    DoSmartMesh = true;
     bMultiplyDefinedLabels = false;
     BandWidth = 0;
     meshele.clear();
@@ -174,6 +176,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 {
     std::ifstream input;
     std::stringstream err;
+    std::streampos linestart;
     err >> noskipws; // don't discard whitespace from message stream
 
     input.open(file.c_str(), std::ifstream::in);
@@ -187,14 +190,50 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     CleanUp();
 
     // parse the file
+#ifdef DEBUG_PARSER
+    std::cout << "feasolver starting parsing" << std::endl;
+#endif // DEBUG_PARSER
 
+    string line;
     string token;
     bool success = true;
     while (input.good() && success)
     {
-        nextToken(input, &token);
+        if (!input.eof())
+        {
+            // store the current position so we can examine the line in the event of failure
+            linestart = input.tellg();
+            // store it
+            std::getline(input, line);
+            // go back to start of line
+            input.seekg(linestart);
+        }
+
+        if (line.empty())
+        {
+#ifdef DEBUG_PARSER
+            std::cout << "current line is empty, moving on" << std::endl;
+#endif // DEBUG_PARSER
+            continue;
+        }
+
+#ifdef DEBUG_PARSER
+        std::cout << "current line reads:" << std::endl
+                  << line << std::endl;
+#endif // DEBUG_PARSER
+
+        //nextToken(input, &token);
         if (input.eof())
+        {
+            success = true;
             break;
+        }
+
+        nextToken(input, &token);
+
+#ifdef DEBUG_PARSER
+        std::cout << "feasolver token is: " << token << std::endl;
+#endif // DEBUG_PARSER
 
         if( token == "[format]")
         {
@@ -314,6 +353,16 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         {
             success &= expectChar(input, '=', err);
             success &= parseValue(input, DoForceMaxMeshArea, err);
+            continue;
+        }
+
+        // Option to use smart meshing
+        //std::cout << "checking for dosmartmesh" << std::endl;
+        if( token == "[dosmartmesh]" )
+        {
+            //std::cout << "found dosmartmesh" << std::endl;
+            success &= expectChar(input, '=', err);
+            success &= parseValue(input, DoSmartMesh, err);
             continue;
         }
 
@@ -456,7 +505,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     if (!success)
     {
         string msg = "Parse error while reading input file " + file + "!\n";
-        msg += "Last token was: " + token +"\n";
+        msg += "Last token was: " + token + "\n";
+        msg += "Last input line was: " + line + "\n";
         msg += err.str();
         WarnMessage(msg.c_str());
         return false;

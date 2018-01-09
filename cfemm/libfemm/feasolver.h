@@ -92,6 +92,7 @@ public:
 
     int		ACSolver;
     bool    DoForceMaxMeshArea;
+    bool    DoSmartMesh;
     bool    bMultiplyDefinedLabels;
 
 
