@@ -366,6 +366,7 @@ int FSolver::Static2D(CBigLinProb &L)
 //                boost::format fmatter("x=%.17g\ny=%.17g\nr=x\nz=y\ntheta=%.17g\nR=%.17g\nreturn %s");
                 if (!labellist[El->lbl].MagDirFctn.empty()) // functional magnetization direction
                 {
+
                     char magbuff[4096];
                     std::string str;
                     CComplex X;
@@ -384,23 +385,28 @@ int FSolver::Static2D(CBigLinProb &L)
                                   (X.re) , (X.im) , (arg(X)*180/PI) , (abs(X)) , (labellist[El->lbl].MagDirFctn.c_str()));
                     str = magbuff;
                     lua_State * lua = theLua->getLuaState();
-                    top1 = lua_gettop(lua);
-                    if((lua_error_code = theLua->doString(str)) != 0)
-                    {
-                        /*
-                        		if (lua_error_code==LUA_ERRRUN)
-                        			WarnMessage("Run Error");
-                        		if (lua_error_code==LUA_ERRMEM)
-                        			WarnMessage("Lua memory Error");
-                        		if (lua_error_code==LUA_ERRERR)
-                        			WarnMessage("User error error");
-                        		if (lua_error_code==LUA_ERRFILE)
-                        			WarnMessage("File Error");
-                        */
 
-                        //MsgBox("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn);
-                        printf("Lua error evaluating \"%s\"",labellist[El->lbl].MagDirFctn.c_str());
-                        //exit(7);
+                    top1 = lua_gettop(lua);
+
+                    lua_error_code = theLua->doString(str, femm::LuaInstance::LuaStackMode::Unsafe);
+
+                    if(lua_error_code != 0)
+                    {
+                        if (lua_error_code==LUA_ERRRUN)
+                            WarnMessage("Lua run Error (LUA_ERRRUN) when evaluating magnetization direction function");
+                        if (lua_error_code==LUA_ERRMEM)
+                            WarnMessage("Lua memory Error (LUA_ERRMEM) when evaluating magnetization direction function");
+                        if (lua_error_code==LUA_ERRERR)
+                            WarnMessage("Lua user error error (LUA_ERRERR) when evaluating magnetization direction function");
+                        if (lua_error_code==LUA_ERRFILE)
+                            WarnMessage("Lua file error (LUA_ERRFILE) when evaluating magnetization direction function");
+
+                        SNPRINTF(magbuff, sizeof magbuff,
+                                 "Lua error occurred when evaluating:\n\"%s\"",
+                                 labellist[El->lbl].MagDirFctn.c_str());
+
+                        WarnMessage (magbuff);
+
                         return -7;
                     }
 
@@ -412,11 +418,11 @@ int FSolver::Static2D(CBigLinProb &L)
 
                         if (str.length()==0)
                         {
-                            //MsgBox("\"%s\" does not evaluate to a numerical value",
-                            //	labellist[El->lbl].MagDirFctn);
-                            //exit(7);
-                            printf("\"%s\" does not evaluate to a numerical value",
-                                   labellist[El->lbl].MagDirFctn.c_str());
+                            SNPRINTF(magbuff, sizeof magbuff,
+                                     "\"%s\" does not evaluate to a numerical value",
+                                     labellist[El->lbl].MagDirFctn.c_str());
+
+                            WarnMessage (magbuff);
 
                             return -7;
                         }
@@ -427,6 +433,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
                         lua_pop(lua, 1);
                     }
+
                 }
                 for(j = 0; j<3; j++)
                 {
