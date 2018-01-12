@@ -29,6 +29,7 @@
 
 #include "femmcomplex.h"
 #include <iostream>
+#include <memory>
 #include <string>
 
 namespace femm {
@@ -79,9 +80,19 @@ public:
     std::string InConductorName; ///< The name of a conductor, or the special value "<None>".
 
     double GetDistance(double xo, double yo);
-    CComplex CC();
+    /**
+     * @brief CC
+     * @return the coordinates as a complex number
+     */
+    CComplex CC() const;
     void ToggleSelect();
 
+    /**
+     * @brief clone returns a copy of the CNode that is memory managed using a unique_ptr.
+     * This is a convenience function to make code more readable.
+     * @return a unique_ptr holding a copy of this object.
+     */
+    std::unique_ptr<CNode> clone() const;
     /**
      * @brief hasBoundaryMarker
      * @return \c true, if the BoundaryMarker is set, \c false otherwise

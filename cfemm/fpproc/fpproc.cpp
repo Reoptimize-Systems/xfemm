@@ -1023,9 +1023,9 @@ bool FPProc::OpenDocument(string pathname)
 
                 if (sscnt != 4)
                 {
-                    char buf[50];
-                    sprintf (buf, "An error occured while reading mesh nodes section of file, wrong number of inputs (%d) for node %d.\n", sscnt, i);
-                    WarnMessage(buf); /* Error */
+                    std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                            + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                    WarnMessage(msg.c_str()); /* Error */
                     fclose(fp);
                     return false;
                 }
@@ -1037,9 +1037,9 @@ bool FPProc::OpenDocument(string pathname)
 
                 if (sscnt != 3)
                 {
-                    char buf[50];
-                    sprintf (buf, "An error occured while reading mesh nodes section of file, wrong number of inputs (%d) for node %d.\n", sscnt, i);
-                    WarnMessage(buf); /* Error */
+                    std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                            + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                    WarnMessage(msg.c_str()); /* Error */
 #ifndef NDEBUG
                     printf("s: %s\n", s);
 #endif // NDEBUG
@@ -1078,9 +1078,9 @@ bool FPProc::OpenDocument(string pathname)
 #endif // NDEBUG
             if (sscnt != 4)
             {
-                char buf[50];
-                sprintf (buf, "An error occured while reading mesh elements section of file, wrong number of inputs (%d) for element %d.\n", sscnt, i);
-                WarnMessage(buf); /* Error */
+                std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                        + std::to_string(sscnt) + ") for element " + std::to_string(i) + ".\n";
+                WarnMessage(msg.c_str()); /* Error */
                 fclose(fp);
                 return false;
             }

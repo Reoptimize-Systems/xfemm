@@ -289,7 +289,7 @@ bool FMesher::LoadMesh(string PathName)
     {
         fgets(s,1024,fp);
         sscanf(s,"%i\t%lf\t%lf",&j,&node.x,&node.y);
-        meshnode[i] = std::make_unique<CNode>(node);
+        meshnode[i] = node.clone();
     }
     fclose(fp);
 

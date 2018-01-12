@@ -55,9 +55,6 @@
 #define BoundingBoxFraction 100.0
 #endif
 
-// forward definition
-struct triangulateio;
-
 namespace fmesher
 {
 
@@ -81,6 +78,7 @@ public:
 
     std::shared_ptr<femm::FemmProblem> problem;
 	bool    Verbose;
+    bool writePolyFiles; ///< write .poly files when calling triangle
 
 	std::string BinDir;
 
@@ -96,8 +94,16 @@ public:
 public:
 
     static femm::FileType GetFileType(std::string PathName);
+
+    /**
+     * @brief Calculate length used to kludge fine meshing near input node points
+     * @return the average line length
+     * \internal
+     * \note This method does not exist in FEMM42. It contains code that was duplicated in the two triangulation methods.
+     * \endinternal
+     */
+    double averageLineLength() const;
     bool SaveFEMFile(std::string PathName); ///< \deprecated
-    bool WriteTriangulationFiles(const struct triangulateio &out, std::string Pathname);
 
     //void downstr(char *s);
 
@@ -118,8 +124,74 @@ private:
 
     virtual bool Initialize(femm::FileType t);
 	void addFileStr (char * q);
-
 };
+
+/**
+ * @brief The SegmentFilter enum is used by the discretization functions.
+ * @see discretizeInputSegments
+ * @see discretizeInputArcSegments
+ */
+enum class SegmentFilter {
+    AllSegments ///< Use all segments
+    , OnlyUnselected ///< Only use segments that are not selected
+};
+
+/**
+ * @brief Figure out a good default mesh size for block labels where mesh size isn't explicitly specified.
+ * @param nodelst
+ * @param doSmartMesh
+ * @return a suitable mesh size, or -1 if nodelst is empty.
+ *
+ * \internal
+ * This function contains code originally duplicated in both DoPeriodicBCTriangulation and DoNonPeriodicBCTriangulation.
+ * \endinternal
+ */
+double defaultMeshSizeHeuristics(const std::vector<std::unique_ptr<femm::CNode>> &nodelst, bool doSmartMesh);
+
+/**
+ * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
+ * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
+ *
+ * Where MaxSideLength is not specified (i.e. -1), the segment is either copied verbatim (if smart meshing is disabled),
+ * or further nodes are inserted at distance \p dL from the segment's existing nodes and the segment is split.
+ *
+ * @param problem
+ * @param nodelst
+ * @param linelst
+ * @param doSmartMesh enable smart meshing
+ * @param dL distance to corner for smart meshing
+ *
+ * \internal
+ * This function contains code originally duplicated in both DoPeriodicBCTriangulation and DoNonPeriodicBCTriangulation.
+ * \endinternal
+ */
+void discretizeInputSegments(
+        const femm::FemmProblem &problem,
+        std::vector <std::unique_ptr<femm::CNode>> &nodelst,
+        std::vector <std::unique_ptr<femm::CSegment>> &linelst,
+        bool doSmartMesh,
+        double dL,
+        SegmentFilter filter = SegmentFilter::AllSegments
+        );
+
+/**
+ * @brief Create a copy of the problem's segment list where the segment length is bounded by their MaxSideLength.
+ * All segments in the problem's linelist are copied into \p linelst, and additional segments are added as needed.
+ *
+ * @param problem
+ * @param nodelst
+ * @param linelst
+ *
+ * \internal
+ * This function contains code originally duplicated in both DoPeriodicBCTriangulation and DoNonPeriodicBCTriangulation.
+ * \endinternal
+ */
+void discretizeInputArcSegments(
+                const femm::FemmProblem &problem,
+                std::vector <std::unique_ptr<femm::CNode>> &nodelst,
+                std::vector <std::unique_ptr<femm::CSegment>> &linelst,
+                SegmentFilter filter = SegmentFilter::AllSegments
+                );
 
 } // namespace femm
 

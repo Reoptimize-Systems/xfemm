@@ -217,13 +217,7 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
         output << "\n";
     }
     // write out list of holes;
-    int numHoles=0;
-    for (const auto &label: labellist)
-    {
-        // count holes
-        if(!label->hasBlockType())
-            numHoles++;
-    }
+    int numHoles=countHoles();
     output << "[NumHoles] = " << numHoles << "\n";
     for (const auto &label: labellist)
     {
@@ -490,7 +484,7 @@ bool femm::FemmProblem::addBlockLabel(std::unique_ptr<femm::CBlockLabel> &&label
 bool femm::FemmProblem::addNode(double x, double y, double d)
 {
     // create an appropriate node and call addNode on it
-    std::unique_ptr<CNode> node = std::make_unique<CNode>(x,y);
+    std::unique_ptr<CNode> node = std::unique_ptr<CNode>(new CNode(x,y));
     return addNode(std::move(node), d);
 }
 
@@ -520,7 +514,7 @@ bool femm::FemmProblem::addNode(std::unique_ptr<femm::CNode> &&node, double d)
         if (fabs(shortestDistanceFromSegment(x,y,i))<d)
         {
             std::unique_ptr<CSegment> segm;
-            segm = std::make_unique<CSegment>(*linelist[i]);
+            segm = linelist[i]->clone();
             linelist[i]->n1=nodelist.size()-1;
             segm->n0=nodelist.size()-1;
             linelist.push_back(std::move(segm));
@@ -614,7 +608,7 @@ bool femm::FemmProblem::addSegment(int n0, int n1, const femm::CSegment *parsegm
         addNode(newnodes[i].re,newnodes[i].im,t);
 
     // Add proposed line segment
-    linelist.push_back(std::make_unique<CSegment>(segm));
+    linelist.push_back(segm.clone());
 
     // check to see if proposed line passes through other points;
     // if so, delete line and create lines that link intermediate points;
@@ -883,6 +877,17 @@ bool femm::FemmProblem::consistencyCheckOK() const
         }
     }
     return ok;
+}
+
+int femm::FemmProblem::countHoles() const
+{
+    int numHoles = 0;
+    for (const auto &label: labellist)
+    {
+        if(!label->hasBlockType())
+            numHoles++;
+    }
+    return numHoles;
 }
 
 bool femm::FemmProblem::canCreateRadius(int n) const
@@ -1609,8 +1614,13 @@ int femm::FemmProblem::getLineArcIntersection(const femm::CSegment &seg, const f
 
 double femm::FemmProblem::lengthOfLine(int i) const
 {
-    return abs(nodelist[linelist[i]->n0]->CC()-
-            nodelist[linelist[i]->n1]->CC());
+    return lengthOfLine(*linelist[i]);
+}
+
+double femm::FemmProblem::lengthOfLine(const femm::CSegment &seg) const
+{
+    return abs(nodelist[seg.n0]->CC()-
+            nodelist[seg.n1]->CC());
 }
 
 void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, femm::EditMode selector)
@@ -1632,7 +1642,7 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
                 y = (y-x) / p;
                 y = p*y.Conj()+x;
                 // create copy
-                std::unique_ptr<CNode> newnode = std::make_unique<CNode>(*node);
+                std::unique_ptr<CNode> newnode = node->clone();
                 // overwrite coordinates in copy
                 newnode->x = y.re;
                 newnode->y = y.im;
@@ -1648,7 +1658,7 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
             if (line->IsSelected)
             {
                 // copy endpoints
-                std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[line->n0]);
+                std::unique_ptr<CNode> n0 = nodelist[line->n0]->clone();
                 CComplex y0 (n0->x,n0->y);
                 y0 = (y0-x) / p;
                 y0 = p*y0.Conj()+x;
@@ -1656,7 +1666,7 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
                 n0->y = y0.im;
                 n0->IsSelected = false;
 
-                std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[line->n1]);
+                std::unique_ptr<CNode> n1 = nodelist[line->n1]->clone();
                 CComplex y1 (n1->x,n1->y);
                 y1 = (y1-x) / p;
                 y1 = p*y1.Conj()+x;
@@ -1665,7 +1675,7 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
                 n1->IsSelected = false;
 
                 // copy line (with identical endpoints)
-                std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                std::unique_ptr<CSegment> newline = line->clone();
                 newline->IsSelected = false;
                 // set endpoints
                 newline->n0 = (int)nodelist.size();
@@ -1705,7 +1715,7 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
             if (arc->IsSelected)
             {
                 // copy endpoints
-                std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[arc->n0]);
+                std::unique_ptr<CNode> n0 = nodelist[arc->n0]->clone();
                 CComplex y0 (n0->x,n0->y);
                 y0 = (y0-x) / p;
                 y0 = p*y0.Conj()+x;
@@ -1713,7 +1723,7 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
                 n0->y = y0.im;
                 n0->IsSelected = false;
 
-                std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[arc->n1]);
+                std::unique_ptr<CNode> n1 = nodelist[arc->n1]->clone();
                 CComplex y1 (n1->x,n1->y);
                 y1 = (y1-x) / p;
                 y1 = p*y1.Conj()+x;
@@ -1755,7 +1765,7 @@ void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::Edi
                     CComplex x (node->x, node->y);
                     x=(x-c)*z+c;
                     // create copy
-                    std::unique_ptr<CNode> newnode = std::make_unique<CNode>(*node);
+                    std::unique_ptr<CNode> newnode = node->clone();
                     // overwrite coordinates in copy
                     newnode->x = x.re;
                     newnode->y = x.im;
@@ -1772,14 +1782,14 @@ void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::Edi
                 if (line->IsSelected)
                 {
                     // copy endpoints
-                    std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[line->n0]);
+                    std::unique_ptr<CNode> n0 = nodelist[line->n0]->clone();
                     CComplex x0 (n0->x,n0->y);
                     x0 = (x0-c)*z+c;
                     n0->x = x0.re;
                     n0->y = x0.im;
                     n0->IsSelected = false;
 
-                    std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[line->n1]);
+                    std::unique_ptr<CNode> n1 = nodelist[line->n1]->clone();
                     CComplex x1 (n1->x,n1->y);
                     x1 = (x1-c)*z+c;
                     n1->x = x1.re;
@@ -1787,7 +1797,7 @@ void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::Edi
                     n1->IsSelected = false;
 
                     // copy line (with identical endpoints)
-                    std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                    std::unique_ptr<CSegment> newline = line->clone();
                     newline->IsSelected = false;
                     // set endpoints
                     newline->n0 = (int)nodelist.size();
@@ -1806,14 +1816,14 @@ void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::Edi
                 if (arc->IsSelected)
                 {
                     // copy endpoints
-                    std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[arc->n0]);
+                    std::unique_ptr<CNode> n0 = nodelist[arc->n0]->clone();
                     CComplex x0 (n0->x,n0->y);
                     x0 = (x0-c)*z+c;
                     n0->x = x0.re;
                     n0->y = x0.im;
                     n0->IsSelected = false;
 
-                    std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[arc->n1]);
+                    std::unique_ptr<CNode> n1 = nodelist[arc->n1]->clone();
                     CComplex x1 (n1->x,n1->y);
                     x1 = (x1-c)*z+c;
                     n1->x = x1.re;
@@ -2069,7 +2079,7 @@ void femm::FemmProblem::translateCopy(double incx, double incy, int ncopies, fem
                 if (node->IsSelected)
                 {
                     // create copy
-                    std::unique_ptr<CNode> newnode = std::make_unique<CNode>(*node);
+                    std::unique_ptr<CNode> newnode = node->clone();
                     // overwrite coordinates in copy
                     newnode->x += dx;
                     newnode->y += dy;
@@ -2086,18 +2096,18 @@ void femm::FemmProblem::translateCopy(double incx, double incy, int ncopies, fem
                 if (line->IsSelected)
                 {
                     // copy endpoints
-                    std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[line->n0]);
+                    std::unique_ptr<CNode> n0 = nodelist[line->n0]->clone();
                     n0->x += dx;
                     n0->y += dy;
                     n0->IsSelected = false;
 
-                    std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[line->n1]);
+                    std::unique_ptr<CNode> n1 = nodelist[line->n1]->clone();
                     n1->x += dx;
                     n1->y += dy;
                     n1->IsSelected = false;
 
                     // copy line (with identical endpoints)
-                    std::unique_ptr<CSegment> newline = std::make_unique<CSegment>(*line);
+                    std::unique_ptr<CSegment> newline = line->clone();
                     newline->IsSelected = false;
                     // set endpoints
                     newline->n0 = (int)nodelist.size();
@@ -2132,12 +2142,12 @@ void femm::FemmProblem::translateCopy(double incx, double incy, int ncopies, fem
                 if (arc->IsSelected)
                 {
                     // copy endpoints
-                    std::unique_ptr<CNode> n0 = std::make_unique<CNode>(*nodelist[arc->n0]);
+                    std::unique_ptr<CNode> n0 = nodelist[arc->n0]->clone();
                     n0->x += dx;
                     n0->y += dy;
                     n0->IsSelected = false;
 
-                    std::unique_ptr<CNode> n1 = std::make_unique<CNode>(*nodelist[arc->n1]);
+                    std::unique_ptr<CNode> n1 = nodelist[arc->n1]->clone();
                     n1->x += dx;
                     n1->y += dy;
                     n1->IsSelected = false;
@@ -2252,9 +2262,9 @@ void femm::FemmProblem::updateUndo()
 
     // copy each entry
     for(const auto& node: nodelist)
-        undonodelist.push_back(std::make_unique<CNode>(*node));
+        undonodelist.push_back(node->clone());
     for(const auto& line: linelist)
-        undolinelist.push_back(std::make_unique<CSegment>(*line));
+        undolinelist.push_back(line->clone());
     for(const auto& arc: arclist)
         undoarclist.push_back(std::make_unique<CArcSegment>(*arc));
     for(const auto& label: labellist)
