@@ -782,6 +782,7 @@ int ESolver::WriteResults(CBigLinProb &L)
 
 /**
  * @brief ESolver::ChargeOnConductor
+ * @param conductor
  * @param L
  * @return
  *
@@ -790,7 +791,7 @@ int ESolver::WriteResults(CBigLinProb &L)
  * - \femm42{belasolv/prob1big.cpp,CFemmeDocCore::ChargeOnConductor()}
  * \endinternal
  */
-double ESolver::ChargeOnConductor(int u, CBigLinProb &L)
+double ESolver::ChargeOnConductor(int conductor, CBigLinProb &L)
 {
 	int i,k;
 	double b[3],c[3];		// element shape parameters;
@@ -799,7 +800,7 @@ double ESolver::ChargeOnConductor(int u, CBigLinProb &L)
 	double LengthConv=0.001;
 
 	for(i=0;i<NumNodes;i++)
-		if(meshnode[i].InConductor==u) L.P[i]=1;
+        if(meshnode[i].InConductor==conductor) L.P[i]=1;
 		else L.P[i]=0;
 
 	// build element matrices using the matrices derived in Allaire's book.

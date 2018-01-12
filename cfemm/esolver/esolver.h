@@ -71,7 +71,7 @@ public:
 
     LoadMeshErr LoadMesh(bool deleteFiles=true) override;
     bool LoadProblemFile();
-    double ChargeOnConductor(int OnConductor, CBigLinProb &L);
+    double ChargeOnConductor(int conductor, CBigLinProb &L);
     int WriteResults(CBigLinProb &L);
     int AnalyzeProblem(CBigLinProb &L);
     void (*WarnMessage)(const char*);

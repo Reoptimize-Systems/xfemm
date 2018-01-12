@@ -44,33 +44,8 @@ using namespace femm;
 
 // CArcSegment construction
 CArcSegment::CArcSegment()
-    : n0(0)
-    , n1(0)
+    : CSegment()
     , ArcLength(90.)
-    , MaxSideLength(-1)
-    , Hidden(false)
-    , InGroup(0)
-    , IsSelected(false)
-    , BoundaryMarker(-1)
-    , InConductor(-1)
-    , BoundaryMarkerName("<None>")
-    , InConductorName("<None>")
     , NormalDirection(true)
-    , cnt(0)
 {
-}
-
-void CArcSegment::ToggleSelect()
-{
-    IsSelected = !IsSelected;
-}
-
-bool CArcSegment::hasBoundaryMarker() const
-{
-    return (BoundaryMarker!=-1);
-}
-
-bool CArcSegment::isInConductor() const
-{
-    return (InConductor!=-1);
 }

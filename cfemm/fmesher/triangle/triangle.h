@@ -251,6 +251,10 @@
 #ifndef __TRIANGLE_H__
 #define __TRIANGLE_H__
 
+#ifndef XFEMM_BUILTIN_TRIANGLE
+#define XFEMM_BUILTIN_TRIANGLE
+#endif
+
 #ifdef TRILIBRARY
 int trilibrary_exit_code = 0;
 #endif

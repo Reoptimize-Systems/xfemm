@@ -68,7 +68,7 @@ CNode::~CNode()
 {
 }
 
-CComplex femm::CNode::CC()
+CComplex femm::CNode::CC() const
 {
     return CComplex(x,y);
 }
@@ -81,6 +81,11 @@ double femm::CNode::GetDistance(double xo, double yo)
 void femm::CNode::ToggleSelect()
 {
     IsSelected = ! IsSelected;
+}
+
+std::unique_ptr<CNode> CNode::clone() const
+{
+    return std::unique_ptr<CNode>(new CNode(*this));
 }
 
 bool CNode::hasBoundaryMarker() const

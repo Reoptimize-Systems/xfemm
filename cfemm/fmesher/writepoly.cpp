@@ -27,12 +27,6 @@
 
 // implementation of various incarnations of calls
 // to triangle from the FMesher class
-
-#include <cstdio>
-#include <cmath>
-#include <vector>
-#include <string>
-#include <malloc.h>
 #include "fmesher.h"
 #include "fparse.h"
 #include "IntPoint.h"
@@ -40,8 +34,21 @@
 #include "CCommonPoint.h"
 //extern "C" {
 #include "triangle.h"
+#ifndef XFEMM_BUILTIN_TRIANGLE
+#include "triangle_api.h"
+#endif
 //}
 
+
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <fstream>
+#include <iomanip>
+#include <malloc.h>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 #ifndef REAL
 #define REAL double
@@ -62,6 +69,355 @@ using namespace std;
 using namespace femm;
 using namespace fmesher;
 
+namespace {
+
+enum class PointMarkerInfo {
+    None ///< Use zero / Don't store information in marker list
+    , FromProblem ///< Generate marker info using the problem descripton
+};
+enum class SegmentMarkerInfo {
+    FromCnt ///< Generate marker infor from cnt field of segments.
+    , FromProblem ///< Generate marker info using the problem descripton
+};
+
+/**
+ * @brief The TriangulateHelper class encapsulates the interface to triangle,
+ * so that the rest of the code doesn't have to deal with changes in its api.
+ *
+ * All memory that is allocated by its member functions is freed in the destructor.
+ * Don't call initialization functions more than once.
+ */
+class TriangulateHelper {
+    using nodelist_t = std::vector<std::unique_ptr<CNode> >;
+    using linelist_t = std::vector<std::unique_ptr<CSegment> >;
+public:
+    TriangulateHelper();
+    ~TriangulateHelper();
+
+    /**
+     * @brief Build a point list and point marker list as input for triangle.
+     * The point marker list is later used to make the connection of meshed nodes back to original nodes.
+     * @param nodelst
+     * @param problem
+     * @return \c true on success, \c false on (allocation) error
+     */
+    bool initPointsWithMarkers(const nodelist_t &nodelst, const FemmProblem &problem, PointMarkerInfo info);
+    /**
+     * @brief Build a segment list and segment marker list as input for triangle.
+     * The segment marker list is later used to make the connection of meshed arcs/lines back to original arcs/lines.
+     * @param linelst
+     * @param problem
+     * @return \c true on success, \c false on (allocation) error
+     */
+    bool initSegmentsWithMarkers(const linelist_t &linelst, const FemmProblem &problem, SegmentMarkerInfo info);
+
+    /**
+     * @brief Build a list of holes and regions as input for triangle.
+     * This translates the CBlockLabel info for triangle.
+     * @param problem
+     * @param forceMaxMeshArea if \c true, this enforces an upper bound (defaultMeshSize) for the size of regional attributes
+     * @param defaultMeshSize size of regional attributes that are not valid (i.e. <=0 or over the upper bound (if enforced))
+     * @return \c true on success, \c false on (allocation) error
+     */
+    bool initHolesAndRegions(const FemmProblem &problem, bool forceMaxMeshArea, double defaultMeshSize);
+
+    /**
+     * @brief triangulate
+     * The values of minAngle and suppressExteriourSteinerPoints are applied.
+     * @param verbose Verbosity of triangle
+     * @return
+     */
+    int triangulate(bool verbose);
+
+    /**
+     * @brief Create a parameter list for consumption of triangle
+     * @param verbose Verbosity of triangle
+     * @return
+     */
+    std::string triangulateParams(bool verbose=false) const;
+
+    /**
+     * @brief Write an input file for triangle.
+     * Normally, the \c.poly file is not used because triangle is called directly as a library.
+     * This function is intended as a debugging aid.
+     * @param filename the complete file name ending in ".poly"
+     * @return \c true, if writing succeeded, \c false otherwise.
+     */
+    bool writePolyFile(std::string filename, std::string comment) const;
+    bool writeTriangulationFiles(std::string Pathname) const;
+
+    // pointer to function to call when issuing warning messages
+    void (*WarnMessage)(const char*);
+
+    // pointer to function to use for triangle to issue warning messages
+    int (*TriMessage)(const char * format, ...);
+
+    void setMinAngle(double value);
+    /**
+     * @brief Suppress insertion of Steiner points on the mesh boundary.
+     */
+    void suppressExteriorSteinerPoints();
+    /**
+     * @brief Purge vertices that are not part of the final triangulation from the triangulation output.
+     * Should be safe to add all the time, but I didn't test with periodic bc triangulation.
+     * Therefore only used with nonperiodic triangulation.
+     */
+    void suppressUnusedVertices();
+
+private:
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    struct triangulateio in;
+    struct triangulateio out;
+#else
+    triangleio in;
+    context *ctx;
+#endif
+    double m_minAngle;
+    bool m_suppressExteriorSteinerPoints; ///< Default: false
+    bool m_suppressUnusedVertices; ///< Default: false
+};
+
+/**
+ * @brief Initialize a triangulateio to all zero.
+ * @param io
+ */
+#ifdef XFEMM_BUILTIN_TRIANGLE
+void initialize(struct triangulateio &io)
+#else
+void initialize(triangleio &io)
+#endif
+{
+    io.pointlist = nullptr;
+    io.pointattributelist = nullptr;
+    io.pointmarkerlist = nullptr;
+    io.numberofpoints = 0;
+    io.numberofpointattributes = 0;
+
+    io.trianglelist = nullptr;
+    io.triangleattributelist = nullptr;
+    io.trianglearealist = nullptr;
+    io.neighborlist = nullptr;
+    io.numberoftriangles = 0;
+    io.numberofcorners = 0;
+    io.numberoftriangleattributes = 0;
+
+    io.segmentlist = nullptr;
+    io.segmentmarkerlist = nullptr;
+    io.numberofsegments = 0;
+
+    io.holelist = nullptr;
+    io.numberofholes = 0;
+
+    io.regionlist = nullptr;
+    io.numberofregions = 0;
+
+    io.edgelist = nullptr;
+    io.edgemarkerlist = nullptr;
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    io.normlist = nullptr; // only used by voronoi diagram
+#endif
+    io.numberofedges = 0;
+}
+
+}
+
+double FMesher::averageLineLength() const
+{
+    double z=0;
+    const double numLines = problem->linelist.size();
+    for (const auto &line : problem->linelist)
+    {
+        z += problem->lengthOfLine(*line) / numLines;
+    }
+    return z;
+}
+
+double fmesher::defaultMeshSizeHeuristics(const std::vector<std::unique_ptr<CNode> > &nodelst, bool doSmartMesh)
+{
+    if (nodelst.empty())
+        return -1;
+
+    // compute minimum and maximum x/y values
+    CComplex min=nodelst[0]->CC();
+    CComplex max=min;
+    for(const auto &node: nodelst)
+    {
+        if (node->x < min.re) min.re = node->x;
+        if (node->y < min.im) min.im = node->y;
+        if (node->x > max.re) max.re = node->x;
+        if (node->y > max.im) max.im = node->y;
+    }
+
+    if (doSmartMesh)
+    {
+        double absdist = abs(max-min)/BoundingBoxFraction;
+        return absdist * absdist;
+    } else {
+        return abs(max-min);
+    }
+}
+
+void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, bool doSmartMesh, double dL, SegmentFilter filter)
+{
+    for(int i=0; i<(int)problem.linelist.size(); i++)
+    {
+        const CSegment &line = *problem.linelist[i];
+
+        if (filter == SegmentFilter::OnlyUnselected && line.IsSelected )
+            continue;
+
+        const CNode &n0 = *problem.nodelist[line.n0];
+        const CNode &n1 = *problem.nodelist[line.n1];
+        const CComplex a0 = n0.CC();
+        const CComplex a1 = n1.CC();
+        // create working copy:
+        CSegment segm = line;
+        // use the cnt flag to carry a notation
+        // of which line or arc in the input geometry a
+        // particular segment is associated with
+        // (this info is only used in the periodic BC triangulation, and is ignored in the nonperiodic one)
+        segm.cnt = i;
+
+        double lineLength = problem.lengthOfLine(line);
+
+        int numParts;
+        if (line.MaxSideLength == -1) {
+            numParts = 1;
+        }
+        else{
+            numParts = (unsigned int) std::ceil(lineLength/line.MaxSideLength);
+        }
+
+        if (numParts == 1) // default condition where discretization on line is not specified
+        {
+            if (lineLength < (3. * dL) || doSmartMesh == false)
+            {
+                // line is too short to add extra points
+                linelst.push_back(segm.clone());
+            }
+            else{
+                // add extra points at a distance of dL from the ends of the line.
+                // this forces Triangle to finely mesh near corners
+                int l = (int) nodelst.size();
+
+                // first part
+                CComplex a2 = a0 + dL * (a1-a0) / abs(a1-a0);
+                CNode node1 (a2.re, a2.im);
+                nodelst.push_back(node1.clone());
+                segm.n0 = line.n0;
+                segm.n1 = l;
+                linelst.push_back(segm.clone());
+
+                // middle part
+                a2 = a1 + dL * (a0-a1) / abs(a1-a0);
+                CNode node2 (a2.re, a2.im);
+                nodelst.push_back(node2.clone());
+                segm.n0 = l - 1;
+                segm.n1 = l;
+                linelst.push_back(segm.clone());
+
+                // end part
+                segm.n0 = l - 1;
+                segm.n1 = line.n1;
+                linelst.push_back(segm.clone());
+            }
+        }
+        else{
+            for(int j=0; j<numParts; j++)
+            {
+                CComplex a2 = a0 + (a1-a0)*((double) (j+1)) / ((double) numParts);
+                CNode node (a2.re, a2.im);
+                if(j == 0){
+                    // first part -> n0 == line.n0
+                    int l=nodelst.size();
+                    nodelst.push_back(node.clone());
+                    segm.n0=line.n0;
+                    segm.n1=l;
+                    linelst.push_back(segm.clone());
+                }
+                else if(j == (numParts-1))
+                {
+                    // last part -> n1 == line.n1 ; endpoint already exists
+                    int l=nodelst.size()-1;
+                    segm.n0=l;
+                    segm.n1=line.n1;
+                    linelst.push_back(segm.clone());
+                }
+                else{
+                    int l=nodelst.size();
+                    nodelst.push_back(node.clone());
+                    segm.n0=l-1;
+                    segm.n1=l;
+                    linelst.push_back(segm.clone());
+                }
+            }
+        }
+    }
+}
+
+void fmesher::discretizeInputArcSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, SegmentFilter filter)
+{
+    for(int i=0;i<(int)problem.arclist.size();i++)
+    {
+        const CArcSegment &arc = *problem.arclist[i];
+
+        if (filter == SegmentFilter::OnlyUnselected && arc.IsSelected )
+            continue;
+
+        // smart meshing does not apply to arc segments
+        assert(arc.MaxSideLength != -1);
+
+        // create working copy:
+        CSegment segm = arc;
+        // use the cnt flag to carry a notation
+        // of which line or arc in the input geometry a
+        // particular segment is associated with
+        // (this info is only used in the periodic BC triangulation, and is ignored in the nonperiodic one)
+        segm.cnt=i+problem.linelist.size();
+
+        segm.BoundaryMarkerName=arc.BoundaryMarkerName;
+        if (problem.filetype != FileType::MagneticsFile)
+            segm.InConductorName=arc.InConductorName; // not relevant/compatible to magnetics problems
+
+        int numParts=(int) ceil(arc.ArcLength/arc.MaxSideLength);
+
+        CComplex center;
+        double R=0;
+        problem.getCircle(arc,center,R);
+
+        CComplex a1=exp(I*arc.ArcLength*PI/(((double) numParts)*180.));
+        CComplex a2=problem.nodelist[arc.n0]->CC();
+
+        if(numParts==1){
+            linelst.push_back(segm.clone());
+        }
+        else for(int j=0;j<numParts;j++)
+        {
+            // move point along arc
+            a2=(a2-center)*a1+center;
+            CNode node(a2.re,a2.im);
+            int l = (int)nodelst.size();
+            if(j==0){
+                // first part -> n0 == arc.n0
+                nodelst.push_back(node.clone());
+                segm.n0=arc.n0;
+                segm.n1=l;
+            }
+            else if(j==(numParts-1))
+            {
+                // last part -> n1 == arc.n1 ; endpoint already exists
+                segm.n0=l-1;
+                segm.n1=arc.n1;
+            }
+            else{
+                nodelst.push_back(node.clone());
+                segm.n0=l-1;
+                segm.n1=l;
+            }
+            linelst.push_back(segm.clone());
+        }
+    }
+}
 
 /**
  * @brief FMesher::HasPeriodicBC
@@ -138,56 +494,113 @@ bool FMesher::HasPeriodicBC()
 }
 
 
-bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string PathName)
+bool TriangulateHelper::writeTriangulationFiles(string PathName) const
 {
     FILE *fp;
-    int i, j, nexttriattrib;
     std::string msg;
+    std::string plyname;
+
+#ifndef XFEMM_BUILTIN_TRIANGLE
+    if (triangle_check_mesh(ctx)!=0)
+    {
+        WarnMessage("Mesh has topological inconsistencies!\n");
+        return false;
+    }
+#endif
+
+    // write the .node file
+    plyname = PathName.substr(0, PathName.find_last_of('.')) + ".node";
+
+    // check to see if we are ready to write a .node datafile containing
+    // the nodes
+
+    if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
+        WarnMessage("Couldn't write to specified .node file");
+        return false;
+    }
+
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    if (out.numberofpoints > 0)
+    {
+        // <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>
+        fprintf(fp, "%i\t%i\t%i\t%i\n", out.numberofpoints, 2, 0, 1);
+        //fprintf(fp, "%i\t%i\t%i\n", out.numberofpoints, 2, out.numberofpoints, 1);
+
+        // <vertex #> <x> <y> [attributes] [boundary marker]
+        for(int i = 0; i < (2 * out.numberofpoints) - 1; i = i + 2)
+        {
+            fprintf(fp, "%i\t%.17g\t%.17g\t%i\n", i/2, out.pointlist[i], out.pointlist[i+1], out.pointmarkerlist[i/2]);
+        }
+
+        fclose(fp);
+    }
+#else
+    int status = triangle_write_nodes(ctx, fp);
+    fclose(fp);
+    if (status != TRI_OK)
+    {
+        msg = "Failed to write to specified .node file\n";
+        WarnMessage(msg.c_str());
+        return false;
+    }
+#endif
 
     // write the .edge file
-    string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".edge";
+    plyname = PathName.substr(0, PathName.find_last_of('.')) + ".edge";
+
+    // check to see if we are ready to write an edge datafile;
+
+    if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
+        msg = "Couldn't write to specified .edge file\n";
+        WarnMessage(msg.c_str());
+        return false;
+    }
+#ifdef XFEMM_BUILTIN_TRIANGLE
 
     if (out.numberofedges > 0)
     {
-        // check to see if we are ready to write an edge datafile;
-
-        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            msg = "Couldn't write to specified .edge file\n";
-            WarnMessage(msg.c_str());
-            return false;
-        }
-
         // write number of edges, number of boundary markers, 0 or 1
         fprintf(fp, "%i\t%i\n", out.numberofedges, 1);
 
         // write the edges in the format
         // <edge #> <endpoint> <endpoint> [boundary marker]
         // Endpoints are indices into the corresponding .edge file.
-        for(i=0; i < 2 * (out.numberofedges) - 1; i = i + 2)
+        for(int i=0; i < 2 * (out.numberofedges) - 1; i = i + 2)
         {
             fprintf(fp, "%i\t%i\t%i\t%i\n", i/2, out.edgelist[i], out.edgelist[i+1], out.edgemarkerlist[i/2]);
         }
 
         fclose(fp);
-
     } else {
         WarnMessage("No edges to write!\n");
     }
+#else
+    // Note: triangle_write_edges also numbers the edges, which is required for writing the .ele file
+    status = triangle_write_edges(ctx, fp);
+    fclose(fp);
+    if (status != TRI_OK)
+    {
+        msg = "Failed to write to specified .edge file\n";
+        WarnMessage(msg.c_str());
+        return false;
+    }
+#endif
 
     // write the .ele file
     plyname = PathName.substr(0, PathName.find_last_of('.')) + ".ele";
 
+
+    // check to see if we are ready to write a .ele datafile containing
+    // thr triangle elements
+
+    if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
+        WarnMessage("Couldn't write to specified .ele file");
+        return false;
+    }
+
+#ifdef XFEMM_BUILTIN_TRIANGLE
     if (out.numberoftriangles > 0)
     {
-
-        // check to see if we are ready to write a .ele datafile containing
-        // thr triangle elements
-
-        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            WarnMessage("Couldn't write to specified .ele file");
-            return false;
-        }
-
         // write number of triangle elements, number of corners per triangle and
         // the number of attributes per triangle
         fprintf(fp, "%i\t%i\t%i\n", out.numberoftriangles, out.numberofcorners, out.numberoftriangleattributes);
@@ -195,13 +608,13 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
         // write the triangle info to the file with the format
         // <triangle #> <node> <node> <node> ... [attributes]
         // Endpoints are indices into the corresponding .node file.
-        for(i=0, nexttriattrib=0; i < (out.numberofcorners) * (out.numberoftriangles) - (out.numberofcorners - 1); i = i + (out.numberofcorners))
+        for(int i=0, nexttriattrib=0; i < (out.numberofcorners) * (out.numberoftriangles) - (out.numberofcorners - 1); i = i + (out.numberofcorners))
         {
             // print the triangle number
             fprintf(fp, "%i\t", i / (out.numberofcorners));
 
             // print the corner nodes
-            for (j = 0; j < (out.numberofcorners); j++)
+            for (int j = 0; j < (out.numberofcorners); j++)
             {
                 fprintf(fp, "%i\t", out.trianglelist[i+j]);
             }
@@ -209,7 +622,7 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
             // print the triangle attributes, if there are any
             if (out.numberoftriangleattributes > 0)
             {
-                for(j = 0; j < (out.numberoftriangleattributes); j++)
+                for(int j = 0; j < (out.numberoftriangleattributes); j++)
                 {
                     fprintf(fp, "%.17g\t", out.triangleattributelist[nexttriattrib+j]);
                 }
@@ -225,37 +638,17 @@ bool FMesher::WriteTriangulationFiles(const struct triangulateio &out, string Pa
         fclose(fp);
 
     }
-
-    // write the .node file
-    plyname = PathName.substr(0, PathName.find_last_of('.')) + ".node";
-
-    if (out.numberofpoints > 0)
+#else
+    status = triangle_write_elements(ctx, fp);
+    fclose(fp);
+    if (status != TRI_OK)
     {
-
-        // check to see if we are ready to write a .node datafile containing
-        // the nodes
-
-        if ((fp = fopen(plyname.c_str(),"wt"))==NULL){
-            WarnMessage("Couldn't write to specified .node file");
-            return false;
-        }
-
-        // <# of vertices> <dimension (must be 2)> <# of attributes> <# of boundary markers (0 or 1)>
-        fprintf(fp, "%i\t%i\t%i\t%i\n", out.numberofpoints, 2, 0, 1);
-        //fprintf(fp, "%i\t%i\t%i\n", out.numberofpoints, 2, out.numberofpoints, 1);
-
-        // <vertex #> <x> <y> [attributes] [boundary marker]
-        for(i = 0; i < (2 * out.numberofpoints) - 1; i = i + 2)
-        {
-            fprintf(fp, "%i\t%.17g\t%.17g\t%i\n", i/2, out.pointlist[i], out.pointlist[i+1], out.pointmarkerlist[i/2]);
-        }
-
-        fclose(fp);
-
+        msg = "Failed to write to specified .ele file\n";
+        WarnMessage(msg.c_str());
+        return false;
     }
-
+#endif
     return true;
-
 }
 
 /**
@@ -277,213 +670,33 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     //     return true;
 
     FILE *fp;
-    unsigned int i,j,k;
-    int l,t,NRegionalAttribs,Nholes,tristatus;
-    double z,R,dL;
-    CComplex a0,a1,a2,c;
+    double dL;
     //CStdString s;
     string plyname;
     std::vector < std::unique_ptr<CNode> >       nodelst;
     std::vector < std::unique_ptr<CSegment> >    linelst;
-    std::vector < std::unique_ptr<CArcSegment> > arclst;
-    std::vector < std::unique_ptr<CBlockLabel> > blocklst;
-    CNode node;
-    CSegment segm;
-    // structures to hold the iinput and output of triangulaye call
-    char CommandLine[512];
-    struct triangulateio in, out;
 
     nodelst.clear();
     linelst.clear();
     // calculate length used to kludge fine meshing near input node points
-    for (i=0,z=0;i < problem->linelist.size();i++)
-    {
-        const CNode &n0 = *problem->nodelist[problem->linelist[i]->n0];
-        const CNode &n1 = *problem->nodelist[problem->linelist[i]->n1];
-        a0.Set(n0.x,n0.y);
-        a1.Set(n1.x,n1.y);
-        z += (abs(a1-a0)/((double) problem->linelist.size()));
-    }
-    dL=z/LineFraction;
+    dL = averageLineLength() / LineFraction;
 
     // copy node list as it is;
-    for(i=0;i<problem->nodelist.size();i++) nodelst.push_back(std::make_unique<CNode>(*problem->nodelist[i]));
+    for (const auto &node : problem->nodelist)
+        nodelst.push_back(node->clone());
 
     // discretize input segments
-    for(i=0;i<problem->linelist.size();i++)
-    {
-        const CSegment &line = *problem->linelist[i];
-        const CNode &n0 = *problem->nodelist[line.n0];
-        const CNode &n1 = *problem->nodelist[line.n1];
-        a0.Set(n0.x,n0.y);
-        a1.Set(n1.x,n1.y);
-        if (line.MaxSideLength==-1) k=1;
-        else{
-            z=abs(a1-a0);
-            k=(int) std::ceil(z/line.MaxSideLength);
-        }
-
-        if (k==1) // default condition where discretization on line is not specified
-        {
-            if (abs(a1-a0) < (3.*dL) || DoSmartMesh == false)
-            {
-                linelst.push_back(std::make_unique<CSegment>(line)); // line is too short to add extra points
-            }
-            else
-            {
-                // add extra points at a distance of dL from the ends of the line.
-                // this forces Triangle to finely mesh near corners
-                segm=line;
-                for(j=0;j<3;j++)
-                {
-                    if(j==0)
-                    {
-                        a2=a0+dL*(a1-a0)/abs(a1-a0);
-                        node.x=a2.re; node.y=a2.im;
-                        l=(int) nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node));
-                        segm.n0=line.n0;
-                        segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-
-                    if(j==1)
-                    {
-                        a2=a1+dL*(a0-a1)/abs(a1-a0);
-                        node.x=a2.re; node.y=a2.im;
-                        l=(int) nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node));
-                        segm.n0=l-1;
-                        segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-
-                    if(j==2)
-                    {
-                        l=(int) nodelst.size()-1;
-                        segm.n0=l;
-                        segm.n1=line.n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-                }
-            }
-        }
-        else{
-            segm=line;
-            for(j=0;j<k;j++)
-            {
-                a2=a0+(a1-a0)*((double) (j+1))/((double) k);
-                node.x=a2.re; node.y=a2.im;
-                if(j==0){
-                    l=nodelst.size();
-                    nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=line.n0;
-                    segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-                else if(j==(k-1))
-                {
-                    l=nodelst.size()-1;
-                    segm.n0=l;
-                    segm.n1=line.n1;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-                else{
-                    l=nodelst.size();
-                    nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=l-1;
-                    segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-            }
-        }
-    }
+    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL);
 
     // discretize input arc segments
-    for(i=0;i<problem->arclist.size();i++)
-    {
-        const CArcSegment &arc = *problem->arclist[i];
-        a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-        k = (unsigned int) std::ceil(arc.ArcLength/arc.MaxSideLength);
-        segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-        if (problem->filetype != FileType::MagneticsFile)
-            segm.InConductorName=arc.InConductorName; // not relevant for magnetics problems
-        problem->getCircle(arc,c,R);
-        a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
-
-        if(k==1){
-            segm.n0=arc.n0;
-            segm.n1=arc.n1;
-            linelst.push_back(std::make_unique<CSegment>(segm));
-        }
-        else for(j=0;j<k;j++)
-        {
-            a2=(a2-c)*a1+c;
-            node.x=a2.re; node.y=a2.im;
-            if(j==0){
-                l=nodelst.size();
-                nodelst.push_back(std::make_unique<CNode>(node));
-                segm.n0=arc.n0;
-                segm.n1=l;
-                linelst.push_back(std::make_unique<CSegment>(segm));
-            }
-            else if(j==(k-1))
-            {
-                l=nodelst.size()-1;
-                segm.n0=l;
-                segm.n1=arc.n1;
-                linelst.push_back(std::make_unique<CSegment>(segm));
-            }
-            else{
-                l=nodelst.size();
-                nodelst.push_back(std::make_unique<CNode>(node));
-                segm.n0=l-1;
-                segm.n1=l;
-                linelst.push_back(std::make_unique<CSegment>(segm));
-            }
-        }
-    }
-
+    discretizeInputArcSegments(*problem, nodelst, linelst);
 
     // create correct output filename;
     string pn = PathName;
 
-    // compute and store the number of holes
-    for(i=0,j=0;i<problem->labellist.size();i++)
-    {
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            j++;
-        }
-    }
-    Nholes = j;
-
-    NRegionalAttribs = problem->labellist.size() - j;
-
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
-    CComplex xx,yy;
-    double absdist;
-    double DefaultMeshSize;
-    if (nodelst.size()>1)
-    {
-        xx=nodelst[0]->CC(); yy=xx;
-        for(k=0;k<nodelst.size();k++)
-        {
-            if (nodelst[k]->x<Re(xx)) xx.re=nodelst[k]->x;
-            if (nodelst[k]->y<Im(xx)) xx.im=nodelst[k]->y;
-            if (nodelst[k]->x>Re(yy)) yy.re=nodelst[k]->x;
-            if (nodelst[k]->y>Im(yy)) yy.im=nodelst[k]->y;
-        }
-        absdist = (double)(abs(yy-xx)/BoundingBoxFraction);
-        DefaultMeshSize = std::pow(absdist,2);
-
-        if (DoSmartMesh == false)
-        {
-            DefaultMeshSize = abs(yy-xx);
-        }
-    }
-    else DefaultMeshSize=-1;
+    double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
 
 //    for(i=0,k=0;i<blocklist.size();i++)
 //        if(blocklist[i]->BlockTypeName=="<No Mesh>")
@@ -518,265 +731,29 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     // **********         call triangle       ***********
 
-    in.numberofpoints = nodelst.size();
-
-    in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
-    if (in.pointlist == NULL) {
-        WarnMessage("Point list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i=0; i < (unsigned int)(2 * in.numberofpoints - 1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2]->x;
-        in.pointlist[i+1] = nodelst[i/2]->y;
-    }
-
-    in.numberofpointattributes = 0;
-
-    in.pointattributelist = (REAL *) NULL;
-
-    // Initialise the pointmarkerlist
-    in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
-    if (in.pointmarkerlist == NULL) {
-        WarnMessage("Point marker list for triangulation is null!\n");
-        return false;
-    }
-
-    t = 0;
-    // write out node marker list
-    for(i=0;i<nodelst.size();i++)
-    {
-        for(j=0,t=0;j<problem->nodeproplist.size ();j++)
-                if(problem->nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName) t = j + 2;
-
-        if (problem->filetype != femm::FileType::MagneticsFile)
+        TriangulateHelper triHelper;
+        triHelper.WarnMessage = WarnMessage;
+        triHelper.TriMessage = this->TriMessage;
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::FromProblem))
+            return -1;
+        if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromProblem))
+            return -1;
+        if (!triHelper.initHolesAndRegions(*problem, problem->DoForceMaxMeshArea, DefaultMeshSize))
+            return -1;
+        triHelper.setMinAngle(problem->MinAngle);
+        triHelper.suppressUnusedVertices();
+        if (writePolyFiles)
         {
-            // include conductor number;
-            for(j = 0; j < problem->circproplist.size (); j++)
-            {
-                // add the conductor number using a mask
-                if(problem->circproplist[j]->CircName == nodelst[i]->InConductorName) t += ((j+1) * 0x10000);
-            }
+            string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".poly";
+            triHelper.writePolyFile(plyname, triHelper.triangulateParams());
         }
+        int tristatus = triHelper.triangulate(Verbose);
+        if (tristatus != 0)
+            return tristatus;
 
-        in.pointmarkerlist[i] = t;
+        triHelper.writeTriangulationFiles(PathName);
     }
-
-    in.numberofsegments = linelst.size();
-
-    // Initialise the segmentlist
-    in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
-    if (in.segmentlist == NULL) {
-        WarnMessage("Segment list for triangulation is null!\n");
-        return -1;
-    }
-    // Initialise the segmentmarkerlist
-    in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
-    if (in.segmentmarkerlist == NULL) {
-        WarnMessage("Segment marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    // build the segmentlist
-    for(i=0; i < (unsigned int)(2*in.numberofsegments - 1); i = i + 2)
-    {
-            in.segmentlist[i] = linelst[i/2]->n0;
-
-            in.segmentlist[i+1] = linelst[i/2]->n1;
-    }
-
-    // now build the segment marker list
-    t = 0;
-
-    // construct the segment list
-    for(i=0;i<linelst.size();i++)
-    {
-        for(j=0,t=0; j < problem->lineproplist.size (); j++)
-        {
-                if (problem->lineproplist[j]->BdryName == linelst[i]->BoundaryMarkerName)
-                {
-                    t = -(j+2);
-                }
-        }
-
-        if (problem->filetype != femm::FileType::MagneticsFile)
-        {
-            // include conductor number;
-            for (j=0; j < problem->circproplist.size (); j++)
-            {
-                if (problem->circproplist[j]->CircName == linelst[i]->InConductorName)
-                {
-                    t -= ((j+1) * 0x10000);
-                }
-            }
-        }
-
-        in.segmentmarkerlist[i] = t;
-    }
-
-    in.numberofholes = Nholes;
-    in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
-    if (in.holelist == NULL) {
-        WarnMessage("Hole list for triangulation is null!\n");
-        return -1;
-    }
-
-    // Construct the holes array
-    for(i=0, k=0; i < problem->labellist.size(); i++)
-    {
-        // we search through the block list looking for blocks that have
-        // the tag <no mesh>
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            in.holelist[k] = problem->labellist[i]->x;
-            in.holelist[k+1] = problem->labellist[i]->y;
-            k = k + 2;
-        }
-    }
-
-    in.numberofregions = NRegionalAttribs;
-    in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
-    if (in.regionlist == NULL) {
-        WarnMessage("Region list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i = 0, j = 0, k = 0; i < problem->labellist.size(); i++)
-    {
-        if(problem->labellist[i]->hasBlockType())
-        {
-            in.regionlist[j] = problem->labellist[i]->x;
-            in.regionlist[j+1] = problem->labellist[i]->y;
-            in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
-
-//            if (blocklist[i]->MaxArea>0 && (blocklist[i]->MaxArea<DefaultMeshSize))
-//            {
-//                in.regionlist[j+3] = blocklist[i]->MaxArea;  // Area constraint
-//            }
-//            else
-//            {
-//                in.regionlist[j+3] = DefaultMeshSize;
-//            }
-
-            // Area constraint
-            if (problem->labellist[i]->MaxArea <= 0)
-            {
-                // if no mesh size has been specified use the default
-                in.regionlist[j+3] = DefaultMeshSize;
-            }
-            else if ((problem->labellist[i]->MaxArea > DefaultMeshSize) && (problem->DoForceMaxMeshArea))
-            {
-                // if the user has specied that FEMM should choose an
-                // upper mesh size limit, regardles of their choice,
-                // and their choice is less than that limit, change it
-                // to that limit
-                in.regionlist[j+3] = DefaultMeshSize;
-            }
-            else
-            {
-                // Use the user's choice of mesh size
-                in.regionlist[j+3] = problem->labellist[i]->MaxArea;
-            }
-
-            j = j + 4;
-            k++;
-        }
-    }
-
-    // Finally, we have no triangle area constraints so initialize to null
-    in.trianglearealist = (REAL *) NULL;
-
-    /* Make necessary initializations so that Triangle can return a */
-    /*   triangulation in `out'  */
-
-    out.pointlist = (REAL *) NULL;            /* Not needed if -N switch used. */
-    /* Not needed if -N switch used or number of point attributes is zero: */
-    out.pointattributelist = (REAL *) NULL;
-    out.pointmarkerlist = (int *) NULL; /* Not needed if -N or -B switch used. */
-    out.trianglelist = (int *) NULL;          /* Not needed if -E switch used. */
-    /* Not needed if -E switch used or number of triangle attributes is zero: */
-    out.triangleattributelist = (REAL *) NULL;
-    /* No triangle area constraints */
-    out.trianglearealist = (REAL *) NULL;
-    out.neighborlist = (int *) NULL;         /* Needed only if -n switch used. */
-    /* Needed only if segments are output (-p or -c) and -P not used: */
-    out.segmentlist = (int *) NULL;
-    /* Needed only if segments are output (-p or -c) and -P and -B not used: */
-    out.segmentmarkerlist = (int *) NULL;
-    out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
-    out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
-
-    string rootname = pn.substr(0,pn.find_last_of('.'));
-
-    // The -j switch prevents
-    //  duplicated input vertices, or vertices `eaten' by holes, from
-    //  appearing in the output .node file.  Thus, if two input vertices
-    //  have exactly the same coordinates, only the first appears in the
-    //  output.
-    if (Verbose)
-    {
-        sprintf(CommandLine, "-jpPq%feAazI", problem->MinAngle);
-    }
-    else
-    {
-        sprintf(CommandLine, "-jpPq%feAazQI", problem->MinAngle);
-    }
-
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
-
-    // copy the exit status status of the triangle library from the global variable, eueghh.
-    //trilibrary_exit_code;
-    if (tristatus != 0)
-    {
-        // free allocated memory
-        if (in.pointlist != NULL) { free(in.pointlist); }
-        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-        if (in.regionlist != NULL) { free(in.regionlist); }
-        if (in.segmentlist != NULL) { free(in.segmentlist); }
-        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-        if (in.holelist != NULL) { free(in.holelist); }
-
-        if (out.pointlist != NULL) { free(out.pointlist); }
-        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-        if (out.trianglelist != NULL) { free(out.trianglelist); }
-        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-        if (out.neighborlist != NULL) { free(out.neighborlist); }
-        if (out.segmentlist != NULL) { free(out.segmentlist); }
-        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-        if (out.edgelist != NULL) { free(out.edgelist); }
-        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
-
-        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
-        WarnMessage(msg.c_str());
-        return tristatus;
-    }
-
-    WriteTriangulationFiles(out, PathName);
-
-    // free allocated memory
-    if (in.pointlist != NULL) { free(in.pointlist); }
-    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-    if (in.regionlist != NULL) { free(in.regionlist); }
-    if (in.segmentlist != NULL) { free(in.segmentlist); }
-    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-    if (in.holelist != NULL) { free(in.holelist); }
-
-    if (out.pointlist != NULL) { free(out.pointlist); }
-    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-    if (out.trianglelist != NULL) { free(out.trianglelist); }
-    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-    if (out.neighborlist != NULL) { free(out.neighborlist); }
-    if (out.segmentlist != NULL) { free(out.segmentlist); }
-    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-    if (out.edgelist != NULL) { free(out.edgelist); }
-    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
     return 0;
 }
@@ -799,25 +776,20 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     //     return true;
     FILE *fp;
     int i, j, k, n;
-    int l,t,n0,n1,n2,NRegionalAttribs,Nholes,tristatus;
-    double z,R,dL;
-    CComplex a0,a1,a2,c;
+    int l,t,n0,n1,n2;
+    double z,dL;
+    CComplex a0,a1,a2;
     CComplex b0,b1,b2;
     char instring[1024];
     //string s;
     string plyname;
     std::vector < std::unique_ptr<CNode> >             nodelst;
     std::vector < std::unique_ptr<CSegment> >          linelst;
-    std::vector < std::unique_ptr<CArcSegment> >       arclst;
-    std::vector < std::unique_ptr<CBlockLabel> >       blocklst;
     std::vector < std::unique_ptr<CPeriodicBoundary> > pbclst;
     std::vector < std::unique_ptr<CCommonPoint> >      ptlst;
-    CNode node;
     CSegment segm;
     CPeriodicBoundary pbc;
     CCommonPoint pt;
-    char CommandLine[512];
-    struct triangulateio in, out;
 
     nodelst.clear();
     linelst.clear();
@@ -827,169 +799,17 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     problem->updateUndo();
 
     // calculate length used to kludge fine meshing near input node points
-    for (i=0, z=0; i<(int)problem->linelist.size(); i++)
-    {
-        const CSegment &line = *problem->linelist[i];
-        const CNode &n0 = *problem->nodelist[line.n0];
-        const CNode &n1 = *problem->nodelist[line.n1];
-        a0.Set(n0.x,n0.y);
-        a1.Set(n1.x,n1.y);
-        z += (abs(a1-a0) / ((double) problem->linelist.size()));
-    }
-    dL = z / LineFraction;
+    dL = averageLineLength() / LineFraction;
 
     // copy node list as it is;
-    for(i=0; i<(int)problem->nodelist.size(); i++)
-    {
-        nodelst.push_back(std::make_unique<CNode>(*problem->nodelist[i]));
-    }
+    for (const auto &node : problem->nodelist)
+        nodelst.push_back(node->clone());
 
     // discretize input segments
-    for(i=0; i<(int)problem->linelist.size(); i++)
-    {
-        const CSegment &line = *problem->linelist[i];
-        // use the cnt flag to carry a notation
-        // of which line or arc in the input geometry a
-        // particular segment is associated with
-        segm = line;
-        segm.cnt = i;
-        const CNode &n0 = *problem->nodelist[line.n0];
-        const CNode &n1 = *problem->nodelist[line.n1];
-        a0.Set(n0.x, n0.y);
-        a1.Set(n1.x, n1.y);
-
-        if (line.MaxSideLength == -1) {
-            k = 1;
-        }
-        else{
-            z = abs(a1-a0);
-            k = (unsigned int) std::ceil(z/line.MaxSideLength);
-        }
-
-        if (k == 1) // default condition where discretization on line is not specified
-        {
-            if (abs(a1-a0) < (3. * dL) || DoSmartMesh == false)
-            {
-                // line is too short to add extra points
-                linelst.push_back(std::make_unique<CSegment>(segm));
-            }
-            else{
-                // add extra points at a distance of dL from the ends of the line.
-                // this forces Triangle to finely mesh near corners
-                for(j=0; j<3; j++)
-                {
-                    if(j==0)
-                    {
-                        a2 = a0 + dL * (a1-a0) / abs(a1-a0);
-                        node.x = a2.re;
-                        node.y = a2.im;
-                        l = (int) nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node));
-                        segm.n0 = line.n0;
-                        segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-
-                    if(j == 1)
-                    {
-                        a2 = a1 + dL * (a0-a1) / abs(a1-a0);
-                        node.x = a2.re;
-                        node.y = a2.im;
-                        l = (int) nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node));
-                        segm.n0 = l - 1;
-                        segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-
-                    if(j == 2)
-                    {
-                        l = (int) nodelst.size() - 1;
-                        segm.n0 = l;
-                        segm.n1 = line.n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-
-                }
-            }
-        }
-        else{
-            for(j=0; j<k; j++)
-            {
-                a2 = a0 + (a1-a0)*((double) (j+1)) / ((double) k);
-                node.x = a2.re;
-                node.y = a2.im;
-                if(j == 0){
-                    l=nodelst.size();
-                    nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=line.n0;
-                    segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-                else if(j == (k-1))
-                {
-                    l=nodelst.size()-1;
-                    segm.n0=l;
-                    segm.n1=line.n1;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-                else{
-                    l=nodelst.size();
-                    nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=l-1;
-                    segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-            }
-        }
-    }
+    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL);
 
     // discretize input arc segments
-    for(i=0;i<(int)problem->arclist.size();i++)
-    {
-        const CArcSegment &arc = *problem->arclist[i];
-
-        segm.cnt=i+problem->linelist.size();
-        a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-        k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
-        segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-        if (problem->filetype != FileType::MagneticsFile)
-            segm.InConductorName=arc.InConductorName; // not relevant to magnetics problems
-        problem->getCircle(arc,c,R);
-        a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
-
-        if(k==1){
-            segm.n0=arc.n0;
-            segm.n1=arc.n1;
-            linelst.push_back(std::make_unique<CSegment>(segm));
-        }
-        else for(j=0;j<k;j++)
-        {
-            a2=(a2-c)*a1+c;
-            node.x=a2.re; node.y=a2.im;
-            if(j==0){
-                l=nodelst.size();
-                nodelst.push_back(std::make_unique<CNode>(node));
-                segm.n0=arc.n0;
-                segm.n1=l;
-                linelst.push_back(std::make_unique<CSegment>(segm));
-            }
-            else if(j==(k-1))
-            {
-                l=nodelst.size()-1;
-                segm.n0=l;
-                segm.n1=arc.n1;
-                linelst.push_back(std::make_unique<CSegment>(segm));
-            }
-            else{
-                l=nodelst.size();
-                nodelst.push_back(std::make_unique<CNode>(node));
-                segm.n0=l-1;
-                segm.n1=l;
-                linelst.push_back(std::make_unique<CSegment>(segm));
-            }
-        }
-    }
+    discretizeInputArcSegments(*problem, nodelst, linelst);
 
 
     // create correct output filename;
@@ -1020,44 +840,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i]->n0,linelst[i]->n1,t);
 //    }
 
-    // write out list of holes;
-    for(i=0,j=0;i<(int)problem->labellist.size();i++)
-    {
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            j++;
-        }
-    }
-
-//    fprintf(fp,"%i\n",j);
-
-    Nholes = j;
-    NRegionalAttribs = problem->labellist.size() - Nholes;
-
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
-    CComplex xx,yy;
-    double temp;
-    double DefaultMeshSize;
-    if (nodelst.size()>1)
-    {
-        xx=nodelst[0]->CC(); yy=xx;
-        for(k=0;k<(int)nodelst.size();k++)
-        {
-            if (nodelst[k]->x<Re(xx)) xx.re=nodelst[k]->x;
-            if (nodelst[k]->y<Im(xx)) xx.im=nodelst[k]->y;
-            if (nodelst[k]->x>Re(yy)) yy.re=nodelst[k]->x;
-            if (nodelst[k]->y>Im(yy)) yy.im=nodelst[k]->y;
-        }
-        temp = (double)(abs(yy-xx)/BoundingBoxFraction);
-        DefaultMeshSize=std::pow(temp,2);
-
-        if (DoSmartMesh == false)
-        {
-            DefaultMeshSize = abs(yy-xx);
-        }
-    }
-    else DefaultMeshSize=-1;
+    double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
 
 //    for(i=0,k=0;i<blocklist.size();i++)
 //        if(blocklist[i]->BlockTypeName=="<No Mesh>")
@@ -1085,232 +870,30 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // **********         call triangle       ***********
 
-    in.numberofpoints = nodelst.size();
-
-    in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
-    if (in.pointlist == NULL) {
-        WarnMessage("Point list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i=0; i < (2 * in.numberofpoints-1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2]->x;
-        in.pointlist[i+1] = nodelst[i/2]->y;
-    }
+        TriangulateHelper triHelper;
+        triHelper.WarnMessage = WarnMessage;
+        triHelper.TriMessage = this->TriMessage;
 
-    in.numberofpointattributes = 0;
-
-    in.pointattributelist = (REAL *) NULL;
-
-    // Initialise the pointmarkerlist
-    in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
-    if (in.pointmarkerlist == NULL) {
-        WarnMessage("Point marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    // write out node marker list
-    for(i=0; i < (int)nodelst.size(); i++)
-    {
-        in.pointmarkerlist[i] = 0;
-    }
-
-    in.numberofsegments = linelst.size();
-
-    // Initialise the segmentlist
-    in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
-    if (in.segmentlist == NULL) {
-        WarnMessage("Segment list for triangulation is null!\n");
-        return -1;
-    }
-    // Initialise the segmentmarkerlist
-    in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
-    if (in.segmentmarkerlist == NULL) {
-        WarnMessage("Segment marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    // build the segmentlist
-    for(i=0; i < (2*in.numberofsegments - 1); i = i + 2)
-    {
-            in.segmentlist[i] = linelst[i/2]->n0;
-
-            in.segmentlist[i+1] = linelst[i/2]->n1;
-
-            //PRINTF("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
-    }
-
-    // now build the segment marker list
-    t = 0;
-
-    // construct the segment marker list
-    for(i=0; i < (int)linelst.size(); i++)
-    {
-        t = -(linelst[i]->cnt+2);
-
-        in.segmentmarkerlist[i] = t;
-    }
-
-    in.numberofholes = Nholes;
-    if(Nholes > 0)
-    {
-        in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
-        if (in.holelist == NULL) {
-            WarnMessage("Hole list for triangulation is null!\n");
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::None))
             return -1;
-        }
+        if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromCnt))
+            return -1;
+        if (!triHelper.initHolesAndRegions(*problem, true, DefaultMeshSize))
+            return -1;
 
-        // Construct the holes array
-        for(i=0, k=0; i < (int)problem->labellist.size(); i++)
+        triHelper.setMinAngle(problem->MinAngle);
+        if (writePolyFiles)
         {
-            // we search through the block list looking for blocks that have
-            // the tag <no mesh>
-            if(!problem->labellist[i]->hasBlockType())
-            {
-                //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i]->x, blocklist[i]->y);
-                in.holelist[k] = problem->labellist[i]->x;
-                in.holelist[k+1] = problem->labellist[i]->y;
-                k = k + 2;
-            }
+            string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".raw.poly";
+            triHelper.writePolyFile(plyname, triHelper.triangulateParams());
         }
+        int tristatus = triHelper.triangulate(Verbose);
+        if (tristatus != 0)
+            return tristatus;
+
+        triHelper.writeTriangulationFiles(PathName);
     }
-    else
-    {
-        in.holelist = (REAL *) NULL;
-    }
-
-    in.numberofregions = NRegionalAttribs;
-    in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
-    if (in.regionlist == NULL) {
-        WarnMessage("Region list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i = 0, j = 0, k = 0; i < (int)problem->labellist.size(); i++)
-    {
-        if(problem->labellist[i]->hasBlockType())
-        {
-
-            in.regionlist[j] = problem->labellist[i]->x;
-            in.regionlist[j+1] = problem->labellist[i]->y;
-            in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
-
-            if (problem->labellist[i]->MaxArea > 0 && (problem->labellist[i]->MaxArea<DefaultMeshSize))
-            {
-                in.regionlist[j+3] = problem->labellist[i]->MaxArea;  // Area constraint
-            }
-            else
-            {
-                in.regionlist[j+3] = DefaultMeshSize;
-            }
-
-            j = j + 4;
-            k++;
-        }
-    }
-
-    // Finally, we have no triangle area constraints so initialize to null
-    in.trianglearealist = (REAL *) NULL;
-
-    /* Make necessary initializations so that Triangle can return a */
-    /*   triangulation in `out'  */
-
-    out.pointlist = (REAL *) NULL;            /* Not needed if -N switch used. */
-    /* Not needed if -N switch used or number of point attributes is zero: */
-    out.pointattributelist = (REAL *) NULL;
-    out.pointmarkerlist = (int *) NULL; /* Not needed if -N or -B switch used. */
-    out.trianglelist = (int *) NULL;          /* Not needed if -E switch used. */
-    /* Not needed if -E switch used or number of triangle attributes is zero: */
-    out.triangleattributelist = (REAL *) NULL;
-    /* No triangle area constraints */
-    out.trianglearealist = (REAL *) NULL;
-    out.neighborlist = (int *) NULL;         /* Needed only if -n switch used. */
-    /* Needed only if segments are output (-p or -c) and -P not used: */
-    out.segmentlist = (int *) NULL;
-    /* Needed only if segments are output (-p or -c) and -P and -B not used: */
-    out.segmentmarkerlist = (int *) NULL;
-    out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
-    out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
-
-    string rootname = pn.substr(0,pn.find_last_of('.'));
-
-    // An explaination of the input parameters used for Triangle
-    //
-    // -p Triangulates a Planar Straight Line Graph, i.e. list of segments.
-    // -P Suppresses the output .poly file.
-    // -q Quality mesh generation with no angles smaller than specified in the following number
-    // -e Outputs a list of edges of the triangulation.
-    // -A Assigns a regional attribute to each triangle that identifies what segment-bounded region it belongs to.
-    // -a Imposes a maximum triangle area constraint.
-    // -z Numbers all items starting from zero (rather than one)
-    // -I Suppresses mesh iteration numbers
-    //
-    // See http://www.cs.cmu.edu/~quake/triangle.switch.html for more info
-    if (Verbose)
-    {
-        sprintf(CommandLine, "-pPq%feAazI", problem->MinAngle);
-    }
-    else
-    {
-        // -Q silences output
-        sprintf(CommandLine, "-pPq%feAazQI", problem->MinAngle);
-    }
-
-    // call triangulate (Triangle as library) to perform the meshing
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
-
-    if (tristatus != 0)
-    {
-        // free allocated memory
-        if (in.pointlist != NULL) { free(in.pointlist); }
-        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-        if (in.regionlist != NULL) { free(in.regionlist); }
-        if (in.segmentlist != NULL) { free(in.segmentlist); }
-        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-        if (in.holelist != NULL) { free(in.holelist); }
-
-        if (out.pointlist != NULL) { free(out.pointlist); }
-        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-        if (out.trianglelist != NULL) { free(out.trianglelist); }
-        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-        if (out.neighborlist != NULL) { free(out.neighborlist); }
-        if (out.segmentlist != NULL) { free(out.segmentlist); }
-        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-        if (out.edgelist != NULL) { free(out.edgelist); }
-        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
-
-        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
-        WarnMessage(msg.c_str());
-        return tristatus;
-    }
-
-    WriteTriangulationFiles(out, PathName);
-
-    // free allocated memory
-    if (in.pointlist != NULL) { free(in.pointlist); }
-    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-    if (in.regionlist != NULL) { free(in.regionlist); }
-    if (in.segmentlist != NULL) { free(in.segmentlist); }
-    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-    if (in.holelist != NULL) { free(in.holelist); }
-
-    if (out.pointlist != NULL) { free(out.pointlist); }
-    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-    if (out.trianglelist != NULL) { free(out.trianglelist); }
-    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-    if (out.neighborlist != NULL) { free(out.neighborlist); }
-    if (out.segmentlist != NULL) { free(out.segmentlist); }
-    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-    if (out.edgelist != NULL) { free(out.edgelist); }
-    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
-
 
     // So far, so good.  Now, read back in the .edge file
     // to make sure the points in the segments and arc
@@ -1630,10 +1213,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     linelst.clear();
 
     // first, add in existing nodes
-    for(n=0; n < (int)problem->nodelist.size(); n++)
-    {
-        nodelst.push_back(std::make_unique<CNode>(*problem->nodelist[n]));
-    }
+    for(const auto &node: problem->nodelist)
+        nodelst.push_back(node->clone());
 
     for(n=0; n<(int)pbclst.size(); n++)
     {
@@ -1680,8 +1261,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             if (k == 1){
                 // catch the case in which the line
                 // doesn't get subdivided.
-                linelst.push_back(std::make_unique<CSegment>(*problem->linelist[s0]));
-                linelst.push_back(std::make_unique<CSegment>(*problem->linelist[s1]));
+                linelst.push_back(problem->linelist[s0]->clone());
+                linelst.push_back(problem->linelist[s1]->clone());
             }
             else{
                 segm = *problem->linelist[s0];
@@ -1693,17 +1274,17 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                     node1.x = b2.re; node1.y = b2.im;
                     if(j==0){
                         l = nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node0));
+                        nodelst.push_back(node0.clone());
                         segm.n0 = problem->linelist[s0]->n0;
                         segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                         pt.x = l;
 
                         l = nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node1));
+                        nodelst.push_back(node1.clone());
                         segm.n0 = problem->linelist[s1]->n0;
                         segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                         pt.y = l;
 
                         pt.t = pbclst[n]->antiPeriodic;
@@ -1716,26 +1297,26 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         l = nodelst.size()-2;
                         segm.n0 = l;
                         segm.n1 = problem->linelist[s0]->n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         l = nodelst.size()-1;
                         segm.n0 = l;
                         segm.n1 = problem->linelist[s1]->n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
                     else{
                         l = nodelst.size();
 
-                        nodelst.push_back(std::make_unique<CNode>(node0));
-                        nodelst.push_back(std::make_unique<CNode>(node1));
+                        nodelst.push_back(node0.clone());
+                        nodelst.push_back(node1.clone());
 
                         segm.n0 = l-2;
                         segm.n1 = l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         segm.n0 = l-1;
                         segm.n1 = l+1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         pt.x = l;
                         pt.y = l+1;
@@ -1802,9 +1383,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 // catch the case in which the line
                 // doesn't get subdivided.
                 segm.n0=p0[0]; segm.n1=p0[1];
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
                 segm.n0=p1[0]; segm.n1=p1[1];
-                linelst.push_back(std::make_unique<CSegment>(segm));
+                linelst.push_back(segm.clone());
             }
             else{
                 for(j=0;j<k;j++)
@@ -1817,17 +1398,17 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
                     if(j==0){
                         l=nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node0));
+                        nodelst.push_back(node0.clone());
                         segm.n0=p0[0];
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                         pt.x=l;
 
                         l=nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node1));
+                        nodelst.push_back(node1.clone());
                         segm.n0=p1[0];
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                         pt.y=l;
 
                         pt.t=pbclst[n]->antiPeriodic;
@@ -1840,26 +1421,26 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         l=nodelst.size()-2;
                         segm.n0=l;
                         segm.n1=p0[1];
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         l=nodelst.size()-1;
                         segm.n0=l;
                         segm.n1=p1[1];
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
                     }
                     else{
                         l=nodelst.size();
 
-                        nodelst.push_back(std::make_unique<CNode>(node0));
-                        nodelst.push_back(std::make_unique<CNode>(node1));
+                        nodelst.push_back(node0.clone());
+                        nodelst.push_back(node1.clone());
 
                         segm.n0=l-2;
                         segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         segm.n0=l-1;
                         segm.n1=l+1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
+                        linelst.push_back(segm.clone());
 
                         pt.x=l;
                         pt.y=l+1;
@@ -1876,138 +1457,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // "normal" way and write .poly file.
 
     // discretize input segments
-    for(i=0;i<(int)problem->linelist.size();i++)
-    if(problem->linelist[i]->IsSelected==0){
-
-        a0.Set(problem->nodelist[problem->linelist[i]->n0]->x,problem->nodelist[problem->linelist[i]->n0]->y);
-        a1.Set(problem->nodelist[problem->linelist[i]->n1]->x,problem->nodelist[problem->linelist[i]->n1]->y);
-
-        if (problem->linelist[i]->MaxSideLength==-1) k=1;
-        else{
-            z=abs(a1-a0);
-            k=(int) ceil(z/problem->linelist[i]->MaxSideLength);
-        }
-
-        segm=*problem->linelist[i];
-        if (k==1) // default condition where discretization on line is not specified
-        {
-            if (abs(a1-a0)<(3.*dL)) linelst.push_back(std::make_unique<CSegment>(segm)); // line is too short to add extra points
-            else{
-                // add extra points at a distance of dL from the ends of the line.
-                // this forces Triangle to finely mesh near corners
-                for(j=0;j<3;j++)
-                {
-                    if(j==0)
-                    {
-                        a2=a0+dL*(a1-a0)/abs(a1-a0);
-                        node.x=a2.re; node.y=a2.im;
-                        l=(int) nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node));
-                        segm.n0=problem->linelist[i]->n0;
-                        segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-
-                    if(j==1)
-                    {
-                        a2=a1+dL*(a0-a1)/abs(a1-a0);
-                        node.x=a2.re; node.y=a2.im;
-                        l=(int) nodelst.size();
-                        nodelst.push_back(std::make_unique<CNode>(node));
-                        segm.n0=l-1;
-                        segm.n1=l;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-
-                    if(j==2)
-                    {
-                        l=(int) nodelst.size()-1;
-                        segm.n0=l;
-                        segm.n1=problem->linelist[i]->n1;
-                        linelst.push_back(std::make_unique<CSegment>(segm));
-                    }
-
-                }
-            }
-        }
-        else{
-            for(j=0;j<k;j++)
-            {
-                a2=a0+(a1-a0)*((double) (j+1))/((double) k);
-                node.x=a2.re; node.y=a2.im;
-                if(j==0){
-                    l=nodelst.size();
-                    nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=problem->linelist[i]->n0;
-                    segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-                else if(j==(k-1))
-                {
-                    l=nodelst.size()-1;
-                    segm.n0=l;
-                    segm.n1=problem->linelist[i]->n1;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-                else{
-                    l=nodelst.size();
-                    nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=l-1;
-                    segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-            }
-        }
-    }
+    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL, SegmentFilter::OnlyUnselected);
 
     // discretize input arc segments
-    for(i=0;i<(int)problem->arclist.size();i++)
-    {
-        const CArcSegment &arc = *problem->arclist[i];
-        if(arc.IsSelected==0)
-        {
-            a2.Set(problem->nodelist[arc.n0]->x,problem->nodelist[arc.n0]->y);
-            k=(int) ceil(arc.ArcLength/arc.MaxSideLength);
-            segm.BoundaryMarkerName=arc.BoundaryMarkerName;
-            if (problem->filetype != FileType::MagneticsFile)
-                segm.InConductorName=arc.InConductorName;  // not relevant to magnetics problems
-            problem->getCircle(arc,c,R);
-            a1=exp(I*arc.ArcLength*PI/(((double) k)*180.));
-
-            if(k==1){
-                segm.n0=arc.n0;
-                segm.n1=arc.n1;
-                linelst.push_back(std::make_unique<CSegment>(segm));
-            }
-            else for(j=0;j<k;j++)
-            {
-                a2=(a2-c)*a1+c;
-                node.x=a2.re; node.y=a2.im;
-                if(j==0){
-                    l=nodelst.size();
-                    nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=arc.n0;
-                    segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-                else if(j==(k-1))
-                {
-                    l=nodelst.size()-1;
-                    segm.n0=l;
-                    segm.n1=arc.n1;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-                else{
-                    l=nodelst.size();
-                    nodelst.push_back(std::make_unique<CNode>(node));
-                    segm.n0=l-1;
-                    segm.n1=l;
-                    linelst.push_back(std::make_unique<CSegment>(segm));
-                }
-            }
-        }
-    }
-
+    discretizeInputArcSegments(*problem, nodelst, linelst, SegmentFilter::OnlyUnselected);
 
     // create correct output filename;
     pn = PathName;
@@ -2039,21 +1492,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //                if(lineproplist[j]->BdryName==linelst[i]->BoundaryMarkerName) t=-(j+2);
 //        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i]->n0,linelst[i]->n1,t);
 //    }
-
-    // write out list of holes;
-    for(i=0,j=0;i<(int)problem->labellist.size();i++)
-    {
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            j++;
-        }
-    }
-
-//    fprintf(fp,"%i\n",j);
-
-    Nholes = j;
-
-    NRegionalAttribs = problem->labellist.size() - Nholes;
 
 //    for(i=0,k=0;i<blocklist.size();i++)
 //        if(blocklist[i]->BlockTypeName=="<No Mesh>")
@@ -2133,232 +1571,31 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     fclose(fp);
 
     // call triangle with -Y flag.
-
-    in.numberofpoints = nodelst.size();
-
-    in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
-    if (in.pointlist == NULL) {
-        WarnMessage("Point list for triangulation is null!\n");
-        return -1;
-    }
-
-    for(i=0; i < (2 * in.numberofpoints-1); i = i + 2)
     {
-        in.pointlist[i] = nodelst[i/2]->x;
-        in.pointlist[i+1] = nodelst[i/2]->y;
-    }
+        TriangulateHelper triHelper;
+        triHelper.WarnMessage = WarnMessage;
+        triHelper.TriMessage = this->TriMessage;
 
-    in.numberofpointattributes = 0;
+        if (!triHelper.initPointsWithMarkers(nodelst,*problem, PointMarkerInfo::FromProblem))
+            return -1;
+        if (!triHelper.initSegmentsWithMarkers(linelst,*problem,SegmentMarkerInfo::FromProblem))
+            return -1;
+        if (!triHelper.initHolesAndRegions(*problem, true, DefaultMeshSize))
+            return -1;
 
-    in.pointattributelist = (REAL *) NULL;
-
-    // Initialise the pointmarkerlist
-    in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
-    if (in.pointmarkerlist == NULL) {
-        WarnMessage("Point marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    t = 0;
-    // write out node marker list
-    for(i=0;i<(int)nodelst.size ();i++)
-    {
-        for(j=0,t=0; j < (int)problem->nodeproplist.size (); j++)
-                if(problem->nodeproplist[j]->PointName == nodelst[i]->BoundaryMarkerName) t = j + 2;
-
-        if (problem->filetype != femm::FileType::MagneticsFile)
+        triHelper.setMinAngle(problem->MinAngle);
+        triHelper.suppressExteriorSteinerPoints();
+        if (writePolyFiles)
         {
-            // include conductor number;
-            for(j=0; j < (int)problem->circproplist.size (); j++)
-                if(problem->circproplist[j]->CircName == nodelst[i]->InConductorName) t += ((j+1) * 0x10000);
+            string plyname = PathName.substr(0, PathName.find_last_of('.')) + ".poly";
+            triHelper.writePolyFile(plyname, triHelper.triangulateParams());
         }
+        int tristatus = triHelper.triangulate(Verbose);
+        if (tristatus != 0)
+            return tristatus;
 
-        in.pointmarkerlist[i] = t;
+        triHelper.writeTriangulationFiles(PathName);
     }
-
-    in.numberofsegments = linelst.size();
-
-    // Initialise the segmentlist
-    in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
-    if (in.segmentlist == NULL) {
-        WarnMessage("Segment list for triangulation is null!\n");
-        return -1;
-    }
-
-    // Initialise the segmentmarkerlist
-    in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
-    if (in.segmentmarkerlist == NULL) {
-        WarnMessage("Segment marker list for triangulation is null!\n");
-        return -1;
-    }
-
-    // build the segmentlist
-    for(i=0; i < (2*in.numberofsegments - 1); i = i + 2)
-    {
-            in.segmentlist[i] = linelst[i/2]->n0;
-
-            in.segmentlist[i+1] = linelst[i/2]->n1;
-
-            //PRINTF("i: %i, segmentlist[i]: %i, segmentlist[i+1]: %i\n", i, in.segmentlist[i], in.segmentlist[i+1]);
-    }
-
-    // now build the segment marker list
-    t = 0;
-
-    // construct the segment list
-    for(i=0; i < (int)linelst.size (); i++)
-    {
-        for(j=0,t=0; j < (int)problem->lineproplist.size (); j++)
-                if(problem->lineproplist[j]->BdryName==linelst[i]->BoundaryMarkerName) t = -(j+2);
-
-        if (problem->filetype != femm::FileType::MagneticsFile)
-        {
-            // include conductor number;
-            for(j=0; j < (int)problem->circproplist.size (); j++)
-                if(problem->circproplist[j]->CircName == linelst[i]->InConductorName) t -= ((j+1) * 0x10000);
-        }
-
-        in.segmentmarkerlist[i] = t;
-    }
-
-    in.numberofholes = Nholes;
-    in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
-    if (in.holelist == NULL) {
-        WarnMessage("Hole list for triangulation is null!\n");
-        return -1;
-    }
-
-    // Construct the holes array
-    for(i=0, k=0; i < (int)problem->labellist.size(); i++)
-    {
-        // we search through the block list looking for blocks that have
-        // the tag <no mesh>
-        if(!problem->labellist[i]->hasBlockType())
-        {
-            in.holelist[k] = problem->labellist[i]->x;
-            in.holelist[k+1] = problem->labellist[i]->y;
-            k = k + 2;
-        }
-    }
-
-
-    in.numberofregions = NRegionalAttribs;
-    in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
-    if (in.regionlist == NULL) {
-        WarnMessage("Error: Memory unable to be allocated.\n");
-        return -1;
-    }
-
-    for(i = 0, j = 0, k = 0; i < (int)problem->labellist.size(); i++)
-    {
-        if(problem->labellist[i]->hasBlockType())
-        {
-
-            in.regionlist[j] = problem->labellist[i]->x;
-            in.regionlist[j+1] = problem->labellist[i]->y;
-            in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
-
-            if (problem->labellist[i]->MaxArea>0 && (problem->labellist[i]->MaxArea<DefaultMeshSize))
-            {
-                in.regionlist[j+3] = problem->labellist[i]->MaxArea;  // Area constraint
-            }
-            else
-            {
-                in.regionlist[j+3] = DefaultMeshSize;
-            }
-
-            j = j + 4;
-            k++;
-        }
-    }
-
-    // Finally, we have no triangle area constraints so initialize to null
-    in.trianglearealist = (REAL *) NULL;
-
-    /* Make necessary initializations so that Triangle can return a */
-    /* triangulation in `out' */
-
-    out.pointlist = (REAL *) NULL;            /* Not needed if -N switch used. */
-    /* Not needed if -N switch used or number of point attributes is zero: */
-    out.pointattributelist = (REAL *) NULL;
-    out.pointmarkerlist = (int *) NULL; /* Not needed if -N or -B switch used. */
-    out.trianglelist = (int *) NULL;          /* Not needed if -E switch used. */
-    /* Not needed if -E switch used or number of triangle attributes is zero: */
-    out.triangleattributelist = (REAL *) NULL;
-    /* No triangle area constraints */
-    out.trianglearealist = (REAL *) NULL;
-    out.neighborlist = (int *) NULL;         /* Needed only if -n switch used. */
-    /* Needed only if segments are output (-p or -c) and -P not used: */
-    out.segmentlist = (int *) NULL;
-    /* Needed only if segments are output (-p or -c) and -P and -B not used: */
-    out.segmentmarkerlist = (int *) NULL;
-    out.edgelist = (int *) NULL;             /* Needed only if -e switch used. */
-    out.edgemarkerlist = (int *) NULL;   /* Needed if -e used and -B not used. */
-
-    rootname = pn.substr(0,pn.find_last_of('.'));
-
-    if (Verbose)
-    {
-        sprintf(CommandLine,"-pPq%feAazIY", problem->MinAngle);
-    }
-    else
-    {
-        sprintf(CommandLine,"-pPq%feAazQIY", problem->MinAngle);
-    }
-
-    tristatus = triangulate(CommandLine, &in, &out, (struct triangulateio *) NULL, this->TriMessage);
-
-    // copy the exit status status of the triangle library from the global variable, eueghh.
-    //trilibrary_exit_code;
-    if (tristatus != 0)
-    {
-        if (in.pointlist != NULL) { free(in.pointlist); }
-        if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-        if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-        if (in.regionlist != NULL) { free(in.regionlist); }
-        if (in.segmentlist != NULL) { free(in.segmentlist); }
-        if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-        if (in.holelist != NULL) { free(in.holelist); }
-
-        if (out.pointlist != NULL) { free(out.pointlist); }
-        if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-        if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-        if (out.trianglelist != NULL) { free(out.trianglelist); }
-        if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-        if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-        if (out.neighborlist != NULL) { free(out.neighborlist); }
-        if (out.segmentlist != NULL) { free(out.segmentlist); }
-        if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-        if (out.edgelist != NULL) { free(out.edgelist); }
-        if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
-
-        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
-        WarnMessage(msg.c_str());
-        return tristatus;
-    }
-
-    WriteTriangulationFiles(out, PathName);
-
-    // now deallocate memory where necessary
-    if (in.pointlist != NULL) { free(in.pointlist); }
-    if (in.pointattributelist != NULL) { free(in.pointattributelist); }
-    if (in.pointmarkerlist != NULL) { free(in.pointmarkerlist); }
-    if (in.regionlist != NULL) { free(in.regionlist); }
-    if (in.segmentlist != NULL) { free(in.segmentlist); }
-    if (in.segmentmarkerlist != NULL) { free(in.segmentmarkerlist); }
-    if (in.holelist != NULL) { free(in.holelist); }
-
-    if (out.pointlist != NULL) { free(out.pointlist); }
-    if (out.pointattributelist != NULL) { free(out.pointattributelist); }
-    if (out.pointmarkerlist != NULL) { free(out.pointmarkerlist); }
-    if (out.trianglelist != NULL) { free(out.trianglelist); }
-    if (out.triangleattributelist != NULL) { free(out.triangleattributelist); }
-    if (out.trianglearealist != NULL) { free(out.trianglearealist); }
-    if (out.neighborlist != NULL) { free(out.neighborlist); }
-    if (out.segmentlist != NULL) { free(out.segmentlist); }
-    if (out.segmentmarkerlist != NULL) { free(out.segmentmarkerlist); }
-    if (out.edgelist != NULL) { free(out.edgelist); }
-    if (out.edgemarkerlist != NULL) { free(out.edgemarkerlist); }
 
     problem->unselectAll();
 
@@ -2373,4 +1610,372 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     problem->saveFEMFile(pn);
 
     return 0;
+}
+
+TriangulateHelper::TriangulateHelper()
+    : WarnMessage(&PrintWarningMsg)
+    , TriMessage(nullptr)
+    , m_minAngle(0.)
+    , m_suppressExteriorSteinerPoints(false)
+{
+    initialize(in);
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    initialize(out); // triangle-api writes to input struct
+#else
+    ctx = triangle_context_create();
+#endif
+}
+
+TriangulateHelper::~TriangulateHelper()
+{
+    if (in.pointlist) { free(in.pointlist); }
+    if (in.pointattributelist) { free(in.pointattributelist); }
+    if (in.pointmarkerlist) { free(in.pointmarkerlist); }
+    if (in.regionlist) { free(in.regionlist); }
+    if (in.segmentlist) { free(in.segmentlist); }
+    if (in.segmentmarkerlist) { free(in.segmentmarkerlist); }
+    if (in.holelist) { free(in.holelist); }
+
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    if (out.pointlist) { free(out.pointlist); }
+    if (out.pointattributelist) { free(out.pointattributelist); }
+    if (out.pointmarkerlist) { free(out.pointmarkerlist); }
+    if (out.trianglelist) { free(out.trianglelist); }
+    if (out.triangleattributelist) { free(out.triangleattributelist); }
+    if (out.trianglearealist) { free(out.trianglearealist); }
+    if (out.neighborlist) { free(out.neighborlist); }
+    if (out.segmentlist) { free(out.segmentlist); }
+    if (out.segmentmarkerlist) { free(out.segmentmarkerlist); }
+    if (out.edgelist) { free(out.edgelist); }
+    if (out.edgemarkerlist) { free(out.edgemarkerlist); }
+#else
+    triangle_context_destroy(ctx);
+#endif
+}
+
+bool TriangulateHelper::initPointsWithMarkers(const TriangulateHelper::nodelist_t &nodelst, const FemmProblem &problem, PointMarkerInfo info)
+{
+    // calling this method on an already initialized object would leak memory
+    if (in.numberofpoints!=0)
+    {
+        WarnMessage("initPointsWithMarkers called twice!\n");
+        return false;
+    }
+
+    in.numberofpoints = nodelst.size();
+
+    in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
+    if (!in.pointlist) {
+        WarnMessage("Point list for triangulation is null!\n");
+        return false;
+    }
+
+    for(int i=0; i < in.numberofpoints; i++)
+    {
+        in.pointlist[2*i] = nodelst[i]->x;
+        in.pointlist[2*i+1] = nodelst[i]->y;
+    }
+
+    // Initialise the pointmarkerlist
+    in.pointmarkerlist = (int *) malloc(in.numberofpoints * sizeof(int));
+    if (!in.pointmarkerlist) {
+        WarnMessage("Point marker list for triangulation is null!\n");
+        return false;
+    }
+
+    // write out node marker list
+    for(int i=0; i<in.numberofpoints; i++)
+    {
+        int t=0;
+        if (info==PointMarkerInfo::FromProblem)
+        {
+            for(int j=0; j<(int)problem.nodeproplist.size(); j++)
+                if(problem.nodeproplist[j]->PointName==nodelst[i]->BoundaryMarkerName)
+                    t = j + 2;
+
+            if (problem.filetype != femm::FileType::MagneticsFile)
+            {
+                // include conductor number;
+                for(int j = 0; j < (int)problem.circproplist.size(); j++)
+                {
+                    // add the conductor number using a mask
+                    if(problem.circproplist[j]->CircName == nodelst[i]->InConductorName)
+                        t += ((j+1) * 0x10000);
+                }
+            }
+        }
+
+        in.pointmarkerlist[i] = t;
+    }
+    return true;
+}
+
+bool TriangulateHelper::initSegmentsWithMarkers(const TriangulateHelper::linelist_t &linelst, const FemmProblem &problem, SegmentMarkerInfo info)
+{
+    // calling this method on an already initialized object would leak memory
+    if (in.numberofsegments!=0)
+    {
+        WarnMessage("initSegmentsWithMarkers called twice!\n");
+        return false;
+    }
+
+    in.numberofsegments = linelst.size();
+
+    // Initialise the segmentlist
+    in.segmentlist = (int *) malloc(2 * in.numberofsegments * sizeof(int));
+    if (!in.segmentlist) {
+        WarnMessage("Segment list for triangulation is null!\n");
+        return false;
+    }
+    // Initialise the segmentmarkerlist
+    in.segmentmarkerlist = (int *) malloc(in.numberofsegments * sizeof(int));
+    if (!in.segmentmarkerlist) {
+        WarnMessage("Segment marker list for triangulation is null!\n");
+        return false;
+    }
+
+    // build the segmentlist
+    for(int i=0; i<in.numberofsegments; i++)
+    {
+            in.segmentlist[2*i] = linelst[i]->n0;
+            in.segmentlist[2*i+1] = linelst[i]->n1;
+    }
+
+    // now build the segment marker list
+    // construct the segment list
+    for(int i=0; i<in.numberofsegments; i++)
+    {
+        int t=0;
+        if (info==SegmentMarkerInfo::FromProblem)
+        {
+            for(int j=0; j <(int)problem.lineproplist.size(); j++)
+            {
+                if (problem.lineproplist[j]->BdryName == linelst[i]->BoundaryMarkerName)
+                {
+                    t = -(j+2);
+                }
+            }
+
+            if (problem.filetype != femm::FileType::MagneticsFile)
+            {
+                // include conductor number;
+                for (int j=0; j <(int)problem.circproplist.size(); j++)
+                {
+                    if (problem.circproplist[j]->CircName == linelst[i]->InConductorName)
+                    {
+                        t -= ((j+1) * 0x10000);
+                    }
+                }
+            }
+        } else {
+            t = -(linelst[i]->cnt+2);
+        }
+        in.segmentmarkerlist[i] = t;
+    }
+    return true;
+}
+
+bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool forceMaxMeshArea, double defaultMeshSize)
+{
+    // calling this method on an already initialized object would leak memory
+    if (in.numberofholes!=0)
+    {
+        WarnMessage("initHolesAndRegions called twice!\n");
+        return false;
+    }
+
+    in.numberofholes = problem.countHoles();
+    if(in.numberofholes > 0)
+    {
+        in.holelist = (REAL *) malloc(in.numberofholes * 2 * sizeof(REAL));
+        if (!in.holelist) {
+            WarnMessage("Hole list for triangulation is null!\n");
+            return false;
+        }
+
+        // Construct the holes array
+        int k=0;
+        for(const auto &label: problem.labellist)
+        {
+            // we search through the block list looking for blocks that have
+            // the tag <no mesh>
+            if(!label->hasBlockType())
+            {
+                //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i]->x, blocklist[i]->y);
+                in.holelist[k++] = label->x;
+                in.holelist[k++] = label->y;
+            }
+        }
+    }
+
+    in.numberofregions = problem.labellist.size() - in.numberofholes;
+    in.regionlist = (REAL *) malloc(in.numberofregions * 4 * sizeof(REAL));
+    if (!in.regionlist) {
+        WarnMessage("Region list for triangulation is null!\n");
+        return false;
+    }
+
+    int j=0;
+    int k=0;
+    for(const auto & label: problem.labellist)
+    {
+        if(label->hasBlockType())
+        {
+            in.regionlist[j] = label->x;
+            in.regionlist[j+1] = label->y;
+            in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
+
+            // Note(ZaJ): this is the code that was used in the periodic bc triangulation:
+            //  if (label->MaxArea>0 && (label->MaxArea<defaultMeshSize))
+            //      in.regionlist[j+3] = label->MaxArea;  // Area constraint
+            //  else
+            //      in.regionlist[j+3] = defaultMeshSize;
+            // ... which is equivalent to the code below (if forceMaxMeshArea is true).
+            // ... the code below is a copy of the nonperiodic case (if forceMaxMeshArea is set to problem->DoForceMaxMeshArea)
+
+            // Area constraint
+            if (label->MaxArea <= 0)
+            {
+                // if no mesh size has been specified use the default
+                in.regionlist[j+3] = defaultMeshSize;
+            }
+            else if ((label->MaxArea > defaultMeshSize) && (forceMaxMeshArea))
+            {
+                // if the user has specied that FEMM should choose an
+                // upper mesh size limit, regardles of their choice,
+                // and their choice is less than that limit, change it
+                // to that limit
+                in.regionlist[j+3] = defaultMeshSize;
+            }
+            else
+            {
+                // Use the user's choice of mesh size
+                in.regionlist[j+3] = label->MaxArea;
+            }
+
+            j += 4;
+            k++;
+        }
+    }
+    return true;
+}
+
+int TriangulateHelper::triangulate(bool verbose)
+{
+    std::string triArgs = triangulateParams(verbose);
+    // this is a mess, but building the string with std::string is more flexible than sprintf
+    // (and the triangulate api is ancient)
+    char cmdline[512];
+    sprintf(cmdline, "%s",triArgs.c_str());
+
+#ifdef XFEMM_BUILTIN_TRIANGLE
+    int tristatus = ::triangulate(cmdline, &in, &out, (struct triangulateio *) nullptr, this->TriMessage);
+    if (tristatus!=0)
+    {
+        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
+        WarnMessage(msg.c_str());
+        return tristatus;
+    }
+#else
+    // parse options
+    int tristatus = triangle_context_options(ctx, cmdline);
+    if (tristatus != TRI_OK)
+    {
+        WarnMessage("Invalid option string for triangle!\n");
+        return tristatus;
+    }
+    // Triangulate the polygon.
+    tristatus = triangle_mesh_create(ctx, &in);
+    if (tristatus != TRI_OK)
+    {
+        std::string msg = "Call to triangulate failed with status code: " + to_string(tristatus) +"\n";
+        WarnMessage(msg.c_str());
+        return tristatus;
+    }
+#endif
+    return 0;
+}
+
+string TriangulateHelper::triangulateParams(bool verbose) const
+{
+    // An explaination of the input parameters used for Triangle
+    //
+    // -p Triangulates a Planar Straight Line Graph, i.e. list of segments.
+    // -P Suppresses the output .poly file.
+    // -q Quality mesh generation with no angles smaller than specified in the following number
+    // -e Outputs a list of edges of the triangulation.
+    // -A Assigns a regional attribute to each triangle that identifies what segment-bounded region it belongs to.
+    // -a Imposes a maximum triangle area constraint.
+    // -z Numbers all items starting from zero (rather than one)
+    // -I Suppresses mesh iteration numbers
+    // -j prevents duplicated input vertices, or vertices `eaten' by holes,
+    //    from appearing in the output .node file.  Thus, if two input vertices
+    //    have exactly the same coordinates, only the first appears in the
+    //    output.
+    // -Y Suppresses the creation of Steiner points on the exterior boundary.
+    //
+    // See http://www.cs.cmu.edu/~quake/triangle.switch.html for more info
+    std::string triArgs = "-pPq" + to_string(m_minAngle) + "eAaz" + (verbose?"":"Q") + "I";
+    if (m_suppressUnusedVertices)
+        triArgs += "j";
+    if (m_suppressExteriorSteinerPoints)
+        triArgs += "Y";
+
+    return triArgs;
+}
+
+bool TriangulateHelper::writePolyFile(string filename, std::string comment) const
+{
+    std::ofstream polyFile (filename);
+    // set floating point precision once for the whole stream
+    polyFile << std::setprecision(17);
+    // when filling to a width, adjust to the left
+    polyFile.setf(std::ios::left);
+
+    polyFile << in.numberofpoints << " 2  0  1\n";
+    for (int i=0; i < in.numberofpoints; i++)
+    {
+        polyFile << i << " " << in.pointlist[2*i] << " " << in.pointlist[2*i+1] << " " << in.pointmarkerlist[i] << "\n";
+    }
+
+    polyFile << in.numberofsegments << " 1\n";
+    for (int i=0; i < in.numberofsegments; i++)
+    {
+        polyFile << i << " " << in.segmentlist[2*i] << " " << in.segmentlist[2*i+1] << " " << in.segmentmarkerlist[i] <<"\n";
+    }
+
+    polyFile << in.numberofholes << "\n";
+    for (int i=0; i < in.numberofholes; i++)
+    {
+        polyFile << i << " " << in.holelist[2*i] << " " << in.holelist[2*i+1] << "\n";
+    }
+
+    polyFile << in.numberofregions << "\n";
+    for (int i=0; i < in.numberofregions; i++)
+    {
+        int j=4*i;
+        polyFile << i << " "
+                 << in.regionlist[j] << " "
+                 << in.regionlist[j+1] << " "
+                 << in.regionlist[j+2] << " "
+                 << in.regionlist[j+3] << "\n";
+    }
+
+    polyFile << "# " << comment << "\n";
+    return true;
+}
+
+void TriangulateHelper::setMinAngle(double value)
+{
+    m_minAngle = value;
+}
+
+void TriangulateHelper::suppressExteriorSteinerPoints()
+{
+    m_suppressExteriorSteinerPoints = true;
+}
+
+void TriangulateHelper::suppressUnusedVertices()
+{
+    m_suppressUnusedVertices = true;
 }
