@@ -111,13 +111,6 @@ FPProc::FPProc()
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
 
-    // determine path to bin directory
-//     BinDir=((CFemmApp *)AfxGetApp())->GetExecutablePath();
-
-//     ScanPreferences();
-
-    // lua initialization stuff
-    // initalise_lua();
 }
 
 /**
@@ -135,7 +128,6 @@ FPProc::~FPProc()
     free(ConList);
     free(NumList);
 
-    //if (pFemmviewdoc==this) pFemmviewdoc = NULL;
 }
 
 /**
@@ -199,39 +191,6 @@ bool FPProc::NewDocument()
 
     return true;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-// FPProc serialization
-
-// void FPProc::Serialize(CArchive& ar)
-// {
-//     if (ar.IsStoring())
-//     {
-//         // TODO: add storing code here
-//     }
-//     else
-//     {
-//         // TODO: add loading code here
-//     }
-// }
-
-/////////////////////////////////////////////////////////////////////////////
-// FPProc diagnostics
-//
-//#ifdef _DEBUG
-//void FPProc::AssertValid() const
-//{
-//    CDocument::AssertValid();
-//}
-//
-//void FPProc::Dump(CDumpContext& dc) const
-//{
-//    CDocument::Dump(dc);
-//}
-//#endif //_DEBUG
-
-/////////////////////////////////////////////////////////////////////////////
-// FPProc commands
 
 
 bool FPProc::OpenDocument(string pathname)
