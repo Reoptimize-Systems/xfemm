@@ -37,13 +37,55 @@
 			<Add directory="./liblua" />
 			<Add directory="../libfemm" />
 		</Compiler>
+		<Unit filename="CArcSegment.cpp" />
+		<Unit filename="CArcSegment.h" />
+		<Unit filename="CBlockLabel.cpp" />
+		<Unit filename="CBlockLabel.h" />
+		<Unit filename="CBoundaryProp.cpp" />
+		<Unit filename="CBoundaryProp.h" />
+		<Unit filename="CCircuit.cpp" />
+		<Unit filename="CCircuit.h" />
+		<Unit filename="CCommonPoint.cpp" />
+		<Unit filename="CCommonPoint.h" />
+		<Unit filename="CElement.cpp" />
+		<Unit filename="CElement.h" />
 		<Unit filename="CMakeLists.txt" />
+		<Unit filename="CMaterialProp.cpp" />
+		<Unit filename="CMaterialProp.h" />
+		<Unit filename="CMeshNode.cpp" />
+		<Unit filename="CMeshNode.h" />
+		<Unit filename="CNode.cpp" />
+		<Unit filename="CNode.h" />
+		<Unit filename="CPointProp.cpp" />
+		<Unit filename="CPointProp.h" />
+		<Unit filename="CSegment.cpp" />
+		<Unit filename="CSegment.h" />
+		<Unit filename="FemmProblem.cpp" />
+		<Unit filename="FemmProblem.h" />
+		<Unit filename="FemmReader.cpp" />
+		<Unit filename="FemmReader.h" />
+		<Unit filename="FemmStateBase.cpp" />
+		<Unit filename="FemmStateBase.h" />
+		<Unit filename="IntPoint.cpp" />
+		<Unit filename="IntPoint.h" />
+		<Unit filename="LuaInstance.cpp" />
+		<Unit filename="LuaInstance.h" />
+		<Unit filename="PostProcessor.cpp" />
+		<Unit filename="PostProcessor.h" />
+		<Unit filename="cpp14compat.h" />
 		<Unit filename="cspars.cpp" />
+		<Unit filename="cspars.h" />
 		<Unit filename="cuthill.cpp" />
 		<Unit filename="feasolver.cpp" />
 		<Unit filename="feasolver.h" />
 		<Unit filename="femmcomplex.cpp" />
 		<Unit filename="femmcomplex.h" />
+		<Unit filename="femmconstants.cpp" />
+		<Unit filename="femmconstants.h" />
+		<Unit filename="femmenums.cpp" />
+		<Unit filename="femmenums.h" />
+		<Unit filename="femmversion.cpp" />
+		<Unit filename="femmversion.h" />
 		<Unit filename="fparse.cpp" />
 		<Unit filename="fparse.h" />
 		<Unit filename="fullmatrix.cpp" />
@@ -99,6 +141,8 @@
 		<Unit filename="mesh.h" />
 		<Unit filename="spars.cpp" />
 		<Unit filename="spars.h" />
+		<Unit filename="stringTools.cpp" />
+		<Unit filename="stringTools.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
