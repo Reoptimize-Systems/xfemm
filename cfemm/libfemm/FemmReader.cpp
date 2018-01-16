@@ -110,7 +110,6 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 
         std::string line;
         std::getline(input, line);
-        trim(line);
 
         if (line.empty())
         {
