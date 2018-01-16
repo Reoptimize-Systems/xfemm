@@ -104,13 +104,12 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
     while (input.good() && success)
     {
         if (input.eof())
-        {
             break;
-        }
 
         std::string line;
         std::getline(input, line);
 
+        trim(line);
         if (line.empty())
         {
 #ifdef DEBUG_PARSER

@@ -32,6 +32,7 @@
 #include "spars.h"
 #include "fparse.h"
 #include "feasolver.h"
+#include "stringTools.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -203,6 +204,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 
         std::getline(input, line);
 
+        trim(line);
         if (line.empty())
         {
 #ifdef DEBUG_PARSER
