@@ -176,7 +176,6 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 {
     std::ifstream input;
     std::stringstream err;
-    std::streampos linestart;
     err >> noskipws; // don't discard whitespace from message stream
 
     input.open(file.c_str(), std::ifstream::in);
@@ -199,15 +198,10 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     bool success = true;
     while (input.good() && success)
     {
-        if (!input.eof())
-        {
-            // store the current position so we can examine the line in the event of failure
-            linestart = input.tellg();
-            // store it
-            std::getline(input, line);
-            // go back to start of line
-            input.seekg(linestart);
-        }
+        if (input.eof())
+            break;
+
+        std::getline(input, line);
 
         if (line.empty())
         {
@@ -222,14 +216,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
                   << line << std::endl;
 #endif // DEBUG_PARSER
 
-        //nextToken(input, &token);
-        if (input.eof())
-        {
-            success = true;
-            break;
-        }
-
-        nextToken(input, &token);
+        std::istringstream lineStream(line);
+        nextToken(lineStream, &token);
 
 #ifdef DEBUG_PARSER
         std::cout << "feasolver token is: " << token << std::endl;
@@ -237,39 +225,39 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 
         if( token == "[format]")
         {
-            success &= expectChar(input, '=',err);
-            success &= parseValue(input, FileFormat, err);
+            success &= expectChar(lineStream, '=',err);
+            success &= parseValue(lineStream, FileFormat, err);
             continue;
         }
 
         // Precision
         if( token == "[precision]")
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, Precision, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, Precision, err);
             continue;
         }
 
         if( token == "[minangle]")
         {
-            success &= expectChar(input, '=',err);
-            success &= parseValue(input, MinAngle, err);
+            success &= expectChar(lineStream, '=',err);
+            success &= parseValue(lineStream, MinAngle, err);
             continue;
         }
 
         // Depth for 2D planar problems;
         if( token == "[depth]")
         {
-            success &= expectChar(input, '=',err);
-            success &= parseValue(input, Depth, err);
+            success &= expectChar(lineStream, '=',err);
+            success &= parseValue(lineStream, Depth, err);
             continue;
         }
 
         // Units of length used by the problem
         if( token == "[lengthunits]")
         {
-            success &= expectChar(input, '=', err);
-            nextToken(input, &token);
+            success &= expectChar(lineStream, '=', err);
+            nextToken(lineStream, &token);
 
             if( token == "inches" ) LengthUnits=LengthInches;
             else if( token == "millimeters" ) LengthUnits=LengthMillimeters;
@@ -283,8 +271,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // Coordinates (cartesian or polar)
         if( token == "[coordinates]" )
         {
-            success &= expectChar(input, '=', err);
-            nextToken(input, &token);
+            success &= expectChar(lineStream, '=', err);
+            nextToken(lineStream, &token);
 
             if ( token == "cartesian" ) Coords=CART;
             if ( token == "polar" ) Coords=POLAR;
@@ -294,8 +282,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // Problem Type (planar or axisymmetric)
         if( token == "[problemtype]" )
         {
-            success &= expectChar(input, '=', err);
-            nextToken(input, &token);
+            success &= expectChar(lineStream, '=', err);
+            nextToken(lineStream, &token);
 
             if( token == "planar" ) ProblemType=PLANAR;
             if( token == "axisymmetric" ) ProblemType=AXISYMMETRIC;
@@ -305,45 +293,45 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // properties for axisymmetric external region
         if( token == "[extzo]" )
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, extZo, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, extZo, err);
             continue;
         }
 
         if( token == "[extro]" )
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, extRo, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, extRo, err);
             continue;
         }
 
         if( token == "[extri]" )
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, extRi, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, extRi, err);
             continue;
         }
 
 
         if( token == "[comment]" )
         {
-            success &= expectChar(input, '=', err);
-            parseString(input, &comment, err);
+            success &= expectChar(lineStream, '=', err);
+            parseString(lineStream, &comment, err);
             continue;
         }
 
         // AC Solver Type
         if( token == "[acsolver]")
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, ACSolver, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, ACSolver, err);
             continue;
         }
 
         if( token == "[prevsoln]" )
         {
-            expectChar(input, '=', err);
-            parseString(input,&previousSolutionFile);
+            expectChar(lineStream, '=', err);
+            parseString(lineStream,&previousSolutionFile);
             continue;
         }
 
@@ -351,8 +339,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // user choice
         if( token == "[forcemaxmesh]")
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, DoForceMaxMeshArea, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, DoForceMaxMeshArea, err);
             continue;
         }
 
@@ -361,8 +349,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         if( token == "[dosmartmesh]" )
         {
             //std::cout << "found dosmartmesh" << std::endl;
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, DoSmartMesh, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, DoSmartMesh, err);
             continue;
         }
 
@@ -370,8 +358,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         if( token == "[pointprops]" )
         {
             int k;
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, k, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) nodeproplist.reserve(k);
             while (input.good() && NumPointProps < k)
             {
@@ -392,9 +380,9 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // Boundary Properties;
         if( token == "[bdryprops]" )
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) lineproplist.reserve(k);
 
             while (input.good() && NumLineProps < k)
@@ -416,9 +404,9 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // Block Properties;
         if( token == "[blockprops]" )
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) blockproplist.reserve(k);
 
             while (input.good() && NumBlockProps < k)
@@ -439,9 +427,9 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // Circuit Properties
         if( token == "[circuitprops]" || token == "[conductorprops]")
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if(k>0) circproplist.reserve(k);
 
             while (input.good() && NumCircProps < k)
@@ -462,8 +450,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // read in regional attributes
         if(token == "[numblocklabels]" )
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, NumBlockLabels, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, NumBlockLabels, err);
             if (NumBlockLabels>0) labellist.reserve(NumBlockLabels);
             for(int i=0; i<NumBlockLabels; i++)
             {
@@ -480,21 +468,22 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
                 || token == "[numholes]"
                 )
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             // the nodes in the .fem file seem to be unused, and
             // the original femm code does not even read them here
             // -> just skip the lines here:
             int i;
-            success &= parseValue(input, i, err);
-            for (std::string line; i>0; i--)
+            success &= parseValue(lineStream, i, err);
+            while (0 < i--)
                 std::getline(input,line);
             continue;
         }
 
         // fall-through; token was not used
-        if (!handleToken(token, input, err))
+        if (!handleToken(token, lineStream, err))
         {
-            err << "Unknown token: " << token << "\n";
+            err << "Unknown token: " << token << "\n"
+                << "Context line:\n" << line << "\n";
             success = false;
 #ifdef STOP_ON_UNKNOWN_TOKEN
             // stop parsing:
