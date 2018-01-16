@@ -110,11 +110,14 @@ protected:
      *
      * \internal
      * This function is only a dummy that rejects any token, and is overridden in derived classes.
-     * If a token is understood, this method should read its remaining text from the input stream and then return \c true.
+     * If a token is understood, this method should read its text from the input stream and then return \c true.
      * If a token is not understood, the method must not change the position in the input stream, and must return \c false.
      *
+     * \note The input stream contains the remaining contents of the line that \c token was found on.
+     * Therefore, this method can never read beyond the current line.
+     *
      * @param token the current token that was already read from input
-     * @param input input stream
+     * @param input input stream for current line
      * @param err output stream for error messages
      * @return \c false, if the token is not handled. \c true, if it is handled
      */

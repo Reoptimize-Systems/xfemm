@@ -27,7 +27,6 @@
 #include <sstream>
 #include <string>
 
-
 using namespace std;
 using namespace femm;
 
@@ -85,8 +84,6 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 ::parse(const std::string &file)
 {
     std::ifstream input;
-    std::streampos linestart;
-    string line;
 
     input.open(file.c_str(), std::ifstream::in);
     if (!input.is_open())
@@ -106,15 +103,14 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
     bool readSolutionData = false;
     while (input.good() && success)
     {
-        if (!input.eof())
+        if (input.eof())
         {
-            // store the current position so we can examine the line in the event of failure
-            linestart = input.tellg();
-            // store it
-            std::getline(input, line);
-            // go back to start of line
-            input.seekg(linestart);
+            break;
         }
+
+        std::string line;
+        std::getline(input, line);
+        trim(line);
 
         if (line.empty())
         {
@@ -129,51 +125,46 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                   << line << std::endl;
 #endif // DEBUG_PARSER
 
+        std::istringstream lineStream(line);
         string token;
 
-        if (input.eof())
-        {
-            success = true;
-            break;
-        }
-
-        nextToken(input, &token);
+        nextToken(lineStream, &token);
 
         if( token == "[format]")
         {
-            success &= expectChar(input, '=',err);
-            success &= parseValue(input, problem->FileFormat, err);
+            success &= expectChar(lineStream, '=',err);
+            success &= parseValue(lineStream, problem->FileFormat, err);
             continue;
         }
 
         // Precision
         if( token == "[precision]")
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, problem->Precision, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, problem->Precision, err);
             continue;
         }
 
         if( token == "[minangle]")
         {
-            success &= expectChar(input, '=',err);
-            success &= parseValue(input, problem->MinAngle, err);
+            success &= expectChar(lineStream, '=',err);
+            success &= parseValue(lineStream, problem->MinAngle, err);
             continue;
         }
 
         // Depth for 2D planar problems;
         if( token == "[depth]")
         {
-            success &= expectChar(input, '=',err);
-            success &= parseValue(input, problem->Depth, err);
+            success &= expectChar(lineStream, '=',err);
+            success &= parseValue(lineStream, problem->Depth, err);
             continue;
         }
 
         // Units of length used by the problem
         if( token == "[lengthunits]")
         {
-            success &= expectChar(input, '=', err);
-            nextToken(input, &token);
+            success &= expectChar(lineStream, '=', err);
+            nextToken(lineStream, &token);
 
             if( token == "inches" ) problem->LengthUnits=LengthInches;
             else if( token == "millimeters" ) problem->LengthUnits=LengthMillimeters;
@@ -188,8 +179,8 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         // Coordinates (cartesian or polar)
         if( token == "[coordinates]" )
         {
-            success &= expectChar(input, '=', err);
-            nextToken(input, &token);
+            success &= expectChar(lineStream, '=', err);
+            nextToken(lineStream, &token);
 
             if ( token == "cartesian" ) problem->Coords=CART;
             else if ( token == "polar" ) problem->Coords=POLAR;
@@ -200,8 +191,8 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         // Problem Type (planar or axisymmetric)
         if( token == "[problemtype]" )
         {
-            success &= expectChar(input, '=', err);
-            nextToken(input, &token);
+            success &= expectChar(lineStream, '=', err);
+            nextToken(lineStream, &token);
 
             if( token == "planar" ) problem->problemType=PLANAR;
             else if( token == "axisymmetric" ) problem->problemType=AXISYMMETRIC;
@@ -212,45 +203,45 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         // properties for axisymmetric external region
         if( token == "[extzo]" )
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, problem->extZo, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, problem->extZo, err);
             continue;
         }
 
         if( token == "[extro]" )
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, problem->extRo, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, problem->extRo, err);
             continue;
         }
 
         if( token == "[extri]" )
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, problem->extRi, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, problem->extRi, err);
             continue;
         }
 
 
         if( token == "[comment]" )
         {
-            success &= expectChar(input, '=', err);
-            parseString(input, &(problem->comment), err);
+            success &= expectChar(lineStream, '=', err);
+            parseString(lineStream, &(problem->comment), err);
             continue;
         }
 
         // AC Solver Type
         if( token == "[acsolver]")
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, problem->ACSolver, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, problem->ACSolver, err);
             continue;
         }
 
         if( token == "[prevsoln]" )
         {
-            expectChar(input, '=', err);
-            parseString(input,&(problem->PrevSoln));
+            expectChar(lineStream, '=', err);
+            parseString(lineStream,&(problem->PrevSoln));
             continue;
         }
 
@@ -258,16 +249,16 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         // user choice
         if( token == "[forcemaxmesh]")
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, problem->DoForceMaxMeshArea, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, problem->DoForceMaxMeshArea, err);
             continue;
         }
 
         // Option to use smart meshing
         if( token == "[dosmartmesh]" )
         {
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, problem->DoSmartMesh, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, problem->DoSmartMesh, err);
             continue;
         }
 
@@ -275,8 +266,8 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         if( token == "[pointprops]" )
         {
             int k;
-            success &= expectChar(input, '=', err);
-            success &= parseValue(input, k, err);
+            success &= expectChar(lineStream, '=', err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) problem->nodeproplist.reserve(k);
 
             while (input && (int)problem->nodeproplist.size() < k)
@@ -298,9 +289,9 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         // Boundary Properties;
         if( token == "[bdryprops]" )
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) problem->lineproplist.reserve(k);
 
             while (input && (int)problem->lineproplist.size() < k)
@@ -322,9 +313,9 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         // Block Properties;
         if( token == "[blockprops]" )
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) problem->blockproplist.reserve(k);
 
             while (input && (int)problem->blockproplist.size() < k)
@@ -345,9 +336,9 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         // Circuit Properties
         if( token == "[circuitprops]" || token == "[conductorprops]")
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if(k>0) problem->circproplist.reserve(k);
 
             while (input && (int)problem->circproplist.size() < k)
@@ -369,9 +360,9 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         // read in regional attributes
         if(token == "[numblocklabels]" )
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) problem->labellist.reserve(problem->labellist.size()+k);
 
             // labellist contains both BlockLabels and holes. Therefore we can't use labellist.size:
@@ -393,15 +384,14 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         }
         if(token == "[numholes]" )
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0 && !solutionReader) problem->labellist.reserve(problem->labellist.size()+k);
 
             // labellist contains both BlockLabels and holes. Therefore we can't use labellist.size:
             int num=0;
             // operate on a line-by-line level;
-            std::string line;
             while (num < k && getline(input, line))
             {
                 // holes are not relevant for the post processor -> skip them when reading the solution
@@ -433,13 +423,12 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 
         if (token == "[numpoints]")
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) problem->nodelist.reserve(k);
 
             // operate on a line-by-line level;
-            std::string line;
             while ((int)problem->nodelist.size() < k && getline(input, line))
             {
                 size_t pos;
@@ -477,13 +466,12 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         }
         if (token == "[numsegments]")
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) problem->linelist.reserve(k);
 
             // operate on a line-by-line level;
-            std::string line;
             while ((int)problem->linelist.size() < k && getline(input, line))
             {
                 size_t pos;
@@ -524,13 +512,12 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         }
         if (token == "[numarcsegments]")
         {
-            success &= expectChar(input, '=', err);
+            success &= expectChar(lineStream, '=', err);
             int k;
-            success &= parseValue(input, k, err);
+            success &= parseValue(lineStream, k, err);
             if (k>0) problem->arclist.reserve(k);
 
             // operate on a line-by-line level;
-            std::string line;
             while ((int)problem->arclist.size() < k && getline(input, line))
             {
                 size_t pos;
@@ -578,22 +565,17 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 
         if (token == "[solution]")
         {
-            // discard rest of current input line
-            getline(input,token);
             readSolutionData = true;
             break;
         }
 
         // fall-through; token was not used
-        if (!handleToken(token, input, err))
+        if (!handleToken(token, lineStream, err))
         {
             err << "Unknown token: " << token << "\n";
             success = false;
             if (!ignoreUnhandled) {
-                err << "remaining input:\n";
-                std::string s;
-                while (getline(input,s))
-                    err << s << "\n";
+                err << "On line:\n" << line << "\n";
                 // stop parsing:
                 break;
             }
@@ -723,8 +705,7 @@ bool HeatFlowReader::handleToken(const string &token, istream &input, ostream &e
     if( token == "[frequency]")
     {
         err << "Warning: [frequency] is not an allowed parameter for heat flow problems!\n";
-        std::string line;
-        std::getline(input, line); // ignore line
+        // ignore line
         return true;
     }
     return false;
