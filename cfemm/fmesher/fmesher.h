@@ -193,6 +193,12 @@ void discretizeInputArcSegments(
                 SegmentFilter filter = SegmentFilter::AllSegments
                 );
 
+/**
+ * @brief triangleVersionString exposes information about the triangle version that is used.
+ * @return a string describing the version of triangle in use.
+ */
+std::string triangleVersionString();
+
 } // namespace femm
 
 #endif

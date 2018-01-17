@@ -12,6 +12,7 @@
 #include "CliTools.h"
 #include "FemmState.h"
 #include "femmversion.h"
+#include "fmesher.h" // for triangle version
 #include "LuaBaseCommands.h"
 #include "LuaInstance.h"
 #include "LuaElectrostaticsCommands.h"
@@ -174,7 +175,8 @@ int main(int argc, char ** argv)
         }
         if (arg == "--version" )
         {
-            std::cout << "femmcli version " << FEMM_VERSION_STRING << "\n";
+            std::cout << "femmcli version " << FEMM_VERSION_STRING << "\n"
+                      << "using triangle " << fmesher::triangleVersionString() << "\n";
 #ifndef NDEBUG
             std::cout << "assertions enabled\n";
 #endif

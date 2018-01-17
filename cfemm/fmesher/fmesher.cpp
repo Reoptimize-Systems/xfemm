@@ -32,6 +32,8 @@
 #include "fparse.h"
 #include "IntPoint.h"
 
+#include "triangle_version.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -894,3 +896,8 @@ bool FMesher::LoadMesh(string PathName)
 //	}
 //
 //}
+
+string fmesher::triangleVersionString()
+{
+    return TRIANGLE_VERSION;
+}
