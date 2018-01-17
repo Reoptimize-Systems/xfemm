@@ -78,7 +78,7 @@ public:
 
     std::shared_ptr<femm::FemmProblem> problem;
 	bool    Verbose;
-    bool writePolyFiles; ///< write .poly files when calling triangle
+    bool writePolyFiles = false; ///< write .poly files when calling triangle
 
 	std::string BinDir;
 
