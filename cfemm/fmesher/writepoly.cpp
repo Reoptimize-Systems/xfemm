@@ -172,9 +172,9 @@ private:
     triangleio in;
     context *ctx;
 #endif
-    double m_minAngle;
-    bool m_suppressExteriorSteinerPoints; ///< Default: false
-    bool m_suppressUnusedVertices; ///< Default: false
+    double m_minAngle = 0.;
+    bool m_suppressExteriorSteinerPoints = false;
+    bool m_suppressUnusedVertices = false;
 };
 
 /**
@@ -1615,8 +1615,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 TriangulateHelper::TriangulateHelper()
     : WarnMessage(&PrintWarningMsg)
     , TriMessage(nullptr)
-    , m_minAngle(0.)
-    , m_suppressExteriorSteinerPoints(false)
 {
     initialize(in);
 #ifdef XFEMM_BUILTIN_TRIANGLE

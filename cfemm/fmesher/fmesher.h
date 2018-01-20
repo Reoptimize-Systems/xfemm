@@ -74,10 +74,10 @@ public:
     explicit FMesher();
     explicit FMesher(std::string);
     explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
-	bool    DoSmartMesh;
 
     std::shared_ptr<femm::FemmProblem> problem;
-	bool    Verbose;
+    bool    DoSmartMesh = false;
+    bool    Verbose = true;
     bool writePolyFiles = false; ///< write .poly files when calling triangle
 
 	std::string BinDir;
