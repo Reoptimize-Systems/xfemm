@@ -53,24 +53,21 @@ constexpr double DEFAULT_MINANGLE=30.;
 }
 
 FMesher::FMesher()
+    : problem(nullptr)
+    , DoSmartMesh(false)
+    , Verbose(true)
+    , WarnMessage(&PrintWarningMsg)
+    , TriMessage(nullptr)
 {
-    // initialise the warning message function pointer to
-    // point to the PrintWarningMsg function
-    WarnMessage = &PrintWarningMsg;
-
-    TriMessage = NULL;
-
-    Verbose = true;
-
     // initialize the problem data structures
     // and default behaviour etc.
     Initialize(femm::FileType::Unknown);
-
 }
 
 
 FMesher::FMesher(std::shared_ptr<FemmProblem> p)
     : problem(p)
+    , DoSmartMesh(false)
     , Verbose(true)
     , WarnMessage(&PrintWarningMsg)
     , TriMessage(nullptr)
