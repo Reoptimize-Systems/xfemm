@@ -4,10 +4,6 @@
 #include "fpproc.h"
 #include "femmcomplex.h"
 
-#ifndef NDEBUG
-//setbuf(stdout, NULL);
-#endif // NDEBUG
-
 using namespace std;
 
 int main(int argc, char** argv)
