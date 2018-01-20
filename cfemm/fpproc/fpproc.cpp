@@ -964,9 +964,9 @@ bool FPProc::OpenDocument(string pathname)
 
     // read in meshnodes;
     fscanf(fp,"%i\n",&k);
-#ifndef NDEBUG
+#ifdef DEBUG_FPPROC
     printf("numnodes: %d\n", k);
-#endif // NDEBUG
+#endif // DEBUG_FPPROC
     meshnode.resize(k);
     for(i=0; i<k; i++)
     {
@@ -999,9 +999,9 @@ bool FPProc::OpenDocument(string pathname)
                     std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
                             + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
                     WarnMessage(msg.c_str()); /* Error */
-#ifndef NDEBUG
+#ifdef DEBUG_FPPROC
                     printf("s: %s\n", s);
-#endif // NDEBUG
+#endif // DEBUG_FPPROC
                     fclose(fp);
                     return false;
                 }
@@ -1023,18 +1023,18 @@ bool FPProc::OpenDocument(string pathname)
     sscanf(s,"%i",&k);
     //fscanf(fp,"%i\n",&k);
     meshelem.resize(k);
-#ifndef NDEBUG
+#ifdef DEBUG_FPPROC
     printf("numelement: %d\n", k);
-#endif // NDEBUG
+#endif // DEBUG_FPPROC
     for(i=0; i<k; i++)
     {
         if ( fgets(s,1024,fp) != NULL )
         {
             sscnt = sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
-#ifndef NDEBUG
+#ifdef DEBUG_FPPROC
             printf("s: %s\n", s);
             //getchar();
-#endif // NDEBUG
+#endif // DEBUG_FPPROC
             if (sscnt != 4)
             {
                 std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
@@ -1046,9 +1046,9 @@ bool FPProc::OpenDocument(string pathname)
 
             elm.blk=blocklist[elm.lbl].BlockType;
             meshelem[i] = elm;
-#ifndef NDEBUG
+#ifdef DEBUG_FPPROC
             printf("numelement: %d\n", k);
-#endif // NDEBUG
+#endif // DEBUG_FPPROC
         }
         else
         {
