@@ -108,6 +108,11 @@ CMMaterialProp::CMMaterialProp( const CMMaterialProp& other )
     LamType = other.LamType;            // type of lamination;
 }
 
+void CMMaterialProp::clearSlopes()
+{
+    slope.clear();
+}
+
 void CMMaterialProp::GetSlopes(double omega)
 {
     if (BHpoints==0) return; // catch trivial case;

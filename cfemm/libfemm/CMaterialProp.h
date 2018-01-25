@@ -74,6 +74,7 @@ public:
     // copy constructor
     CMMaterialProp( const CMMaterialProp& other );
 
+    virtual void clearSlopes();
     virtual void GetSlopes(double omega=0.);
     virtual CComplex LaminatedBH(double w, int i);
 

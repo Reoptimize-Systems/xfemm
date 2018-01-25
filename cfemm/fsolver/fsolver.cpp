@@ -114,12 +114,32 @@ bool FSolver::LoadProblemFile ()
         return false;
 
     // do some precomputations
-    for( vector<BlockProp_type>::iterator propIt = blockproplist.begin()
-         ; propIt != blockproplist.end()
-         ; ++propIt)
+    for (auto &prop : blockproplist)
     {
-        propIt->GetSlopes(Frequency*2.*PI);
+        if (!previousSolutionFile.empty() && Frequency>0)
+        {
+            // first time through was just to get MuMax from AC curve...
+            // -> backup Hdata and Bdata:
+            std::vector<double> oldBdata;
+            std::vector<CComplex> oldHdata;
+            oldBdata.reserve(prop.BHpoints);
+            oldHdata.reserve(prop.BHpoints);
+            std::copy(prop.Bdata.begin(), prop.Bdata.end(), oldBdata.begin());
+            std::copy(prop.Hdata.begin(), prop.Hdata.end(), oldHdata.begin());
+
+            prop.GetSlopes(Frequency*2.*PI);
+
+            std::copy(oldBdata.begin(), oldBdata.end(), prop.Bdata.begin());
+            std::copy(oldHdata.begin(), oldHdata.end(), prop.Hdata.begin());
+            prop.clearSlopes();
+
+            // second time through is to get the DC curve
+            prop.GetSlopes(0);
+        } else {
+            prop.GetSlopes(Frequency*2.*PI);
+        }
     }
+
 
     if (NumCircProps==0) return true;
 
