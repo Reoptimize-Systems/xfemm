@@ -192,6 +192,7 @@ void CMMaterialProp::GetSlopes(double omega)
 
     while(CurveOK!=true)
     {
+        slope.clear();
         debug << "curve not ok yet.\n";
         // make sure that the space for computing slopes is cleared out
         L.Wipe();
