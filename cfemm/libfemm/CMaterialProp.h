@@ -74,6 +74,7 @@ public:
     // copy constructor
     CMMaterialProp( const CMMaterialProp& other );
 
+    virtual void clearSlopes();
     virtual void GetSlopes(double omega=0.);
     virtual CComplex LaminatedBH(double w, int i);
 
@@ -120,6 +121,7 @@ public:
 
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
+    double MuMax; // maximum permeability for AC problems
 
     virtual bool isAir() const override;
     /**
