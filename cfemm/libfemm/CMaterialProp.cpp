@@ -180,7 +180,7 @@ void CMMaterialProp::GetSlopes(double omega)
         {
             Hdata[i]*=exp(I*Bdata[i]*Theta_hn*DEG/(Hdata[i]*mumax));
         }
-
+        MuMax = mumax / muo;
     }
 
     while(CurveOK!=true)
