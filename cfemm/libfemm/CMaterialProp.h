@@ -121,6 +121,7 @@ public:
 
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
+    double MuMax; // maximum permeability for AC problems
 
     virtual bool isAir() const override;
     /**
