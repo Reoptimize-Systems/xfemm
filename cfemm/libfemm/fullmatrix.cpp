@@ -186,7 +186,6 @@ int CComplexFullMatrix::GaussSolve()
        in b, m is destroyed in the process */
 
     int i,j,k,q = 0;
-    CComplex *z;
     CComplex max,f;
 
     for(i=0; i<n; i++)
@@ -198,12 +197,8 @@ int CComplexFullMatrix::GaussSolve()
                 q=j;
             }
         if(max==0) return false;
-        z=M[i];
-        M[i]=M[q];
-        M[q]=z;
-        f=b[i];
-        b[i]=b[q];
-        b[q]=f;
+        std::swap(M[i],M[q]);
+        std::swap(b[i],b[q]);
         for(j=i+1; j<n; j++)
         {
             f=M[j][i]/M[i][i];
