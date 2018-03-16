@@ -108,6 +108,11 @@ CMMaterialProp::CMMaterialProp( const CMMaterialProp& other )
     LamType = other.LamType;            // type of lamination;
 }
 
+void CMMaterialProp::clearSlopes()
+{
+    slope.clear();
+}
+
 void CMMaterialProp::GetSlopes(double omega)
 {
     if (BHpoints==0) return; // catch trivial case;
@@ -175,7 +180,7 @@ void CMMaterialProp::GetSlopes(double omega)
         {
             Hdata[i]*=exp(I*Bdata[i]*Theta_hn*DEG/(Hdata[i]*mumax));
         }
-
+        MuMax = mumax / muo;
     }
 
     while(CurveOK!=true)
