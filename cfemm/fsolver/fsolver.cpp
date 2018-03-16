@@ -64,6 +64,13 @@ template class FEASolver<
 #define _strnicmp strncasecmp
 #endif
 
+#ifdef DEBUG_FSOLVER
+#define debug std::cerr << __func__ << "(): "
+#else
+#define debug while(false) std::cerr
+#endif
+
+
 using namespace std;
 using namespace femm;
 
@@ -116,6 +123,7 @@ bool FSolver::LoadProblemFile ()
     // do some precomputations
     for (auto &prop : blockproplist)
     {
+        debug << "doing precomputations for material " << prop.BlockName << "\n";
         if (!previousSolutionFile.empty() && Frequency>0)
         {
             // first time through was just to get MuMax from AC curve...

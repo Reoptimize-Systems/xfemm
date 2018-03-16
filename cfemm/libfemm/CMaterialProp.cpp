@@ -40,6 +40,12 @@
 
 #define ElementsPerSkinDepth 10
 
+#ifdef DEBUG_CMATERIALPROP
+#define debug std::cerr << __func__ << "(): "
+#else
+#define debug while(false) std::cerr
+#endif
+
 using namespace std;
 using namespace femm;
 
@@ -144,6 +150,7 @@ void CMMaterialProp::GetSlopes(double omega)
     // being evaluated at a nonzero frequency.
     if(omega!=0)
     {
+        debug << "fixing the curve for a harmonic problem.\n";
         // Make an effective B-H curve for harmonic problems.
         // this one convolves B(H) where H is sinusoidal with
         // a sine at the same frequency to get the effective
@@ -185,6 +192,7 @@ void CMMaterialProp::GetSlopes(double omega)
 
     while(CurveOK!=true)
     {
+        debug << "curve not ok yet.\n";
         // make sure that the space for computing slopes is cleared out
         L.Wipe();
 
