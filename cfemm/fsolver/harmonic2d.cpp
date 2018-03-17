@@ -823,12 +823,26 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
     cf=unitconv[LengthUnits];
     fprintf(fp,"%i\n",NumNodes);
     for(i=0; i<NumNodes; i++)
-        fprintf(fp,"%.17g\t%.17g\t%.17g\t%.17g\n",meshnode[i].x/cf,
-                meshnode[i].y/cf,L.b[i].re,L.b[i].im);
+    {
+        fprintf(fp,"%.17g\t%.17g\t%.17g\t%.17g\t%i",meshnode[i].x/cf,
+                meshnode[i].y/cf,L.b[i].re,L.b[i].im,
+                meshnode[i].BoundaryMarker
+                );
+        // include A from previous solution if this is an incremental permeability problem
+        if (Aprev) fprintf(fp,"\t%.17g\n",Aprev[i]);
+        else fprintf(fp,"\n");
+    }
     fprintf(fp,"%i\n",NumEls);
     for(i=0; i<NumEls; i++)
-        fprintf(fp,"%i\t%i\t%i\t%i\n",
-                meshele[i].p[0],meshele[i].p[1],meshele[i].p[2],meshele[i].lbl);
+    {
+        fprintf(fp,"%i\t%i\t%i\t%i\t%i\t%i\t%i",
+                meshele[i].p[0],meshele[i].p[1],meshele[i].p[2],meshele[i].lbl,
+                meshele[i].e[0],meshele[i].e[1],meshele[i].e[2]
+                );
+        // include J from previous problem if this is an incremental permeability problem
+        if (Aprev) fprintf(fp,"\t%.17g\n",meshele[i].Jprev);
+        else fprintf(fp,"\n");
+    }
 
     /*
     	// print out circuit info
@@ -872,6 +886,11 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
                         L.b[NumNodes+i].Im());
         }
     }
+
+    // print out information on periodic boundary conditions
+    fprintf(fp,"%i\n",NumPBCs);
+    for(k=0;k<NumPBCs;k++)
+        fprintf(fp,"%i  %i %i\n",pbclist[k].x,pbclist[k].y,pbclist[k].t);
 
     fclose(fp);
     return true;

@@ -66,6 +66,7 @@ public:
     CComplex B1,B2;
     CComplex b1[3],b2[3];
     double magdir;
+    double Jprev;
 };
 
 /**
