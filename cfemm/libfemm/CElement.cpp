@@ -46,6 +46,7 @@ femmsolver::CMElement::CMElement()
     : CElement()
     , mu1(0)
     , mu2(0)
+    , v12(0)
     , B1(0)
     , B2(0)
     , b1{0,0,0}
