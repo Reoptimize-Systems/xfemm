@@ -911,6 +911,61 @@ void CMSolverMaterialProp::GetBHProps(double B, double &v, double &dv)
     dv=Re(dvc);
 }
 
+void CMSolverMaterialProp::incrementalPermeability(double B, double w, CComplex &mu1, CComplex &mu2)
+{
+    // B == flux density in Tesla
+    // w == frequency in rad/s
+
+    // get incremental permeability of the DC material
+    // (i.e. incremental permeability at the offset)
+    double muinc=1./(muo*Re(GetdHdB(B)));
+    double murel=1./(muo*Re(Get_v(B)));
+
+    // if material is not laminated, just apply hysteresis lag...
+    if ((Lam_d==0) || (LamFill==0))
+    {
+        mu1=muinc*exp(-I*Theta_hn*DEG*muinc/MuMax);
+        mu2=murel*exp(-I*Theta_hn*DEG*murel/MuMax);
+        return;
+    }
+
+    // crap.  Need to make an equivalent permeability that rolls in the effects of laminated
+    // eddy currents, using the incremental permeability as the basis for creating the impedance.
+    // this can get annoying because we need to back out the iron portion of the permeability
+    // in the lamfill<1 case...
+
+
+    if (Cduct!=0)
+    {
+        const CComplex deg45=1+I;
+
+        // incremental permeability direction
+        double mu = (muinc - (1.-LamFill))/LamFill;
+        CComplex halflag=exp(-I*Theta_hn*DEG*mu/(2.*MuMax));
+        double ds=sqrt(2./(0.4*PI*w*Cduct*mu));
+        CComplex K=halflag*deg45*Lam_d*0.001/(2.*ds);
+        mu1=(LamFill*mu*tanh(K)/K + (1.- LamFill));
+
+        // normal permeability direction
+        mu = (murel - (1.-LamFill))/LamFill;
+        halflag=exp(-I*Theta_hn*DEG*mu/(2.*MuMax));
+        ds=sqrt(2./(0.4*PI*w*Cduct*mu));
+        K=halflag*deg45*Lam_d*0.001/(2.*ds);
+        mu2=(LamFill*mu*tanh(K)/K + (1.- LamFill));
+    }
+    else{
+        // incremental permeability direction
+        double mu = (muinc - (1.-LamFill))/LamFill;
+        mu1=(mu*exp(-I*Theta_hn*DEG*mu/MuMax)*LamFill + (1.-LamFill));
+
+        // normal permeability direction
+        mu = (murel - (1.-LamFill))/LamFill;
+        mu2=(mu*exp(-I*Theta_hn*DEG*mu/MuMax)*LamFill + (1.-LamFill));
+    }
+}
+
+
+
 void CMSolverMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
 {
     double b,z,z2,l;
