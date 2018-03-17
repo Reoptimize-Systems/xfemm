@@ -62,6 +62,7 @@ public:
     static CMElement fromStream( std::istream &input, std::ostream &err = std::cerr );
 
     CComplex mu1,mu2;
+    CComplex v12;
     CComplex B1,B2;
     CComplex b1[3],b2[3];
     double magdir;
