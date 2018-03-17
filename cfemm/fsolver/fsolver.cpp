@@ -79,6 +79,7 @@ using namespace femm;
 
 FSolver::FSolver()
     : theLua(new LuaInstance)
+    , Aprev(nullptr)
 {
     Frequency = 0.0;
     Relax = 0.0;
@@ -105,6 +106,32 @@ void FSolver::CleanUp()
     FEASolver_type::CleanUp();
     delete[] meshnode;
     meshnode = NULL;
+    delete []Aprev;
+    Aprev = nullptr;
+}
+
+void FSolver::getPrev2DB(int k, double &B1p, double &B2p) const
+{
+    int n[3];
+    for(int i=0;i<3;i++) n[i]=meshele[k].p[i];
+
+    double b[3],c[3];
+    b[0]=meshnode[n[1]].y - meshnode[n[2]].y;
+    b[1]=meshnode[n[2]].y - meshnode[n[0]].y;
+    b[2]=meshnode[n[0]].y - meshnode[n[1]].y;
+    c[0]=meshnode[n[2]].x - meshnode[n[1]].x;
+    c[1]=meshnode[n[0]].x - meshnode[n[2]].x;
+    c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
+    double da=(b[0]*c[1]-b[1]*c[0]);
+
+    B1p=0;
+    B2p=0;
+
+    for(int i=0;i<3;i++)
+    {
+        B1p+=Aprev[n[i]]*c[i]/(da*LengthConvMeters[LengthUnits]);
+        B2p-=Aprev[n[i]]*b[i]/(da*LengthConvMeters[LengthUnits]);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////

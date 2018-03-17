@@ -35,21 +35,24 @@
 
 int FSolver::Harmonic2D(CBigComplexLinProb &L)
 {
-    int i,j,k,ww,s,sdin,sdi_iter,pctr;
+    int i,j,k,ww,s,sdin,sdi_iter;
     CComplex Mx[3][3],My[3][3];
     CComplex Me[3][3],be[3];		// element matrices;
     double l[3],p[3],q[3];		// element shape parameters;
     int n[3];					// numbers of nodes for a particular element;
-    double a,r,t,x,y,B,w,res,lastres,ds,Cduct;
-    CComplex K,mu,dv,B1,B2,v[3],mu1,mu2,lag,halflag,deg45,Jv; //u[3],
+    double a,r,t,x,y,B,res,lastres,ds,Cduct;
+    CComplex K,mu,dv,B1,B2,v[3],halflag,Jv; //u[3],
     CComplex **Mu,*V_sdi,*V_old;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     femmsolver::CMElement *El;
     int Iter=0;
-    int SDIflag=false;
-    int LinearFlag=true;
+    bool SDIflag=false;
+    bool LinearFlag=true;
+    bool bIncremental=false;
 
+    if (!previousSolutionFile.empty())
+        bIncremental = true;
     res=0;
 
 // #ifndef NEWTON
@@ -62,8 +65,8 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
     CComplex Mn[3][3];
 
-    deg45=1+I;
-    w=Frequency*2.*PI;
+    const CComplex deg45=1+I;
+    const double w=Frequency*2.*PI;
 
     CComplex *CircInt1=nullptr;
     CComplex *CircInt2=nullptr;
@@ -96,7 +99,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
         CircInt3=(CComplex *)calloc(NumCircProps,sizeof(CComplex));
         for(i=0; i<NumEls; i++)
         {
-            if(meshele[i].lbl>=0)
+            if(meshele[i].lbl>=0) {
                 if(labellist[meshele[i].lbl].InCircuit!=-1)
                 {
                     El=&meshele[i];
@@ -127,8 +130,9 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
                     // integral of applied J over current;
                     CircInt3[labellist[El->lbl].InCircuit]+=
-                        (blockproplist[El->blk].J.re+I*blockproplist[El->blk].J.im)*a*100.;
+                            (blockproplist[El->blk].J.re+I*blockproplist[El->blk].J.im)*a*100.;
                 }
+            }
         }
 
         for(i=0; i<NumCircProps; i++)
@@ -245,24 +249,13 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 //		TheView->SetDlgItemText(IDC_FRAME1,"Matrix Construction");
 //		TheView->m_prog1.SetPos(0);
             printf("Matrix Construction\n");
-            pctr=0;
 
             if(Iter>0) L.Wipe();
 
             // build element matrices using the matrices derived in Allaire's book.
             for(i=0; i<NumEls; i++)
             {
-
-                // update ``building matrix'' progress bar...
-                j=(i*20)/NumEls+1;
-                if(j>pctr)
-                {
-                    j=pctr*5;
-                    if (j>100) j=100;
-//			TheView->m_prog1.SetPos(j);
-                    pctr++;
-                }
-
+                CComplex Mxy[3][3];
                 // zero out Me, be;
                 for(j=0; j<3; j++)
                 {
@@ -271,6 +264,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                         Me[j][k]=0;
                         Mx[j][k]=0;
                         My[j][k]=0;
+                        Mxy[j][k]=0;
 //#ifdef NEWTON
                         if (ACSolver==1)
                         {
@@ -321,6 +315,15 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                     {
                         My[j][k] +=K*q[j]*q[k];
                         if (j!=k) My[k][j]+=K*q[j]*q[k];
+                    }
+
+                // xy-contribution;
+                K = (-1./(4.*a));
+                for(j=0;j<3;j++)
+                    for(k=j;k<3;k++)
+                    {
+                        Mxy[j][k] += K*(p[j]*q[k] + p[k]*q[j]);
+                        if (j!=k) Mxy[k][j] += K*(p[j]*q[k] + p[k]*q[j]);
                     }
 
                 // contribution from eddy currents;
@@ -426,9 +429,36 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                 if (Iter==0)
                 {
                     k=meshele[i].blk;
-                    if (blockproplist[k].BHpoints != 0) LinearFlag=false;
                     meshele[i].mu1=Mu[k][0];
                     meshele[i].mu2=Mu[k][1];
+                    meshele[i].v12=0;
+                    if (blockproplist[k].BHpoints != 0) {
+                        if (!bIncremental) {
+                            // There's no previous solution.  This is a standard nonlinear time harmonic problem
+                            LinearFlag=false;
+                        } else {
+                            double B1p,B2p;
+
+                            // Get B from previous solution
+                            getPrev2DB(i,B1p,B2p);
+                            B = sqrt(B1p*B1p + B2p*B2p);
+
+                            // look up incremental permeability and assign it to the element;
+                            blockproplist[k].incrementalPermeability(B,w,muinc,murel);
+                            if (B==0)
+                            {
+                                meshele[i].mu1=muinc;
+                                meshele[i].mu2=muinc;
+                                meshele[i].v12=0;
+                            }
+                            else{
+                                // need to actually compute B1 and B2 to build incremental permeability tensor
+                                meshele[i].mu1=B*B*muinc*murel/(B1p*B1p*murel + B2p*B2p*muinc);
+                                meshele[i].mu2=B*B*muinc*murel/(B1p*B1p*muinc + B2p*B2p*murel);
+                                meshele[i].v12=B1p*B2p*(murel-muinc)/(B*B*murel*muinc);
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -724,11 +754,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 // #else
             else sprintf(outstr,"Successive Approx(%i) Relax=%.4g",Iter,Relax);
 // #endif
-//        TheView->SetDlgItemText(IDC_FRAME2,outstr);
             printf("%s\n", outstr);
-            j=(int)  (100.*log10(res)/(log10(Precision)+2.));
-            if (j>100) j=100;
-//        TheView->m_prog2.SetPos(j);
         }
 
         // nonlinear iteration has to have a looser tolerance

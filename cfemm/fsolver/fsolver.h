@@ -92,12 +92,38 @@ private:
 
     virtual void CleanUp() override;
 
+    /**
+     * @brief getPrevAxiB
+     * @param k
+     * @param B1p
+     * @param B2p
+     * \internal
+     * ### FEMM reference source
+     *  - \femm42{fkn/prob4big.cpp,CFemmeDocCore::GetPrevAxiB()}
+     * \endinternal
+     */
+    void getPrevAxiB(int k, double &B1p, double &B2p) const;
+    /**
+     * @brief getPrev2DB
+     * @param k
+     * @param B1p
+     * @param B2p
+     * \internal
+     * ### FEMM reference source
+     *  - \femm42{fkn/prob2big.cpp,CFemmeDocCore::GetPrev2DB()}
+     * \endinternal
+     */
+    void getPrev2DB(int k, double &B1p, double &B2p) const;
+
     // override parent class virtual method
     void SortNodes (int* newnum) override;
 
     bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 
     femm::LuaInstance *theLua;
+
+    /// Vector containing previous solution for incremental permeability analysis
+    double *Aprev;
 };
 
 /////////////////////////////////////////////////////////////////////////////
