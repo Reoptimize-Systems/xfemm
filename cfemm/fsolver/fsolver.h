@@ -76,6 +76,15 @@ public:
 public:
 
     LoadMeshErr LoadMesh(bool deleteFiles=true) override;
+    /**
+     * @brief loadPreviousSolution
+     * @return \c true on success, \c false otherwise.
+     * \internal
+     * ### FEMM reference source
+     *  - \femm42{fkn/femmedoccore.cpp,CFemmeDocCore::LoadPrev()}
+     * \endinternal
+     */
+    bool loadPreviousSolution();
     bool LoadProblemFile();
     int Static2D(CBigLinProb &L);
     int WriteStatic2D(CBigLinProb &L);
