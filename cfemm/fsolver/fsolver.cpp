@@ -478,6 +478,11 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     return NOERROR;
 }
 
+bool FSolver::loadPreviousSolution()
+{
+// FIXME
+}
+
 void FSolver::GetFillFactor(int lbl)
 {
     // Get the fill factor associated with a stranded and
@@ -619,6 +624,11 @@ bool FSolver::runSolver(bool verbose)
 
     if (Frequency == 0)
     {
+        if (!previousSolutionFile.empty())
+        {
+            WarnMessage("Cannot handle incremental permeability problems with frequency 0.\n");
+            return false;
+        }
         CBigLinProb L;
         L.Precision = Precision;
 
@@ -630,7 +640,7 @@ bool FSolver::runSolver(bool verbose)
         }
 
         // Create element matrices and solve the problem;
-        if (ProblemType == false)
+        if (ProblemType == PLANAR)
         {
             if (Static2D(L) == false)
             {
@@ -670,6 +680,10 @@ bool FSolver::runSolver(bool verbose)
         // Create element matrices and solve the problem;
         if (ProblemType == PLANAR)
         {
+            if (!previousSolutionFile.empty())
+            {
+                WarnMessage("Harmonic planar incremental permeability problems are work in progress. RESULTS WON'T BE VALID!\n");
+            }
             if (!Harmonic2D(L))
             {
                 WarnMessage("Couldn't solve the problem\n");
@@ -678,6 +692,11 @@ bool FSolver::runSolver(bool verbose)
             if (verbose)
                 PrintMessage("Harmonic 2-D problem solved\n");
         } else {
+            if (!previousSolutionFile.empty())
+            {
+                WarnMessage("Cannot handle harmonic axisymmetric incremental problems.\n");
+                return false;
+            }
             if (!HarmonicAxisymmetric(L))
             {
                 WarnMessage("Couldn't solve the problem\n");

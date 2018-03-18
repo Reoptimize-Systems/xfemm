@@ -790,6 +790,8 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     theFSolver.PathName = doc->pathName.substr(0,dotpos);
     theFSolver.WarnMessage = &PrintWarningMsg;
     theFSolver.PrintMessage = &PrintWarningMsg;
+    // not supported yet, but set the previous solution so that we can detect this case afterwards:
+    theFSolver.previousSolutionFile = doc->PrevSoln;
     if (!theFSolver.LoadProblemFile())
     {
         lua_error(L, "mi_analyze(): problem initializing solver!");
