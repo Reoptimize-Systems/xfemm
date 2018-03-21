@@ -347,6 +347,9 @@ int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
  * - \femm42{femm/femmeLua.cpp,lua_attachdefault()}
  * - \femm42{femm/beladrawLua.cpp,lua_attachdefault()}
  * - \femm42{femm/HDRAWLUA.cpp,lua_attachdefault()}
+ *
+ * ## Porting notes:
+ * - Changes in femm42 test build 24Sep2017 have been checked and are not relevant to xfemm.
  * \endinternal
  */
 int femmcli::LuaCommonCommands::luaAttachDefault(lua_State *L)
