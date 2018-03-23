@@ -141,6 +141,13 @@ void FSolver::getPrev2DB(int k, double &B1p, double &B2p) const
 
 bool FSolver::LoadProblemFile ()
 {
+    //if there's a "previous solution" specified,
+    //slurp of the mesh out of that file.
+    if (!previousSolutionFile.empty())
+    {
+        return loadPreviousSolution();
+    }
+
     // define some defaults
     Relax=1.;
 
