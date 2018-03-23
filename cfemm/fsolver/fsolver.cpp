@@ -28,15 +28,17 @@
 // fsolver.cpp : implementation of the FSolver class
 //
 
-#include "CNode.h"
-#include "femmcomplex.h"
-#include "fparse.h"
-#include "fsolver.h"
-#include "LuaInstance.h"
-#include "spars.h"
+#include <CElement.h>
+#include <CNode.h>
+#include <femmcomplex.h>
+#include <fparse.h>
+#include <fsolver.h>
+#include <LuaInstance.h>
+#include <spars.h>
 
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <ctype.h>
 #include <fstream>
 #include <ios>
@@ -480,7 +482,113 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 
 bool FSolver::loadPreviousSolution()
 {
-// FIXME
+    if (previousSolutionFile.empty())
+        return false;
+
+    FILE *fp;
+    if ((fp=fopen(previousSolutionFile.c_str(),"rt"))==NULL){
+        WarnMessage("Couldn't read from specified previous solution\n");
+        return false;
+    }
+
+    // parse the file
+    bool hasSolution=false;
+    char s[1024];
+    while (fgets(s,1024,fp)!=0)
+    {
+        char q[256];
+        sscanf(s,"%s",q);
+
+        // Frequency of the problem
+        if( _strnicmp(q,"[frequency]",11)==0){
+            double prevFreq=0;
+            char *v=StripKey(s);
+            sscanf(v,"%lf",&prevFreq);
+
+            // case were previous solution is an AC problem.
+            // only DC  previous solutions are presently supported
+            if (prevFreq!=0)
+            {
+                fclose(fp);
+                WarnMessage("Only DC previous solutions are presently supported\n");
+                return false;
+            }
+        }
+
+        sscanf(s,"%s",q);
+        if( _strnicmp(q,"[solution]",11)==0){
+            hasSolution=true;
+            break;
+        }
+    }
+
+    // case where the solution is never found.
+    if (!hasSolution)
+    {
+        fclose(fp);
+        WarnMessage("Couldn't read from specified previous solution\n");
+        return false;
+    }
+
+    ////////////////////////////
+    // read in the previous solution!!!
+    ///////////////////////////
+
+    // read in nodes
+    fgets(s,1024,fp);
+    sscanf(s,"%i",&NumNodes);
+    Aprev=(double *)calloc(NumNodes,sizeof(double));
+    meshnode=(CNode *)calloc(NumNodes,sizeof(CNode));
+
+    CNode node;
+    for(int i=0;i<NumNodes;i++){
+        fgets(s,1024,fp);
+        sscanf(s,"%lf   %lf     %lf     %i\n",&node.x,&node.y,&Aprev[i],&node.BoundaryMarker);
+
+        // convert all lengths to centimeters (better conditioning this way...)
+        node.x *= 100 * LengthConvMeters[LengthUnits];
+        node.y *= 100 * LengthConvMeters[LengthUnits];
+
+        meshnode[i]=node;
+    }
+
+    // read elements
+    fgets(s,1024,fp);
+    sscanf(s,"%i",&NumEls);
+    using CMElement = femmsolver::CMElement;
+    meshele.reserve(NumEls);
+
+    for(int i=0;i<NumEls;i++)
+    {
+        CMElement elm;
+        fgets(s,1024,fp);
+        sscanf(s,"%i    %i      %i      %i      %i      %i      %i      %lf\n",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl,&elm.e[0],&elm.e[1],&elm.e[2],&elm.Jprev);
+        // look up block type out of the list of block labels
+        elm.blk=labellist[elm.lbl].BlockType;
+        meshele.push_back(elm);
+    }
+
+    // scroll through block label info
+    fgets(s,1024,fp);
+    int numLabels;
+    sscanf(s,"%i",&numLabels);
+    for(int i=0;i<numLabels;i++) fgets(s,1024,fp);
+
+    // read in PBC list
+    if (fgets(s,1024,fp)!=0)
+    {
+        sscanf(s,"%i",&NumPBCs);
+        pbclist.reserve(NumPBCs);
+        for(int i=0;i<NumPBCs;i++){
+            CCommonPoint pbc;
+            fgets(s,1024,fp);
+            sscanf(s,"%i    %i      %i\n",&pbc.x,&pbc.y,&pbc.t);
+            pbclist.push_back(pbc);
+        }
+    }
+
+    fclose(fp);
+    return true;
 }
 
 void FSolver::GetFillFactor(int lbl)
