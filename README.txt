@@ -57,6 +57,29 @@ make
 
 the binary files are found in the xfemm/cfemm/bin directory
 
+
+** Side-note: Compiling with an external triangle **
+
+Xfemm ships with triangle 1.6 by Jonathan Shewchuk of the Carnegie Mellon
+University, which was released in 2005.  There is a newer (unofficial) version
+available, that also incorporates the aCute mesher developed at the University
+of Florida, Gainesville.  This version has the main goal "to turn Triangle into
+a re-usable library and the introduction of a simplified C API."
+
+You can get the new triangle code here:
+https://github.com/wo80/Triangle
+
+If you install the external triangle to a standard location (e.g. /usr/local),
+xfemm will automatically pick it up. You can notice this by the line "Found
+triangle <version>" when you run cmake.  If you install the external triangle
+in a different location, you'll need to tell cmake where to find it:
+
+cd <install dir>/xfemm/cfemm
+cmake . -DCMAKE_PREFIX_PATH=<triangle install dir>
+make
+
+
+
 Compiling Matlab Interface
 --------------------------
 
