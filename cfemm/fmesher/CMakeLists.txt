@@ -1,14 +1,25 @@
-find_package(Triangle)
+# allow overriding the default behaviour for finding a suitable triangle:
+set(TRIANGLE_PROVIDER auto CACHE STRING "Control which sources of the triangle library are considered.")
+set_property(CACHE TRIANGLE_PROVIDER PROPERTY STRINGS auto force-builtin force-external)
+
+if (NOT "${TRIANGLE_PROVIDER}" STREQUAL "force-builtin")
+    find_package(Triangle)
+endif()
+
 if (Triangle_FOUND)
     message("Found triangle version ${Triangle_VERSION}...")
 else()
-    message("Using builtin version of triangle...")
-    add_library(triangle STATIC
-        triangle/triangle.c
-        )
-    # a bit of a dirty hack to make the link line nicer:
-    add_library(Triangle::triangle-api ALIAS triangle)
-    target_include_directories(triangle PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/triangle> $<INSTALL_INTERFACE:include>)
+    if (NOT "${TRIANGLE_PROVIDER}" STREQUAL "force-external")
+        message("Using builtin version of triangle...")
+        add_library(triangle STATIC
+            triangle/triangle.c
+            )
+        # a bit of a dirty hack to make the link line nicer:
+        add_library(Triangle::triangle-api ALIAS triangle)
+        target_include_directories(triangle PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/triangle> $<INSTALL_INTERFACE:include>)
+    else()
+        message(FATAL_ERROR "Cache variable TRIANGLE_PROVIDER set to 'force-external', but Triangle was not found!")
+    endif()
 endif()
 
 add_library(fmesher STATIC
