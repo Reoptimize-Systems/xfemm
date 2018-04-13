@@ -312,12 +312,12 @@ void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<st
                 a2 = a1 + dL * (a0-a1) / abs(a1-a0);
                 CNode node2 (a2.re, a2.im);
                 nodelst.push_back(node2.clone());
-                segm.n0 = l - 1;
-                segm.n1 = l;
+                segm.n0 = l;
+                segm.n1 = l + 1;
                 linelst.push_back(segm.clone());
 
                 // end part
-                segm.n0 = l - 1;
+                segm.n0 = l + 2;
                 segm.n1 = line.n1;
                 linelst.push_back(segm.clone());
             }
