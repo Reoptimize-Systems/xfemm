@@ -108,10 +108,21 @@ public:
     //void downstr(char *s);
 
     // Core functions
+	/**
+	 * @brief LoadMesh
+	 * @param PathName
+	 * @return
+	 * \internal
+	 * ### FEMM sources (identical implementation):
+	 * - \femm42{beladrawDoc.cpp,CbeladrawDoc::LoadMesh()}
+	 * - \femm42{CDRAWDOC.cpp,CcdrawDoc::LoadMesh()}
+	 * - \femm42{FemmeDoc.cpp,CFemmeDoc::LoadMesh()}
+	 * - \femm42{HDRAWDOC.cpp,ChdrawDoc::LoadMesh()}
+	 * \endinternal
+	 */
 	bool LoadMesh(std::string PathName);
 	int DoNonPeriodicBCTriangulation(std::string PathName);
 	int DoPeriodicBCTriangulation(std::string PathName);
-    //bool OldOnOpenDocument(LPCTSTR lpszPathName);
 	bool HasPeriodicBC();
 
     // pointer to function to call when issuing warning messages
