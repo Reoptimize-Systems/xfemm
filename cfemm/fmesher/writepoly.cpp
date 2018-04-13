@@ -1930,32 +1930,32 @@ bool TriangulateHelper::writePolyFile(string filename, std::string comment) cons
     // when filling to a width, adjust to the left
     polyFile.setf(std::ios::left);
 
-    polyFile << in.numberofpoints << " 2  0  1\n";
+    polyFile << in.numberofpoints << "\t2\t0\t1\n";
     for (int i=0; i < in.numberofpoints; i++)
     {
-        polyFile << i << " " << in.pointlist[2*i] << " " << in.pointlist[2*i+1] << " " << in.pointmarkerlist[i] << "\n";
+        polyFile << i << "\t" << in.pointlist[2*i] << "\t" << in.pointlist[2*i+1] << "\t" << in.pointmarkerlist[i] << "\n";
     }
 
-    polyFile << in.numberofsegments << " 1\n";
+    polyFile << in.numberofsegments << "\t1\n";
     for (int i=0; i < in.numberofsegments; i++)
     {
-        polyFile << i << " " << in.segmentlist[2*i] << " " << in.segmentlist[2*i+1] << " " << in.segmentmarkerlist[i] <<"\n";
+        polyFile << i << "\t" << in.segmentlist[2*i] << "\t" << in.segmentlist[2*i+1] << "\t" << in.segmentmarkerlist[i] <<"\n";
     }
 
     polyFile << in.numberofholes << "\n";
     for (int i=0; i < in.numberofholes; i++)
     {
-        polyFile << i << " " << in.holelist[2*i] << " " << in.holelist[2*i+1] << "\n";
+        polyFile << i << "\t" << in.holelist[2*i] << "\t" << in.holelist[2*i+1] << "\n";
     }
 
     polyFile << in.numberofregions << "\n";
     for (int i=0; i < in.numberofregions; i++)
     {
         int j=4*i;
-        polyFile << i << " "
-                 << in.regionlist[j] << " "
-                 << in.regionlist[j+1] << " "
-                 << in.regionlist[j+2] << " "
+        polyFile << i << "\t"
+                 << in.regionlist[j] << "\t"
+                 << in.regionlist[j+1] << "\t"
+                 << in.regionlist[j+2] << "\t"
                  << in.regionlist[j+3] << "\n";
     }
 
