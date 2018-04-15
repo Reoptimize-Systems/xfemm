@@ -786,7 +786,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     std::vector < std::unique_ptr<CNode> >             nodelst;
     std::vector < std::unique_ptr<CSegment> >          linelst;
     std::vector < std::unique_ptr<CPeriodicBoundary> > pbclst;
-    std::vector < std::unique_ptr<CCommonPoint> >      ptlst;
     CSegment segm;
     CPeriodicBoundary pbc;
     CCommonPoint pt;
@@ -794,7 +793,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     nodelst.clear();
     linelst.clear();
     pbclst.clear();
-    ptlst.clear();
 
     problem->updateUndo();
 
@@ -814,59 +812,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // create correct output filename;
     string pn = PathName;
-//    CStdString plyname=pn.Left(pn.ReverseFind('.')) + ".poly";
-//
-//    // check to see if we are ready to write a datafile;
-//
-//    if ((fp=fopen(plyname,"wt"))==NULL){
-//        WarnMessage("Couldn't write to specified .poly file");
-//        Undo();  UnselectAll();
-//        return false;
-//    }
-//
-//    // write out node list
-//    fprintf(fp,"%i    2    0    1\n",nodelst.size());
-//    for(i=0;i<nodelst.size();i++)
-//    {
-//        fprintf(fp,"%i    %.17g    %.17g    %i\n",
-//                 i,nodelst[i]->x,nodelst[i]->y,0);
-//    }
-//
-//    // write out segment list
-//    fprintf(fp,"%i    1\n",linelst.size());
-//    for(i=0;i<linelst.size();i++)
-//    {
-//        t=-(linelst[i]->cnt+2);
-//        fprintf(fp,"%i    %i    %i    %i\n",i,linelst[i]->n0,linelst[i]->n1,t);
-//    }
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
     double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
-
-//    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i]->BlockTypeName=="<No Mesh>")
-//        {
-//            fprintf(fp,"%i    %.17g    %.17g\n",k,blocklist[i]->x,blocklist[i]->y);
-//            k++;
-//        }
-
-//    // write out regional attributes
-//    fprintf(fp,"%i\n",blocklist.size()-j);
-//
-//    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i]->BlockTypeName!="<No Mesh>")
-//        {
-//            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i]->x,blocklist[i]->y);
-//            fprintf(fp,"%i    ",k+1);
-//            if (blocklist[i]->MaxArea>0)
-//                fprintf(fp,"%.17g\n",blocklist[i]->MaxArea);
-//            else fprintf(fp,"-1\n");
-//            k++;
-//        }
-//
-//    fclose(fp);
-
 
     // **********         call triangle       ***********
 
@@ -913,14 +862,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // use cnt again to keep a
     // tally of how many subsegments each
     // entity is sliced into.
-    for(i=0; i < (int)problem->arclist.size(); i++) problem->arclist[i]->cnt=0;
+    for(auto &arc: problem->arclist) arc->cnt=0;
 
+    std::vector < CCommonPoint >      ptlst;
+    // resize initializes the new elements using the default ctor:
     ptlst.resize(problem->linelist.size()+problem->arclist.size());
-
-    for(i=0;i<(int)ptlst.size();i++)
-    {
-        ptlst[i] = std::make_unique<CCommonPoint>();
-    }
 
     for(i=0;i<k;i++)
     {
@@ -938,16 +884,16 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // store a reference line that we can use to
             // determine whether or not this is a
             // boundary segment w/out re-running triangle.
-            if (ptlst[j]->t==0)
+            if (ptlst[j].t==0)
             {
-                ptlst[j]->t=1;
+                ptlst[j].t=1;
                 if(n0<n1){
-                    ptlst[j]->x=n0;
-                    ptlst[j]->y=n1;
+                    ptlst[j].x=n0;
+                    ptlst[j].y=n1;
                 }
                 else{
-                    ptlst[j]->x=n1;
-                    ptlst[j]->y=n0;
+                    ptlst[j].x=n1;
+                    ptlst[j].y=n0;
                 }
             }
 
@@ -1021,9 +967,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         // are sides of this node...
         for(j=0;j<(int)ptlst.size();j++)
         {
-            if ((n0==ptlst[j]->x) && (n1==ptlst[j]->y)) ptlst[j]->t--;
-            if ((n0==ptlst[j]->x) && (n2==ptlst[j]->y)) ptlst[j]->t--;
-            if ((n1==ptlst[j]->x) && (n2==ptlst[j]->y)) ptlst[j]->t--;
+            if ((n0==ptlst[j].x) && (n1==ptlst[j].y)) ptlst[j].t--;
+            if ((n0==ptlst[j].x) && (n2==ptlst[j].y)) ptlst[j].t--;
+            if ((n1==ptlst[j].x) && (n2==ptlst[j].y)) ptlst[j].t--;
         }
     }
     fclose(fp);
@@ -1031,7 +977,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // impose "new" mesh constraints on bdry arcs and segments....
     for(i=0; i < (int)problem->linelist.size(); i++)
     {
-        if (ptlst[i]->t == 0)
+        if (ptlst[i].t == 0)
         {
             // simply make the max side length equal to the
             // length of the boundary divided by the number
@@ -1043,7 +989,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i=0; i < (int)problem->arclist.size(); i++)
     {
-        if (ptlst[i+problem->linelist.size()]->t == 0)
+        if (ptlst[i+problem->linelist.size()].t == 0)
         {
             // alter maxsidelength, but do it in such
             // a way that it carries only 4 significant
@@ -1252,11 +1198,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             pt.x = problem->linelist[s0]->n0;
             pt.y = problem->linelist[s1]->n0;
             pt.t = pbclst[n]->antiPeriodic;
-            ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+            ptlst.push_back(pt);
             pt.x = problem->linelist[s0]->n1;
             pt.y = problem->linelist[s1]->n1;
             pt.t = pbclst[n]->antiPeriodic;
-            ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+            ptlst.push_back(pt);
 
             if (k == 1){
                 // catch the case in which the line
@@ -1288,7 +1234,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         pt.y = l;
 
                         pt.t = pbclst[n]->antiPeriodic;
-                        ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+                        ptlst.push_back(pt);
                     }
                     else if(j==(k-1))
                     {
@@ -1321,7 +1267,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         pt.x = l;
                         pt.y = l+1;
                         pt.t = pbclst[n]->antiPeriodic;
-                        ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+                        ptlst.push_back(pt);
                     }
                 }
             }
@@ -1374,9 +1320,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             // add arc segment end points to the list;
             pt.x=p0[0]; pt.y=p1[0]; pt.t=pbclst[n]->antiPeriodic;
-            ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+            ptlst.push_back(pt);
             pt.x=p0[1]; pt.y=p1[1]; pt.t=pbclst[n]->antiPeriodic;
-            ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+            ptlst.push_back(pt);
 
             if (k==1){
 
@@ -1412,7 +1358,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         pt.y=l;
 
                         pt.t=pbclst[n]->antiPeriodic;
-                        ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+                        ptlst.push_back(pt);
                     }
                     else if(j==(k-1))
                     {
@@ -1445,7 +1391,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         pt.x=l;
                         pt.y=l+1;
                         pt.t=pbclst[n]->antiPeriodic;
-                        ptlst.push_back(std::make_unique<CCommonPoint>(pt));
+                        ptlst.push_back(pt);
                     }
                 }
 
@@ -1516,14 +1462,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fclose(fp);
 
     // Make sure to prune out any duplications in the ptlst
-    for(k=0;k<(int)ptlst.size();k++) ptlst[k]->sortXY();
+    for(k=0;k<(int)ptlst.size();k++) ptlst[k].sortXY();
     k=0;
     while((k+1) < (int)ptlst.size())
     {
         j=k+1;
         while(j < (int)ptlst.size())
         {
-            if((ptlst[k]->x==ptlst[j]->x) && (ptlst[k]->y==ptlst[j]->y))
+            if((ptlst[k].x==ptlst[j].x) && (ptlst[k].y==ptlst[j].y))
                 ptlst.erase(ptlst.begin()+j);
             else j++;
         }
@@ -1546,10 +1492,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         for(j=k+1;j<ptlst.size();j++)
         {
-            if(ptlst[k]->x==ptlst[j]->x) n=true;
-            if(ptlst[k]->y==ptlst[j]->y) n=true;
-            if(ptlst[k]->x==ptlst[j]->y) n=true;
-            if(ptlst[k]->y==ptlst[j]->x) n=true;
+            if(ptlst[k].x==ptlst[j].x) n=true;
+            if(ptlst[k].y==ptlst[j].y) n=true;
+            if(ptlst[k].x==ptlst[j].y) n=true;
+            if(ptlst[k].y==ptlst[j].x) n=true;
         }
     }
     if (n==true){
@@ -1567,7 +1513,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
     fprintf(fp,"%i\n", (int) ptlst.size());
     for(k=0;k<(int)ptlst.size();k++)
-        fprintf(fp,"%i    %i    %i    %i\n",k,ptlst[k]->x,ptlst[k]->y,ptlst[k]->t);
+        fprintf(fp,"%i    %i    %i    %i\n",k,ptlst[k].x,ptlst[k].y,ptlst[k].t);
     fclose(fp);
 
     // call triangle with -Y flag.
