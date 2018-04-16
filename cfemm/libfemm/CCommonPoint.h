@@ -39,20 +39,26 @@ namespace femm {
  */
 class CCommonPoint
 {
-    public:
-        CCommonPoint();
+public:
+    CCommonPoint();
 
-        int x;
-        int y;
-        int t;
+    int x;
+    int y;
+    int t;
 
-        /**
-         * @brief sortXY
-         * Sort the fields x and y.
-         * After this operation, <tt>x <= y</tt> holds true.
-         */
-        void sortXY();
-    private:
+    /**
+     * @brief sortXY
+     * Sort the fields x and y.
+     * After this operation, <tt>x <= y</tt> holds true.
+     */
+    void sortXY();
+    /**
+     * @brief setSortedValues sets x and y from the parameters v1 and v2 so that <tt>x <= y</tt>.
+     * @param v1
+     * @param v2
+     */
+    void setSortedValues(int v1, int v2);
+private:
 
 };
 
