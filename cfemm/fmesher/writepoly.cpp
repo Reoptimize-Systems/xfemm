@@ -685,6 +685,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     for (const auto &node : problem->nodelist)
         nodelst.push_back(node->clone());
 
+    problem->clearNotationTags();
     // discretize input segments
     discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL);
 
@@ -754,6 +755,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
         triHelper.writeTriangulationFiles(PathName);
     }
+    problem->clearNotationTags();
 
     return 0;
 }
@@ -803,6 +805,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     for (const auto &node : problem->nodelist)
         nodelst.push_back(node->clone());
 
+    problem->clearNotationTags();
     // discretize input segments
     discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL);
 
@@ -859,6 +862,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
     fgets(instring,1024,fp);
     sscanf(instring,"%i",&k);
+    problem->clearNotationTags();
     // use cnt again to keep a
     // tally of how many subsegments each
     // entity is sliced into.
@@ -1148,6 +1152,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // kludge things a bit and use IsSelected to denote
     // whether or not a line or arc has already been processed.
+    problem->clearNotationTags();
     problem->unselectAll();
     nodelst.clear();
     linelst.clear();

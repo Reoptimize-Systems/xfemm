@@ -646,6 +646,18 @@ bool femm::FemmProblem::addSegment(int n0, int n1, const femm::CSegment *parsegm
     return true;
 }
 
+void femm::FemmProblem::clearNotationTags()
+{
+    for (auto &line : linelist)
+    {
+        line->cnt = 0;
+    }
+    for (auto &arc : arclist)
+    {
+        arc->cnt = 0;
+    }
+}
+
 
 
 

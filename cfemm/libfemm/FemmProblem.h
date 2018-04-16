@@ -202,6 +202,11 @@ public:
     bool addSegment(int n0, int n1, const femm::CSegment *parsegm, double tol=0.);
 
     /**
+     * @brief Clear the \c cnt tags of (arc) segments.
+     * The cnt fields in (arc) segments are used to store notation data by the mesher and other places.
+     */
+    void clearNotationTags();
+    /**
      * @brief Find the closest arc segment for the given coordinates
      * @param x
      * @param y
