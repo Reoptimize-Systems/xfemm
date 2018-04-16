@@ -46,3 +46,15 @@ void femm::CCommonPoint::sortXY()
         swap(x,y);
     }
 }
+
+void femm::CCommonPoint::setSortedValues(int v1, int v2)
+{
+    if (v1<v2)
+    {
+        x = v1;
+        y = v2;
+    } else {
+        x = v2;
+        y = v1;
+    }
+}

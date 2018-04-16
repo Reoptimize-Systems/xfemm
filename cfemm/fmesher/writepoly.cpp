@@ -880,6 +880,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         {
             // convert back to the `right' numbering
             j=-(j+2);
+            assert(j>=0);
 
             // store a reference line that we can use to
             // determine whether or not this is a
@@ -887,14 +888,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             if (ptlst[j].t==0)
             {
                 ptlst[j].t=1;
-                if(n0<n1){
-                    ptlst[j].x=n0;
-                    ptlst[j].y=n1;
-                }
-                else{
-                    ptlst[j].x=n1;
-                    ptlst[j].y=n0;
-                }
+                ptlst[j].setSortedValues(n0,n1);
             }
 
             if(j<(int)problem->linelist.size())
