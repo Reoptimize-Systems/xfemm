@@ -1,4 +1,4 @@
-function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, keepmesh)
+function [ansfilename, femfilename] = analyse_mfemm(femprob, varargin)
 % analyses a .fem file using the mfemm mex interface if present, or the
 % original femm interface if not.
 %
@@ -7,25 +7,52 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
 % Syntax
 %
 % [ansfilename, femfilename] = analyse_mfemm(femprob)
-% [...] = analyse_mfemm(..., usefemm)
-% [...] = analyse_mfemm(..., quiet)
-% [...] = analyse_mfemm(..., keepmesh)
+% [...] = analyse_mfemm(femprob, 'Parameter', value)
+%
+% [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm)  !! Warning Deprecated
+% [...] = analyse_mfemm(..., quiet)    !! Warning Deprecated
+% [...] = analyse_mfemm(..., keepmesh) !! Warning Deprecated
 %
 % Input
 %
-%   femprob - either a string containing the full name of the .fem file to
+% 
+%  femprob - either a string containing the full name of the .fem file to
 %     be analysed, or an mfemm FemmProblem structure. If a structure the
-%     problem will be written to a temporary file before evaluation.
+%     problem will be written to a temporary file before evaluation, the
+%     name of which is returned in femfilename.
 %
-%   usefemm - (optional) if true, forces the use of the original femm
-%     interface to analyse the problem. If not supplied defaults to false.
+% Additional arguments may be supplied as parameter-value pairs.
 %
-%   quiet - (optional) if true the output from fmesher and fsolver is not
-%     displayed, if false, it is printed to the command line. Defaults to
-%     true if not supplied.
+%  'UseFemm' - (optional scalar logical) if true, forces the use of the
+%    original femm interface to analyse the problem. If not supplied
+%    defaults to false.
 %
-%   keepmesh - (optional) if true, and not using FEMM, allows the mesh
-%    files to be kept after loading by fsolver.
+%  'Quiet' - (optional scalar logical) if true the output from fmesher and
+%    fsolver is not displayed, if false, it is printed to the command line.
+%    Defaults to true if not supplied. 
+%
+%  'KeepMesh' - (optional scalar logical) if true, and not using FEMM,
+%    allows the mesh files to be kept after loading by fsolver.
+%
+% An alternative legacy syntax is documented below. This syntax is
+% deprecated and may be removed in a future release. Use the
+% parameter-value pair method for new code.
+%
+%  usefemm - (optional) if true, forces the use of the original femm
+%    interface to analyse the problem. If not supplied defaults to false.
+%    Note that this syntax is deprecated, and will be removed in a future
+%    release. Instead use the parameter-value pair 'UseFemm'.
+%
+%  quiet - (optional) if true the output from fmesher and fsolver is not
+%    displayed, if false, it is printed to the command line. Defaults to
+%    true if not supplied. Note that this syntax is deprecated, and will
+%    be removed in a future release. Instead use the parameter-value pair
+%    'Quiet'.
+%
+%  keepmesh - (optional) if true, and not using FEMM, allows the mesh
+%   files to be kept after loading by fsolver. Note that this syntax is
+%   deprecated, and will be removed in a future release. Instead use the
+%   parameter-value pair 'KeepMesh'.
 % 
 % Output
 %
@@ -54,17 +81,42 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
 %    See the License for the specific language governing permissions and
 %    limitations under the License.
 
-    if nargin < 2
-        usefemm = false;
+    if (nargin > 1) && (ischar (varargin{1}))
+        
+        options.UseFEMM = false;
+        options.Quiet = true;
+        options.KeepMesh = false;
+
+        options = mfemmdeps.parse_pv_pairs (options, varargin );
+
+    else
+        
+        if nargin < 2
+            options.UseFEMM = false;
+        else
+            options.UseFEMM = varargin{1};
+        end
+
+        if nargin < 3
+            options.Quiet = true;
+        else
+            options.Quiet = varargin{2};
+        end
+
+        if nargin < 4
+            options.KeepMesh = false;
+        else
+            options.KeepMesh = varargin{3};
+        end
+    
     end
     
-    if nargin < 3
-        quiet = true;
-    end
-    
-    if nargin < 4
-        keepmesh = false;
-    end
+    assert (isscalar (options.UseFEMM) && islogical (options.UseFEMM), ...
+        'UseFEMM should be a scalar logical value' );
+    assert (isscalar (options.Quiet) && islogical (options.Quiet), ...
+        'Quiet should be a scalar logical value' );
+    assert (isscalar (options.KeepMesh) && islogical (options.KeepMesh), ...
+        'KeepMesh should be a scalar logical value' );
     
     if isstruct(femprob)
     
@@ -106,13 +158,13 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
         case ftype.magnetics
 
             if (exist('mexfmesher', 'file')==3) && (exist('mexfsolver', 'file')==3) ...
-                    && ~usefemm
+                    && ~options.UseFEMM
                 % using xfemm interface
-                if quiet
+                if options.Quiet
                     % mesh the problem using fmesher
                     fmesher(femfilename);
                     % solve the fea problem using fsolver
-                    fsolver(femfilename(1:end-4), false, ~keepmesh);
+                    fsolver(femfilename(1:end-4), false, ~options.KeepMesh);
                 else
                     % mesh the problem using fmesher
                     fprintf(1, 'Meshing mfemm problem ...\n');
@@ -120,7 +172,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
-                    fsolver(femfilename(1:end-4), true, ~keepmesh);
+                    fsolver(femfilename(1:end-4), true, ~options.KeepMesh);
                     fprintf(1, 'mfemm problem solved ...\n');
                 end
                 
@@ -135,13 +187,13 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
         case ftype.heatflow
         
             if (exist('mexfmesher', 'file')==3) && (exist('mexhsolver', 'file')==3) ...
-                    && ~usefemm
+                    && ~options.UseFEMM
                 % using xfemm interface
-                if quiet
+                if options.Quiet
                     % mesh the problem using fmesher
                     fmesher(femfilename);
                     % solve the fea problem using fsolver
-                    hsolver(femfilename(1:end-4), false, ~keepmesh);
+                    hsolver(femfilename(1:end-4), false, ~options.KeepMesh);
                 else
                     % mesh the problem using fmesher
                     fprintf(1, 'Meshing mfemm problem ...\n');
@@ -149,7 +201,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, usefemm, quiet, kee
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
-                    hsolver(femfilename(1:end-4), true, ~keepmesh);
+                    hsolver(femfilename(1:end-4), true, ~options.KeepMesh);
                     fprintf(1, 'mfemm problem solved ...\n');
                 end
                 
