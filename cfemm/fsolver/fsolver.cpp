@@ -729,7 +729,7 @@ bool FSolver::runSolver(bool verbose)
 
     if (verbose)
     {
-        PrintMessage("solving...");
+        PrintMessage("solving...\n");
         std::string stats = "Problem Statistics:\n";
         stats += to_string(NumNodes) + " nodes\n";
         stats += to_string(NumEls) + " elements\n";
@@ -757,6 +757,7 @@ bool FSolver::runSolver(bool verbose)
         // Create element matrices and solve the problem;
         if (ProblemType == PLANAR)
         {
+
             if (Static2D(L) == false)
             {
                 WarnMessage("Couldn't solve the problem\n");
