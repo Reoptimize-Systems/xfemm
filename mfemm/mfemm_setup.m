@@ -26,7 +26,7 @@ function varargout = mfemm_setup(varargin)
 %   all be recompiled. Library files will not be recompiled unless they are
 %   not present. Defaults to false.
 %
-% 'DoDebug' - true or false flag. Mex files will be built with debugging
+% 'Debug' - true or false flag. Mex files will be built with debugging
 %   symbols. Defaults to false if not supplied.
 %
 % 'Verbose' - true or false flag. Verbose build output if true. Defaults to
