@@ -46,6 +46,7 @@
 
 int FSolver::Static2D(CBigLinProb &L)
 {
+
     int i,j,k,w,s,sdi_iter,sdin;
     double Me[3][3],be[3];      // element matrices;
     double Mx[3][3],My[3][3],Mn[3][3];
@@ -93,7 +94,7 @@ int FSolver::Static2D(CBigLinProb &L)
                 if (lineproplist[meshele[i].e[j]].BdryFormat == 3)
                 {
                     SDIflag = true;
-                    printf("Problem has SDI boundaries\n");
+                    PrintMessage("Problem has SDI boundaries\n");
                     i = NumEls;
                     j = 3;
                 }
@@ -198,9 +199,6 @@ int FSolver::Static2D(CBigLinProb &L)
     }
 
 
-
-
-
     // first, need to define permeability in each block.  In nonlinear
     // case, this is sort of a hassle.  Linear permeability is simply
     // copied from the associated block definition, but nonlinear
@@ -215,7 +213,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
 //	TheView->SetDlgItemText(IDC_FRAME1,"Matrix Construction");
 //	TheView->m_prog1.SetPos(0);
-            printf("Matrix Construction\n");
+            PrintMessage("Matrix Construction\n");
 
             pctr = 0;
 
@@ -855,7 +853,7 @@ int FSolver::Static2D(CBigLinProb &L)
             // report some results
             char outstr[256];
             sprintf(outstr,"Newton Iteration(%i) Relax=%.4g\n",Iter,Relax);
-            printf("%s", outstr);
+            PrintMessage(outstr);
 //        TheView->SetDlgItemText(IDC_FRAME2,outstr);
             j = (int)  (100.*log10(res)/(log10(Precision)+2.));
             if (j>100)
@@ -908,6 +906,7 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
     // write solution to disk;
 
     char c[1024];
+    char msgbuff[1024];
     FILE *fp,*fz;
     int i,k;
     double cf;
@@ -919,7 +918,8 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
     if(fz==NULL)
     {
         //MsgBox("Couldn't open %s.fem\n", PathName.c_str());
-        printf("Couldn't open %s.fem\n", PathName.c_str());
+        sprintf(msgbuff,"Couldn't open %s.fem\n", PathName.c_str());
+        WarnMessage(msgbuff);
         return false;
     }
 
@@ -929,7 +929,8 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
     {
         if (fz != NULL) fclose(fz);
         //MsgBox("Couldn't write to %s.ans\n",PathName.c_str());
-        printf("Couldn't write to %s.ans\n",PathName.c_str());
+        sprintf(msgbuff,"Couldn't write to %s.ans\n",PathName.c_str());
+        WarnMessage(msgbuff);
         return false;
     }
 
