@@ -31,6 +31,7 @@
 #include "fmesher.h"
 #include "fparse.h"
 #include "IntPoint.h"
+#include "make_unique.h"
 
 #include "triangle_version.h"
 
@@ -330,11 +331,11 @@ bool FMesher::LoadMesh(string PathName)
 
                 if (j != 0)
                 {
-                    meshline[nl++] = std::make_unique<femm::IntPoint>(segm);
+                    meshline[nl++] = MAKE_UNIQUE<femm::IntPoint>(segm);
                 }
                 else
                 {
-                    greymeshline.push_back(std::make_unique<femm::IntPoint>(segm));
+                    greymeshline.push_back(MAKE_UNIQUE<femm::IntPoint>(segm));
                 }
             }
         }
