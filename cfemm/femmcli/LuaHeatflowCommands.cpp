@@ -26,6 +26,7 @@
 #include "femmenums.h"
 #include "FemmState.h"
 #include "LuaInstance.h"
+#include "make_unique.h"
 
 #include <lua.h>
 
@@ -310,7 +311,7 @@ int femmcli::LuaHeatflowCommands::luaAddBoundaryProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    std::unique_ptr<CHBoundaryProp> m = std::make_unique<CHBoundaryProp>();
+    std::unique_ptr<CHBoundaryProp> m = MAKE_UNIQUE<CHBoundaryProp>();
 
     int n=lua_gettop(L);
     if (n>0) m->BdryName = lua_tostring(L,1);
@@ -344,7 +345,7 @@ int femmcli::LuaHeatflowCommands::luaAddConductorProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::unique_ptr<CHConductor> m = std::make_unique<CHConductor>();
+    std::unique_ptr<CHConductor> m = MAKE_UNIQUE<CHConductor>();
     int n=lua_gettop(L);
 
     if(n>0) m->CircName=lua_tostring(L,1);
@@ -378,7 +379,7 @@ int femmcli::LuaHeatflowCommands::luaAddMaterialProperty(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
 
-    std::unique_ptr<CHMaterialProp> m = std::make_unique<CHMaterialProp>();
+    std::unique_ptr<CHMaterialProp> m = MAKE_UNIQUE<CHMaterialProp>();
     int n=lua_gettop(L);
 
     if (n>0) {
@@ -417,7 +418,7 @@ int femmcli::LuaHeatflowCommands::luaAddPointProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    std::unique_ptr<CHPointProp> m = std::make_unique<CHPointProp>();
+    std::unique_ptr<CHPointProp> m = MAKE_UNIQUE<CHPointProp>();
     int n=lua_gettop(L);
 
     if (n>0) m->PointName = lua_tostring(L,1);
@@ -670,7 +671,7 @@ int femmcli::LuaHeatflowCommands::luaGetMaterialFromLib(lua_State *L)
     while (input && err.str().empty())
     {
         std::unique_ptr<CMaterialProp> prop;
-        prop = std::make_unique<CHMaterialProp>(CHMaterialProp::fromStream(input, err));
+        prop = MAKE_UNIQUE<CHMaterialProp>(CHMaterialProp::fromStream(input, err));
         if (prop->BlockName == matname)
         {
             doc->blockproplist.push_back(std::move(prop));

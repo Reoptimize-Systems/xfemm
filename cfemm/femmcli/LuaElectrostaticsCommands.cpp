@@ -26,6 +26,7 @@
 #include "femmenums.h"
 #include "FemmState.h"
 #include "LuaInstance.h"
+#include "make_unique.h"
 
 #include <lua.h>
 
@@ -307,7 +308,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddBoundaryProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    std::unique_ptr<CSBoundaryProp> m = std::make_unique<CSBoundaryProp>();
+    std::unique_ptr<CSBoundaryProp> m = MAKE_UNIQUE<CSBoundaryProp>();
 
     int n=lua_gettop(L);
     if (n>0) m->BdryName = lua_tostring(L,1);
@@ -340,7 +341,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddConductorProperty(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::unique_ptr<CSCircuit> m = std::make_unique<CSCircuit>();
+    std::unique_ptr<CSCircuit> m = MAKE_UNIQUE<CSCircuit>();
     int n=lua_gettop(L);
 
     if(n>0) m->CircName = lua_tostring(L,1);
@@ -373,7 +374,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddMaterialProperty(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
 
-    std::unique_ptr<CSMaterialProp> m = std::make_unique<CSMaterialProp>();
+    std::unique_ptr<CSMaterialProp> m = MAKE_UNIQUE<CSMaterialProp>();
     int n=lua_gettop(L);
 
     if (n>0) {
@@ -412,7 +413,7 @@ int femmcli::LuaElectrostaticsCommands::luaAddPointProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    std::unique_ptr<CSPointProp> m = std::make_unique<CSPointProp>();
+    std::unique_ptr<CSPointProp> m = MAKE_UNIQUE<CSPointProp>();
     int n=lua_gettop(L);
 
     if (n>0) m->PointName = lua_tostring(L,1);
@@ -729,7 +730,7 @@ int femmcli::LuaElectrostaticsCommands::luaGetMaterialFromLib(lua_State *L)
     while (input && err.str().empty())
     {
         std::unique_ptr<CMaterialProp> prop;
-        prop = std::make_unique<CSMaterialProp>(CSMaterialProp::fromStream(input, err));
+        prop = MAKE_UNIQUE<CSMaterialProp>(CSMaterialProp::fromStream(input, err));
         if (prop->BlockName == matname)
         {
             doc->blockproplist.push_back(std::move(prop));
