@@ -37,6 +37,7 @@
 #include "femmconstants.h"
 #include "fparse.h"
 #include "stringTools.h"
+#include "make_unique.h"
 
 #include <cassert>
 #include <cmath>
@@ -809,7 +810,7 @@ ParserResult HPProc::parseSolution(std::istream &input, std::ostream &err)
     meshnodes.reserve(k);
     for(int i=0;i<k;i++)
     {
-        meshnodes.push_back(std::make_unique<CHMeshNode>(CHMeshNode::fromStream(input,err)));
+        meshnodes.push_back(MAKE_UNIQUE<CHMeshNode>(CHMeshNode::fromStream(input,err)));
     }
 
     // read in elements;
@@ -820,7 +821,7 @@ ParserResult HPProc::parseSolution(std::istream &input, std::ostream &err)
     {
         CHSElement elm = CHSElement::fromStream(input,err);
         elm.blk = labellist[elm.lbl]->BlockType;
-        meshelems.push_back(std::make_unique<CHSElement>(elm));
+        meshelems.push_back(MAKE_UNIQUE<CHSElement>(elm));
     }
 
     // read in circuit data;
