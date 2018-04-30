@@ -19,6 +19,7 @@
 
 #include "fparse.h"
 #include "stringTools.h"
+#include "make_unique.h"
 
 #include <cassert>
 #include <fstream>
@@ -271,7 +272,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while (input && (int)problem->nodeproplist.size() < k)
             {
                 std::unique_ptr<PointPropT> next;
-                next = std::make_unique<PointPropT>(PointPropT::fromStream(input, err));
+                next = MAKE_UNIQUE<PointPropT>(PointPropT::fromStream(input, err));
                 problem->nodeproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -295,7 +296,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while (input && (int)problem->lineproplist.size() < k)
             {
                 std::unique_ptr<BoundaryPropT> next;
-                next = std::make_unique<BoundaryPropT>(BoundaryPropT::fromStream(input, err));
+                next = MAKE_UNIQUE<BoundaryPropT>(BoundaryPropT::fromStream(input, err));
                 problem->lineproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -319,7 +320,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while (input && (int)problem->blockproplist.size() < k)
             {
                 std::unique_ptr<BlockPropT> next;
-                next = std::make_unique<BlockPropT>(BlockPropT::fromStream(input, err));
+                next = MAKE_UNIQUE<BlockPropT>(BlockPropT::fromStream(input, err));
                 problem->blockproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -342,7 +343,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while (input && (int)problem->circproplist.size() < k)
             {
                 std::unique_ptr<CircuitPropT> next;
-                next = std::make_unique<CircuitPropT>(CircuitPropT::fromStream(input, err));
+                next = MAKE_UNIQUE<CircuitPropT>(CircuitPropT::fromStream(input, err));
                 problem->circproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -368,7 +369,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while (input && num < k)
             {
                 std::unique_ptr<BlockLabelT> next;
-                next = std::make_unique<BlockLabelT>(BlockLabelT::fromStream(input, err));
+                next = MAKE_UNIQUE<BlockLabelT>(BlockLabelT::fromStream(input, err));
                 problem->labellist.push_back(std::move(next));
                 num++;
             }
@@ -397,7 +398,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                 {
                     size_t pos;
                     std::unique_ptr<BlockLabelT> label;
-                    label = std::make_unique<BlockLabelT>();
+                    label = MAKE_UNIQUE<BlockLabelT>();
 
                     trim(line);
                     label->x = std::stod(line, &pos);
@@ -520,7 +521,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             {
                 size_t pos;
                 std::unique_ptr<CArcSegment> asegm;
-                asegm = std::make_unique<CArcSegment>();
+                asegm = MAKE_UNIQUE<CArcSegment>();
 
                 trim(line);
                 asegm->n0 = std::stoi(line, &pos);

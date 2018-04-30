@@ -22,6 +22,7 @@
 #include "FemmProblem.h"
 #include "FemmReader.h"
 #include "stringTools.h"
+#include "make_unique.h"
 
 #include <cassert>
 #include <cmath>
@@ -58,7 +59,7 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
     meshnodes.reserve(k);
     for(int i=0;i<k;i++)
     {
-        meshnodes.push_back(std::make_unique<CSMeshNode>(CSMeshNode::fromStream(input,err)));
+        meshnodes.push_back(MAKE_UNIQUE<CSMeshNode>(CSMeshNode::fromStream(input,err)));
     }
 
     // read in elements;
@@ -69,7 +70,7 @@ femm::ParserResult ElectrostaticsPostProcessor::parseSolution(std::istream &inpu
     {
         CHSElement elm = CHSElement::fromStream(input,err);
         elm.blk = labellist[elm.lbl]->BlockType;
-        meshelems.push_back(std::make_unique<CHSElement>(elm));
+        meshelems.push_back(MAKE_UNIQUE<CHSElement>(elm));
     }
 
     // read in circuit data;

@@ -1,6 +1,7 @@
 #include "FemmProblem.h"
 
 #include "femmconstants.h"
+#include "make_unique.h"
 
 #include <cassert>
 #include <ctgmath>
@@ -372,7 +373,7 @@ bool femm::FemmProblem::addArcSegment(femm::CArcSegment &asegm, double tol)
         addNode(newnodes[i].re,newnodes[i].im,t);
 
     // add proposed arc segment;
-    arclist.push_back(std::make_unique<CArcSegment>(asegm));
+    arclist.push_back(MAKE_UNIQUE<CArcSegment>(asegm));
 
     // check to see if proposed arc passes through other points;
     // if so, delete arc and create arcs that link intermediate points;
@@ -432,13 +433,13 @@ bool femm::FemmProblem::addBlockLabel(double x, double y, double d)
     std::unique_ptr<CBlockLabel> pt;
     switch (filetype) {
     case FileType::MagneticsFile:
-        pt = std::make_unique<CMBlockLabel>();
+        pt = MAKE_UNIQUE<CMBlockLabel>();
         break;
     case FileType::HeatFlowFile:
-        pt = std::make_unique<CHBlockLabel>();
+        pt = MAKE_UNIQUE<CHBlockLabel>();
         break;
     case FileType::ElectrostaticsFile:
-        pt = std::make_unique<CSBlockLabel>();
+        pt = MAKE_UNIQUE<CSBlockLabel>();
         break;
     default:
         assert(false && "Unhandled file type");
@@ -533,7 +534,7 @@ bool femm::FemmProblem::addNode(std::unique_ptr<femm::CNode> &&node, double d)
             getCircle(*arclist[i],c,R);
 
             std::unique_ptr<CArcSegment> asegm;
-            asegm = std::make_unique<CArcSegment>(*arclist[i]);
+            asegm = MAKE_UNIQUE<CArcSegment>(*arclist[i]);
             arclist[i]->n1 = nodelist.size()-1;
             arclist[i]->ArcLength = arg((a2-c)/(a0-c))*180./PI;
             asegm->n0 = nodelist.size()-1;
@@ -1230,7 +1231,7 @@ bool femm::FemmProblem::deleteSelectedArcSegments()
         // remove selected elements
         arclist.erase(
                     std::remove_if(arclist.begin(),arclist.end(),
-                                   [](const auto& arc){ return arc->IsSelected;} ),
+                                   [](const std::unique_ptr<femm::CArcSegment>& arc){ return arc->IsSelected;} ),
                     arclist.end()
                     );
     }
@@ -1248,7 +1249,7 @@ bool femm::FemmProblem::deleteSelectedBlockLabels()
         // remove selected elements
         labellist.erase(
                     std::remove_if(labellist.begin(),labellist.end(),
-                                   [](const auto& label){ return label->IsSelected;} ),
+                                   [](const std::unique_ptr<femm::CBlockLabel>& label){ return label->IsSelected;} ),
                     labellist.end()
                     );
     }
@@ -1315,7 +1316,7 @@ bool femm::FemmProblem::deleteSelectedSegments()
         // remove selected elements
         linelist.erase(
                     std::remove_if(linelist.begin(),linelist.end(),
-                                   [](const auto& segm){ return segm->IsSelected;} ),
+                                   [](const std::unique_ptr<femm::CSegment>& segm){ return segm->IsSelected;} ),
                     linelist.end()
                     );
     }
@@ -1744,7 +1745,7 @@ void femm::FemmProblem::mirrorCopy(double x0, double y0, double x1, double y1, f
                 n1->IsSelected = false;
 
                 // copy arc (with identical endpoints)
-                std::unique_ptr<CArcSegment> newarc = std::make_unique<CArcSegment>(*arc);
+                std::unique_ptr<CArcSegment> newarc = MAKE_UNIQUE<CArcSegment>(*arc);
                 newarc->IsSelected = false;
                 // set endpoints
                 newarc->n0 = (int)nodelist.size();
@@ -1843,7 +1844,7 @@ void femm::FemmProblem::rotateCopy(CComplex c, double dt, int ncopies, femm::Edi
                     n1->IsSelected = false;
 
                     // copy arc (with identical endpoints)
-                    std::unique_ptr<CArcSegment> newarc = std::make_unique<CArcSegment>(*arc);
+                    std::unique_ptr<CArcSegment> newarc = MAKE_UNIQUE<CArcSegment>(*arc);
                     newarc->IsSelected = false;
                     // set endpoints
                     newarc->n0 = (int)nodelist.size();
@@ -2165,7 +2166,7 @@ void femm::FemmProblem::translateCopy(double incx, double incy, int ncopies, fem
                     n1->IsSelected = false;
 
                     // copy arc (with identical endpoints)
-                    std::unique_ptr<CArcSegment> newarc = std::make_unique<CArcSegment>(*arc);
+                    std::unique_ptr<CArcSegment> newarc = MAKE_UNIQUE<CArcSegment>(*arc);
                     newarc->IsSelected = false;
                     // set endpoints
                     newarc->n0 = (int)nodelist.size();
@@ -2278,7 +2279,7 @@ void femm::FemmProblem::updateUndo()
     for(const auto& line: linelist)
         undolinelist.push_back(line->clone());
     for(const auto& arc: arclist)
-        undoarclist.push_back(std::make_unique<CArcSegment>(*arc));
+        undoarclist.push_back(MAKE_UNIQUE<CArcSegment>(*arc));
     for(const auto& label: labellist)
         undolabellist.push_back(label->clone());
 }

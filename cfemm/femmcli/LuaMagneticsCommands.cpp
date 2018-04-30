@@ -26,6 +26,7 @@
 #include "fpproc.h"
 #include "LuaInstance.h"
 #include "stringTools.h"
+#include "make_unique.h"
 
 #include <lua.h>
 
@@ -399,7 +400,7 @@ int femmcli::LuaMagneticsCommands::luaAddBoundaryProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    std::unique_ptr<CMBoundaryProp> m = std::make_unique<CMBoundaryProp>();
+    std::unique_ptr<CMBoundaryProp> m = MAKE_UNIQUE<CMBoundaryProp>();
 
     int n=lua_gettop(L);
     if (n>0) m->BdryName = lua_tostring(L,1);
@@ -445,7 +446,7 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProperty(lua_State *L)
         return 0;
     }
 
-    std::unique_ptr<CMCircuit> m = std::make_unique<CMCircuit>();
+    std::unique_ptr<CMCircuit> m = MAKE_UNIQUE<CMCircuit>();
     int n=lua_gettop(L);
 
     if (n>0) m->CircName=lua_tostring(L,1);
@@ -525,7 +526,7 @@ int femmcli::LuaMagneticsCommands::luaAddMatProperty(lua_State *L)
         return 0;
     }
 
-    std::unique_ptr<CMSolverMaterialProp> m = std::make_unique<CMSolverMaterialProp>();
+    std::unique_ptr<CMSolverMaterialProp> m = MAKE_UNIQUE<CMSolverMaterialProp>();
     int n=lua_gettop(L);
 
     if (n>0)
@@ -598,7 +599,7 @@ int femmcli::LuaMagneticsCommands::luaAddPointProperty(lua_State *L)
         return 0;
     }
 
-    std::unique_ptr<CMPointProp> m = std::make_unique<CMPointProp>();
+    std::unique_ptr<CMPointProp> m = MAKE_UNIQUE<CMPointProp>();
     int n=lua_gettop(L);
 
     if (n>0) m->PointName = lua_tostring(L,1);
@@ -1180,7 +1181,7 @@ int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
     while (input && err.str().empty())
     {
         std::unique_ptr<CMaterialProp> prop;
-        prop = std::make_unique<CMSolverMaterialProp>(CMSolverMaterialProp::fromStream(input, err));
+        prop = MAKE_UNIQUE<CMSolverMaterialProp>(CMSolverMaterialProp::fromStream(input, err));
         if (prop->BlockName == matname)
         {
             doc->blockproplist.push_back(std::move(prop));

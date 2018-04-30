@@ -182,7 +182,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     input.open(file.c_str(), std::ifstream::in);
     if (!input.is_open())
     {
-        printf("Couldn't read from specified .fem file\n");
+        err << "Couldn't read from specified .fem file\n";
+        WarnMessage(err.str().c_str());
         return false;
     }
 
