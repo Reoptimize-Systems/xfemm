@@ -778,7 +778,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     //     return true;
     FILE *fp;
     int i, j, k, n;
-    int l,t,n0,n1,n2;
+    int l,n0,n1,n2;
     double z,dL;
     CComplex a0,a1,a2;
     CComplex b0,b1,b2;
@@ -1172,9 +1172,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             // make it so that first point on first line
             // maps to first point on second line...
-            t = problem->linelist[s1]->n1;
-            problem->linelist[s1]->n1 = problem->linelist[s1]->n0;
-            problem->linelist[s1]->n0 = t;
+            std::swap(problem->linelist[s1]->n0,problem->linelist[s1]->n1);
 
             // store number of sub-segments in k
             if (problem->linelist[s0]->MaxSideLength == -1)
@@ -1210,7 +1208,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 segm = *problem->linelist[s0];
                 for(j=0; j<k; j++)
                 {
-                    a2=a0+(a1-a0)*((double) (j+1))/((double) k);
+                    a2 = a0+(a1-a0)*((double) (j+1))/((double) k);
                     b2 = b0+(b1-b0)*((double) (j+1))/((double) k);
                     node0.x = a2.re; node0.y = a2.im;
                     node1.x = b2.re; node1.y = b2.im;
