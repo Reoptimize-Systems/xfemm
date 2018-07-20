@@ -4,7 +4,7 @@ function [rules,vars] = MMakefile_hpproc (varargin)
     options.Verbose = false;
     options.Debug = false;
     
-    options = mfemmdeps.parse_pv_pairs (options, varargin);
+    options = mmake.parse_pv_pairs (options, varargin);
     
 %     mfemmdeps.getmfilepath (mfilename);
 
