@@ -976,47 +976,42 @@ function params = parse_pv_pairs(params,pv_pairs)
 % was truncated as supplied. Also note that the order the pairs were
 % supplied was arbitrary.
 
-npv = length(pv_pairs);
-n = npv/2;
+    npv = length(pv_pairs);
+    n = npv/2;
 
-if n~=floor(n)
-  error 'Property/value pairs must come in PAIRS.'
-end
-if n<=0
-  % just return the defaults
-  return
-end
-
-if ~isstruct(params)
-  error 'No structure for defaults was supplied'
-end
-
-% there was at least one pv pair. process any supplied
-propnames = fieldnames(params);
-lpropnames = lower(propnames);
-for i=1:n
-  p_i = lower(pv_pairs{2*i-1});
-  v_i = pv_pairs{2*i};
-  
-  ind = strmatch(p_i,lpropnames,'exact');
-  if isempty(ind)
-    ind = find(strncmp(p_i,lpropnames,length(p_i)));
-    if isempty(ind)
-      error(['No matching property found for: ',pv_pairs{2*i-1}])
-    elseif length(ind)>1
-      error(['Ambiguous property name: ',pv_pairs{2*i-1}])
+    if n~=floor(n)
+      error 'Property/value pairs must come in PAIRS.'
     end
-  end
-  p_i = propnames{ind};
-  
-  % override the corresponding default in params
-  params = setfield(params,p_i,v_i);
-  
+    if n<=0
+      % just return the defaults
+      return
+    end
+
+    if ~isstruct(params)
+      error 'No structure for defaults was supplied'
+    end
+
+    % there was at least one pv pair. process any supplied
+    propnames = fieldnames(params);
+    lpropnames = lower(propnames);
+    for i=1:n
+      p_i = lower(pv_pairs{2*i-1});
+      v_i = pv_pairs{2*i};
+
+      ind = strmatch(p_i,lpropnames,'exact');
+      if isempty(ind)
+        ind = find(strncmp(p_i,lpropnames,length(p_i)));
+        if isempty(ind)
+          error(['No matching property found for: ',pv_pairs{2*i-1}])
+        elseif length(ind)>1
+          error(['Ambiguous property name: ',pv_pairs{2*i-1}])
+        end
+      end
+      p_i = propnames{ind};
+
+      % override the corresponding default in params
+      params = setfield(params,p_i,v_i);
+
+    end
+
 end
-
-
-
-
-
-
-
