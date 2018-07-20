@@ -128,7 +128,7 @@ function varargout = mfemm_setup(varargin)
             % recompilation
             delete (fullfile (mexdir, ['*.', thismexext]));
             for ind = 1:numel(makefilenames)
-                mmake.make ('clean', makefilenames{ind});
+                mfemmdeps.mmake ('clean', makefilenames{ind});
             end
         end
         
@@ -136,14 +136,14 @@ function varargout = mfemm_setup(varargin)
         ws = warning( 'off', 'MATLAB:mex:GccVersion');
         for ind = 1:numel(makefilenames)
             if Inputs.CrossBuildW64
-                mmake.make ('', makefilenames{ind}, 'DoCrossBuildWin64', true, 'FcnMakeFileArgs', {'DoCrossBuildWin64', true, 'Verbose', true})
+                mfemmdeps.mmake ('', makefilenames{ind}, 'DoCrossBuildWin64', true, 'FcnMakeFileArgs', {'DoCrossBuildWin64', true, 'Verbose', true})
             else
-                mmake.make ('', makefilenames{ind}, 'FcnMakeFileArgs', {'Debug', Inputs.Debug, 'Verbose', Inputs.Verbose})
+                mfemmdeps.mmake ('', makefilenames{ind}, 'FcnMakeFileArgs', {'Debug', Inputs.Debug, 'Verbose', Inputs.Verbose})
             end
         end
         warning (ws);
         for ind = 1:numel(makefilenames)
-            mmake.make ('tidy', makefilenames{ind})
+            mfemmdeps.mmake ('tidy', makefilenames{ind})
         end
         
         % copy over the created mex files to the mex directory
