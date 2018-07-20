@@ -1,26 +1,47 @@
+# Changelog
+
+## [2.0] - 2018-07-20
+
+### Notes
+
+This is a new major version of xfemm as there has been a major 
+refactoring of the C++ code base. The vast majority of this work has 
+been performed by Johannes Zarl-Ziel under the sponsership of Linz 
+Center of Mechatronics GmbH. 
+
+### Added 
+- A new interactive command line interface has been added  
+  which makes possible postprocessing and running lua commands from 
+  a terminal
+- Many new C++ files which separate out the various classes in the 
+  code base
+  
+### Modified
+- Major refactoring has taken place in the cfemm C++ code base
+  
+
 ## [1.9] - 2017-04-26
 
-## Modified
-
+### Modified
 - Meshing now supports options forcemaxmesh and dosmartmesh
 
-## fixed
+### fixed
 - mmake.m: corrected missing mfemmdeps package namespace on call
   to parse_pv_pairs.m
 - fpproc.cpp: added missing return statement to ElmArea
 
 ## [1.8] - 2016-09-18
 
-## Notes
+### Notes
 
 Releases now contain compiled binary mexfunctions for matlab
 
-## Modified
+### Modified
 - plotfemmproblem.m: optionally add material labels (or not)
 - fpproc: added ElmVolume method in C++ and also to fpproc.m class
 - fpproc: added 2D shape centroid block integral option
 
-## Fixed
+### Fixed
 - hsolver.cpp: fixed major bug in writing solution file where wrong   
   conversion factor was used to convert from internal units of mm to 
   problem units
@@ -34,7 +55,7 @@ Releases now contain compiled binary mexfunctions for matlab
   cross-build for windows from Linux using MXE (M Cross Environment)
 
 ## [1.7] - 2016-22-06
-## Modified
+### Modified
 - plotfemmproblem.m: now add labels with units to plot axes
 
 ### Fixed
