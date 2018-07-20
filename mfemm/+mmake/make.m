@@ -1,4 +1,4 @@
-function mmake(target,mmakefilename,varargin)
+function make(target,mmakefilename,varargin)
 %MMAKE A minimal subset of GNU make, implemented in MATLAB for MATLAB.
 %   GNU Make "is a tool which controls the generation of executables and 
 %   other non-source files of a program from the program's source files.
@@ -114,7 +114,7 @@ options.DoCrossBuildWin64 = false;
 options.CrossMexOptsFile = '';
 options.FcnMakeFileArgs = {};
 
-options = mfemmdeps.parse_pv_pairs (options, varargin);
+options = parse_pv_pairs (options, varargin);
 
 if options.DoCrossBuildWin64
     if isempty (options.CrossMexOptsFile)
@@ -142,7 +142,7 @@ end
     if isempty(target)
         target = state.rules(1).target{1};
     end
-    result = make(target, state);
+    result = maketarget (target, state);
     switch result
         case -1
             error('MJB:mmake:no_rule_found','mmake: No rule found for target %s\n', target);
@@ -244,13 +244,13 @@ function [rules, vars] = implicit_mmakefile(options)
         rules(idx).deps     = {'%.c'};
         rules(idx).commands = {'mex -c ${MEXFLAGS} "${CFLAGSKEY}${CFLAGS}" "${CXXFLAGSKEY}${CXXFLAGS}" "${LDFLAGSKEY}${LDFLAGS}" $<', ...
                                '[pathstr,name,ext] = fileparts (''$<'');', ...
-                               'movefile ([name,''.'',''${OBJ_EXT}''], pathstr)' };
+                               'if ~isempty (pathstr), movefile ([name,''.'',''${OBJ_EXT}''], pathstr); end;' };
         idx = idx+1;
         rules(idx).target   = {['%.' vars.OBJ_EXT]};
         rules(idx).deps     = {'%.cpp'};
         rules(idx).commands = {'mex -c ${MEXFLAGS} "${CFLAGSKEY}${CFLAGS}" "${CXXFLAGSKEY}${CXXFLAGS}" "${LDFLAGSKEY}${LDFLAGS}" $<', ...
                                '[pathstr,name,ext] = fileparts (''$<'');', ...
-                               'movefile ([name,''.'',''${OBJ_EXT}''], pathstr);'};
+                               'if ~isempty (pathstr), movefile ([name,''.'',''${OBJ_EXT}''], pathstr); end;'};
         idx = idx+1;
         rules(idx).target   = {'%.dlm'};
         rules(idx).deps     = {'%.mdl'};
@@ -311,7 +311,7 @@ end
 %   (-1) if the target does not exist and there is no rule to build it
 %   (0)  if the target exists and nothing needed to be done
 %   (1)  if the target needed to be rebuilt.
-function result = make(target, state)
+function result = maketarget(target, state)
     % see if we have a rule to make the target
     target_rules = find_matching_rules(target, state.rules);
 
@@ -337,7 +337,7 @@ function result = make(target, state)
             deps_exist = false;
             for j = 1:length(matching_implicit_rules(i).deps)
                 if ~isempty(matching_implicit_rules(i).deps{j})
-                    result = make(matching_implicit_rules(i).deps{j},state);
+                    result = maketarget(matching_implicit_rules(i).deps{j},state);
                     if result == -1
                         % The dependency didn't exist and we don't know how
                         % to make it
@@ -373,7 +373,7 @@ function result = make(target, state)
         newest_dependent_timestamp = 0;
         for i=1:length(deps)
             % Recursively make all the dependents
-            status = make(deps{i}, state);
+            status = maketarget(deps{i}, state);
             if status == -1
                 error('MJB:mmake:no_rule_found','mmake: No rule to build %s as required by %s', deps{i}, target);
             end
