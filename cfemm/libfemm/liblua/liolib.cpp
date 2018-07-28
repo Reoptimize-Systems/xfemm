@@ -334,10 +334,11 @@ static int read_number (lua_State *L, FILE *f)
 //  }
 //  else return 0;  /* read fails */
 //}
-    char v[256],s[256];
+    // ZaJ: to prevent -Wformat-overflow, make v smaller than s...
+    char v[249],s[256];
     int i,k;
 
-    if (fscanf(f,"%s",v)>0)
+    if (fscanf(f,"%248s",v)>0)
     {
         sprintf(s,"return %s",v);
         i=lua_gettop(L);
