@@ -244,11 +244,11 @@ bool parseValue(istream &input, double &val, ostream &err)
         {
             err << "Warning: trailing characters: '" << valueString.substr(sz) << "'\n";
         }
-    } catch (std::invalid_argument e)
+    } catch (const std::invalid_argument &e)
     {
         err << "Could not convert '" << valueString << "' to double: " << e.what() << "\n";
         return false;
-    } catch (std::out_of_range e)
+    } catch (const std::out_of_range &e)
     {
         err << "Value out of range when converting '" << valueString << "' to double: " << e.what() << "\n";
         return false;
@@ -273,11 +273,11 @@ bool parseValue(istream &input, int &val, ostream &err)
         {
             err << "Warning: trailing characters: '" << valueString.substr(sz) << "'\n";
         }
-    } catch (std::invalid_argument e)
+    } catch (const std::invalid_argument &e)
     {
         err << "Could not convert '" << valueString << "' to int: " << e.what() << "\n";
         return false;
-    } catch (std::out_of_range e)
+    } catch (const std::out_of_range &e)
     {
         err << "Value out of range when converting '" << valueString << "' to int: " << e.what() << "\n";
         return false;
