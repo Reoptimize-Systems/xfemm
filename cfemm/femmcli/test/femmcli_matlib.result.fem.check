@@ -10,7 +10,7 @@
 [Comment]     =  ""
 [PointProps]  =  0
 [BdryProps]   = 0
-[BlockProps]  = 1
+[BlockProps]  = 2
   <BeginBlock>
     <BlockName> = "Air"
     <Mu_x> = 1
@@ -20,6 +20,25 @@
     <J_re> = 0
     <J_im> = 0
     <Sigma> = 0
+    <d_lam> = 0
+    <Phi_h> = 0
+    <Phi_hx> = 0
+    <Phi_hy> = 0
+    <LamType> = 0
+    <LamFill> = 1
+    <NStrands> = 0
+    <WireD> = 0
+    <BHPoints> = 0
+  <EndBlock>
+  <BeginBlock>
+    <BlockName> = "Copper"
+    <Mu_x> = 1
+    <Mu_y> = 1
+    <H_c> = 0
+    <H_cAngle> = 0
+    <J_re> = 0
+    <J_im> = 0
+    <Sigma> = 58
     <d_lam> = 0
     <Phi_h> = 0
     <Phi_hx> = 0
