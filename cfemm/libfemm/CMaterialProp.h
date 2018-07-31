@@ -33,6 +33,15 @@
 #include <vector>
 
 namespace femm {
+
+/**
+ * @brief The PropertyParseMode controls parsing in the ::fromStream methods.
+ */
+enum class PropertyParseMode {
+    Normal,
+    NoBeginBlock /// Don't expect the \c <beginBlock> token.
+};
+
 class CMaterialProp
 {
 public:
@@ -188,9 +197,10 @@ public:
      * @brief fromStream constructs a CMaterialProp from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
+     * @param mode
      * @return a CMaterialProp
      */
-    static CMSolverMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMSolverMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, PropertyParseMode mode = PropertyParseMode::Normal );
     virtual void toStream( std::ostream &out ) const override;
 private:
 };
@@ -221,9 +231,10 @@ public:
      * @brief fromStream constructs a CHMaterialProp from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
+     * @param mode
      * @return a CHMaterialProp
      */
-    static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, PropertyParseMode mode = PropertyParseMode::Normal );
 
     /**
      * @brief isAir is not relevant to heat flow problems and therefore always returns false.
@@ -254,9 +265,10 @@ public:
      * @brief fromStream constructs a CSMaterialProp from an input stream (usually an input file stream)
      * @param input
      * @param err output stream for error messages
+     * @param mode
      * @return a CSMaterialProp
      */
-    static CSMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CSMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, PropertyParseMode mode = PropertyParseMode::Normal );
     bool isAir() const override;
     /**
      * \internal
