@@ -1130,12 +1130,13 @@ CComplex CMSolverMaterialProp::LaminatedBH(double w, int i)
     return mu;
 }
 
-CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::ostream &err)
+CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::ostream &err, PropertyParseMode mode)
 {
     using namespace femm;
     CMSolverMaterialProp prop;
 
-    if( expectToken(input, "<beginblock>", err) )
+    if( mode == PropertyParseMode::NoBeginBlock
+            || expectToken(input, "<beginblock>", err) )
     {
         string token;
         while (input.good() && token != "<endblock>")
@@ -1363,11 +1364,12 @@ CComplex CHMaterialProp::GetK(double t) const
     return (Kx+I*Ky);
 }
 
-CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err)
+CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err, PropertyParseMode mode)
 {
     CHMaterialProp prop;
 
-    if( expectToken(input, "<beginblock>", err) )
+    if( mode == PropertyParseMode::NoBeginBlock
+            || expectToken(input, "<beginblock>", err) )
     {
         string token;
         while (input.good() && token != "<endblock>")
@@ -1505,12 +1507,13 @@ CSMaterialProp::~CSMaterialProp()
 {
 }
 
-CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err)
+CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err, PropertyParseMode mode)
 {
     using namespace femm;
     CSMaterialProp prop;
 
-    if( expectToken(input, "<beginblock>", err) )
+    if( mode == PropertyParseMode::NoBeginBlock
+            || expectToken(input, "<beginblock>", err) )
     {
         string token;
         while (input.good() && token != "<endblock>")

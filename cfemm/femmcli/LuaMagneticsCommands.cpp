@@ -25,6 +25,7 @@
 #include "FemmState.h"
 #include "fpproc.h"
 #include "LuaInstance.h"
+#include "MatlibReader.h"
 #include "stringTools.h"
 #include "make_unique.h"
 
@@ -1168,23 +1169,15 @@ int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
 
     std::string matlib = luaInstance->getBaseDir() + "matlib.dat";
 
-    std::ifstream input;
-    input.open(matlib.c_str(), std::ifstream::in);
-    if (!input.is_open())
-    {
-        std::string msg = "Couldn't open " + matlib + "\n";
-        lua_error(L,msg.c_str());
-        return 0;
-    }
-
+    MatlibReader reader;
     std::stringstream err;
-    while (input && err.str().empty())
+    if ( reader.parse(matlib, err, matname) == MatlibParseResult::OK )
     {
-        std::unique_ptr<CMaterialProp> prop;
-        prop = MAKE_UNIQUE<CMSolverMaterialProp>(CMSolverMaterialProp::fromStream(input, err));
-        if (prop->BlockName == matname)
+        CMaterialProp *prop;
+        prop = reader.takeMaterial(matname);
+        if (prop != nullptr)
         {
-            doc->blockproplist.push_back(std::move(prop));
+            doc->blockproplist.push_back(std::unique_ptr<CMaterialProp>(prop));
             doc->updateBlockMap();
             return 0;
         }
