@@ -48,7 +48,6 @@ int luaAddtkpoint(lua_State *L);
 int luaAnalyze(lua_State *L);
 int luaBlockIntegral(lua_State *L);
 int luaCleartkpoints(lua_State *L);
-int luaGetMaterialFromLib(lua_State *L);
 int luaGetPointValues(lua_State *L);
 int luaLineIntegral(lua_State *L);
 int luaModifyBoundaryProperty(lua_State *L);

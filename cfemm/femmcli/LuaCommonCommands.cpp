@@ -22,6 +22,7 @@
 #include "femmenums.h"
 #include "FemmState.h"
 #include "LuaInstance.h"
+#include "MatlibReader.h"
 #include "stringTools.h"
 
 #include <lua.h>
@@ -1238,6 +1239,58 @@ int femmcli::LuaCommonCommands::luaGetElement(lua_State *L)
     lua_pushnumber(L,pproc->getProblem()->labellist[elem->lbl]->InGroup);
 
     return 7;
+}
+
+/**
+ * @brief Read the material library file (condlib.dat, heatlib.dat, matlib.dat, statlib.dat) and extract a named material property.
+ * @param L
+ * @return 0
+ * \ingroup LuaCommon
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{ei_getmaterial("materialname")}
+ * - \lua{hi_getmaterial("materialname")}
+ * - \lua{mi_getmaterial("materialname")}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/beladrawLua.cpp,lua_getmaterial()}
+ * - \femm42{femm/femmeLua.cpp,lua_getmaterial()}
+ * - \femm42{femm/HDRAWLUA.cpp,lua_getmaterial()}
+ * \endinternal
+ */
+int femmcli::LuaCommonCommands::luaGetMaterialFromLib(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    int n=lua_gettop(L);
+    std::string matname;
+    if (n>0)
+        matname=lua_tostring(L,1);
+    else
+        return 0;
+
+    std::string matlib = luaInstance->getBaseDir() + "matlib.dat";
+
+    MatlibReader reader( doc->filetype );
+    std::stringstream err;
+    if ( reader.parse(matlib, err, matname) == MatlibParseResult::OK )
+    {
+        CMaterialProp *prop;
+        prop = reader.takeMaterial(matname);
+        if (prop != nullptr)
+        {
+            doc->blockproplist.push_back(std::unique_ptr<CMaterialProp>(prop));
+            doc->updateBlockMap();
+            return 0;
+        }
+    }
+    std::string msg = "Couldn't load \"" + matname + "\" from the materials library\n";
+    msg.append(err.str());
+    lua_error(L, msg.c_str());
+    return 0;
 }
 
 /**

@@ -55,7 +55,6 @@ int luaClearBlock(lua_State *L);
 int luaClearContourPoint(lua_State *L);
 int luaGetCircuitProperties(lua_State *L);
 int luaGetElement(lua_State *L);
-int luaGetMaterialFromLib(lua_State *L);
 int luaGetMeshNode(lua_State *L);
 int luaGetPointValues(lua_State *L);
 int luaBGradient(lua_State *L);
