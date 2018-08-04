@@ -25,7 +25,6 @@
 #include "FemmState.h"
 #include "fpproc.h"
 #include "LuaInstance.h"
-#include "MatlibReader.h"
 #include "stringTools.h"
 #include "make_unique.h"
 
@@ -126,8 +125,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_getcircuitproperties", luaGetCircuitProperties);
     li.addFunction("mo_get_element", luaGetElement);
     li.addFunction("mo_getelement", luaGetElement);
-    li.addFunction("mi_get_material", luaGetMaterialFromLib);
-    li.addFunction("mi_getmaterial", luaGetMaterialFromLib);
+    li.addFunction("mi_get_material", LuaCommonCommands::luaGetMaterialFromLib);
+    li.addFunction("mi_getmaterial", LuaCommonCommands::luaGetMaterialFromLib);
     li.addFunction("mo_get_node", luaGetMeshNode);
     li.addFunction("mo_getnode", luaGetMeshNode);
     li.addFunction("mo_get_point_values", luaGetPointValues);
@@ -1138,54 +1137,6 @@ int femmcli::LuaMagneticsCommands::luaGetElement(lua_State *L)
     lua_pushnumber(L,fpproc->blocklist[fpproc->meshelem[idx].lbl].InGroup);
 
     return 7;
-}
-
-/**
- * @brief Read the file matlib.dat and extract a named material property.
- * @param L
- * @return 0
- * \ingroup LuaMM
- *
- * \internal
- * ### Implements:
- * - \lua{mi_getmaterial("materialname")}
- *
- * ### FEMM source:
- * - \femm42{femm/femmeLua.cpp,lua_getmaterial()}
- * \endinternal
- */
-int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
-{
-    auto luaInstance = LuaInstance::instance(L);
-    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
-    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
-
-    int n=lua_gettop(L);
-    std::string matname;
-    if (n>0)
-        matname=lua_tostring(L,1);
-    else
-        return 0;
-
-    std::string matlib = luaInstance->getBaseDir() + "matlib.dat";
-
-    MatlibReader reader( femm::FileType::MagneticsFile );
-    std::stringstream err;
-    if ( reader.parse(matlib, err, matname) == MatlibParseResult::OK )
-    {
-        CMaterialProp *prop;
-        prop = reader.takeMaterial(matname);
-        if (prop != nullptr)
-        {
-            doc->blockproplist.push_back(std::unique_ptr<CMaterialProp>(prop));
-            doc->updateBlockMap();
-            return 0;
-        }
-    }
-    std::string msg = "Couldn't load \"" + matname + "\" from the materials library\n";
-    msg.append(err.str());
-    lua_error(L, msg.c_str());
-    return 0;
 }
 
 /**
