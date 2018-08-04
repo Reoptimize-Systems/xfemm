@@ -17,6 +17,8 @@
 #ifndef MATLIB_READER_H
 #define MATLIB_READER_H
 
+#include "femmenums.h"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -41,6 +43,11 @@ class MatlibReader
 {
 public:
     /**
+     * @brief MatlibReader
+     * @param filetype The file/problem type determines which parser is used and therefore the material type
+     */
+    explicit MatlibReader(FileType filetype);
+    /**
      * @brief parse the given material library file and optionally apply a filter.
      * Before parsing, any existing material data is cleared.
      *
@@ -64,6 +71,7 @@ public:
      */
     CMaterialProp *takeMaterial(const std::string &materialName);
 private:
+    const FileType type;
     std::unordered_map<std::string,std::unique_ptr<CMaterialProp>> m_library;
 };
 }

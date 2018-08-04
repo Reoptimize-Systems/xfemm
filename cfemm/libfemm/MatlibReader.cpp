@@ -29,6 +29,12 @@
 
 using namespace femm;
 
+MatlibReader::MatlibReader(FileType filetype)
+    : type(filetype)
+{
+    assert(filetype != FileType::Unknown && filetype != FileType::CurrentFlowFile);
+}
+
 MatlibParseResult MatlibReader::parse(const std::string &libraryFile, std::ostream &err, const std::string &filter)
 {
     std::ifstream input;
@@ -64,7 +70,20 @@ MatlibParseResult MatlibReader::parse(const std::string &libraryFile, std::ostre
         std::unique_ptr<CMaterialProp> prop;
         // in .fem files, material properties are identified by context;
         // in matlib.dat files, we need to read the beginBlock line, requiring the fromStream method to go without that line.
-        prop = MAKE_UNIQUE<CMSolverMaterialProp>(CMSolverMaterialProp::fromStream(input, err_internal, PropertyParseMode::NoBeginBlock));
+        switch (type) {
+        case FileType::ElectrostaticsFile:
+                prop = MAKE_UNIQUE<CSMaterialProp>(CSMaterialProp::fromStream(input, err_internal, PropertyParseMode::NoBeginBlock));
+                break;
+        case FileType::HeatFlowFile:
+                prop = MAKE_UNIQUE<CHMaterialProp>(CHMaterialProp::fromStream(input, err_internal, PropertyParseMode::NoBeginBlock));
+                break;
+        case FileType::MagneticsFile:
+                prop = MAKE_UNIQUE<CMSolverMaterialProp>(CMSolverMaterialProp::fromStream(input, err_internal, PropertyParseMode::NoBeginBlock));
+                break;
+        default:
+                err << "MatlibReader: File type not implemented!\n";
+                break;
+        }
         if ( ! err_internal.str().empty() )
         {
             err << err_internal.str();
