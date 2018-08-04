@@ -29,41 +29,68 @@
 
 namespace femm
 {
+/**
+ * @brief to_lower transforms a string to lower case.
+ * @param s the string to be transformed in place
+ */
 inline void to_lower(std::string &s)
 {
     // transform s to lower case
     transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
-// taken from https://stackoverflow.com/posts/217605/revisions :
-// trim from start (in place)
+/**
+ * @brief ltrim trims whitespace from the beginning of a string
+ * \note taken from https://stackoverflow.com/posts/217605/revisions
+ * @param s the string to be transformed in place
+ */
 inline void ltrim(std::string &s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(),
                                     std::not1(std::ptr_fun<int, int>(std::isspace))));
 }
 
-// trim from end (in place)
+/**
+ * @brief rtrim trims whitespace from the end of a string
+ * \note taken from https://stackoverflow.com/posts/217605/revisions
+ * @param s the string to be transformed in place
+ */
 inline void rtrim(std::string &s) {
     s.erase(std::find_if(s.rbegin(), s.rend(),
                          std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
 }
 
-// trim from both ends (in place)
+/**
+ * @brief trim whitespace from the beginning and end of a string
+ * @param s the string to be transformed in place
+ */
 inline void trim(std::string &s) {
     ltrim(s);
     rtrim(s);
 }
 
-// taken from https://stackoverflow.com/questions/874134/find-if-string-ends-with-another-string-in-c
+/**
+ * @brief Check whether the string \c value ends with the string \c ending.
+ * @param value
+ * @param ending
+ * @return
+ */
 inline bool ends_with(std::string const & value, std::string const & ending)
 {
+    // taken from https://stackoverflow.com/questions/874134/find-if-string-ends-with-another-string-in-c
     if (ending.size() > value.size())
          return false;
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+/**
+ * @brief Check whether the string \c value starts with the string \c beginning.
+ * @param value
+ * @param beginning
+ * @return
+ */
 inline bool begins_with(std::string const & value, std::string const & beginning)
 {
+    // taken from https://stackoverflow.com/questions/874134/find-if-string-ends-with-another-string-in-c
     if (beginning.size() > value.size())
          return false;
     return std::equal(beginning.begin(), beginning.end(), value.begin());
