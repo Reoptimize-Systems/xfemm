@@ -201,30 +201,33 @@ bool parseString(istream &input, string *s, ostream &err)
 {
     if (s)
         s->clear();
-    char c;
     if (!expectChar(input, '"', err))
     {
         err << "Error: Invalid begin of string literal!\n";
         return false;
     }
 
-    ios_base::fmtflags streamFlags = input.flags();
-    input >> noskipws;
-    input >> c;
-    while( input.good() && c != '"')
+    std::string line;
+    std::getline(input,line);
+    // FEMM42 allows unescaped double-quotes ('"') inside a string;
+    // i.e. the last quote in the line terminates the string
+    // consuming the rest of the line should not be a problem,
+    // because FEMM does only allow one token per line and no multi-line strings
+    size_t pos = line.find_last_of('"');
+    if (pos == std::string::npos)
     {
-        // in case somebody just wants to skip the string literal, a NULL string may be passed
-        if (s)
-            s->push_back(c);
-        input >> c;
+        err << "Error: unterminated string literal!\n"
+            << "Offending string: " << line << "\n";
+        return false;
     }
-    // restore flags
-    input.flags(streamFlags);
+    if (s)
+    {
+        *s = line.substr(0,pos);
 #ifdef DEBUG_PARSER
-    std::cerr << "parsing String "<< *s <<"\n";
+        std::cerr << "parsing String "<< *s <<"\n";
 #endif
-    // a valid string ends with the delimiter:
-    return (c == '"');
+    }
+    return true;
 }
 
 bool parseValue(istream &input, double &val, ostream &err)
