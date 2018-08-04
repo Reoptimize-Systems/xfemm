@@ -41,6 +41,8 @@ void parseString(std::istream &input, std::string *s);
  * @brief parseString reads a string literal (using the delimiter '"') from input.
  * If the next token of the input stream is not a delimiter,
  * the stream position and string \c s remain unchanged and an error message is printed to \p err.
+ * If a string is found, the whole remaining line is consumed.
+ *
  * @param input
  * @param s the result string. May be null, will be cleared.
  * @param err
