@@ -1169,7 +1169,7 @@ int femmcli::LuaMagneticsCommands::luaGetMaterialFromLib(lua_State *L)
 
     std::string matlib = luaInstance->getBaseDir() + "matlib.dat";
 
-    MatlibReader reader;
+    MatlibReader reader( femm::FileType::MagneticsFile );
     std::stringstream err;
     if ( reader.parse(matlib, err, matname) == MatlibParseResult::OK )
     {
