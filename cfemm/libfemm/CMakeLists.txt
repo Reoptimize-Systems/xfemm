@@ -58,6 +58,7 @@ add_library(femm
     fparse.cpp
     fullmatrix.cpp
     IntPoint.cpp
+    locationTools.cpp
     LuaInstance.cpp
     MatlibReader.cpp
     PostProcessor.cpp
