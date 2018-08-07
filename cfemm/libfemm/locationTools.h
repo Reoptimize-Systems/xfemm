@@ -20,11 +20,12 @@
 /**
  * \file locationTools.h
  * \brief Functions to deal with standard locations in xfemm.
- * For Linux, these functions act according to the XDG base directory standard.
+ * For Linux and similar platforms, these functions act according to the XDG base directory standard.
  * For other platforms, sensible defaults are used.
  *
  * ## References
  *  - https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+ *  - https://stackoverflow.com/questions/43853548/xdg-basedir-directories-for-windows
  */
 
 namespace location
@@ -45,49 +46,15 @@ enum class LocationType {
     , SystemData
 };
 
-inline std::string getEnv(const char* envVar, const std::string &fallback)
-{
-    char *value = std::getenv(envVar);
-    if (value)
-        return std::string( value );
-    else
-        return fallback;
-}
 
-#ifdef WIN32
-constexpr char PLATFORM_SEPARATOR = ';';
-#elif linux
-constexpr char PLATFORM_SEPARATOR = ':';
-#endif
-
-inline void splitInto( std::vector<std::string> &destination, const std::string &text )
-{
-    std::istringstream stream(text);
-    std::string part;
-    while (std::getline(stream, part, PLATFORM_SEPARATOR))
-        if (! part.empty())
-            destination.push_back(part);
-}
-
-inline std::vector<std::string> standardDirectories( LocationType type)
-{
-    std::vector<std::string> result;
-    const std::string homeDir = getEnv("HOME","~");
-    switch (type) {
-    case LocationType::SystemData:
-    {
-        std::string dirs = getEnv("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/");
-        splitInto( result, dirs);
-    }
-        /* FALL_THROUGH */
-    case LocationType::UserData:
-        result.insert(result.begin(), getEnv("XDG_DATA_HOME", homeDir+"/.local/.share"));
-        break;
-    default:
-        assert(false && "Unknown LocationType!");
-    }
-    return result;
-}
+/**
+ * @brief standardDirectories gives a list of standard directories suitable for the given type.
+ * On Linux and unix systems, this conforms to the XDG basedir spec.
+ * On Windows, a suitable location is chosen.
+ * @param type
+ * @return
+ */
+std::vector<std::string> standardDirectories( LocationType type);
 
 } //namespace
 #endif
