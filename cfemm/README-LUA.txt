@@ -53,6 +53,8 @@ The following commands are defined for compatibility with FEMM, but simply do no
  - clearconsole
  - clear_console
  - exit
+ - hideconsole
+ - hide_console
  - hidepointprops
  - hide_point_props
  - pause
