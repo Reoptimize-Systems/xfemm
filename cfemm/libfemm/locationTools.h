@@ -54,7 +54,32 @@ enum class LocationType {
  * @param type
  * @return
  */
-std::vector<std::string> standardDirectories( LocationType type);
+std::vector<std::string> baseDirectories( LocationType type);
+
+/**
+ * @brief directorySeparator
+ * @return the directory separator for the current platform ('\\' on Windows, '/' everywhere else)
+ */
+constexpr char directorySeparator();
+
+/**
+ * @brief Searches the first matching file within the standardDirectories.
+ *
+ * E.g. \code getFile(LocationType::UserData, "xfemm", "debug/matlib.dat")\endcode
+ * may return the string "/home/username/.share/xfemm/debug/matlib.dat" or "C:\Users\username\AppData\Local\debug\matlib.dat".
+ *
+ * @param type
+ * @param appName the name of the application (e.g. "xfemm")
+ * @param path the file name relative to the base directory
+ * @return a file name, or an empty string if the file does not exist
+ */
+std::string locateFile( LocationType type, const std::string &appName, const std::string &path);
+
+/**
+ * @brief The path separator separates different file names or path names in PATH-style environment variables.
+ * @return the path separator for the current platform (';' on Windows, ':' everywhere else)
+ */
+constexpr char pathSeparator();
 
 } //namespace
 #endif
