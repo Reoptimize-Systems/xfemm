@@ -63,6 +63,13 @@ std::vector<std::string> baseDirectories( LocationType type);
 constexpr char directorySeparator();
 
 /**
+ * @brief Checks if the file specified by \c path exists and is readable.
+ * @param path
+ * @return \c true, if the file exists, \c false otherwise
+ */
+bool fileExists( const std::string &path);
+
+/**
  * @brief Searches the first matching file within the standardDirectories.
  *
  * E.g. \code getFile(LocationType::UserData, "xfemm", "debug/matlib.dat")\endcode
