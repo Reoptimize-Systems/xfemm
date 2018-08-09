@@ -10,18 +10,21 @@
  */
 #include "locationTools.h"
 
-#ifdef WIN32
-
-#define USERDATA_ENV "LOCALAPPDATA"
-#define USERDATA_DEFAULT ""
-#define SYSTEMDATA_ENV "APPDATA"
-#define SYSTEMDATA_DEFAULT ""
+#ifdef XFEMM_HAVE_STAT
 #else
+# include <fstream>
+#endif
 
-#define USERDATA_ENV "XDG_DATA_HOME"
-#define USERDATA_DEFAULT (homeDir+"/.local/.share")
-#define SYSTEMDATA_ENV "XDG_DATA_DIRS"
-#define SYSTEMDATA_DEFAULT "/usr/local/share/:/usr/share/"
+#ifdef WIN32
+# define USERDATA_ENV "LOCALAPPDATA"
+# define USERDATA_DEFAULT ""
+# define SYSTEMDATA_ENV "APPDATA"
+# define SYSTEMDATA_DEFAULT ""
+#else
+# define USERDATA_ENV "XDG_DATA_HOME"
+# define USERDATA_DEFAULT (homeDir+"/.local/.share")
+# define SYSTEMDATA_ENV "XDG_DATA_DIRS"
+# define SYSTEMDATA_DEFAULT "/usr/local/share/:/usr/share/"
 #endif
 
 namespace {
@@ -82,8 +85,8 @@ std::string location::locateFile(location::LocationType type, const std::string 
     for (std::string filename: baseDirectories(type))
     {
         filename = filename + directorySeparator() + appName + directorySeparator() + path;
-        // TODO: stat file, return iff found
-        assert(false && "STUB" );
+        if (fileExists(filename))
+            return filename;
     }
     return "";
 }
@@ -103,5 +106,16 @@ constexpr char location::directorySeparator()
     return '\\';
 #else
     return '/';
+#endif
+}
+
+bool location::fileExists(const std::string &path)
+{
+#ifdef XFEMM_HAVE_STAT
+#else
+    // fall-back in case there's no usable stat
+    std::ifstream ifs;
+    ifs.open(path);
+    return ifs.good();
 #endif
 }
