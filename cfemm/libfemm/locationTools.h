@@ -8,8 +8,8 @@
  * The full license text is available in the file LICENSE.txt supplied
  * along with the source code.
  */
-#ifndef FEMM_STRINGTOOLS_H
-#define FEMM_STRINGTOOLS_H
+#ifndef FEMM_LOCATIONTOOLS_H
+#define FEMM_LOCATIONTOOLS_H
 
 #include <cassert>
 #include <cstdlib>
