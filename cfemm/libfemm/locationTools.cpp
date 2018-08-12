@@ -10,6 +10,8 @@
  */
 #include "locationTools.h"
 
+#include <iostream>
+
 #ifdef XFEMM_HAVE_STAT
 #else
 # include <fstream>
@@ -22,9 +24,15 @@
 # define SYSTEMDATA_DEFAULT ""
 #else
 # define USERDATA_ENV "XDG_DATA_HOME"
-# define USERDATA_DEFAULT (homeDir+"/.local/.share")
+# define USERDATA_DEFAULT (homeDir+"/.local/share")
 # define SYSTEMDATA_ENV "XDG_DATA_DIRS"
 # define SYSTEMDATA_DEFAULT "/usr/local/share/:/usr/share/"
+#endif
+
+#ifdef DEBUG_LOCATION_TOOLS
+#define debug std::cerr
+#else
+#define debug while(false) std::cerr
 #endif
 
 namespace {
@@ -85,8 +93,12 @@ std::string location::locateFile(location::LocationType type, const std::string 
     for (std::string filename: baseDirectories(type))
     {
         filename = filename + directorySeparator() + appName + directorySeparator() + path;
+        debug << "locateFile: " << filename << "\n";
         if (fileExists(filename))
+        {
+            debug << "locateFile: *exists*\n";
             return filename;
+        }
     }
     return "";
 }
@@ -119,3 +131,5 @@ bool location::fileExists(const std::string &path)
     return ifs.good();
 #endif
 }
+
+// vi:expandtab:tabstop=4 shiftwidth=4:
