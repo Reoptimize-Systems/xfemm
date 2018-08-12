@@ -153,9 +153,6 @@ std::string femm::LuaInstance::getBaseDir() const
 void femm::LuaInstance::setBaseDir(const std::string &value)
 {
     baseDir = value;
-
-    if (baseDir[baseDir.length()-1] != '/' )
-        baseDir.push_back('/');
 }
 
 void femm::LuaInstance::initializeLua(int stackSize)

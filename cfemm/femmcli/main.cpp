@@ -13,6 +13,7 @@
 #include "FemmState.h"
 #include "femmversion.h"
 #include "fmesher.h" // for triangle version
+#include "locationTools.h"
 #include "LuaBaseCommands.h"
 #include "LuaInstance.h"
 #include "LuaElectrostaticsCommands.h"
@@ -115,11 +116,11 @@ int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool 
 int main(int argc, char ** argv)
 {
     std::string exe { argv[0] };
-    std::string baseDir { exe.substr(0,exe.find_last_of("/\\")+1) };
-    exe = exe.substr(baseDir.length());
+    exe = exe.substr(0,exe.find_last_of("/\\")+1);
 
+    std::string baseDir;
     std::string inputFile;
-    std::string luaInit { baseDir + "init.lua" };
+    std::string luaInit = location::locateFile(location::LocationType::SystemData, "xfemm", "release/init.lua");
     bool luaTrace = false;
 
     for(int i=1; i<argc; i++)
@@ -211,6 +212,10 @@ int main(int argc, char ** argv)
         std::cout << " -h, --help               Show this help message and exit.\n";
         std::cout << " -q, --quiet              Be somewhat less verbose.\n";
         std::cout << "     --version            Show version information and exit.\n";
+        std::cout << "\n";
+        std::cout << "Base directories for search:\n";
+        for (const auto &dir: location::baseDirectories(location::LocationType::SystemData))
+            std::cout << " " << dir << "\n";
         std::cout << "\n";
         std::cout << "Examples:\n";
         std::cout << "To execute a lua file, you can omit the '=' and write two arguments instead:\n";

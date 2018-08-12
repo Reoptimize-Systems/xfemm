@@ -21,6 +21,7 @@
 #include "femmconstants.h"
 #include "femmenums.h"
 #include "FemmState.h"
+#include "locationTools.h"
 #include "LuaInstance.h"
 #include "MatlibReader.h"
 #include "stringTools.h"
@@ -1272,7 +1273,31 @@ int femmcli::LuaCommonCommands::luaGetMaterialFromLib(lua_State *L)
     else
         return 0;
 
-    std::string matlib = luaInstance->getBaseDir() + "matlib.dat";
+	 std::string matlib;
+     switch (doc->filetype) {
+         case FileType::MagneticsFile:
+             matlib = "matlib.dat";
+             break;
+         case FileType::ElectrostaticsFile:
+             matlib = "statlib.dat";
+             break;
+         case FileType::HeatFlowFile:
+             matlib = "heatlib.dat";
+             break;
+         default:
+             assert(false);
+     }
+	 if (luaInstance->getBaseDir().empty())
+	 {
+#ifdef _DEBUG
+         const std::string mode = "debug/";
+#else
+         const std::string mode = "release/";
+#endif
+         matlib = location::locateFile(location::LocationType::SystemData, "xfemm", mode + "matlib.dat");
+	 } else {
+		 matlib = luaInstance->getBaseDir() + "/" + matlib;
+	 }
 
     MatlibReader reader( doc->filetype );
     std::stringstream err;
@@ -3004,3 +3029,5 @@ int femmcli::LuaCommonCommands::luaSetSmoothing(lua_State *L)
     }
     return 0;
 }
+
+// vi:expandtab:tabstop=4 shiftwidth=4:
