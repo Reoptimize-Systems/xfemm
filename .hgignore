@@ -4,7 +4,6 @@ syntax: glob
 --------------------------
 
 build*/
-release/
 # doxygen output
 cfemm/apidoc/
 cfemm/bin/
