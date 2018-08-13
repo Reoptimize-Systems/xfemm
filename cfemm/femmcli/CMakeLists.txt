@@ -29,4 +29,10 @@ install(
     TARGETS femmcli-bin
     RUNTIME DESTINATION bin
     COMPONENT "cli")
+
+install(
+    DIRECTORY release debug
+    DESTINATION share/xfemm
+    COMPONENT "data"
+    )
 # vi:expandtab:tabstop=4 shiftwidth=4:
