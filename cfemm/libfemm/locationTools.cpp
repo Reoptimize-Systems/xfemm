@@ -13,20 +13,9 @@
 #include <iostream>
 
 #ifdef XFEMM_HAVE_STAT
+// room for improvement: stat instead of open
 #else
 # include <fstream>
-#endif
-
-#ifdef WIN32
-# define USERDATA_ENV "LOCALAPPDATA"
-# define USERDATA_DEFAULT ""
-# define SYSTEMDATA_ENV "APPDATA"
-# define SYSTEMDATA_DEFAULT ""
-#else
-# define USERDATA_ENV "XDG_DATA_HOME"
-# define USERDATA_DEFAULT (homeDir+"/.local/share")
-# define SYSTEMDATA_ENV "XDG_DATA_DIRS"
-# define SYSTEMDATA_DEFAULT "/usr/local/share/:/usr/share/"
 #endif
 
 #ifdef DEBUG_LOCATION_TOOLS
@@ -73,16 +62,27 @@ void splitInto( std::vector<std::string> &destination, const std::string &text, 
 std::vector<std::string> location::baseDirectories(location::LocationType type)
 {
     std::vector<std::string> result;
-    const std::string homeDir = getEnv("HOME","");
     switch (type) {
     case LocationType::SystemData:
     {
-        std::string dirs = getEnv(SYSTEMDATA_ENV, SYSTEMDATA_DEFAULT);
+#ifdef WIN32
+        // default install is "%ProgramFiles%\xfemm"
+        std::string dirs = getEnv("ProgramFiles", "");
+        dirs += "\\xfemm";
+#else
+        std::string dirs = getEnv("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/");
+#endif
         splitInto( result, dirs, pathSeparator());
     }
         /* FALLTHRU */
     case LocationType::UserData:
-        result.insert(result.begin(), getEnv(USERDATA_ENV, USERDATA_DEFAULT));
+#ifdef WIN32
+        result.insert(result.begin(), getEnv("APPDATA", ""));
+        result.insert(result.begin(), getEnv("LOCALAPPDATA", ""));
+#else
+        const std::string homeDir = getEnv("HOME","");
+        result.insert(result.begin(), getEnv("XDG_DATA_HOME", homeDir+"/.local/share"));
+#endif
         break;
     }
     return result;

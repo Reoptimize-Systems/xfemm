@@ -23,6 +23,9 @@
  * For Linux and similar platforms, these functions act according to the XDG base directory standard.
  * For other platforms, sensible defaults are used.
  *
+ * A notable exception to the referenced practices is that on Windows,
+ * \c "%ProgramFiles%/xfemm" is used as SystemData folder.
+ *
  * ## References
  *  - https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
  *  - https://stackoverflow.com/questions/43853548/xdg-basedir-directories-for-windows
