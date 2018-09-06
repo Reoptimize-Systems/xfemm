@@ -17,6 +17,19 @@ Known issues
  - Current flow commands are missing (current flow is absent from xfemm)
 
 
+Data files
+----------
+
+xfemm ships the same default material libraries and init.lua files as stock
+FEMM. The files are installed to `PREFIX/share/xfemm/release` on most
+platforms, and to `%ProgramFiles%/xfemm/release` on Windows (the `debug`
+flavour of these files is also installed, but not used by default).
+
+If you have your own material library files, check the output of `femmcli
+--help` to see where femmcli looks for these files. On Linux, the behaviour
+follows the XDG base directory standard.
+
+
 xfemm-specific behaviour
 ------------------------
 
