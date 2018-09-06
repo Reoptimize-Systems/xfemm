@@ -30,9 +30,16 @@ install(
     RUNTIME DESTINATION bin
     COMPONENT "cli")
 
+if (WIN32)
+    # install data directly to %ProgramFiles%/xfemm on windows
+    set(DATADIR ".")
+else()
+    set(DATADIR "share/xfemm")
+endif()
+
 install(
     DIRECTORY release debug
-    DESTINATION share/xfemm
+    DESTINATION "${DATADIR}"
     COMPONENT "data"
     )
 # vi:expandtab:tabstop=4 shiftwidth=4:
