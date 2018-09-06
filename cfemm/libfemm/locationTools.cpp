@@ -66,9 +66,7 @@ std::vector<std::string> location::baseDirectories(location::LocationType type)
     case LocationType::SystemData:
     {
 #ifdef WIN32
-        // default install is "%ProgramFiles%\xfemm"
         std::string dirs = getEnv("ProgramFiles", "");
-        dirs += "\\xfemm";
 #else
         std::string dirs = getEnv("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/");
 #endif
