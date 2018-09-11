@@ -1,8 +1,39 @@
-cmake_minimum_required (VERSION 3.0.0)
-project (cfemm)
+cmake_minimum_required(VERSION 3.0.0)
+project(cfemm)
+
+# version number information
+function(setVersion prefix major minor patch extra)
+	set(${prefix}_VERSION_MAJOR "${major}" PARENT_SCOPE)
+	set(${prefix}_VERSION_MINOR "${minor}" PARENT_SCOPE)
+	set(${prefix}_VERSION_PATCH "${patch}" PARENT_SCOPE)
+	if(extra)
+		set(_extra "-${extra}")
+	endif()
+	set(${prefix}_VERSION_STRING "${major}.${minor}.${patch}${_extra}" PARENT_SCOPE)
+endfunction()
+
+set(VERSION_FILE "${CMAKE_CURRENT_LIST_DIR}/VERSION")
+if(EXISTS "${VERSION_FILE}")
+	# the version file contains a version such as "2.1.4" or "2.3.4-dev"
+	file(
+		STRINGS "${VERSION_FILE}" XFEMM_VERSION_STRING
+		REGEX [0-9]+[.][0-9]+[.][0-9]+\([-][a-zA-Z]\)?
+		LIMIT_COUNT 1
+		LIMIT_INPUT 20
+		)
+	message(STATUS "Using version string '${XFEMM_VERSION_STRING}' from file ${VERSION_FILE}...")
+
+	# parse version components
+	string(REGEX REPLACE "[.-]" ";" _xfemm_version_list "${XFEMM_VERSION_STRING}")
+	setVersion(XFEMM ${_xfemm_version_list})
+else()
+	setVersion(XFEMM 0 0 0 dev)
+endif()
+message(STATUS "This is xfemm version ${XFEMM_VERSION_STRING}...")
+
 
 enable_testing()
-set (CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
 
 set(GCC_COVERAGE_COMPILE_FLAGS)
 set(GCC_WARNING_FLAGS "-Wall -Wextra -Wpedantic")
@@ -55,9 +86,10 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "xfemm - cross platform FEMM")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "xfemm")
 # maybe find a more useful vendor name?
 set(CPACK_PACKAGE_VENDOR "xfemm.sf.net")
-set(CPACK_PACKAGE_VERSION_MAJOR "1")
-set(CPACK_PACKAGE_VERSION_MINOR "9")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_STRING "${XFEMM_VERSION_STRING}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${XFEMM_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${XFEMM_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${XFEMM_VERSION_PATCH}")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/INSTALL-MESSAGE.txt")
 
 # allow user to add bin dir to path:
