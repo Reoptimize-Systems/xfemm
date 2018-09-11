@@ -33,6 +33,12 @@ add_library(luacomplex
     )
 target_include_directories(luacomplex PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/liblua> $<INSTALL_INTERFACE:include/liblua>)
 
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/femmversion.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/femmversion.h"
+    @ONLY
+    )
+
 add_library(femm
     femmconstants.cpp
     femmenums.cpp
@@ -65,6 +71,11 @@ add_library(femm
     spars.cpp
     stringTools.cpp
     )
-target_include_directories(femm PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
+target_include_directories(femm
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
+    )
 target_link_libraries(femm PUBLIC luacomplex)
 # vi:expandtab:tabstop=4 shiftwidth=4:
