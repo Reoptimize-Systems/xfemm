@@ -70,7 +70,7 @@ function [rules,vars] = MMakefile_hpproc (varargin)
     %     mex $^ -output $@
     rules(1).target = 'hpproc_interface_mex.${MEX_EXT}';
     rules(1).deps = vars.OBJS;
-    rules(1).commands = 'mex ${MEXFLAGS} $^ dummy.cpp -output $@';
+    rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
 
     rules = [ rules, libluacomplex_rules, libfemm_rules, hpproc_rules ];
     
