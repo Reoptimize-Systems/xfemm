@@ -106,7 +106,7 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     %     mex $^ -output $@
     rules(1).target = {'mexfmesher.${MEX_EXT}'};
     rules(1).deps = vars.OBJS;
-    rules(1).commands = 'mex ${MEXFLAGS} $^ dummy.cpp -output $@';
+    rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
     
     rules = [ rules, libluacomplex_rules, libfemm_rules, triangle_rules, fmesher_rules ];
 
