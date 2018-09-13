@@ -2,22 +2,28 @@ cmake_minimum_required(VERSION 3.0.0)
 project(cfemm)
 
 # version number information
-function(setVersion prefix major minor patch extra)
+#setVersion(prefix major minor [patch [extra]])
+function(setVersion prefix major minor)
 	set(${prefix}_VERSION_MAJOR "${major}" PARENT_SCOPE)
 	set(${prefix}_VERSION_MINOR "${minor}" PARENT_SCOPE)
-	set(${prefix}_VERSION_PATCH "${patch}" PARENT_SCOPE)
-	if(extra)
-		set(_extra "-${extra}")
+	if("${ARGC}" GREATER 3)
+		set(patch "${ARGV3}")
+	else()
+		set(patch "0")
 	endif()
-	set(${prefix}_VERSION_STRING "${major}.${minor}.${patch}${_extra}" PARENT_SCOPE)
-endfunction()
+	if("${ARGC}" GREATER 4)
+		set(extra "-${ARGV4}")
+	endif()
+	set(${prefix}_VERSION_PATCH "${patch}" PARENT_SCOPE)
+	set(${prefix}_VERSION_STRING "${major}.${minor}.${patch}${extra}" PARENT_SCOPE)
+endfunction(setVersion)
 
 set(VERSION_FILE "${CMAKE_CURRENT_LIST_DIR}/VERSION")
 if(EXISTS "${VERSION_FILE}")
 	# the version file contains a version such as "2.1.4" or "2.3.4-dev"
 	file(
 		STRINGS "${VERSION_FILE}" XFEMM_VERSION_STRING
-		REGEX [0-9]+[.][0-9]+[.][0-9]+\([-][a-zA-Z]\)?
+		REGEX [0-9]+[.][0-9]+\([.][0-9]+\([-][a-zA-Z]\)?\)?
 		LIMIT_COUNT 1
 		LIMIT_INPUT 20
 		)
