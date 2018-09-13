@@ -50,7 +50,7 @@ function [objs, deps_rules] = sources2rules (sources, varargin)
     options.SourceDirectory = '';
     options.HeaderDirectory = '';
     
-    options = mmake.parse_pv_pairs (options, varargin);
+    options = parse_pv_pairs (options, varargin);
     
     if isempty (options.HeaderDirectory)
         options.HeaderDirectory = options.SourceDirectory;
