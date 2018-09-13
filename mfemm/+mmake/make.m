@@ -85,7 +85,7 @@ function make(target,mmakefilename,varargin)
 %   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 %% Argument parsing and setup
-if nargin < 1, target = ''; end
+if nargin < 1, target = ''; end;
 if nargin < 2
     % No mmakefile specified, try to find MMakefile or MMakefile.m
     if file_exist(fullfile(pwd,'MMakefile'))
@@ -109,19 +109,12 @@ end
     end
 % end
 
-% parse optinosl arguements passed as parameter-value pairs
+% parse optional arguments passed as parameter-value pairs
 options.DoCrossBuildWin64 = false;
-options.CrossMexOptsFile = '';
+options.W64CrossBuildMexLibsDir = '';
 options.FcnMakeFileArgs = {};
 
-options = mmake.parse_pv_pairs (options, varargin);
-
-if options.DoCrossBuildWin64
-    if isempty (options.CrossMexOptsFile)
-        error('MJB:mmake:no_crossmexoptsfile', ...
-            'If DoCrossBuildWin64 == true you must supply a path to the corss mex opts shell script using ''CrossMexOptsFile''')
-    end
-end
+options = parse_pv_pairs (options, varargin);
 
 % if nargin > 3, error('MJB:mmake:arguments','*** Too many arguments'); end;
 
@@ -195,6 +188,7 @@ function [rules, vars] = implicit_mmakefile(options)
         vars.CXXFLAGS = '';
         vars.FFLAGS   = '';
         vars.LDFLAGS  = '';
+        
     else
         if ismscompiler
             % WHY, MATHWORKS, WHY!?
@@ -202,11 +196,13 @@ function [rules, vars] = implicit_mmakefile(options)
             vars.CXXFLAGSKEY = 'COMPFLAGS';
             vars.FFLAGSKEY   = 'COMPFLAGS';
             vars.LDFLAGSKEY  = 'LINKFLAGS';
+            vars.COMPILERKEY = '';
         else
             vars.CFLAGSKEY   = 'CFLAGS';
             vars.CXXFLAGSKEY = 'CXXFLAGS';
             vars.FFLAGSKEY   = 'FFLAGS';
             vars.LDFLAGSKEY  = 'LDFLAGS';
+            vars.COMPILERKEY = 'GCC';
         end
         vars.OPTIMFLAGSKEY  = 'OPTIMFLAGS';
         
@@ -214,13 +210,14 @@ function [rules, vars] = implicit_mmakefile(options)
         vars.CXXFLAGS = ['$' vars.CXXFLAGSKEY];
         vars.FFLAGS   = ['$' vars.FFLAGSKEY];
         vars.LDFLAGS  = ['$' vars.LDFLAGSKEY];
+        vars.COMPILER = ['$' vars.COMPILERKEY];
     
     end
     
 
     if isunix && ~isoctave
         % Must escape $ signs in unix for the following vars:
-        fields = {'CFLAGS' 'CXXFLAGS' 'FFLAGS' 'LDFLAGS', 'OPTIMFLAGS'};
+        fields = {'CFLAGS' 'CXXFLAGS' 'FFLAGS' 'LDFLAGS', 'OPTIMFLAGS', 'COMPILER'};
         for i = 1:length(fields)
             if ~isfield(vars,fields{i}), continue; end;
             vars.(fields{i}) = strrep(vars.(fields{i}),'$','\$');
@@ -257,51 +254,27 @@ function [rules, vars] = implicit_mmakefile(options)
         rules(idx).commands = {'rtwbuild(''$*'')'};
     else
         
-        if options.DoCrossBuildWin64
-            idx = 1;
-            rules(idx).target   = {['%.' 'mexw64']};
-            rules(idx).deps     = {'%.c'};
-            rules(idx).commands = {'mex ${MEXFLAGS} -f "', options.CrossMexOptsFile, '" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
-            idx = idx+1;
-            rules(idx).target   = {['%.' 'mexw64']};
-            rules(idx).deps     = {'%.cpp'};
-            rules(idx).commands = {'mex ${MEXFLAGS} -f "', options.CrossMexOptsFile, '" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
-            idx = idx+1;
-            rules(idx).target   = {['%.' vars.OBJ_EXT]}; % Note: in a normal function-style MMakefile.m, variable expansion is performed on targets and deps
-            rules(idx).deps     = {'%.c'};
-            rules(idx).commands = {'mex -c ${MEXFLAGS} -f "', options.CrossMexOptsFile, '" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
-            idx = idx+1;
-            rules(idx).target   = {['%.' vars.OBJ_EXT]};
-            rules(idx).deps     = {'%.cpp'};
-            rules(idx).commands = {'mex -c ${MEXFLAGS} -f "', options.CrossMexOptsFile, '" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
-            idx = idx+1;
-            rules(idx).target   = {'%.dlm'};
-            rules(idx).deps     = {'%.mdl'};
-            rules(idx).commands = {'rtwbuild(''$*'')'};
-        else
-            
-            idx = 1;
-            rules(idx).target   = {['%.' mexext]};
-            rules(idx).deps     = {'%.c'};
-            rules(idx).commands = {'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
-            idx = idx+1;
-            rules(idx).target   = {['%.' mexext]};
-            rules(idx).deps     = {'%.cpp'};
-            rules(idx).commands = {'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
-            idx = idx+1;
-            rules(idx).target   = {['%.' vars.OBJ_EXT]}; % Note: in a normal function-style MMakefile.m, variable expansion is performed on targets and deps
-            rules(idx).deps     = {'%.c'};
-            rules(idx).commands = {'mex -c ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
-            idx = idx+1;
-            rules(idx).target   = {['%.' vars.OBJ_EXT]};
-            rules(idx).deps     = {'%.cpp'};
-            rules(idx).commands = {'mex -c ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
-            idx = idx+1;
-            rules(idx).target   = {'%.dlm'};
-            rules(idx).deps     = {'%.mdl'};
-            rules(idx).commands = {'rtwbuild(''$*'')'};
-        
-        end
+        idx = 1;
+        rules(idx).target   = {['%.' mexext]};
+        rules(idx).deps     = {'%.c'};
+        rules(idx).commands = {'mex ${MEXFLAGS} ${COMPILERKEY}="${COMPILER}" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
+        idx = idx+1;
+        rules(idx).target   = {['%.' mexext]};
+        rules(idx).deps     = {'%.cpp'};
+        rules(idx).commands = {'mex ${MEXFLAGS} ${COMPILERKEY}="${COMPILER}" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -output $@'};
+        idx = idx+1;
+        rules(idx).target   = {['%.' vars.OBJ_EXT]}; % Note: in a normal function-style MMakefile.m, variable expansion is performed on targets and deps
+        rules(idx).deps     = {'%.c'};
+        rules(idx).commands = {'mex -c ${MEXFLAGS} ${COMPILERKEY}="${COMPILER}" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CFLAGSKEY}="${CFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
+        idx = idx+1;
+        rules(idx).target   = {['%.' vars.OBJ_EXT]};
+        rules(idx).deps     = {'%.cpp'};
+        rules(idx).commands = {'mex -c ${MEXFLAGS} ${COMPILERKEY}="${COMPILER}" ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $< -outdir $&'};
+        idx = idx+1;
+        rules(idx).target   = {'%.dlm'};
+        rules(idx).deps     = {'%.mdl'};
+        rules(idx).commands = {'rtwbuild(''$*'')'};
+
     end
 end
 
@@ -919,4 +892,3 @@ function t = isoctave()
     end
 
 end
-
