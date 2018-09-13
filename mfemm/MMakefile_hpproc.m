@@ -68,10 +68,25 @@ function [rules,vars] = MMakefile_hpproc (varargin)
 
     % mexfmesher.${MEX_EXT}: ${OBJS}
     %     mex $^ -output $@
-    rules(1).target = 'hpproc_interface_mex.${MEX_EXT}';
-    rules(1).deps = vars.OBJS;
-    rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
+%     rules(1).target = 'hpproc_interface_mex.${MEX_EXT}';
+%     rules(1).deps = vars.OBJS;
+%     rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
 
+    if options.DoCrossBuildWin64 
+        
+        [vars, extra_mex_args] = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
+        
+    end
+    
+    if options.Verbose
+        extra_mex_args = [extra_mex_args, ' -v'];
+    end
+
+    rules = mfemmdeps.mmake_rule_1 ( 'hpproc_interface_mex', ...
+                                     'DoCrossBuildWin64', options.DoCrossBuildWin64, ...
+                                     'ExtraMexArgs', extra_mex_args );
+    rules(1).deps = vars.OBJS;
+    
     rules = [ rules, libluacomplex_rules, libfemm_rules, hpproc_rules ];
     
     rules(end+1).target = 'postproc/hpproc_interface.${OBJ_EXT}';
