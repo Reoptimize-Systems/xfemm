@@ -1,8 +1,9 @@
 function [rules,vars] = MMakefile_hsolver (varargin)
 
-%     options.DoCrossBuildWin64 = false;
     options.Verbose = false;
     options.Debug = false;
+    options.DoCrossBuildWin64 = false;
+    options.W64CrossBuildMexLibsDir = '';
     
     options = mmake.parse_pv_pairs (options, varargin);
     
@@ -63,17 +64,24 @@ function [rules,vars] = MMakefile_hsolver (varargin)
                   hsolver_objs, ...
                   {'mexhsolver.cpp'}, ...
                 ];
+            
+    extra_mex_args = '';
+  
+    if options.DoCrossBuildWin64 
+        
+        [vars, extra_mex_args] = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
+        
+    end
+    
+    if options.Verbose
+        extra_mex_args = [extra_mex_args, ' -v'];
+    end
 
-%     vars.OBJS = { ...
-% 
-%       ... % mexfunction
-%       'mexhsolver.cpp' };
-
-    % mexfmesher.${MEX_EXT}: ${OBJS}
-    %     mex $^ -output $@
-    rules(1).target = {'mexhsolver.${MEX_EXT}'};
+    rules = mfemmdeps.mmake_rule_1 ( 'mexhsolver', ...
+                                     'DoCrossBuildWin64', options.DoCrossBuildWin64, ...
+                                     'ExtraMexArgs', extra_mex_args );
     rules(1).deps = vars.OBJS;
-    rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
+    
     
     rules = [ rules, libluacomplex_rules, libfemm_rules, hsolver_rules ];
 

@@ -1,6 +1,7 @@
 function [rules,vars] = MMakefile_fmesher (varargin)
 
     options.DoCrossBuildWin64 = false;
+    options.W64CrossBuildMexLibsDir = '';
     options.Verbose = false;
     options.Debug = false;
     
@@ -104,9 +105,24 @@ function [rules,vars] = MMakefile_fmesher (varargin)
 
     % mexfmesher.${MEX_EXT}: ${OBJS}
     %     mex $^ -output $@
-    rules(1).target = {'mexfmesher.${MEX_EXT}'};
+%     rules(1).target = {'mexfmesher.${MEX_EXT}'};
+%     rules(1).deps = vars.OBJS;
+%     rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
+    if options.DoCrossBuildWin64 
+        
+        [vars, extra_mex_args] = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
+        
+    end
+    
+    if options.Verbose
+        extra_mex_args = [extra_mex_args, ' -v'];
+    end
+
+    rules = mfemmdeps.mmake_rule_1 ( 'mexfmesher', ...
+                                     'DoCrossBuildWin64', options.DoCrossBuildWin64, ...
+                                     'ExtraMexArgs', extra_mex_args );
     rules(1).deps = vars.OBJS;
-    rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
+    
     
     rules = [ rules, libluacomplex_rules, libfemm_rules, triangle_rules, fmesher_rules ];
 

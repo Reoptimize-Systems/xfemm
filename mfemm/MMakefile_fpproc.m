@@ -2,6 +2,8 @@ function [rules,vars] = MMakefile_fpproc (varargin)
 
     options.Verbose = false;
     options.Debug = false;
+    options.DoCrossBuildWin64 = false;
+    options.W64CrossBuildMexLibsDir = '';
     
     options = mmake.parse_pv_pairs (options, varargin);
     
@@ -67,9 +69,24 @@ function [rules,vars] = MMakefile_fpproc (varargin)
 
     % mexfmesher.${MEX_EXT}: ${OBJS}
     %     mex $^ -output $@
-    rules(1).target = {'fpproc_interface_mex.${MEX_EXT}'};
+%     rules(1).target = {'fpproc_interface_mex.${MEX_EXT}'};
+%     rules(1).deps = vars.OBJS;
+%     rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
+    
+    if options.DoCrossBuildWin64 
+        
+        [vars, extra_mex_args] = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
+        
+    end
+    
+    if options.Verbose
+        extra_mex_args = [extra_mex_args, ' -v'];
+    end
+
+    rules = mfemmdeps.mmake_rule_1 ( 'fpproc_interface_mex', ...
+                                     'DoCrossBuildWin64', options.DoCrossBuildWin64, ...
+                                     'ExtraMexArgs', extra_mex_args );
     rules(1).deps = vars.OBJS;
-    rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
     
     rules = [ rules, libluacomplex_rules, libfemm_rules, fpproc_rules ];
 

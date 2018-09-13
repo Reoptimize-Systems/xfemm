@@ -75,24 +75,19 @@ function varargout = mfemm_setup(varargin)
     addpath (fullfile (thisfilepath, 'visualisation'));
     
     % parse inputs
-    Inputs.ForceMexRecompile = false;
-    Inputs.Debug = false;
-    Inputs.Verbose = false;
-    Inputs.RunTests = false;
-    Inputs.CrossBuildW64 = false;
+    options.ForceMexRecompile = false;
+    options.Debug = false;
+    options.Verbose = false;
+    options.RunTests = false;
+    options.DoCrossBuildWin64 = false;
+    options.W64CrossBuildMexLibsDir = '';
     
-    Inputs = mfemmdeps.parseoptions (Inputs, varargin);
-    
-     if Inputs.CrossBuildW64
-        thismexext = 'mexw64';
-    else
-        thismexext = mexext ();
-    end
+    options = mfemmdeps.parseoptions (options, varargin);
 
     % make architecture specific directory for mex files if it doesn't
     % already exist
     warning off MATLAB:MKDIR:DirectoryExists
-    if Inputs.CrossBuildW64
+    if options.DoCrossBuildWin64
         mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_', 'win64']);
     else
         mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_' computer('arch')]);
@@ -106,7 +101,7 @@ function varargout = mfemm_setup(varargin)
     if ~(exist('mexfsolver', 'file') == 3) ...
             || ~(exist('mexfmesher', 'file') == 3) ...
             || ~(exist('fpproc_interface_mex', 'file') == 3) ...
-            || Inputs.ForceMexRecompile
+            || options.ForceMexRecompile
 
         fprintf('Compiling mex functions for mfemm.\n');
         
@@ -114,7 +109,11 @@ function varargout = mfemm_setup(varargin)
         cd (thisfilepath);
         
         if ~exist (fullfile ('..', 'cfemm'), 'dir')
-            error ('MFEMM:Build', 'The cfemm directory was not found in the expected location, you must preserve xfemm directory stucture, compilation terminating');
+            error ( 'MFEMM:Build', ...
+                    [ 'The cfemm directory was not found in the expected location,\n', ...
+                      'you must preserve xfemm directory stucture for mfemm to build.\n', ...
+                      'Compilation terminating' ] ...
+                  );
         end
         
         makefilenames = {'MMakefile_fmesher.m', ...
@@ -123,7 +122,7 @@ function varargout = mfemm_setup(varargin)
                          'MMakefile_hpproc.m', ...
                          'MMakefile_hsolver.m' };
                      
-        if Inputs.ForceMexRecompile
+        if options.ForceMexRecompile
             % run make clean for all projects to force complete
             % recompilation
             delete (fullfile (mexdir, ['*.', thismexext]));
@@ -135,10 +134,15 @@ function varargout = mfemm_setup(varargin)
         % now invoke mmake for all files
         ws = warning( 'off', 'MATLAB:mex:GccVersion');
         for ind = 1:numel(makefilenames)
-            if Inputs.CrossBuildW64
-                mmake.make ('', makefilenames{ind}, 'DoCrossBuildWin64', true, 'FcnMakeFileArgs', {'DoCrossBuildWin64', true, 'Verbose', true})
+            if options.DoCrossBuildWin64
+                mmake.make ( '', makefilenames{ind}, ...
+                             'DoCrossBuildWin64', true, ...
+                             'FcnMakeFileArgs', { 'DoCrossBuildWin64', true, ...
+                                                  'Verbose', true, ...
+                                                  'W64CrossBuildMexLibsDir', options.W64CrossBuildMexLibsDir } ...
+                           );
             else
-                mmake.make ('', makefilenames{ind}, 'FcnMakeFileArgs', {'Debug', Inputs.Debug, 'Verbose', Inputs.Verbose})
+                mmake.make ('', makefilenames{ind}, 'FcnMakeFileArgs', {'Debug', options.Debug, 'Verbose', options.Verbose})
             end
         end
         warning (ws);
@@ -166,7 +170,7 @@ function varargout = mfemm_setup(varargin)
     
     end
     
-    if Inputs.RunTests
+    if options.RunTests
         
         fmesher_test_file = fullfile (thisfilepath, '..', 'cfemm', 'fmesher', 'test', 'Temp.fem');
         
