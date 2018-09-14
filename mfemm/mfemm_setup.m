@@ -89,8 +89,10 @@ function varargout = mfemm_setup(varargin)
     warning off MATLAB:MKDIR:DirectoryExists
     if options.DoCrossBuildWin64
         mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_', 'win64']);
+        thismexext = 'mexw64';
     else
         mexdir = fullfile(thisfilepath, ['xfemm_mex_files_for_' computer('arch')]);
+        thismexext = mexext ();
     end
     mkdir (mexdir);
     warning on MATLAB:MKDIR:DirectoryExists
