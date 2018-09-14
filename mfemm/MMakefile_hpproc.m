@@ -1,6 +1,7 @@
 function [rules,vars] = MMakefile_hpproc (varargin)
 
-%     options.DoCrossBuildWin64 = false;
+	options.DoCrossBuildWin64 = false;
+    options.W64CrossBuildMexLibsDir = '';
     options.Verbose = false;
     options.Debug = false;
     
@@ -74,7 +75,7 @@ function [rules,vars] = MMakefile_hpproc (varargin)
 
     if options.DoCrossBuildWin64 
         
-        [vars, extra_mex_args] = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
+        vars = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
         
     end
     
@@ -83,8 +84,7 @@ function [rules,vars] = MMakefile_hpproc (varargin)
     end
 
     rules = mfemmdeps.mmake_rule_1 ( 'hpproc_interface_mex', ...
-                                     'DoCrossBuildWin64', options.DoCrossBuildWin64, ...
-                                     'ExtraMexArgs', extra_mex_args );
+                                     'DoCrossBuildWin64', options.DoCrossBuildWin64 );
     rules(1).deps = vars.OBJS;
     
     rules = [ rules, libluacomplex_rules, libfemm_rules, hpproc_rules ];

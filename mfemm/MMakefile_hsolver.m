@@ -65,21 +65,14 @@ function [rules,vars] = MMakefile_hsolver (varargin)
                   {'mexhsolver.cpp'}, ...
                 ];
             
-    extra_mex_args = '';
-  
     if options.DoCrossBuildWin64 
         
-        [vars, extra_mex_args] = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
+        vars = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
         
-    end
-    
-    if options.Verbose
-        extra_mex_args = [extra_mex_args, ' -v'];
     end
 
     rules = mfemmdeps.mmake_rule_1 ( 'mexhsolver', ...
-                                     'DoCrossBuildWin64', options.DoCrossBuildWin64, ...
-                                     'ExtraMexArgs', extra_mex_args );
+                                     'DoCrossBuildWin64', options.DoCrossBuildWin64 );
     rules(1).deps = vars.OBJS;
     
     

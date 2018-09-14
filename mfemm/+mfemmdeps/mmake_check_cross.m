@@ -1,4 +1,4 @@
-function [vars, extra_mex_args] = mmake_check_cross (winmexlibdir, vars)
+function vars = mmake_check_cross (winmexlibdir, vars)
 
     assert ( ~isempty (winmexlibdir), ...
              sprintf ( ['W64CrossBuild is true, but W64CrossBuildMexLibsDir is empty.\n', ...
@@ -15,7 +15,7 @@ function [vars, extra_mex_args] = mmake_check_cross (winmexlibdir, vars)
 
     vars.COMPILER = ['"', cross_full_path, '-gcc"'];
 
-    extra_mex_args = ['-L"', options.W64CrossBuildMexLibsDir, '"'];
+    vars.MEXFLAGS = [vars.MEXFLAGS, ' -L"', winmexlibdir, '"'];
         
         
 end
