@@ -32,7 +32,7 @@ function [rules,vars] = MMakefile_hsolver (varargin)
         vars.MEXFLAGS = [vars.MEXFLAGS, ' -v '];
     end
     
-    vars.LDFLAGS = '${LDFLAGS} "-Wl,--no-undefined"';
+    vars.LDFLAGS = '${LDFLAGS} ''-Wl,--no-undefined''';
     vars.CXXFLAGS = '${CXXFLAGS}';
     
     if mfemmdeps.isoctave ()

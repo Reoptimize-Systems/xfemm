@@ -22,7 +22,7 @@ function [rules,vars] = MMakefile_fsolver (varargin)
     
     thisfilepath = strrep (thisfilepath, '\', '/');
 
-    vars.LDFLAGS = '${LDFLAGS} -lstdc++ "-Wl,--no-undefined"';
+    vars.LDFLAGS = '${LDFLAGS} -lstdc++ ''-Wl,--no-undefined''';
 
     % flags that will be passed direct to mex
     vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"../cfemm/fsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" '];
