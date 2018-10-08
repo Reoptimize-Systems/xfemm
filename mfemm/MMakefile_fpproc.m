@@ -17,7 +17,7 @@ function [rules,vars] = MMakefile_fpproc (varargin)
 
     % flags that will be passed direct to mex
 %     vars.MEXFLAGS = ['${MEXFLAGS} -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
-    vars.MEXFLAGS = '${MEXFLAGS} -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
+    vars.MEXFLAGS = '${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
     if isunix && ~mfemmdeps.isoctave ()
         if options.Debug
             vars.OPTIMFLAGS = '-OO';
@@ -26,6 +26,10 @@ function [rules,vars] = MMakefile_fpproc (varargin)
             vars.OPTIMFLAGS = '-O2';
             vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
         end
+    end
+    
+    if options.Verbose
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -v '];
     end
     
     vars.CXXFLAGS = '${CXXFLAGS}';
@@ -37,7 +41,7 @@ function [rules,vars] = MMakefile_fpproc (varargin)
     
 %     vars.CXXFLAGS = [vars.CXXFLAGS, ' -std=c++14'];
     
-    vars.LDFLAGS = '${LDFLAGS} -lstdc++';
+    vars.LDFLAGS = '${LDFLAGS} -lstdc++ --no-undefined';
     
     [libluacomplex_sources, libluacomplex_headers] = getlibluasources ();
     
@@ -67,18 +71,12 @@ function [rules,vars] = MMakefile_fpproc (varargin)
                   {'postproc/fpproc_interface.${OBJ_EXT}', 'postproc/fpproc_interface_mex.${OBJ_EXT}' } 
                 ];
 
-    % mexfmesher.${MEX_EXT}: ${OBJS}
-    %     mex $^ -output $@
-%     rules(1).target = {'fpproc_interface_mex.${MEX_EXT}'};
-%     rules(1).deps = vars.OBJS;
-%     rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
-    
     if options.DoCrossBuildWin64 
         
         vars = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
-        
-    end
 
+    end
+    
     rules = mfemmdeps.mmake_rule_1 ( 'fpproc_interface_mex', ...
                                      'DoCrossBuildWin64', options.DoCrossBuildWin64 );
     rules(1).deps = vars.OBJS;

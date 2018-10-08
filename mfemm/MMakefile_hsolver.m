@@ -17,7 +17,7 @@ function [rules,vars] = MMakefile_hsolver (varargin)
 
     % flags that will be passed direct to mex
 %     vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/hsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
-    vars.MEXFLAGS = '${MEXFLAGS} -I"../cfemm/hsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
+    vars.MEXFLAGS = '${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"../cfemm/hsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
     if isunix && ~mfemmdeps.isoctave ()
         if options.Debug
             vars.OPTIMFLAGS = '-OO';
@@ -28,9 +28,14 @@ function [rules,vars] = MMakefile_hsolver (varargin)
         end
     end
     
+    if options.Verbose
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -v '];
+    end
+    
+    vars.LDFLAGS = '${LDFLAGS} --no-undefined';
     vars.CXXFLAGS = '${CXXFLAGS}';
     
-    if mfemmdeps.isoctave
+    if mfemmdeps.isoctave ()
         setenv('CFLAGS','-std=c++11'); %vars.CXXFLAGS = [vars.CXXFLAGS, ' -std=c++11'];
         setenv('CXXFLAGS','-std=c++11');
     end
@@ -64,17 +69,21 @@ function [rules,vars] = MMakefile_hsolver (varargin)
                   hsolver_objs, ...
                   {'mexhsolver.cpp'}, ...
                 ];
-            
+
+%     vars.OBJS = { ...
+% 
+%       ... % mexfunction
+%       'mexhsolver.cpp' };
+
     if options.DoCrossBuildWin64 
         
         vars = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
-        
+
     end
 
     rules = mfemmdeps.mmake_rule_1 ( 'mexhsolver', ...
                                      'DoCrossBuildWin64', options.DoCrossBuildWin64 );
     rules(1).deps = vars.OBJS;
-    
     
     rules = [ rules, libluacomplex_rules, libfemm_rules, hsolver_rules ];
 
@@ -83,7 +92,7 @@ function [rules,vars] = MMakefile_hsolver (varargin)
                          'try; delete(''../cfemm/libfemm/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''../cfemm/hsolver/*.${OBJ_EXT}''); catch; end;', ...
                          'try; delete(''*.${OBJ_EXT}''); catch; end;'};
-	tidyruleind = numel (rules);
+    tidyruleind = numel (rules);
     
     rules(end+1).target = 'clean';
     rules(end).commands = [ rules(tidyruleind).commands, ...
