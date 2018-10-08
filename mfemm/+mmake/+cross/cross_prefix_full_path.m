@@ -9,7 +9,7 @@ function path = cross_prefix_full_path (cross_prefix)
 
     cross_gcc = [cross_prefix, '-gcc'];
 
-    [~, cross_gcc_full_path] = cleansystem (['which ', cross_gcc]);
+    [~, cross_gcc_full_path] = system (['which ', cross_gcc]);
 
     cross_gcc_full_path = strtrim (cross_gcc_full_path);
 
