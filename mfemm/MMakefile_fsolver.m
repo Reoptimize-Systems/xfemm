@@ -22,10 +22,10 @@ function [rules,vars] = MMakefile_fsolver (varargin)
     
     thisfilepath = strrep (thisfilepath, '\', '/');
 
-    vars.LDFLAGS = '${LDFLAGS} -lstdc++';
+    vars.LDFLAGS = '${LDFLAGS} -lstdc++ --no-undefined';
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" '];
+    vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"../cfemm/fsolver" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" '];
     
     if options.Verbose
         vars.MEXFLAGS = [vars.MEXFLAGS, ' -v'];
@@ -41,11 +41,16 @@ function [rules,vars] = MMakefile_fsolver (varargin)
         end
     end
     
+    if options.Verbose
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -v '];
+    end
+    
     vars.CXXFLAGS = '${CXXFLAGS}';
     
     if mfemmdeps.isoctave
         setenv('CFLAGS','-std=c++11'); %vars.CXXFLAGS = [vars.CXXFLAGS, ' -std=c++11'];
         setenv('CXXFLAGS','-std=c++11');
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' ''-Wl,--no-undefined'' -lstdc++'];
     end
 %     vars.CXXFLAGS = [vars.CXXFLAGS, ' -std=c++14'];
     
@@ -90,12 +95,6 @@ function [rules,vars] = MMakefile_fsolver (varargin)
                 ];
             
 
-    % mexfmesher.${MEX_EXT}: ${OBJS}
-    %     mex $^ -output $@
-%     rules(1).target = {'mexfsolver.${MEX_EXT}'};
-%     rules(1).deps = vars.OBJS;
-%     rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
-    
     if options.DoCrossBuildWin64 
         
         vars = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
@@ -105,8 +104,9 @@ function [rules,vars] = MMakefile_fsolver (varargin)
     rules = mfemmdeps.mmake_rule_1 ( 'mexfsolver', ...
                                      'DoCrossBuildWin64', options.DoCrossBuildWin64 );
     rules(1).deps = vars.OBJS;
+
     
-    rules = [ rules, libluacomplex_rules, libfemm_rules, fsolver_rules ];
+    rules = [ rules, fsolver_rules, libfemm_rules, libluacomplex_rules ];
 
     rules(end+1).target = 'tidy';
     rules(end).commands = { 'try; delete(''../cfemm/libfemm/liblua/*.${OBJ_EXT}''); catch; end;', ...

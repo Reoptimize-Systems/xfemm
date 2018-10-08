@@ -28,10 +28,10 @@ function [rules,vars] = MMakefile_fmesher (varargin)
         trilibraryflag = '-DLINUX';
     end
     
-    vars.LDFLAGS = '${LDFLAGS} -lstdc++';
+    vars.LDFLAGS = '${LDFLAGS} -lstdc++  --no-undefined';
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fmesher" -I"../cfemm/fmesher/triangle" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"../cfemm/fmesher" -I"../cfemm/fmesher/triangle" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
     
     if options.Verbose
         vars.MEXFLAGS = [vars.MEXFLAGS, ' -v'];
@@ -49,7 +49,7 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     
     vars.CXXFLAGS = '${CXXFLAGS}';
 
-    if mfemmdeps.isoctave
+    if mfemmdeps.isoctave ()
         setenv('CFLAGS','-std=c++11'); %vars.CXXFLAGS = [vars.CXXFLAGS, ' -std=c++11'];
         setenv('CXXFLAGS','-std=c++11');
     end
@@ -102,21 +102,17 @@ function [rules,vars] = MMakefile_fmesher (varargin)
                   fmesher_objs, ...
                   {'mexfmesher.cpp'}, ...
                 ];
-
-    % mexfmesher.${MEX_EXT}: ${OBJS}
-    %     mex $^ -output $@
-%     rules(1).target = {'mexfmesher.${MEX_EXT}'};
-%     rules(1).deps = vars.OBJS;
-%     rules(1).commands = 'mex ${MEXFLAGS} ${OPTIMFLAGSKEY}="${OPTIMFLAGS}" ${CXXFLAGSKEY}="${CXXFLAGS}" ${LDFLAGSKEY}="${LDFLAGS}" $^ dummy.cpp -output $@';
+            
     if options.DoCrossBuildWin64 
-        
+
         vars = mfemmdeps.mmake_check_cross (options.W64CrossBuildMexLibsDir, vars);
         
     end
-
+    
     rules = mfemmdeps.mmake_rule_1 ( 'mexfmesher', ...
                                      'DoCrossBuildWin64', options.DoCrossBuildWin64 );
     rules(1).deps = vars.OBJS;
+
     
     
     rules = [ rules, libluacomplex_rules, libfemm_rules, triangle_rules, fmesher_rules ];
