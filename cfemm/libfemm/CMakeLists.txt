@@ -35,7 +35,7 @@ target_include_directories(luacomplex PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_S
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/femmversion.h.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/femmversion.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/femmversion.h"
     @ONLY
     )
 
