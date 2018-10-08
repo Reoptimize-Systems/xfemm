@@ -41,7 +41,7 @@ function [rules,vars] = MMakefile_fpproc (varargin)
     
 %     vars.CXXFLAGS = [vars.CXXFLAGS, ' -std=c++14'];
     
-    vars.LDFLAGS = '${LDFLAGS} -lstdc++ -Wl,--no-undefined';
+    vars.LDFLAGS = '${LDFLAGS} -lstdc++ "-Wl,--no-undefined"';
     
     [libluacomplex_sources, libluacomplex_headers] = getlibluasources ();
     

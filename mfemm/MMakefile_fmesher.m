@@ -28,7 +28,7 @@ function [rules,vars] = MMakefile_fmesher (varargin)
         trilibraryflag = '-DLINUX';
     end
     
-    vars.LDFLAGS = '${LDFLAGS} -lstdc++  -Wl,--no-undefined';
+    vars.LDFLAGS = '${LDFLAGS} -lstdc++  "-Wl,--no-undefined"';
 
     % flags that will be passed direct to mex
     vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"../cfemm/fmesher" -I"../cfemm/fmesher/triangle" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
