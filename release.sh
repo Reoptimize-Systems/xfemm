@@ -121,7 +121,7 @@ else
 fi
 
 # tar up the result in the release directory
-cd ${working_copy_dir}/release
+cd ${release_prefix}
 tar cvzf xfemm_v${version}_linux64.tar.gz ${linux_64_common_dir_name}/
 
 
