@@ -2,7 +2,7 @@ function rules = mmake_rule_1 (mexname, varargin)
 
     options.DoCrossBuildWin64 = false;
     
-    options = parse_pv_pairs (options, varargin);
+    options = mmake.parse_pv_pairs (options, varargin);
 
     if options.DoCrossBuildWin64
         rules(1).target = {sprintf('%s.mexw64', mexname)};
