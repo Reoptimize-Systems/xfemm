@@ -114,7 +114,7 @@ options.DoCrossBuildWin64 = false;
 options.W64CrossBuildMexLibsDir = '';
 options.FcnMakeFileArgs = {};
 
-options = parse_pv_pairs (options, varargin);
+options = mmake.parse_pv_pairs (options, varargin);
 
 % if nargin > 3, error('MJB:mmake:arguments','*** Too many arguments'); end;
 
