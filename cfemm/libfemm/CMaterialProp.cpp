@@ -964,7 +964,34 @@ void CMSolverMaterialProp::incrementalPermeability(double B, double w, CComplex 
     }
 }
 
+// get incremental permeability of a nonlinear material for use in
+// incremental permeability formulation about DC offset
+void CMSolverMaterialProp::IncrementalPermeability(double B, double &mu1, double &mu2)
+{
+	// B == flux density in Tesla
 
+	double muinc, murel;
+
+	// get incremental permeability of the DC material
+	// (i.e. incremental permeability at the offset)
+	muinc = 1. / (muo*Re(GetdHdB(B)));
+	murel = 1. / (muo*Re(Get_v(B)));
+
+	// if material is not laminated, just return
+	if ((Lam_d == 0) || (LamFill == 0)){
+		mu1 = muinc;
+		mu2 = murel;
+		return;
+	}
+
+	// incremental permeability direction
+	mu1 = (muinc*LamFill + (1. - LamFill));
+
+	// normal permeability direction
+	mu2 = (murel*LamFill + (1. - LamFill));
+
+	return;
+}
 
 void CMSolverMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
 {

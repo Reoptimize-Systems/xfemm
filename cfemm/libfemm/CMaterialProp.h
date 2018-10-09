@@ -187,10 +187,25 @@ public:
      *
      * \internal
      * ### FEMM reference source:
-     *  - \femm42{fkn/matprop.cpp,CMaterialProp::IncrementalPermeability()}
+     *  - \femm42{fkn/matprop.cpp,CMaterialProp::IncrementalPermeability(double B, double w, CComplex &mu1, CComplex &mu2)}
      * \endinternal
      */
     void incrementalPermeability(double B, double w, CComplex &mu1, CComplex &mu2);
+
+    /**
+     * @brief Get the incremental permeability of a nonlinear material for use in incremental permeability formulation about DC offset.
+     * @param B
+     * @param w
+     * @param mu1
+     * @param mu2
+     *
+     * \internal
+     * ### FEMM reference source:
+     *  - \femm42{fkn/matprop.cpp,CMaterialProp::IncrementalPermeability(double B, double &mu1, double &mu2)}
+     *  - \femm42{femm/Problem.h,,CMaterialProp::IncrementalPermeability(double B, double &mu1, double &mu2)}
+     * \endinternal
+     */
+    void IncrementalPermeability(double B, double &mu1, double &mu2);
     virtual CComplex LaminatedBH(double omega, int i) override;
 
     /**

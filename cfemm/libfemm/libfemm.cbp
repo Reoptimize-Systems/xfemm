@@ -37,6 +37,8 @@
 			<Add directory="./liblua" />
 			<Add directory="../libfemm" />
 		</Compiler>
+		<Unit filename="CAirGapElement.cpp" />
+		<Unit filename="CAirGapElement.h" />
 		<Unit filename="CArcSegment.cpp" />
 		<Unit filename="CArcSegment.h" />
 		<Unit filename="CBlockLabel.cpp" />
@@ -58,6 +60,7 @@
 		<Unit filename="CNode.h" />
 		<Unit filename="CPointProp.cpp" />
 		<Unit filename="CPointProp.h" />
+		<Unit filename="CQuadPoint.h" />
 		<Unit filename="CSegment.cpp" />
 		<Unit filename="CSegment.h" />
 		<Unit filename="FemmProblem.cpp" />
