@@ -315,6 +315,40 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
         fscanf(fp,"%i",&pbc.t);
         pbclist.push_back(pbc);
     }
+
+
+	// read in air gap element info
+	fgets(s,1024,fp);
+	sscanf(s,"%i", &NumAirGapElems);
+
+	CAirGapElement age;
+
+	for(i=0;i<NumAGEs;i++)
+    {
+		fgets(age.BdryName,80,fp);
+
+		fgets(s,1024,fp);
+
+		sscanf(s,"%i %lf %lf %lf %lf %lf %lf %lf %i %lf %lf",
+			&age.BdryFormat,&age.InnerAngle,&age.OuterAngle,
+			&age.ri,&age.ro,&age.totalArcLength,
+			&age.agc.re,&age.agc.im,&age.totalArcElements,&age.InnerShift,&age.OuterShift);
+
+		age.node=(CQuadPoint *)calloc(age.totalArcElements+1,sizeof(CQuadPoint));
+
+		for(k=0;k<=age.totalArcElements;k++)
+        {
+			fgets(s,1024,fp);
+
+			sscanf(s,"%i %lf %i %lf %i %lf %i %lf",
+				&age.node[k].n0, &age.node[k].w0,
+				&age.node[k].n1, &age.node[k].w1,
+				&age.node[k].n2, &age.node[k].w2,
+				&age.node[k].n3, &age.node[k].w3);
+		}
+		agelist.push_back (age);
+	}
+
     fclose(fp);
 
     // read in elements;
@@ -593,6 +627,44 @@ bool FSolver::loadPreviousSolution()
             pbclist.push_back(pbc);
         }
     }
+
+    int numAGElems;
+	fgets(s,1024,fp);
+	sscanf(s,"%i",&numAGElems);
+
+//	if (numAges!=0)
+//    {
+//        agelist=(CAirGapElement *)calloc(NumAGEs,sizeof(CAirGapElement));
+//    }
+
+	CAirGapElement age;
+
+	for(i=0; i<numAGElems (); i++)
+    {
+
+		fgets(age.BdryName,80,fp);
+
+		fgets(s,1024,fp);
+
+		sscanf(s,"%i %lf %lf %lf %lf %lf %lf %lf %i %lf %lf",
+			&age.BdryFormat,&age.InnerAngle,&age.OuterAngle,
+			&age.ri,&age.ro,&age.totalArcLength,
+			&age.agc.re,&age.agc.im,&age.totalArcElements,
+			&age.InnerShift,&age.OuterShift);
+
+		age.node = (CQuadPoint *)calloc(age.totalArcElements+1,sizeof(CQuadPoint));
+
+		for(k=0; k<=age.totalArcElements; k++)
+		{
+			fgets(s,1024,fp);
+			sscanf(s,"%i %lf %i %lf %i %lf %i %lf",
+				&age.node[k].n0, &age.node[k].w0,
+				&age.node[k].n1, &age.node[k].w1,
+				&age.node[k].n2, &age.node[k].w2,
+				&age.node[k].n3, &age.node[k].w3);
+		}
+		agelist.push_back(age);
+	}
 
     fclose(fp);
     return true;

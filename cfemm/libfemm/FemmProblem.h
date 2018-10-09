@@ -496,6 +496,7 @@ public: // data members
     int ACSolver; ///< \brief .succ. approcimation or .Newton is possible
     double dT; ///< \brief delta T used by hsolver \verbatim[dT]\endverbatim
     std::string PrevSoln; ///y \brief   name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
+    int	PrevType; ///< \brief Previous solution type. 0 == None, 1 == Incremental, 2 == Frozen
 
     bool    DoForceMaxMeshArea; ///< \brief Property introduced by xfemm.
     bool    DoSmartMesh; ///< \brief Property introduced by xfemm.
@@ -505,6 +506,7 @@ public: // data members
     std::vector< std::unique_ptr<CSegment>> linelist;
     std::vector< std::unique_ptr<CArcSegment>> arclist;
     std::vector< std::unique_ptr<CBlockLabel>> labellist;
+    std::vector< std::unique_ptr<CAirGapElement>> agelist;
 
     std::vector< std::unique_ptr<CPointProp>> nodeproplist;
     std::vector< std::unique_ptr<CBoundaryProp>> lineproplist;

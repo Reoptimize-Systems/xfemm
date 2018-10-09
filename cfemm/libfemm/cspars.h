@@ -67,6 +67,7 @@ public:
     int Create(int d, int bw, int nodes);	// initialize the problem
     void Put(CComplex v, int p, int q, int k=0); // use to create/set entries in the matrix
     CComplex Get(int p, int q, int k=0);
+    void AddTo(CComplex v, int p, int q);
     void MultA(CComplex *X, CComplex *Y, int k=0);
     void MultConjA(CComplex *X, CComplex *Y, int k=0);
     CComplex Dot(CComplex *x, CComplex *y);

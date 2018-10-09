@@ -25,7 +25,7 @@
         richard.crozier@yahoo.co.uk
         johannes@zarl-zierl.at
 
- Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  Mechatronics GmbH (LCM)
 */
 
@@ -56,12 +56,14 @@ public:
      * For magnetic problems, this is defined as:
      * \verbatim
      * <type>
-     * 0 = constant value of A
+     * 0 = Constant value of A
      * 1 = Small skin depth eddy current BC
      * 2 = Mixed BC
-     * 3 = stratigic dual image
-     * 4 = periodic
-     * 5 = anti-periodic
+     * 3 = SDI boundary (deprecated)
+     * 4 = Periodic
+     * 5 = Antiperiodic
+     * 6 = Periodic AGE
+     * 7 = Antiperiodic AGE
      * \endverbatim
      *
      * For electrostatics problems, this is defined as:
@@ -190,6 +192,24 @@ public:
      * \endverbatim
      */
     CComplex c1;
+
+    /**
+     * @brief InnerAngle
+     * Inner rotor angle (for building air gap element)
+     * \verbatim
+     * <InnerAngle>
+     * \endverbatim
+     */
+    double InnerAngle;
+
+    /**
+     * @brief OuterAngle
+     * Outer rotor angle (for building air gap element)
+     * \verbatim
+     * <OuterAngle>
+     * \endverbatim
+     */
+    double OuterAngle;
 
     virtual bool isPeriodic(PeriodicityType pt) const override;
 

@@ -67,6 +67,7 @@ public:
     double Get(int p, int q);
     bool PCGSolve(int flag);	// flag==true if guess for V present;
     void MultPC(const double *X, double *Y);
+    void AddTo(double v, int p, int q);
     void MultA(double *X, double *Y);
     void SetValue(int i, double x);
     void Periodicity(int i, int j);

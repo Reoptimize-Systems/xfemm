@@ -33,19 +33,18 @@
 
 int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
 {
-    int i,j,k,s,flag,sdi_iter,sdin,ww,Iter=0;
+    int i,j,k,s,flag,ww,Iter=0;
     int pctr;
     CComplex Mx[3][3],My[3][3],Mn[3][3],Me[3][3],be[3];		// element matrices;
     double l[3],p[3],q[3];		// element shape parameters;
     int n[3];					// numbers of nodes for a particular element;
     double a,r,t,x,y,B,w,res,lastres,ds,R,rn[3],g[3],a_hat,R_hat,vol,Cduct;
     CComplex K,mu,dv,B1,B2,v[3],mu1,mu2,lag,halflag,deg45,Jv; //u[3],
-    CComplex **Mu,*V_sdi,*V_old;
+    CComplex **Mu,*V_old;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     femmsolver::CMElement *El;
     int LinearFlag=true;
-    int SDIflag=false;
     res=0;
 
 // #ifndef NEWTON
@@ -156,37 +155,6 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
         }
     }
 
-
-    // check to see if there are any SDI boundaries...
-    // lineproplist[ meshele[i].e[j] ].BdryFormat==0
-    for(i=0; i<NumLineProps; i++)
-        if(lineproplist[i].BdryFormat==3) SDIflag=true;
-
-    if(SDIflag==true)
-    {
-        // there is an SDI boundary defined; check to see if it is in use
-        SDIflag=false;
-        for(i=0; i<NumEls; i++)
-            for(j=0; j<3; j++)
-                if (lineproplist[meshele[i].e[j]].BdryFormat==3)
-                {
-                    SDIflag=true;
-                    printf("Problem has SDI boundaries\n");
-                    i=NumEls;
-                    j=3;
-                }
-    }
-
-    if (SDIflag==true)
-    {
-        V_sdi=(CComplex *) calloc(NumNodes+NumCircProps,sizeof(CComplex));
-        sdin=2;
-    } else {
-        V_sdi = nullptr;
-        sdin=1;
-    }
-
-
     // compute effective permeability for each block type;
     Mu=(CComplex **)calloc(NumBlockProps,sizeof(CComplex *));
     for(i=0; i<NumBlockProps; i++) Mu[i]=(CComplex *)calloc(2,sizeof(CComplex));
@@ -236,256 +204,255 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
 
     do
     {
-        for(sdi_iter=0; sdi_iter<sdin; sdi_iter++)
-        {
+
 //		TheView->SetDlgItemText(IDC_FRAME1,"Matrix Construction");
 //		TheView->m_prog1.SetPos(0);
-            printf("Matrix Construction\n");
-            pctr=0;
+        printf("Matrix Construction\n");
+        pctr=0;
 
-            if (Iter>0) L.Wipe();
+        if (Iter>0) L.Wipe();
 
-            // build element matrices using the matrices derived in Allaire's book.
-            for(i=0; i<NumEls; i++)
+        // build element matrices using the matrices derived in Allaire's book.
+        for(i=0; i<NumEls; i++)
+        {
+
+            // update ``building matrix'' progress bar...
+            j=(i*20)/NumEls+1;
+            if(j>pctr)
             {
-
-                // update ``building matrix'' progress bar...
-                j=(i*20)/NumEls+1;
-                if(j>pctr)
-                {
-                    j=pctr*5;
-                    if (j>100) j=100;
+                j=pctr*5;
+                if (j>100) j=100;
 //			TheView->m_prog1.SetPos(j);
-                    pctr++;
-                }
+                pctr++;
+            }
 
-                // zero out Me, be;
-                for(j=0; j<3; j++)
-                {
-                    for(k=0; k<3; k++)
-                    {
-                        Me[j][k]=0;
-                        Mx[j][k]=0;
-                        My[j][k]=0;
-                        Mn[j][k]=0;
-// #ifdef NEWTON
-                        if (ACSolver==1)
-                        {
-                            Mnh[j][k]=0;
-                            Mna[j][k]=0;
-                            Mns[j][k]=0;
-                        }
-// #endif
-                    }
-                    be[j]=0;
-                }
-
-                // Determine shape parameters.
-                // l == element side lengths;
-                // p corresponds to the `b' parameter in Allaire
-                // q corresponds to the `c' parameter in Allaire
-                El=&meshele[i];
-
+            // zero out Me, be;
+            for(j=0; j<3; j++)
+            {
                 for(k=0; k<3; k++)
                 {
-                    n[k]=El->p[k];
-                    rn[k]=meshnode[n[k]].x;
+                    Me[j][k]=0;
+                    Mx[j][k]=0;
+                    My[j][k]=0;
+                    Mn[j][k]=0;
+// #ifdef NEWTON
+                    if (ACSolver==1)
+                    {
+                        Mnh[j][k]=0;
+                        Mna[j][k]=0;
+                        Mns[j][k]=0;
+                    }
+// #endif
                 }
+                be[j]=0;
+            }
 
-                p[0]=meshnode[n[1]].y - meshnode[n[2]].y;
-                p[1]=meshnode[n[2]].y - meshnode[n[0]].y;
-                p[2]=meshnode[n[0]].y - meshnode[n[1]].y;
-                q[0]=meshnode[n[2]].x - meshnode[n[1]].x;
-                q[1]=meshnode[n[0]].x - meshnode[n[2]].x;
-                q[2]=meshnode[n[1]].x - meshnode[n[0]].x;
-                g[0]=(meshnode[n[2]].x + meshnode[n[1]].x)/2.;
-                g[1]=(meshnode[n[0]].x + meshnode[n[2]].x)/2.;
-                g[2]=(meshnode[n[1]].x + meshnode[n[0]].x)/2.;
+            // Determine shape parameters.
+            // l == element side lengths;
+            // p corresponds to the `b' parameter in Allaire
+            // q corresponds to the `c' parameter in Allaire
+            El=&meshele[i];
 
-                for(j=0,k=1; j<3; k++,j++)
+            for(k=0; k<3; k++)
+            {
+                n[k]=El->p[k];
+                rn[k]=meshnode[n[k]].x;
+            }
+
+            p[0]=meshnode[n[1]].y - meshnode[n[2]].y;
+            p[1]=meshnode[n[2]].y - meshnode[n[0]].y;
+            p[2]=meshnode[n[0]].y - meshnode[n[1]].y;
+            q[0]=meshnode[n[2]].x - meshnode[n[1]].x;
+            q[1]=meshnode[n[0]].x - meshnode[n[2]].x;
+            q[2]=meshnode[n[1]].x - meshnode[n[0]].x;
+            g[0]=(meshnode[n[2]].x + meshnode[n[1]].x)/2.;
+            g[1]=(meshnode[n[0]].x + meshnode[n[2]].x)/2.;
+            g[2]=(meshnode[n[1]].x + meshnode[n[0]].x)/2.;
+
+            for(j=0,k=1; j<3; k++,j++)
+            {
+                if (k==3) k=0;
+                l[j]=sqrt( pow(meshnode[n[k]].x-meshnode[n[j]].x,2.) +
+                           pow(meshnode[n[k]].y-meshnode[n[j]].y,2.) );
+            }
+            a=(p[0]*q[1]-p[1]*q[0])/2.;
+            R=(meshnode[n[0]].x+meshnode[n[1]].x+meshnode[n[2]].x)/3.;
+
+            for(j=0,a_hat=0; j<3; j++) a_hat+=(rn[j]*rn[j]*p[j]/(4.*R));
+            vol=2.*R*a_hat;
+
+            for(j=0,flag=0; j<3; j++) if(rn[j]<1.e-06) flag++;
+            switch(flag)
+            {
+            case 2:
+                R_hat=R;
+
+                break;
+
+            case 1:
+                R_hat = 0;
+                if(rn[0]<1.e-06)
                 {
-                    if (k==3) k=0;
-                    l[j]=sqrt( pow(meshnode[n[k]].x-meshnode[n[j]].x,2.) +
-                               pow(meshnode[n[k]].y-meshnode[n[j]].y,2.) );
+                    if (fabs(rn[1]-rn[2])<1.e-06) R_hat=rn[2]/2.;
+                    else R_hat=(rn[1] - rn[2])/(2.*log(rn[1]) - 2.*log(rn[2]));
                 }
-                a=(p[0]*q[1]-p[1]*q[0])/2.;
-                R=(meshnode[n[0]].x+meshnode[n[1]].x+meshnode[n[2]].x)/3.;
-
-                for(j=0,a_hat=0; j<3; j++) a_hat+=(rn[j]*rn[j]*p[j]/(4.*R));
-                vol=2.*R*a_hat;
-
-                for(j=0,flag=0; j<3; j++) if(rn[j]<1.e-06) flag++;
-                switch(flag)
+                if(rn[1]<1.e-06)
                 {
-                case 2:
-                    R_hat=R;
-
-                    break;
-
-                case 1:
-                    R_hat = 0;
-                    if(rn[0]<1.e-06)
-                    {
-                        if (fabs(rn[1]-rn[2])<1.e-06) R_hat=rn[2]/2.;
-                        else R_hat=(rn[1] - rn[2])/(2.*log(rn[1]) - 2.*log(rn[2]));
-                    }
-                    if(rn[1]<1.e-06)
-                    {
-                        if (fabs(rn[2]-rn[0])<1.e-06) R_hat=rn[0]/2.;
-                        else R_hat=(rn[2] - rn[0])/(2.*log(rn[2]) - 2.*log(rn[0]));
-                    }
-                    if(rn[2]<1.e-06)
-                    {
-                        if (fabs(rn[0]-rn[1])<1.e-06) R_hat=rn[1]/2.;
-                        else R_hat=(rn[0] - rn[1])/(2.*log(rn[0]) - 2.*log(rn[1]));
-                    }
-
-                    break;
-
-                default:
-
-                    if (fabs(q[0])<1.e-06)
-                        R_hat=(q[1]*q[1])/(2.*(-q[1] + rn[0]*log(rn[0]/rn[2])));
-                    else if (fabs(q[1])<1.e-06)
-                        R_hat=(q[2]*q[2])/(2.*(-q[2] + rn[1]*log(rn[1]/rn[0])));
-                    else if (fabs(q[2])<1.e-06)
-                        R_hat=(q[0]*q[0])/(2.*(-q[0] + rn[2]*log(rn[2]/rn[1])));
-                    else
-                        R_hat=-(q[0]*q[1]*q[2])/
-                              (2.*(q[0]*rn[0]*log(rn[0]) +
-                                   q[1]*rn[1]*log(rn[1]) +
-                                   q[2]*rn[2]*log(rn[2])));
-
-                    break;
+                    if (fabs(rn[2]-rn[0])<1.e-06) R_hat=rn[0]/2.;
+                    else R_hat=(rn[2] - rn[0])/(2.*log(rn[2]) - 2.*log(rn[0]));
                 }
-
-                // Mr Contribution
-                // Derived from flux formulation with c0 + c1 r^2 + c2 z
-                // interpolation in the element.
-                K=(-1./(2.*a_hat*R));
-                for(j=0; j<3; j++)
-                    for(k=j; k<3; k++)
-                        Mx[j][k] += K*p[j]*rn[j]*p[k]*rn[k];
-
-                // need this loop to avoid singularities.  This just puts something
-                // on the main diagonal of nodes that are on the r=0 line.
-                // The program later sets these nodes to zero, but it's good to
-                // for scaling reasons to grab entries from the neighboring diagonals
-                // rather than just setting these entries to 1 or something....
-                for(j=0; j<3; j++)
-                    if (rn[j]<1.e-06) Mx[j][j]+=Mx[0][0]+Mx[1][1]+Mx[2][2];
-
-                // Mz Contribution;
-                // Derived from flux formulation with c0 + c1 r^2 + c2 z
-                // interpolation in the element.
-                K=(-1./(2.*a_hat*R_hat));
-                for(j=0; j<3; j++)
-                    for(k=j; k<3; k++)
-                        My[j][k] += K*(q[j]*rn[j])*(q[k]*rn[k])*
-                                    (g[j]/R)*(g[k]/R);
-
-                // Fill out rest of entries of Mx and My;
-                Mx[1][0]=Mx[0][1];
-                Mx[2][0]=Mx[0][2];
-                Mx[2][1]=Mx[1][2];
-                My[1][0]=My[0][1];
-                My[2][0]=My[0][2];
-                My[2][1]=My[1][2];
-
-                // contribution from eddy currents;
-                // induced current interpolated as constant (avg. of nodal values)
-                // over the entire element;
-                K = -I*R*a*w*blockproplist[meshele[i].blk].Cduct*c/6.;
-
-                // radially laminated blocks appear to have no conductivity;
-                // eddy currents are accounted for in these elements by their
-                // frequency-dependent permeability.
-                if((blockproplist[El->blk].LamType==0) &&
-                        (blockproplist[El->blk].Lam_d>0)) K=0;
-
-                // if this element is part of a wound coil,
-                // it should have a zero "bulk" conductivity...
-                if(labellist[El->lbl].bIsWound) K=0;
-
-                for(j=0; j<3; j++)
-                    for(k=0; k<3; k++)
-                        Me[j][k]+=K*4./3.;
-
-                // contributions to Me, be from derivative boundary conditions;
-                for(j=0; j<3; j++)
+                if(rn[2]<1.e-06)
                 {
-                    k=j+1;
-                    if(k==3) k=0;
-                    r=(meshnode[n[j]].x+meshnode[n[k]].x)/2.;
-                    if (El->e[j] >= 0)
-                    {
-
-                        if (lineproplist[El->e[j]].BdryFormat==2)
-                        {
-                            // conversion factor is 10^(-4) (I think...)
-
-                            K = -0.0001*c*2.*r*lineproplist[ El->e[j] ].c0*l[j]/6.;
-                            Me[j][j]+=2*K;
-                            Me[k][k]+=2*K;
-                            Me[j][k]+=K;
-                            Me[k][j]+=K;
-
-                            K = (lineproplist[ El->e[j] ].c1*l[j]/2.)*2.*r*0.0001;
-                            be[j]+=K;
-                            be[k]+=K;
-                        }
-
-                        if (lineproplist[El->e[j]].BdryFormat==1)
-                        {
-                            ds=sqrt(2./(0.4*PI*w*lineproplist[El->e[j]].Sig*
-                                        lineproplist[El->e[j]].Mu));
-                            K=deg45/(-ds*lineproplist[El->e[j]].Mu*100.);
-                            K*=(2.*r*l[j]/6.);
-                            Me[j][j]+=2*K;
-                            Me[k][k]+=2*K;
-                            Me[j][k]+=K;
-                            Me[k][j]+=K;
-                        }
-
-                    }
+                    if (fabs(rn[0]-rn[1])<1.e-06) R_hat=rn[1]/2.;
+                    else R_hat=(rn[0] - rn[1])/(2.*log(rn[0]) - 2.*log(rn[1]));
                 }
 
-                // contribution to be from current density in the block
-                for(j=0; j<3; j++)
+                break;
+
+            default:
+
+                if (fabs(q[0])<1.e-06)
+                    R_hat=(q[1]*q[1])/(2.*(-q[1] + rn[0]*log(rn[0]/rn[2])));
+                else if (fabs(q[1])<1.e-06)
+                    R_hat=(q[2]*q[2])/(2.*(-q[2] + rn[1]*log(rn[1]/rn[0])));
+                else if (fabs(q[2])<1.e-06)
+                    R_hat=(q[0]*q[0])/(2.*(-q[0] + rn[2]*log(rn[2]/rn[1])));
+                else
+                    R_hat=-(q[0]*q[1]*q[2])/
+                          (2.*(q[0]*rn[0]*log(rn[0]) +
+                               q[1]*rn[1]*log(rn[1]) +
+                               q[2]*rn[2]*log(rn[2])));
+
+                break;
+            }
+
+            // Mr Contribution
+            // Derived from flux formulation with c0 + c1 r^2 + c2 z
+            // interpolation in the element.
+            K=(-1./(2.*a_hat*R));
+            for(j=0; j<3; j++)
+                for(k=j; k<3; k++)
+                    Mx[j][k] += K*p[j]*rn[j]*p[k]*rn[k];
+
+            // need this loop to avoid singularities.  This just puts something
+            // on the main diagonal of nodes that are on the r=0 line.
+            // The program later sets these nodes to zero, but it's good to
+            // for scaling reasons to grab entries from the neighboring diagonals
+            // rather than just setting these entries to 1 or something....
+            for(j=0; j<3; j++)
+                if (rn[j]<1.e-06) Mx[j][j]+=Mx[0][0]+Mx[1][1]+Mx[2][2];
+
+            // Mz Contribution;
+            // Derived from flux formulation with c0 + c1 r^2 + c2 z
+            // interpolation in the element.
+            K=(-1./(2.*a_hat*R_hat));
+            for(j=0; j<3; j++)
+                for(k=j; k<3; k++)
+                    My[j][k] += K*(q[j]*rn[j])*(q[k]*rn[k])*
+                                (g[j]/R)*(g[k]/R);
+
+            // Fill out rest of entries of Mx and My;
+            Mx[1][0]=Mx[0][1];
+            Mx[2][0]=Mx[0][2];
+            Mx[2][1]=Mx[1][2];
+            My[1][0]=My[0][1];
+            My[2][0]=My[0][2];
+            My[2][1]=My[1][2];
+
+            // contribution from eddy currents;
+            // induced current interpolated as constant (avg. of nodal values)
+            // over the entire element;
+            K = -I*R*a*w*blockproplist[meshele[i].blk].Cduct*c/6.;
+
+            // radially laminated blocks appear to have no conductivity;
+            // eddy currents are accounted for in these elements by their
+            // frequency-dependent permeability.
+            if((blockproplist[El->blk].LamType==0) &&
+                    (blockproplist[El->blk].Lam_d>0)) K=0;
+
+            // if this element is part of a wound coil,
+            // it should have a zero "bulk" conductivity...
+            if(labellist[El->lbl].bIsWound) K=0;
+
+            for(j=0; j<3; j++)
+                for(k=0; k<3; k++)
+                    Me[j][k]+=K*4./3.;
+
+            // contributions to Me, be from derivative boundary conditions;
+            for(j=0; j<3; j++)
+            {
+                k=j+1;
+                if(k==3) k=0;
+                r=(meshnode[n[j]].x+meshnode[n[k]].x)/2.;
+                if (El->e[j] >= 0)
                 {
-                    Jv=0;
-                    if(labellist[El->lbl].InCircuit>=0)
+
+                    if (lineproplist[El->e[j]].BdryFormat==2)
                     {
-                        k=labellist[El->lbl].InCircuit;
-                        if(circproplist[k].Case==1) Jv=circproplist[k].J;
-                        if(circproplist[k].Case==0)
-                            Jv=-100.*circproplist[k].dV*
-                               blockproplist[El->blk].Cduct/R;
+                        // conversion factor is 10^(-4) (I think...)
+
+                        K = -0.0001*c*2.*r*lineproplist[ El->e[j] ].c0*l[j]/6.;
+                        Me[j][j]+=2*K;
+                        Me[k][k]+=2*K;
+                        Me[j][k]+=K;
+                        Me[k][j]+=K;
+
+                        K = (lineproplist[ El->e[j] ].c1*l[j]/2.)*2.*r*0.0001;
+                        be[j]+=K;
+                        be[k]+=K;
                     }
 
-                    K=-2.*R*(blockproplist[El->blk].J.re+I*blockproplist[El->blk].J.im+Jv)*a/3.;
-                    be[j]+=K;
-
-                    if(labellist[El->lbl].InCircuit>=0)
+                    if (lineproplist[El->e[j]].BdryFormat==1)
                     {
-                        k=labellist[El->lbl].InCircuit;
-                        if(circproplist[k].Case==2)
-                            L.b[NumNodes+k]+=K/R;
+                        ds=sqrt(2./(0.4*PI*w*lineproplist[El->e[j]].Sig*
+                                    lineproplist[El->e[j]].Mu));
+                        K=deg45/(-ds*lineproplist[El->e[j]].Mu*100.);
+                        K*=(2.*r*l[j]/6.);
+                        Me[j][j]+=2*K;
+                        Me[k][k]+=2*K;
+                        Me[j][k]+=K;
+                        Me[k][j]+=K;
                     }
+
+                }
+            }
+
+            // contribution to be from current density in the block
+            for(j=0; j<3; j++)
+            {
+                Jv=0;
+                if(labellist[El->lbl].InCircuit>=0)
+                {
+                    k=labellist[El->lbl].InCircuit;
+                    if(circproplist[k].Case==1) Jv=circproplist[k].J;
+                    if(circproplist[k].Case==0)
+                        Jv=-100.*circproplist[k].dV*
+                           blockproplist[El->blk].Cduct/R;
                 }
 
-                // do Case 2 circuit stuff for element
+                K=-2.*R*(blockproplist[El->blk].J.re+I*blockproplist[El->blk].J.im+Jv)*a/3.;
+                be[j]+=K;
+
                 if(labellist[El->lbl].InCircuit>=0)
                 {
                     k=labellist[El->lbl].InCircuit;
                     if(circproplist[k].Case==2)
-                    {
-                        K=-2.*I*a*w*blockproplist[meshele[i].blk].Cduct*c;
-                        for(j=0; j<3; j++)
-                            L.Put(L.Get(n[j],NumNodes+k)+K/3.,n[j],NumNodes+k);
-                        L.Put(L.Get(NumNodes+k,NumNodes+k)+K/R,NumNodes+k,NumNodes+k);
-                    }
+                        L.b[NumNodes+k]+=K/R;
                 }
+            }
+
+            // do Case 2 circuit stuff for element
+            if(labellist[El->lbl].InCircuit>=0)
+            {
+                k=labellist[El->lbl].InCircuit;
+                if(circproplist[k].Case==2)
+                {
+                    K=-2.*I*a*w*blockproplist[meshele[i].blk].Cduct*c;
+                    for(j=0; j<3; j++)
+                        L.Put(L.Get(n[j],NumNodes+k)+K/3.,n[j],NumNodes+k);
+                    L.Put(L.Get(NumNodes+k,NumNodes+k)+K/R,NumNodes+k,NumNodes+k);
+                }
+            }
 
 /////////////////////////
 //
@@ -493,293 +460,293 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
 //
 /////////////////////////
 
-                // update permeability for the element;
-                if (Iter==0)
+            // update permeability for the element;
+            if (Iter==0)
+            {
+                k=meshele[i].blk;
+                meshele[i].mu1=Mu[k][0];
+                meshele[i].mu2=Mu[k][1];
+                meshele[i].v12=0;
+                if (blockproplist[k].BHpoints > 0)
                 {
-                    k=meshele[i].blk;
-                    if (blockproplist[k].BHpoints != 0) LinearFlag=false;
-                    meshele[i].mu1=Mu[k][0];
-                    meshele[i].mu2=Mu[k][1];
-                }
-                else
-                {
-                    k=meshele[i].blk;
+                    if (bIncremental==false) LinearFlag=false;
+                    else{
+                        double B1p,B2p;
 
-                    if ((blockproplist[k].LamType==0) &&
-                            (meshele[i].mu1==meshele[i].mu2)
-                            &&(blockproplist[k].BHpoints>0))
-                    {
-                        //	Derive B directly from energy;
-                        v[0]=0;
-                        v[1]=0;
-                        v[2]=0;
-                        for(j=0; j<3; j++)
-                            for(ww=0; ww<3; ww++)
-                                v[j]+=(Mx[j][ww]+My[j][ww])*L.V[n[ww]];
-                        for(j=0,dv=0; j<3; j++) dv+=conj(L.V[n[j]])*v[j];
-                        dv*=(10000.*c*c/vol);
-                        B=sqrt(abs(dv));
+                        //	Get B from previous solution
+                        GetPrevAxiB(i,B1p,B2p);
+                        B = sqrt(B1p*B1p + B2p*B2p);
+
+                        // look up incremental permeability and assign it to the element;
+                        blockproplist[k].IncrementalPermeability(B,w,muinc,murel);
+                        if (B==0)
+                        {
+                            meshele[i].mu1=muinc;
+                            meshele[i].mu2=muinc;
+                            meshele[i].v12=0;
+                        }
+                        else{
+                            // need to actually compute B1 and B2 to build incremental permeability tensor
+                            meshele[i].mu1=B*B*muinc*murel/(B1p*B1p*murel + B2p*B2p*muinc);
+                            meshele[i].mu2=B*B*muinc*murel/(B1p*B1p*muinc + B2p*B2p*murel);
+                            meshele[i].v12=-B1p*B2p*(murel-muinc)/(B*B*murel*muinc);
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                k=meshele[i].blk;
+
+                if ((blockproplist[k].LamType==0) &&
+                        (meshele[i].mu1==meshele[i].mu2)
+                        &&(blockproplist[k].BHpoints>0))
+                {
+                    //	Derive B directly from energy;
+                    v[0]=0;
+                    v[1]=0;
+                    v[2]=0;
+                    for(j=0; j<3; j++)
+                        for(ww=0; ww<3; ww++)
+                            v[j]+=(Mx[j][ww]+My[j][ww])*L.V[n[ww]];
+                    for(j=0,dv=0; j<3; j++) dv+=conj(L.V[n[j]])*v[j];
+                    dv*=(10000.*c*c/vol);
+                    B=sqrt(abs(dv));
 
 // #ifdef NEWTON
-                        if (ACSolver==1)
+                    if (ACSolver==1)
+                    {
+                        // find out new mu from saturation curve;
+                        blockproplist[k].GetBHProps(B,mu,dv);
+                        mu=1./(muo*mu);
+                        meshele[i].mu1=mu;
+                        meshele[i].mu2=mu;
+                        for(j=0; j<3; j++)
                         {
-                            // find out new mu from saturation curve;
-                            blockproplist[k].GetBHProps(B,mu,dv);
-                            mu=1./(muo*mu);
-                            meshele[i].mu1=mu;
-                            meshele[i].mu2=mu;
-                            for(j=0; j<3; j++)
+                            for(ww=0,v[j]=0; ww<3; ww++)
+                                v[j]+=(Mx[j][ww]+My[j][ww])*L.V[n[ww]];
+                        }
+
+                        // Newton iteration
+                        K=-200.*c*c*c*dv/vol;
+                        for(j=0; j<3; j++)
+                            for(ww=0; ww<3; ww++)
                             {
-                                for(ww=0,v[j]=0; ww<3; ww++)
-                                    v[j]+=(Mx[j][ww]+My[j][ww])*L.V[n[ww]];
+                                // Still compute Mn, the approximate N-R matrix used in
+                                // the complex-symmetric approx.  This will be useful
+                                // w.r.t. preconditioning.  However, subtract it off of Mnh and Mna
+                                // so that there is no net addition.
+                                Mn[j][ww] =K*Re(v[j]*conj(v[ww]));
+                                Mnh[j][ww]=  0.5*Re(K)*v[j]*conj(v[ww])-Re(Mn[j][ww]);
+                                Mna[j][ww]=I*0.5*Im(K)*v[j]*conj(v[ww])-I*Im(Mn[j][ww]);
+                                Mns[j][ww]=  0.5*K*v[j]*v[ww];
                             }
-
-                            // Newton iteration
-                            K=-200.*c*c*c*dv/vol;
-                            for(j=0; j<3; j++)
-                                for(ww=0; ww<3; ww++)
-                                {
-                                    // Still compute Mn, the approximate N-R matrix used in
-                                    // the complex-symmetric approx.  This will be useful
-                                    // w.r.t. preconditioning.  However, subtract it off of Mnh and Mna
-                                    // so that there is no net addition.
-                                    Mn[j][ww] =K*Re(v[j]*conj(v[ww]));
-                                    Mnh[j][ww]=  0.5*Re(K)*v[j]*conj(v[ww])-Re(Mn[j][ww]);
-                                    Mna[j][ww]=I*0.5*Im(K)*v[j]*conj(v[ww])-I*Im(Mn[j][ww]);
-                                    Mns[j][ww]=  0.5*K*v[j]*v[ww];
-                                }
-                        }
+                    }
 // #else
-                        else
-                        {
-                            // find out new mu from saturation curve;
-                            murel=1./(muo*blockproplist[k].Get_v(B));
-                            muinc=1./(muo*blockproplist[k].GetdHdB(B));
+                    else
+                    {
+                        // find out new mu from saturation curve;
+                        murel=1./(muo*blockproplist[k].Get_v(B));
+                        muinc=1./(muo*blockproplist[k].GetdHdB(B));
 
-                            // successive approximation;
-                            //      K=muinc;                            // total incremental
-                            //      K=murel;                            // total updated
-                            K=2.*murel*muinc/(murel+muinc);     // averaged
-                            meshele[i].mu1=K;
-                            meshele[i].mu2=K;
-                            K=-(1./murel - 1/K);
-                            for(j=0; j<3; j++)
-                                for(ww=0; ww<3; ww++)
-                                    Mn[j][ww]=K*(Mx[j][ww]+My[j][ww]);
-                        }
+                        // successive approximation;
+                        //      K=muinc;                            // total incremental
+                        //      K=murel;                            // total updated
+                        K=2.*murel*muinc/(murel+muinc);     // averaged
+                        meshele[i].mu1=K;
+                        meshele[i].mu2=K;
+                        K=-(1./murel - 1/K);
+                        for(j=0; j<3; j++)
+                            for(ww=0; ww<3; ww++)
+                                Mn[j][ww]=K*(Mx[j][ww]+My[j][ww]);
+                    }
 // #endif
-                    }
                 }
+            }
 
-                // Apply correction for elements subject to prox effects
-                if((blockproplist[meshele[i].blk].LamType>2) && (Iter==0) && (sdi_iter==0))
+            // Apply correction for elements subject to prox effects
+            if((blockproplist[meshele[i].blk].LamType>2) && (Iter==0))
+            {
+                meshele[i].mu1=labellist[meshele[i].lbl].ProximityMu;
+                meshele[i].mu2=labellist[meshele[i].lbl].ProximityMu;
+            }
+
+            // "Warp" the permeability of this element if part of
+            // the conformally mapped external region
+            if((labellist[meshele[i].lbl].IsExternal) && (Iter==0))
+            {
+                double Z=(meshnode[n[0]].y+meshnode[n[1]].y+meshnode[n[2]].y)/3. - extZo;
+                double kludge=(R*R+Z*Z)*extRi/(extRo*extRo*extRo);
+                meshele[i].mu1/=kludge;
+                meshele[i].mu2/=kludge;
+            }
+
+            // combine block matrices into global matrices;
+            for(j=0; j<3; j++)
+                for(k=0; k<3; k++)
                 {
-                    meshele[i].mu1=labellist[meshele[i].lbl].ProximityMu;
-                    meshele[i].mu2=labellist[meshele[i].lbl].ProximityMu;
-                }
-
-                // "Warp" the permeability of this element if part of
-                // the conformally mapped external region
-                if((labellist[meshele[i].lbl].IsExternal) && (Iter==0) && (sdi_iter==0))
-                {
-                    double Z=(meshnode[n[0]].y+meshnode[n[1]].y+meshnode[n[2]].y)/3. - extZo;
-                    double kludge=(R*R+Z*Z)*extRi/(extRo*extRo*extRo);
-                    meshele[i].mu1/=kludge;
-                    meshele[i].mu2/=kludge;
-                }
-
-                // combine block matrices into global matrices;
-                for(j=0; j<3; j++)
-                    for(k=0; k<3; k++)
-                    {
 //#ifdef NEWTON
-                        if (ACSolver==1)
-                        {
-                            Me[j][k]+= (Mx[j][k]/(El->mu2) + My[j][k]/(El->mu1) + Mn[j][k]);
-                            be[j]+=(Mnh[j][k]+Mna[j][k]+Mn[j][k])*L.V[n[k]];
-                            be[j]+=Mns[j][k]*L.V[n[k]].Conj();
-                        }
+                    if (ACSolver==1)
+                    {
+                        Me[j][k]+= (Mx[j][k]/(El->mu2) + My[j][k]/(El->mu1) + Mn[j][k]);
+                        be[j]+=(Mnh[j][k]+Mna[j][k]+Mn[j][k])*L.V[n[k]];
+                        be[j]+=Mns[j][k]*L.V[n[k]].Conj();
+                    }
 //#else
-                        else
-                        {
-                            Me[j][k]+= (Mx[j][k]/(El->mu2) + My[j][k]/(El->mu1));
-                            be[j]+=Mn[j][k]*L.V[n[k]];
-                        }
-//#endif
-
-                    }
-
-                for (j=0; j<3; j++)
-                {
-                    for (k=j; k<3; k++)
+                    else
                     {
-                        L.Put(L.Get(n[j],n[k])+Me[j][k],n[j],n[k]);
-//#ifdef NEWTON
-                        if (ACSolver==1)
-                        {
-                            if (Mnh[j][k]!=0) L.Put(L.Get(n[j],n[k],1) + Mnh[j][k],n[j],n[k],1);
-                            if (Mns[j][k]!=0) L.Put(L.Get(n[j],n[k],2) + Mns[j][k],n[j],n[k],2);
-                            if (Mna[j][k]!=0) L.Put(L.Get(n[j],n[k],3) + Mna[j][k],n[j],n[k],3);
-                        }
-//#endif
+                        Me[j][k]+= (Mx[j][k]/(El->mu2) + My[j][k]/(El->mu1) + Mxy[j][k] * (El->v12));
+                        be[j]+=Mn[j][k]*L.V[n[k]];
                     }
-                    L.b[n[j]]+=be[j];
+//#endif
+
                 }
+
+            for (j=0; j<3; j++)
+            {
+                for (k=j; k<3; k++)
+                {
+                    L.Put(L.Get(n[j],n[k])+Me[j][k],n[j],n[k]);
+//#ifdef NEWTON
+                    if (ACSolver==1)
+                    {
+                        if (Mnh[j][k]!=0) L.Put(L.Get(n[j],n[k],1) + Mnh[j][k],n[j],n[k],1);
+                        if (Mns[j][k]!=0) L.Put(L.Get(n[j],n[k],2) + Mns[j][k],n[j],n[k],2);
+                        if (Mna[j][k]!=0) L.Put(L.Get(n[j],n[k],3) + Mna[j][k],n[j],n[k],3);
+                    }
+//#endif
+                }
+                L.b[n[j]]+=be[j];
+            }
 
 ///////////////////////////////////////////////////
 
+        }
+
+        // add in contribution from point currents;
+        for(i=0; i<NumNodes; i++)
+            if(meshnode[i].BoundaryMarker>=0)
+            {
+                r=meshnode[i].x;
+                K = (2.*r*0.01)*(nodeproplist[meshnode[i].BoundaryMarker].J.re +
+                                 I*nodeproplist[meshnode[i].BoundaryMarker].J.im);
+                L.b[i]-=K;
             }
 
-            // add in contribution from point currents;
-            for(i=0; i<NumNodes; i++)
-                if(meshnode[i].BoundaryMarker>=0)
-                {
-                    r=meshnode[i].x;
-                    K = (2.*r*0.01)*(nodeproplist[meshnode[i].BoundaryMarker].J.re +
-                                     I*nodeproplist[meshnode[i].BoundaryMarker].J.im);
-                    L.b[i]-=K;
-                }
+        // add in total current constraints for circuits;
+        for(i=0; i<NumCircProps; i++)
+            if (circproplist[i].Case==2)
+            {
+                L.b[NumNodes+i]+=2.*0.01*(circproplist[i].Amps.re +
+                                          I*circproplist[i].Amps.im);
+            }
 
-            // add in total current constraints for circuits;
-            for(i=0; i<NumCircProps; i++)
-                if (circproplist[i].Case==2)
+        // apply fixed boundary conditions at points;
+        for(i=0; i<NumNodes; i++)
+            if(meshnode[i].x<(units[LengthUnits]*1.e-06))
+            {
+                K=0;
+                L.SetValue(i,K);
+            }
+            else if(meshnode[i].BoundaryMarker >=0)
+                if((nodeproplist[meshnode[i].BoundaryMarker].J.re==0) &&
+                        (nodeproplist[meshnode[i].BoundaryMarker].J.im==0))
                 {
-                    L.b[NumNodes+i]+=2.*0.01*(circproplist[i].Amps.re +
-                                              I*circproplist[i].Amps.im);
-                }
-
-            // apply fixed boundary conditions at points;
-            for(i=0; i<NumNodes; i++)
-                if(meshnode[i].x<(units[LengthUnits]*1.e-06))
-                {
-                    K=0;
+                    K =  (nodeproplist[meshnode[i].BoundaryMarker].A.re
+                          + I*nodeproplist[meshnode[i].BoundaryMarker].A.im) / c;
                     L.SetValue(i,K);
                 }
-                else if(meshnode[i].BoundaryMarker >=0)
-                    if((nodeproplist[meshnode[i].BoundaryMarker].J.re==0) &&
-                            (nodeproplist[meshnode[i].BoundaryMarker].J.im==0) && (sdi_iter==0))
-                    {
-                        K =  (nodeproplist[meshnode[i].BoundaryMarker].A.re
-                              + I*nodeproplist[meshnode[i].BoundaryMarker].A.im) / c;
-                        L.SetValue(i,K);
-                    }
 
-            // apply fixed boundary conditions along segments;
-            for(i=0; i<NumEls; i++)
-                for(j=0; j<3; j++)
-                {
-                    k=j+1;
-                    if(k==3) k=0;
-                    if(meshele[i].e[j]>=0)
-                        if(lineproplist[ meshele[i].e[j] ].BdryFormat==0)
+        // apply fixed boundary conditions along segments;
+        for(i=0; i<NumEls; i++)
+        {
+            for(j=0; j<3; j++)
+            {
+                k=j+1;
+                if(k==3) k=0;
+                if(meshele[i].e[j]>=0)
+                    if(lineproplist[ meshele[i].e[j] ].BdryFormat==0)
+                    {
+                        if(Coords==0)
                         {
-                            if(Coords==0)
-                            {
-                                // first point on the side;
-                                x=meshnode[meshele[i].p[j]].x;
-                                y=meshnode[meshele[i].p[j]].y;
-                                x/=units[LengthUnits];
-                                y/=units[LengthUnits];
-                                s=meshele[i].e[j];
-                                a=lineproplist[s].A0 + x*lineproplist[s].A1 +
-                                  y*lineproplist[s].A2;
-                                K=(a/c)*exp(I*lineproplist[s].phi*DEG);
-                                L.SetValue(meshele[i].p[j],K);
+                            // first point on the side;
+                            x=meshnode[meshele[i].p[j]].x;
+                            y=meshnode[meshele[i].p[j]].y;
+                            x/=units[LengthUnits];
+                            y/=units[LengthUnits];
+                            s=meshele[i].e[j];
+                            a=lineproplist[s].A0 + x*lineproplist[s].A1 +
+                              y*lineproplist[s].A2;
+                            K=(a/c)*exp(I*lineproplist[s].phi*DEG);
+                            L.SetValue(meshele[i].p[j],K);
 
-                                // second point on the side;
-                                x=meshnode[meshele[i].p[k]].x;
-                                y=meshnode[meshele[i].p[k]].y;
-                                x/=units[LengthUnits];
-                                y/=units[LengthUnits];
-                                s=meshele[i].e[j];
-                                a=lineproplist[s].A0 + x*lineproplist[s].A1 +
-                                  y*lineproplist[s].A2;
-                                K=(a/c)*exp(I*lineproplist[s].phi*DEG);
-                                L.SetValue(meshele[i].p[k],K);
-                            }
-                            else
-                            {
-                                // first point on the side;
-                                x=meshnode[meshele[i].p[j]].x;
-                                y=meshnode[meshele[i].p[j]].y;
-                                r=sqrt(x*x+y*y);
-                                if ((x==0) && (y==0)) t=0;
-                                else t=atan2(y,x)/DEG;
-                                r/=units[LengthUnits];
-                                s=meshele[i].e[j];
-                                a=lineproplist[s].A0 + r*lineproplist[s].A1 +
-                                  t*lineproplist[s].A2;
-                                K=(a/c)*exp(I*lineproplist[s].phi*DEG);
-                                L.SetValue(meshele[i].p[j],K);
-
-                                // second point on the side;
-                                x=meshnode[meshele[i].p[k]].x;
-                                y=meshnode[meshele[i].p[k]].y;
-                                r=sqrt(x*x+y*y);
-                                if((x==0) && (y==0)) t=0;
-                                else t=atan2(y,x)/DEG;
-                                r/=units[LengthUnits];
-                                s=meshele[i].e[j];
-                                a=lineproplist[s].A0 + r*lineproplist[s].A1 +
-                                  t*lineproplist[s].A2;
-                                K=(a/c)*exp(I*lineproplist[s].phi*DEG);
-                                L.SetValue(meshele[i].p[k],K);
-                            }
-
+                            // second point on the side;
+                            x=meshnode[meshele[i].p[k]].x;
+                            y=meshnode[meshele[i].p[k]].y;
+                            x/=units[LengthUnits];
+                            y/=units[LengthUnits];
+                            s=meshele[i].e[j];
+                            a=lineproplist[s].A0 + x*lineproplist[s].A1 +
+                              y*lineproplist[s].A2;
+                            K=(a/c)*exp(I*lineproplist[s].phi*DEG);
+                            L.SetValue(meshele[i].p[k],K);
                         }
-                }
+                        else
+                        {
+                            // first point on the side;
+                            x=meshnode[meshele[i].p[j]].x;
+                            y=meshnode[meshele[i].p[j]].y;
+                            r=sqrt(x*x+y*y);
+                            if ((x==0) && (y==0)) t=0;
+                            else t=atan2(y,x)/DEG;
+                            r/=units[LengthUnits];
+                            s=meshele[i].e[j];
+                            a=lineproplist[s].A0 + r*lineproplist[s].A1 +
+                              t*lineproplist[s].A2;
+                            K=(a/c)*exp(I*lineproplist[s].phi*DEG);
+                            L.SetValue(meshele[i].p[j],K);
 
-            if ((SDIflag==true) && (sdi_iter==1)) for(i=0; i<NumEls; i++)
-                    for(j=0; j<3; j++)
-                    {
-                        k=j+1;
-                        if(k==3) k=0;
-                        if(meshele[i].e[j]>=0)
-                            if(lineproplist[ meshele[i].e[j] ].BdryFormat==3)
-                            {
-                                L.SetValue(meshele[i].p[j],0.*I);
-                                L.SetValue(meshele[i].p[k],0.*I);
-                            }
-                    }
+                            // second point on the side;
+                            x=meshnode[meshele[i].p[k]].x;
+                            y=meshnode[meshele[i].p[k]].y;
+                            r=sqrt(x*x+y*y);
+                            if((x==0) && (y==0)) t=0;
+                            else t=atan2(y,x)/DEG;
+                            r/=units[LengthUnits];
+                            s=meshele[i].e[j];
+                            a=lineproplist[s].A0 + r*lineproplist[s].A1 +
+                              t*lineproplist[s].A2;
+                            K=(a/c)*exp(I*lineproplist[s].phi*DEG);
+                            L.SetValue(meshele[i].p[k],K);
+                        }
 
-            // "fix" diagonal entries associated with circuits that have
-            // applied current or voltage that is known a priori
-            // so that solver doesn't throw a "singular" flag
-            for(j=0; j<NumCircProps; j++)
-                if (circproplist[j].Case<2)	L.Put(L.Get(0,0),NumNodes+j,NumNodes+j);
-
-            for(k=0; k<NumPBCs; k++)
-            {
-                if (pbclist[k].t==0) L.Periodicity(pbclist[k].x,pbclist[k].y);
-                if (pbclist[k].t==1) L.AntiPeriodicity(pbclist[k].x,pbclist[k].y);
-            }
-
-            // solve the problem;
-            if (SDIflag==false) for(j=0; j<NumNodes+NumCircProps; j++) V_old[j]=L.V[j];
-            else
-            {
-                if(sdi_iter==0)
-                    for(j=0; j<NumNodes+NumCircProps; j++) V_sdi[j]=L.V[j];
-                else
-                    for(j=0; j<NumNodes+NumCircProps; j++)
-                    {
-                        V_old[j]=V_sdi[j];
-                        V_sdi[j]=L.V[j];
                     }
             }
+        }
 
-            if (L.bNewton)
-            {
-                L.Precision=std::min(1.e-4,0.001*res);
-                if (L.Precision<Precision) L.Precision=Precision;
-            }
+        // "fix" diagonal entries associated with circuits that have
+        // applied current or voltage that is known a priori
+        // so that solver doesn't throw a "singular" flag
+        for(j=0; j<NumCircProps; j++)
+            if (circproplist[j].Case<2)	L.Put(L.Get(0,0),NumNodes+j,NumNodes+j);
 
-            if (L.PBCGSolveMod(Iter+sdi_iter)==false) return false;
+        for(k=0; k<NumPBCs; k++)
+        {
+            if (pbclist[k].t==0) L.Periodicity(pbclist[k].x,pbclist[k].y);
+            if (pbclist[k].t==1) L.AntiPeriodicity(pbclist[k].x,pbclist[k].y);
+        }
 
-            if(sdi_iter==1)
-                for(j=0; j<NumNodes+NumCircProps; j++) L.V[j]=(V_sdi[j]+L.V[j])/2.;
+        // solve the problem;
+        for(j=0;j<NumNodes+NumCircProps;j++) V_old[j]=L.V[j];
 
-        } //end of SDI loop;
+        if (L.bNewton)
+        {
+            L.Precision=std::min(1.e-4,0.001*res);
+            if (L.Precision<Precision) L.Precision=Precision;
+        }
+
+        if (L.PBCGSolveMod(Iter)==FALSE) return FALSE;
 
         if (LinearFlag==false)
         {
@@ -841,7 +808,6 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     for(k=0; k<NumBlockProps; k++) free(Mu[k]);
     free(Mu);
     free(V_old);
-    if (SDIflag==true) free(V_sdi);
     if(NumCircProps>0)
     {
         free(CircInt1);

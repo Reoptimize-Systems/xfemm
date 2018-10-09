@@ -261,6 +261,13 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             continue;
         }
 
+		// Previous solution type
+		if( token == "[prevtype]" )
+        {
+			success &= expectChar(lineStream, '=', err);
+			success &= parseValue(lineStream, problem->PrevType, err);
+		}
+
         // Point Properties
         if( token == "[pointprops]" )
         {

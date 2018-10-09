@@ -159,6 +159,11 @@ double CBigLinProb::Get(int p, int q)
     return 0;
 }
 
+void CBigLinProb::AddTo(double v, int p, int q)
+{
+	Put(Get(p,q)+v,p,q);
+}
+
 void CBigLinProb::MultA(double *X, double *Y)
 {
     int i;

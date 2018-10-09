@@ -54,6 +54,7 @@ class FSolver : public FEASolver<
         , femm::CMCircuit
         , femm::CMBlockLabel
         , femmsolver::CMElement
+        , femm::CMAirGapElement
         >
 {
 

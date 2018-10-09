@@ -282,6 +282,11 @@ CComplex CBigComplexLinProb::Get(int p, int q, int k)
     return CComplex(0,0);
 }
 
+void CBigComplexLinProb::AddTo(CComplex v, int p, int q)
+{
+	Put(Get(p,q)+v,p,q);
+}
+
 void CBigComplexLinProb::MultA(CComplex *X, CComplex *Y, int k)
 {
     int i;
