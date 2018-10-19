@@ -99,6 +99,7 @@ FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshEleme
     , circproplist()
     , labellist()
     , nodes()
+    , agelist()
 {
 
     // initialise the warning message box function pointer to
@@ -154,6 +155,7 @@ void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     NumCircProps = 0;
     NumBlockLabels = 0;
     pbclist.clear();
+    agelist.clear();
     // *do not* remove the PathName
     //PathName.clear();
 

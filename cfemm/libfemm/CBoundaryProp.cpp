@@ -25,7 +25,7 @@
         richard.crozier@yahoo.co.uk
         johannes@zarl-zierl.at
 
- Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  Mechatronics GmbH (LCM)
 */
 
@@ -68,6 +68,9 @@ CMBoundaryProp::CMBoundaryProp()
     // coefficients for mixed BC
     c0 = 0.;
     c1 = 0.;
+    // rotor angles (for building air gap element)
+    InnerAngle = 0.;
+    OuterAngle = 0.;
 }
 
 bool CMBoundaryProp::isPeriodic(PeriodicityType pt) const
@@ -168,6 +171,20 @@ CMBoundaryProp CMBoundaryProp::fromStream(std::istream &input, std::ostream &err
                 continue;
             }
 
+            if( token == "<innerangle>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.InnerAngle, err);
+                continue;
+            }
+
+            if( token == "<outerangle>" )
+            {
+                expectChar(input, '=', err);
+                parseValue(input, prop.OuterAngle, err);
+                continue;
+            }
+
             if( token == "<bdryname>" )
             {
                 expectChar(input, '=', err);
@@ -198,6 +215,8 @@ void CMBoundaryProp::toStream(ostream &out) const
     out << "    <c1i> = " << c1.im << "\n";
     out << "    <Mu_ssd> = " << Mu << "\n";
     out << "    <Sigma_ssd> = " << Sig << "\n";
+    out << "    <innerangle> = " << InnerAngle << "\n";
+    out << "    <outerangle> = " << OuterAngle << "\n";
     out << "  <EndBdry>\n";
 }
 
