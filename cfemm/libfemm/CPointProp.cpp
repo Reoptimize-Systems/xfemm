@@ -65,6 +65,13 @@ CMPointProp CMPointProp::fromStream(istream &input, ostream &err)
         {
             nextToken(input, &token);
 
+            if( token == "<pointname>" )
+            {
+                expectChar(input, '=', err);
+                parseString(input, &prop.PointName, err);
+                continue;
+            }
+
             if( token == "<a_re>" )
             {
                 expectChar(input, '=', err);
