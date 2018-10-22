@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="femmcli" />
+		<Option makefile_is_custom="1" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<MakeCommands>
+			<Build command="$make -f $makefile " />
+			<CompileFile command="$make -f $makefile $file" />
+			<Clean command="$make -f $makefile clean" />
+			<DistClean command="$make -f $makefile distclean$target" />
+			<AskRebuildNeeded command="$make -q -f $makefile" />
+			<SilentBuild command="$make -f $makefile  &gt; $(CMD_NULL)" />
+		</MakeCommands>
+		<Build>
+			<Target title="Debug">
+				<Option output="hsolver" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<MakeCommands>
+					<Build command="$make -f $makefile" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile" />
+					<SilentBuild command="$make -f $makefile &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="Release">
+				<Option output="hsolver" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<MakeCommands>
+					<Build command="$make -f $makefile" />
+					<CompileFile command="$make -f $makefile $file" />
+					<Clean command="$make -f $makefile clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q -f $makefile" />
+					<SilentBuild command="$make -f $makefile &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="../libfemm" />
+			<Add directory="../libfemm/liblua" />
+		</Compiler>
+		<Linker>
+			<Add option="-lhsolver" />
+			<Add directory="../hsolver" />
+		</Linker>
+		<Unit filename="CMakeLists.txt" />
+		<Unit filename="FemmState.cpp" />
+		<Unit filename="FemmState.h" />
+		<Unit filename="LuaBaseCommands.cpp" />
+		<Unit filename="LuaBaseCommands.h" />
+		<Unit filename="LuaCommonCommands.cpp" />
+		<Unit filename="LuaCommonCommands.h" />
+		<Unit filename="LuaElectrostaticsCommands.cpp" />
+		<Unit filename="LuaElectrostaticsCommands.h" />
+		<Unit filename="LuaHeatflowCommands.cpp" />
+		<Unit filename="LuaHeatflowCommands.h" />
+		<Unit filename="LuaMagneticsCommands.cpp" />
+		<Unit filename="LuaMagneticsCommands.h" />
+		<Unit filename="debug/init.lua" />
+		<Unit filename="main.cpp" />
+		<Unit filename="release/init.lua" />
+		<Unit filename="test/femmcli_chdir.lua" />
+		<Unit filename="test/femmcli_compatmode.lua" />
+		<Unit filename="test/femmcli_complex.lua" />
+		<Unit filename="test/femmcli_epproc.lua" />
+		<Unit filename="test/femmcli_femfile.lua" />
+		<Unit filename="test/femmcli_fpproc.lua" />
+		<Unit filename="test/femmcli_hpproc.lua" />
+		<Unit filename="test/femmcli_mathlib.lua" />
+		<Unit filename="test/femmcli_matlib.lua" />
+		<Unit filename="test/femmcli_pureLua.lua" />
+		<Unit filename="test/femmcli_trace.lua" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
