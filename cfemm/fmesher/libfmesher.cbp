@@ -58,14 +58,12 @@
 		<Unit filename="CMakeLists.txt" />
 		<Unit filename="fmesher.cpp" />
 		<Unit filename="fmesher.h" />
-		<Unit filename="intpoint.cpp" />
-		<Unit filename="intpoint.h" />
 		<Unit filename="nosebl.cpp" />
 		<Unit filename="nosebl.h" />
-		<Unit filename="triangle.c">
+		<Unit filename="triangle/triangle.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="triangle.h" />
+		<Unit filename="triangle/triangle.h" />
 		<Unit filename="writepoly.cpp" />
 		<Extensions>
 			<code_completion />
