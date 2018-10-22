@@ -140,12 +140,14 @@ function writefemmfile(filename, FemmProblem, varargin)
         case ftype.magnetics
             fprintf(fp,'[Format]      =  4.0\n');
             fprintf(fp,'[Frequency]   =  %.17g\n',FemmProblem.ProbInfo.Frequency);
+            
         case ftype.heatflow
             fprintf(fp,'[Format]      =  1.0\n');
-            fprintf(fp,'[PrevSoln] = "%s"\n', FemmProblem.ProbInfo.PrevSolutionFile);
             fprintf(fp,'[dT] = %.17g\n', FemmProblem.ProbInfo.dT);
     end
     
+    fprintf(fp,'[PrevSoln] = "%s"\n', FemmProblem.ProbInfo.PrevSolutionFile);
+    fprintf(fp,'[PrevType] = "%d"\n', FemmProblem.ProbInfo.PrevSolutionType);
     fprintf(fp,'[Precision]   =  %.17g\n',FemmProblem.ProbInfo.Precision);
     fprintf(fp,'[MinAngle]    =  %.17g\n',FemmProblem.ProbInfo.MinAngle);
     fprintf(fp,'[Depth]       =  %.17g\n',FemmProblem.ProbInfo.Depth);
@@ -356,6 +358,8 @@ function writefemmfile(filename, FemmProblem, varargin)
                 fprintf(fp,'    <c1i> = %.17g\n',FemmProblem.BoundaryProps(i).c1i);
                 fprintf(fp,'    <Mu_ssd> = %.17g\n',FemmProblem.BoundaryProps(i).Mu_ssd);
                 fprintf(fp,'    <Sigma_ssd> = %.17g\n',FemmProblem.BoundaryProps(i).Sigma_ssd);
+                fprintf(fp,'    <innerangle> = %.17g\n',FemmProblem.BoundaryProps(i).InnerAngle);
+                fprintf(fp,'    <outerangle> = %.17g\n',FemmProblem.BoundaryProps(i).OuterAngle);
                 
              case ftype.heatflow
              

@@ -42,6 +42,8 @@ function BoundaryProp = newboundaryprop_mfemm(Name, BdryType, varargin)
 %              3 - Strategic dual image boundary condition
 %              4 - Periodic boundary condition
 %              5 - Anti-Perodicboundary condition
+%              6 - Periodic Air gap boundary
+%              7 - Anti-Periodic Air gap boundary
 %
 %              For heat flow problems, these numbers have the follwoing
 %              meanings:

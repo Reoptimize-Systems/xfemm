@@ -65,6 +65,8 @@ function BoundaryProps = emptyboundaryprop_mfemm()
     BoundaryProps.c1i = 0;
     BoundaryProps.Mu_ssd = 0;
     BoundaryProps.Sigma_ssd = 0;
+    BoundaryProps.InnerAngle = 0;    
+    BoundaryProps.OuterAngle = 0;
     
     % heat flux properties
     BoundaryProps.Tset = 0;

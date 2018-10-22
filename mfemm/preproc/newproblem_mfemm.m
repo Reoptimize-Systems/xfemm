@@ -94,6 +94,7 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     Inputs.Coords = 'cart';
     Inputs.Domain = 'Magnetics';
     Inputs.PrevSolutionFile = '';
+    Inputs.PrevSolutionType = 0;
     Inputs.dT = 0;
     Inputs.SmartMesh = true;
 
@@ -201,6 +202,8 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     FemmProblem.BlockLabels = [];
     FemmProblem.PointProps = [];
     FemmProblem.Groups = struct ();
+    FemmProblem.PrevSolutionFile = Inputs.PrevSolutionFile;
+    FemmProblem.PrevSolutionType = Inputs.PrevSolutionType;
     
 
 end

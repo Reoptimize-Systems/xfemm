@@ -278,6 +278,32 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
             continue;
 
         end
+        
+        % Previous solution file
+        if strncmpi(q,'[prevsolution]',12)
+
+            v = StripKey(q);
+
+            FemmProblem.ProbInfo.PevSolutionFile = v;
+
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
+
+        end
+        
+        % previous solution type
+        if strncmpi(q,'[prevtype]',8)
+
+            v = StripKey(q);
+
+            FemmProblem.ProbInfo.PevSolutionType = str2double(v);
+
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
+
+        end
 
         % Comments
         if (strncmpi(q,'[comment]',9))
@@ -479,6 +505,22 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
         if( strncmpi(q,'<c1i>',5))
             v = StripKey(q);
             FemmProblem.BoundaryProps(boundind).c1i = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
+        end
+        
+        if( strncmpi(q,'<innerangle>',5))
+            v = StripKey(q);
+            FemmProblem.BoundaryProps(boundind).InnerAngle = str2double(v);
+            % get the next line of input
+            q = fgetl(fid);
+            continue;
+        end
+
+        if( strncmpi(q,'<outerangle>',5))
+            v = StripKey(q);
+            FemmProblem.BoundaryProps(boundind).OuterAngle = str2double(v);
             % get the next line of input
             q = fgetl(fid);
             continue;
