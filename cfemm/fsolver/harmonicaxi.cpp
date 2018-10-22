@@ -35,7 +35,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
 {
     int i,j,k,s,flag,ww,Iter=0;
     int pctr;
-    CComplex Mx[3][3],My[3][3],Mn[3][3],Me[3][3],be[3];		// element matrices;
+    CComplex Mx[3][3],My[3][3],Mxy[3][3],Mn[3][3],Me[3][3],be[3];		// element matrices;
     double l[3],p[3],q[3];		// element shape parameters;
     int n[3];					// numbers of nodes for a particular element;
     double a,r,t,x,y,B,w,res,lastres,ds,R,rn[3],g[3],a_hat,R_hat,vol,Cduct;
@@ -44,7 +44,8 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     femmsolver::CMElement *El;
-    int LinearFlag=true;
+    bool LinearFlag=true;
+    int bIncremental=0;
     res=0;
 
 // #ifndef NEWTON
@@ -469,16 +470,16 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
                 meshele[i].v12=0;
                 if (blockproplist[k].BHpoints > 0)
                 {
-                    if (bIncremental==false) LinearFlag=false;
+                    if (bIncremental==0) LinearFlag=false;
                     else{
                         double B1p,B2p;
 
                         //	Get B from previous solution
-                        GetPrevAxiB(i,B1p,B2p);
+                        getPrevAxiB(i,B1p,B2p);
                         B = sqrt(B1p*B1p + B2p*B2p);
 
                         // look up incremental permeability and assign it to the element;
-                        blockproplist[k].IncrementalPermeability(B,w,muinc,murel);
+                        blockproplist[k].incrementalPermeability(B,w,muinc,murel);
                         if (B==0)
                         {
                             meshele[i].mu1=muinc;
@@ -746,7 +747,7 @@ int FSolver::HarmonicAxisymmetric(CBigComplexLinProb &L)
             if (L.Precision<Precision) L.Precision=Precision;
         }
 
-        if (L.PBCGSolveMod(Iter)==FALSE) return FALSE;
+        if (L.PBCGSolveMod(Iter)==0) return 0;
 
         if (LinearFlag==false)
         {

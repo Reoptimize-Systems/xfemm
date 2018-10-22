@@ -39,6 +39,7 @@
 #include "CBlockLabel.h"
 #include "CCircuit.h"
 #include "CElement.h"
+#include "CAirGapElement.h"
 #include "CMaterialProp.h"
 #include "CNode.h"
 #include "CPointProp.h"
@@ -54,7 +55,7 @@ class FSolver : public FEASolver<
         , femm::CMCircuit
         , femm::CMBlockLabel
         , femmsolver::CMElement
-        , femm::CMAirGapElement
+        , femmsolver::CAirGapElement
         >
 {
 

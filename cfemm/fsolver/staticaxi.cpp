@@ -54,10 +54,11 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
     double *V_old=NULL,*CircInt1=NULL,*CircInt2=NULL,*CircInt3=NULL;
     int flag,Iter=0,pctr;
     int LinearFlag=true;
-    int bIncremental = FALSE;
+    int bIncremental = 0;
 	double murel, muinc;
 
-	if (PrevSoln.GetLength() > 0) bIncremental = PrevType;
+	if (!previousSolutionFile.empty()) bIncremental = PrevType;
+
     res=0;
 
     femmsolver::CMElement *El;
@@ -342,7 +343,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                 be[j]+=K;
 
                 // record avg current density in the block for use in incremental solutions
-                if (bIncremental==FALSE) El->Jprev+=(blockproplist[El->blk].Jr+t)/3.;
+                if (bIncremental==0) El->Jprev+=(blockproplist[El->blk].J.re+t)/3.;
 
             }
 
@@ -452,10 +453,10 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
 
                 if (blockproplist[k].BHpoints != 0)
                 {
-                    if (bIncremental == FALSE)
+                    if (bIncremental == 0)
                     {
                         // There's no previous solution.  This is a standard nonlinear problem
-                        LinearFlag = FALSE;
+                        LinearFlag = 0;
                     }
                     else {
                         double B1p, B2p;
@@ -464,12 +465,12 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
                         // detect this condition, throw an error, and exit.
                         if (blockproplist[k].LamType > 0)
                         {
-                            MsgBox("On-edge Lam Types not yet supported in\nincremental/frozen permeability problems");
+                            PrintMessage("On-edge Lam Types not yet supported in incremental/frozen permeability problems");
                             exit(0);
                         }
 
                         //	Get B from previous solution
-                        GetPrevAxiB(i,B1p,B2p);
+                        getPrevAxiB(i,B1p,B2p);
                         B = sqrt(B1p*B1p + B2p*B2p);
 
                         // look up incremental permeability and assign it to the element;

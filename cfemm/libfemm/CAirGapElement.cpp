@@ -18,7 +18,7 @@
    By: Richard Crozier
    Contact: richard.crozier@yahoo.co.uk
 */
-#include "CElement.h"
+#include "CAirGapElement.h"
 
 #include "stringTools.h"
 
@@ -28,7 +28,7 @@
 using femm::trim;
 
 
-CAirGapElement::~CAirGapElement()
+femmsolver::CAirGapElement::~CAirGapElement()
 {
 	if (node!=NULL) free(node);
 }
@@ -41,17 +41,13 @@ femmsolver::CAirGapElement::CAirGapElement()
     , totalArcLength(0)
     , ri(0)
     , ro(0)
-    , agc(0)
     , InnerAngle(0)
     , OuterAngle(0)
+    , agc(0)
     , node(NULL)
-    , n{0,0,0}
 {
 }
 
-femmsolver::CAirGapElement::~CAirGapElement()
-{
-}
 
 //femmsolver::CAirGapElement femmsolver::CMElement::fromStream(std::istream &input, std::ostream &)
 //{

@@ -240,7 +240,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
         if( token == "[prevsoln]" )
         {
             expectChar(lineStream, '=', err);
-            parseString(lineStream,&(problem->PrevSoln));
+            parseString(lineStream,&(problem->previousSolutionFile));
             continue;
         }
 

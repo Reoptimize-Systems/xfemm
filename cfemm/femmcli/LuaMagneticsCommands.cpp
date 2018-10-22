@@ -792,7 +792,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     theFSolver.WarnMessage = &PrintWarningMsg;
     theFSolver.PrintMessage = &PrintWarningMsg;
     // not supported yet, but set the previous solution so that we can detect this case afterwards:
-    theFSolver.previousSolutionFile = doc->PrevSoln;
+    theFSolver.previousSolutionFile = doc->previousSolutionFile;
     if (!theFSolver.LoadProblemFile())
     {
         lua_error(L, "mi_analyze(): problem initializing solver!");
@@ -1812,7 +1812,7 @@ int femmcli::LuaMagneticsCommands::luaSetPrevious(lua_State *L)
         std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
 
         std::string prev = lua_tostring(L,n);
-        doc->PrevSoln=prev;
+        doc->previousSolutionFile=prev;
     }
 
     return 0;

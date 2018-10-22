@@ -54,6 +54,7 @@ template class FEASolver<
         , femm::CHConductor
         , femm::CHBlockLabel
         , femmsolver::CElement
+        , femmsolver::CAirGapElement
         >;
 
 #ifndef _MSC_VER
@@ -952,7 +953,7 @@ int HSolver::WriteResults(CBigLinProb &L)
 
 	// then print out node, line, and element information
 	fprintf(fp,"[Solution]\n");
-    // get conversion factor for conversion from internal working units of 
+    // get conversion factor for conversion from internal working units of
     // mm to the specified length units
 	cf = units[LengthUnits];
 	fprintf(fp,"%i\n",NumNodes);
@@ -960,9 +961,9 @@ int HSolver::WriteResults(CBigLinProb &L)
     {
 		fprintf(fp,"%.17g	%.17g	%.17g	%i\n",meshnode[i].x/cf,meshnode[i].y/cf,L.V[i],L.Q[i]);
     }
-    
+
 	fprintf(fp,"%i\n",NumEls);
-    
+
 	for(i=0;i<NumEls;i++)
     {
 		fprintf(fp,"%i	%i	%i	%i\n",

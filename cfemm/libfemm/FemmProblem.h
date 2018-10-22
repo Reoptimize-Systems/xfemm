@@ -23,6 +23,7 @@
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
 #include "CElement.h"
+#include "CAirGapElement.h"
 #include "CMaterialProp.h"
 #include "CMeshNode.h"
 #include "CNode.h"
@@ -336,7 +337,7 @@ public:
      * @param c the center of the circle, packed as CComplex (output variable)
      * @param R the radius of the circle (output variable)
      */
-    void getCircle(const CArcSegment &arc,CComplex &c, double &R) const;
+    void getCircle(const femm::CArcSegment &arc,CComplex &c, double &R) const;
 
     /**
      * @brief GetIntersection between a line and a segment.
@@ -495,7 +496,7 @@ public: // data members
 
     int ACSolver; ///< \brief .succ. approcimation or .Newton is possible
     double dT; ///< \brief delta T used by hsolver \verbatim[dT]\endverbatim
-    std::string PrevSoln; ///y \brief   name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
+    std::string previousSolutionFile; ///y \brief   name of a previous solution file for hsolver and fsolver incremental permeability \verbatim[prevsoln]\endverbatim
     int	PrevType; ///< \brief Previous solution type. 0 == None, 1 == Incremental, 2 == Frozen
 
     bool    DoForceMaxMeshArea; ///< \brief Property introduced by xfemm.
@@ -506,7 +507,7 @@ public: // data members
     std::vector< std::unique_ptr<CSegment>> linelist;
     std::vector< std::unique_ptr<CArcSegment>> arclist;
     std::vector< std::unique_ptr<CBlockLabel>> labellist;
-    std::vector< std::unique_ptr<CAirGapElement>> agelist;
+    std::vector< std::unique_ptr<femmsolver::CAirGapElement>> agelist;
 
     std::vector< std::unique_ptr<CPointProp>> nodeproplist;
     std::vector< std::unique_ptr<CBoundaryProp>> lineproplist;

@@ -29,6 +29,7 @@
 //
 
 #include <CElement.h>
+#include <CAirGapElement.h>
 #include <CNode.h>
 #include <femmcomplex.h>
 #include <fparse.h>
@@ -60,6 +61,7 @@ template class FEASolver<
         , femm::CMCircuit
         , femm::CMBlockLabel
         , femmsolver::CMElement
+        , femmsolver::CAirGapElement
         >;
 
 #ifndef _MSC_VER
@@ -75,6 +77,7 @@ template class FEASolver<
 
 using namespace std;
 using namespace femm;
+using namespace femmsolver;
 
 /////////////////////////////////////////////////////////////////////////////
 // FSolver construction/destruction
@@ -110,6 +113,65 @@ void FSolver::CleanUp()
     meshnode = NULL;
     delete []Aprev;
     Aprev = nullptr;
+}
+
+void FSolver::getPrevAxiB(int k, double &B1p, double &B2p) const
+{
+	// for axisymmetric incremental problem,
+	// get flux density from the previous solution.
+	// Code cribbed from CFemmviewDoc::GetElementB(CElement &elm) in femm source
+	int i,n[3];
+	double b[3],c[3],da;
+	double v[6],dp,dq;
+	double R[3],r;
+	//double Z[3];
+
+	// since all node positions were converted to units of cm
+    // the proper LengthConv converts centimeters to meters
+    double LengthConv = 0.01;
+
+	for(i=0;i<3;i++) n[i]=meshele[k].p[i];
+
+	b[0]=meshnode[n[1]].y - meshnode[n[2]].y;
+	b[1]=meshnode[n[2]].y - meshnode[n[0]].y;
+	b[2]=meshnode[n[0]].y - meshnode[n[1]].y;
+	c[0]=meshnode[n[2]].x - meshnode[n[1]].x;
+	c[1]=meshnode[n[0]].x - meshnode[n[2]].x;
+	c[2]=meshnode[n[1]].x - meshnode[n[0]].x;
+
+	for(i=0,r=0;i<3;i++){
+		R[i]=meshnode[n[i]].x;
+		//Z[i]=meshnode[n[i]].y;
+		r+=R[i]/3.;
+	}
+
+	// corner nodes
+	v[0]=Aprev[n[0]];
+	v[2]=Aprev[n[1]];
+	v[4]=Aprev[n[2]];
+
+	// construct values for mid-side nodes;
+	if ((R[0]<1.e-06) && (R[1]<1.e-06)) v[1]=(v[0]+v[2])/2.;
+	else v[1]=(R[1]*(3.*v[0] + v[2]) + R[0]*(v[0] + 3.*v[2]))/
+		 (4.*(R[0] + R[1]));
+
+	if ((R[1]<1.e-06) && (R[2]<1.e-06)) v[3]=(v[2]+v[4])/2.;
+	else v[3]=(R[2]*(3.*v[2] + v[4]) + R[1]*(v[2] + 3.*v[4]))/
+		 (4.*(R[1] + R[2]));
+
+	if ((R[2]<1.e-06) && (R[0]<1.e-06)) v[5]=(v[4]+v[0])/2.;
+	else v[5]=(R[0]*(3.*v[4] + v[0]) + R[2]*(v[4] + 3.*v[0]))/
+		(4.*(R[2] + R[0]));
+
+	// derivatives w.r.t. p and q:
+	dp=(-v[0] + v[2] + 4.*v[3] - 4.*v[5])/3.;
+	dq=(-v[0] - 4.*v[1] + 4.*v[3] + v[4])/3.;
+
+	// now, compute flux.
+	da=(b[0]*c[1]-b[1]*c[0]);
+	da*=2.*PI*r*LengthConv*LengthConv;
+	B1p=Re(-(c[1]*dp+c[2]*dq)/da);
+	B2p=Re( (b[1]*dp+b[2]*dq)/da);
 }
 
 void FSolver::getPrev2DB(int k, double &B1p, double &B2p) const
@@ -323,9 +385,11 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 
 	CAirGapElement age;
 
-	for(i=0;i<NumAGEs;i++)
+	for(i=0;i<NumAirGapElems;i++)
     {
-		fgets(age.BdryName,80,fp);
+		fgets(s,80,fp);
+
+		age.BdryName = s;
 
 		fgets(s,1024,fp);
 
@@ -628,21 +692,22 @@ bool FSolver::loadPreviousSolution()
         }
     }
 
-    int numAGElems;
 	fgets(s,1024,fp);
-	sscanf(s,"%i",&numAGElems);
+	sscanf(s,"%i",&NumAirGapElems);
 
 //	if (numAges!=0)
 //    {
-//        agelist=(CAirGapElement *)calloc(NumAGEs,sizeof(CAirGapElement));
+//        agelist=(CAirGapElement *)calloc(NumAirGapElems,sizeof(CAirGapElement));
 //    }
 
 	CAirGapElement age;
 
-	for(i=0; i<numAGElems (); i++)
+	for(int i=0; i<NumAirGapElems; i++)
     {
 
-		fgets(age.BdryName,80,fp);
+		fgets(s,80,fp);
+
+		age.BdryName = s;
 
 		fgets(s,1024,fp);
 
@@ -654,7 +719,7 @@ bool FSolver::loadPreviousSolution()
 
 		age.node = (CQuadPoint *)calloc(age.totalArcElements+1,sizeof(CQuadPoint));
 
-		for(k=0; k<=age.totalArcElements; k++)
+		for(int k=0; k<=age.totalArcElements; k++)
 		{
 			fgets(s,1024,fp);
 			sscanf(s,"%i %lf %i %lf %i %lf %i %lf",
