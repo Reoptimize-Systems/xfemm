@@ -244,6 +244,14 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             continue;
         }
 
+		// Previous solution type
+		if( token == "[prevtype]" )
+        {
+			success &= expectChar(lineStream, '=', err);
+			success &= parseValue(lineStream, problem->PrevType, err);
+			continue;
+		}
+
         // Option to force use of default max mesh, overriding
         // user choice
         if( token == "[forcemaxmesh]")
@@ -260,13 +268,6 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             success &= parseValue(lineStream, problem->DoSmartMesh, err);
             continue;
         }
-
-		// Previous solution type
-		if( token == "[prevtype]" )
-        {
-			success &= expectChar(lineStream, '=', err);
-			success &= parseValue(lineStream, problem->PrevType, err);
-		}
 
         // Point Properties
         if( token == "[pointprops]" )
