@@ -38,7 +38,7 @@ double Power(double x, int y);
 int FSolver::Harmonic2D(CBigComplexLinProb &L)
 {
     int i,j,k,ww,s,pctr;
-    CComplex Mx[3][3],My[3][3];
+    CComplex Mx[3][3],My[3][3],Mxy[3][3];
     CComplex Me[3][3],be[3];		// element matrices;
     double l[3],p[3],q[3];		// element shape parameters;
     int n[3];					// numbers of nodes for a particular element;
@@ -50,10 +50,10 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
     femmsolver::CMElement *El;
     int Iter=0;
     bool LinearFlag=true;
-    bool bIncremental=false;
+    int bIncremental=0;
 
-    if (!previousSolutionFile.empty())
-        bIncremental = true;
+    if (!previousSolutionFile.empty()) bIncremental = 1;
+
     res=0;
 
 // #ifndef NEWTON
@@ -224,7 +224,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
         if(Iter>0) L.Wipe();
 
         // first, tack in air gap element contributions
-        for(i=0;i<NumAGEs;i++)
+        for(i=0;i<NumAirGapElems;i++)
         {
             double K,Ki;
             double MG[10][10];
@@ -385,7 +385,14 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
         // build element matrices using the matrices derived in Allaire's book.
         for(i=0; i<NumEls; i++)
         {
-            CComplex Mxy[3][3];
+        	// update ``building matrix'' progress bar...
+            j=(i*20)/NumEls+1;
+            if(j>pctr){
+                j=pctr*5; if (j>100) j=100;
+                //TheView->m_prog1.SetPos(j);
+                pctr++;
+            }
+
             // zero out Me, be;
             for(j=0; j<3; j++)
             {
@@ -563,7 +570,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                 meshele[i].mu2=Mu[k][1];
                 meshele[i].v12=0;
                 if (blockproplist[k].BHpoints != 0) {
-                    if (!bIncremental) {
+                    if (bIncremental == 0) {
                         // There's no previous solution.  This is a standard nonlinear time harmonic problem
                         LinearFlag=false;
                     } else {
@@ -994,13 +1001,15 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
     // print out information on periodic boundary conditions
     fprintf(fp,"%i\n",NumPBCs);
     for(k=0;k<NumPBCs;k++)
+    {
         fprintf(fp,"%i  %i %i\n",pbclist[k].x,pbclist[k].y,pbclist[k].t);
+    }
 
 	// print out air gap element info
-	fprintf(fp,"%i\n",NumAirGapElems);
+    fprintf(fp,"%i\n",NumAirGapElems);
 	for(i=0;i<NumAirGapElems;i++)
     {
-		fprintf(fp,"%s",agelist[i].BdryName);
+		fprintf(fp,"%s",agelist[i].BdryName.c_str ());
 
 		fprintf( fp,"%i %.17g %.17g %.17g %.17g %.17g %.17g %.17g %i %.17g %.17g\n",
                  agelist[i].BdryFormat,

@@ -118,7 +118,9 @@ public:
 
     // string to hold the location of the files
     std::string PathName;
-    std::string previousSolutionFile; ///< \brief name of a previous solution file for hsolver \verbatim[prevsoln]\endverbatim
+
+    int PrevType; ///< \brief flag indicating type of previous solution, 0 for None, 1 for Incremental or 2 for Frozen \verbatim[prevtype]\endverbatim
+    std::string previousSolutionFile; ///< \brief name of a previous solution file for hsolver and fsolver incremental permeability \verbatim[prevsoln]\endverbatim
 
     std::vector< PointPropT > nodeproplist;
     std::vector< BoundaryPropT > lineproplist;

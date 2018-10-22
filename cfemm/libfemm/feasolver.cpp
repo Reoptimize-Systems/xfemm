@@ -63,8 +63,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
+          , class AirGapElementT
           >
-FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
+FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>
 ::FEASolver()
     : FileFormat(-1)
     , Precision(1.e-08)
@@ -93,13 +94,14 @@ FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshEleme
     , NumBlockLabels(0)
     , pbclist()
     , PathName()
+    , PrevType(0)
     , nodeproplist()
     , lineproplist()
     , blockproplist()
     , circproplist()
     , labellist()
-    , nodes()
     , agelist()
+    , nodes()
 {
 
     // initialise the warning message box function pointer to
@@ -114,8 +116,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
+          , class AirGapElementT
           >
-FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
+FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>
 ::~FEASolver()
 {
 }
@@ -125,8 +128,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
+          , class AirGapElementT
           >
-void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
+void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>
 ::CleanUp()
 {
     FileFormat = -1;
@@ -158,7 +162,7 @@ void FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     agelist.clear();
     // *do not* remove the PathName
     //PathName.clear();
-
+    PrevType = 0;
     nodeproplist.clear();
     lineproplist.clear();
     blockproplist.clear();
@@ -173,8 +177,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
+          , class AirGapElementT
           >
-bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
+bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>
 ::LoadProblemFile(std::string &file)
 {
     std::ifstream input;
@@ -333,10 +338,17 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
             continue;
         }
 
+		// Previous solution type
+		if( token == "[prevtype]" )
+        {
+			success &= expectChar(lineStream, '=', err);
+			success &= parseValue(lineStream, PrevType, err);
+		}
+
         if( token == "[prevsoln]" )
         {
             expectChar(lineStream, '=', err);
-            parseString(lineStream,&previousSolutionFile);
+            parseString(lineStream, &previousSolutionFile);
             continue;
         }
 
@@ -520,8 +532,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
+          , class AirGapElementT
           >
-bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
+bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>
 ::handleToken(const string &, istream &, ostream &)
 {
     // token not handled
@@ -534,8 +547,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
+          , class AirGapElementT
           >
-std::string FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
+std::string FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>
 ::getErrorString(LoadMeshErr err)
 {
     switch (err)

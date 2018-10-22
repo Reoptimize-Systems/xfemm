@@ -48,6 +48,7 @@ add_library(femm
     CCircuit.cpp
     CCommonPoint.cpp
     CElement.cpp
+    CAirGapElement.cpp
     CliTools.cpp
     CMaterialProp.cpp
     CMeshNode.cpp

@@ -666,7 +666,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 {
     // // if incremental permeability solution, we crib mesh from the previous problem.
     // // we can just bail out in that case.
-    // if (!problem->PrevSoln.empty() && problem->Frequency>0)
+    // if (!problem->previousSolutionFile.empty() && problem->Frequency>0)
     //     return true;
 
     FILE *fp;
@@ -774,7 +774,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 {
     // // if incremental permeability solution, we crib mesh from the previous problem.
     // // we can just bail out in that case.
-    // if (!problem->PrevSoln.empty() && problem->Frequency>0)
+    // if (!problem->previousSolutionFile.empty() && problem->Frequency>0)
     //     return true;
     FILE *fp;
     int i, j, k, n;

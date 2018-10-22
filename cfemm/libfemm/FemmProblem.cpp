@@ -107,10 +107,10 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
         output.width(12);
         output << "[ACSolver]" << "  =  " << ACSolver <<"\n";
     }
-    if (!PrevSoln.empty())
+    if (!previousSolutionFile.empty())
     {
         output.width(12);
-        output << "[PrevSoln]" << "  = \"" << PrevSoln <<"\"\n";
+        output << "[PrevSoln]" << "  = \"" << previousSolutionFile <<"\"\n";
     }
 
     std::string commentString (comment);
@@ -2299,7 +2299,7 @@ femm::FemmProblem::FemmProblem(FileType ftype)
     , comment()
     , ACSolver(0)
     , dT(0)
-    , PrevSoln()
+    , previousSolutionFile()
     , PrevType(0)
     , DoForceMaxMeshArea(false)
     , DoSmartMesh(true)

@@ -54,6 +54,7 @@ template class FEASolver<
         , femm::CSCircuit
         , femm::CSBlockLabel
         , femmsolver::CElement
+        , femmsolver::CAirGapElement
         >;
 
 #ifndef _MSC_VER
@@ -430,14 +431,14 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 			if(meshele[i].e[j]>=0)
 			{
 				if(lineproplist[ meshele[i].e[j] ].BdryFormat==0)
-				{	
+				{
 					L.V[meshele[i].p[j]]=lineproplist[meshele[i].e[j]].V;
 					L.V[meshele[i].p[k]]=lineproplist[meshele[i].e[j]].V;
 					L.Q[meshele[i].p[j]]=-1;
 					L.Q[meshele[i].p[k]]=-1;
 				}
 			}
-		}		
+		}
 	}
 
 
@@ -455,12 +456,12 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 		// l's are element side lengths;
 		// p's corresponds to the `b' parameter in Allaire
 		// q's corresponds to the `c' parameter in Allaire
-		El=&meshele[i];		
-	
+		El=&meshele[i];
+
 		for(k=0;k<3;k++) n[k]=El->p[k];
 		p[0]=meshnode[n[1]].y - meshnode[n[2]].y;
 		p[1]=meshnode[n[2]].y - meshnode[n[0]].y;
-		p[2]=meshnode[n[0]].y - meshnode[n[1]].y;	
+		p[2]=meshnode[n[0]].y - meshnode[n[1]].y;
 		q[0]=meshnode[n[2]].x - meshnode[n[1]].x;
 		q[1]=meshnode[n[0]].x - meshnode[n[2]].x;
 		q[2]=meshnode[n[1]].x - meshnode[n[0]].x;
@@ -475,27 +476,27 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 		if (ProblemType==AXISYMMETRIC){
 			Depth=2.*PI*r;
 
-			// "Warp" the permeability of this element is part of 
+			// "Warp" the permeability of this element is part of
 			// the conformally mapped external region
 			if(labellist[meshele[i].lbl].IsExternal)
 			{
 				z=(meshnode[n[0]].y+meshnode[n[1]].y+meshnode[n[2]].y)/3. - extZo;
-				kludge=(r*r+z*z)/(extRi*extRo); 
+				kludge=(r*r+z*z)/(extRi*extRo);
 			}
 			else kludge=1;
 		}
-		
+
 
 		// x-contribution;
 		K = -Depth*blockproplist[El->blk].ex/(4.*a)/kludge;
 		for(j=0;j<3;j++)
 			for(k=j;k<3;k++)
-			{	
+			{
 				Me[j][k] += K*p[j]*p[k];
 				if (j!=k) Me[k][j]+=K*p[j]*p[k];
 			}
 
-		// y-contribution; 
+		// y-contribution;
 		K = -Depth*blockproplist[El->blk].ey/(4.*a)/kludge;
 		for(j=0;j<3;j++)
 			for(k=j;k<3;k++)
@@ -517,7 +518,7 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 			{
 				k=j+1; if(k==3) k=0;
 
-				if (ProblemType==AXISYMMETRIC) 
+				if (ProblemType==AXISYMMETRIC)
 					Depth=PI*(meshnode[n[j]].x + meshnode[n[k]].x);
 
 				// contributions to Me, be from derivative boundary conditions;
@@ -533,7 +534,7 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 					be[j]+=K;
 					be[k]+=K;
 				}
-			
+
 				// contribution to be[] from surface charge density;
 				if (lineproplist[El->e[j]].BdryFormat==2)
 				{
@@ -609,7 +610,7 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 	{
 		// put a placeholder on the main diagonal;
 		k=NumNodes+i;
-		
+
 		if (circproplist[i].CircType==1)
 		{
 			K=L.Get(0,0);
@@ -632,7 +633,7 @@ int ESolver::AnalyzeProblem(CBigLinProb &L)
 
 	// solve the problem;
     if (! L.PCGSolve(false)) return false;
-	
+
 	// compute total charge on conductors
 	// with a specified voltage
 	for(i=0;i<NumCircProps;i++)
@@ -748,7 +749,7 @@ int ESolver::WriteResults(CBigLinProb &L)
 
 	// then print out node, line, and element information
 	fprintf(fp,"[Solution]\n");
-    // get conversion factor for conversion from internal working units of 
+    // get conversion factor for conversion from internal working units of
     // mm to the specified length units
 	cf = units[LengthUnits];
 	fprintf(fp,"%i\n",NumNodes);
@@ -756,9 +757,9 @@ int ESolver::WriteResults(CBigLinProb &L)
     {
 		fprintf(fp,"%.17g	%.17g	%.17g	%i\n",meshnode[i].x/cf,meshnode[i].y/cf,L.V[i],L.Q[i]);
     }
-    
+
 	fprintf(fp,"%i\n",NumEls);
-    
+
 	for(i=0;i<NumEls;i++)
     {
 		fprintf(fp,"%i	%i	%i	%i\n",

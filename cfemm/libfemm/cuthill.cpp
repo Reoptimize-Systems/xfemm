@@ -36,8 +36,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
+          , class AirGapElementT
           >
-int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
+int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>
 ::SortElements()
 {
     // Comb Sort -- see http://en.wikipedia.org/wiki/Comb_sort
@@ -90,8 +91,9 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
+          , class AirGapElementT
           >
-int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>
+int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>
 ::Cuthill(bool deletefiles)
 {
 
@@ -169,7 +171,7 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
     {
         remove(infile);
     }
-    
+
 
     // sort connections in order of increasing connectivity;
     // I'm lazy, so I'm doing a bubble sort;

@@ -21,6 +21,7 @@
 #ifndef FEMM_CAIRGAPELEMENT_H
 #define FEMM_CAIRGAPELEMENT_H
 
+#include "CQuadPoint.h"
 #include "femmcomplex.h"
 
 #include <iostream>
@@ -37,14 +38,13 @@ namespace femmsolver {
  * - \femm42{femm/NOSEBL.H,CAirGapElement}
  * - \femm42{fkn/mesh.h,CAirGapElement}
  */
- */
 class CAirGapElement
 {
 
 public:
 
     CAirGapElement();
-    virtual ~CAirGapElement();
+    ~CAirGapElement();
 
 //    /**
 //     * @brief fromStream constructs a CAirGapElement from an input stream (usually an input file stream)
@@ -65,9 +65,9 @@ public:
     double InnerShift;///< fraction of an element that inner mesh is shifted relative to annular mesh
     double OuterShift;///< fraction of an element that outer mesh is shifted relative to annular mesh
     CComplex agc; ///< centre of the air gap element
-    int *node; ///< node numbers that are part of the air gap element
+    femm::CQuadPoint *node; ///< node numbers that are part of the air gap element
 
-    CQuadPoint *qp; ///< mapping of mesh nodes onto an annular ring
+    femm::CQuadPoint *qp; ///< mapping of mesh nodes onto an annular ring
 
     int nn;
     CComplex aco;
