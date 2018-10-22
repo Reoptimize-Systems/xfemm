@@ -18,5 +18,6 @@
 		<Project filename="hpproc/hpproc.cbp" />
 		<Project filename="fpproc/test_fpproc.cbp" />
 		<Project filename="hpproc/test_hpproc.cbp" />
+		<Project filename="femmcli/femmcli.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
