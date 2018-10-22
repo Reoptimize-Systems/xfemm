@@ -141,7 +141,6 @@
 		<Unit filename="liblua/lvm.h" />
 		<Unit filename="liblua/lzio.cpp" />
 		<Unit filename="liblua/lzio.h" />
-		<Unit filename="mesh.h" />
 		<Unit filename="spars.cpp" />
 		<Unit filename="spars.h" />
 		<Unit filename="stringTools.cpp" />
