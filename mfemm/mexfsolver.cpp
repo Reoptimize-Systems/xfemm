@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <memory>
 #include "fsolver.h"
 #include "spars.h"
 
@@ -21,11 +22,16 @@
 void voidmexPrintF(const char *message);
 void dummymexPrintF(const char *message);
 
+using namespace femm;
+using namespace femmsolver;
+using std::to_string;
+
 /* the gateway function */
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    FSolver SolveObj;
+    // below should be changed to make_unique once C++14 is ubiquitous
+    std::shared_ptr<FSolver> SolveObj = std::make_shared<FSolver> ();
     std::string FilePath;
     char *inputbuf;
     mwSize buflen;
@@ -88,42 +94,181 @@ void mexFunction( int nlhs, mxArray *plhs[],
     {
         mexPrintf("Solving file: %s\n",inputbuf);
         // if verbose make the warning message function point to mexPrintf
-        SolveObj.WarnMessage = &voidmexPrintF;
-        SolveObj.PrintMessage = &voidmexPrintF;
+        SolveObj->WarnMessage = &voidmexPrintF;
+        SolveObj->PrintMessage = &voidmexPrintF;
     }
     else
     {
         // if not verbose make the warning message function point to a dummy
         // function
-        SolveObj.WarnMessage = &dummymexPrintF;
-        SolveObj.PrintMessage = &dummymexPrintF;
+        SolveObj->WarnMessage = &dummymexPrintF;
+        SolveObj->PrintMessage = &dummymexPrintF;
     }
 
     // Tell FSolver the location of the mesh and fem files this should be
     // an extension free base name
-    SolveObj.PathName = inputbuf;
+    SolveObj->PathName = std::string (inputbuf);
 
     // free the input buffer
     mxFree(inputbuf);
 
-    status = SolveObj.LoadProblemFile ();
+    if (verbose == true) mexPrintf("Loading problem file ...");
+    
+    status = SolveObj->LoadProblemFile ();
 
     if (status != true)
     {
-        mexPrintf("problem loading .fem file\n");
+        //mexPrintf("problem loading .fem file\n");
         plhs[0] = mxCreateDoubleScalar (1.0);
-        return;
+        mexErrMsgIdAndTxt( "MFEMM:fsolver:inputnotscalar",
+                           "problem loading .fem file.");
     }
 
-    if ( !SolveObj.runSolver(verbose) )
-    {
+    if (verbose == true) mexPrintf("Solving problem ...");
+    
+     if ( !SolveObj->runSolver(verbose) )
+     {
+        if (verbose == true) mexPrintf("Problem NOT solved, exiting solver.");
+        
         plhs[0] = mxCreateDoubleScalar (2.0);
         return;
-    }
+     }
+    
+    
+    
+    
+    
+//     // load mesh
+//     LoadMeshErr err = SolveObj->LoadMesh();
+//     if (err != NOERROR)
+//     {
+//         voidmexPrintF(SolveObj->getErrorString(err).c_str());
+//         return;
+//     }
+// 
+//     // renumber using Cuthill-McKee
+//     if (verbose)
+//         voidmexPrintF("renumbering nodes\n");
+//     if (!SolveObj->Cuthill())
+//     {
+//         voidmexPrintF("problem renumbering node points\n");
+//         return;
+//     }
+// 
+//     if (verbose)
+//     {
+//         voidmexPrintF("solving...\n");
+//         std::string stats = "Problem Statistics:\n";
+//         stats += to_string(SolveObj->NumNodes) + " nodes\n";
+//         stats += to_string(SolveObj->NumEls) + " elements\n";
+//         stats += "Precision: " + to_string(SolveObj->Precision) + "\n";
+//         voidmexPrintF(stats.c_str());
+//     }
+// 
+//     if (SolveObj->Frequency == 0)
+//     {
+//         if (!SolveObj->previousSolutionFile.empty())
+//         {
+//             voidmexPrintF("Cannot handle incremental permeability problems with frequency 0.\n");
+//             return;
+//         }
+//         CBigLinProb L;
+//         L.Precision = SolveObj->Precision;
+// 
+//         // initialize the problem, allocating the space required to solve it.
+//         if (L.Create(SolveObj->NumNodes, SolveObj->BandWidth) == false)
+//         {
+//             voidmexPrintF("couldn't allocate enough space for matrices\n");
+//             return;
+//         }
+// 
+//         // Create element matrices and solve the problem;
+//         if (SolveObj->ProblemType == PLANAR)
+//         {
+// 
+//             if (SolveObj->Static2D(L) == false)
+//             {
+//                 voidmexPrintF("Couldn't solve the problem\n");
+//                 return;
+//             }
+//             if (verbose)
+//                 voidmexPrintF("Static 2-D problem solved\n");
+//         } else {
+//             if (SolveObj->StaticAxisymmetric(L) == false)
+//             {
+//                 voidmexPrintF("Couldn't solve the problem");
+//                 return;
+//             }
+//             if (verbose)
+//                 voidmexPrintF("Static axisymmetric problem solved\n");
+//         }
+// 
+//         if (SolveObj->WriteStatic2D(L) == false)
+//         {
+//             voidmexPrintF("couldn't write results to disk\n");
+//             return;
+//         }
+//         if (verbose)
+//             voidmexPrintF("results written to disk\n");
+//     } 
+//     else 
+//     {
+//         CBigComplexLinProb L;
+//         L.Precision = SolveObj->Precision;
+// 
+//         // initialize the problem, allocating the space required to solve it.
+//         if (!L.Create(SolveObj->NumNodes+SolveObj->NumCircProps, SolveObj->BandWidth, SolveObj->NumNodes))
+//         {
+//             voidmexPrintF("couldn't allocate enough space for matrices\n");
+//             return;
+//         }
+// 
+//         // Create element matrices and solve the problem;
+//         if (SolveObj->ProblemType == PLANAR)
+//         {
+//             if (!SolveObj->previousSolutionFile.empty())
+//             {
+//                 voidmexPrintF("Harmonic planar incremental permeability problems are work in progress. RESULTS WON'T BE VALID!\n");
+//             }
+//             if (!SolveObj->Harmonic2D(L))
+//             {
+//                 voidmexPrintF("Couldn't solve the problem\n");
+//                 return;
+//             }
+//             if (verbose)
+//                 voidmexPrintF("Harmonic 2-D problem solved\n");
+//         } 
+//         else 
+//         {
+//             if (!SolveObj->previousSolutionFile.empty())
+//             {
+//                 voidmexPrintF("Cannot handle harmonic axisymmetric incremental problems.\n");
+//                 return;
+//             }
+//             if (!SolveObj->HarmonicAxisymmetric(L))
+//             {
+//                 voidmexPrintF("Couldn't solve the problem\n");
+//                 return;
+//             }
+//             if (verbose)
+//                 voidmexPrintF("Harmonic axisymmetric problem solved\n");
+//         }
+// 
+//         if (!SolveObj->WriteHarmonic2D(L))
+//         {
+//             voidmexPrintF("couldn't write results to disk\n");
+//             return;
+//         }
+//         if (verbose)
+//             voidmexPrintF("results written to disk.\n");
+//     }
+    
+    
+    
 
 //
 //    // load mesh
-//    status = SolveObj.LoadMesh(deleteMeshFiles);
+//    status = SolveObj->LoadMesh(deleteMeshFiles);
 //    if (status != 0)
 //    {
 //
@@ -175,7 +320,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //
 //    // renumber using Cuthill-McKee
 //    if (verbose == true) mexPrintf("renumbering nodes");
-//    if (SolveObj.Cuthill(deleteMeshFiles) != true)
+//    if (SolveObj->Cuthill(deleteMeshFiles) != true)
 //    {
 //        if (verbose == true) mexPrintf("problem renumbering node points\n");
 //        plhs[0] = mxCreateDoubleScalar(3.0);
@@ -185,26 +330,26 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //    if (verbose == true) mexPrintf("Solving problem ...");
 //
 //    if (verbose == true) mexPrintf("Problem Statistics:\n%i nodes\n%i elements\nPrecision: %3.2e\n",
-//                                  SolveObj.NumNodes,
-//                                  SolveObj.NumEls,
-//                                  SolveObj.Precision );
+//                                  SolveObj->NumNodes,
+//                                  SolveObj->NumEls,
+//                                  SolveObj->Precision );
 //
 //     mexPrintf(outstr);
 
-    //double mr = (8.*((double) SolveObj.NumNodes)*((double) SolveObj.BandWidth)) / 1.e06;
+    //double mr = (8.*((double) SolveObj->NumNodes)*((double) SolveObj->BandWidth)) / 1.e06;
 
-//    if(SolveObj.Frequency == 0)
+//    if(SolveObj->Frequency == 0)
 //    {
 //        if (verbose == true) mexPrintf("Problem Frequency = 0\n");
 //
 //        CBigLinProb L;
 //
-//        L.Precision = SolveObj.Precision;
+//        L.Precision = SolveObj->Precision;
 //
 //        if (verbose == true) mexPrintf("Initializing the problem and allocating memory\n");
 //
 //        // initialize the problem, allocating the space required to solve it.
-//        if (L.Create(SolveObj.NumNodes, SolveObj.BandWidth) == false)
+//        if (L.Create(SolveObj->NumNodes, SolveObj->BandWidth) == false)
 //        {
 //            mexPrintf("couldn't allocate enough space for matrices\n");
 //            plhs[0] = mxCreateDoubleScalar(4.0);
@@ -214,10 +359,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //        if (verbose == true) mexPrintf("Creating element matrices and solving the problem\n");
 //
 //        // Create element matrices and solve the problem;
-//        if (SolveObj.ProblemType == false)
+//        if (SolveObj->ProblemType == false)
 //        {
 //            if (verbose == true) mexPrintf("Solving static 2-D problem\n");
-//            if (SolveObj.Static2D(L) == false)
+//            if (SolveObj->Static2D(L) == false)
 //            {
 //                mexPrintf("Couldn't solve the problem\n");
 //                plhs[0] = mxCreateDoubleScalar(5.0);
@@ -228,7 +373,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //        else
 //        {
 //            if (verbose == true) mexPrintf("Solving static axisymmetric problem\n");
-//            if (SolveObj.StaticAxisymmetric(L) == false)
+//            if (SolveObj->StaticAxisymmetric(L) == false)
 //            {
 //                mexPrintf("Couldn't solve the problem\n");
 //                plhs[0] = mxCreateDoubleScalar(5.0);
@@ -238,7 +383,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //        }
 //
 //        if (verbose == true) mexPrintf("Writing solution to disk\n");
-//        if (SolveObj.WriteStatic2D(L) == false)
+//        if (SolveObj->WriteStatic2D(L) == false)
 //        {
 //            mexPrintf("Couldn't write results to disk\n");
 //            plhs[0] = mxCreateDoubleScalar(6.0);
@@ -252,12 +397,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //
 //        CBigComplexLinProb L;
 //
-//        L.Precision = SolveObj.Precision;
+//        L.Precision = SolveObj->Precision;
 //
 //        if (verbose == true) mexPrintf("Initializing the problem and allocating memory\n");
 //        // initialize the problem, allocating the space required to solve it.
 //
-//        if (L.Create(SolveObj.NumNodes+SolveObj.NumCircProps, SolveObj.BandWidth, SolveObj.NumNodes) == false)
+//        if (L.Create(SolveObj->NumNodes+SolveObj->NumCircProps, SolveObj->BandWidth, SolveObj->NumNodes) == false)
 //        {
 //            mexPrintf("couldn't allocate enough space for matrices\n");
 //            plhs[0] = mxCreateDoubleScalar(4.0);
@@ -267,10 +412,10 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //        if (verbose == true) mexPrintf("Creating element matrices and solving the problem\n");
 //
 //        // Create element matrices and solve the problem;
-//        if (SolveObj.ProblemType == false)
+//        if (SolveObj->ProblemType == false)
 //        {
 //            if (verbose == true) mexPrintf("Solving harmonic 2-D problem\n");
-//            if (SolveObj.Harmonic2D(L) == false)
+//            if (SolveObj->Harmonic2D(L) == false)
 //            {
 //                mexPrintf("Couldn't solve the problem\n");
 //                plhs[0] = mxCreateDoubleScalar(5.0);
@@ -281,7 +426,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //        else
 //        {
 //            if (verbose == true) mexPrintf("Solving harmonic axisymmetric problem\n");
-//            if (SolveObj.HarmonicAxisymmetric(L) == false)
+//            if (SolveObj->HarmonicAxisymmetric(L) == false)
 //            {
 //                mexPrintf("Couldn't solve the problem\n");
 //                plhs[0] = mxCreateDoubleScalar(5.0);
@@ -291,7 +436,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //        }
 //
 //        if (verbose == true) mexPrintf("Writing solution to disk\n");
-//        if (SolveObj.WriteHarmonic2D(L)==false)
+//        if (SolveObj->WriteHarmonic2D(L)==false)
 //        {
 //            mexPrintf("Couldn't write results to disk\n");
 //            plhs[0] = mxCreateDoubleScalar(6.0);
