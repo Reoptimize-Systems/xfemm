@@ -5,7 +5,7 @@ function varargout = mfemm_setup(varargin)
 %
 % mfemm_setup ()
 % mfemm_setup ('Parameter', Value)
-% 
+%
 % Description
 %
 % mfemm_setup performs various operations to set up mfemm. At it's
@@ -31,7 +31,10 @@ function varargout = mfemm_setup(varargin)
 %
 % 'Verbose' - true or false flag. Verbose build output if true. Defaults to
 %   false if not supplied.
-% 
+%
+% 'Clean' - true/false flag indicating whether to run make clean before
+%
+%
 % These may be supplied in any order. An example call the mfemm_setup might
 % be:
 %
@@ -50,30 +53,30 @@ function varargout = mfemm_setup(varargin)
 %
 
     if nargin < 1
-        
+
         if nargout > 0
             % return the subfunctions for testing/use
             varargout {1} = { @makelibs };
             return;
         end
     end
-    
+
     % add the required directories to the path
     thisfilepath = which('mfemm_setup.m');
-    
+
     if isoctave
         thisfilepath = canonicalize_file_name(thisfilepath);
     end
-    
+
     thisfilepath = fileparts (thisfilepath);
-    
+
     % add mfile paths
     addpath(thisfilepath);
     addpath (fullfile (thisfilepath, 'preproc'));
     addpath (fullfile (thisfilepath, 'postproc'));
     addpath (fullfile (thisfilepath, 'examples'));
     addpath (fullfile (thisfilepath, 'visualisation'));
-    
+
     % parse inputs
     options.ForceMexRecompile = false;
     options.Debug = false;
@@ -81,7 +84,10 @@ function varargout = mfemm_setup(varargin)
     options.RunTests = false;
     options.DoCrossBuildWin64 = false;
     options.W64CrossBuildMexLibsDir = '';
-    
+    options.Clean = true;
+    options.Tidy = true;
+    options.DebugSymbols = false;
+
     options = mfemmdeps.parseoptions (options, varargin);
 
     % make architecture specific directory for mex files if it doesn't
@@ -96,20 +102,20 @@ function varargout = mfemm_setup(varargin)
     end
     mkdir (mexdir);
     warning on MATLAB:MKDIR:DirectoryExists
-    
+
     % add it to the path
     addpath (mexdir);
-    
+
     if ~(exist('mexfsolver', 'file') == 3) ...
             || ~(exist('mexfmesher', 'file') == 3) ...
             || ~(exist('fpproc_interface_mex', 'file') == 3) ...
             || options.ForceMexRecompile
 
         fprintf('Compiling mex functions for mfemm.\n');
-        
+
         CC = onCleanup(@() cd(pwd));
         cd (thisfilepath);
-        
+
         if ~exist (fullfile ('..', 'cfemm'), 'dir')
             error ( 'MFEMM:Build', ...
                     [ 'The cfemm directory was not found in the expected location,\n', ...
@@ -117,22 +123,24 @@ function varargout = mfemm_setup(varargin)
                       'Compilation terminating' ] ...
                   );
         end
-        
+
         makefilenames = {'MMakefile_fmesher.m', ...
                          'MMakefile_fsolver.m', ...
                          'MMakefile_fpproc.m', ...
                          'MMakefile_hpproc.m', ...
                          'MMakefile_hsolver.m' };
-                     
+
         if options.ForceMexRecompile
             % run make clean for all projects to force complete
             % recompilation
             delete (fullfile (mexdir, ['*.', thismexext]));
-            for ind = 1:numel(makefilenames)
-                mmake.make ('clean', makefilenames{ind});
+            if options.Clean
+                for ind = 1:numel(makefilenames)
+                    mmake.make ('clean', makefilenames{ind});
+                end
             end
         end
-        
+
         % now invoke mmake for all files
         ws = warning( 'off', 'MATLAB:mex:GccVersion');
         for ind = 1:numel(makefilenames)
@@ -140,79 +148,87 @@ function varargout = mfemm_setup(varargin)
                 mmake.make ( '', makefilenames{ind}, ...
                              'DoCrossBuildWin64', true, ...
                              'FcnMakeFileArgs', { 'DoCrossBuildWin64', true, ...
+                                                  'W64CrossBuildMexLibsDir', options.W64CrossBuildMexLibsDir, ...
                                                   'Verbose', true, ...
-                                                  'W64CrossBuildMexLibsDir', options.W64CrossBuildMexLibsDir } ...
+                                                  'Debug', options.Debug, ...
+                                                  'DebugSymbols', options.DebugSymbols } ...
                            );
             else
-                mmake.make ('', makefilenames{ind}, 'FcnMakeFileArgs', {'Debug', options.Debug, 'Verbose', options.Verbose})
+                mmake.make ( '', makefilenames{ind}, ...
+                             'FcnMakeFileArgs',  { 'Debug', options.Debug, ...
+                                                   'DebugSymbols', options.DebugSymbols, ...
+                                                   'Verbose', options.Verbose })
             end
         end
         warning (ws);
-        for ind = 1:numel(makefilenames)
-            mmake.make ('tidy', makefilenames{ind})
+
+        if options.Tidy
+            for ind = 1:numel(makefilenames)
+                mmake.make ('tidy', makefilenames{ind})
+            end
         end
-        
+
         % copy over the created mex files to the mex directory
         mexfilenames = {'mexfmesher', ...
                         'mexfsolver', ...
-                        'fpproc_interface_mex', ... 
+                        'fpproc_interface_mex', ...
                         'mexhsolver', ...
                         'hpproc_interface_mex'};
-         
-        for ind = 1:numel(mexfilenames)            
+
+        for ind = 1:numel(mexfilenames)
             movefile ([mexfilenames{ind}, '.',  thismexext], mexdir);
         end
-         
+
          % force a path refresh
          rehash ()
 
     else
-        
+
         fprintf('Not compiling mex functions as they already exist.\n');
-    
+
     end
-    
+
     if options.RunTests
-        
+
         fmesher_test_file = fullfile (thisfilepath, '..', 'cfemm', 'fmesher', 'test', 'Temp.fem');
-        
+
         fprintf ('Running mexfmesher on file:\n%s\n', fmesher_test_file);
         mexfmesher (fmesher_test_file);
-        
+
         fsolver_test_file = fullfile (thisfilepath, '..', 'cfemm', 'fmesher', 'test', 'Temp');
         fprintf ('Running mexfsolver on file:\n%s\n', fsolver_test_file);
         mexfsolver (fsolver_test_file, double(true), double(false));
-        
+
         fprintf ('Running fmesher on file:\n%s\n', fmesher_test_file);
         fmesher (fmesher_test_file);
-        
+
         fsolver_test_file = fullfile (thisfilepath, '..', 'cfemm', 'fmesher', 'test', 'Temp.fem');
         fprintf ('Running fsolver on file:\n%s\n', fsolver_test_file);
         fsolver (fmesher_test_file);
-        
+
         fpproc_test_file = fullfile (thisfilepath, '..', 'cfemm', 'fmesher', 'test', 'Temp.ans');
         fprintf ('Loading solution using fpproc from file:\n%s\n', fpproc_test_file);
         solution = fpproc (fpproc_test_file);
         vals = solution.getpointvalues(0.038, 0.207)
-        
+
         % run test scripts
         run (fullfile (thisfilepath, 'testing', 'Test_fpproc.m'));
-        
+
     end
-    
+
     % print message about adding files to the path (octave currently
     % doesn't support displaying help in subfunctions)
     if ~isoctave
-        
+
         fprintf(1, '\n\n');
         help mfemm_setup>addedtopathmsg
 
-        % display some output 
+        % display some output
         fprintf (1, '\n');
         help mfemm_setup>printxfemmusermessage
-    
+
     end
-    
+
 end
 
 function addedtopathmsg ()
@@ -239,22 +255,22 @@ end
 
 function printxfemmusermessage ()
 % --------    NOTE TO USERS  --------
-% 
+%
 % If you use xfemm, particularly for industrial work, but also academic, it
 % will be greatly appreciated if you could write an email stating this and
 % how it has supported your work. This is a low-cost way to ensure further
 % development and maintenance will continue! Contact the authors on the
 % discussion forum, or you will find an email address in the source files.
-% 
+%
 % If you wish to cite xfemm in your work, please use the following:
-% 
+%
 % Crozier, R, Mueller, M., "A New MATLAB and Octave Interface to a
-% Popular Magnetics Finite Element Code", Proceedings of the 22nd 
-% International Conference on Electric Machines (ICEM 2016), September 
+% Popular Magnetics Finite Element Code", Proceedings of the 22nd
+% International Conference on Electric Machines (ICEM 2016), September
 % 2016.
-% 
+%
 % We would also suggest you cite the original FEMM program.
-% 
+%
 % ----------------------------------
 
 end
@@ -263,10 +279,10 @@ function t = isoctave()
 % ISOCTAVE.M
 % ISOCTAVE  True if the operating environment is octave.
 %    Usage: t=mfemmdeps.isoctave();
-% 
+%
 %    Returns 1 if the operating environment is octave, otherwise
 %    0 (Matlab)
-% 
+%
 % ---------------------------------------------------------------
 %
 % COPYRIGHT : (c) NUHAG, Dept.Math., University of Vienna, AUSTRIA
