@@ -1085,7 +1085,7 @@ int FSolver::WriteStatic2D(CBigLinProb &L)
                  meshnode[i].BoundaryMarker );
 
         // include A from previous solution if this is an incremental permeability problem
-		if (Aprev != NULL)
+		if (!Aprev.empty ())
         {
             fprintf(fp, "%.17g\n", Aprev[i]);
         }

@@ -92,6 +92,7 @@ FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshEleme
     , NumPointProps(0)
     , NumCircProps(0)
     , NumBlockLabels(0)
+    , NumAirGapElems(0)
     , pbclist()
     , PathName()
     , PrevType(0)
