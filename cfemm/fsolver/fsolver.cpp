@@ -84,14 +84,13 @@ using namespace femmsolver;
 
 FSolver::FSolver()
     : theLua(new LuaInstance)
-    , Aprev(nullptr)
 {
     Frequency = 0.0;
     Relax = 0.0;
     ACSolver=0;
     NumCircPropsOrig = 0;
 
-    meshnode = NULL;
+    //meshnode = NULL;
 
     // initialise the warning message box function pointer to
     // point to the PrintWarningMsg function
@@ -109,10 +108,10 @@ FSolver::~FSolver()
 void FSolver::CleanUp()
 {
     FEASolver_type::CleanUp();
-    delete[] meshnode;
-    meshnode = NULL;
-    delete []Aprev;
-    Aprev = nullptr;
+    //delete[] meshnode;
+    //meshnode = NULL;
+    //delete []Aprev;
+    //Aprev = nullptr;
 }
 
 void FSolver::getPrevAxiB(int k, double &B1p, double &B2p) const
@@ -337,7 +336,8 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     sscanf(s,"%i",&k);
     NumNodes = k;
 
-    meshnode = new CNode[k];
+    meshnode.clear();
+    meshnode.reserve(k);
     CNode node;
     for(i=0; i<k; i++)
     {
@@ -353,7 +353,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
         node.x *= 100 * LengthConvMeters[LengthUnits];
         node.y *= 100 * LengthConvMeters[LengthUnits];
 
-        meshnode[i] = node;
+        meshnode.push_back (node);
     }
     fclose(fp);
 
@@ -642,9 +642,12 @@ bool FSolver::loadPreviousSolution()
     // read in nodes
     fgets(s,1024,fp);
     sscanf(s,"%i",&NumNodes);
-    Aprev=(double *)calloc(NumNodes,sizeof(double));
-    meshnode=(CNode *)calloc(NumNodes,sizeof(CNode));
-
+    //Aprev=(double *)calloc(NumNodes,sizeof(double));
+    Aprev.clear();
+    Aprev.reserve(NumNodes);
+    //meshnode=(CNode *)calloc(NumNodes,sizeof(CNode));
+    meshnode.clear ();
+    meshnode.reserve(NumNodes);
     CNode node;
     for(int i=0;i<NumNodes;i++){
         fgets(s,1024,fp);
@@ -654,7 +657,7 @@ bool FSolver::loadPreviousSolution()
         node.x *= 100 * LengthConvMeters[LengthUnits];
         node.y *= 100 * LengthConvMeters[LengthUnits];
 
-        meshnode[i]=node;
+        meshnode.push_back(node);
     }
 
     // read elements

@@ -940,7 +940,7 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
                 meshnode[i].BoundaryMarker
                 );
         // include A from previous solution if this is an incremental permeability problem
-        if (Aprev) fprintf(fp,"\t%.17g\n",Aprev[i]);
+        if (!Aprev.empty ()) fprintf(fp,"\t%.17g\n",Aprev[i]);
         else fprintf(fp,"\n");
     }
     fprintf(fp,"%i\n",NumEls);
@@ -951,7 +951,7 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
                 meshele[i].e[0],meshele[i].e[1],meshele[i].e[2]
                 );
         // include J from previous problem if this is an incremental permeability problem
-        if (Aprev) fprintf(fp,"\t%.17g\n",meshele[i].Jprev);
+        if (!Aprev.empty ()) fprintf(fp,"\t%.17g\n",meshele[i].Jprev);
         else fprintf(fp,"\n");
     }
 

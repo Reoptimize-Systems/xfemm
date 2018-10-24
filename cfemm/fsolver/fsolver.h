@@ -70,7 +70,7 @@ public:
     double  Relax;
 
     // mesh information
-    femm::CNode *meshnode;
+    std::vector <femm::CNode> meshnode;
     int NumCircPropsOrig;
 
 
@@ -134,7 +134,7 @@ private:
     femm::LuaInstance *theLua;
 
     /// Vector containing previous solution for incremental permeability analysis
-    double *Aprev;
+    std::vector <double> Aprev;
 };
 
 /////////////////////////////////////////////////////////////////////////////
