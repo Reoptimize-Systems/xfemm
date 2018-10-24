@@ -347,7 +347,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
         if( strncmpi(q,'<beginpoint>',11))
 
             % Make a new empty point property
-            [FemmProblem, ppropind] = addpointprop(FemmProblem, 'New Point Property');
+            [FemmProblem, ppropind] = addpointprop_mfemm (FemmProblem, 'New Point Property');
 
             % get the next line of input
             q = fgetl(fid);
