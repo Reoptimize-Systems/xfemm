@@ -1,5 +1,5 @@
 /* Copyright 2016 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
- * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ * Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  * Mechatronics GmbH (LCM)
  *
  * The source code in this file is heavily derived from
@@ -28,6 +28,8 @@
 #define SmallNo 1.e-14
 
 #define DEFAULT_MINIMUM_ANGLE 30.0
+#define MINANGLE_BUMP 3
+#define MINANGLE_MAX  33.8
 #define CLOSE_ENOUGH 1.e-06 ///< preprocessor tolerance
 
 #endif
