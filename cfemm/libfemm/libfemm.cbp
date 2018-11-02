@@ -80,7 +80,6 @@
 		<Unit filename="cuthill.cpp" />
 		<Unit filename="feasolver.cpp" />
 		<Unit filename="feasolver.h" />
-		<Unit filename="femmcomplex.cpp" />
 		<Unit filename="femmconstants.cpp" />
 		<Unit filename="femmconstants.h" />
 		<Unit filename="femmenums.cpp" />
