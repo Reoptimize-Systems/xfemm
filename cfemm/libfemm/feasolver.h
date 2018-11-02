@@ -156,6 +156,11 @@ public:
     void (*PrintMessage)(const char*);
 
     virtual void CleanUp();
+
+protected:
+
+    bool meshLoadedFromPrevSolution;
+
 protected:
     /**
      * @brief LoadProblemFile

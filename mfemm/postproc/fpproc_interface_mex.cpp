@@ -19,6 +19,7 @@ enum ClassMethods { evNotDefined,
                     groupselectblock,
                     clearblock,
                     blockintegral,
+                    gapintegral,
                     lineintegral,
                     smoothon,
                     smoothoff,
@@ -36,7 +37,10 @@ enum ClassMethods { evNotDefined,
                     getgroupvertices,
                     getgroupcentroids,
                     getgroupareas,
-                    getgroupvolumes
+                    getgroupvolumes,
+                    getgapb,
+                    getgapa,
+                    getgapharmonics,
                   };
 
 // Map to associate the command strings with the class
@@ -54,6 +58,7 @@ void Initialize()
     s_mapClassMethodStrs["groupselectblock"]  = groupselectblock;
     s_mapClassMethodStrs["clearblock"]        = clearblock;
     s_mapClassMethodStrs["blockintegral"]     = blockintegral;
+    s_mapClassMethodStrs["gapintegral"]       = gapintegral;
     s_mapClassMethodStrs["lineintegral"]      = lineintegral;
     s_mapClassMethodStrs["smoothon"]          = smoothon;
     s_mapClassMethodStrs["smoothoff"]         = smoothoff;
@@ -72,6 +77,9 @@ void Initialize()
     s_mapClassMethodStrs["getgroupcentroids"] = getgroupcentroids;
     s_mapClassMethodStrs["getgroupareas"]     = getgroupareas;
     s_mapClassMethodStrs["getgroupvolumes"]   = getgroupvolumes;
+    s_mapClassMethodStrs["getgapb"]           = getgapb;
+    s_mapClassMethodStrs["getgapa"]           = getgapa;
+    s_mapClassMethodStrs["getgapharmonics"]   = getgapharmonics;
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -145,6 +153,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     case blockintegral:
         FPProc_interface_instance->blockintegral(nlhs, plhs, nrhs, prhs);
         return;
+    case gapintegral:
+        FPProc_interface_instance->gapintegral(nlhs, plhs, nrhs, prhs);
+        return;
     case lineintegral:
         FPProc_interface_instance->lineintegral(nlhs, plhs, nrhs, prhs);
         return;
@@ -198,6 +209,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
 	case getgroupvolumes:
         FPProc_interface_instance->getgroupvolumes(nlhs, plhs, nrhs, prhs);
+        return;
+    case getgapb:
+        FPProc_interface_instance->getgapb(nlhs, plhs, nrhs, prhs);
+        return;    
+    case getgapa:
+        FPProc_interface_instance->getgapa(nlhs, plhs, nrhs, prhs);
+        return;
+	case getgapharmonics:
+        FPProc_interface_instance->getgapharmonics(nlhs, plhs, nrhs, prhs);
         return;
     default:
         mexErrMsgTxt("Unrecognised class command string.");

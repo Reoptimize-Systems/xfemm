@@ -41,7 +41,8 @@
 #include "CBlockLabel.h"
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
-#include "CElement.h"
+#include "CPostProcMElement.h"
+#include "CAirGapElement.h"
 #include "CMaterialProp.h"
 #include "CMeshNode.h"
 #include "CNode.h"
@@ -50,8 +51,6 @@
 #include "PostProcessor.h"
 
 #include <vector>
-
-// extern CFemmApp theApp; //<DP>
 
 //#ifndef PLANAR
 //#define PLANAR 0
@@ -62,6 +61,22 @@
 //#endif
 
 using std::string;
+
+/**
+ * @brief The EditMode determines which objects are affected by an edit or selection command.
+ */
+enum class FPProcError {
+    /// \brief An air gap boundary of a given name was not found
+    AGENameNotFound = 0,
+    /// \brief Operate on line segments
+    AGENoHarmonics = 1,
+    /// \brief Operate on block labels
+    AGENegativeHarmonicRequested = 2,
+    /// \brief Operate on arc segments
+    AGERequestedHarmonicTooLarge = 3,
+    /// \brief An invalid value
+    NoError
+};
 
 class FPProc : public femm::PProcIface
 {
@@ -84,6 +99,11 @@ public:
     bool    Smooth;
     bool    bMultiplyDefinedLabels;
     double  extRo,extRi,extZo;
+    int     NumAirGapElems;
+    std::string PrevSoln;
+    int     PrevType;
+    std::vector <double> Aprev;
+
 
     double  A_High, A_Low;
     double  A_lb, A_ub;
@@ -103,16 +123,18 @@ public:
     int  d_LineIntegralPoints;
     bool d_ShiftH;
     bool bHasMask;
+    bool bIncremental;
 
     // lists of nodes, segments, and block labels
-    std::vector< femm::CNode >       nodelist;
-    std::vector< femm::CSegment >    linelist;
-    std::vector< femm::CArcSegment > arclist;
+    std::vector< femm::CNode >        nodelist;
+    std::vector< femm::CSegment >     linelist;
+    std::vector< femm::CArcSegment >  arclist;
     std::vector< femm::CMBlockLabel > blocklist;
 
     // vectors containing the mesh information
-    std::vector< femmsolver::CMMeshNode >  meshnode;
-    std::vector< femmsolver::CMElement >   meshelem;
+    std::vector< femmsolver::CMMeshNode > meshnode;
+    std::vector< femmpostproc::CPostProcMElement >  meshelem;
+    std::vector< femmsolver::CAirGapElement >   agelist;
 
     // List of elements connected to each node;
     int *NumList;
@@ -129,7 +151,7 @@ public:
 
     // stuff that PTLOC needs
     std::vector< femmsolver::CMMeshNode >  *pmeshnode;
-    std::vector< femmsolver::CMElement >   *pmeshelem;
+    std::vector< femmpostproc::CPostProcMElement >   *pmeshelem;
 
 //    TriEdge recenttri;
 //    int samples;
@@ -138,21 +160,21 @@ public:
 //    int numberofbdrylink;
 
     // member functions
-    int InTriangle(double x, double y);
-    bool InTriangleTest(double x, double y, int i);
-    bool GetPointValues(double x, double y, CMPointVals &u);
-    bool GetPointValues(double x, double y, int k, CMPointVals &u);
+    int InTriangle(double x, double y) const;
+    bool InTriangleTest(double x, double y, int i) const;
+    bool GetPointValues(double x, double y, CMPointVals &u) const;
+    bool GetPointValues(double x, double y, int k, CMPointVals &u) const;
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
-    void GetElementB(femmsolver::CMElement &elm);
+    void GetElementB(femmpostproc::CPostProcMElement &elm) const;
     void FindBoundaryEdges();
-    int ClosestNode(double x, double y);
-    CComplex Ctr(int i);
-    double ElmArea(int i);
-    double ElmArea(femmsolver::CMElement *elm);
-    double ElmVolume(int i);
+    int ClosestNode(const double x, const double y) const;
+    CComplex Ctr(int i) const;
+    double ElmArea(int i) const;
+    double ElmArea(femmpostproc::CPostProcMElement *elm) const;
+    double ElmVolume(int i) const;
     //double ElmVolume(CElement *elm);
-    void GetPointB(double x, double y, CComplex &B1, CComplex &B2, femmsolver::CMElement &elm);
-    void GetNodalB(CComplex *b1, CComplex *b2,femmsolver::CMElement &elm);
+    void GetPointB(const double x, const double y, CComplex &B1, CComplex &B2, const femmpostproc::CPostProcMElement &elm) const;
+    void GetNodalB(CComplex *b1, CComplex *b2,femmpostproc::CPostProcMElement &elm);
     /**
      * @brief Compute the block integral over selected blocks.
      *
@@ -196,53 +218,70 @@ public:
      * @param inttype The identifier of the block integral.
      * @return the requested block integral
      */
-    CComplex BlockIntegral(int inttype);
-    void LineIntegral(int inttype, CComplex *z);
-    int ClosestArcSegment(double x, double y);
-    void GetCircle(femm::CArcSegment &asegm,CComplex &c, double &R);
-    double ShortestDistanceFromArc(CComplex p, femm::CArcSegment &arc);
-    double ShortestDistanceFromSegment(double p, double q, int segm);
-    CComplex GetJA(int k,CComplex *J,CComplex *A);
-    CComplex PlnInt(double a, CComplex *u, CComplex *v);
-    CComplex AxiInt(double a, CComplex *u, CComplex *v,double *r);
+    CComplex BlockIntegral(const int inttype) const;
+    void LineIntegral(int inttype, CComplex *z) const;
+    int ClosestArcSegment(double x, double y) const;
+    void GetCircle(const femm::CArcSegment &asegm,CComplex &c, double &R) const;
+    double ShortestDistanceFromArc(const CComplex p, const femm::CArcSegment &arc) const;
+    double ShortestDistanceFromSegment(double p, double q, int segm) const;
+    CComplex GetJA(int k,CComplex *J,CComplex *A) const;
+    CComplex PlnInt(double a, CComplex *u, CComplex *v) const;
+    CComplex AxiInt(double a, CComplex *u, CComplex *v,double *r) const;
     bool ScanPreferences();
     void BendContour(double angle, double anglestep);
-    bool MakeMask();
-    CComplex HenrotteVector(int k);
-    bool IsKosher(int k);
-    double AECF(int k);
+
+    CComplex HenrotteVector(int k) const;
+    bool IsKosher(int k) const;
+    double AECF(int k) const;
     void GetFillFactor(int lbl);
 
     // pointer to function to call when issuing warning messages
     void (*WarnMessage)(const char*);
 //	void MsgBox(const char* message);
 
-    CComplex GetStrandedVoltageDrop(int lbl);
-    CComplex GetVoltageDrop(int circnum);
-    CComplex GetFluxLinkage(int circnum);
-    CComplex GetStrandedLinkage(int lbl);
-    CComplex GetSolidAxisymmetricLinkage(int lbl);
-    CComplex GetParallelLinkage(int numcirc);
-    CComplex GetParallelLinkageAlt(int numcirc);
-    void GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i);
-    void GetMu(double b1, double b2, double &mu1, double &mu2, int i);
-    void GetMagnetization(int n, CComplex &M1, CComplex &M2);
-    void GetH(double b1, double b2, double &h1, double &h2, int k);
-    void GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k);
+    CComplex GetStrandedVoltageDrop(int lbl) const;
+    CComplex GetVoltageDrop(int circnum) const;
+    CComplex GetFluxLinkage(int circnum) const;
+    CComplex GetStrandedLinkage(int lbl) const;
+    CComplex GetSolidAxisymmetricLinkage(int lbl) const;
+    CComplex GetParallelLinkage(int numcirc) const;
+    CComplex GetParallelLinkageAlt(int numcirc) const;
+    void GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i) const;
+    void GetMu(double b1, double b2, double &mu1, double &mu2, int i) const;
+    void GetMagnetization(int n, CComplex &M1, CComplex &M2) const;
+    void GetH(double b1, double b2, double &h1, double &h2, int k) const;
+    void GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k) const;
+    int numElements() const override;
+    int numNodes() const override;
+    FPProcError getGapHarmonics(const std::string myBdryName, const int n, CComplex &acc, CComplex &acs, CComplex &brc, CComplex &brs, CComplex &btc, CComplex &bts) const;
+    bool AGEBoundNumFromName(const std::string myBdryName, int &n) const;
+    FPProcError numGapHarmonics(const std::string myBdryName, int &nh) const;
+    FPProcError getAGEflux(const std::string myBdryName, const double angle, CComplex &br, CComplex &bt) const;
+    FPProcError getGapA(const std::string myBdryName, double tta, CComplex &ac) const;
+    FPProcError gapTimeAvgStoredEnergyIntegral(const std::string myBdryName, CComplex &W) const;
+    FPProcError gapIncrementalForceIntegral(const std::string myBdryName, CComplex &fx, CComplex &fy) const;
+    FPProcError gapIncrementalTorqueIntegral(const std::string myBdryName, CComplex &tq) const;
+    FPProcError gap2XForceIntegral(const std::string myBdryName, CComplex &fx, CComplex &fy) const;
+    FPProcError gapDCForceIntegral(const std::string myBdryName, CComplex &fx, CComplex &fy) const;
+    FPProcError gap2XTorqueIntegral(const std::string myBdryName, CComplex &tq) const;
+    FPProcError gapDCTorqueIntegral(const std::string myBdryName, double &tq) const;
+
+
+
     void ClearDocument();
     bool NewDocument();
 //     virtual void Serialize(CArchive& ar);
     bool OpenDocument(std::string lpszPathName) override;
-    int numElements() const override;
-    int numNodes() const override;
+    bool MakeMask();
+    //bool LoadMeshNodesFromSolution(bool loadA, FILE* fp);
+    //bool LoadMeshElementsFromSolution(FILE* fp);
+    //bool LoadPBCFromSolution(FILE* fp);
+    //bool LoadAGEsFromSolution(FILE* fp);
 
 // Implementation
 public:
     // lua extensions
     bool luafired;
-    //void initalise_lua();
-    //PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp);
-    //void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi,HBITMAP hBMP, HDC hDC) ;
 
 //#ifdef _DEBUG
     //virtual void AssertValid() const;

@@ -359,6 +359,9 @@ void fmesher::discretizeInputArcSegments(const FemmProblem &problem, std::vector
 {
     for(int i=0;i<(int)problem.arclist.size();i++)
     {
+
+        problem.arclist[i]->mySideLength = problem.arclist[i]->MaxSideLength;
+
         const CArcSegment &arc = *problem.arclist[i];
 
         if (filter == SegmentFilter::OnlyUnselected && arc.IsSelected )
@@ -1542,6 +1545,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // Now restore boundary segment discretizations that have
     // been mucked up in the process...
     problem->undoLines();
+    problem->undoArcs();
 
     // and save the latest version of the document to make sure
     // any changes to arc discretization get propagated into

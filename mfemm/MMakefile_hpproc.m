@@ -5,6 +5,7 @@ function [rules,vars] = MMakefile_hpproc (varargin)
     options.Verbose = false;
     options.Debug = false;
     options.DebugSymbols = false;
+    options.ExtraMEXFLAGS = '';
 
     options = mmake.parse_pv_pairs (options, varargin);
 
@@ -22,7 +23,7 @@ function [rules,vars] = MMakefile_hpproc (varargin)
 
     % flags that will be passed direct to mex
     %vars.MEXFLAGS = '${MEXFLAGS} -I"postproc" -I"../cfemm/hpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
-    vars.MEXFLAGS = '${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"postproc" -I"../cfemm/hpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
+    vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"postproc" -I"../cfemm/hpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', options.ExtraMEXFLAGS];
     if isunix && ~mfemmdeps.isoctave ()
         if options.Debug
             vars.OPTIMFLAGS = '-OO';

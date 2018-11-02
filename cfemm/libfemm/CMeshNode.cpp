@@ -52,7 +52,7 @@ CMeshNode::CMeshNode()
 {
 }
 
-CComplex CMeshNode::CC()
+CComplex CMeshNode::CC() const
 {
     return (x+I*y);
 }
@@ -62,7 +62,7 @@ void CMeshNode::ToggleSelect()
     IsSelected = ! IsSelected;
 }
 
-double CMeshNode::GetDistance(double xo, double yo)
+double CMeshNode::GetDistance(const double xo, const double yo) const
 {
     return sqrt((x-xo)*(x-xo) + (y-yo)*(y-yo));
 }

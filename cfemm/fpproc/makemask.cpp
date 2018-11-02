@@ -388,7 +388,7 @@ bool FPProc::MakeMask()
 
 #endif
 
-bool FPProc::IsKosher(int k)
+bool FPProc::IsKosher(int k) const
 {
     // If:
     //    1) this is an axisymmetric problem;

@@ -78,6 +78,8 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mo_bendcontour", luaBendContourLine);
     li.addFunction("mo_block_integral", luaBlockIntegral);
     li.addFunction("mo_blockintegral", luaBlockIntegral);
+    li.addFunction("mo_gapintegral", luaGapIntegral);
+    li.addFunction("mo_gap_integral", luaGapIntegral);
     li.addFunction("mi_clear_bh_points", luaClearBHPoints);
     li.addFunction("mi_clearbhpoints", luaClearBHPoints);
     li.addFunction("mo_clear_block", luaClearBlock);
@@ -290,6 +292,9 @@ void femmcli::LuaMagneticsCommands::registerCommands(LuaInstance &li)
     li.addFunction("mi_zoomout", LuaInstance::luaNOP);
     li.addFunction("mo_zoom_out", LuaInstance::luaNOP);
     li.addFunction("mo_zoomout", LuaInstance::luaNOP);
+    li.addFunction("mo_getgapb", luaGetGapB);
+    li.addFunction("mo_getgapa", luaGetGapA);
+    li.addFunction("mo_getgapharmonics", luaGetGapHarmonics);
 }
 
 
@@ -915,6 +920,173 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
 
     lua_pushnumber(L,z);
     return 1;
+}
+
+/**
+ * @brief Calculate a block integral for the selected blocks.
+ * @param L
+ * @return 1 on success, 0 otherwise
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_gapintegral(type)}
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_gapintegral()}
+ * \endinternal
+ */
+int femmcli::LuaMagneticsCommands::luaGapIntegral(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+    // for compatibility with 4.0 and 4.1 Lua implementation
+    if (luaInstance->compatibilityMode())
+    {
+        lua_error(L,"Compatibility mode for mo_blockintegral is not implemented!\n");
+        //return ((CFemmviewDoc *)pFemmviewdoc)->old_lua_blockintegral(L);
+        return 0;
+    }
+
+	std::string myBdryName;
+	int i,IntegralType;
+
+	myBdryName = std::string (lua_tostring(L,1));
+
+	// figure out which AGE is being asked for
+    bool found_bound = fpproc->AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        lua_pushnumber(L,0);
+		return 1;
+    }
+
+    IntegralType = (int) lua_todouble(L,1);
+    if((IntegralType<0) || (IntegralType>6))
+    {
+        lua_error(L, "Invalid gap integral type selected");
+        return 0;
+    }
+
+	if (IntegralType==0) // DC torque version using harmonic solution in airgap
+	{
+		double tq=0;
+
+		fpproc->gapDCTorqueIntegral(myBdryName, tq);
+
+		lua_pushnumber(L,tq);
+
+		return 1;
+	}
+
+/*
+	if (IntegralType==0) // DC torque
+	{
+		int k;
+		CComplex tq=0;
+
+		double dt=(PI/180.)*(doc->agelist[i].totalArcLength/doc->agelist[i].totalArcElements);
+		CComplex br,bt;
+
+		for(k=0;k<doc->agelist[i].totalArcElements;k++)
+		{
+			br = doc->agelist[i].br[k];
+			bt = doc->agelist[i].bt[k];
+			// add in torque contribution for this element
+			tq = tq + (br*conj(bt) + conj(br)*bt)/(2.*muo)*R*dt*R*doc->Depth;
+		}
+
+		tq *= 360./((double) doc->agelist[i].totalArcLength);
+		if (doc->Frequency!=0) tq/=2.;
+
+		lua_pushnumber(L,tq);
+
+		return 1;
+	}
+*/
+	if (IntegralType==3) // 2X torque
+	{
+		CComplex tq=0;
+
+        fpproc->gap2XTorqueIntegral(myBdryName, tq);
+
+		lua_pushnumber(L,tq);
+
+		return 1;
+	}
+
+	if (IntegralType==1) // DC Force
+	{
+		CComplex fx=0;
+		CComplex fy=0;
+
+		fpproc->gapDCForceIntegral(myBdryName, fx, fy);
+
+		lua_pushnumber(L,fx);
+		lua_pushnumber(L,fy);
+
+		return 2;
+	}
+
+	if (IntegralType==4) // 2X Force
+	{
+		CComplex fx=0;
+		CComplex fy=0;
+
+		fpproc->gap2XForceIntegral(myBdryName, fx, fy);
+
+		lua_pushnumber(L,fx);
+		lua_pushnumber(L,fy);
+
+		return 2;
+	}
+
+	if (IntegralType==5) // Incremental Torque
+	{
+		CComplex tq=0;
+
+		fpproc->gapIncrementalTorqueIntegral(myBdryName, tq);
+
+		lua_pushnumber(L,tq);
+
+		return 1;
+	}
+
+	if (IntegralType==6) // Incremental Force
+	{
+		CComplex fx=0;
+		CComplex fy=0;
+
+		fpproc->gapIncrementalForceIntegral(myBdryName, fx, fy);
+
+		lua_pushnumber(L,fx);
+		lua_pushnumber(L,fy);
+
+		return 2;
+	}
+
+	if (IntegralType==2) // (Time-Average) Stored Energy
+	{
+		CComplex W=0;
+
+		fpproc->gapTimeAvgStoredEnergyIntegral(myBdryName, W);
+
+		lua_pushnumber(L,W);
+
+		return 1;
+	}
+
+
+	return 0;
+
 }
 
 /**
@@ -2408,6 +2580,170 @@ int femmcli::LuaMagneticsCommands::luaSetSmoothing(lua_State *L)
         lua_error(L, "Unknown option for smoothing");
     }
     return 0;
+}
+
+/**
+ * @brief Get the value of the flux density in the air gap region.
+ *
+ * Femm42 source documentation:
+ *
+ * @param L
+ * @return 8
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_getgapb("BdryName", angle)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_getgapb()}
+ *
+ * \endinternal
+ */
+int femmcli::LuaMagneticsCommands::luaGetGapB(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    std::string myBdryName = std::string (lua_tostring(L,1));
+    double angle = lua_todouble(L,2);
+
+	CComplex br=0;
+	CComplex bt=0;
+
+    fpproc->getAGEflux(myBdryName, angle, br, bt);
+
+    lua_pushnumber(L,br);
+    lua_pushnumber(L,bt);
+
+	return 1;
+
+}
+
+/**
+ * @brief Get the value of the vector potential in the air gap region.
+ *
+ * Femm42 source documentation:
+ *
+ * @param L
+ * @return 8
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_getgapa("BdryName", angle)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_getgapa()}
+ *
+ * \endinternal
+ */
+int femmcli::LuaMagneticsCommands::luaGetGapA(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    std::string myBdryName = std::string (lua_tostring(L,1));
+    double angle = lua_todouble(L,2);
+
+	CComplex ac=0;
+
+    fpproc->getGapA(myBdryName, angle, ac);
+
+    lua_pushnumber(L,ac);
+
+	return 1;
+
+}
+
+/**
+ * @brief Get the harmonics in the air gap region.
+ *
+ * Femm42 source documentation:
+ * Returns the acc, acs,brc,brs,btc, and bts. These quantities represent the
+ * components of vector potential, radial flux density, and tangential flux
+ * density on the centerline of the specified air gap element at the specified
+ * angle. For the n th harmonic, vector potential, radial flux density, and
+ * tangential flux density can be represented explicitly as functions of angle
+ * via:
+ *
+ * \f{equation}{ A = acc \cos{n \theta} + acs \sin{n \theta} \f}
+ * \f{equation}{ B_r = brc \cos{n \theta}+ brs \sin{n \theta}  \f}
+ * \f{equation}{ B_\theta = btc \cos{n \theta} + bts \sin{n \theta} \f}
+ *
+ * The angle is specified in degrees. If the function is called with just the
+ * BdryName, the func-tion returns the number of harmonics available.
+ *
+ * @param L
+ * @return 8
+ * \ingroup LuaMM
+ *
+ * \internal
+ * ### Implements:
+ * - \lua{mo_getgapharmonics("BdryName", angle)}
+ *
+ * ### FEMM source:
+ * - \femm42{femm/femmviewLua.cpp,lua_getgapharmonics()}
+ *
+ * \endinternal
+ */
+int femmcli::LuaMagneticsCommands::luaGetGapHarmonics(lua_State *L)
+{
+
+	if (lua_gettop(L)==0) return 0;
+
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
+    if (!fpproc)
+    {
+        lua_error(L,"No magnetics output in focus");
+        return 0;
+    }
+
+    std::string myBdryName = std::string (lua_tostring(L,1));
+    int k;
+
+	// if _just_ the name is specified, return the number of the highest harmonic
+	if (lua_gettop(L)==1)
+	{
+		fpproc->numGapHarmonics(myBdryName, k);
+
+		lua_pushnumber(L,k);
+
+		return 1;
+	}
+
+	double n = lua_todouble(L,2);
+	CComplex acc=0;
+	CComplex acs=0;
+	CComplex brs=0;
+	CComplex brc=0;
+	CComplex bts=0;
+	CComplex btc=0;
+
+	fpproc->getGapHarmonics(myBdryName, n, acc, acs, brc, brs, btc, bts);
+
+	lua_pushnumber(L,acc);
+	lua_pushnumber(L,acs);
+	lua_pushnumber(L,brc);
+	lua_pushnumber(L,brs);
+	lua_pushnumber(L,btc);
+	lua_pushnumber(L,bts);
+
+	return 6;
 }
 
 

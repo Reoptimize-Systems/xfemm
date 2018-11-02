@@ -39,8 +39,8 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
 %                      existing boundary condition in the FemmProblem
 %                      Structure to be applied. If zero, no boundary
 %                      property is applied. Defaults to an empty string,
-%                      i.e. no boundary property.
-% 
+%                      i.e. no boundary property. 
+%
 % The values are applied to all segments created.
 %
 % addarcsegments_mfemm(FemmProblem, n0, n1, angle, options) performs the
@@ -74,9 +74,14 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
     options.InGroup = zeros(size(n0));
     options.BoundaryMarker = '';
     options.InConductor = 0;
+    options.MeshedSideLength = [];
     
     % parse any options for the segment supplied by the user
     options = mfemmdeps.parseoptions(options, varargin);
+    
+    if isempty (options.MeshedSideLength)
+        options.MeshedSideLength = options.MaxSegDegrees;
+    end
     
     if ischar(options.BoundaryMarker)
     	options.BoundaryMarker = {options.BoundaryMarker};
@@ -110,6 +115,10 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
            error('MFEMM:InvalidBoundary', 'Invalid boundary specification.')
        end
        
+       if isscalar(options.MaxSegDegrees)
+           options.MeshedSideLength = repmat(options.MeshedSideLength, size(n0));
+       end
+       
     end
     
     arcseginds = repmat(-1, 1, numel(n0));
@@ -120,14 +129,16 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
                                                     'MaxSegDegrees', options.MaxSegDegrees(1), ...
                                                     'Hidden', options.Hidden(1), ...
                                                     'InGroup', options.InGroup(1), ...
-                                                    'BoundaryMarker', options.BoundaryMarker{1});
+                                                    'BoundaryMarker', options.BoundaryMarker{1}, ...
+                                                    'MeshedSideLength', options.MeshedSideLength(1));
     else
         arcseginds(1) = numel(FemmProblem.ArcSegments) + 1;
         FemmProblem.ArcSegments(arcseginds(1)) = newarcsegment_mfemm(n0(1), n1(1), angle(1), ...
                                                     'MaxSegDegrees', options.MaxSegDegrees(1), ...
                                                     'Hidden', options.Hidden(1), ...
                                                     'InGroup', options.InGroup(1), ...
-                                                    'BoundaryMarker', options.BoundaryMarker{1});
+                                                    'BoundaryMarker', options.BoundaryMarker{1}, ...
+                                                    'MeshedSideLength', options.MeshedSideLength(1));
     end
     
     for i = 2:numel(n0)
@@ -138,7 +149,8 @@ function [FemmProblem, arcseginds] = addarcsegments_mfemm(FemmProblem, n0, n1, a
                                                     'MaxSegDegrees', options.MaxSegDegrees(i), ...
                                                     'Hidden', options.Hidden(i), ...
                                                     'InGroup', options.InGroup(i), ...
-                                                    'BoundaryMarker', options.BoundaryMarker{i}); 
+                                                    'BoundaryMarker', options.BoundaryMarker{i}, ...
+                                                    'MeshedSideLength', options.MeshedSideLength(i)); 
         
     end
     

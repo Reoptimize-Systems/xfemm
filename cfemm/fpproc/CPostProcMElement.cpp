@@ -14,33 +14,24 @@
    MFC dependent code to allow easier reuse across
    multiple operating system platforms.
 
-   Date Modified: 2014 - 03 - 21
-   By:  Emoke Szelitzky
-        Tibor Szelitzky
-        Richard Crozier
-   Contact:
-        szelitzkye@gmail.com
-        sztibi82@gmail.com
-        richard.crozier@yahoo.co.uk
+   Date Modified: 2018 - 10 - 31
+   By: Richard Crozier
+   Contact: richard.crozier@yahoo.co.uk
 */
 
-#include "CMPointVals.h"
+#include "CPostProcMElement.h"
 
-CMPointVals::CMPointVals()
-    : A(0)
-    , B1(0)
-    , B2(0)
-    , mu1(1)
-    , mu2(1)
-    , mu12(0)
-    , H1(0)
-    , H2(0)
-    , Je(0)
-    , Js(0)
-    , c(0)
-    , E(0)
-    , Ph(0)
-    , Pe(0)
-    , ff(1)
+femmpostproc::CPostProcMElement::CPostProcMElement()
+    : femmsolver::CMElement()
+    , B1p(0.)
+    , B2p(0.)
 {
 }
+
+femmpostproc::CPostProcMElement::~CPostProcMElement()
+{
+}
+
+
+
+

@@ -202,26 +202,47 @@ void FSolver::getPrev2DB(int k, double &B1p, double &B2p) const
 
 bool FSolver::LoadProblemFile ()
 {
-    //if there's a "previous solution" specified,
-    //slurp of the mesh out of that file.
-    if (!previousSolutionFile.empty())
-    {
-        return loadPreviousSolution();
-    }
+    // meshLoadedFromPrevSolution will be set to tru in loadPreviousSolution if
+    // a mesh is successfully loaded from a previous solution file. The LoadMesh
+    // method checks this before attempting to load a mesh
+    meshLoadedFromPrevSolution = false;
 
     // define some defaults
     Relax=1.;
 
-    // parse the file
+    // parse the file, unlike in the original femm we do this *before* reading
+    // any previous mesh so we know whether to bother loading the previous
+    // solution data as well as just the mesh
     std::string femFile = PathName+".fem";
     if (!FEASolver_type::LoadProblemFile(femFile))
+    {
         return false;
+    }
+
+    // if there's a "previous solution" specified, slurp of the mesh and
+    // possibly the previous vector potential values out of that file.
+    if (!previousSolutionFile.empty())
+    {
+        bool loadAprev;
+
+        if (PrevType == 0)
+        {
+            // not incremental permeability, so we don't bother storing Aprev
+            loadAprev = false;
+        }
+        else
+        {
+            loadAprev = true;
+        }
+
+        return loadPreviousSolution(loadAprev);
+    }
 
     // do some precomputations
     for (auto &prop : blockproplist)
     {
         debug << "doing precomputations for material " << prop.BlockName << "\n";
-        if (!previousSolutionFile.empty() && Frequency>0)
+        if (!previousSolutionFile.empty() && Frequency>0 && PrevType != 0)
         {
             // first time through was just to get MuMax from AC curve...
             // -> backup Hdata and Bdata:
@@ -325,6 +346,10 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     FILE *fp;
     char s[1024];
 
+    if (meshLoadedFromPrevSolution)
+    {
+        return NOERROR;
+    }
 
     //read meshnodes;
     sprintf(infile,"%s.node",PathName.c_str());
@@ -337,6 +362,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     NumNodes = k;
 
     meshnode.clear();
+    meshnode.shrink_to_fit();
     meshnode.reserve(k);
     CNode node;
     for(i=0; i<k; i++)
@@ -367,7 +393,12 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     sscanf(s,"%i",&k);
     NumPBCs = k;
 
-    if (k!=0) pbclist.reserve(k);
+    if (k!=0)
+    {
+        pbclist.clear();
+        pbclist.shrink_to_fit();
+        pbclist.reserve(k);
+    }
     CCommonPoint pbc;
     for(i=0; i<k; i++)
     {
@@ -385,6 +416,10 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 
 	CAirGapElement age;
 
+	agelist.clear();
+	agelist.shrink_to_fit();
+	agelist.reserve(NumAirGapElems);
+
 	for(i=0;i<NumAirGapElems;i++)
     {
 		fgets(s,80,fp);
@@ -398,17 +433,19 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 			&age.ri,&age.ro,&age.totalArcLength,
 			&age.agc.re,&age.agc.im,&age.totalArcElements,&age.InnerShift,&age.OuterShift);
 
-		age.node=(CQuadPoint *)calloc(age.totalArcElements+1,sizeof(CQuadPoint));
+        age.quadNode.clear();
+        age.quadNode.shrink_to_fit();
+        age.quadNode.reserve(age.totalArcElements+1);
 
 		for(k=0;k<=age.totalArcElements;k++)
         {
 			fgets(s,1024,fp);
 
 			sscanf(s,"%i %lf %i %lf %i %lf %i %lf",
-				&age.node[k].n0, &age.node[k].w0,
-				&age.node[k].n1, &age.node[k].w1,
-				&age.node[k].n2, &age.node[k].w2,
-				&age.node[k].n3, &age.node[k].w3);
+				&age.quadNode[k].n0, &age.quadNode[k].w0,
+				&age.quadNode[k].n1, &age.quadNode[k].w1,
+				&age.quadNode[k].n2, &age.quadNode[k].w2,
+				&age.quadNode[k].n3, &age.quadNode[k].w3);
 		}
 		agelist.push_back (age);
 	}
@@ -425,6 +462,8 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     sscanf(s,"%i",&k);
     NumEls = k;
 
+    meshele.clear();
+    meshele.shrink_to_fit();
     meshele.reserve(k);
     femmsolver::CMElement elm;
 
@@ -585,10 +624,262 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     return NOERROR;
 }
 
-bool FSolver::loadPreviousSolution()
+
+//bool FSolver::LoadMeshFromPrevSolution(bool loadAprev)
+//{
+//	if (PrevSoln.GetLength()==0) return false;
+//
+//	FILE *fp;
+//	int i,k;
+//	char s[1024],q[256];
+//	char *v;
+//	double prevFreq=0;
+//	double c[]={2.54,0.1,1.,100.,0.00254,1.e-04};
+//	if ((fp=fopen(PrevSoln,"rt"))==NULL){
+//		MsgBox("Couldn't read from specified previous solution\n");
+//		return false;
+//	}
+//
+//	// parse the file
+//	k=0;
+//	while (fgets(s,1024,fp)!=NULL)
+//	{
+//		sscanf(s,"%s",q);
+//
+//		// Frequency of the problem
+//		if( _strnicmp(q,"[frequency]",11)==0){
+//			v=StripKey(s);
+//			sscanf(v,"%lf",&prevFreq);
+//			q[0]=NULL;
+//		}
+//
+//		sscanf(s,"%s",q);
+//		if( _strnicmp(q,"[solution]",11)==0){
+//			k=1;
+//			break;
+//		}
+//	}
+//
+//	// case where the solution is never found.
+//	if (k==0)
+//	{
+//		fclose(fp);
+//		MsgBox("Couldn't read mesh from specified previous solution\n");
+//		return false;
+//	}
+//
+//	if (loadAprev)
+//    {
+//        // case were previous solution is an AC problem.
+//        // only DC  previous solutions are presently supported
+//        if (prevFreq!=0)
+//        {
+//            fclose(fp);
+//            MsgBox("Only DC previous solutions are presently supported\n");
+//            return false;
+//        }
+//    }
+//
+//	////////////////////////////
+//	// read in the mesh from previous solution!!!
+//	///////////////////////////
+//
+//	// read in nodes
+//	LoadMeshNodesFromPrevSolution(loadAprev, fp);
+//
+//	// read elements
+//	LoadMeshElementsFromPrevSolution(fp);
+//
+//	// scroll through block label info
+//	fgets(s,1024,fp);
+//	sscanf(s,"%i",&k);
+//	for(i=0;i<k;i++) fgets(s,1024,fp);
+//
+//	// read in PBC list
+//	LoadPBCFromPrevSolution(fp);
+//
+//	// read in air gap elements
+//    LoadAGEsFromPrevSolution(fp);
+//
+//	fclose(fp);
+//	return true;
+//}
+
+bool FSolver::LoadMeshNodesFromSolution(bool loadAprev, FILE* fp)
+{
+    double tmpAprev;
+    char s[1024];
+
+    // read in nodes
+    fgets(s,1024,fp);
+    sscanf(s,"%i",&NumNodes);
+
+    if (loadAprev)
+    {
+        Aprev.clear();
+        Aprev.shrink_to_fit();
+        Aprev.reserve(NumNodes);
+    }
+
+    meshnode.clear ();
+    meshnode.shrink_to_fit();
+    meshnode.reserve(NumNodes);
+    CNode node;
+    for(int i=0;i<NumNodes;i++)
+    {
+        fgets(s,1024,fp);
+        sscanf(s,"%lf   %lf     %lf     %i\n",&node.x,&node.y,&tmpAprev,&node.BoundaryMarker);
+
+        // convert all lengths to centimeters (better conditioning this way...)
+        node.x *= 100 * LengthConvMeters[LengthUnits];
+        node.y *= 100 * LengthConvMeters[LengthUnits];
+
+        if (loadAprev)
+        {
+            Aprev.push_back(tmpAprev);
+        }
+
+        meshnode.push_back(node);
+    }
+
+    return true;
+}
+
+bool FSolver::LoadMeshElementsFromSolution(FILE* fp)
+{
+    char s[1024];
+
+    fgets (s, 1024, fp);
+
+    sscanf (s,"%i", &NumEls);
+
+    using CMElement = femmsolver::CMElement;
+
+    meshele.clear();
+    meshele.shrink_to_fit();
+    meshele.reserve (NumEls);
+
+    for(int i=0; i<NumEls; i++)
+    {
+        CMElement elm;
+
+        fgets(s,1024,fp);
+
+        sscanf ( s,
+                 "%i    %i      %i      %i      %i      %i      %i      %lf\n",
+                 &elm.p[0],
+                 &elm.p[1],
+                 &elm.p[2],
+                 &elm.lbl,
+                 &elm.e[0],
+                 &elm.e[1],
+                 &elm.e[2],
+                 &elm.Jprev );
+
+        // look up block type out of the list of block labels
+        elm.blk = labellist[elm.lbl].BlockType;
+
+        meshele.push_back(elm);
+    }
+
+    return true;
+}
+
+bool FSolver::LoadPBCFromSolution(FILE* fp)
+{
+    char s[1024];
+
+    if (fgets(s,1024,fp)!=0)
+    {
+        sscanf(s,"%i",&NumPBCs);
+
+        // clear the existing pbc list
+        pbclist.clear();
+
+        // remove any previously reserved capacity
+        pbclist.shrink_to_fit();
+
+        // reserve enough capacity for the declared number of pbc's in the file
+        pbclist.reserve(NumPBCs);
+
+        for(int i=0;i<NumPBCs;i++)
+        {
+            CCommonPoint pbc;
+            fgets(s,1024,fp);
+            sscanf(s,"%i    %i      %i\n",&pbc.x,&pbc.y,&pbc.t);
+            pbclist.push_back(pbc);
+        }
+    }
+
+    return true;
+}
+
+bool FSolver::LoadAGEsFromSolution(FILE* fp)
+{
+    char s[1024];
+    CAirGapElement age;
+
+	fgets(s,1024,fp);
+	sscanf(s,"%i",&NumAirGapElems);
+
+	agelist.clear();
+	agelist.shrink_to_fit();
+	agelist.reserve(NumAirGapElems);
+
+	for(int i=0; i<NumAirGapElems; i++)
+    {
+
+		fgets(s,80,fp);
+
+		age.BdryName = std::string (s);
+
+		fgets(s,1024,fp);
+
+		sscanf( s, "%i %lf %lf %lf %lf %lf %lf %lf %i %lf %lf",
+                &age.BdryFormat,
+                &age.InnerAngle,
+                &age.OuterAngle,
+                &age.ri,
+                &age.ro,
+                &age.totalArcLength,
+                &age.agc.re,
+                &age.agc.im,
+                &age.totalArcElements,
+                &age.InnerShift,
+                &age.OuterShift );
+
+		age.quadNode.reserve (age.totalArcElements+1);
+
+		for(int k=0; k<=age.totalArcElements; k++)
+		{
+		    CQuadPoint qp;
+
+			fgets(s,1024,fp);
+			sscanf ( s,"%i %lf %i %lf %i %lf %i %lf",
+                     &age.quadNode[k].n0,
+                     &age.quadNode[k].w0,
+                     &age.quadNode[k].n1,
+                     &age.quadNode[k].w1,
+                     &age.quadNode[k].n2,
+                     &age.quadNode[k].w2,
+                     &age.quadNode[k].n3,
+                     &age.quadNode[k].w3);
+
+            age.quadNode.push_back (qp);
+
+		}
+		agelist.push_back(age);
+	}
+
+    return true;
+}
+
+bool FSolver::loadPreviousSolution(bool loadAprev)
 {
     if (previousSolutionFile.empty())
+    {
         return false;
+    }
 
     FILE *fp;
     if ((fp=fopen(previousSolutionFile.c_str(),"rt"))==NULL){
@@ -640,41 +931,10 @@ bool FSolver::loadPreviousSolution()
     ///////////////////////////
 
     // read in nodes
-    fgets(s,1024,fp);
-    sscanf(s,"%i",&NumNodes);
-    //Aprev=(double *)calloc(NumNodes,sizeof(double));
-    Aprev.clear();
-    Aprev.reserve(NumNodes);
-    //meshnode=(CNode *)calloc(NumNodes,sizeof(CNode));
-    meshnode.clear ();
-    meshnode.reserve(NumNodes);
-    CNode node;
-    for(int i=0;i<NumNodes;i++){
-        fgets(s,1024,fp);
-        sscanf(s,"%lf   %lf     %lf     %i\n",&node.x,&node.y,&Aprev[i],&node.BoundaryMarker);
-
-        // convert all lengths to centimeters (better conditioning this way...)
-        node.x *= 100 * LengthConvMeters[LengthUnits];
-        node.y *= 100 * LengthConvMeters[LengthUnits];
-
-        meshnode.push_back(node);
-    }
+    LoadMeshNodesFromSolution(loadAprev, fp);
 
     // read elements
-    fgets(s,1024,fp);
-    sscanf(s,"%i",&NumEls);
-    using CMElement = femmsolver::CMElement;
-    meshele.reserve(NumEls);
-
-    for(int i=0;i<NumEls;i++)
-    {
-        CMElement elm;
-        fgets(s,1024,fp);
-        sscanf(s,"%i    %i      %i      %i      %i      %i      %i      %lf\n",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl,&elm.e[0],&elm.e[1],&elm.e[2],&elm.Jprev);
-        // look up block type out of the list of block labels
-        elm.blk=labellist[elm.lbl].BlockType;
-        meshele.push_back(elm);
-    }
+    LoadMeshElementsFromSolution(fp);
 
     // scroll through block label info
     fgets(s,1024,fp);
@@ -683,58 +943,15 @@ bool FSolver::loadPreviousSolution()
     for(int i=0;i<numLabels;i++) fgets(s,1024,fp);
 
     // read in PBC list
-    if (fgets(s,1024,fp)!=0)
-    {
-        sscanf(s,"%i",&NumPBCs);
-        pbclist.reserve(NumPBCs);
-        for(int i=0;i<NumPBCs;i++){
-            CCommonPoint pbc;
-            fgets(s,1024,fp);
-            sscanf(s,"%i    %i      %i\n",&pbc.x,&pbc.y,&pbc.t);
-            pbclist.push_back(pbc);
-        }
-    }
+    LoadPBCFromSolution(fp);
 
-	fgets(s,1024,fp);
-	sscanf(s,"%i",&NumAirGapElems);
-
-//	if (numAges!=0)
-//    {
-//        agelist=(CAirGapElement *)calloc(NumAirGapElems,sizeof(CAirGapElement));
-//    }
-
-	CAirGapElement age;
-
-	for(int i=0; i<NumAirGapElems; i++)
-    {
-
-		fgets(s,80,fp);
-
-		age.BdryName = s;
-
-		fgets(s,1024,fp);
-
-		sscanf(s,"%i %lf %lf %lf %lf %lf %lf %lf %i %lf %lf",
-			&age.BdryFormat,&age.InnerAngle,&age.OuterAngle,
-			&age.ri,&age.ro,&age.totalArcLength,
-			&age.agc.re,&age.agc.im,&age.totalArcElements,
-			&age.InnerShift,&age.OuterShift);
-
-		age.node = (CQuadPoint *)calloc(age.totalArcElements+1,sizeof(CQuadPoint));
-
-		for(int k=0; k<=age.totalArcElements; k++)
-		{
-			fgets(s,1024,fp);
-			sscanf(s,"%i %lf %i %lf %i %lf %i %lf",
-				&age.node[k].n0, &age.node[k].w0,
-				&age.node[k].n1, &age.node[k].w1,
-				&age.node[k].n2, &age.node[k].w2,
-				&age.node[k].n3, &age.node[k].w3);
-		}
-		agelist.push_back(age);
-	}
+    // read in air gap elements
+    LoadAGEsFromSolution(fp);
 
     fclose(fp);
+
+    meshLoadedFromPrevSolution = true;
+
     return true;
 }
 

@@ -1,59 +1,63 @@
 classdef fpproc < mfemmpproc
-    % fpproc   class for post-processing of mfemm solutions
-    %
-    % fpproc is a class wrapper for the FPProc_interface C++ class, which
-    % offers access to the FPProc finite element post-processing functions
-    %
-    % Syntax
-    %
-    % fpproc()
-    % fpproc(filename)
-    %
-    % Description
-    %
-    % fpproc() creates a new fpproc class without opening any solution file
-    % for processing.
-    %
-    % fpproc(filename) creates a new fpproc class and attempts to load the
-    % file in filename for processing.
-    %
-    %
-    % fpproc Methods:
-    %    opendocument - open a .ans solution document
-    %    getpointvalues - get all solution outputs at points
-    %    getb - get flux density values only at points
-    %    geth - get magnetic field intensity values only at points
-    %    geta - get magnetic vector potential values only at points
-    %    smoothon - turn on B and H smoothing over mesh elements
-    %    smoothoff - turn off B and H smoothing over mesh elements
-    %    clearcontour - clear a contour
-    %    addcontour - add one or more points to a contour
-    %    lineintegral - perform a line integral along a contour
-    %    selectblock - select a block
-    %    groupselectblock - select blocks by group number
-    %    selectallblocks - selects mfemmdeps.every block
-    %    clearblock - clear all block selections
-    %    blockintegral - perfom integrals over selected blocks
-    %    getprobleminfo - get information about the problem
-    %    getcircuitprops - get properties of a circuit
-    %    newcontour - create a new contour, discarding old
-    %    totalfieldenergy - calculates total field energy
-    %    totalfieldcoenergy - calculates total field coenergy
-    %    plotBfield - creates a plot of the flux density vector field
-    %    nummeshnodes - returns the number of nodes in the mesh
-    %    numelements - returns the number of elements in the mesh
-    %    getvertices - gets coordinates of mesh vertices
-    %    getelements - gets information about mesh elements
-    %    getcentroids - gets the centroids of mesh elements
-    %    getareas - gets the areas of mesh elements
-    %    getvolumes - gets the volumes of mesh elements
-    %    numgroupelements - gets the number of elements in groups
-    %    getgroupvertices - gets coordinates of mesh vertices in groups
-    %    getgroupelements - gets information about mesh elements in groups
-    %    getgroupcentroids - gets the centroids of mesh elements in groups
-    %    getgroupareas - gets the areas of mesh elements in groups
-    %    getgroupvolumes - gets the volumes of mesh elements in groups
-    %
+% fpproc   class for post-processing of mfemm solutions
+%
+% fpproc is a class wrapper for the FPProc_interface C++ class, which
+% offers access to the FPProc finite element post-processing functions
+%
+% Syntax
+%
+% fpproc()
+% fpproc(filename)
+%
+% Description
+%
+% fpproc() creates a new fpproc class without opening any solution file
+% for processing.
+%
+% fpproc(filename) creates a new fpproc class and attempts to load the
+% file in filename for processing.
+%
+%
+% fpproc Methods:
+%    opendocument - open a .ans solution document
+%    getpointvalues - get all solution outputs at points
+%    getb - get flux density values only at points
+%    geth - get magnetic field intensity values only at points
+%    geta - get magnetic vector potential values only at points
+%    smoothon - turn on B and H smoothing over mesh elements
+%    smoothoff - turn off B and H smoothing over mesh elements
+%    clearcontour - clear a contour
+%    addcontour - add one or more points to a contour
+%    lineintegral - perform a line integral along a contour
+%    selectblock - select a block
+%    groupselectblock - select blocks by group number
+%    selectallblocks - selects mfemmdeps.every block
+%    clearblock - clear all block selections
+%    blockintegral - perfom integrals over selected blocks
+%    gapintegral - get integral of quantity in air gap boundary region
+%    getprobleminfo - get information about the problem
+%    getcircuitprops - get properties of a circuit
+%    newcontour - create a new contour, discarding old
+%    totalfieldenergy - calculates total field energy
+%    totalfieldcoenergy - calculates total field coenergy
+%    plotBfield - creates a plot of the flux density vector field
+%    nummeshnodes - returns the number of nodes in the mesh
+%    numelements - returns the number of elements in the mesh
+%    getvertices - gets coordinates of mesh vertices
+%    getelements - gets information about mesh elements
+%    getcentroids - gets the centroids of mesh elements
+%    getareas - gets the areas of mesh elements
+%    getvolumes - gets the volumes of mesh elements
+%    numgroupelements - gets the number of elements in groups
+%    getgroupvertices - gets coordinates of mesh vertices in groups
+%    getgroupelements - gets information about mesh elements in groups
+%    getgroupcentroids - gets the centroids of mesh elements in groups
+%    getgroupareas - gets the areas of mesh elements in groups
+%    getgroupvolumes - gets the volumes of mesh elements in groups
+%    getgapb - 
+%    getgapa - 
+%    getgapharmonics - 
+%
     
 % Copyright 2012-2014 Richard Crozier
 % 
@@ -1239,6 +1243,121 @@ classdef fpproc < mfemmpproc
             end
         
         end
+        
+        function B = getgapb(this, bound_name, angles)
+            % Get the flux density values for air gap boundary at specified angles
+            %
+            % Syntax
+            %
+            % B = fpproc.getgapb(X, Y)
+            %
+            % Input
+            %
+            %   bound_name - name of the air gap boundary for which the
+            %    flux density is to be evaluated
+            %
+            %   angle - angle is  containinga set of angles along the
+            %    centerline of an air gap boundary region at which the flux
+            %    density is to be determined. Internally this will be
+            %    reshaped as angles(:) i.e. a column vector.
+            %
+            % Output
+            %
+            %   B - (n x 2) matrix containing the radial and tangential 
+            %    flux density at the requested angles in the specified air
+            %    gap region
+            %
+            %
+            
+            B = nan * ones (numel(angles), 2);
+            
+            for ind = 1:numel(angles)
+            
+                [Br, Bt] = fpproc_interface_mex('getgapb', this.objectHandle, bound_name, angles(ind));
+                
+                B(ind,1:2) = [Br, Bt];
+            
+            end
+            
+        end
+        
+        function B = getgapa(this, bound_name, angles)
+            % Get the vector potential values for air gap boundary at specified angles
+            %
+            % Syntax
+            %
+            % B = fpproc.getgapa(X, Y)
+            %
+            % Input
+            %
+            %   bound_name - name of the air gap boundary for which the
+            %    flux density is to be evaluated
+            %
+            %   angle - angle is  containinga set of angles along the
+            %    centerline of an air gap boundary region at which the flux
+            %    density is to be determined. Internally this will be
+            %    reshaped as angles(:) i.e. a column vector.
+            %
+            % Output
+            %
+            %   B - (n x 2) matrix containing the radial and tangential 
+            %    flux density at the requested angles in the specified air
+            %    gap region
+            %
+            %
+            
+            B = nan * ones (numel(angles), 2);
+            
+            for ind = 1:numel(angles)
+            
+                [Br, Bt] = fpproc_interface_mex('getgapa', this.objectHandle, bound_name, angles(ind));
+                
+                B(ind,1:2) = [Br, Bt];
+            
+            end
+            
+        end
+        
+        
+        function B = getgapharmonics(this, bound_name, angles)
+            % Get the vector potential values for air gap boundary at specified angles
+            %
+            % Syntax
+            %
+            % B = fpproc.getgapa(X, Y)
+            %
+            % Input
+            %
+            %   bound_name - name of the air gap boundary for which the
+            %    flux density is to be evaluated
+            %
+            %   angle - angle is  containinga set of angles along the
+            %    centerline of an air gap boundary region at which the flux
+            %    density is to be determined. Internally this will be
+            %    reshaped as angles(:) i.e. a column vector.
+            %
+            % Output
+            %
+            %   B - (n x 2) matrix containing the radial and tangential 
+            %    flux density at the requested angles in the specified air
+            %    gap region
+            %
+            %
+            
+%             
+%             B = nan * ones (numel(angles), 2);
+%             
+%             for ind = 1:numel(angles)
+%             
+%                 [Br, Bt] = fpproc_interface_mex('getgroupvolumes', this.objectHandle, bound_name, angles(ind));
+%                 
+%                 B(ind,1:2) = [Br, Bt];
+%             
+%             end
+%             
+        end
+        
+        
         
     end
     

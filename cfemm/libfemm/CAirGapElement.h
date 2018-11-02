@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace femmsolver {
 
@@ -65,11 +66,9 @@ public:
     double InnerShift;///< fraction of an element that inner mesh is shifted relative to annular mesh
     double OuterShift;///< fraction of an element that outer mesh is shifted relative to annular mesh
     CComplex agc; ///< centre of the air gap element
-    femm::CQuadPoint *node; ///< node numbers that are part of the air gap element
+    std::vector <femm::CQuadPoint> quadNode; ///< node numbers that are part of the air gap element (was called 'node' and also 'qp' in FEMM)
 
-    femm::CQuadPoint *qp; ///< mapping of mesh nodes onto an annular ring
-
-    int nn;
+    int nn; ///< number of harmonics in harmonic problem
     CComplex aco;
     CComplex *brc, *brs; ///< harmonic components of air gap centerline flux density
     CComplex *btc, *bts;

@@ -86,7 +86,12 @@ public:
      *  - \femm42{fkn/femmedoccore.cpp,CFemmeDocCore::LoadPrev()}
      * \endinternal
      */
-    bool loadPreviousSolution();
+    bool loadPreviousSolution(bool loadAprev);
+    //bool LoadMeshFromPrevSolution(bool loadAprev);
+    bool LoadMeshNodesFromSolution(bool loadA, FILE* fp);
+    bool LoadMeshElementsFromSolution(FILE* fp);
+    bool LoadPBCFromSolution(FILE* fp);
+    bool LoadAGEsFromSolution(FILE* fp);
     bool LoadProblemFile();
     int Static2D(CBigLinProb &L);
     int WriteStatic2D(CBigLinProb &L);

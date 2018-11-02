@@ -43,8 +43,8 @@ public:
     double x,y;
     double msk;
 
-    double GetDistance(double xo, double yo);
-    CComplex CC();
+    double GetDistance(const double xo, const double yo) const;
+    CComplex CC() const;
 
     /**
      * @brief Q boundary flag

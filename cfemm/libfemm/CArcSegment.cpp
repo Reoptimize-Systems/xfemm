@@ -25,7 +25,7 @@
         richard.crozier@yahoo.co.uk
         johannes@zarl-zierl.at
 
- Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  Mechatronics GmbH (LCM)
 */
 
@@ -47,5 +47,6 @@ CArcSegment::CArcSegment()
     : CSegment()
     , ArcLength(90.)
     , NormalDirection(true)
+    , mySideLength(1)
 {
 }

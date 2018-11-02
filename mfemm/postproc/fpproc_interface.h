@@ -28,6 +28,7 @@ public:
 	int groupselectblock(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 	int clearblock();
 	int blockintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 	int smoothon();
 	int smoothoff();
 	int getprobleminfo(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
@@ -45,6 +46,9 @@ public:
     int getgroupcentroids (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     int getgroupareas (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     int getgroupvolumes (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getgapb (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getgapa (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int getgapharmonics (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     
 // To be created
 //	int addcontour(lua_State * L);

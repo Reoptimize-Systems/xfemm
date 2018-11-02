@@ -476,6 +476,10 @@ public:
      */
     void undoLines();
     /**
+     * @brief Revert only arclist to the undo point.
+     */
+    void undoArcs();
+    /**
      * @brief Create an undo point.
      */
     void updateUndo();

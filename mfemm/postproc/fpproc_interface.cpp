@@ -12,9 +12,78 @@
 #include "mex.h"
 #include "fpproc.h"
 #include "fpproc_interface.h"
-
+#include "mexutils.h"
 
 using namespace std;
+using namespace mexutils;
+
+
+// return array of CComplex
+void mxSetLHS (const CComplex* const out, int argn, int size, const int nlhs, mxArray* plhs[])
+{
+    double *outpointerRe, *outpointerIm;
+    
+    // check the argument position is possible
+    mxnaroutgchk (nlhs, argn);
+  
+    // create the output matrix to hold the vector of numbers
+    plhs[argn-1] = mxCreateNumericMatrix(1, size, mxDOUBLE_CLASS, mxCOMPLEX);
+    
+    outpointerRe = mxGetPr(plhs[argn-1]);
+    outpointerIm = mxGetPi(plhs[argn-1]);
+    
+    if (outpointerRe && outpointerIm)
+    {
+        // copy the data
+        for (int i = 0; i < size; i++)
+        {
+            outpointerRe[i] = (out+i)->re;
+            outpointerIm[i] = (out+i)->im;
+        }
+    }
+    else
+    {
+        mexErrMsgIdAndTxt("MFEMM:fpproc:mxSetLHS",
+         "Unable to set output.");
+    }
+}
+
+// return a single CComplex
+void mxSetLHS (const CComplex out, int argn, const int nlhs, mxArray* plhs[])
+{
+    mxSetLHS (&out, argn, 1, nlhs, plhs);
+}
+
+// return std::vector of CComplex
+void mxSetLHS (const std::vector <CComplex> out, int argn, int size, const int nlhs, mxArray* plhs[])
+{
+    double *outpointerRe, *outpointerIm;
+    
+    // check the argument position is possible
+    mxnaroutgchk (nlhs, argn);
+  
+    // create the output matrix to hold the vector of numbers
+    plhs[argn-1] = mxCreateNumericMatrix(1, size, mxDOUBLE_CLASS, mxCOMPLEX);
+    
+    outpointerRe = mxGetPr(plhs[argn-1]);
+    outpointerIm = mxGetPi(plhs[argn-1]);
+
+    if (outpointerRe && outpointerIm)
+    {
+        // copy the data
+        for (int i = 0; i < size; i++)
+        {
+            outpointerRe[i] = out[i].re;
+            outpointerIm[i] = out[i].im;
+        }
+    }
+    else
+    {
+        mexErrMsgIdAndTxt("MFEMM:fpproc:mxSetLHS",
+         "Unable to set output.");
+    }
+}
+
 
 void FPProcInterfaceWarning(const char* warningmsg)
 {
@@ -752,6 +821,201 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
     }
 
     return 1;
+}
+
+
+int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    int type = -1;
+
+    double *ptype;
+    size_t mrows, ncols;
+
+    // check for proper number of arguments (note first two used are for  
+    // class handle args, real args follow this)
+    if(nrhs!=4)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
+                           "Two inputs required.");
+    }
+//     else if(nlhs != 1)
+//         mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+//                            "Wrong number of output arguments.");
+
+    // 1st 'real' input (3rd actual input) must be a string, the gap 
+    // boundary name (first two are used for the class interface) */
+    std::string myBdryName = mxnthargstring (nrhs, prhs, 1, 2);
+    
+    /*  get the integral type input */
+    type = (int) mxnthargscalar (nrhs, prhs, 2, 2);
+    
+    if((type<0) || (type>6))
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidinttype",
+                           "Invalid gap integral type selected: %d (should be between 0 and 6 inclusive)", type);
+        return 0;
+    }
+    
+    FPProcError result = FPProcError::NoError;
+
+    switch (type)
+    {
+        case 0:
+        {
+            if(nlhs != 1)
+            {
+                mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                                   "Wrong number of output arguments.");
+            }
+            
+            double tq = 0;
+
+            result = theFPProc.gapDCTorqueIntegral (myBdryName, tq);
+            
+            mxSetLHS (tq, 1, nlhs, plhs);
+            
+            break;
+        }    
+        case 1:
+        {    
+            if(nlhs != 2)
+            {
+                mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                                   "Wrong number of output arguments.");
+            }
+            
+            CComplex fx = 0;
+            CComplex fy = 0;
+
+            result = theFPProc.gapDCForceIntegral(myBdryName, fx, fy);
+            
+            mxSetLHS (fx, 1, nlhs, plhs);
+            mxSetLHS (fy, 2, nlhs, plhs);
+            
+            break;
+        }    
+        case 2:
+        {    
+            if(nlhs != 1)
+            {
+                mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                                   "Wrong number of output arguments.");
+            }
+            
+            CComplex W = 0;
+
+            result = theFPProc.gapTimeAvgStoredEnergyIntegral(myBdryName, W);
+            
+            mxSetLHS (W, 1, nlhs, plhs);
+            
+            break;
+        }    
+        case 3:
+        {    
+            if(nlhs != 1)
+            {
+                mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                                   "Wrong number of output arguments.");
+            }
+            
+            CComplex tq = 0;
+
+            result = theFPProc.gap2XTorqueIntegral(myBdryName, tq);
+            
+            mxSetLHS (tq, 1, nlhs, plhs);
+            
+            break;
+        }    
+        case 4:
+        {    
+            if(nlhs != 2)
+            {
+                mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                                   "Wrong number of output arguments.");
+            }
+            
+            CComplex fx = 0;
+            CComplex fy = 0;
+
+            result = theFPProc.gap2XForceIntegral(myBdryName, fx, fy);
+            
+            mxSetLHS (fx, 1, nlhs, plhs);
+            mxSetLHS (fy, 2, nlhs, plhs);
+            
+            break;
+        }    
+        case 5:
+        {    
+            if(nlhs != 1)
+            {
+                mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                                   "Wrong number of output arguments.");
+            }
+            
+            CComplex tq = 0;
+
+            result = theFPProc.gapIncrementalTorqueIntegral(myBdryName, tq);
+            
+            mxSetLHS (tq, 1, nlhs, plhs);
+            
+            break;
+        }    
+        case 6:
+        {    
+            if(nlhs != 2)
+            {
+                mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                                   "Wrong number of output arguments.");
+            }
+            
+            CComplex fx=0;
+            CComplex fy=0;
+
+            result = theFPProc.gapIncrementalForceIntegral(myBdryName, fx, fy);
+            
+            mxSetLHS (fx, 1, nlhs, plhs);
+            mxSetLHS (fy, 2, nlhs, plhs);
+            
+            break;
+        }   
+    }
+    
+    return 0;
+    
+//     switch (result)
+//     {
+//         case FPProcError::NoError :
+//             
+//             return 0;
+//             
+//         case AGENameNotFound :
+//             
+//             mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENameNotFound",
+//                            "Air gap boundary with name %s was not found", myBdryName);
+//             
+//         case AGENoHarmonics :
+//             
+//             mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENoHarmonics",
+//                            "Air gap boundary with name %s has no harmonics", type);
+//             
+//         case AGENegativeHarmonicRequested :
+//             
+//             mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENegativeHarmonicRequested",
+//                            "Invalid block integral type selected %d",type);
+//             
+//         case AGERequestedHarmonicTooLarge :
+//             
+//             mexErrMsgIdAndTxt( "MFEMM:fpproc:AGERequestedHarmonicTooLarge",
+//                            "Invalid block integral type selected %d",type);
+//             
+//         else
+//             
+//              mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidinttype",
+//                            "Invalid block integral type selected %d",type);
+//             
+//         
+//     }
+
 }
 
 
@@ -1585,6 +1849,121 @@ int FPProc_interface::getgroupvertices(int nlhs, mxArray *plhs[], int nrhs, cons
 
     return 0;
 }
+
+
+int FPProc_interface::getgapb (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    
+    // check for proper number of arguments (note first two used are for  
+    // class handle args, real args follow this)
+    if(nrhs!=4)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
+                           "Two inputs required.");
+    }
+    
+    if(nlhs != 2)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                           "Wrong number of output arguments.");
+    }
+
+    // 1st 'real' input (3rd actual input) must be a string, the gap 
+    // boundary name (first two are used for the class interface) */
+    std::string myBdryName = mxnthargstring (nrhs, prhs, 1, 2);
+    
+    /*  get the angle input */
+    double angle = mxnthargscalar (nrhs, prhs, 2, 2);
+    
+    CComplex br = 0;
+    CComplex bt = 0;
+            
+    theFPProc.getAGEflux(myBdryName, angle, br, bt);
+    
+    mxSetLHS (br, 1, nlhs, plhs);
+    mxSetLHS (bt, 2, nlhs, plhs);
+    
+    return 0;    
+    
+}
+
+int FPProc_interface::getgapa (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    // check for proper number of arguments (note first two used are for  
+    // class handle args, real args follow this)
+    if(nrhs!=4)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
+                           "Two inputs required.");
+    }
+    
+    if(nlhs != 1)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                           "Wrong number of output arguments.");
+    }
+
+    // 1st 'real' input (3rd actual input) must be a string, the gap 
+    // boundary name (first two are used for the class interface) */
+    std::string myBdryName = mxnthargstring (nrhs, prhs, 1, 2);
+    
+    /*  get the angle input */
+    double angle = mxnthargscalar (nrhs, prhs, 2, 2);
+    
+    CComplex ac = 0;
+    
+    theFPProc.getGapA(myBdryName, angle, ac);
+    
+    mxSetLHS (ac, 1, nlhs, plhs);
+    
+    return 0;  
+    
+}
+
+int FPProc_interface::getgapharmonics (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    // check for proper number of arguments (note first two used are for  
+    // class handle args, real args follow this)
+    if(nrhs!=4)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
+                           "Two inputs required.");
+    }
+    
+    if(nlhs != 6)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
+                           "Wrong number of output arguments.");
+    }
+
+    // 1st 'real' input (3rd actual input) must be a string, the gap 
+    // boundary name (first two are used for the class interface) */
+    std::string myBdryName = mxnthargstring (nrhs, prhs, 1, 2);
+    
+    /*  get the angle input */
+    int n = mxnthargscalar (nrhs, prhs, 2, 2);
+    
+    CComplex acc = 0;
+    CComplex acs = 0;
+    CComplex brc = 0;
+    CComplex brs = 0;
+    CComplex btc = 0;
+    CComplex bts = 0;
+    
+    theFPProc.getGapHarmonics(myBdryName,  n, acc, acs, brc, brs, btc, bts);
+    
+    mxSetLHS (acc, 1, nlhs, plhs);
+    mxSetLHS (acs, 1, nlhs, plhs);
+    mxSetLHS (brc, 1, nlhs, plhs);
+    mxSetLHS (brs, 1, nlhs, plhs);
+    mxSetLHS (btc, 1, nlhs, plhs);
+    mxSetLHS (bts, 1, nlhs, plhs);
+    
+    return 0;
+    
+}  
+    
+    
 
 
 ///////////////////////////////////////////////////////////////

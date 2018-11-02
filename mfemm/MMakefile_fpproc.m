@@ -5,6 +5,7 @@ function [rules,vars] = MMakefile_fpproc (varargin)
     options.DoCrossBuildWin64 = false;
     options.W64CrossBuildMexLibsDir = '';
     options.DebugSymbols = false;
+    options.ExtraMEXFLAGS = '';
 
     options = mmake.parse_pv_pairs (options, varargin);
 
@@ -22,7 +23,7 @@ function [rules,vars] = MMakefile_fpproc (varargin)
 
     % flags that will be passed direct to mex
     %vars.MEXFLAGS = '${MEXFLAGS} -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
-    vars.MEXFLAGS = '${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
+    vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"postproc" -I"../cfemm/fpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', options.ExtraMEXFLAGS];
     if isunix && ~mfemmdeps.isoctave ()
         if options.Debug
             vars.OPTIMFLAGS = '-OO';
@@ -61,6 +62,7 @@ function [rules,vars] = MMakefile_fpproc (varargin)
         'fpproc.cpp', ...
         'makemask.cpp', ...
         'CMPointVals.cpp', ...
+        'CPostProcMElement.cpp', ...
     };
 
     [ libluacomplex_objs,  libluacomplex_rules ] = ...
