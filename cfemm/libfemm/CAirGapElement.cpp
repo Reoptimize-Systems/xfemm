@@ -30,7 +30,7 @@ using femm::trim;
 
 femmsolver::CAirGapElement::~CAirGapElement()
 {
-	if (node!=NULL) free(node);
+
 }
 
 
@@ -44,7 +44,6 @@ femmsolver::CAirGapElement::CAirGapElement()
     , InnerAngle(0)
     , OuterAngle(0)
     , agc(0)
-    , node(NULL)
 {
 }
 

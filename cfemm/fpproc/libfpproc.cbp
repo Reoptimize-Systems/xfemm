@@ -40,12 +40,12 @@
 			<Add option="-lfemm" />
 			<Add directory="../libfemm" />
 		</Linker>
+		<Unit filename="CMPointVals.cpp" />
+		<Unit filename="CMPointVals.h" />
 		<Unit filename="CMakeLists.txt" />
 		<Unit filename="fpproc.cpp" />
 		<Unit filename="fpproc.h" />
 		<Unit filename="makemask.cpp" />
-		<Unit filename="problem.cpp" />
-		<Unit filename="problem.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

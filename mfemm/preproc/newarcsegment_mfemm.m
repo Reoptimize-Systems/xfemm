@@ -51,6 +51,7 @@ function ArcSegment = newarcsegment_mfemm(n0, n1, angle, varargin)
     ArcSegment.InGroup = 0;
     ArcSegment.BoundaryMarker = '';
     ArcSegment.InConductor = 0;
+    ArcSegment.MeshedSideLength = 1;
     
     % parse any options for the segment supplied by the user
     ArcSegment = mfemmdeps.parseoptions(ArcSegment, varargin);

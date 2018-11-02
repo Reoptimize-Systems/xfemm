@@ -2,13 +2,16 @@
 [Frequency]   =  0
 [Precision]   =  1e-010
 [MinAngle]    =  30
+[DoSmartMesh] =  1
 [Depth]       =  2
 [LengthUnits] =  centimeters
 [ProblemType] =  planar
 [Coordinates] =  cartesian
 [ACSolver]    =  0
+[PrevType]    =  0
+[PrevSoln]    =  ""
 [Comment]     =  "Add comments here."
-[PointProps]  =  1
+[PointProps]   = 1
   <BeginPoint>
     <PointName> = "New Point Property"
     <I_re> = 0
@@ -62,7 +65,7 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
-    <innerangle> = 0
+    <innerangle> = 45
     <outerangle> = 0
   <EndBdry>
 [BlockProps]  = 3
@@ -144,16 +147,16 @@
 7	8	-1	0	0	0
 8	5	-1	0	0	0
 [NumArcSegments] = 8
-0	1	180	1	1	0	0
-1	0	180	1	2	0	0
-2	3	180	1	1	0	0
-3	2	180	1	2	0	0
-9	11	180	5	3	0	0
-11	9	180	5	3	0	0
-10	12	180	5	3	0	0
-12	10	180	5	3	0	0
+0	1	180	1	1	0	0	1
+1	0	180	1	2	0	0	1
+2	3	180	1	1	0	0	1
+3	2	180	1	2	0	0	1
+9	11	180	5	3	0	0	3.7999999999999998
+11	9	180	5	3	0	0	3.7999999999999998
+10	12	180	5	3	0	0	3.7999999999999998
+12	10	180	5	3	0	0	3.7999999999999998
 [NumHoles] = 1
-0.48999999999999999 0.56000000000000005 0
+0.48999999999999999	0.56000000000000005	0
 [NumBlockLabels] = 4
 3.0699999999999998	0.14000000000000012	2	0.053000800000000001	0	180	0	1	0
 0.84999999999999998	0.40000000000000002	1	0.053000799480498066	0	0	0	1	0

@@ -452,7 +452,7 @@ CComplex CMMaterialProp::LaminatedBH(double w, int i)
     return mu;
 }
 
-CComplex CMMaterialProp::GetdHdB(double B)
+CComplex CMMaterialProp::GetdHdB(const double B) const
 {
     double b,z,l;
     CComplex h;
@@ -479,12 +479,12 @@ CComplex CMMaterialProp::GetdHdB(double B)
     return CComplex(0);
 }
 
-double CMMaterialProp::GetH(double x)
+double CMMaterialProp::GetH(const double x) const
 {
     return Re(GetH(CComplex(x)));
 }
 
-CComplex CMMaterialProp::GetH(CComplex x)
+CComplex CMMaterialProp::GetH(const CComplex x) const
 {
     double b,z,z2,l;
     CComplex p,h;
@@ -512,7 +512,7 @@ CComplex CMMaterialProp::GetH(CComplex x)
     return 0;
 }
 
-double CMMaterialProp::GetB(double hc)
+double CMMaterialProp::GetB(const double hc) const
 {
     if (BHpoints==0) return muo*mu_x*hc;
 
@@ -528,7 +528,7 @@ double CMMaterialProp::GetB(double hc)
 }
 
 // GetEnergy for the magnetostatic case
-double CMMaterialProp::GetEnergy(double x)
+double CMMaterialProp::GetEnergy(const double x) const
 {
     double b,z,z2,l,nrg;
     double b0,b1,h0,h1,dh0,dh1;
@@ -581,12 +581,12 @@ double CMMaterialProp::GetEnergy(double x)
     return nrg;
 }
 
-double CMMaterialProp::GetCoEnergy(double b)
+double CMMaterialProp::GetCoEnergy(const double b) const
 {
     return (fabs(b)*GetH(b) - GetEnergy(b));
 }
 
-double CMMaterialProp::DoEnergy(double b1, double b2)
+double CMMaterialProp::DoEnergy(const double b1, const double b2) const
 {
     // calls the raw routine to get point energy,
     // but deals with the load of special cases that
@@ -644,7 +644,7 @@ double CMMaterialProp::DoEnergy(double b1, double b2)
     return nrg;
 }
 
-double CMMaterialProp::DoCoEnergy(double b1, double b2)
+double CMMaterialProp::DoCoEnergy(const double b1, const double b2) const
 {
     double nrg,biron,bair;
     nrg=biron=bair = 0;
@@ -671,7 +671,7 @@ double CMMaterialProp::DoCoEnergy(double b1, double b2)
 }
 
 
-double CMMaterialProp::DoEnergy(CComplex b1, CComplex b2)
+double CMMaterialProp::DoEnergy(const CComplex b1, const CComplex b2) const
 {
     // This one is meant for the frequency!=0 case.
     // Fortunately, there's not so much effort in this case.
@@ -684,7 +684,7 @@ double CMMaterialProp::DoEnergy(CComplex b1, CComplex b2)
 
 }
 
-double CMMaterialProp::DoCoEnergy(CComplex b1, CComplex b2)
+double CMMaterialProp::DoCoEnergy(const CComplex b1, const CComplex b2) const
 {
     return DoEnergy(b1,b2);
 }
@@ -713,8 +713,8 @@ void CMMaterialProp::toStream(ostream &) const
     assert(false && "CMMaterialProp::toStream() should never be called. Did you mean to call CMSolverMaterialProp::toStream()?");
 }
 
-void CMMaterialProp::GetMu(CComplex b1, CComplex b2,
-                          CComplex &mu1, CComplex &mu2)
+void CMMaterialProp::GetMu(const CComplex b1, const CComplex b2,
+                           CComplex &mu1, CComplex &mu2) const
 {
     // gets the permeability, given a flux density
     // version for frequency!=0
@@ -766,7 +766,7 @@ void CMMaterialProp::GetMu(CComplex b1, CComplex b2,
 }
 
 
-void CMMaterialProp::GetMu(double b1, double b2, double &mu1, double &mu2)
+void CMMaterialProp::GetMu(const double b1, const double b2, double &mu1, double &mu2) const
 {
     // gets the permeability, given a flux density
     //

@@ -37,6 +37,7 @@ public:
     CComplex A;            // vector potential
     CComplex B1,B2;        // flux density
     CComplex mu1,mu2;    // permeability
+    CComplex mu12;       // incremental permeability
     CComplex H1,H2;        // field intensity
     CComplex Je,Js;        // eddy current and source current densities
     CComplex Hc;        // Magnetization for regions with a PM.

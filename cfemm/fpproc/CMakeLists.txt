@@ -1,7 +1,8 @@
-add_library(fpproc STATIC 
+add_library(fpproc STATIC
     fpproc.cpp
     makemask.cpp
     CMPointVals.cpp
+    CPostProcMElement.cpp
     )
 target_include_directories(fpproc PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>)
 target_link_libraries(fpproc PUBLIC femm)

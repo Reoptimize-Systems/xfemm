@@ -109,6 +109,8 @@ FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshEleme
     // point to the PrintWarningMsg function
     WarnMessage = &PrintWarningMsg;
     PrintMessage = &PrintWarningMsg;
+
+    meshLoadedFromPrevSolution = false;
 }
 
 template< class PointPropT

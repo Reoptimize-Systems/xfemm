@@ -87,24 +87,24 @@ public:
     virtual void GetSlopes(double omega=0.);
     virtual CComplex LaminatedBH(double w, int i);
 
-    double GetH(double b);
-    CComplex GetH(CComplex b);            // ``raw'' results
-    virtual CComplex GetdHdB(double B);
-    double GetB(double h);
+    double GetH(const double b) const;
+    CComplex GetH(const CComplex b) const;            // ``raw'' results
+    virtual CComplex GetdHdB(const double B) const;
+    double GetB(const double h) const;
 
-    void GetMu(double b1,double b2,double &mu1, double &mu2);
-    void GetMu(CComplex b1,CComplex b2,CComplex &mu1, CComplex &mu2);
-    double GetEnergy(double b);        // straight from the
-    double GetCoEnergy(double b);    // BH curve data
+    void GetMu(const double b1, const double b2, double &mu1, double &mu2) const;
+    void GetMu(const CComplex b1, const CComplex b2, CComplex &mu1, CComplex &mu2) const;
+    double GetEnergy(const double b) const;        // straight from the
+    double GetCoEnergy(const double b) const;    // BH curve data
 
     // routines that are actually called to get
     // energy and coenergy.  These catch and take
     // care of all of the weird special cases
     // that arise with laminated materials.
-    double DoEnergy(double bx, double by);
-    double DoCoEnergy(double bx, double by);
-    double DoEnergy(CComplex bx, CComplex by);
-    double DoCoEnergy(CComplex b1, CComplex b2);
+    double DoEnergy(const double bx, const double by) const;
+    double DoCoEnergy(const double bx, const double by) const;
+    double DoEnergy(const CComplex bx, const CComplex by) const;
+    double DoCoEnergy(const CComplex b1, const CComplex b2) const;
 
     double mu_x,mu_y;       // permeabilities, relative
     int BHpoints;           // number of points in the BH curve...

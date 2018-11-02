@@ -202,12 +202,15 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
     output << "[NumArcSegments] = " << arclist.size() <<"\n";
     for (const auto &arc: arclist)
     {
-        // n0 n1 ArcLength MaxSideLength BoundaryMarker Hidden Group [InConductor]
-        output << arc->n0 << "\t" << arc->n1
-            << "\t" << arc->ArcLength << "\t" << arc->MaxSideLength
-            << "\t" << arc->BoundaryMarker+1
-            << "\t" << (int)arc->Hidden
-            << "\t" << arc->InGroup;
+        // n0 n1 ArcLength MaxSideLength BoundaryMarker Hidden Group [InConductor|MeshedSideLength]
+        output << arc->n0
+               << "\t" << arc->n1
+               << "\t" << arc->ArcLength
+               << "\t" << arc->MaxSideLength
+               << "\t" << arc->BoundaryMarker+1
+               << "\t" << (int)arc->Hidden
+               << "\t" << arc->InGroup
+               << "\t" << arc->mySideLength;
 
 
         if ( filetype == FileType::HeatFlowFile ||
@@ -2264,6 +2267,15 @@ void femm::FemmProblem::undoLines()
 {
     for(int i=0; i<(int)undolinelist.size(); i++)
         linelist[i].swap(undolinelist[i]);
+}
+
+void femm::FemmProblem::undoArcs()
+{
+	for(int i=0;i<arclist.size();i++)
+	{
+		arclist[i]->mySideLength=arclist[i]->MaxSideLength;
+		arclist[i]->MaxSideLength=undoarclist[i]->MaxSideLength;
+	}
 }
 
 void femm::FemmProblem::updateUndo()

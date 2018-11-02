@@ -79,7 +79,7 @@ public:
     std::string BoundaryMarkerName;
     std::string InConductorName; ///< The name of a conductor, or the special value "<None>".
 
-    double GetDistance(double xo, double yo);
+    double GetDistance(const double xo, const double yo) const;
     /**
      * @brief CC
      * @return the coordinates as a complex number

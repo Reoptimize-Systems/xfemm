@@ -76,11 +76,20 @@ CMBoundaryProp::CMBoundaryProp()
 bool CMBoundaryProp::isPeriodic(PeriodicityType pt) const
 {
     if (pt==PeriodicityType::Any || pt==PeriodicityType::Periodic)
-        if (BdryFormat==4)
+    {
+        if (BdryFormat==4 || BdryFormat==6)
+        {
             return true;
+        }
+    }
+
     if (pt==PeriodicityType::Any || pt==PeriodicityType::AntiPeriodic)
-        if (BdryFormat==5)
+    {
+        if (BdryFormat==5 || BdryFormat==7)
+        {
             return true;
+        }
+    }
     return false;
 }
 

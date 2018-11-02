@@ -25,7 +25,7 @@
         richard.crozier@yahoo.co.uk
         johannes@zarl-zierl.at
 
- Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  Mechatronics GmbH (LCM)
 */
 
@@ -52,6 +52,8 @@ namespace femm {
  * int   - hide in postprocessor
  * int   - number of group
  * \endverbatim
+ *
+ * However, in addition there is a currently undocumented extra value
  */
 class CArcSegment : public CSegment
 {
@@ -60,6 +62,8 @@ public:
 
     double ArcLength; ///< arc angle [deg]
     bool NormalDirection; ///< mesher-specific property
+    double mySideLength; ///< actual meshed length (used in FEMM for visualisation)
+
 private:
 
 };

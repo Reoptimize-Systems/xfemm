@@ -313,54 +313,54 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
             {
                 // inner nodes
                 if ((k-1)<0){
-                    nn[0]=agelist[i].node[agelist[i].totalArcElements-1].n0;
-                    ww[0]=agelist[i].node[agelist[i].totalArcElements-1].w0;
+                    nn[0]=agelist[i].quadNode[agelist[i].totalArcElements-1].n0;
+                    ww[0]=agelist[i].quadNode[agelist[i].totalArcElements-1].w0;
                 }
                 else{
-                    nn[0]=agelist[i].node[k-1].n0;
-                    ww[0]=agelist[i].node[k-1].w0;
+                    nn[0]=agelist[i].quadNode[k-1].n0;
+                    ww[0]=agelist[i].quadNode[k-1].w0;
                 }
 
-                nn[1]=agelist[i].node[k].n0;
-                nn[2]=agelist[i].node[k].n1;
-                nn[3]=agelist[i].node[k+1].n1;
-                ww[1]=agelist[i].node[k].w0;
-                ww[2]=agelist[i].node[k].w1;
-                ww[3]=agelist[i].node[k+1].w1;
+                nn[1]=agelist[i].quadNode[k].n0;
+                nn[2]=agelist[i].quadNode[k].n1;
+                nn[3]=agelist[i].quadNode[k+1].n1;
+                ww[1]=agelist[i].quadNode[k].w0;
+                ww[2]=agelist[i].quadNode[k].w1;
+                ww[3]=agelist[i].quadNode[k+1].w1;
 
                 if((k+2)>agelist[i].totalArcElements){
-                    nn[4]=agelist[i].node[1].n1;
-                    ww[4]=agelist[i].node[1].w1;
+                    nn[4]=agelist[i].quadNode[1].n1;
+                    ww[4]=agelist[i].quadNode[1].w1;
                 }
                 else{
-                    nn[4]=agelist[i].node[k+2].n1;
-                    ww[4]=agelist[i].node[k+2].w1;
+                    nn[4]=agelist[i].quadNode[k+2].n1;
+                    ww[4]=agelist[i].quadNode[k+2].w1;
                 }
 
                 // outer nodes
                 if ((k-1)<0){
-                    nn[5]=agelist[i].node[agelist[i].totalArcElements-1].n2;
-                    ww[5]=agelist[i].node[agelist[i].totalArcElements-1].w2;
+                    nn[5]=agelist[i].quadNode[agelist[i].totalArcElements-1].n2;
+                    ww[5]=agelist[i].quadNode[agelist[i].totalArcElements-1].w2;
                 }
                 else{
-                    nn[5]=agelist[i].node[k-1].n2;
-                    ww[5]=agelist[i].node[k-1].w2;
+                    nn[5]=agelist[i].quadNode[k-1].n2;
+                    ww[5]=agelist[i].quadNode[k-1].w2;
                 }
 
-                nn[6]=agelist[i].node[k].n2;
-                nn[7]=agelist[i].node[k].n3;
-                nn[8]=agelist[i].node[k+1].n3;
-                ww[6]=agelist[i].node[k].w2;
-                ww[7]=agelist[i].node[k].w3;
-                ww[8]=agelist[i].node[k+1].w3;
+                nn[6]=agelist[i].quadNode[k].n2;
+                nn[7]=agelist[i].quadNode[k].n3;
+                nn[8]=agelist[i].quadNode[k+1].n3;
+                ww[6]=agelist[i].quadNode[k].w2;
+                ww[7]=agelist[i].quadNode[k].w3;
+                ww[8]=agelist[i].quadNode[k+1].w3;
 
                 if((k+2)>agelist[i].totalArcElements){
-                    nn[9]=agelist[i].node[1].n3;
-                    ww[9]=agelist[i].node[1].w3;
+                    nn[9]=agelist[i].quadNode[1].n3;
+                    ww[9]=agelist[i].quadNode[1].w3;
                 }
                 else{
-                    nn[9]=agelist[i].node[k+2].n3;
-                    ww[9]=agelist[i].node[k+2].w3;
+                    nn[9]=agelist[i].quadNode[k+2].n3;
+                    ww[9]=agelist[i].quadNode[k+2].w3;
                 }
 
                 // fix antiperiodic weights...
@@ -1027,14 +1027,14 @@ int FSolver::WriteHarmonic2D(CBigComplexLinProb &L)
 		for(k=0;k<=agelist[i].totalArcElements;k++)
         {
 			fprintf( fp,"%i %.17g %i %.17g %i %.17g %i %.17g\n",
-                     agelist[i].node[k].n0,
-                     agelist[i].node[k].w0,
-                     agelist[i].node[k].n1,
-                     agelist[i].node[k].w1,
-                     agelist[i].node[k].n2,
-                     agelist[i].node[k].w2,
-                     agelist[i].node[k].n3,
-                     agelist[i].node[k].w3 );
+                     agelist[i].quadNode[k].n0,
+                     agelist[i].quadNode[k].w0,
+                     agelist[i].quadNode[k].n1,
+                     agelist[i].quadNode[k].w1,
+                     agelist[i].quadNode[k].n2,
+                     agelist[i].quadNode[k].w2,
+                     agelist[i].quadNode[k].n3,
+                     agelist[i].quadNode[k].w3 );
 		}
 	}
 

@@ -32,6 +32,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cmath>
+#include <regex>
 #include "femmcomplex.h"
 #include "femmconstants.h"
 #include "fparse.h"
@@ -59,6 +60,7 @@ static char THIS_FILE[] = __FILE__;
 
 //using namespace std;
 using namespace femm;
+using namespace femmsolver;
 
 // FPProc construction/destruction
 
@@ -88,10 +90,14 @@ FPProc::FPProc()
     A_lb = 0.;
     A_ub = 0.;
     extRo = extRi = extZo = 0;
+    NumAirGapElems = 0;
+    PrevSoln = "";
+    PrevType = 0;
     Smooth = true;
     NumList = NULL;
     ConList = NULL;
     bHasMask = false;
+    bIncremental = false;
     LengthConv = (double *)calloc(6,sizeof(double));
     LengthConv[0] = 0.0254;   //inches
     LengthConv[1] = 0.001;    //millimeters
@@ -153,16 +159,31 @@ void FPProc::ClearDocument()
         NumList = NULL;
     }
     nodelist.clear();
+    nodelist.shrink_to_fit();
     linelist.clear();
+    linelist.shrink_to_fit();
     blocklist.clear();
+    blocklist.shrink_to_fit();
     arclist.clear();
+    arclist.shrink_to_fit();
     nodeproplist.clear();
+    nodeproplist.shrink_to_fit();
     lineproplist.clear();
+    lineproplist.shrink_to_fit();
     blockproplist.clear();
+    blockproplist.shrink_to_fit();
     circproplist.clear();
+    circproplist.shrink_to_fit();
     meshnode.clear();
+    meshnode.shrink_to_fit();
     meshelem.clear();
+    meshelem.shrink_to_fit();
     contour.clear();
+    contour.shrink_to_fit();
+    agelist.clear();
+    agelist.shrink_to_fit();
+    Aprev.clear();
+    Aprev.shrink_to_fit();
 
 }
 
@@ -210,7 +231,7 @@ bool FPProc::OpenDocument(string pathname)
     CNode         node;
     CSegment      segm;
     CArcSegment   asegm;
-    femmsolver::CMElement      elm;
+    femmpostproc::CPostProcMElement      elm;
     CMBlockLabel   blk;
     femmsolver::CMMeshNode     mnode;
     //CPoint        mline;
@@ -357,6 +378,50 @@ bool FPProc::OpenDocument(string pathname)
             sscanf(v,"%lf",&extRi);
             q[0] = '\0';
         }
+
+		// name of previous solution file for AC incremental permeability solution
+        // Previous Solution File
+        if( _strnicmp(q,"[prevsoln]",10)==0){
+			int i;
+            v=StripKey(s);
+
+            // have to do this carefully to accept a filename with spaces
+            k=(int) strlen(v);
+            for(i=0;i<k;i++)
+                if(v[i]=='\"'){
+                    v=v+i+1;
+                    i=k;
+                }
+
+            k=(int) strlen(v);
+            if(k>0) for(i=k-1;i>=0;i--){
+                if(v[i]=='\"'){
+                    v[i]=0;
+                    i=-1;
+                }
+            }
+
+            PrevSoln=v;
+			if(!PrevSoln.empty ())
+            {
+                // prevType can be 0, 1 or 2, 1 or 2 will evaluate to true
+                bIncremental = PrevType;
+            }
+			else
+            {
+                bIncremental=true;
+            }
+            q[0]= '\0';
+        }
+
+		if (_strnicmp(q, "[prevtype]", 10) == 0) {
+			v = StripKey(s);
+			sscanf(v, "%i", &PrevType);
+			q[0] = '\0';
+			// 0 == None
+			// 1 == Incremental
+			// 2 == Frozen
+		}
 
         // Point Properties
         if( _strnicmp(q,"<beginpoint>",11)==0)
@@ -698,6 +763,10 @@ bool FPProc::OpenDocument(string pathname)
             {
                 //MProp.Hdata = (CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
                 //MProp.Bdata =   (double *)calloc(MProp.BHpoints,sizeof(double));
+                MProp.Bdata.clear();
+                MProp.Bdata.shrink_to_fit();
+                MProp.Hdata.clear();
+                MProp.Hdata.shrink_to_fit();
                 MProp.Hdata.reserve(MProp.BHpoints);
                 MProp.Bdata.reserve(MProp.BHpoints);
                 for(j=0; j<MProp.BHpoints; j++)
@@ -715,18 +784,49 @@ bool FPProc::OpenDocument(string pathname)
 
         if( _strnicmp(q,"<endblock>",9)==0)
         {
-            if (MProp.BHpoints>0)
-            {
+
+            if (bIncremental){
+                // first time through was just to get MuMax from AC curve...
+                CComplex *tmpHdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
+                double *tmpBdata=(double *)calloc(MProp.BHpoints,sizeof(double));
+                for(i=0;i<MProp.BHpoints;i++)
+                {
+                    tmpHdata[i]=MProp.Hdata[i];
+                    tmpBdata[i]=MProp.Bdata[i];
+                }
                 MProp.GetSlopes(Frequency*2.*PI);
+                for(i=0;i<MProp.BHpoints;i++)
+                {
+                    MProp.Hdata[i]=tmpHdata[i];
+                    MProp.Bdata[i]=tmpBdata[i];
+                }
+                free(tmpHdata);
+                free(tmpBdata);
+                MProp.slope.clear ();
+                MProp.slope.shrink_to_fit();
+
+                // set a flag for DC incremental permeability problems
+                if ((bIncremental == true) && (Frequency==0)) MProp.MuMax = 1;
+
+                // second time through is to get the DC curve
+                MProp.GetSlopes(0);
             }
+            else{
+                MProp.GetSlopes(Frequency*2.*PI);
+                MProp.MuMax=0; // this is the hint to the materials prop that this is _not_ incremental
+            }
+
 
             blockproplist.push_back(MProp);
 
             // reinitialise the material property, and free allocated memory
             MProp.BHpoints=0;
             MProp.Bdata.clear();
+            MProp.Bdata.shrink_to_fit();
             MProp.Hdata.clear();
+            MProp.Hdata.shrink_to_fit();
             MProp.slope.clear();
+            MProp.slope.shrink_to_fit();
             q[0] = '\0';
         }
 
@@ -974,37 +1074,84 @@ bool FPProc::OpenDocument(string pathname)
         {
             if (Frequency!=0)
             {
-                sscnt = sscanf(s,"%lf\t%lf\t%lf\t%lf",
-                               &mnode.x,
-                               &mnode.y,
-                               &mnode.A.re,
-                               &mnode.A.im) ;
-
-                if (sscnt != 4)
+                if (!bIncremental)
                 {
-                    std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
-                            + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
-                    WarnMessage(msg.c_str()); /* Error */
-                    fclose(fp);
-                    return false;
+                    sscnt = sscanf(s,"%lf\t%lf\t%lf\t%lf",
+                                   &mnode.x,
+                                   &mnode.y,
+                                   &mnode.A.re,
+                                   &mnode.A.im) ;
+
+                    if (sscnt != 4)
+                    {
+                        std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                                + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                        WarnMessage(msg.c_str()); /* Error */
+                        fclose(fp);
+                        return false;
+                    }
+                }
+                else
+                {
+                    int bc;
+                    double tmpAprev = 0;
+
+                    sscanf(s,"%lf	%lf	%lf	%lf	%i	%lf",&mnode.x,&mnode.y,&mnode.A.re,&mnode.A.im,&bc,&tmpAprev);
+
+                    Aprev.push_back(tmpAprev);
+
+                    if (sscnt != 6)
+                    {
+                        std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                                + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                        WarnMessage(msg.c_str()); /* Error */
+                        fclose(fp);
+                        return false;
+                    }
                 }
             }
             else
             {
-                sscnt = sscanf(s,"%lf\t%lf\t%lf",&mnode.x,&mnode.y,&mnode.A.re);
-                mnode.A.im=0;
-
-                if (sscnt != 3)
+                if (!bIncremental)
                 {
-                    std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
-                            + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
-                    WarnMessage(msg.c_str()); /* Error */
-#ifdef DEBUG_FPPROC
-                    printf("s: %s\n", s);
-#endif // DEBUG_FPPROC
-                    fclose(fp);
-                    return false;
+                    sscnt = sscanf(s,"%lf\t%lf\t%lf",&mnode.x,&mnode.y,&mnode.A.re);
+
+
+                    if (sscnt != 3)
+                    {
+                        std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                                + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                        WarnMessage(msg.c_str()); /* Error */
+    #ifdef DEBUG_FPPROC
+                        printf("s: %s\n", s);
+    #endif // DEBUG_FPPROC
+                        fclose(fp);
+                        return false;
+                    }
                 }
+                else
+                {
+                    int bc;
+                    double tmpAprev = 0;
+
+                    sscanf(s, "%lf\t%lf\t%lf\t%i\t%lf", &mnode.x, &mnode.y, &mnode.A.re, &bc, &tmpAprev);
+
+                    Aprev.push_back(tmpAprev);
+
+                    if (sscnt != 5)
+                    {
+                        std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                                + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                        WarnMessage(msg.c_str()); /* Error */
+    #ifdef DEBUG_FPPROC
+                        printf("s: %s\n", s);
+    #endif // DEBUG_FPPROC
+                        fclose(fp);
+                        return false;
+                    }
+
+                }
+                mnode.A.im=0;
             }
             meshnode[i] = mnode;
         }
@@ -1030,18 +1177,38 @@ bool FPProc::OpenDocument(string pathname)
     {
         if ( fgets(s,1024,fp) != NULL )
         {
-            sscnt = sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
-#ifdef DEBUG_FPPROC
-            printf("s: %s\n", s);
-            //getchar();
-#endif // DEBUG_FPPROC
-            if (sscnt != 4)
+            if (!bIncremental)
             {
-                std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
-                        + std::to_string(sscnt) + ") for element " + std::to_string(i) + ".\n";
-                WarnMessage(msg.c_str()); /* Error */
-                fclose(fp);
-                return false;
+                sscnt = sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
+#ifdef DEBUG_FPPROC
+                printf("s: %s\n", s);
+                //getchar();
+#endif // DEBUG_FPPROC
+                if (sscnt != 4)
+                {
+                    std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                            + std::to_string(sscnt) + ") for element " + std::to_string(i) + ".\n";
+                    WarnMessage(msg.c_str()); /* Error */
+                    fclose(fp);
+                    return false;
+                }
+            }
+            else
+            {
+                sscanf(s,"%i	%i	%i	%i	%lf",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl,&elm.Jprev);
+
+#ifdef DEBUG_FPPROC
+                printf("s: %s\n", s);
+                //getchar();
+#endif // DEBUG_FPPROC
+                if (sscnt != 5)
+                {
+                    std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
+                            + std::to_string(sscnt) + ") for element " + std::to_string(i) + ".\n";
+                    WarnMessage(msg.c_str()); /* Error */
+                    fclose(fp);
+                    return false;
+                }
             }
 
             elm.blk=blocklist[elm.lbl].BlockType;
@@ -1080,7 +1247,292 @@ bool FPProc::OpenDocument(string pathname)
         }
     }
 
-    fclose(fp);
+	// fpproc doesn't actively use PBC data, but it needs to read it to get to the
+	// air gap element data beyond
+	if (fgets(s,1024,fp)!=NULL)
+	{
+		sscanf(s,"%i",&k);
+		for(i=0;i<k;i++)
+			fgets(s,1024,fp);
+	}
+
+	// Read in Air Gap Element information
+	fgets(s,1024,fp); sscanf(s,"%i",&k);
+	for(i=0;i<k;i++){
+		CAirGapElement age;
+
+		fgets(s,1024,fp);
+		age.BdryName = std::string(s);
+		age.BdryName = std::regex_replace (age.BdryName, std::regex("\""), "");
+		age.BdryName = std::regex_replace (age.BdryName, std::regex("\n"), "");
+		fgets(s,1024,fp);
+		sscanf(s,"%i %lf %lf %lf %lf %lf %lf %lf %i %lf %lf",
+			&age.BdryFormat,&age.InnerAngle,&age.OuterAngle,
+			&age.ri,&age.ro,&age.totalArcLength,
+			&age.agc.re,&age.agc.im,&age.totalArcElements,
+			&age.InnerShift,&age.OuterShift);
+
+		age.ri*=LengthConv[LengthUnits];
+		age.ro*=LengthConv[LengthUnits];
+
+		// allocate space
+		if (age.totalArcElements>0)
+		{
+			j = age.totalArcElements+1;
+
+			age.quadNode.clear ();
+			age.quadNode.shrink_to_fit ();
+			age.quadNode.reserve (j);
+
+			//age.quadNode=(CQuadPoint *)calloc(j,sizeof(CQuadPoint));		// list of nodes on inner radius
+		}
+
+		for(j=0;j<=age.totalArcElements;j++)
+        {
+			CQuadPoint q;
+
+			fgets(s,1024,fp);
+			sscanf(s,"%i %lf %i %lf %i %lf %i %lf",
+				&q.n0, &q.w0,
+				&q.n1, &q.w1,
+				&q.n2, &q.w2,
+				&q.n3, &q.w3);
+			age.quadNode.push_back(q);
+		}
+
+		if (age.totalArcElements>0)
+        {
+            agelist.push_back (age);
+        }
+	}
+
+	fclose(fp);
+
+	// figure out amplitudes of harmonics for AGE boundary conditions
+	for (i=0;i<agelist.size();i++)
+	{
+		int m;
+		double tta,R,dr,ri,ro,n,dt;
+		CComplex brc,brs,btc,bts;
+		double brcPrev,brsPrev,btcPrev,btsPrev;
+
+		R=(agelist[i].ri + agelist[i].ro)/2.;
+		dr=(agelist[i].ro - agelist[i].ri);
+		ri=agelist[i].ri/R;
+		ro=agelist[i].ro/R;
+		dt=(PI/180.)*agelist[i].totalArcLength/((double) agelist[i].totalArcElements);
+
+		if (agelist[i].BdryFormat==0)
+		{
+			agelist[i].nn=(agelist[i].totalArcElements/2)+1; // periodic AGE
+			m = (int) round(360./agelist[i].totalArcLength);
+		}
+		else
+		{
+			agelist[i].nn=(agelist[i].totalArcElements+1)/2; // antiperiodic AGE
+			m = (int) round(180./agelist[i].totalArcLength);
+		}
+
+		// for present solution
+		agelist[i].brc=(CComplex *)calloc(agelist[i].nn,sizeof(CComplex));
+		agelist[i].brs=(CComplex *)calloc(agelist[i].nn,sizeof(CComplex));
+		agelist[i].btc=(CComplex *)calloc(agelist[i].nn,sizeof(CComplex));
+		agelist[i].bts=(CComplex *)calloc(agelist[i].nn,sizeof(CComplex));
+		agelist[i].br=(CComplex *)calloc(agelist[i].totalArcElements,sizeof(CComplex));
+		agelist[i].bt=(CComplex *)calloc(agelist[i].totalArcElements,sizeof(CComplex));
+		agelist[i].nh=(int *)calloc(agelist[i].nn,sizeof(int));
+
+		// for previous solution;
+		if (!bIncremental)
+		{
+			agelist[i].brcPrev=NULL;
+			agelist[i].brsPrev=NULL;
+			agelist[i].btcPrev=NULL;
+			agelist[i].btsPrev=NULL;
+			agelist[i].brPrev=NULL;
+			agelist[i].btPrev=NULL;
+		}
+		else{
+			agelist[i].brcPrev=(double *)calloc(agelist[i].nn,sizeof(double));
+			agelist[i].brsPrev=(double *)calloc(agelist[i].nn,sizeof(double));
+			agelist[i].btcPrev=(double *)calloc(agelist[i].nn,sizeof(double));
+			agelist[i].btsPrev=(double *)calloc(agelist[i].nn,sizeof(double));
+			agelist[i].brPrev=(double *)calloc(agelist[i].totalArcElements,sizeof(double));
+			agelist[i].btPrev=(double *)calloc(agelist[i].totalArcElements,sizeof(double));
+		}
+
+		// compute A and B at center of each gap element
+		agelist[i].aco=0;
+		for(k=0;k<agelist[i].totalArcElements;k++)
+		{
+			int nn[10];
+			double ww[10];
+			int kk;
+			CComplex a[10];
+			CComplex ac;
+
+			double ci=agelist[i].InnerShift;
+			double co=agelist[i].OuterShift;
+
+
+			// inner nodes
+			if ((k-1)<0){
+				nn[0]=agelist[i].quadNode[agelist[i].totalArcElements-1].n0;
+				ww[0]=agelist[i].quadNode[agelist[i].totalArcElements-1].w0;
+			}
+			else{
+				nn[0]=agelist[i].quadNode[k-1].n0;
+				ww[0]=agelist[i].quadNode[k-1].w0;
+			}
+
+			nn[1]=agelist[i].quadNode[k].n0;
+			nn[2]=agelist[i].quadNode[k].n1;
+			nn[3]=agelist[i].quadNode[k+1].n1;
+			ww[1]=agelist[i].quadNode[k].w0;
+			ww[2]=agelist[i].quadNode[k].w1;
+			ww[3]=agelist[i].quadNode[k+1].w1;
+
+			if((k+2)>agelist[i].totalArcElements){
+				nn[4]=agelist[i].quadNode[1].n1;
+				ww[4]=agelist[i].quadNode[1].w1;
+			}
+			else{
+				nn[4]=agelist[i].quadNode[k+2].n1;
+				ww[4]=agelist[i].quadNode[k+2].w1;
+			}
+
+			// outer nodes
+			if ((k-1)<0){
+				nn[5]=agelist[i].quadNode[agelist[i].totalArcElements-1].n2;
+				ww[5]=agelist[i].quadNode[agelist[i].totalArcElements-1].w2;
+			}
+			else{
+				nn[5]=agelist[i].quadNode[k-1].n2;
+				ww[5]=agelist[i].quadNode[k-1].w2;
+			}
+
+			nn[6]=agelist[i].quadNode[k].n2;
+			nn[7]=agelist[i].quadNode[k].n3;
+			nn[8]=agelist[i].quadNode[k+1].n3;
+			ww[6]=agelist[i].quadNode[k].w2;
+			ww[7]=agelist[i].quadNode[k].w3;
+			ww[8]=agelist[i].quadNode[k+1].w3;
+
+			if((k+2)>agelist[i].totalArcElements){
+				nn[9]=agelist[i].quadNode[1].n3;
+				ww[9]=agelist[i].quadNode[1].w3;
+			}
+			else{
+				nn[9]=agelist[i].quadNode[k+2].n3;
+				ww[9]=agelist[i].quadNode[k+2].w3;
+			}
+
+			// fix antiperiodic weights...
+			if ((k==0) && (agelist[i].BdryFormat==1))
+			{
+				ww[0]=-ww[0];
+				ww[5]=-ww[5];
+			}
+			if (((k+1)==agelist[i].totalArcElements) && (agelist[i].BdryFormat==1))
+			{
+				ww[4]=-ww[4];
+				ww[9]=-ww[9];
+			}
+
+			for(kk=0;kk<10;kk++)
+				a[kk]=meshnode[nn[kk]].A*ww[kk];
+
+			// A at the center of the element
+			if (agelist[i].BdryFormat==0)
+			{
+				ac = (2*a[2]+2*a[3]+2*a[7]+2*a[8]+a[1]*ci+(a[2]-a[3]-a[4])*ci-(a[0]-3*a[1]+a[2]+3*a[3]-2*a[4])*std::pow(ci,2)+(a[0]-2*a[1]+2*a[3]-a[4])*std::pow(ci,3)+(a[6]+a[7]-a[8]-a[9])*co-
+					 (a[5]-3*a[6]+a[7]+3*a[8]-2*a[9])*std::pow(co,2)+(a[5]-2*a[6]+2*a[8]-a[9])*std::pow(co,3))/8.;
+				agelist[i].aco += ac /((double) agelist[i].totalArcElements);
+			}
+
+			// flux density for this element
+			agelist[i].br[k]=(-(ci*a[1])-2*a[2]+2*a[3]+ci*(a[2]+a[3]-a[4])-ci*ci*ci*(a[0]-4*a[1]+6*a[2]-4*a[3]+a[4])+ci*ci*(a[0]-5*a[1]+9*a[2]-7*a[3]+2*a[4])-2*a[7]+
+				2*a[8]+co*(-a[6]+a[7]+a[8]-a[9])-co*co*co*(a[5]-4*a[6]+6*a[7]-4*a[8]+a[9])+co*co*(a[5]-5*a[6]+9*a[7]-7*a[8]+2*a[9]))/(4*dt*R);
+			agelist[i].bt[k]=(ci*a[1]+2*a[2]+2*a[3]-ci*ci*(a[0]-3*a[1]+a[2]+3*a[3]-2*a[4])+ci*(a[2]-a[3]-a[4])+ci*ci*ci*(a[0]-2*a[1]+2*a[3]-a[4])-co*a[6]+
+				(-2+co)*(1+co)*a[7]-2*a[8]+co*(a[8]+co*(a[5]-3*a[6]+3*a[8]-2*a[9])+a[9]+co*co*(-a[5]+2*a[6]-2*a[8]+a[9])))/(4*dr);
+			if (bIncremental)
+			{
+				for(kk=0;kk<10;kk++){
+					a[kk]=Aprev[nn[kk]]*ww[kk];
+				}
+
+                agelist[i].brPrev[k]=Re((-(ci*a[1])-2*a[2]+2*a[3]+ci*(a[2]+a[3]-a[4])-ci*ci*ci*(a[0]-4*a[1]+6*a[2]-4*a[3]+a[4])+ci*ci*(a[0]-5*a[1]+9*a[2]-7*a[3]+2*a[4])-2*a[7]+
+                    2*a[8]+co*(-a[6]+a[7]+a[8]-a[9])-co*co*co*(a[5]-4*a[6]+6*a[7]-4*a[8]+a[9])+co*co*(a[5]-5*a[6]+9*a[7]-7*a[8]+2*a[9]))/(4*dt*R));
+                agelist[i].btPrev[k]=Re((ci*a[1]+2*a[2]+2*a[3]-ci*ci*(a[0]-3*a[1]+a[2]+3*a[3]-2*a[4])+ci*(a[2]-a[3]-a[4])+ci*ci*ci*(a[0]-2*a[1]+2*a[3]-a[4])-co*a[6]+
+                    (-2+co)*(1+co)*a[7]-2*a[8]+co*(a[8]+co*(a[5]-3*a[6]+3*a[8]-2*a[9])+a[9]+co*co*(-a[5]+2*a[6]-2*a[8]+a[9])))/(4*dr));
+			}
+		}
+
+		// Convolve with sines and cosines to get amplitudes of each harmonic
+		for(j=0;j<agelist[i].nn;j++)
+		{
+			if (agelist[i].BdryFormat==0) agelist[i].nh[j]=m*j;
+			else agelist[i].nh[j]=m*(2*j+1);
+
+			n=agelist[i].nh[j];
+			brc=0; brs=0; btc=0; bts=0;
+			brcPrev=0; brsPrev=0; btcPrev=0; btsPrev=0;
+			for(k=0;k<agelist[i].totalArcElements;k++)
+			{
+				tta=(((double) k) + 0.5)*dt;
+				tta*=n; // multiply times # of harmonic under consideration
+
+				brc += agelist[i].br[k] * cos(tta);
+				brs += agelist[i].br[k] * sin(tta);
+				btc += agelist[i].bt[k] * cos(tta);
+				bts += agelist[i].bt[k] * sin(tta);
+
+				if (bIncremental)
+				{
+					brcPrev += agelist[i].brPrev[k] * cos(tta);
+					brsPrev += agelist[i].brPrev[k] * sin(tta);
+					btcPrev += agelist[i].btPrev[k] * cos(tta);
+					btsPrev += agelist[i].btPrev[k] * sin(tta);
+				}
+			}
+
+			if ((agelist[i].nh[j] == 0) ||
+				(((j==(agelist[i].nn-1)) && (agelist[i].BdryFormat==0)) && ((agelist[i].totalArcElements%2)==0)))
+			{
+				brc /= agelist[i].totalArcElements;
+				brs /= agelist[i].totalArcElements;
+				btc /= agelist[i].totalArcElements;
+				bts /= agelist[i].totalArcElements;
+				brcPrev /= agelist[i].totalArcElements;
+				brsPrev /= agelist[i].totalArcElements;
+				btcPrev /= agelist[i].totalArcElements;
+				btsPrev /= agelist[i].totalArcElements;
+			}
+			else{
+				brc /= ((double) agelist[i].totalArcElements)/2.;
+				brs /= ((double) agelist[i].totalArcElements)/2.;
+				btc /= ((double) agelist[i].totalArcElements)/2.;
+				bts /= ((double) agelist[i].totalArcElements)/2.;
+				brcPrev /= ((double) agelist[i].totalArcElements)/2.;
+				brcPrev /= ((double) agelist[i].totalArcElements)/2.;
+				btcPrev /= ((double) agelist[i].totalArcElements)/2.;
+				btsPrev /= ((double) agelist[i].totalArcElements)/2.;
+			}
+
+			agelist[i].brc[j]=brc;
+			agelist[i].brs[j]=brs;
+			agelist[i].btc[j]=btc;
+			agelist[i].bts[j]=bts;
+
+			if (bIncremental)
+			{
+				agelist[i].brcPrev[j]=brcPrev;
+				agelist[i].brsPrev[j]=brsPrev;
+				agelist[i].btcPrev[j]=btcPrev;
+				agelist[i].btsPrev[j]=btsPrev;
+			}
+		}
+	}
 
     // scale depth to meters for internal computations;
     if(Depth==-1) Depth=1;
@@ -1491,6 +1943,35 @@ bool FPProc::OpenDocument(string pathname)
     return true;
 }
 
+//bool FPProc::LoadPBCFromSolution(FILE* fp)
+//{
+//    char s[1024];
+//
+//    if (fgets(s,1024,fp)!=0)
+//    {
+//        sscanf(s,"%i",&NumPBCs);
+//
+//        // clear the existing pbc list
+//        pbclist.clear();
+//
+//        // remove any previously reserved capacity
+//        pbclist.shrink_to_fit();
+//
+//        // reserve enough capacity for the declared number of pbc's in the file
+//        pbclist.reserve(NumPBCs);
+//
+//        for(int i=0;i<NumPBCs;i++)
+//        {
+//            CCommonPoint pbc;
+//            fgets(s,1024,fp);
+//            sscanf(s,"%i    %i      %i\n",&pbc.x,&pbc.y,&pbc.t);
+//            pbclist.push_back(pbc);
+//        }
+//    }
+//
+//    return true;
+//}
+
 int FPProc::numElements() const
 {
     return (int) meshelem.size();
@@ -1501,8 +1982,67 @@ int FPProc::numNodes() const
     return (int) meshnode.size();
 }
 
+//bool FPProc::LoadAGEsFromSolution(FILE* fp)
+//{
+//    char s[1024];
+//    CAirGapElement age;
+//
+//	fgets(s,1024,fp);
+//	sscanf(s,"%i",&NumAirGapElems);
+//
+//	agelist.clear();
+//	agelist.shrink_to_fit();
+//	agelist.reserve(NumAirGapElems);
+//
+//	for(int i=0; i<NumAirGapElems; i++)
+//    {
+//
+//		fgets(s,80,fp);
+//
+//		age.BdryName = std::string (s);
+//
+//		fgets(s,1024,fp);
+//
+//		sscanf( s, "%i %lf %lf %lf %lf %lf %lf %lf %i %lf %lf",
+//                &age.BdryFormat,
+//                &age.InnerAngle,
+//                &age.OuterAngle,
+//                &age.ri,
+//                &age.ro,
+//                &age.totalArcLength,
+//                &age.agc.re,
+//                &age.agc.im,
+//                &age.totalArcElements,
+//                &age.InnerShift,
+//                &age.OuterShift );
+//
+//		age.quadNode.reserve (age.totalArcElements+1);
+//
+//		for(int k=0; k<=age.totalArcElements; k++)
+//		{
+//		    CQuadPoint qp;
+//
+//			fgets(s,1024,fp);
+//			sscanf ( s,"%i %lf %i %lf %i %lf %i %lf",
+//                     &age.quadNode[k].n0,
+//                     &age.quadNode[k].w0,
+//                     &age.quadNode[k].n1,
+//                     &age.quadNode[k].w1,
+//                     &age.quadNode[k].n2,
+//                     &age.quadNode[k].w2,
+//                     &age.quadNode[k].n3,
+//                     &age.quadNode[k].w3);
+//
+//            age.quadNode.push_back (qp);
+//
+//		}
+//		agelist.push_back(age);
+//	}
+//
+//    return true;
+//}
 
-int FPProc::InTriangle(double x, double y)
+int FPProc::InTriangle(double x, double y) const
 {
     static int k;
     int j,hi,lo,sz;
@@ -1530,11 +2070,10 @@ int FPProc::InTriangle(double x, double y)
         lo--;
         if (lo < 0)   lo = sz - 1;
 
-        femmsolver::CMElement &hiElem = meshelem[hi];
-        z = (hiElem.ctr.re - x) * (hiElem.ctr.re - x) +
-            (hiElem.ctr.im - y) * (hiElem.ctr.im - y);
+        z = (meshelem[hi].ctr.re - x) * (meshelem[hi].ctr.re - x) +
+            (meshelem[hi].ctr.im - y) * (meshelem[hi].ctr.im - y);
 
-        if (z <= hiElem.rsqr)
+        if (z <= meshelem[hi].rsqr)
         {
             if (InTriangleTest(x,y,hi))
             {
@@ -1543,11 +2082,10 @@ int FPProc::InTriangle(double x, double y)
             }
         }
 
-        femmsolver::CMElement &loElem = meshelem[lo];
-        z = (loElem.ctr.re-x)*(loElem.ctr.re-x) +
-            (loElem.ctr.im-y)*(loElem.ctr.im-y);
+        z = (meshelem[lo].ctr.re-x)*(meshelem[lo].ctr.re-x) +
+            (meshelem[lo].ctr.im-y)*(meshelem[lo].ctr.im-y);
 
-        if (z <= loElem.rsqr)
+        if (z <= meshelem[lo].rsqr)
         {
             if (InTriangleTest(x,y,lo))
             {
@@ -1561,7 +2099,7 @@ int FPProc::InTriangle(double x, double y)
     return (-1);
 }
 
-bool FPProc::GetPointValues(double x, double y, CMPointVals &u)
+bool FPProc::GetPointValues(double x, double y, CMPointVals &u) const
 {
     int k;
 
@@ -1581,7 +2119,7 @@ bool FPProc::GetPointValues(double x, double y, CMPointVals &u)
     return true;
 }
 
-bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u)
+bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u) const
 {
     int i,j,n[3],lbl;
     double a[3],b[3],c[3],da,ravg;
@@ -1703,43 +2241,83 @@ bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u)
                         u.A.re+=meshnode[n[i]].A.re*(a[i]+b[i]*x+c[i]*y)/(da);
             */
         }
-        u.mu1.im = 0;
-        u.mu2.im = 0;
-        GetMu(u.B1.re,u.B2.re,u.mu1.re,u.mu2.re,k);
-        u.H1 = u.B1/(Re(u.mu1)*muo);
-        u.H2 = u.B2/(Re(u.mu2)*muo);
-        u.Je = 0;
-        u.Js = blockproplist[meshelem[k].blk].J.re;
-        lbl  = meshelem[k].lbl;
-        j = blocklist[lbl].InCircuit;
-        if(j>=0)
-        {
-            if(blocklist[lbl].Case==0)
-            {
-                if (problemType==PLANAR)
-                    u.Js-=Re(blocklist[meshelem[k].lbl].o)*
-                          blocklist[lbl].dVolts;
-                else
-                {
+		// Need to catch bIncremental case here...
+		u.mu1.im = 0; u.mu2.im = 0; u.mu12 = 0;
+		if (!bIncremental) {
+			GetMu(u.B1.re, u.B2.re, u.mu1.re, u.mu2.re, k);
+			u.H1 = u.B1 / (Re(u.mu1)*muo);
+			u.H2 = u.B2 / (Re(u.mu2)*muo);
+		}
+		else {
+			double muinc, murel;
+			double B, B1p, B2p;
 
-                    int tn;
-                    double R[3];
-                    for(tn=0; tn<3; tn++)
-                    {
-                        R[tn] = meshnode[n[tn]].x;
-                        if (R[tn]<1.e-6) R[tn] = ravg;
-                        else R[tn] *= LengthConv[LengthUnits];
-                    }
-                    for(ravg=0.,tn=0; tn<3; tn++)
-                        ravg+=(1./R[tn])*(a[tn]+b[tn]*x+c[tn]*y)/(da);
-                    u.Js-=Re(blocklist[meshelem[k].lbl].o)*
-                          blocklist[lbl].dVolts*ravg;
-                }
-            }
-            else u.Js+=blocklist[lbl].J;
-        }
-        u.c = Re(blocklist[meshelem[k].lbl].o);
-        u.E = blockproplist[meshelem[k].blk].DoEnergy(u.B1.re,u.B2.re);
+			B1p = meshelem[k].B1p;
+			B2p = meshelem[k].B2p;
+			B = sqrt(B1p*B1p + B2p*B2p);
+
+			GetMu(B1p, B2p, muinc, murel, k);
+			if (B == 0)
+			{
+				// Catch the special case where B=0 to avoid a possible divide by zero
+				u.mu1 = muinc;
+				u.mu2 = muinc;
+				u.mu12 = 0;
+			}
+			else if(PrevType==1)
+			{
+				// For "incremental" problem, permeability is linearized about the prevous soluiton.
+				u.mu1 = (B1p*B1p*muinc + B2p*B2p*murel) / (B*B);
+				u.mu12 = (B1p*B2p*(muinc - murel)) / (B*B);
+				u.mu2 = (B2p*B2p*muinc + B1p*B1p*murel) / (B*B);
+			}
+			else { //bIncremental==2
+				// For "frozen" permeability, same permeability as previous problem
+				u.mu1 = murel;
+				u.mu2 = murel;
+				u.mu12 = 0;
+			}
+
+			u.H1 = (u.B2*u.mu12 - u.B1*u.mu2) / (u.mu12*u.mu12 - u.mu1*u.mu2);
+			u.H2 = (u.B2*u.mu1 - u.B1*u.mu12) / (u.mu1*u.mu2 - u.mu12*u.mu12);
+		}
+
+
+
+
+
+
+
+
+		u.Je=0;
+		u.Js=blockproplist[meshelem[k].blk].J.re;
+		lbl=meshelem[k].lbl;
+		j=blocklist[lbl].InCircuit;
+		if(j>=0){
+ 			if(blocklist[lbl].Case==0){
+				if (problemType==PLANAR)
+					u.Js-=Re(blocklist[meshelem[k].lbl].o)*
+						  blocklist[lbl].dVolts;
+				else{
+
+					int tn;
+					double R[3];
+					for(tn=0;tn<3;tn++)
+					{
+						R[tn]=meshnode[n[tn]].x;
+						if (R[tn]<1.e-6) R[tn]=ravg;
+						else R[tn]*=LengthConv[LengthUnits];
+					}
+					for(ravg=0.,tn=0;tn<3;tn++)
+						ravg+=(1./R[tn])*(a[tn]+b[tn]*x+c[tn]*y)/(da);
+					u.Js-=Re(blocklist[meshelem[k].lbl].o)*
+					      blocklist[lbl].dVolts*ravg;
+				}
+			}
+			else u.Js+=blocklist[lbl].J;
+		}
+		u.c=Re(blocklist[meshelem[k].lbl].o);
+		u.E=blockproplist[meshelem[k].blk].DoEnergy(u.B1.re,u.B2.re);
 
         // correct H and energy stored in magnet for second-quadrant
         // representation of a PM.
@@ -1842,9 +2420,38 @@ bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u)
                   4.*p*q*(v[0] - v[1] + v[3] - v[5]);
         }
 
-        GetMu(u.B1,u.B2,u.mu1,u.mu2,k);
-        u.H1 = u.B1/(u.mu1*muo);
-        u.H2 = u.B2/(u.mu2*muo);
+		// if bIncremental, need to get permeability about the DC
+		// operating point, rather than usual DC permeability.
+		if (!bIncremental){
+			GetMu(u.B1,u.B2,u.mu1,u.mu2,k);
+			u.mu12=0;
+			u.H1 = u.B1/(u.mu1*muo);
+			u.H2 = u.B2/(u.mu2*muo);
+		}
+		else{
+			CComplex muinc,murel;
+			double B,B1p,B2p;
+
+			B1p=meshelem[k].B1p;
+			B2p=meshelem[k].B2p;
+			B=sqrt(B1p*B1p + B2p*B2p);
+
+			GetMu(B1p,B2p,muinc,murel,k);
+			if (B==0)
+			{
+				u.mu1=murel;
+				u.mu2=murel;
+				u.mu12 = 0;
+			}
+			else{
+				u.mu1  = (B1p*B1p*muinc + B2p*B2p*murel)/(B*B);
+				u.mu12 = (B1p*B2p*(muinc - murel))/(B*B);
+				u.mu2  = (B2p*B2p*muinc + B1p*B1p*murel)/(B*B);
+			}
+
+			u.H1 = (u.B2*u.mu12 - u.B1*u.mu2)/(u.mu12*u.mu12 - u.mu1*u.mu2);
+			u.H2 = (u.B2*u.mu1 - u.B1*u.mu12)/(u.mu1*u.mu2 - u.mu12*u.mu12);
+		}
 
         u.Js=blockproplist[meshelem[k].blk].J;
         lbl=meshelem[k].lbl;
@@ -1924,8 +2531,8 @@ bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u)
     return false;
 }
 
-void FPProc::GetPointB(double x, double y, CComplex &B1, CComplex &B2,
-                       femmsolver::CMElement &elm)
+void FPProc::GetPointB(const double x, const double y, CComplex &B1, CComplex &B2,
+                       const femmpostproc::CPostProcMElement &elm) const
 {
     // elm is a reference to the element that contains the point of interest.
     int i,n[3];
@@ -1959,7 +2566,7 @@ void FPProc::GetPointB(double x, double y, CComplex &B1, CComplex &B2,
     }
 }
 
-void FPProc::GetNodalB(CComplex *b1, CComplex *b2, femmsolver::CMElement &elm)
+void FPProc::GetNodalB(CComplex *b1, CComplex *b2, femmpostproc::CPostProcMElement &elm)
 {
     // elm is a reference to the element that contains the point of interest.
     CComplex p;
@@ -1968,7 +2575,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2, femmsolver::CMElement &elm)
     i=j=k=l=q=m=pt=nxt = 0;
     double r,R,z;
     r=R=z = 0;
-    femmsolver::CMElement *e;
+    femmpostproc::CPostProcMElement *e;
     int flag;
 
     // find nodal values of flux density via a patch method.
@@ -2225,7 +2832,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2, femmsolver::CMElement &elm)
     }
 }
 
-void FPProc::GetElementB(femmsolver::CMElement &elm)
+void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm) const
 {
     int i,n[3];
     double b[3],c[3],da;
@@ -2249,6 +2856,16 @@ void FPProc::GetElementB(femmsolver::CMElement &elm)
             elm.B1+=meshnode[n[i]].A*c[i]/(da*LengthConv[LengthUnits]);
             elm.B2-=meshnode[n[i]].A*b[i]/(da*LengthConv[LengthUnits]);
         }
+
+		if (bIncremental)
+		{
+			for(i=0;i<3;i++)
+			{
+				elm.B1p+=Aprev[n[i]]*c[i]/(da*LengthConv[LengthUnits]);
+				elm.B2p-=Aprev[n[i]]*b[i]/(da*LengthConv[LengthUnits]);
+			}
+		}
+
         return;
     }
     else
@@ -2290,12 +2907,47 @@ void FPProc::GetElementB(femmsolver::CMElement &elm)
         elm.B1=-(c[1]*dp+c[2]*dq)/da;
         elm.B2= (b[1]*dp+b[2]*dq)/da;
 
+        if (bIncremental)
+		{
+			// corner nodes
+			v[0]=Aprev[n[0]];
+			v[2]=Aprev[n[1]];
+			v[4]=Aprev[n[2]];
+
+			// construct values for mid-side nodes;
+			if ((R[0]<1.e-06) && (R[1]<1.e-06)) v[1]=(v[0]+v[2])/2.;
+			else v[1]=(R[1]*(3.*v[0] + v[2]) + R[0]*(v[0] + 3.*v[2]))/
+				 (4.*(R[0] + R[1]));
+
+			if ((R[1]<1.e-06) && (R[2]<1.e-06)) v[3]=(v[2]+v[4])/2.;
+			else v[3]=(R[2]*(3.*v[2] + v[4]) + R[1]*(v[2] + 3.*v[4]))/
+				 (4.*(R[1] + R[2]));
+
+			if ((R[2]<1.e-06) && (R[0]<1.e-06)) v[5]=(v[4]+v[0])/2.;
+			else v[5]=(R[0]*(3.*v[4] + v[0]) + R[2]*(v[4] + 3.*v[0]))/
+				(4.*(R[2] + R[0]));
+
+			// derivatives w.r.t. p and q:
+			dp=(-v[0] + v[2] + 4.*v[3] - 4.*v[5])/3.;
+			dq=(-v[0] - 4.*v[1] + 4.*v[3] + v[4])/3.;
+
+			// now, compute flux.
+			da=(b[0]*c[1]-b[1]*c[0]);
+			da*=2.*PI*r*LengthConv[LengthUnits]*LengthConv[LengthUnits];
+			elm.B1p=Re(-(c[1]*dp+c[2]*dq)/da);
+			elm.B2p=Re( (b[1]*dp+b[2]*dq)/da);
+		}
+		else{
+			elm.B1p=0;
+			elm.B2p=0;
+		}
+
         return;
     }
 }
 
 
-int FPProc::ClosestNode(double x, double y)
+int FPProc::ClosestNode(const double x, const double y) const
 {
     int i,j;
     double d0,d1;
@@ -2350,7 +3002,7 @@ int FPProc::ClosestNode(double x, double y)
 //        {
 //        case 0:
 //            p.Create(NumPlotPoints,2);
-//            if (ProblemType==PLANAR) strcpy(p.lbls[1],"Potential, Wb/m");
+//            if (problemType==PLANAR) strcpy(p.lbls[1],"Potential, Wb/m");
 //            else strcpy(p.lbls[1],"Flux, Wb");
 //            break;
 //        case 1:
@@ -2388,7 +3040,7 @@ int FPProc::ClosestNode(double x, double y)
 //        {
 //        case 0:
 //            p.Create(NumPlotPoints,4);
-//            if(ProblemType==PLANAR)
+//            if(problemType==PLANAR)
 //            {
 //                strcpy(p.lbls[1],"|A|, Wb/m");
 //                strcpy(p.lbls[2],"Re[A], Wb/m");
@@ -2423,7 +3075,7 @@ int FPProc::ClosestNode(double x, double y)
 //            break;
 //        case 5:
 //            p.Create(NumPlotPoints,4);
-//            if(ProblemType==PLANAR)
+//            if(problemType==PLANAR)
 //            {
 //                strcpy(p.lbls[1],"|H.n|, Amp/m");
 //                strcpy(p.lbls[2],"Re[H.n], Amp/m");
@@ -2597,7 +3249,7 @@ int FPProc::ClosestNode(double x, double y)
 //    free(q);
 //}
 
-bool FPProc::InTriangleTest(double x, double y, int i)
+bool FPProc::InTriangleTest(double x, double y, int i) const
 {
 
     if ((i < 0) || (i >= int(meshelem.size()))) return false;
@@ -2636,7 +3288,7 @@ bool FPProc::InTriangleTest(double x, double y, int i)
     return true;
 }
 
-CComplex FPProc::Ctr(int i)
+CComplex FPProc::Ctr(int i) const
 {
     CComplex p,c;
     int j;
@@ -2650,7 +3302,7 @@ CComplex FPProc::Ctr(int i)
     return c;
 }
 
-double FPProc::ElmArea(int i)
+double FPProc::ElmArea(int i) const
 {
     int j,n[3];
     double b0,b1,c0,c1;
@@ -2665,7 +3317,7 @@ double FPProc::ElmArea(int i)
 
 }
 
-double FPProc::ElmArea(femmsolver::CMElement *elm)
+double FPProc::ElmArea(femmpostproc::CPostProcMElement *elm) const
 {
     int j,n[3];
     double b0,b1,c0,c1;
@@ -2680,7 +3332,7 @@ double FPProc::ElmArea(femmsolver::CMElement *elm)
 
 }
 
-double FPProc::ElmVolume(int i)
+double FPProc::ElmVolume(int i) const
 {
     int k;
     double a, r[3], R;
@@ -2705,7 +3357,7 @@ double FPProc::ElmVolume(int i)
     return a;
 }
 
-CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
+CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A) const
 {
     // returns current density with contribution from all sources in
     // units of MA/m^2
@@ -2790,7 +3442,7 @@ CComplex FPProc::GetJA(int k,CComplex *J,CComplex *A)
     return (Javg*1.e06);
 }
 
-CComplex FPProc::PlnInt(double a, CComplex *u, CComplex *v)
+CComplex FPProc::PlnInt(double a, CComplex *u, CComplex *v) const
 {
     int i;
     CComplex z[3],x;
@@ -2803,7 +3455,7 @@ CComplex FPProc::PlnInt(double a, CComplex *u, CComplex *v)
     return a*x/12.;
 }
 
-CComplex FPProc::AxiInt(double a, CComplex *u, CComplex *v,double *r)
+CComplex FPProc::AxiInt(double a, CComplex *u, CComplex *v,double *r) const
 {
     int i;
     static CComplex M[3][3];
@@ -2824,7 +3476,7 @@ CComplex FPProc::AxiInt(double a, CComplex *u, CComplex *v,double *r)
     return PI*a*x/30.;
 }
 
-CComplex FPProc::HenrotteVector(int k)
+CComplex FPProc::HenrotteVector(int k) const
 {
     int i,n[3];
     double b[3],c[3],da;
@@ -2852,7 +3504,7 @@ CComplex FPProc::HenrotteVector(int k)
     return v;
 }
 
-CComplex FPProc::BlockIntegral(int inttype)
+CComplex FPProc::BlockIntegral(const int inttype) const
 {
     int i,k;
     CComplex c,y,z,J,mu1,mu2,B1,B2,H1,H2,F1,F2;
@@ -2877,7 +3529,7 @@ CComplex FPProc::BlockIntegral(int inttype)
 
                 // compute some useful quantities employed by most integrals...
                 J=GetJA(i,Jn,A);
-                a=ElmArea(i)*pow(LengthConv[LengthUnits],2.);
+                a=ElmArea(i)*std::pow(LengthConv[LengthUnits],2.);
                 if(problemType==AXISYMMETRIC)
                 {
                     for(k=0; k<3; k++)
@@ -3181,7 +3833,7 @@ CComplex temp;
             // regardless of which elements are actually selected.
             if((inttype>=18) || (inttype<=23))
             {
-                a=ElmArea(i)*pow(LengthConv[LengthUnits],2.);
+                a=ElmArea(i)*std::pow(LengthConv[LengthUnits],2.);
                 if(problemType==AXISYMMETRIC)
                 {
                     for(k=0; k<3; k++)
@@ -3304,7 +3956,7 @@ CComplex temp;
     return z;
 }
 
-void FPProc::LineIntegral(int inttype, CComplex *z)
+void FPProc::LineIntegral(int inttype, CComplex *z) const
 {
 // inttype    Integral
 //        0    B.n
@@ -3340,7 +3992,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
             for(i=0,l=0; i<k-1; i++)
                 l+=(PI*(contour[i].re+contour[i+1].re)*
                     abs(contour[i+1]-contour[i]));
-            l*=pow(LengthConv[LengthUnits],2.);
+            l*=std::pow(LengthConv[LengthUnits],2.);
             z[0]= a1-a0;
             if(l!=0) z[1]= z[0]/l;
         }
@@ -3419,7 +4071,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
             for(i=0,z[0].im=0; i<k-1; i++)
                 z[0].im+=(PI*(contour[i].re+contour[i+1].re)*
                           abs(contour[i+1]-contour[i]));
-            z[0].im*=pow(LengthConv[LengthUnits],2.);
+            z[0].im*=std::pow(LengthConv[LengthUnits],2.);
         }
         else
         {
@@ -3728,7 +4380,7 @@ void FPProc::LineIntegral(int inttype, CComplex *z)
 }
 
 
-int FPProc::ClosestArcSegment(double x, double y)
+int FPProc::ClosestArcSegment(double x, double y) const
 {
     double d0,d1;
     int i,j;
@@ -3750,7 +4402,7 @@ int FPProc::ClosestArcSegment(double x, double y)
     return j;
 }
 
-void FPProc::GetCircle(CArcSegment &arc,CComplex &c, double &R)
+void FPProc::GetCircle(const CArcSegment &arc, CComplex &c, double &R) const
 {
     CComplex a0,a1,t;
     double d,tta;
@@ -3766,7 +4418,7 @@ void FPProc::GetCircle(CArcSegment &arc,CComplex &c, double &R)
     c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
 }
 
-double FPProc::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
+double FPProc::ShortestDistanceFromArc(const CComplex p, const CArcSegment &arc) const
 {
     double R,d,l,z;
     CComplex a0,a1,c,t;
@@ -3789,7 +4441,7 @@ double FPProc::ShortestDistanceFromArc(CComplex p, CArcSegment &arc)
     return l;
 }
 
-double FPProc::ShortestDistanceFromSegment(double p, double q, int segm)
+double FPProc::ShortestDistanceFromSegment(double p, double q, int segm) const
 {
     double t,x[3],y[3];
 
@@ -3912,7 +4564,7 @@ void FPProc::BendContour(double angle, double anglestep)
 //    return CDocument::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
 //}
 
-CComplex FPProc::GetStrandedVoltageDrop(int lbl)
+CComplex FPProc::GetStrandedVoltageDrop(int lbl) const
 {
     // Derive the voltage drop associated with a stranded and
     // current-carrying region.
@@ -3963,7 +4615,7 @@ void FPProc::GetFillFactor(int lbl)
     // the apparent conductivity and permeability for use in
     // post-processing the voltage.
 
-    CMMaterialProp* bp= &blockproplist[blocklist[lbl].BlockType];
+    CMMaterialProp* bp = &blockproplist[blocklist[lbl].BlockType];
     CMBlockLabel* bl= &blocklist[lbl];
     double lc=LengthConv[LengthUnits]*LengthConv[LengthUnits];
     double atot,awire,w,d,o,fill,dd,W,R,c1,c2,c3,c4;
@@ -4100,7 +4752,7 @@ void FPProc::GetFillFactor(int lbl)
     bl->o=ofd*1.e-6;                                            // return frequency-dependent conductivity in MS/m
 }
 
-CComplex FPProc::GetStrandedLinkage(int lbl)
+CComplex FPProc::GetStrandedLinkage(int lbl) const
 {
     // This is a routine for the special case of determining
     // the flux linkage of a stranded conductor at zero frequency
@@ -4138,7 +4790,7 @@ CComplex FPProc::GetStrandedLinkage(int lbl)
     return FluxLinkage;
 }
 
-CComplex FPProc::GetSolidAxisymmetricLinkage(int lbl)
+CComplex FPProc::GetSolidAxisymmetricLinkage(int lbl) const
 {
     // This is a routine for the special case of determining
     // the flux linkage of a solid and axisymmetric conductor
@@ -4181,7 +4833,7 @@ CComplex FPProc::GetSolidAxisymmetricLinkage(int lbl)
     return FluxLinkage;
 }
 
-CComplex FPProc::GetParallelLinkage(int numcirc)
+CComplex FPProc::GetParallelLinkage(int numcirc) const
 {
     // routine for deducing the flux linkage of a "parallel-connected"
     // "circuit" in the annoying special case in which the
@@ -4233,7 +4885,7 @@ CComplex FPProc::GetParallelLinkage(int numcirc)
     return FluxLinkage;
 }
 
-CComplex FPProc::GetParallelLinkageAlt(int numcirc)
+CComplex FPProc::GetParallelLinkageAlt(int numcirc) const
 {
     // routine for deducing the flux linkage of a "parallel-connected"
     // "circuit" in the annoying special case in which the
@@ -4279,7 +4931,7 @@ CComplex FPProc::GetParallelLinkageAlt(int numcirc)
     return FluxLinkage;
 }
 
-CComplex FPProc::GetVoltageDrop(int circnum)
+CComplex FPProc::GetVoltageDrop(int circnum) const
 {
     int i;
     CComplex Volts;
@@ -4367,7 +5019,7 @@ CComplex FPProc::GetVoltageDrop(int circnum)
     return Volts;
 }
 
-CComplex FPProc::GetFluxLinkage(int circnum)
+CComplex FPProc::GetFluxLinkage(int circnum) const
 {
     int i,k;
     CComplex FluxLinkage;
@@ -4469,7 +5121,7 @@ CComplex FPProc::GetFluxLinkage(int circnum)
     return FluxLinkage;
 }
 
-void FPProc::GetMagnetization(int n, CComplex &M1, CComplex &M2)
+void FPProc::GetMagnetization(int n, CComplex &M1, CComplex &M2) const
 {
     // Puts the piece-wise constant magnetization for an element into
     // M1 and M2.  The magnetization could be useful for some kinds of
@@ -4496,7 +5148,7 @@ void FPProc::GetMagnetization(int n, CComplex &M1, CComplex &M2)
     M2 = b2*(mu2-1)/(mu2*muo) + Im(Hc);
 }
 
-double FPProc::AECF(int k)
+double FPProc::AECF(int k) const
 {
     // Computes the permeability correction factor for axisymmetric
     // external regions.  This is sort of a kludge, but it's the best
@@ -4518,7 +5170,7 @@ double FPProc::AECF(int k)
 
 // versions of GetMu that sort out whether or not the AECF should be applied,
 // as well as the corrections required for wound regions.
-void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i)
+void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i) const
 {
     if(blockproplist[meshelem[i].blk].LamType>2) // is a region subject to prox effects
     {
@@ -4532,7 +5184,7 @@ void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i)
     mu2/=aecf;
 }
 
-void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i)
+void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i) const
 {
     blockproplist[meshelem[i].blk].GetMu(b1,b2,mu1,mu2);
     double aecf=AECF(i);
@@ -4540,7 +5192,7 @@ void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i)
     mu2/=aecf;
 }
 
-void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k)
+void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k) const
 {
     double mu1,mu2;
     CComplex Hc;
@@ -4557,7 +5209,7 @@ void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k)
     }
 }
 
-void FPProc::GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k)
+void FPProc::GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k) const
 {
     CComplex mu1,mu2;
 
@@ -4626,5 +5278,703 @@ void FPProc::FindBoundaryEdges()
         } // End of One Element Loop
     } // End of Main Loop
 
+}
+
+FPProcError FPProc::gapDCTorqueIntegral(const std::string myBdryName, double &tq) const
+{
+	int i,k;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	double R = (agelist[i].ri + agelist[i].ro)/2.;
+
+    // DC torque version using harmonic solution in airgap
+    tq=0;
+
+    for(k=0;k<agelist[i].nn;k++)
+    {
+        tq += Re(agelist[i].brc[k]*conj(agelist[i].btc[k]) +
+                 agelist[i].brs[k]*conj(agelist[i].bts[k]));
+    }
+    tq*=(PI*R*R*Depth)/muo;
+
+    if (Frequency!=0) tq/=2.;
+
+    return FPProcError::NoError;
+}
+
+FPProcError FPProc::gap2XTorqueIntegral(const std::string myBdryName, CComplex &tq) const
+{
+	int i,k;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	double R = (agelist[i].ri + agelist[i].ro)/2.;
+
+    tq=0;
+
+    if (Frequency!=0)
+    {
+        for(k=0;k<agelist[i].nn;k++)
+        {
+            tq += agelist[i].brc[k]*agelist[i].btc[k] +
+                  agelist[i].brs[k]*agelist[i].bts[k];
+        }
+        tq*=(PI*R*R*Depth)/(2.*muo);
+    }
+
+    return FPProcError::NoError;
+}
+
+FPProcError FPProc::gapDCForceIntegral(const std::string myBdryName, CComplex &fx, CComplex &fy) const
+{
+	int i,k;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	double R = (agelist[i].ri + agelist[i].ro)/2.;
+
+	// DC Force
+    fx=0;
+    fy=0;
+    CComplex dfx,dfy;
+
+    if (round(agelist[i].totalArcLength)==360)
+    {
+        for(k=1;k<agelist[i].nn;k++)
+        {
+
+            dfx = (((agelist[i].brs[k] + agelist[i].btc[k])*conj(agelist[i].brs[k-1] - agelist[i].btc[k-1]) +
+                  (agelist[i].brs[k-1] - agelist[i].btc[k-1])*conj(agelist[i].brs[k] + agelist[i].btc[k]) +
+                  (agelist[i].brc[k] - agelist[i].bts[k])*conj(agelist[i].brc[k-1] + agelist[i].bts[k-1]) +
+                   (agelist[i].brc[k-1] + agelist[i].bts[k-1])*conj(agelist[i].brc[k] - agelist[i].bts[k])));
+
+            dfy = (((-agelist[i].brc[k] + agelist[i].bts[k])*conj(agelist[i].brs[k-1] - agelist[i].btc[k-1]) +
+                  (agelist[i].brc[k-1] + agelist[i].bts[k-1])*conj(agelist[i].brs[k] + agelist[i].btc[k]) +
+                  (agelist[i].brs[k] + agelist[i].btc[k])*conj(agelist[i].brc[k-1] + agelist[i].bts[k-1]) +
+                   (-agelist[i].brs[k-1] + agelist[i].btc[k-1])*conj(agelist[i].brc[k] - agelist[i].bts[k])));
+
+            fx+=Re(dfx);
+            fy+=Re(dfy);
+        }
+        fx*=Depth*PI*R/(4.*muo);
+        fy*=Depth*PI*R/(4.*muo);
+        if (Frequency!=0)
+        {
+            fx/=2.;
+            fy/=2.;
+        }
+    }
+
+    return FPProcError::NoError;
+
+}
+
+FPProcError FPProc::gap2XForceIntegral(const std::string myBdryName, CComplex &fx, CComplex &fy) const
+{
+	int i,k;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	double R = (agelist[i].ri + agelist[i].ro)/2.;
+
+
+	// 2X Force
+    fx=0;
+    fy=0;
+    CComplex dfx,dfy;
+
+    if ((round(agelist[i].totalArcLength)==360) && (Frequency!=0))
+    {
+        for(k=1;k<agelist[i].nn;k++)
+        {
+
+            dfx = (agelist[i].brs[k-1] - agelist[i].btc[k-1])*(agelist[i].brs[k] + agelist[i].btc[k]) +
+                  (agelist[i].brc[k-1] + agelist[i].bts[k-1])*(agelist[i].brc[k] - agelist[i].bts[k]);
+
+            dfy = (agelist[i].brs[k] + agelist[i].btc[k])*(agelist[i].brc[k-1] + agelist[i].bts[k-1]) -
+                  (agelist[i].brs[k-1] - agelist[i].btc[k-1])*(agelist[i].brc[k] - agelist[i].bts[k]);
+
+            fx+=dfx;
+            fy+=dfy;
+        }
+        fx*=Depth*PI*R/(4.*muo);
+        fy*=Depth*PI*R/(4.*muo);
+    }
+
+    return FPProcError::NoError;
+
+}
+
+FPProcError FPProc::gapIncrementalTorqueIntegral(const std::string myBdryName, CComplex &tq) const
+{
+	int i,k;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	double R = (agelist[i].ri + agelist[i].ro)/2.;
+
+	// Incremental Torque
+	tq=0;
+
+    for(k=0;k<agelist[i].nn;k++)
+    {
+        tq += agelist[i].btcPrev[k] * agelist[i].brc[k] +
+              agelist[i].brcPrev[k] * agelist[i].btc[k] +
+              agelist[i].btsPrev[k] * agelist[i].brs[k] +
+              agelist[i].brsPrev[k] * agelist[i].bts[k];
+    }
+    tq*=(PI*R*R*Depth)/muo;
+
+    return FPProcError::NoError;
+}
+
+
+FPProcError FPProc::gapIncrementalForceIntegral(const std::string myBdryName, CComplex &fx, CComplex &fy) const
+{
+	int i,k;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	double R = (agelist[i].ri + agelist[i].ro)/2.;
+
+	// Incremental Force
+    fx=0;
+    fy=0;
+    CComplex dfx,dfy;
+
+    if ((round(agelist[i].totalArcLength)==360) && (Frequency!=0))
+    {
+        for(k=1;k<agelist[i].nn;k++)
+        {
+
+            dfx = (agelist[i].brs[k] + agelist[i].btc[k])*(agelist[i].brsPrev[k-1] -
+                   agelist[i].btcPrev[k-1]) + (agelist[i].brs[k-1] -
+                   agelist[i].btc[k-1])*(agelist[i].brsPrev[k] + agelist[i].btcPrev[k]) +
+                  (agelist[i].brc[k] - agelist[i].bts[k])*(agelist[i].brcPrev[k-1] +
+                   agelist[i].btsPrev[k-1]) + (agelist[i].brc[k-1] +
+                   agelist[i].bts[k-1])*(agelist[i].brcPrev[k] - agelist[i].btsPrev[k]);
+
+            dfy = (agelist[i].brsPrev[k] + agelist[i].btcPrev[k])*(agelist[i].brc[k-1] +
+                   agelist[i].bts[k-1]) - (agelist[i].brsPrev[k-1] -
+                   agelist[i].btcPrev[k-1])*(agelist[i].brc[k] - agelist[i].bts[k]) +
+                  (agelist[i].brs[k] + agelist[i].btc[k])*(agelist[i].brcPrev[k-1] +
+                   agelist[i].btsPrev[k-1]) - (agelist[i].brs[k-1] -
+                   agelist[i].btc[k-1])*(agelist[i].brcPrev[k] - agelist[i].btsPrev[k]);
+
+            fx+=dfx;
+            fy+=dfy;
+        }
+        fx*=Depth*PI*R/(2.*muo);
+        fy*=Depth*PI*R/(2.*muo);
+    }
+
+    return FPProcError::NoError;
+}
+
+FPProcError FPProc::gapTimeAvgStoredEnergyIntegral(const std::string myBdryName, CComplex &W) const
+{
+	int i,k,n;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	double R = (agelist[i].ri + agelist[i].ro)/2.;
+
+	// (Time-Average) Stored Energy
+    W=0;
+
+    double Ri = agelist[i].ri/R;
+    double Ro = agelist[i].ro/R;
+    double dr = R*(Ro-Ri);
+
+    for(k=0;k<agelist[i].nn;k++)
+    {
+        n=agelist[i].nh[k];
+
+        if (n!=0)
+            W+= (agelist[i].brs[k]*agelist[i].brs[k] +
+                agelist[i].brc[k]*agelist[i].brc[k] +
+                agelist[i].bts[k]*agelist[i].bts[k] +
+                agelist[i].btc[k]*agelist[i].btc[k])*dr;
+        else
+            W+=2*dr*agelist[i].btc[k]*agelist[i].btc[k];
+    }
+    W=Re(W)*(PI*R*Depth)/(2.*muo);
+    if (Frequency!=0) W/=2;
+
+    return FPProcError::NoError;
+
+}
+
+
+//FPProcError FPProc::gapIntegral(const std::string myBdryName, const int IntegralType) const
+//{
+//
+//	int i,k;
+//
+//	// figure out which AGE is being asked for
+//	i=-1;
+//    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+//
+//    if (found_bound == false)
+//    {
+//        return FPProcError::AGENameNotFound;
+//    }
+//
+//	double R = (agelist[i].ri + agelist[i].ro)/2.;
+
+//	if (IntegralType==0) // DC torque version using harmonic solution in airgap
+//	{
+//		int k;
+//		double tq=0;
+//
+//		for(k=0;k<agelist[i].nn;k++)
+//		{
+//			tq += Re(agelist[i].brc[k]*conj(agelist[i].btc[k]) +
+//				     agelist[i].brs[k]*conj(agelist[i].bts[k]));
+//		}
+//		tq*=(PI*R*R*Depth)/muo;
+//
+//		if (Frequency!=0) tq/=2.;
+//
+//		lua_pushnumber(L,tq);
+//
+//		return 1;
+//	}
+
+/*
+	if (IntegralType==0) // DC torque
+	{
+		int k;
+		CComplex tq=0;
+
+		double dt=(PI/180.)*(agelist[i].totalArcLength/agelist[i].totalArcElements);
+		CComplex br,bt;
+
+		for(k=0;k<agelist[i].totalArcElements;k++)
+		{
+			br = agelist[i].br[k];
+			bt = agelist[i].bt[k];
+			// add in torque contribution for this element
+			tq = tq + (br*conj(bt) + conj(br)*bt)/(2.*muo)*R*dt*R*Depth;
+		}
+
+		tq *= 360./((double) agelist[i].totalArcLength);
+		if (Frequency!=0) tq/=2.;
+
+		lua_pushnumber(L,tq);
+
+		return 1;
+	}
+*/
+//	if (IntegralType==3) // 2X torque
+//	{
+//		int k;
+//		CComplex tq=0;
+//
+//		if (Frequency!=0)
+//		{
+//			for(k=0;k<agelist[i].nn;k++)
+//			{
+//				tq += agelist[i].brc[k]*agelist[i].btc[k] +
+//					  agelist[i].brs[k]*agelist[i].bts[k];
+//			}
+//			tq*=(PI*R*R*Depth)/(2.*muo);
+//		}
+//
+//		lua_pushnumber(L,tq);
+//
+//		return 1;
+//	}
+
+//	if (IntegralType==1) // DC Force
+//	{
+//		int k;
+//		CComplex fx=0;
+//		CComplex fy=0;
+//		CComplex dfx,dfy;
+//
+//		if (round(agelist[i].totalArcLength)==360)
+//		{
+//			for(k=1;k<agelist[i].nn;k++)
+//			{
+//
+//				dfx = (((agelist[i].brs[k] + agelist[i].btc[k])*conj(agelist[i].brs[k-1] - agelist[i].btc[k-1]) +
+//					  (agelist[i].brs[k-1] - agelist[i].btc[k-1])*conj(agelist[i].brs[k] + agelist[i].btc[k]) +
+//					  (agelist[i].brc[k] - agelist[i].bts[k])*conj(agelist[i].brc[k-1] + agelist[i].bts[k-1]) +
+//					   (agelist[i].brc[k-1] + agelist[i].bts[k-1])*conj(agelist[i].brc[k] - agelist[i].bts[k])));
+//
+//				dfy = (((-agelist[i].brc[k] + agelist[i].bts[k])*conj(agelist[i].brs[k-1] - agelist[i].btc[k-1]) +
+//					  (agelist[i].brc[k-1] + agelist[i].bts[k-1])*conj(agelist[i].brs[k] + agelist[i].btc[k]) +
+//					  (agelist[i].brs[k] + agelist[i].btc[k])*conj(agelist[i].brc[k-1] + agelist[i].bts[k-1]) +
+//					   (-agelist[i].brs[k-1] + agelist[i].btc[k-1])*conj(agelist[i].brc[k] - agelist[i].bts[k])));
+//
+//				fx+=Re(dfx);
+//				fy+=Re(dfy);
+//			}
+//			fx*=Depth*PI*R/(4.*muo);
+//			fy*=Depth*PI*R/(4.*muo);
+//			if (Frequency!=0)
+//			{
+//				fx/=2.;
+//				fy/=2.;
+//			}
+//		}
+//
+//		lua_pushnumber(L,fx);
+//		lua_pushnumber(L,fy);
+//
+//		return 2;
+//	}
+
+//	if (IntegralType==4) // 2X Force
+//	{
+//		int k;
+//		CComplex fx=0;
+//		CComplex fy=0;
+//		CComplex dfx,dfy;
+//
+//		if ((round(agelist[i].totalArcLength)==360) && (Frequency!=0))
+//		{
+//			for(k=1;k<agelist[i].nn;k++)
+//			{
+//
+//				dfx = (agelist[i].brs[k-1] - agelist[i].btc[k-1])*(agelist[i].brs[k] + agelist[i].btc[k]) +
+//				      (agelist[i].brc[k-1] + agelist[i].bts[k-1])*(agelist[i].brc[k] - agelist[i].bts[k]);
+//
+//				dfy = (agelist[i].brs[k] + agelist[i].btc[k])*(agelist[i].brc[k-1] + agelist[i].bts[k-1]) -
+//					  (agelist[i].brs[k-1] - agelist[i].btc[k-1])*(agelist[i].brc[k] - agelist[i].bts[k]);
+//
+//				fx+=dfx;
+//				fy+=dfy;
+//			}
+//			fx*=Depth*PI*R/(4.*muo);
+//			fy*=Depth*PI*R/(4.*muo);
+//		}
+//
+//		lua_pushnumber(L,fx);
+//		lua_pushnumber(L,fy);
+//
+//		return 2;
+//	}
+
+//	if (IntegralType==5) // Incremental Torque
+//	{
+//		int k;
+//		CComplex tq=0;
+//
+//		for(k=0;k<agelist[i].nn;k++)
+//		{
+//			tq += agelist[i].btcPrev[k] * agelist[i].brc[k] +
+//				  agelist[i].brcPrev[k] * agelist[i].btc[k] +
+//				  agelist[i].btsPrev[k] * agelist[i].brs[k] +
+//				  agelist[i].brsPrev[k] * agelist[i].bts[k];
+//		}
+//		tq*=(PI*R*R*Depth)/muo;
+//
+//		lua_pushnumber(L,tq);
+//
+//		return 1;
+//	}
+
+//	if (IntegralType==6) // Incremental Force
+//	{
+//		int k;
+//		CComplex fx=0;
+//		CComplex fy=0;
+//		CComplex dfx,dfy;
+//
+//		if ((round(agelist[i].totalArcLength)==360) && (Frequency!=0))
+//		{
+//			for(k=1;k<agelist[i].nn;k++)
+//			{
+//
+//				dfx = (agelist[i].brs[k] + agelist[i].btc[k])*(agelist[i].brsPrev[k-1] -
+//					   agelist[i].btcPrev[k-1]) + (agelist[i].brs[k-1] -
+//					   agelist[i].btc[k-1])*(agelist[i].brsPrev[k] + agelist[i].btcPrev[k]) +
+//					  (agelist[i].brc[k] - agelist[i].bts[k])*(agelist[i].brcPrev[k-1] +
+//					   agelist[i].btsPrev[k-1]) + (agelist[i].brc[k-1] +
+//					   agelist[i].bts[k-1])*(agelist[i].brcPrev[k] - agelist[i].btsPrev[k]);
+//
+//				dfy = (agelist[i].brsPrev[k] + agelist[i].btcPrev[k])*(agelist[i].brc[k-1] +
+//					   agelist[i].bts[k-1]) - (agelist[i].brsPrev[k-1] -
+//					   agelist[i].btcPrev[k-1])*(agelist[i].brc[k] - agelist[i].bts[k]) +
+//					  (agelist[i].brs[k] + agelist[i].btc[k])*(agelist[i].brcPrev[k-1] +
+//					   agelist[i].btsPrev[k-1]) - (agelist[i].brs[k-1] -
+//					   agelist[i].btc[k-1])*(agelist[i].brcPrev[k] - agelist[i].btsPrev[k]);
+//
+//				fx+=dfx;
+//				fy+=dfy;
+//			}
+//			fx*=Depth*PI*R/(2.*muo);
+//			fy*=Depth*PI*R/(2.*muo);
+//		}
+//
+//		lua_pushnumber(L,fx);
+//		lua_pushnumber(L,fy);
+//
+//		return 2;
+//	}
+
+//	if (IntegralType==2) // (Time-Average) Stored Energy
+//	{
+//		int k,n;
+//		CComplex W=0;
+//
+//		double Ri = agelist[i].ri/R;
+//		double Ro = agelist[i].ro/R;
+//		double dr = R*(Ro-Ri);
+//
+//		for(k=0;k<agelist[i].nn;k++)
+//		{
+//			n=agelist[i].nh[k];
+//
+//			if (n!=0)
+//				W+= (agelist[i].brs[k]*agelist[i].brs[k] +
+//					agelist[i].brc[k]*agelist[i].brc[k] +
+//					agelist[i].bts[k]*agelist[i].bts[k] +
+//					agelist[i].btc[k]*agelist[i].btc[k])*dr;
+//			else
+//				W+=2*dr*agelist[i].btc[k]*agelist[i].btc[k];
+//		}
+//		W=Re(W)*(PI*R*Depth)/(2.*muo);
+//		if (Frequency!=0) W/=2;
+//
+//		lua_pushnumber(L,W);
+//
+//		return 1;
+//	}
+//
+//
+//	return 0;
+//}
+
+FPProcError FPProc::getAGEflux(const std::string myBdryName, const double angle, CComplex &br, CComplex &bt) const
+{
+
+    int i, tta, k, n;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	// if the requested AGE exists, roll up the flux density
+	// at the specified angle.  Note: angle is specified in degrees
+	br = 0;
+	bt = 0;
+	if (i>=0){
+		tta=angle*PI/180;
+		for(k=0;k<agelist[i].nn;k++)
+		{
+			n=agelist[i].nh[k];
+			br += agelist[i].brc[k]*cos(n*tta) + agelist[i].brs[k]*sin(n*tta);
+			bt += agelist[i].btc[k]*cos(n*tta) + agelist[i].bts[k]*sin(n*tta);
+		}
+	}
+
+	return FPProcError::NoError;
+}
+
+FPProcError FPProc::getGapA(const std::string myBdryName, double tta, CComplex &ac) const
+{
+	int i,k;
+	double n,R;
+
+	// figure out which AGE is being asked for
+	i=-1;
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	// if the requested AGE exists, roll up the flux density
+	// at the specified angle.  Note: angle is specified in degrees
+	if (i>=0)
+    {
+        ac = 0;
+
+		R=(agelist[i].ri+agelist[i].ro)/2.;
+
+		tta = tta * PI / 180;
+
+		for(k=0;k<agelist[i].nn;k++)
+		{
+			n=agelist[i].nh[k];
+			if (n==0)
+			{
+			    ac+=agelist[i].aco;
+            }
+			else
+            {
+                ac += (R/n)*(-agelist[i].brs[k]*cos(n*tta) + agelist[i].brc[k]*sin(n*tta));
+			}
+		}
+	}
+
+	return FPProcError::NoError;
+}
+
+FPProcError FPProc::numGapHarmonics(const std::string myBdryName, int &nh) const
+{
+    int i,k;
+
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	// return the number of the highest harmonic
+    k = agelist[i].nn;
+    if (k==0)
+    {
+        nh = 0;
+    }
+    else
+    {
+        nh = agelist[i].nh[k-1];
+    }
+
+    return FPProcError::NoError;
+}
+
+bool FPProc::AGEBoundNumFromName(const std::string myBdryName, int &n) const
+{
+
+	int k;
+
+    n = -1;
+
+	for(k=0; k<agelist.size(); k++)
+    {
+		if (agelist[k].BdryName==myBdryName)
+        {
+            n = k;
+            break;
+        }
+    }
+
+	if (n<0)
+    {
+        // no AGE here by that name;
+        return false;
+    }
+
+    return true;
+}
+
+FPProcError FPProc::getGapHarmonics(const std::string myBdryName, const int n, CComplex &acc, CComplex &acs, CComplex &brc, CComplex &brs, CComplex &btc, CComplex &bts) const
+{
+
+	int i,k;
+
+    bool found_bound = AGEBoundNumFromName(myBdryName, i);
+
+    if (found_bound == false)
+    {
+        return FPProcError::AGENameNotFound;
+    }
+
+	// give all the magnitudes of the harmonic;
+	if (agelist[i].nn==0)
+    {
+        return FPProcError::AGENoHarmonics; // error case
+    }
+
+	if (n<0)
+    {
+        return FPProcError::AGENegativeHarmonicRequested;
+    }
+
+	if (n>agelist[i].nn)
+    {
+        return FPProcError::AGERequestedHarmonicTooLarge;
+    }
+
+	for(k=0;k<agelist[i].nn;k++)
+	{
+		if (agelist[i].nh[k]==n)
+        {
+            break;
+        }
+	}
+
+	if (k<agelist[i].nn)
+	{
+		if (n==0)
+		{
+			acc=agelist[i].aco;
+			acs=0;
+		}
+		else
+        {
+			double R = (agelist[i].ri+agelist[i].ro)/2.;
+			acc = - (R/n)*agelist[i].brs[k];
+			acs =   (R/n)*agelist[i].brc[k];
+			brc = agelist[i].brc[k];
+			brs = agelist[i].brs[k];
+			btc = agelist[i].btc[k];
+			bts = agelist[i].bts[k];
+		}
+	}
+
+	return FPProcError::NoError;
 }
 

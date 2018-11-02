@@ -1,5 +1,5 @@
 /* Copyright 2016-2017 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
- * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ * Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  * Mechatronics GmbH (LCM)
  *
  * The source code in this file is heavily derived from
@@ -50,6 +50,7 @@ int luaAddPointProperty(lua_State *L);
 int luaAnalyze(lua_State *L);
 int luaBendContourLine(lua_State *L);
 int luaBlockIntegral(lua_State *L);
+int luaGapIntegral(lua_State *L);
 int luaClearBHPoints(lua_State *L);
 int luaClearBlock(lua_State *L);
 int luaClearContourPoint(lua_State *L);
@@ -74,6 +75,9 @@ int luaSetNodeProperty(lua_State *L);
 int luaSetPrevious(lua_State *L);
 int luaSetSmoothing(lua_State *L);
 int luaSetSegmentProperty(lua_State *L);
+int luaGetGapB(lua_State *L);
+int luaGetGapA(lua_State *L);
+int luaGetGapHarmonics(lua_State *L);
 }
 
 } /* namespace FemmLua*/

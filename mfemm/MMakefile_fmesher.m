@@ -5,6 +5,7 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     options.Verbose = false;
     options.Debug = false;
     options.DebugSymbols = false;
+    options.ExtraMEXFLAGS = '';
 
     options = mmake.parse_pv_pairs (options, varargin);
 
@@ -38,7 +39,7 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     vars.LDFLAGS = '${LDFLAGS} -static-libstdc++ ''-Wl,--no-undefined''';
 
     % flags that will be passed direct to mex
-    vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"../cfemm/fmesher" -I"../cfemm/fmesher/triangle" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
+    vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"../cfemm/fmesher" -I"../cfemm/fmesher/triangle" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag, options.ExtraMEXFLAGS];
     %vars.MEXFLAGS = ['${MEXFLAGS} -I"../cfemm/fmesher" -I"../cfemm/fmesher/triangle" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', trilibraryflag];
 
     if options.Verbose

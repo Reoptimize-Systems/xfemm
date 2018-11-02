@@ -87,11 +87,14 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
 
     if ~isempty(fext) && isfield(fexmap, fext(2:end))
-        domaintype = fexmap.(fext(2:end));
+        FemmProblem.ProbInfo.Domain = fexmap.(fext(2:end));
     else
         error ('MFEMM:badfiletype', ...
                'The output file name extension is not recognised and you have not explicitly set the file type.');
     end
+    
+%     FemmProblem.ProbInfo.PrevSolutionFile = '';
+%     FemmProblem.ProbInfo.PrevSolutionType = 0;
     
     fid = fopen(filename);
 
@@ -112,7 +115,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
             v = str2double(StripKey(q));
 
-            switch ftype.(domaintype)
+            switch ftype.(FemmProblem.ProbInfo.Domain)
                 
                 case ftype.magnetics
                     if v ~= 4
@@ -280,11 +283,11 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
         end
         
         % Previous solution file
-        if strncmpi(q,'[prevsolution]',12)
+        if strncmpi(q,'[prevsoln]',8)
 
             v = StripKey(q);
 
-            FemmProblem.ProbInfo.PevSolutionFile = v;
+            FemmProblem.ProbInfo.PrevSolutionFile = removequotes(v);
 
             % get the next line of input
             q = fgetl(fid);
@@ -297,7 +300,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
             v = StripKey(q);
 
-            FemmProblem.ProbInfo.PevSolutionType = str2double(v);
+            FemmProblem.ProbInfo.PrevSolutionType = str2double(v);
 
             % get the next line of input
             q = fgetl(fid);
@@ -816,7 +819,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
                 
-                switch ftype.(domaintype)
+                switch ftype.(FemmProblem.ProbInfo.Domain)
                     case ftype.magnetics
                         C = textscan(s, '%f %f %f %f');
                     case ftype.heatflow
@@ -855,7 +858,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
 
-                switch ftype.(domaintype)
+                switch ftype.(FemmProblem.ProbInfo.Domain)
                     case ftype.magnetics
                         C = textscan(s, '%f %f %f %f %f %f');
                     case ftype.heatflow
@@ -900,11 +903,25 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
                 s = fgetl(fid);
 
                 
-                switch ftype.(domaintype)
+                switch ftype.(FemmProblem.ProbInfo.Domain)
+                    
                     case ftype.magnetics
-                        C = textscan(s,'%f %f %f %f %f %f %f');
+                        
+                        C = textscan(s,'%f %f %f %f %f %f %f %f'); 
+                        
+                        if ~isempty (C{8})
+                            % old femm versions didn't have the 8th parameter
+                            if C{8} > 0
+                                arcsegprops.MeshedSideLength = C{8};
+                            else
+                                arcsegprops.MeshedSideLength = arcsegprops.MaxSegDegrees;
+                            end
+                        end
+
                     case ftype.heatflow
+                        
                         C = textscan(s,'%f %f %f %f %f %f %f %f');
+                        
                         arcsegprops.InConductor = C{8};
                 end
                 
@@ -922,7 +939,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
                 arcsegprops.Hidden = C{6};
                 
                 arcsegprops.InGroup = C{7};
-
+                
                 FemmProblem = addarcsegments_mfemm(FemmProblem, C{1}, C{2}, C{3}, arcsegprops);
 
                 clear arcsegprops;
@@ -980,7 +997,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
                 s = fgetl(fid);
                 
-                switch ftype.(domaintype)
+                switch ftype.(FemmProblem.ProbInfo.Domain)
                     
                     case ftype.magnetics
                         
@@ -1079,7 +1096,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
         end
     end
     
-    switch ftype.(domaintype)
+    switch ftype.(FemmProblem.ProbInfo.Domain)
         
         case ftype.magnetics
             

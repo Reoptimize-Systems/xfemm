@@ -75,14 +75,12 @@
 		<Unit filename="LuaInstance.h" />
 		<Unit filename="PostProcessor.cpp" />
 		<Unit filename="PostProcessor.h" />
-		<Unit filename="cpp14compat.h" />
 		<Unit filename="cspars.cpp" />
 		<Unit filename="cspars.h" />
 		<Unit filename="cuthill.cpp" />
 		<Unit filename="feasolver.cpp" />
 		<Unit filename="feasolver.h" />
 		<Unit filename="femmcomplex.cpp" />
-		<Unit filename="femmcomplex.h" />
 		<Unit filename="femmconstants.cpp" />
 		<Unit filename="femmconstants.h" />
 		<Unit filename="femmenums.cpp" />
