@@ -745,7 +745,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
             return -1;
         if (!triHelper.initHolesAndRegions(*problem, problem->DoForceMaxMeshArea, DefaultMeshSize))
             return -1;
-        triHelper.setMinAngle(problem->MinAngle);
+        triHelper.setMinAngle(std::min(problem->MinAngle+MINANGLE_BUMP,MINANGLE_MAX));
         triHelper.suppressUnusedVertices();
         if (writePolyFiles)
         {
@@ -790,8 +790,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     string plyname;
     std::vector < std::unique_ptr<CNode> >             nodelst;
     std::vector < std::unique_ptr<CSegment> >          linelst;
+    std::vector < std::unique_ptr<CAirGapElement> >    agelst;
     CSegment segm;
     CCommonPoint pt;
+    CAirGapElement age;
 
     nodelst.clear();
     linelst.clear();
@@ -995,15 +997,126 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // when you open up the arc segment to see
             // its properties.
             char kludge[32];
+            double newMaxSideLength;
+            newMaxSideLength = problem->arclist[i].ArcLength/((double) problem->arclist[i].IsSelected);
+            sprintf(kludge,"%.1e",newMaxSideLength);
+            sscanf(kludge,"%lf",&newMaxSideLength);
 
-            problem->arclist[i]->MaxSideLength = problem->arclist[i]->ArcLength/((double) problem->arclist[i]->cnt);
-            sprintf(kludge,"%.1e",problem->arclist[i]->MaxSideLength);
-
-            sscanf(kludge,"%lf",&problem->arclist[i]->MaxSideLength);
+            problem->arclist[i]->MaxSideLength = newMaxSideLength;
         }
     }
 
     ptlst.clear();
+    ptlst.shrink_to_fit();
+
+	// Search through defined bc's for pbcs and ages;
+	// Allocate space to store their properties if they are detected
+	for(i=0;i<problem->lineproplist.size();i++)
+	{
+		// pbc
+		if ((problem->lineproplist[i].BdryFormat==4) ||
+			(problem->lineproplist[i].BdryFormat==5)){
+			pbc.BdryName=problem->lineproplist[i].BdryName;
+			pbc.BdryFormat=problem->lineproplist[i].BdryFormat-4; // 0 for pbc, 1 for apbc
+			pbclst.push_back(pbc);
+		}
+
+		// age
+		if ((problem->lineproplist[i].BdryFormat==6) || (problem->lineproplist[i].BdryFormat==7))
+		{
+			// only add an AGE to the list if it's actually being used
+			for(j=0,k=0;j<arclist.GetSize();j++)
+				if (problem->arclist[j].BoundaryMarker==problem->lineproplist[i].BdryName) k++;
+			if (k>1)
+			{
+				age.BdryName=problem->lineproplist[i].BdryName;
+				age.BdryFormat=problem->lineproplist[i].BdryFormat-6; // 0 for pbc, 1 for apbc
+				age.InnerAngle=problem->lineproplist[i].InnerAngle;
+				age.OuterAngle=problem->lineproplist[i].OuterAngle;
+				agelst.push_back(age);
+			}
+		}
+	}
+
+	// make sure all Air Gap Element arcs have the same discretization
+	// for each arc associated with a particular Air Gap Element...
+
+	// find out the total arc length and arc elements
+	// corresponding ot each lineproplist entry
+	for(i=0;i<problem->arclist.size();i++)
+	{
+		if (problem->arclist[i].BoundaryMarker!="<None>")
+		{
+			for(j=0;j<agelst.size();j++)
+			{
+
+				if (problem->arclist[i].BoundaryMarker==agelst[j].BdryName)
+				{
+					agelst[j].totalArcLength += problem->arclist[i].ArcLength;
+					agelst[j].totalArcElements += problem->arclist[i].IsSelected;
+
+					GetCircle(problem->arclist[i],agelst[j].agc,R);
+					if (agelst[j].ro==0)
+					{
+						agelst[j].ri=R;
+						agelst[j].ro=R;
+					}
+					if (R>agelst[j].ro) agelst[j].ro=R;
+					if (R<agelst[j].ri) agelst[j].ri=R;
+
+					break;
+				}
+			}
+		}
+	}
+
+	// cycle through AGEs and fix constituent arcs so that all arcs have the same discretization
+	for (i=0;i<agelst.size();i++)
+	{
+		if (agelst[i].totalArcLength>0) // if the AGE is actually in play
+		{
+			char kludge[32];
+			double myMaxSideLength,altMaxSideLength;
+
+			myMaxSideLength=agelst[i].totalArcLength/agelst[i].totalArcElements;
+			agelst[i].totalArcLength/=2;	// this is now the angle spanned by the AGE
+
+			// however, don't want long, skinny air gap elements.  Impose some limits
+			// based on the inner and outer radii;
+			altMaxSideLength=(360./PI)*(agelst[i].ro-agelst[i].ri)/(agelst[i].ro+agelst[i].ri);
+			if (altMaxSideLength<myMaxSideLength) myMaxSideLength=altMaxSideLength;
+			sprintf(kludge,"%.1e",myMaxSideLength);
+			sscanf(kludge,"%lf",&myMaxSideLength);
+
+			// apply new side length to all arcs in this AGE
+			for(j=0;j<problem->arclist.GetSize();j++)
+				if (problem->arclist[j].BoundaryMarker==agelst[i].BdryName)
+					problem->arclist[j].MaxSideLength=myMaxSideLength;
+		}
+	}
+
+	// and perform a quick error check; AGE BCs can't be applied to segments (at least yet)
+	for (i=0;i<problem->linelist.size();i++)
+	{
+		if (problem->linelist[i].BoundaryMarker!="<None>")
+		{
+			for(j=0;j<agelst.GetSize();j++)
+			{
+
+				if (problem->linelist[i].BoundaryMarker==agelst[j].BdryName)
+				{
+					MsgBox("Can't apply Air Gap Element BCs to line segments");
+					Undo();
+					UnselectAll();
+					return FALSE;
+				}
+			}
+		}
+	}
+
+
+
+
 
         // want to impose explicit discretization only on
         // the boundary arcs and segments.  After the meshing
@@ -1396,6 +1509,82 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         }
     }
 
+
+	// Now, discretize arcs that are part of an AGE
+	for(n=0;n<agelst.GetSize();n++)
+	{
+		std::vector <int> myVector;
+
+		z = (agelst[n].ro + agelst[n].ri)/2.;
+
+		for(i=0;i<problem->arclist.GetSize();i++)
+		if((problem->arclist[i].IsSelected==false) && (arclist[i].BoundaryMarker==agelst[n].BdryName)){
+			problem->arclist[i].IsSelected=true;
+			a2.Set(problem->nodelist[problem->arclist[i].n0].x,problem->nodelist[problem->arclist[i].n0].y);
+			k=(int) ceil(problem->arclist[i].ArcLength/problem->arclist[i].MaxSideLength);
+			segm.BoundaryMarker=problem->arclist[i].BoundaryMarker;
+			GetCircle(problem->arclist[i],c,R);
+			a1=exp(I*problem->arclist[i].ArcLength*PI/(((double) k)*180.));
+
+			// insert the starting node
+			if (R>z) // on outer radius
+				myVector.push_back(problem->arclist[i].n0);
+			else	// on inner radius
+				myVector.insert(myVector.begin(),problem->arclist[i].n0);
+
+			if(k==1){
+				segm.n0=problem->arclist[i].n0;
+				segm.n1=problem->arclist[i].n1;
+				linelst.push_back(segm);
+			}
+			else for(j=0;j<k;j++)
+			{
+				a2=(a2-c)*a1+c;
+				node.x=a2.re; node.y=a2.im;
+				if(j==0){
+					l=(int) nodelst.size();
+					nodelst.push_back(node);
+					segm.n0=arclist[i].n0;
+					segm.n1=l;
+					linelst.push_back(segm);
+
+					// insert newly created node
+					if (R>z) // on outer radius
+						myVector.push_back(l);
+					else	// on inner radius
+						myVector.insert(myVector.begin(),l);
+				}
+				else if(j==(k-1))
+				{
+					l=(int) nodelst.size()-1;
+					segm.n0=l;
+					segm.n1=problem->arclist[i].n1;
+					linelst.push_back(segm);
+				}
+				else{
+					l=(int) nodelst.size();
+					nodelst.push_back(node);
+					segm.n0=l-1;
+					segm.n1=l;
+					linelst.push_back(segm);
+
+					// insert newly created node
+					if (R>z) // on outer radius
+						myVector.push_back(l);
+					else	// on inner radius
+						myVector.InsertAt(0,l);
+
+				}
+			}
+		}
+        agelst[n].quadnode.clear ();
+		agelst[n].quadnode.shrink_to_fit ();
+		agelst[n].quadnode.reserve (myVector.GetSize()+1);
+		agelst[n].node[0]=(int) myVector.size();
+		for(k=0;k<myVector.size();k++) agelst[n].node[k+1]=myVector[k];
+	}
+
+
     // Then, do the rest of the lines and arcs in the
     // "normal" way and write .poly file.
 
@@ -1511,6 +1700,139 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     fprintf(fp,"%i\n", (int) ptlst.size());
     for(k=0;k<(int)ptlst.size();k++)
         fprintf(fp,"%i    %i    %i    %i\n",k,ptlst[k].x,ptlst[k].y,ptlst[k].t);
+
+
+	fprintf(fp,"%i\n",(int) agelst.size());
+	for(k=0;k<agelst.size();k++)
+	{
+		double dtta;
+		std::vector<CQuadPoint> InnerRing;
+		std::vector<CQuadPoint> OuterRing;
+		InnerRing.clear();
+		InnerRing.shrink_to_fit();
+		OuterRing.clear();
+		OuterRing.shrink_to_fit();
+
+		n=agelst[k].node[0]/2;
+		dtta = agelst[k].totalArcLength/n;
+		n0=(int) round(360./dtta); // total elements in a 360deg annular ring;
+		n1=(int) round(360./agelst[k].totalArcLength); // number of copied segments
+
+		// Should do some consistency checking here;
+		//   totalArcLength*n1 should equal 360
+		//   no*dtta should equal 360
+		//   if antiperiodic, n1 should be an even number
+		//   otherwise, throw error message, clean up, and return
+
+		InnerRing.reserve(n0);
+		OuterRing.reserve(n0);
+
+		// map each bdry point onto points on the ring;
+		int kk;
+		for(j=0,kk=0;j<n1;j++)  // do each slice
+		{
+			if ((agelst[k].BdryFormat==1) && (j % 2 != 0)) dL=-1; // antiperiodic
+			else dL=1;
+
+			a1=exp(I*(j*agelst[k].totalArcLength+agelst[k].InnerAngle)*DEGREE);
+			a2=exp(I*(j*agelst[k].totalArcLength+agelst[k].OuterAngle)*DEGREE);
+			for(i=1;i<=n;i++)
+			{
+				a0=a1*(nodelst[agelst[k].node[i]].CC()-agelst[k].agc); // position of the shifted mesh node
+				z=toDegrees(a0)/dtta;
+
+				InnerRing[kk].n0=agelst[k].node[i];
+				InnerRing[kk].w0=z;
+				InnerRing[kk].w1=dL;
+
+				a0=a2*(nodelst[agelst[k].node[i+n]].CC()-agelst[k].agc); // position of the shifted mesh node
+				z=toDegrees(a0)/dtta;
+
+				OuterRing[kk].n0=agelst[k].node[i+n];
+				OuterRing[kk].w0=z;
+				OuterRing[kk].w1=dL;
+
+				kk++;
+			}
+		}
+
+		// InnerRing and OuterRing contain a list of boundary nodes, but the aren't yet properly sorted.
+		// Sort out the rings based on the angle of the points in the ring
+		for(int ii=0;ii<n0;ii++)
+		{
+			int bDone=1;
+			CQuadPoint qq;
+
+			for(int jj=0;jj<(n0-1);jj++)
+			{
+				if (InnerRing[jj].w0 > InnerRing[jj+1].w0)
+				{
+					qq=InnerRing[jj];
+					InnerRing[jj]=InnerRing[jj+1];
+					InnerRing[jj+1]=qq;
+					bDone=0;
+				}
+			}
+			if (bDone) break;
+		}
+
+		for(int ii=0;ii<n0;ii++)
+		{
+			int bDone=1;
+			CQuadPoint qq;
+
+			for(int jj=0;jj<(n0-1);jj++)
+			{
+				if (OuterRing[jj].w0 > OuterRing[jj+1].w0)
+				{
+					qq=OuterRing[jj];
+					OuterRing[jj]=OuterRing[jj+1];
+					OuterRing[jj+1]=qq;
+					bDone=0;
+				}
+			}
+			if (bDone) break;
+		}
+
+		// print out AGE definition
+		fprintf(fp,"\"%s\"\n",agelst[k].BdryName);
+		fprintf(fp,"%i %.17g %.17g %.17g %.17g %.17g %.17g %.17g %i %.17g %.17g\n",
+			agelst[k].BdryFormat,agelst[k].InnerAngle,agelst[k].OuterAngle,
+			agelst[k].ri,agelst[k].ro,agelst[k].totalArcLength,
+			Re(agelst[k].agc),Im(agelst[k].agc),n,
+			InnerRing[0].w0,OuterRing[0].w0);
+
+		for(i=0;i<=n;i++)
+		{
+			int p0,p1;
+
+			p1=i; if(p1==n0) p1=0;
+			p0=p1-1; if(p0<0) p0=n0+p0;
+
+			// ring points that bracket points in the annulus mesh
+			// and their sign, for the purposes of periodicity/antiperiodicity
+			fprintf(fp,"%i %g %i %g %i %g %i %g\n",
+				InnerRing[p0].n0, InnerRing[p0].w1,
+				InnerRing[p1].n0, InnerRing[p1].w1,
+				OuterRing[p0].n0, OuterRing[p0].w1,
+				OuterRing[p1].n0, OuterRing[p1].w1);
+		}
+
+/*
+		fprintf(fp,"%s\n",agelst[k].BdryName);
+		fprintf(fp,"%i %.17g %.17g %.17g %.17g %.17g %.17g %.17g %i\n",
+			agelst[k].BdryFormat,agelst[k].InnerAngle,agelst[k].OuterAngle,
+			agelst[k].ri,agelst[k].ro,agelst[k].totalArcLength,
+			Re(agelst[k].agc),Im(agelst[k].agc),n);
+		for(i=1;i<=n;i++)
+			fprintf(fp,"%i %i\n",agelst[k].node[i],agelst[k].node[n+i]); */
+
+
+
+
+	}
+
+
     fclose(fp);
 
     // call triangle with -Y flag.
@@ -1526,7 +1848,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         if (!triHelper.initHolesAndRegions(*problem, true, DefaultMeshSize))
             return -1;
 
-        triHelper.setMinAngle(problem->MinAngle);
+        triHelper.setMinAngle(std::min(problem->MinAngle+MINANGLE_BUMP,MINANGLE_MAX));
         triHelper.suppressExteriorSteinerPoints();
         if (writePolyFiles)
         {
