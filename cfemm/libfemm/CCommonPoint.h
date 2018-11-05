@@ -25,12 +25,13 @@
         richard.crozier@yahoo.co.uk
         johannes@zarl-zierl.at
 
- Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  Mechatronics GmbH (LCM)
 */
 #ifndef FEMM_CCOMMONPOINT_H
 #define FEMM_CCOMMONPOINT_H
 
+#include <memory>
 
 namespace femm {
 
@@ -58,6 +59,14 @@ public:
      * @param v2
      */
     void setSortedValues(int v1, int v2);
+
+    /**
+     * @brief clone returns a copy of the CCommonPoint that is memory managed using a unique_ptr.
+     * This is a convenience function to make code more readable.
+     * @return a unique_ptr holding a copy of this object.
+     */
+    std::unique_ptr<femm::CCommonPoint> clone() const;
+
 private:
 
 };

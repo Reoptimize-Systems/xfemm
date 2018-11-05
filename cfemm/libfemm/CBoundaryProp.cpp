@@ -52,6 +52,9 @@ CBoundaryProp::CBoundaryProp()
     : BdryName("New Boundary")
     , BdryFormat(0)
 {
+    // rotor angles (for building air gap element)
+    InnerAngle = 0.;
+    OuterAngle = 0.;
 }
 
 CMBoundaryProp::CMBoundaryProp()
@@ -68,9 +71,7 @@ CMBoundaryProp::CMBoundaryProp()
     // coefficients for mixed BC
     c0 = 0.;
     c1 = 0.;
-    // rotor angles (for building air gap element)
-    InnerAngle = 0.;
-    OuterAngle = 0.;
+
 }
 
 bool CMBoundaryProp::isPeriodic(PeriodicityType pt) const

@@ -25,6 +25,7 @@
    Linz Center of Mechatronics GmbH (LCM)
 */
 
+#include <memory>
 #include <vector>
 #include <string>
 #include "femmcomplex.h"
@@ -42,7 +43,15 @@ public:
 
     CPeriodicBoundary();
 
+    /**
+     * @brief clone returns a copy of the CPeriodicBoundary that is memory managed using a unique_ptr.
+     * This is a convenience function to make code more readable.
+     * @return a unique_ptr holding a copy of this object.
+     */
+    std::unique_ptr<CPeriodicBoundary> clone() const;
+
     std::string BdryName;
+    int BdryFormat;
     bool antiPeriodic;  ///< \brief \c true for antiperiodic boundary conditions, \c false for periodic ones.
     int nseg;                // number of segs with this bc
     int narc;                // number of arcs with this bc

@@ -25,7 +25,7 @@
         richard.crozier@yahoo.co.uk
         johannes@zarl-zierl.at
 
- Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  Mechatronics GmbH (LCM)
 */
 #include "CCommonPoint.h"
@@ -57,4 +57,9 @@ void femm::CCommonPoint::setSortedValues(int v1, int v2)
         x = v2;
         y = v1;
     }
+}
+
+std::unique_ptr<femm::CCommonPoint> femm::CCommonPoint::clone() const
+{
+    return std::unique_ptr<femm::CCommonPoint>(new femm::CCommonPoint(*this));
 }

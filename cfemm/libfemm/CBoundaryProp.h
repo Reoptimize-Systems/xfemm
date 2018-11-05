@@ -77,6 +77,24 @@ public:
      */
     int BdryFormat;
 
+    /**
+     * @brief InnerAngle
+     * Inner rotor angle (for building air gap element)
+     * \verbatim
+     * <InnerAngle>
+     * \endverbatim
+     */
+    double InnerAngle;
+
+    /**
+     * @brief OuterAngle
+     * Outer rotor angle (for building air gap element)
+     * \verbatim
+     * <OuterAngle>
+     * \endverbatim
+     */
+    double OuterAngle;
+
     enum class PeriodicityType { Any, Periodic, AntiPeriodic };
     /**
      * @brief Check periodicity of the boundary condition.
@@ -192,24 +210,6 @@ public:
      * \endverbatim
      */
     CComplex c1;
-
-    /**
-     * @brief InnerAngle
-     * Inner rotor angle (for building air gap element)
-     * \verbatim
-     * <InnerAngle>
-     * \endverbatim
-     */
-    double InnerAngle;
-
-    /**
-     * @brief OuterAngle
-     * Outer rotor angle (for building air gap element)
-     * \verbatim
-     * <OuterAngle>
-     * \endverbatim
-     */
-    double OuterAngle;
 
     virtual bool isPeriodic(PeriodicityType pt) const override;
 

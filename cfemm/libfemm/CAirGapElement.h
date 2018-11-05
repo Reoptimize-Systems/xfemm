@@ -24,6 +24,7 @@
 #include "CQuadPoint.h"
 #include "femmcomplex.h"
 
+#include <memory>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -47,6 +48,13 @@ public:
     CAirGapElement();
     ~CAirGapElement();
 
+    /**
+     * @brief clone returns a copy of the CAirGapElement that is memory managed using a unique_ptr.
+     * This is a convenience function to make code more readable.
+     * @return a unique_ptr holding a copy of this object.
+     */
+    std::unique_ptr<femmsolver::CAirGapElement> clone() const;
+
 //    /**
 //     * @brief fromStream constructs a CAirGapElement from an input stream (usually an input file stream)
 //     * @param input
@@ -66,7 +74,8 @@ public:
     double InnerShift;///< fraction of an element that inner mesh is shifted relative to annular mesh
     double OuterShift;///< fraction of an element that outer mesh is shifted relative to annular mesh
     CComplex agc; ///< centre of the air gap element
-    std::vector <femm::CQuadPoint> quadNode; ///< node numbers that are part of the air gap element (was called 'node' and also 'qp' in FEMM)
+    std::vector <femm::CQuadPoint> quadNode; ///< quad nodes that are part of the air gap element (was called 'qp' in FEMM)
+    std::vector <int> nodeNums; ///< node numbers that are part of the air gap element (was called 'node' in FEMM)
 
     int nn; ///< number of harmonics in harmonic problem
     CComplex aco;

@@ -47,6 +47,7 @@ namespace fmesher
 CPeriodicBoundary::CPeriodicBoundary()
 {
     BdryName="";
+    BdryFormat=0;
     antiPeriodic=false;
     nseg=0;
     narc=0;
@@ -54,6 +55,9 @@ CPeriodicBoundary::CPeriodicBoundary()
     seg[1]=0;
 }
 
-
+std::unique_ptr<CPeriodicBoundary> CPeriodicBoundary::clone() const
+{
+    return std::unique_ptr<CPeriodicBoundary>(new CPeriodicBoundary(*this));
+}
 
 } // namespace femme
