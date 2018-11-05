@@ -167,7 +167,6 @@ public:
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
     void GetElementB(femmpostproc::CPostProcMElement &elm) const;
     void FindBoundaryEdges();
-    int ClosestNode(const double x, const double y) const;
     CComplex Ctr(int i) const;
     double ElmArea(int i) const;
     double ElmArea(femmpostproc::CPostProcMElement *elm) const;
@@ -220,10 +219,13 @@ public:
      */
     CComplex BlockIntegral(const int inttype) const;
     void LineIntegral(int inttype, CComplex *z) const;
+
+    int ClosestNode(const double x, const double y) const;
     int ClosestArcSegment(double x, double y) const;
     void GetCircle(const femm::CArcSegment &asegm,CComplex &c, double &R) const;
     double ShortestDistanceFromArc(const CComplex p, const femm::CArcSegment &arc) const;
     double ShortestDistanceFromSegment(double p, double q, int segm) const;
+
     CComplex GetJA(int k,CComplex *J,CComplex *A) const;
     CComplex PlnInt(double a, CComplex *u, CComplex *v) const;
     CComplex AxiInt(double a, CComplex *u, CComplex *v,double *r) const;

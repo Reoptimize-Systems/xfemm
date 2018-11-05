@@ -2244,6 +2244,112 @@ void femm::FemmProblem::translateMove(double dx, double dy, femm::EditMode selec
     enforcePSLG();
 }
 
+int femm::FemmProblem::ClosestNode(const double x, const double y) const
+{
+    int i,j;
+    double d0,d1;
+
+    if(nodelist.size()==0) return -1;
+
+    j=0;
+    d0=nodelist[0]->GetDistance(x,y);
+    for(i=0; i<(int)nodelist.size(); i++)
+    {
+        d1=nodelist[i]->GetDistance(x,y);
+        if(d1<d0)
+        {
+            d0=d1;
+            j=i;
+        }
+    }
+
+    return j;
+}
+
+
+int femm::FemmProblem::ClosestArcSegment(double x, double y) const
+{
+    double d0,d1;
+    int i,j;
+
+    if(arclist.size()==0) return -1;
+
+    j=0;
+    d0=ShortestDistanceFromArc(CComplex(x,y),*(arclist[0]));
+    for(i=0; i<(int)arclist.size(); i++)
+    {
+        d1=ShortestDistanceFromArc(CComplex(x,y),*(arclist[i]));
+        if(d1<d0)
+        {
+            d0=d1;
+            j=i;
+        }
+    }
+
+    return j;
+}
+
+void femm::FemmProblem::GetCircle(const CArcSegment &arc, CComplex &c, double &R) const
+{
+    CComplex a0,a1,t;
+    double d,tta;
+
+    a0.Set(nodelist[arc.n0]->x, nodelist[arc.n0]->y);
+    a1.Set(nodelist[arc.n1]->x, nodelist[arc.n1]->y);
+    d=abs(a1-a0);            // distance between arc endpoints
+
+    // figure out what the radius of the circle is...
+    t=(a1-a0)/d;
+    tta=arc.ArcLength*PI/180.;
+    R=d/(2.*sin(tta/2.));
+    c=a0 + (d/2. + I*sqrt(R*R-d*d/4.))*t; // center of the arc segment's circle...
+}
+
+double femm::FemmProblem::ShortestDistanceFromArc(const CComplex p, const CArcSegment &arc) const
+{
+    double R,d,l,z;
+    CComplex a0,a1,c,t;
+
+    a0.Set(nodelist[arc.n0]->x,nodelist[arc.n0]->y);
+    a1.Set(nodelist[arc.n1]->x,nodelist[arc.n1]->y);
+    GetCircle(arc,c,R);
+    d=abs(p-c);
+
+    if(d==0) return R;
+
+    t=(p-c)/d;
+    l=abs(p-c-R*t);
+    z=arg(t/(a0-c))*180/PI;
+    if ((z>0) && (z<arc.ArcLength)) return l;
+
+    z=abs(p-a0);
+    l=abs(p-a1);
+    if(z<l) return z;
+    return l;
+}
+
+double femm::FemmProblem::ShortestDistanceFromSegment(double p, double q, int segm) const
+{
+    double t,x[3],y[3];
+
+    x[0]=nodelist[linelist[segm]->n0]->x;
+    y[0]=nodelist[linelist[segm]->n0]->y;
+    x[1]=nodelist[linelist[segm]->n1]->x;
+    y[1]=nodelist[linelist[segm]->n1]->y;
+
+    t=((p-x[0])*(x[1]-x[0]) + (q-y[0])*(y[1]-y[0]))/
+      ((x[1]-x[0])*(x[1]-x[0]) + (y[1]-y[0])*(y[1]-y[0]));
+
+    if (t>1.) t=1.;
+    if (t<0.) t=0.;
+
+    x[2]=x[0]+t*(x[1]-x[0]);
+    y[2]=y[0]+t*(y[1]-y[0]);
+
+    return sqrt((p-x[2])*(p-x[2]) + (q-y[2])*(q-y[2]));
+}
+
+
 void femm::FemmProblem::unselectAll()
 {
     for(auto &node: nodelist) node->IsSelected = false;
@@ -2260,7 +2366,8 @@ void femm::FemmProblem::undo()
         arclist[i].swap(undoarclist[i]);
     for(int i=0; i<(int)undolabellist.size(); i++)
         labellist[i].swap(undolabellist[i]);
-    // Note(ZaJ): why not nodelist??
+    for(int i=0; i<(int)undonodelist.size(); i++)
+        nodelist[i].swap(undonodelist[i]);
 }
 
 void femm::FemmProblem::undoLines()

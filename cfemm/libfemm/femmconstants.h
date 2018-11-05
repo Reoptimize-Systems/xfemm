@@ -20,6 +20,7 @@
 #define LIBFEMM_CONSTANTS_H
 
 #define DEG 0.01745329251994329576923690768
+#define DEGREE 0.017453292519943295
 #define eo 8.85418781762e-12  ///< epsilon0; electric permittivity constant (in vacuum)
 #define Golden 0.3819660112501051517954131656
 #define Ksb 5.67032e-8 ///< Stefan-Boltzmann Constant

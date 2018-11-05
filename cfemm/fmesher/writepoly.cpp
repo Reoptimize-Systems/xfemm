@@ -32,6 +32,7 @@
 #include "IntPoint.h"
 #include "femmconstants.h"
 #include "CCommonPoint.h"
+#include "CAirGapElement.h"
 //extern "C" {
 #include "triangle.h"
 #ifndef XFEMM_BUILTIN_TRIANGLE
@@ -64,10 +65,12 @@
 #define BoundingBoxFraction 100.0
 #endif
 
+#define toDegrees(x) ((Im(x)>=0) ? arg(x) : (arg(x) + 2.*PI))*(180./PI)
 
 using namespace std;
 using namespace femm;
 using namespace fmesher;
+using namespace femmsolver;
 
 namespace {
 
@@ -782,21 +785,23 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     FILE *fp;
     int i, j, k, n;
     int l,n0,n1,n2;
-    double z,dL;
-    CComplex a0,a1,a2;
+    double z,R,dL;
+    CComplex a0,a1,a2,c;
     CComplex b0,b1,b2;
     char instring[1024];
     //string s;
     string plyname;
-    std::vector < std::unique_ptr<CNode> >             nodelst;
-    std::vector < std::unique_ptr<CSegment> >          linelst;
-    std::vector < std::unique_ptr<CAirGapElement> >    agelst;
+    std::vector < std::unique_ptr<CNode> >              nodelst;
+    std::vector < std::unique_ptr<CSegment> >           linelst;
+    //std::vector < std::unique_ptr<CCBlockLabel> >       blocklst;
+	std::vector < std::unique_ptr<CPeriodicBoundary> >  pbclst;
+    std::vector < std::unique_ptr<CAirGapElement> >     agelst;
+    std::vector < std::unique_ptr<CCommonPoint> >       ptlst;
+    CNode node;
     CSegment segm;
     CCommonPoint pt;
+    CPeriodicBoundary pbc;
     CAirGapElement age;
-
-    nodelst.clear();
-    linelst.clear();
 
     problem->updateUndo();
 
@@ -870,7 +875,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // entity is sliced into.
     for(auto &arc: problem->arclist) arc->cnt=0;
 
-    std::vector < CCommonPoint >      ptlst;
     // resize initializes the new elements using the default ctor:
     ptlst.resize(problem->linelist.size()+problem->arclist.size());
 
@@ -891,10 +895,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // store a reference line that we can use to
             // determine whether or not this is a
             // boundary segment w/out re-running triangle.
-            if (ptlst[j].t==0)
+            if (ptlst[j]->t==0)
             {
-                ptlst[j].t=1;
-                ptlst[j].setSortedValues(n0,n1);
+                ptlst[j]->t=1;
+                ptlst[j]->setSortedValues(n0,n1);
             }
 
             if(j<(int)problem->linelist.size())
@@ -966,9 +970,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         // are sides of this node...
         for(j=0;j<(int)ptlst.size();j++)
         {
-            if ((n0==ptlst[j].x) && (n1==ptlst[j].y)) ptlst[j].t--;
-            if ((n0==ptlst[j].x) && (n2==ptlst[j].y)) ptlst[j].t--;
-            if ((n1==ptlst[j].x) && (n2==ptlst[j].y)) ptlst[j].t--;
+            if ((n0==ptlst[j]->x) && (n1==ptlst[j]->y)) ptlst[j]->t--;
+            if ((n0==ptlst[j]->x) && (n2==ptlst[j]->y)) ptlst[j]->t--;
+            if ((n1==ptlst[j]->x) && (n2==ptlst[j]->y)) ptlst[j]->t--;
         }
     }
     fclose(fp);
@@ -976,7 +980,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // impose "new" mesh constraints on bdry arcs and segments....
     for(i=0; i < (int)problem->linelist.size(); i++)
     {
-        if (ptlst[i].t == 0)
+        if (ptlst[i]->t == 0)
         {
             // simply make the max side length equal to the
             // length of the boundary divided by the number
@@ -988,7 +992,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(i=0; i < (int)problem->arclist.size(); i++)
     {
-        if (ptlst[i+problem->linelist.size()].t == 0)
+        if (ptlst[i+problem->linelist.size()]->t == 0)
         {
             // alter maxsidelength, but do it in such
             // a way that it carries only 4 significant
@@ -998,7 +1002,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // its properties.
             char kludge[32];
             double newMaxSideLength;
-            newMaxSideLength = problem->arclist[i].ArcLength/((double) problem->arclist[i].IsSelected);
+            newMaxSideLength = problem->arclist[i]->ArcLength/((double) problem->arclist[i]->IsSelected);
             sprintf(kludge,"%.1e",newMaxSideLength);
             sscanf(kludge,"%lf",&newMaxSideLength);
 
@@ -1014,26 +1018,26 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 	for(i=0;i<problem->lineproplist.size();i++)
 	{
 		// pbc
-		if ((problem->lineproplist[i].BdryFormat==4) ||
-			(problem->lineproplist[i].BdryFormat==5)){
-			pbc.BdryName=problem->lineproplist[i].BdryName;
-			pbc.BdryFormat=problem->lineproplist[i].BdryFormat-4; // 0 for pbc, 1 for apbc
-			pbclst.push_back(pbc);
+		if ((problem->lineproplist[i]->BdryFormat==4) ||
+			(problem->lineproplist[i]->BdryFormat==5)){
+			pbc.BdryName=problem->lineproplist[i]->BdryName;
+			pbc.BdryFormat=problem->lineproplist[i]->BdryFormat-4; // 0 for pbc, 1 for apbc
+			pbclst.push_back(pbc.clone());
 		}
 
 		// age
-		if ((problem->lineproplist[i].BdryFormat==6) || (problem->lineproplist[i].BdryFormat==7))
+		if ((problem->lineproplist[i]->BdryFormat==6) || (problem->lineproplist[i]->BdryFormat==7))
 		{
 			// only add an AGE to the list if it's actually being used
-			for(j=0,k=0;j<arclist.GetSize();j++)
-				if (problem->arclist[j].BoundaryMarker==problem->lineproplist[i].BdryName) k++;
+			for(j=0,k=0;j<problem->arclist.size();j++)
+				if (problem->arclist[j]->BoundaryMarkerName==problem->lineproplist[i]->BdryName) k++;
 			if (k>1)
 			{
-				age.BdryName=problem->lineproplist[i].BdryName;
-				age.BdryFormat=problem->lineproplist[i].BdryFormat-6; // 0 for pbc, 1 for apbc
-				age.InnerAngle=problem->lineproplist[i].InnerAngle;
-				age.OuterAngle=problem->lineproplist[i].OuterAngle;
-				agelst.push_back(age);
+				age.BdryName=problem->lineproplist[i]->BdryName;
+				age.BdryFormat=problem->lineproplist[i]->BdryFormat-6; // 0 for pbc, 1 for apbc
+				age.InnerAngle=problem->lineproplist[i]->InnerAngle;
+				age.OuterAngle=problem->lineproplist[i]->OuterAngle;
+				agelst.push_back(age.clone());
 			}
 		}
 	}
@@ -1045,24 +1049,24 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 	// corresponding ot each lineproplist entry
 	for(i=0;i<problem->arclist.size();i++)
 	{
-		if (problem->arclist[i].BoundaryMarker!="<None>")
+		if (problem->arclist[i]->BoundaryMarkerName!="<None>")
 		{
 			for(j=0;j<agelst.size();j++)
 			{
 
-				if (problem->arclist[i].BoundaryMarker==agelst[j].BdryName)
+				if (problem->arclist[i]->BoundaryMarkerName==agelst[j]->BdryName)
 				{
-					agelst[j].totalArcLength += problem->arclist[i].ArcLength;
-					agelst[j].totalArcElements += problem->arclist[i].IsSelected;
+					agelst[j]->totalArcLength += problem->arclist[i]->ArcLength;
+					agelst[j]->totalArcElements += problem->arclist[i]->IsSelected;
 
-					GetCircle(problem->arclist[i],agelst[j].agc,R);
-					if (agelst[j].ro==0)
+					problem->GetCircle(*(problem->arclist[i]),agelst[j]->agc,R);
+					if (agelst[j]->ro==0)
 					{
-						agelst[j].ri=R;
-						agelst[j].ro=R;
+						agelst[j]->ri=R;
+						agelst[j]->ro=R;
 					}
-					if (R>agelst[j].ro) agelst[j].ro=R;
-					if (R<agelst[j].ri) agelst[j].ri=R;
+					if (R>agelst[j]->ro) agelst[j]->ro=R;
+					if (R<agelst[j]->ri) agelst[j]->ri=R;
 
 					break;
 				}
@@ -1073,50 +1077,46 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 	// cycle through AGEs and fix constituent arcs so that all arcs have the same discretization
 	for (i=0;i<agelst.size();i++)
 	{
-		if (agelst[i].totalArcLength>0) // if the AGE is actually in play
+		if (agelst[i]->totalArcLength>0) // if the AGE is actually in play
 		{
 			char kludge[32];
 			double myMaxSideLength,altMaxSideLength;
 
-			myMaxSideLength=agelst[i].totalArcLength/agelst[i].totalArcElements;
-			agelst[i].totalArcLength/=2;	// this is now the angle spanned by the AGE
+			myMaxSideLength=agelst[i]->totalArcLength/agelst[i]->totalArcElements;
+			agelst[i]->totalArcLength/=2;	// this is now the angle spanned by the AGE
 
 			// however, don't want long, skinny air gap elements.  Impose some limits
 			// based on the inner and outer radii;
-			altMaxSideLength=(360./PI)*(agelst[i].ro-agelst[i].ri)/(agelst[i].ro+agelst[i].ri);
+			altMaxSideLength=(360./PI)*(agelst[i]->ro-agelst[i]->ri)/(agelst[i]->ro+agelst[i]->ri);
 			if (altMaxSideLength<myMaxSideLength) myMaxSideLength=altMaxSideLength;
 			sprintf(kludge,"%.1e",myMaxSideLength);
 			sscanf(kludge,"%lf",&myMaxSideLength);
 
 			// apply new side length to all arcs in this AGE
-			for(j=0;j<problem->arclist.GetSize();j++)
-				if (problem->arclist[j].BoundaryMarker==agelst[i].BdryName)
-					problem->arclist[j].MaxSideLength=myMaxSideLength;
+			for(j=0;j<problem->arclist.size();j++)
+				if (problem->arclist[j]->BoundaryMarkerName==agelst[i]->BdryName)
+					problem->arclist[j]->MaxSideLength=myMaxSideLength;
 		}
 	}
 
 	// and perform a quick error check; AGE BCs can't be applied to segments (at least yet)
 	for (i=0;i<problem->linelist.size();i++)
 	{
-		if (problem->linelist[i].BoundaryMarker!="<None>")
+		if (problem->linelist[i]->BoundaryMarkerName!="<None>")
 		{
-			for(j=0;j<agelst.GetSize();j++)
+			for(j=0;j<agelst.size();j++)
 			{
 
-				if (problem->linelist[i].BoundaryMarker==agelst[j].BdryName)
+				if (problem->linelist[i]->BoundaryMarkerName==agelst[j]->BdryName)
 				{
-					MsgBox("Can't apply Air Gap Element BCs to line segments");
-					Undo();
-					UnselectAll();
-					return FALSE;
+					WarnMessage("Can't apply Air Gap Element BCs to line segments");
+					problem->undo();
+					//UnselectAll();
+					return -2;
 				}
 			}
 		}
 	}
-
-
-
-
 
         // want to impose explicit discretization only on
         // the boundary arcs and segments.  After the meshing
@@ -1131,7 +1131,6 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // the PBCs haven't been defined by the user
     // in a messed up way.
 
-    std::vector<CPeriodicBoundary> pbclst;
     // First, search through defined bc's for periodic ones;
     for(i=0;i<(int)problem->lineproplist.size();i++)
     {
@@ -1140,7 +1139,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             CPeriodicBoundary pbc;
             pbc.BdryName=problem->lineproplist[i]->BdryName;
             pbc.antiPeriodic = problem->lineproplist[i]->isPeriodic(CBoundaryProp::PeriodicityType::AntiPeriodic);
-            pbclst.push_back(pbc);
+            pbclst.push_back(pbc.clone());
         }
     }
 
@@ -1148,19 +1147,19 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         for(j=0;j<(int)pbclst.size();j++)
         {
-            if (pbclst[j].BdryName==problem->linelist[i]->BoundaryMarkerName)
+            if (pbclst[j]->BdryName==problem->linelist[i]->BoundaryMarkerName)
             {
                 // A pbc or apbc can only be applied to 2 segs
                 // at a time.  If it is applied to multiple segs
                 // at the same time, flag it and kick it out.
-                if (pbclst[j].nseg==2)
+                if (pbclst[j]->nseg==2)
                 {
                     WarnMessage("An (anti)periodic BC is assigned to more than two segments");
                     problem->undo();  problem->unselectAll();
                     return -1;
                 }
-                pbclst[j].seg[pbclst[j].nseg]=i;
-                pbclst[j].nseg++;
+                pbclst[j]->seg[pbclst[j]->nseg]=i;
+                pbclst[j]->nseg++;
             }
         }
     }
@@ -1169,19 +1168,19 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         for(j=0;j<(int)pbclst.size();j++)
         {
-            if (pbclst[j].BdryName==problem->arclist[i]->BoundaryMarkerName)
+            if (pbclst[j]->BdryName==problem->arclist[i]->BoundaryMarkerName)
             {
                 // A pbc or apbc can only be applied to 2 arcs
                 // at a time.  If it is applied to multiple arcs
                 // at the same time, flag it and kick it out.
-                if (pbclst[j].narc==2)
+                if (pbclst[j]->narc==2)
                 {
                     WarnMessage("An (anti)periodic BC is assigned to more than two arcs");
                     problem->undo();  problem->unselectAll();
                     return -1;
                 }
-                pbclst[j].seg[pbclst[j].narc]=i;
-                pbclst[j].narc++;
+                pbclst[j]->seg[pbclst[j]->narc]=i;
+                pbclst[j]->narc++;
             }
         }
     }
@@ -1191,7 +1190,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         // check for a bc that is a mix of arcs and segments.
         // this is an error, and it should get flagged.
-        if ((pbclst[j].nseg>0) && (pbclst[j].narc>0))
+        if ((pbclst[j]->nseg>0) && (pbclst[j]->narc>0))
         {
             WarnMessage("Can't mix arcs and segments for (anti)periodic BCs");
             problem->undo();  problem->unselectAll();
@@ -1200,7 +1199,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
 
         // remove any periodic BC's that aren't actually in play
-        if((pbclst[j].nseg<2) && (pbclst[j].narc<2)) pbclst.erase(pbclst.begin()+j);
+        if((pbclst[j]->nseg<2) && (pbclst[j]->narc<2)) pbclst.erase(pbclst.begin()+j);
         else j++;
     }
 
@@ -1211,11 +1210,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         // reconcile meshing on the objects.
 
         // for segments:
-        if(pbclst[j].nseg>0){
+        if(pbclst[j]->nseg>0){
 
             // make sure that lines are pretty much the same length
-            if(fabs(problem->lengthOfLine(pbclst[j].seg[0])
-                   -problem->lengthOfLine(pbclst[j].seg[1]))>1.e-06)
+            if(fabs(problem->lengthOfLine(pbclst[j]->seg[0])
+                   -problem->lengthOfLine(pbclst[j]->seg[1]))>1.e-06)
             {
                 WarnMessage("(anti)periodic BCs applied to dissimilar segments");
                 problem->undo();  problem->unselectAll();
@@ -1224,24 +1223,24 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             // make sure that both lines have the same spacing
             double len1,len2,len;
-            len1=problem->linelist[pbclst[j].seg[0]]->MaxSideLength;
-            len2=problem->linelist[pbclst[j].seg[1]]->MaxSideLength;
+            len1=problem->linelist[pbclst[j]->seg[0]]->MaxSideLength;
+            len2=problem->linelist[pbclst[j]->seg[1]]->MaxSideLength;
 
             if(len1<=0) len1=len2;
             if(len2<=0) len2=len1;
             len=(std::min)(len1,len2);
 
-            problem->linelist[pbclst[j].seg[0]]->MaxSideLength=len;
-            problem->linelist[pbclst[j].seg[1]]->MaxSideLength=len;
+            problem->linelist[pbclst[j]->seg[0]]->MaxSideLength=len;
+            problem->linelist[pbclst[j]->seg[1]]->MaxSideLength=len;
         }
 
         // for arc segments:
-        if(pbclst[j].narc>0){
+        if(pbclst[j]->narc>0){
 
             // make sure that arcs are pretty much the
             // same arc length
-            if(fabs(problem->arclist[pbclst[j].seg[0]]->ArcLength
-                   -problem->arclist[pbclst[j].seg[1]]->ArcLength)>1.e-06)
+            if(fabs(problem->arclist[pbclst[j]->seg[0]]->ArcLength
+                   -problem->arclist[pbclst[j]->seg[1]]->ArcLength)>1.e-06)
             {
                 WarnMessage("(anti)periodic BCs applied to dissimilar arc segments");
                 problem->undo();  problem->unselectAll();
@@ -1250,13 +1249,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             // make sure that both lines have the same spacing
             double len1,len2,len;
-            len1=problem->arclist[pbclst[j].seg[0]]->MaxSideLength;
-            len2=problem->arclist[pbclst[j].seg[1]]->MaxSideLength;
+            len1=problem->arclist[pbclst[j]->seg[0]]->MaxSideLength;
+            len2=problem->arclist[pbclst[j]->seg[1]]->MaxSideLength;
 
             len=(std::min)(len1,len2);
 
-            problem->arclist[pbclst[j].seg[0]]->MaxSideLength=len;
-            problem->arclist[pbclst[j].seg[1]]->MaxSideLength=len;
+            problem->arclist[pbclst[j]->seg[0]]->MaxSideLength=len;
+            problem->arclist[pbclst[j]->seg[1]]->MaxSideLength=len;
         }
     }
 
@@ -1268,7 +1267,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     problem->clearNotationTags();
     problem->unselectAll();
     nodelst.clear();
+    nodelst.shrink_to_fit();
     linelst.clear();
+    linelst.shrink_to_fit();
 
     // first, add in existing nodes
     for(const auto &node: problem->nodelist)
@@ -1276,13 +1277,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     for(n=0; n<(int)pbclst.size(); n++)
     {
-        if (pbclst[n].nseg != 0) // if this pbc is a line segment...
+        if (pbclst[n]->nseg != 0) // if this pbc is a line segment...
         {
             int s0,s1;
             CNode node0,node1;
 
-            s0=pbclst[n].seg[0];
-            s1=pbclst[n].seg[1];
+            s0=pbclst[n]->seg[0];
+            s1=pbclst[n]->seg[1];
             problem->linelist[s0]->IsSelected=1;
             problem->linelist[s1]->IsSelected=1;
 
@@ -1307,12 +1308,12 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // add segment end points to the list;
             pt.x = problem->linelist[s0]->n0;
             pt.y = problem->linelist[s1]->n0;
-            pt.t = pbclst[n].antiPeriodic;
-            ptlst.push_back(pt);
+            pt.t = pbclst[n]->antiPeriodic;
+            ptlst.push_back(pt.clone ());
             pt.x = problem->linelist[s0]->n1;
             pt.y = problem->linelist[s1]->n1;
-            pt.t = pbclst[n].antiPeriodic;
-            ptlst.push_back(pt);
+            pt.t = pbclst[n]->antiPeriodic;
+            ptlst.push_back(pt.clone ());
 
             if (k == 1){
                 // catch the case in which the line
@@ -1343,8 +1344,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         linelst.push_back(segm.clone());
                         pt.y = l;
 
-                        pt.t = pbclst[n].antiPeriodic;
-                        ptlst.push_back(pt);
+                        pt.t = pbclst[n]->antiPeriodic;
+                        ptlst.push_back(pt.clone());
                     }
                     else if(j==(k-1))
                     {
@@ -1376,8 +1377,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
                         pt.x = l;
                         pt.y = l+1;
-                        pt.t = pbclst[n].antiPeriodic;
-                        ptlst.push_back(pt);
+                        pt.t = pbclst[n]->antiPeriodic;
+                        ptlst.push_back(pt.clone());
                     }
                 }
             }
@@ -1390,8 +1391,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             CComplex bgn0,bgn1,c0,c1,d0,d1;
             double r0,r1;
 
-            s0 = pbclst[n].seg[0];
-            s1 = pbclst[n].seg[1];
+            s0 = pbclst[n]->seg[0];
+            s1 = pbclst[n]->seg[1];
             problem->arclist[s0]->IsSelected = 1;
             problem->arclist[s1]->IsSelected = 1;
 
@@ -1429,10 +1430,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             }
 
             // add arc segment end points to the list;
-            pt.x=p0[0]; pt.y=p1[0]; pt.t=pbclst[n].antiPeriodic;
-            ptlst.push_back(pt);
-            pt.x=p0[1]; pt.y=p1[1]; pt.t=pbclst[n].antiPeriodic;
-            ptlst.push_back(pt);
+            pt.x=p0[0]; pt.y=p1[0]; pt.t=pbclst[n]->antiPeriodic;
+            ptlst.push_back(pt.clone());
+            pt.x=p0[1]; pt.y=p1[1]; pt.t=pbclst[n]->antiPeriodic;
+            ptlst.push_back(pt.clone());
 
             if (k==1){
 
@@ -1467,8 +1468,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                         linelst.push_back(segm.clone());
                         pt.y=l;
 
-                        pt.t=pbclst[n].antiPeriodic;
-                        ptlst.push_back(pt);
+                        pt.t=pbclst[n]->antiPeriodic;
+                        ptlst.push_back(pt.clone());
                     }
                     else if(j==(k-1))
                     {
@@ -1500,8 +1501,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
                         pt.x=l;
                         pt.y=l+1;
-                        pt.t=pbclst[n].antiPeriodic;
-                        ptlst.push_back(pt);
+                        pt.t=pbclst[n]->antiPeriodic;
+                        ptlst.push_back(pt.clone());
                     }
                 }
 
@@ -1511,31 +1512,31 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
 
 	// Now, discretize arcs that are part of an AGE
-	for(n=0;n<agelst.GetSize();n++)
+	for(n=0;n<agelst.size();n++)
 	{
 		std::vector <int> myVector;
 
-		z = (agelst[n].ro + agelst[n].ri)/2.;
+		z = (agelst[n]->ro + agelst[n]->ri)/2.;
 
-		for(i=0;i<problem->arclist.GetSize();i++)
-		if((problem->arclist[i].IsSelected==false) && (arclist[i].BoundaryMarker==agelst[n].BdryName)){
-			problem->arclist[i].IsSelected=true;
-			a2.Set(problem->nodelist[problem->arclist[i].n0].x,problem->nodelist[problem->arclist[i].n0].y);
-			k=(int) ceil(problem->arclist[i].ArcLength/problem->arclist[i].MaxSideLength);
-			segm.BoundaryMarker=problem->arclist[i].BoundaryMarker;
-			GetCircle(problem->arclist[i],c,R);
-			a1=exp(I*problem->arclist[i].ArcLength*PI/(((double) k)*180.));
+		for(i=0;i<problem->arclist.size();i++)
+		if((problem->arclist[i]->IsSelected==0) && (problem->arclist[i]->BoundaryMarkerName==agelst[n]->BdryName)){
+			problem->arclist[i]->IsSelected=1;
+			a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
+			k=(int) ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
+			segm.BoundaryMarker=problem->arclist[i]->BoundaryMarker;
+			problem->GetCircle(*(problem->arclist[i]),c,R);
+			a1=exp(I*problem->arclist[i]->ArcLength*PI/(((double) k)*180.));
 
 			// insert the starting node
 			if (R>z) // on outer radius
-				myVector.push_back(problem->arclist[i].n0);
+				myVector.push_back(problem->arclist[i]->n0);
 			else	// on inner radius
-				myVector.insert(myVector.begin(),problem->arclist[i].n0);
+				myVector.insert(myVector.begin(),problem->arclist[i]->n0);
 
 			if(k==1){
-				segm.n0=problem->arclist[i].n0;
-				segm.n1=problem->arclist[i].n1;
-				linelst.push_back(segm);
+				segm.n0=problem->arclist[i]->n0;
+				segm.n1=problem->arclist[i]->n1;
+				linelst.push_back(segm.clone());
 			}
 			else for(j=0;j<k;j++)
 			{
@@ -1543,10 +1544,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 				node.x=a2.re; node.y=a2.im;
 				if(j==0){
 					l=(int) nodelst.size();
-					nodelst.push_back(node);
-					segm.n0=arclist[i].n0;
+					nodelst.push_back(node.clone());
+					segm.n0=problem->arclist[i]->n0;
 					segm.n1=l;
-					linelst.push_back(segm);
+					linelst.push_back(segm.clone());
 
 					// insert newly created node
 					if (R>z) // on outer radius
@@ -1558,30 +1559,30 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 				{
 					l=(int) nodelst.size()-1;
 					segm.n0=l;
-					segm.n1=problem->arclist[i].n1;
-					linelst.push_back(segm);
+					segm.n1=problem->arclist[i]->n1;
+					linelst.push_back(segm.clone());
 				}
 				else{
 					l=(int) nodelst.size();
-					nodelst.push_back(node);
+					nodelst.push_back(node.clone());
 					segm.n0=l-1;
 					segm.n1=l;
-					linelst.push_back(segm);
+					linelst.push_back(segm.clone());
 
 					// insert newly created node
 					if (R>z) // on outer radius
 						myVector.push_back(l);
 					else	// on inner radius
-						myVector.InsertAt(0,l);
+						myVector.insert(myVector.begin(),l);
 
 				}
 			}
 		}
-        agelst[n].quadnode.clear ();
-		agelst[n].quadnode.shrink_to_fit ();
-		agelst[n].quadnode.reserve (myVector.GetSize()+1);
-		agelst[n].node[0]=(int) myVector.size();
-		for(k=0;k<myVector.size();k++) agelst[n].node[k+1]=myVector[k];
+        agelst[n]->nodeNums.clear ();
+		agelst[n]->nodeNums.shrink_to_fit ();
+		agelst[n]->nodeNums.reserve (myVector.size()+1);
+		agelst[n]->nodeNums[0]=(int) myVector.size();
+		for(k=0;k<myVector.size();k++) agelst[n]->nodeNums[k+1]=myVector[k];
 	}
 
 
@@ -1648,14 +1649,14 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 //    fclose(fp);
 
     // Make sure to prune out any duplications in the ptlst
-    for(k=0;k<(int)ptlst.size();k++) ptlst[k].sortXY();
+    for(k=0;k<(int)ptlst.size();k++) ptlst[k]->sortXY();
     k=0;
     while((k+1) < (int)ptlst.size())
     {
         j=k+1;
         while(j < (int)ptlst.size())
         {
-            if((ptlst[k].x==ptlst[j].x) && (ptlst[k].y==ptlst[j].y))
+            if((ptlst[k]->x==ptlst[j]->x) && (ptlst[k]->y==ptlst[j]->y))
                 ptlst.erase(ptlst.begin()+j);
             else j++;
         }
@@ -1678,10 +1679,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     {
         for(j=k+1;j<ptlst.size();j++)
         {
-            if(ptlst[k].x==ptlst[j].x) n=true;
-            if(ptlst[k].y==ptlst[j].y) n=true;
-            if(ptlst[k].x==ptlst[j].y) n=true;
-            if(ptlst[k].y==ptlst[j].x) n=true;
+            if(ptlst[k]->x==ptlst[j]->x) n=true;
+            if(ptlst[k]->y==ptlst[j]->y) n=true;
+            if(ptlst[k]->x==ptlst[j]->y) n=true;
+            if(ptlst[k]->y==ptlst[j]->x) n=true;
         }
     }
     if (n==true){
@@ -1698,8 +1699,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         return -1;
     }
     fprintf(fp,"%i\n", (int) ptlst.size());
+
     for(k=0;k<(int)ptlst.size();k++)
-        fprintf(fp,"%i    %i    %i    %i\n",k,ptlst[k].x,ptlst[k].y,ptlst[k].t);
+    {
+        fprintf(fp,"%i    %i    %i    %i\n",k,ptlst[k]->x,ptlst[k]->y,ptlst[k]->t);
+    }
 
 
 	fprintf(fp,"%i\n",(int) agelst.size());
@@ -1713,10 +1717,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 		OuterRing.clear();
 		OuterRing.shrink_to_fit();
 
-		n=agelst[k].node[0]/2;
-		dtta = agelst[k].totalArcLength/n;
+		n=agelst[k]->nodeNums[0]/2;
+		dtta = agelst[k]->totalArcLength/n;
 		n0=(int) round(360./dtta); // total elements in a 360deg annular ring;
-		n1=(int) round(360./agelst[k].totalArcLength); // number of copied segments
+		n1=(int) round(360./agelst[k]->totalArcLength); // number of copied segments
 
 		// Should do some consistency checking here;
 		//   totalArcLength*n1 should equal 360
@@ -1731,24 +1735,24 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 		int kk;
 		for(j=0,kk=0;j<n1;j++)  // do each slice
 		{
-			if ((agelst[k].BdryFormat==1) && (j % 2 != 0)) dL=-1; // antiperiodic
+			if ((agelst[k]->BdryFormat==1) && (j % 2 != 0)) dL=-1; // antiperiodic
 			else dL=1;
 
-			a1=exp(I*(j*agelst[k].totalArcLength+agelst[k].InnerAngle)*DEGREE);
-			a2=exp(I*(j*agelst[k].totalArcLength+agelst[k].OuterAngle)*DEGREE);
+			a1=exp(I*(j*agelst[k]->totalArcLength+agelst[k]->InnerAngle)*DEGREE);
+			a2=exp(I*(j*agelst[k]->totalArcLength+agelst[k]->OuterAngle)*DEGREE);
 			for(i=1;i<=n;i++)
 			{
-				a0=a1*(nodelst[agelst[k].node[i]].CC()-agelst[k].agc); // position of the shifted mesh node
+				a0=a1*(nodelst[agelst[k]->nodeNums[i]]->CC()-agelst[k]->agc); // position of the shifted mesh node
 				z=toDegrees(a0)/dtta;
 
-				InnerRing[kk].n0=agelst[k].node[i];
+				InnerRing[kk].n0=agelst[k]->nodeNums[i];
 				InnerRing[kk].w0=z;
 				InnerRing[kk].w1=dL;
 
-				a0=a2*(nodelst[agelst[k].node[i+n]].CC()-agelst[k].agc); // position of the shifted mesh node
+				a0=a2*(nodelst[agelst[k]->nodeNums[i+n]]->CC()-agelst[k]->agc); // position of the shifted mesh node
 				z=toDegrees(a0)/dtta;
 
-				OuterRing[kk].n0=agelst[k].node[i+n];
+				OuterRing[kk].n0=agelst[k]->nodeNums[i+n];
 				OuterRing[kk].w0=z;
 				OuterRing[kk].w1=dL;
 
@@ -1795,11 +1799,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 		}
 
 		// print out AGE definition
-		fprintf(fp,"\"%s\"\n",agelst[k].BdryName);
+		fprintf(fp,"\"%s\"\n",agelst[k]->BdryName.c_str ());
 		fprintf(fp,"%i %.17g %.17g %.17g %.17g %.17g %.17g %.17g %i %.17g %.17g\n",
-			agelst[k].BdryFormat,agelst[k].InnerAngle,agelst[k].OuterAngle,
-			agelst[k].ri,agelst[k].ro,agelst[k].totalArcLength,
-			Re(agelst[k].agc),Im(agelst[k].agc),n,
+			agelst[k]->BdryFormat,agelst[k]->InnerAngle,agelst[k]->OuterAngle,
+			agelst[k]->ri,agelst[k]->ro,agelst[k]->totalArcLength,
+			Re(agelst[k]->agc),Im(agelst[k]->agc),n,
 			InnerRing[0].w0,OuterRing[0].w0);
 
 		for(i=0;i<=n;i++)
@@ -1819,13 +1823,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 		}
 
 /*
-		fprintf(fp,"%s\n",agelst[k].BdryName);
+		fprintf(fp,"%s\n",agelst[k]->BdryName);
 		fprintf(fp,"%i %.17g %.17g %.17g %.17g %.17g %.17g %.17g %i\n",
-			agelst[k].BdryFormat,agelst[k].InnerAngle,agelst[k].OuterAngle,
-			agelst[k].ri,agelst[k].ro,agelst[k].totalArcLength,
-			Re(agelst[k].agc),Im(agelst[k].agc),n);
+			agelst[k]->BdryFormat,agelst[k]->InnerAngle,agelst[k]->OuterAngle,
+			agelst[k]->ri,agelst[k]->ro,agelst[k]->totalArcLength,
+			Re(agelst[k]->agc),Im(agelst[k]->agc),n);
 		for(i=1;i<=n;i++)
-			fprintf(fp,"%i %i\n",agelst[k].node[i],agelst[k].node[n+i]); */
+			fprintf(fp,"%i %i\n",agelst[k]->quadNode[i],agelst[k]->quadNode[n+i]); */
 
 
 

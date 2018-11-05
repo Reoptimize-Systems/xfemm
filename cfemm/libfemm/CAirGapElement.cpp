@@ -47,6 +47,11 @@ femmsolver::CAirGapElement::CAirGapElement()
 {
 }
 
+std::unique_ptr<femmsolver::CAirGapElement> femmsolver::CAirGapElement::clone() const
+{
+    return std::unique_ptr<femmsolver::CAirGapElement>(new femmsolver::CAirGapElement(*this));
+}
+
 
 //femmsolver::CAirGapElement femmsolver::CMElement::fromStream(std::istream &input, std::ostream &)
 //{

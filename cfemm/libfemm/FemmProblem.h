@@ -462,6 +462,13 @@ public:
      */
     void translateMove(double dx, double dy, femm::EditMode selector);
 
+    int ClosestNode(const double x, const double y) const;
+    int ClosestArcSegment(double x, double y) const;
+    void GetCircle(const femm::CArcSegment &asegm,CComplex &c, double &R) const;
+    double ShortestDistanceFromArc(const CComplex p, const femm::CArcSegment &arc) const;
+    double ShortestDistanceFromSegment(double p, double q, int segm) const;
+
+
     /**
      * @brief Deselect all nodes, block labels, line segments, and arc segments.
      */
@@ -535,6 +542,7 @@ private:
     std::vector< std::unique_ptr<femm::CArcSegment> > undoarclist;
     std::vector< std::unique_ptr<femm::CBlockLabel> > undolabellist;
 };
+
 
 } //namespace
 
