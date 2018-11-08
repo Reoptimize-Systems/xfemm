@@ -699,34 +699,23 @@ function writefemmfile(filename, FemmProblem, varargin)
         FemmProblem.BlockLabels = [];
     end 
     
-    % write out list of holes
-    nholes = 0;
-    for i = 1:numel(FemmProblem.BlockLabels)
-        if isequal(FemmProblem.BlockLabels(i).BlockType, '<No Mesh>')
-            nholes = nholes + 1;
-        end
-    end
+    % write out list of holes 
     
-    fprintf(fp,'[NumHoles] = %i\n',nholes);
+    nholes = numel(FemmProblem.Holes);
+    fprintf(fp,'[NumHoles] = %i\n', nholes);
     
     k = 0;
-    for i = 1:numel(FemmProblem.BlockLabels)
-
-        if isequal(FemmProblem.BlockLabels(i).BlockType, '<No Mesh>')
-
-            fprintf(fp,'%.17g\t%.17g\t%i\n', ...
-                FemmProblem.BlockLabels(i).Coords(1), ...
-                FemmProblem.BlockLabels(i).Coords(2), ...
-                FemmProblem.BlockLabels(i).InGroup);
-
-            k = k + 1;
-
-        end
+    
+    for i = 1:nholes
         
+        fprintf(fp,'%.17g\t%.17g\t%i\n', ...
+            FemmProblem.Holes(i).Coords(1), ...
+            FemmProblem.Holes(i).Coords(2), ...
+            FemmProblem.Holes(i).InGroup);
     end
 
     % write out regional attributes, the block labels
-    fprintf(fp,'[NumBlockLabels] = %i\n', numel(FemmProblem.BlockLabels) - nholes);
+    fprintf(fp,'[NumBlockLabels] = %i\n', numel(FemmProblem.BlockLabels));
 
     for i = 1:numel(FemmProblem.BlockLabels)
 

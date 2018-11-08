@@ -189,6 +189,8 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     std::stringstream err;
     err >> noskipws; // don't discard whitespace from message stream
 
+    WarnMessage ("FEASolver::LoadProblemFile\n");
+
     input.open(file.c_str(), std::ifstream::in);
     if (!input.is_open())
     {
@@ -336,6 +338,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // AC Solver Type
         if( token == "[acsolver]")
         {
+            WarnMessage("***************** feasolver.cpp  in token == \"[acsolver]\"   *****************");
             success &= expectChar(lineStream, '=', err);
             success &= parseValue(lineStream, ACSolver, err);
             continue;
@@ -344,14 +347,17 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 		// Previous solution type
 		if( token == "[prevtype]" )
         {
+            WarnMessage("***************** feasolver.cpp  in token == \"[prevtype]\"   *****************");
 			success &= expectChar(lineStream, '=', err);
 			success &= parseValue(lineStream, PrevType, err);
+			continue;
 		}
 
         if( token == "[prevsoln]" )
         {
-            expectChar(lineStream, '=', err);
-            parseString(lineStream, &previousSolutionFile);
+            WarnMessage("***************** feasolver.cpp  in token == \"[prevsoln]\"   *****************");
+            success &= expectChar(lineStream, '=', err);
+            success &= parseString(lineStream, &previousSolutionFile, err);
             continue;
         }
 
@@ -479,6 +485,19 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 
                 labellist.push_back(blk);
             }
+
+            // message will be printed after parsing is done
+//            if (NumBlockLabels != i)
+//            {
+//                err << "Expected "<<NumBlockLabels<<" BlockLabels, but got " << i << "\n";
+//                break; // stop parsing
+//            }
+#ifdef DEBUG
+            {
+                char buf[1048]; snprintf(buf, sizeof(buf), "feasolver: Expected %i block labels, labellist length is %i\n", NumBlockLabels, (int) labellist.size ());
+                WarnMessage(buf);
+            }
+#endif // DEBUG
             continue;
         }
 
@@ -571,6 +590,8 @@ std::string FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabe
         return "problem loading mesh:\nCould not open .pbc file.\n";
     case( MISSINGMATPROPS ):
         return "problem loading mesh:\nMaterial properties have not been defined for all regions.\n";
+    case( ELMLABELTOOBIG ):
+        return "problem loading mesh:\nElemnet label number was greater than the number of labels in the problem.\n";
     }
 
     assert(false);

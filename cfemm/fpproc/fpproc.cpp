@@ -402,14 +402,32 @@ bool FPProc::OpenDocument(string pathname)
             }
 
             PrevSoln=v;
-			if(!PrevSoln.empty ())
+			if(PrevSoln.empty ())
             {
-                // prevType can be 0, 1 or 2, 1 or 2 will evaluate to true
-                bIncremental = PrevType;
+                bIncremental=false;
             }
 			else
             {
-                bIncremental=true;
+                // prevType can be 0, 1 or 2, 1 or 2 will evaluate to true
+                switch (bIncremental)
+                {
+                    case 0:
+                    {
+                        bIncremental=false;
+                        break;
+                    }
+                    case 1:
+                    {
+                        bIncremental=true;
+                        break;
+                    }
+                    case 2:
+                    {
+                        bIncremental=true;
+                        break;
+                    }
+
+                }
             }
             q[0]= '\0';
         }
@@ -1085,7 +1103,8 @@ bool FPProc::OpenDocument(string pathname)
                     if (sscnt != 4)
                     {
                         std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
-                                + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                                + std::to_string(sscnt) + ") for node " + std::to_string(i)
+                                + " (expected 4).\n";
                         WarnMessage(msg.c_str()); /* Error */
                         fclose(fp);
                         return false;
@@ -1096,14 +1115,21 @@ bool FPProc::OpenDocument(string pathname)
                     int bc;
                     double tmpAprev = 0;
 
-                    sscanf(s,"%lf	%lf	%lf	%lf	%i	%lf",&mnode.x,&mnode.y,&mnode.A.re,&mnode.A.im,&bc,&tmpAprev);
+                    sscanf(s,"%lf\t%lf\t%lf\t%lf\t%i\t%lf",
+                           &mnode.x,
+                           &mnode.y,
+                           &mnode.A.re,
+                           &mnode.A.im,
+                           &bc,
+                           &tmpAprev);
 
                     Aprev.push_back(tmpAprev);
 
                     if (sscnt != 6)
                     {
                         std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
-                                + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                                + std::to_string(sscnt) + ") for node " + std::to_string(i)
+                                + " (expected 6).\n";
                         WarnMessage(msg.c_str()); /* Error */
                         fclose(fp);
                         return false;
@@ -1114,13 +1140,17 @@ bool FPProc::OpenDocument(string pathname)
             {
                 if (!bIncremental)
                 {
-                    sscnt = sscanf(s,"%lf\t%lf\t%lf",&mnode.x,&mnode.y,&mnode.A.re);
+                    sscnt = sscanf(s,"%lf\t%lf\t%lf",
+                                   &mnode.x,
+                                   &mnode.y,
+                                   &mnode.A.re);
 
 
                     if (sscnt != 3)
                     {
                         std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
-                                + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                                + std::to_string(sscnt) + ") for node " + std::to_string(i)
+                                + " (expected 3).\n";
                         WarnMessage(msg.c_str()); /* Error */
     #ifdef DEBUG_FPPROC
                         printf("s: %s\n", s);
@@ -1134,14 +1164,20 @@ bool FPProc::OpenDocument(string pathname)
                     int bc;
                     double tmpAprev = 0;
 
-                    sscanf(s, "%lf\t%lf\t%lf\t%i\t%lf", &mnode.x, &mnode.y, &mnode.A.re, &bc, &tmpAprev);
+                    sscnt = sscanf(s, "%lf\t%lf\t%lf\t%i\t%lf",
+                                   &mnode.x,
+                                   &mnode.y,
+                                   &mnode.A.re,
+                                   &bc,
+                                   &tmpAprev);
 
                     Aprev.push_back(tmpAprev);
 
                     if (sscnt != 5)
                     {
                         std::string msg = "An error occured while reading mesh nodes section of file, wrong number of inputs ("
-                                + std::to_string(sscnt) + ") for node " + std::to_string(i) + ".\n";
+                                + std::to_string(sscnt) + ") for node " + std::to_string(i)
+                                + " (expected 5).\n";
                         WarnMessage(msg.c_str()); /* Error */
     #ifdef DEBUG_FPPROC
                         printf("s: %s\n", s);

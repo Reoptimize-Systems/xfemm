@@ -24,7 +24,7 @@ function FemmProblem = translateblocklabels_mfemm(FemmProblem, x, y, blockids)
 
 
     if nargin < 4
-        blockinds = 1:numel(FemmProblem.Nodes);
+        blockinds = 1:numel(FemmProblem.BlockLabels);
     else
         blockinds = blockids + 1;
     end

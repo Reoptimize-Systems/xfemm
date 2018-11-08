@@ -113,7 +113,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     mxFree(inputbuf);
 
     if (verbose == true) mexPrintf("Loading problem file ...");
-    
+
     status = SolveObj->LoadProblemFile ();
 
     if (status != true)
@@ -125,19 +125,19 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
 
     if (verbose == true) mexPrintf("Solving problem ...");
-    
-     if ( !SolveObj->runSolver(verbose) )
-     {
+
+    if ( !SolveObj->runSolver(verbose) )
+    {
         if (verbose == true) mexPrintf("Problem NOT solved, exiting solver.");
-        
+
         plhs[0] = mxCreateDoubleScalar (2.0);
         return;
-     }
-    
-    
-    
-    
-    
+    }
+
+
+
+
+
 //     // load mesh
 //     LoadMeshErr err = SolveObj->LoadMesh();
 //     if (err != NOERROR)
@@ -145,7 +145,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //         voidmexPrintF(SolveObj->getErrorString(err).c_str());
 //         return;
 //     }
-// 
+//
 //     // renumber using Cuthill-McKee
 //     if (verbose)
 //         voidmexPrintF("renumbering nodes\n");
@@ -154,7 +154,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //         voidmexPrintF("problem renumbering node points\n");
 //         return;
 //     }
-// 
+//
 //     if (verbose)
 //     {
 //         voidmexPrintF("solving...\n");
@@ -164,7 +164,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //         stats += "Precision: " + to_string(SolveObj->Precision) + "\n";
 //         voidmexPrintF(stats.c_str());
 //     }
-// 
+//
 //     if (SolveObj->Frequency == 0)
 //     {
 //         if (!SolveObj->previousSolutionFile.empty())
@@ -174,18 +174,18 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //         }
 //         CBigLinProb L;
 //         L.Precision = SolveObj->Precision;
-// 
+//
 //         // initialize the problem, allocating the space required to solve it.
 //         if (L.Create(SolveObj->NumNodes, SolveObj->BandWidth) == false)
 //         {
 //             voidmexPrintF("couldn't allocate enough space for matrices\n");
 //             return;
 //         }
-// 
+//
 //         // Create element matrices and solve the problem;
 //         if (SolveObj->ProblemType == PLANAR)
 //         {
-// 
+//
 //             if (SolveObj->Static2D(L) == false)
 //             {
 //                 voidmexPrintF("Couldn't solve the problem\n");
@@ -202,7 +202,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //             if (verbose)
 //                 voidmexPrintF("Static axisymmetric problem solved\n");
 //         }
-// 
+//
 //         if (SolveObj->WriteStatic2D(L) == false)
 //         {
 //             voidmexPrintF("couldn't write results to disk\n");
@@ -210,19 +210,19 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //         }
 //         if (verbose)
 //             voidmexPrintF("results written to disk\n");
-//     } 
-//     else 
+//     }
+//     else
 //     {
 //         CBigComplexLinProb L;
 //         L.Precision = SolveObj->Precision;
-// 
+//
 //         // initialize the problem, allocating the space required to solve it.
 //         if (!L.Create(SolveObj->NumNodes+SolveObj->NumCircProps, SolveObj->BandWidth, SolveObj->NumNodes))
 //         {
 //             voidmexPrintF("couldn't allocate enough space for matrices\n");
 //             return;
 //         }
-// 
+//
 //         // Create element matrices and solve the problem;
 //         if (SolveObj->ProblemType == PLANAR)
 //         {
@@ -237,8 +237,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //             }
 //             if (verbose)
 //                 voidmexPrintF("Harmonic 2-D problem solved\n");
-//         } 
-//         else 
+//         }
+//         else
 //         {
 //             if (!SolveObj->previousSolutionFile.empty())
 //             {
@@ -253,7 +253,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //             if (verbose)
 //                 voidmexPrintF("Harmonic axisymmetric problem solved\n");
 //         }
-// 
+//
 //         if (!SolveObj->WriteHarmonic2D(L))
 //         {
 //             voidmexPrintF("couldn't write results to disk\n");
@@ -262,9 +262,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
 //         if (verbose)
 //             voidmexPrintF("results written to disk.\n");
 //     }
-    
-    
-    
+
+
+
 
 //
 //    // load mesh

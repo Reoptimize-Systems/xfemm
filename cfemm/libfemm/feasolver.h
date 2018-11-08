@@ -50,7 +50,8 @@ enum LoadMeshErr
     BADPBCFILE,
     BADELEMENTFILE,
     BADEDGEFILE,
-    MISSINGMATPROPS
+    MISSINGMATPROPS,
+    ELMLABELTOOBIG
 };
 
 template< class PointPropT

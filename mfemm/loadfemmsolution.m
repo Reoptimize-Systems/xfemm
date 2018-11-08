@@ -893,7 +893,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
         end
 
         % read in arc segment list
-        if(strncmpi(q,'[numarcsegments]',13))
+        if(strncmpi(q,'[numarcsegments]',16))
             v = StripKey(q);
 
             narcsegments = round(str2double(v));
@@ -953,7 +953,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
 
         % read in list of holes;
-        if(strncmpi(q,'[numholes]',13))
+        if(strncmpi(q,'[numholes]',10))
 
             v = StripKey(q);
 
@@ -961,23 +961,21 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
 
             if nholes > 0
 
-                blk.BlockType = -1;
-                blk.MaxArea = 0;
-
                 for i = 1:nholes
 
                     s = fgetl(fid);
 
-                    C = textscan(s,'%f %f');
+                    C = textscan(s,'%f %f %d');
 
-                    FemmProblem.Holes(i).x = C{1};
-                    FemmProblem.Holes(i).y = C{2};
+                    FemmProblem.Holes(i) = struct ( 'Coords', [C{1}, C{2}], ...
+                                                    'InGroup', C{3} );
 
-                    %	blocklist.Add(blk);
                     %  don't add holes to the list
                     %  of block labels because it messes up the
                     %  number of block labels.
                 end
+            else
+                FemmProblem.Holes = struct ();
             end
             
             % get the next line of input
@@ -987,7 +985,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
         end
 
         % read in regional attributes
-        if(strncmpi(q,'[numblocklabels]',13))
+        if(strncmpi(q,'[numblocklabels]',16))
 
             v = StripKey(q);
 
