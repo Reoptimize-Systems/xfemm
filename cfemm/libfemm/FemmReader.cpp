@@ -237,13 +237,6 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             continue;
         }
 
-        if( token == "[prevsoln]" )
-        {
-            expectChar(lineStream, '=', err);
-            parseString(lineStream,&(problem->previousSolutionFile));
-            continue;
-        }
-
 		// Previous solution type
 		if( token == "[prevtype]" )
         {
@@ -251,6 +244,13 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
 			success &= parseValue(lineStream, problem->PrevType, err);
 			continue;
 		}
+
+        if( token == "[prevsoln]" )
+        {
+            success &= expectChar(lineStream, '=', err);
+            parseString(lineStream,&(problem->previousSolutionFile), err);
+            continue;
+        }
 
         // Option to force use of default max mesh, overriding
         // user choice
@@ -548,6 +548,10 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                 line = line.substr(pos);
                 asegm->InGroup = std::stoi(line, &pos);
                 line = line.substr(pos);
+
+                // make mySideLength same as MaxSideLength in case it isn't specified
+                asegm->mySideLength=asegm->MaxSideLength;
+
                 if (problem->filetype == femm::FileType::HeatFlowFile ||
                         problem->filetype == femm::FileType::ElectrostaticsFile )
                 {
@@ -559,6 +563,16 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                         asegm->InConductor--;
                     }
                 }
+                else if (problem->filetype == femm::FileType::MagneticsFile)
+                {
+                    trim(line);
+                    if (!line.empty())
+                    {
+                        asegm->mySideLength = std::stod(line, &pos);
+                        std::cout << "Read mySideLength as " << asegm->mySideLength << std::endl;
+                    }
+                }
+
                 problem->arclist.push_back(std::move(asegm));
             }
             // message will be printed after parsing is done

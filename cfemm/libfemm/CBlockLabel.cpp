@@ -25,7 +25,7 @@
         richard.crozier@yahoo.co.uk
         johannes@zarl-zierl.at
 
- Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  Mechatronics GmbH (LCM)
 */
 
@@ -76,7 +76,13 @@ double CBlockLabel::GetDistance(double xo, double yo)
 
 bool CBlockLabel::hasBlockType() const
 {
-    return (BlockType!=-1);
+    return ( (BlockTypeName != "<No Mesh>") && (BlockTypeName != "<Inf>") );
+}
+
+bool CBlockLabel::isHole() const
+{
+    //return (BlockTypeName == "<No Mesh>");
+    return (BlockType == -1);
 }
 
 bool CBlockLabel::isInCircuit() const

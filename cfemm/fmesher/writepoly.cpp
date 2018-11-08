@@ -40,7 +40,7 @@
 #endif
 //}
 
-
+#include <iostream>
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -682,6 +682,10 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
     std::vector < std::unique_ptr<CNode> >       nodelst;
     std::vector < std::unique_ptr<CSegment> >    linelst;
 
+#ifdef DEBUG
+    WarnMessage("writepoly: beginning NON periodic boundary triangulation\n");
+#endif // DEBUG
+
     nodelst.clear();
     linelst.clear();
     // calculate length used to kludge fine meshing near input node points
@@ -716,7 +720,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 //    fprintf(fp,"%i\n",blocklist.size()-j);
 //
 //    for(i=0,k=0;i<blocklist.size();i++)
-//        if(blocklist[i]->BlockTypeName!="<No Mesh>")
+//        if(blocklist[i]->BlockTypeName!="<No Mesh>" && (blocklist[i].BlockType!="<Inf>"))
 //        {
 //            fprintf(fp,"%i    %.17g    %.17g    ",k,blocklist[i]->x,blocklist[i]->y);
 //            fprintf(fp,"%i    ",k+1);
@@ -803,6 +807,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     CPeriodicBoundary pbc;
     CAirGapElement age;
 
+#ifdef DEBUG
+    WarnMessage("writepoly: beginning periodic boundary triangulation\n");
+#endif // DEBUG
+
     problem->updateUndo();
 
     // calculate length used to kludge fine meshing near input node points
@@ -826,6 +834,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
     double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
+
+#ifdef DEBUG
+    WarnMessage("writepoly: about to call triangle\n");
+#endif // DEBUG
 
     // **********         call triangle       ***********
 
@@ -854,11 +866,18 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         triHelper.writeTriangulationFiles(PathName);
     }
 
+#ifdef DEBUG
+    WarnMessage("writepoly: finished calling triangle\n");
+#endif // DEBUG
+
     // So far, so good.  Now, read back in the .edge file
     // to make sure the points in the segments and arc
     // segments are ordered in a consistent way so that
     // the (anti)periodic boundary conditions can be applied.
 
+#ifdef DEBUG
+    WarnMessage("writepoly: 876\n");
+#endif // DEBUG
 
     // read meshlines;
     plyname = pn.substr(0,pn.find_last_of('.')) + ".edge";
@@ -875,8 +894,21 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // entity is sliced into.
     for(auto &arc: problem->arclist) arc->cnt=0;
 
+#ifdef DEBUG
+    WarnMessage("writepoly: 898\n");
+#endif // DEBUG
+
     // resize initializes the new elements using the default ctor:
-    ptlst.resize(problem->linelist.size()+problem->arclist.size());
+    ptlst.clear();
+    ptlst.shrink_to_fit();
+    int npt = problem->linelist.size()+problem->arclist.size();
+    ptlst.reserve(npt);
+    for(i=0; i<npt; i++)
+        ptlst.push_back(std::unique_ptr <CCommonPoint> (new CCommonPoint()));
+
+#ifdef DEBUG
+    WarnMessage("writepoly: 910\n");
+#endif // DEBUG
 
     for(i=0;i<k;i++)
     {
@@ -938,6 +970,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
     fclose(fp);
 
+#ifdef DEBUG
+    WarnMessage("writepoly: 974\n");
+#endif // DEBUG
+
     // figure out which segments / arcsegments are on the
     // boundary and force an appropriate mesh density on
     // these based on how many divisions are in the first
@@ -955,6 +991,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
     fgets(instring,1024,fp);
     sscanf(instring,"%i",&k);
+
+#ifdef DEBUG
+    WarnMessage("writepoly: 996\n");
+#endif // DEBUG
 
     for(i=0;i<k;i++)
     {
@@ -976,6 +1016,10 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         }
     }
     fclose(fp);
+
+#ifdef DEBUG
+    WarnMessage("writepoly: 1021\n");
+#endif // DEBUG
 
     // impose "new" mesh constraints on bdry arcs and segments....
     for(i=0; i < (int)problem->linelist.size(); i++)
@@ -1002,7 +1046,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             // its properties.
             char kludge[32];
             double newMaxSideLength;
-            newMaxSideLength = problem->arclist[i]->ArcLength/((double) problem->arclist[i]->IsSelected);
+            newMaxSideLength = problem->arclist[i]->ArcLength/((double) problem->arclist[i]->cnt);
             sprintf(kludge,"%.1e",newMaxSideLength);
             sscanf(kludge,"%lf",&newMaxSideLength);
 
@@ -1013,10 +1057,26 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     ptlst.clear();
     ptlst.shrink_to_fit();
 
+#ifdef DEBUG
+    {
+        char buf[1048];
+        snprintf(buf, sizeof(buf), "writepoly: lineproplist.size() is %i\n", problem->lineproplist.size());
+        WarnMessage(buf);
+    }
+#endif // DEBUG
+
 	// Search through defined bc's for pbcs and ages;
 	// Allocate space to store their properties if they are detected
 	for(i=0;i<problem->lineproplist.size();i++)
 	{
+#ifdef DEBUG
+        {
+            char buf[1048];
+            snprintf(buf, sizeof(buf), "writepoly: searching for periodic boundaries, checking boundary %i called %s\n", i, problem->lineproplist[i]->BdryName);
+            WarnMessage(buf);
+        }
+#endif // DEBUG
+
 		// pbc
 		if ((problem->lineproplist[i]->BdryFormat==4) ||
 			(problem->lineproplist[i]->BdryFormat==5)){
@@ -1028,6 +1088,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 		// age
 		if ((problem->lineproplist[i]->BdryFormat==6) || (problem->lineproplist[i]->BdryFormat==7))
 		{
+#ifdef DEBUG
+            {
+                char buf[1048];
+                snprintf(buf, sizeof(buf), "writepoly: found air gap boundary in boundary %i\n", i);
+                WarnMessage(buf);
+            }
+#endif // DEBUG
 			// only add an AGE to the list if it's actually being used
 			for(j=0,k=0;j<problem->arclist.size();j++)
 				if (problem->arclist[j]->BoundaryMarkerName==problem->lineproplist[i]->BdryName) k++;
@@ -1038,9 +1105,23 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 				age.InnerAngle=problem->lineproplist[i]->InnerAngle;
 				age.OuterAngle=problem->lineproplist[i]->OuterAngle;
 				agelst.push_back(age.clone());
+#ifdef DEBUG
+                {
+                    char buf[1048];
+                    snprintf(buf, sizeof(buf), "writepoly: added air gap boundary to agelist\n");
+                    WarnMessage(buf);
+                }
+#endif // DEBUG
 			}
 		}
 	}
+#ifdef DEBUG
+    {
+        char buf[1048];
+        snprintf(buf, sizeof(buf), "writepoly: found %i air gap boundaries\n", agelst.size ());
+        WarnMessage(buf);
+    }
+#endif // DEBUG
 
 	// make sure all Air Gap Element arcs have the same discretization
 	// for each arc associated with a particular Air Gap Element...
@@ -1132,16 +1213,16 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // in a messed up way.
 
     // First, search through defined bc's for periodic ones;
-    for(i=0;i<(int)problem->lineproplist.size();i++)
-    {
-        if (problem->lineproplist[i]->isPeriodic())
-        {
-            CPeriodicBoundary pbc;
-            pbc.BdryName=problem->lineproplist[i]->BdryName;
-            pbc.antiPeriodic = problem->lineproplist[i]->isPeriodic(CBoundaryProp::PeriodicityType::AntiPeriodic);
-            pbclst.push_back(pbc.clone());
-        }
-    }
+//    for(i=0;i<(int)problem->lineproplist.size();i++)
+//    {
+//        if (problem->lineproplist[i]->isPeriodic())
+//        {
+//            CPeriodicBoundary pbc;
+//            pbc.BdryName=problem->lineproplist[i]->BdryName;
+//            pbc.antiPeriodic = problem->lineproplist[i]->isPeriodic(CBoundaryProp::PeriodicityType::AntiPeriodic);
+//            pbclst.push_back(pbc.clone());
+//        }
+//    }
 
     for(i=0;i<(int)problem->linelist.size();i++)
     {
@@ -1154,7 +1235,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 // at the same time, flag it and kick it out.
                 if (pbclst[j]->nseg==2)
                 {
-                    WarnMessage("An (anti)periodic BC is assigned to more than two segments");
+                    char buf[2048];
+                    snprintf(buf, sizeof(buf), "An (anti)periodic BC (named \"%s\") is assigned to more than two segments", pbclst[j]->BdryName.c_str ());
+                    WarnMessage(buf);
                     problem->undo();  problem->unselectAll();
                     return -1;
                 }
@@ -1175,7 +1258,9 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 // at the same time, flag it and kick it out.
                 if (pbclst[j]->narc==2)
                 {
-                    WarnMessage("An (anti)periodic BC is assigned to more than two arcs");
+                    char buf[2048];
+                    snprintf(buf, sizeof(buf), "An (anti)periodic BC (named \"%s\") is assigned to more than two arcs", pbclst[j]->BdryName.c_str ());
+                    WarnMessage(buf);
                     problem->undo();  problem->unselectAll();
                     return -1;
                 }
@@ -1705,7 +1790,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
         fprintf(fp,"%i    %i    %i    %i\n",k,ptlst[k]->x,ptlst[k]->y,ptlst[k]->t);
     }
 
-
+#ifdef DEBUG
+    {
+        char buf[1048];
+        snprintf(buf, sizeof(buf), "writepoly: writing out %i air gap boundaries\n", agelst.size ());
+        WarnMessage(buf);
+    }
+#endif // DEBUG
 	fprintf(fp,"%i\n",(int) agelst.size());
 	for(k=0;k<agelst.size();k++)
 	{
@@ -2005,8 +2096,8 @@ bool TriangulateHelper::initSegmentsWithMarkers(const TriangulateHelper::linelis
     // build the segmentlist
     for(int i=0; i<in.numberofsegments; i++)
     {
-            in.segmentlist[2*i] = linelst[i]->n0;
-            in.segmentlist[2*i+1] = linelst[i]->n1;
+        in.segmentlist[2*i] = linelst[i]->n0;
+        in.segmentlist[2*i+1] = linelst[i]->n1;
     }
 
     // now build the segment marker list
@@ -2066,8 +2157,8 @@ bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool for
         for(const auto &label: problem.labellist)
         {
             // we search through the block list looking for blocks that have
-            // the tag <no mesh>
-            if(!label->hasBlockType())
+            // the tag <No Mesh>
+            if(label->isHole())
             {
                 //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i]->x, blocklist[i]->y);
                 in.holelist[k++] = label->x;
@@ -2087,7 +2178,7 @@ bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool for
     int k=0;
     for(const auto & label: problem.labellist)
     {
-        if(label->hasBlockType())
+        if(!label->isHole())
         {
             in.regionlist[j] = label->x;
             in.regionlist[j+1] = label->y;
@@ -2247,3 +2338,5 @@ void TriangulateHelper::suppressUnusedVertices()
 {
     m_suppressUnusedVertices = true;
 }
+
+

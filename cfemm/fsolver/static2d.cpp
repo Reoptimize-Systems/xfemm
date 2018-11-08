@@ -33,6 +33,8 @@
 #include <string>
 #include <cstdio>
 
+#include <csignal>
+
 #ifdef _MSC_VER
   #ifndef SNPRINTF
   #define SNPRINTF _snprintf
@@ -274,6 +276,11 @@ int FSolver::Static2D(CBigLinProb &L)
             // Add each annulus element to the global stiffness matrix
             for(k=0;k<agelist[i].totalArcElements;k++)
             {
+
+#ifdef DEBUG
+//std::raise(SIGINT); // try to stop in debugger
+#endif // DEBUG
+
                 // inner nodes
                 if ((k-1)<0){
                     nn[0]=agelist[i].quadNode[agelist[i].totalArcElements-1].n0;

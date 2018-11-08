@@ -24,13 +24,20 @@ function [rules,vars] = MMakefile_hpproc (varargin)
     % flags that will be passed direct to mex
     %vars.MEXFLAGS = '${MEXFLAGS} -I"postproc" -I"../cfemm/hpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ';
     vars.MEXFLAGS = ['${MEXFLAGS} -D_GLIBCXX_USE_CXX11_ABI=1 -I"postproc" -I"../cfemm/hpproc" -I"../cfemm/libfemm" -I"../cfemm/libfemm/liblua" ', options.ExtraMEXFLAGS];
+    
+    if options.Debug
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -DDEBUG '];
+    else
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -DNDEBUG '];
+    end
+    
     if isunix && ~mfemmdeps.isoctave ()
         if options.Debug
             vars.OPTIMFLAGS = '-OO';
-            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0 -DDEBUG"'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0"'];
         else
             vars.OPTIMFLAGS = '-O2';
-            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2"'];
         end
     end
 

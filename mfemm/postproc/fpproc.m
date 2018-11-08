@@ -473,18 +473,30 @@ classdef fpproc < mfemmpproc
         end
         
         function int = blockintegral(this, type, x, y)
-            % blockintegral calculate a block integral for the selected
-            % blocks
+            % blockintegral calculate a block integral for the selected blocks
             %
             % Syntax
             %
             % int = fpproc.blockintegral(type)
             % int = fpproc.blockintegral(type, x, y)
             %
+            % Description
+            %
+            % fpproc.blockintegral(type) peforms the desired integral on
+            % the currently selected blocks.
+            %
+            % fpproc.blockintegral(type, x, y) clears any existing block
+            % selection, selects the  the block closest to (x,y) and performs  
+            % the integral on this block.
+            %
+            % NB: For planar simulations, many of the integrals will be
+            % scaled by the problem depth, e.g. the 'A' integral, actually
+            % reports int A x depth.
+            %
             % Input
             %
-            % type in an integer flag determining the integral type to e
-            % perfomed. The following options are available:
+            %  type - an integer flag determining the integral type to e
+            %   perfomed. The following options are available:
             %
             %   0   A.J
             %   1   A
@@ -513,16 +525,9 @@ classdef fpproc < mfemmpproc
             %   24  R2 (i.e. moment of inertia / density)
             %   25  2D shape centroid
             %
-            % fpproc.blockintegral(type) peforms the desired integral on
-            % the currently selected blocks.
+            % Output
             %
-            % fpproc.blockintegral(type, x, y) clears any existing block
-            % selection, selects the  the block closest to (x,y) and performs  
-            % the integral on this block.
-            %
-            % NB: For planar simulations, many of the integrals will be
-            % scaled by the problem depth, e.g. the 'A' integral, actually
-            % reports int A x depth.
+            %  int - reult of the integral operation
             %
             
             if ~this.isdocopen
@@ -547,6 +552,33 @@ classdef fpproc < mfemmpproc
             end
             % perform the block integral
             int = fpproc_interface_mex('blockintegral', this.objectHandle, type);
+            
+        end
+        
+        function int = gapintegral(this, boundname, type)
+            % gapintegral calculates integrals in an air gap region
+            %
+            % Syntax
+            %
+            % int = fpproc.gapintegral(boundname, type)
+            %
+            % Input
+            %
+            % type - an integer flag determining the integral type to be
+            %  perfomed. The following options are available:
+            %
+            %   0   
+            %
+            % Output
+            %
+            %  
+            
+            if ~this.isdocopen
+                error('No solution document has been opened.')
+            end
+            
+            % perform the gap integral
+            int = fpproc_interface_mex('gapintegral', this.objectHandle, boundname, type);
             
         end
         

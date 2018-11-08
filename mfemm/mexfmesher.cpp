@@ -41,7 +41,7 @@ int nrhs, const mxArray *prhs[])
 
     /* Check for proper number of input and output arguments */
     if ((nrhs > 2) | (nrhs < 1)) {
-        mexErrMsgIdAndTxt("MFEMM:fmesher:numargs", 
+        mexErrMsgIdAndTxt("MFEMM:fmesher:numargs",
                           "One or two input arguments required.");
     }
 
@@ -51,31 +51,31 @@ int nrhs, const mxArray *prhs[])
     }
 
     /* Check for proper input type */
-    if (!mxIsChar(prhs[0]) || (mxGetM(prhs[0]) != 1 ) )  
+    if (!mxIsChar(prhs[0]) || (mxGetM(prhs[0]) != 1 ) )
     {
-        mexErrMsgIdAndTxt("MFEMM:fmesher:badfirstarg", 
+        mexErrMsgIdAndTxt("MFEMM:fmesher:badfirstarg",
                           "Input argument must be a string.");
     }
-    
+
     if (nrhs == 2)
     {
         /*  get the dimensions of the matrix input x */
         size_t rows = mxGetM(prhs[1]);
         size_t cols = mxGetN(prhs[1]);
-        
+
         if ((!mxIsNumeric(prhs[1])) || (rows != 1) || (cols != 1))
         {
             mexErrMsgIdAndTxt( "MFEMM:fmesher:inputnotscalar",
                                "Second input must be a scalar.");
         }
-        
+
         verbose = mxGetScalar(prhs[1]);
     }
     else
     {
        verbose = 0.0;
     }
-    
+
     if (verbose == 0.0)
     {
         MeshObj.Verbose = false;
@@ -84,7 +84,7 @@ int nrhs, const mxArray *prhs[])
     {
         MeshObj.Verbose = true;
     }
-    
+
     /* Find out how long the input string is.  Allocate enough memory
        to hold the converted string.  NOTE: MATLAB stores characters
        as 2 byte unicode ( 16 bit ASCII) on machines with multi-byte
@@ -96,7 +96,7 @@ int nrhs, const mxArray *prhs[])
 
     /* Copy the string data into buf. */
     status = mxGetString(prhs[0], buf, buflen);
-    
+
     if (verbose != 0.0)
     {
         mexPrintf("Meshing file:  %s\n", buf);
@@ -108,8 +108,9 @@ int nrhs, const mxArray *prhs[])
 
     /* When finished using the char array, deallocate it. */
     mxFree(buf);
-    
-    MeshObj.WarnMessage = &FmesherInterfaceWarning;
+
+    //MeshObj.WarnMessage = &FmesherInterfaceWarning;
+    MeshObj.WarnMessage = &mexPrintf;
 
     MeshObj.TriMessage = &mexPrintf;
 
@@ -121,13 +122,13 @@ int nrhs, const mxArray *prhs[])
     {
         mexPrintf("Loading input file: %s\n", FilePath.c_str()); fflush(stdout);
     }
-    
+
     // depending on the file type, instantiate the appropriate reader
     if (filetype == FileType::MagneticsFile)
     {
         MagneticsReader femReader (MeshObj.problem, std::cerr);
         status = femReader.parse(FilePath);
-    } 
+    }
     else if (MeshObj.problem->filetype == FileType::HeatFlowFile)
     {
         HeatFlowReader fehReader (MeshObj.problem, std::cerr);
@@ -142,7 +143,7 @@ int nrhs, const mxArray *prhs[])
         {
             mexPrintf("Error loading fem file:  %s\n", FilePath.c_str()); fflush(stdout);
         }
-        
+
         switch (status)
         {
             case F_FILE_NOT_OPENED:
@@ -169,15 +170,15 @@ int nrhs, const mxArray *prhs[])
     {
         if (verbose != 0.0)
         {
-            mexPrintf("Performing non periodic boundary triangulation\n"); fflush(stdout);
+            mexPrintf("Performing periodic boundary triangulation\n"); fflush(stdout);
         }
-        
+
         tristatus = MeshObj.DoPeriodicBCTriangulation(FilePath);
-        
+
 #ifdef DEBUG
-        mexPrintf("MeshObj.DoNonPeriodicBCTriangulation returned %d\n", tristatus); fflush(stdout);
+        mexPrintf("MeshObj.DoPeriodicBCTriangulation returned %d\n", tristatus); fflush(stdout);
 #endif
-        
+
         if (tristatus == -1)
         {
             tristatus = -2;
@@ -187,15 +188,15 @@ int nrhs, const mxArray *prhs[])
     {
         if (verbose != 0.0)
         {
-            mexPrintf("Performing periodic boundary triangulation\n"); fflush(stdout);
+            mexPrintf("Performing NON periodic boundary triangulation\n"); fflush(stdout);
         }
-        
+
         tristatus = MeshObj.DoNonPeriodicBCTriangulation(FilePath) ;
 
 #ifdef DEBUG
-        mexPrintf("MeshObj.DoNonPeriodicBCTriangulation returned %d\n", tristatus); fflush(stdout); 
+        mexPrintf("MeshObj.DoNonPeriodicBCTriangulation returned %d\n", tristatus); fflush(stdout);
 #endif
-        
+
         if (tristatus == -1)
         {
             tristatus = -3;

@@ -45,14 +45,20 @@ function [rules,vars] = MMakefile_fmesher (varargin)
     if options.Verbose
         vars.MEXFLAGS = [vars.MEXFLAGS, ' -v'];
     end
+    
+    if options.Debug
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -DDEBUG '];
+    else
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -DNDEBUG '];
+    end
 
     if isunix && ~mfemmdeps.isoctave ()
         if options.Debug
             vars.OPTIMFLAGS = '-OO';
-            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0 -DDEBUG"'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0"'];
         else
             vars.OPTIMFLAGS = '-O2';
-            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 "'];
         end
     end
 
@@ -86,7 +92,6 @@ function [rules,vars] = MMakefile_fmesher (varargin)
 
     fmesher_sources = { ...
         'fmesher.cpp', ...
-        'main.cpp', ...
         'nosebl.cpp', ...
         'writepoly.cpp', ...
     };

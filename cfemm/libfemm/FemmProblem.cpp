@@ -10,6 +10,10 @@
 #include <ios>
 #include <iostream>
 
+#ifdef DEBUG_MEX
+#include "mex.h"
+#endif // DEBUG_MEX
+
 femm::FemmProblem::~FemmProblem()
 {
 }
@@ -107,11 +111,13 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
         output.width(12);
         output << "[ACSolver]" << "  =  " << ACSolver <<"\n";
     }
-    if (!previousSolutionFile.empty())
-    {
-        output.width(12);
-        output << "[PrevSoln]" << "  = \"" << previousSolutionFile <<"\"\n";
-    }
+
+
+    output.width(12);
+    output << "[PrevSoln]" << "  = \"" << previousSolutionFile << "\"\n";
+
+    output.width(12);
+    output << "[PrevType]" << "  =  " << PrevType << "\n";
 
     std::string commentString (comment);
     // escape line-breaks
@@ -209,8 +215,7 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
                << "\t" << arc->MaxSideLength
                << "\t" << arc->BoundaryMarker+1
                << "\t" << (int)arc->Hidden
-               << "\t" << arc->InGroup
-               << "\t" << arc->mySideLength;
+               << "\t" << arc->InGroup;
 
 
         if ( filetype == FileType::HeatFlowFile ||
@@ -218,21 +223,32 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
         {
             output << "\t" << arc->InConductor+1;
         }
+        else if (filetype == FileType::MagneticsFile)
+        {
+            output << "\t" << arc->mySideLength;
+        }
         output << "\n";
     }
+
+
     // write out list of holes;
     int numHoles=countHoles();
+#ifdef DEBUG_MEX
+    {
+        mexPrintf ("LabelList size is %i, numHoles is %i\n", labellist.size(), numHoles);
+    }
+#endif // DEBUG_MEX
     output << "[NumHoles] = " << numHoles << "\n";
     for (const auto &label: labellist)
     {
-        if(!label->hasBlockType())
+        if(label->isHole())
             output << label->x << " " << label->y << " " << label->InGroup << "\n";
     }
 
     output << "[NumBlockLabels] = " << labellist.size()-numHoles << "\n";
     for (const auto &label: labellist)
     {
-        if(label->hasBlockType())
+        if(!label->isHole())
         {
             label->toStream(output);
         }
@@ -900,7 +916,7 @@ int femm::FemmProblem::countHoles() const
     int numHoles = 0;
     for (const auto &label: labellist)
     {
-        if(!label->hasBlockType())
+        if(label->isHole())
             numHoles++;
     }
     return numHoles;
@@ -2380,7 +2396,9 @@ void femm::FemmProblem::undoArcs()
 {
 	for(int i=0;i<arclist.size();i++)
 	{
+	    std::cout << "FemmProblem.cpp undoArcs mySideLength " << arclist[i]->mySideLength << std::endl;
 		arclist[i]->mySideLength=arclist[i]->MaxSideLength;
+		std::cout << "FemmProblem.cpp undoArcs mySideLength " << arclist[i]->mySideLength << std::endl;
 		arclist[i]->MaxSideLength=undoarclist[i]->MaxSideLength;
 	}
 }

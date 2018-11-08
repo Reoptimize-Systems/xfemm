@@ -25,7 +25,7 @@
         richard.crozier@yahoo.co.uk
         johannes@zarl-zierl.at
 
- Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
+ Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  Mechatronics GmbH (LCM)
 */
 
@@ -96,10 +96,17 @@ public:
 
     /**
      * @brief hasBlockType
-     * A block label without block type is a hole.
+     * A block label has no block type if it is has type name "<No Mesh>" or
+     * "<Inf>"
      * @return \c true, if BlockTypeName is set, \c false otherwise.
      */
     bool hasBlockType() const;
+    /**
+     * @brief isHole
+     * A block label with BlockTypeName == "<No Mesh>" is a hole.
+     * @return \c true, if BlockTypeName is set, \c false otherwise.
+     */
+    bool isHole() const;
     /**
      * @brief isInCircuit
      * @return \c true, if InCircuitName is set, \c false otherwise.

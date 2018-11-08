@@ -214,6 +214,7 @@ bool FSolver::LoadProblemFile ()
     // any previous mesh so we know whether to bother loading the previous
     // solution data as well as just the mesh
     std::string femFile = PathName+".fem";
+    WarnMessage ("FSolver::LoadProblemFile\n");
     if (!FEASolver_type::LoadProblemFile(femFile))
     {
         return false;
@@ -390,29 +391,39 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
         return BADPBCFILE;
     }
     fgets(s,1024,fp);
-    sscanf(s,"%i",&k);
-    NumPBCs = k;
+    sscanf(s,"%i",&NumPBCs);
 
-    if (k!=0)
+    if (NumPBCs!=0)
     {
         pbclist.clear();
         pbclist.shrink_to_fit();
-        pbclist.reserve(k);
+        pbclist.reserve(NumPBCs);
     }
     CCommonPoint pbc;
-    for(i=0; i<k; i++)
+    for(i=0; i<NumPBCs; i++)
     {
-        fscanf(fp,"%i",&j);
-        fscanf(fp,"%i",&pbc.x);
-        fscanf(fp,"%i",&pbc.y);
-        fscanf(fp,"%i",&pbc.t);
+        fgets(s,1024,fp);
+		sscanf(s,"%i %i %i %i",&j,&pbc.x,&pbc.y,&pbc.t);
         pbclist.push_back(pbc);
     }
 
+#ifdef DEBUG
+    {
+        char buf[1048]; snprintf(buf, sizeof(buf), "Read in %i pbcs\n", pbclist.size ());
+        WarnMessage(buf);
+    }
+#endif // DEBUG
 
 	// read in air gap element info
 	fgets(s,1024,fp);
 	sscanf(s,"%i", &NumAirGapElems);
+
+#ifdef DEBUG
+    {
+        char buf[1048]; snprintf(buf, sizeof(buf), "Found %i ages, line was: \"%s\"\n", NumAirGapElems, s);
+        WarnMessage(buf);
+    }
+#endif // DEBUG
 
 	CAirGapElement age;
 
@@ -423,16 +434,39 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 	for(i=0;i<NumAirGapElems;i++)
     {
 		fgets(s,80,fp);
-
-		age.BdryName = s;
+#ifdef DEBUG
+        {
+            char buf[1048]; snprintf( buf, sizeof(buf), "Read line:\n%s\n", s);
+            WarnMessage(buf);
+        }
+#endif // DEBUG
+		age.BdryName = std::string (s);
 
 		fgets(s,1024,fp);
 
 		sscanf(s,"%i %lf %lf %lf %lf %lf %lf %lf %i %lf %lf",
-			&age.BdryFormat,&age.InnerAngle,&age.OuterAngle,
-			&age.ri,&age.ro,&age.totalArcLength,
-			&age.agc.re,&age.agc.im,&age.totalArcElements,&age.InnerShift,&age.OuterShift);
+                &age.BdryFormat,
+                &age.InnerAngle,
+                &age.OuterAngle,
+                &age.ri,
+                &age.ro,
+                &age.totalArcLength,
+                &age.agc.re,
+                &age.agc.im,
+                &age.totalArcElements,
+                &age.InnerShift,
+                &age.OuterShift );
 
+#ifdef DEBUG
+        {
+            char buf[1048]; snprintf( buf, sizeof(buf), "Read age:\n\tBdryFormat: %i \n\tInnerAngle: %lf \n\tOuterAngle %lf \n\ttotalArcElements: %i \n",
+                                      age.BdryFormat,
+                                      age.InnerAngle,
+                                      age.OuterAngle,
+                                      age.totalArcElements );
+            WarnMessage(buf);
+        }
+#endif // DEBUG
         age.quadNode.clear();
         age.quadNode.shrink_to_fit();
         age.quadNode.reserve(age.totalArcElements+1);
@@ -441,11 +475,15 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
         {
 			fgets(s,1024,fp);
 
+			CQuadPoint qp;
+
 			sscanf(s,"%i %lf %i %lf %i %lf %i %lf",
-				&age.quadNode[k].n0, &age.quadNode[k].w0,
-				&age.quadNode[k].n1, &age.quadNode[k].w1,
-				&age.quadNode[k].n2, &age.quadNode[k].w2,
-				&age.quadNode[k].n3, &age.quadNode[k].w3);
+				&qp.n0, &qp.w0,
+				&qp.n1, &qp.w1,
+				&qp.n2, &qp.w2,
+				&qp.n3, &qp.w3);
+
+            age.quadNode.push_back(qp);
 		}
 		agelist.push_back (age);
 	}
@@ -454,6 +492,12 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 
     // read in elements;
     sprintf(infile,"%s.ele",PathName.c_str());
+#ifdef DEBUG
+    {
+        char buf[1028]; snprintf(buf, sizeof(buf), "Reading in elements from %s\n", infile);
+        WarnMessage(buf);
+    }
+#endif // DEBUG
     if((fp=fopen(infile,"rt"))==NULL)
     {
         return BADELEMENTFILE;
@@ -493,9 +537,12 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 
         if(elm.lbl<0)
         {
+
             string msg = "Material properties have not been defined for\n";
             msg += "all regions. Press the \"Run Mesh Generator\"\n";
-            msg += "button to highlight the problem regions.";
+            msg += "button to highlight the problem regions.\n";
+            char buf[1028]; snprintf(buf, sizeof(buf), "The element number %i had label %i\n", i, elm.lbl);
+            msg += std::string (buf);
             WarnMessage(msg.c_str());
             fclose(fp);
             if (deleteFiles)
@@ -513,7 +560,29 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
             }
             return MISSINGMATPROPS;
         }
-        assert(elm.lbl < (int)labellist.size());
+
+        if (!(elm.lbl < (int)labellist.size()))
+        {
+            char buf[1028];
+            snprintf(buf, sizeof(buf), "The element number %i had label %i which is greater than the number of available labels (%i)\n", i+1, elm.lbl+1, (int)labellist.size());
+            WarnMessage(buf);
+            fclose(fp);
+            if (deleteFiles)
+            {
+                sprintf(infile,"%s.ele",PathName.c_str());
+                remove(infile);
+                sprintf(infile,"%s.node",PathName.c_str());
+                remove(infile);
+                sprintf(infile,"%s.pbc",PathName.c_str());
+                remove(infile);
+                sprintf(infile,"%s.poly",PathName.c_str());
+                remove(infile);
+                sprintf(infile,"%s.edge",PathName.c_str());
+                remove(infile);
+            }
+            return ELMLABELTOOBIG;
+        }
+
         // look up block type out of the list of block labels
         elm.blk = labellist[elm.lbl].BlockType;
 
@@ -856,14 +925,14 @@ bool FSolver::LoadAGEsFromSolution(FILE* fp)
 
 			fgets(s,1024,fp);
 			sscanf ( s,"%i %lf %i %lf %i %lf %i %lf",
-                     &age.quadNode[k].n0,
-                     &age.quadNode[k].w0,
-                     &age.quadNode[k].n1,
-                     &age.quadNode[k].w1,
-                     &age.quadNode[k].n2,
-                     &age.quadNode[k].w2,
-                     &age.quadNode[k].n3,
-                     &age.quadNode[k].w3);
+                     &qp.n0,
+                     &qp.w0,
+                     &qp.n1,
+                     &qp.w1,
+                     &qp.n2,
+                     &qp.w2,
+                     &qp.n3,
+                     &qp.w3);
 
             age.quadNode.push_back (qp);
 

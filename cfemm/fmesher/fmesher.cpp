@@ -213,9 +213,15 @@ bool FMesher::SaveFEMFile(string PathName)
     {
         for(j=0,t=0; j<problem->lineproplist.size(); j++)
             if(problem->lineproplist[j]->BdryName==problem->arclist[i]->BoundaryMarkerName) t=j+1;
-        fprintf(fp,"%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i",problem->arclist[i]->n0,problem->arclist[i]->n1,
-                problem->arclist[i]->ArcLength,problem->arclist[i]->MaxSideLength,t,
-                problem->arclist[i]->Hidden,problem->arclist[i]->InGroup);
+
+        fprintf( fp,"%i\t%i\t%.17g\t%.17g\t%i\t%i\t%i",
+                 problem->arclist[i]->n0,
+                 problem->arclist[i]->n1,
+                 problem->arclist[i]->ArcLength,
+                 problem->arclist[i]->MaxSideLength,
+                 t,
+                 problem->arclist[i]->Hidden,
+                 problem->arclist[i]->InGroup );
 
         if (problem->filetype == femm::FileType::HeatFlowFile
                 || problem->filetype == femm::FileType::ElectrostaticsFile )
@@ -224,6 +230,11 @@ bool FMesher::SaveFEMFile(string PathName)
             for(j=0,t=0;j<problem->circproplist.size ();j++)
                 if(problem->circproplist[j]->CircName==problem->arclist[i]->InConductorName) t=j+1;
             fprintf(fp,"\t%i",t);
+        }
+        else if (problem->filetype == femm::FileType::MagneticsFile)
+        {
+            std::cout << "fmesher.cpp SaveFEMFile, mySideLength: " << problem->arclist[i]->mySideLength << std::endl;
+            fprintf(fp,"\t%.17g",problem->arclist[i]->mySideLength);
         }
         fprintf(fp,"\n");
     }

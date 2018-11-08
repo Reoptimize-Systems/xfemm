@@ -43,13 +43,19 @@ function [rules,vars] = MMakefile_fsolver (varargin)
         vars.MEXFLAGS = [vars.MEXFLAGS, ' -g'];
     end
 
+    if options.Debug
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -DDEBUG '];
+    else
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' -DNDEBUG '];
+    end
+    
     if isunix && ~mfemmdeps.isoctave ()
         if options.Debug
             vars.OPTIMFLAGS = '-OO';
-            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0 -DDEBUG"'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O0" '];
         else
             vars.OPTIMFLAGS = '-O2';
-            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2 -DNDEBUG"'];
+            vars.MEXFLAGS = [vars.MEXFLAGS, ' CXXOPTIMFLAGS="-O2" '];
         end
     end
 

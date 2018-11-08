@@ -8,25 +8,32 @@ problemfile = fullfile (problemdir, 'TorqueBenchmark.fem');
 
 fp = loadfemmfile (problemfile);
 
-[ansfilename, femfilename] = analyse_mfemm(fp);
+[firstansfilename, femfilename] = analyse_mfemm(fp, 'Quiet', false);
 
-sol = fpproc (ansfilename);
+sol = fpproc (firstansfilename);
 
-angles = linspace (0, 90, 10);
+tq(1) = sol.gapintegral ('AGE', 0);
 
-for ind = 1:numel (angles)
+angles = linspace (0, 90, 50);
+
+for ind = 2:numel (angles)
    
-    fp.PrevSolutionFile = ansfilename;
+    fp.PrevSolutionFile = firstansfilename;
     fp.PrevType = 0;
     
     fp.BoundaryProps(3).InnerAngle = angles(ind);
     
-    writefemmfile (fullfile (problemdir, 'tmp_TorqueBenchmark.fem'), fp);
-    
-    [ansfilename, femfilename] = analyse_mfemm(fp);
+    [ansfilename, femfilename] = analyse_mfemm(fp, 'Quiet', false, 'KeepMesh', true);
     
     sol = fpproc (ansfilename);
     
-    tq(ind) = sol.gapintegral ('AGE', 0);    
+%     opendocument (ansfilename); pause (1);
+    
+    tq(ind) = sol.gapintegral ('AGE', 0);
+    
+    delete (ansfilename);
+    delete (femfilename);
     
 end
+
+plot (angles, tq);

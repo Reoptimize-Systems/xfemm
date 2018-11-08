@@ -168,7 +168,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, varargin)
                 else
                     % mesh the problem using fmesher
                     fprintf(1, 'Meshing mfemm problem ...\n');
-                    fmesher(femfilename);
+                    fmesher(femfilename, 1);
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
@@ -197,7 +197,7 @@ function [ansfilename, femfilename] = analyse_mfemm(femprob, varargin)
                 else
                     % mesh the problem using fmesher
                     fprintf(1, 'Meshing mfemm problem ...\n');
-                    fmesher(femfilename);
+                    fmesher(femfilename, 1);
                     fprintf(1, 'mfemm problem meshed ...\n');
                     % solve the fea problem using fsolver
                     fprintf(1, 'Solving mfemm problem ...\n');
