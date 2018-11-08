@@ -275,6 +275,18 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
         pbclist[i].y=newnum[pbclist[i].y];
     }
 
+	// remap air gap element information
+	for(i=0;i<NumAirGapElems;i++)
+	{
+		for(k=0;k<=agelist[i].totalArcElements;k++)
+		{
+			agelist[i].quadNode[k].n0=newnum[agelist[i].quadNode[k].n0];
+			agelist[i].quadNode[k].n1=newnum[agelist[i].quadNode[k].n1];
+			agelist[i].quadNode[k].n2=newnum[agelist[i].quadNode[k].n2];
+			agelist[i].quadNode[k].n3=newnum[agelist[i].quadNode[k].n3];
+		}
+	}
+
     // find new bandwidth;
 
     // PBCs fuck up the banding, som could have to do
