@@ -636,7 +636,7 @@ int FSolver::Static2D(CBigLinProb &L)
                     if (bIncremental == 0)
                     {
                         // There's no previous solution.  This is a standard nonlinear problem
-                        LinearFlag = 0;
+                        LinearFlag = false;
                     }
                     else {
                         double B1p, B2p;
