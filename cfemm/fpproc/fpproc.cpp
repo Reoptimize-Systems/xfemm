@@ -409,7 +409,7 @@ bool FPProc::OpenDocument(string pathname)
 			else
             {
                 // prevType can be 0, 1 or 2, 1 or 2 will evaluate to true
-                switch (bIncremental)
+                switch (PrevType)
                 {
                     case 0:
                     {
