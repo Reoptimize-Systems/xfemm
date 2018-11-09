@@ -917,6 +917,8 @@ bool FSolver::LoadAGEsFromSolution(FILE* fp)
                 &age.InnerShift,
                 &age.OuterShift );
 
+        age.quadNode.clear();
+        age.quadNode.shrink_to_fit();
 		age.quadNode.reserve (age.totalArcElements+1);
 
 		for(int k=0; k<=age.totalArcElements; k++)
@@ -945,6 +947,9 @@ bool FSolver::LoadAGEsFromSolution(FILE* fp)
 
 bool FSolver::loadPreviousSolution(bool loadAprev)
 {
+
+    char warnbuf[1048];
+
     if (previousSolutionFile.empty())
     {
         return false;
@@ -952,7 +957,10 @@ bool FSolver::loadPreviousSolution(bool loadAprev)
 
     FILE *fp;
     if ((fp=fopen(previousSolutionFile.c_str(),"rt"))==NULL){
-        WarnMessage("Couldn't read from specified previous solution\n");
+        snprintf (warnbuf, sizeof(warnbuf),
+                  "Failed to open the specified previous solution file, file path was:\n%s\n",
+                  previousSolutionFile.c_str());
+        WarnMessage(warnbuf);
         return false;
     }
 
@@ -975,7 +983,10 @@ bool FSolver::loadPreviousSolution(bool loadAprev)
             if (prevFreq!=0)
             {
                 fclose(fp);
-                WarnMessage("Only DC previous solutions are presently supported\n");
+                snprintf (warnbuf, sizeof(warnbuf),
+                          "Previous solution file (%s) appears to be an AC problem, only DC previous solutions are presently supported\n",
+                          previousSolutionFile.c_str());
+                WarnMessage(warnbuf);
                 return false;
             }
         }
@@ -991,7 +1002,10 @@ bool FSolver::loadPreviousSolution(bool loadAprev)
     if (!hasSolution)
     {
         fclose(fp);
-        WarnMessage("Couldn't read from specified previous solution\n");
+        snprintf (warnbuf, sizeof(warnbuf),
+                  "No solution was found in previous solution file, file path was:\n%s\n",
+                  previousSolutionFile.c_str());
+        WarnMessage(warnbuf);
         return false;
     }
 
@@ -1145,12 +1159,15 @@ bool FSolver::runSolver(bool verbose)
     }
 
     // renumber using Cuthill-McKee
-    if (verbose)
-        PrintMessage("renumbering nodes\n");
-    if (!Cuthill())
+    if (previousSolutionFile.empty ())
     {
-        WarnMessage("problem renumbering node points\n");
-        return false;
+        if (verbose) PrintMessage("renumbering nodes using Cuthill-McKee method\n");
+
+        if (!Cuthill())
+        {
+            WarnMessage("problem renumbering node points\n");
+            return false;
+        }
     }
 
     if (verbose)
@@ -1165,7 +1182,7 @@ bool FSolver::runSolver(bool verbose)
 
     if (Frequency == 0)
     {
-        if (!previousSolutionFile.empty())
+        if (!previousSolutionFile.empty() && PrevType != 0)
         {
             WarnMessage("Cannot handle incremental permeability problems with frequency 0.\n");
             return false;
