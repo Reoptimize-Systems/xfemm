@@ -1,4 +1,54 @@
 % Test_xfemm_air_gap_boundary.m
+%
+%
+%
+
+
+%% Test only xfemm
+
+thisdir = mfemmdeps.getmfilepath ('Test_xfemm_air_gap_boundary');
+
+problemdir = fullfile (thisdir, '..', '..', 'test');
+
+problemfile = fullfile (problemdir, 'TorqueBenchmark.fem');
+
+fp = loadfemmfile (problemfile);
+
+angles = linspace (0, 90, 10);
+
+fp.BoundaryProps(3).InnerAngle = angles(1);
+
+[firstansfilename, femfilename] = analyse_mfemm(fp, 'Quiet', true);
+
+sol = fpproc (firstansfilename);
+
+tq = sol.gapintegral ('AGE', 0);
+    
+for ind = 2:numel (angles)
+   
+    fp.PrevSolutionFile = firstansfilename;
+    fp.PrevType = 0;
+    
+    fp.BoundaryProps(3).InnerAngle = angles(ind);
+    
+    [ansfilename, femfilename] = analyse_mfemm(fp, 'Quiet', true, 'KeepMesh', false);
+    
+    sol = fpproc (ansfilename);
+    
+    tq(ind) = sol.gapintegral ('AGE', 0);
+    
+    delete (femfilename);
+    delete (ansfilename);
+    
+end
+
+figure;
+plot (angles, tq);
+
+legend ('xfemm solver, xfemm pp');
+
+
+%% Test and compare all combinations of FEMM and xfemm
 
 thisdir = mfemmdeps.getmfilepath ('Test_xfemm_air_gap_boundary');
 
@@ -85,7 +135,7 @@ for ind = 2:numel (angles)
     
 end
 
+figure;
 plot (angles, [tq(:), tq_femm_pp(:), tq_femm_all(:), tq_femm_sol_fpproc_pp(:)]);
 
-legend ('xfemm solver, xfemm pp', 'xfemm solver, FEMM PP', 'FEMM Solver, FEMM PP', 'FEMM Solver, xfemm pp');
-
+legend ('xfemm solver, xfemm post-proc', 'xfemm solver, FEMM post-proc', 'FEMM Solver, FEMM post-proc', 'FEMM Solver, xfemm post-proc', 'location', 'best');
