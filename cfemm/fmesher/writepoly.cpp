@@ -260,7 +260,7 @@ double fmesher::defaultMeshSizeHeuristics(const std::vector<std::unique_ptr<CNod
     }
 }
 
-void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, bool doSmartMesh, double dL, SegmentFilter filter)
+void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<std::unique_ptr<CNode> > &nodelst, std::vector<std::unique_ptr<CSegment> > &linelst, double dL, SegmentFilter filter)
 {
     for(int i=0; i<(int)problem.linelist.size(); i++)
     {
@@ -293,7 +293,7 @@ void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<st
 
         if (numParts == 1) // default condition where discretization on line is not specified
         {
-            if (lineLength < (3. * dL) || doSmartMesh == false)
+            if (lineLength < (3. * dL) || problem.DoSmartMesh == false)
             {
                 // line is too short to add extra points
                 linelst.push_back(segm.clone());
@@ -697,7 +697,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     problem->clearNotationTags();
     // discretize input segments
-    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL);
+    discretizeInputSegments(*problem, nodelst, linelst, dL);
 
     // discretize input arc segments
     discretizeInputArcSegments(*problem, nodelst, linelst);
@@ -707,7 +707,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
-    double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
+    double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, problem->DoSmartMesh);
 
 //    for(i=0,k=0;i<blocklist.size();i++)
 //        if(blocklist[i]->BlockTypeName=="<No Mesh>")
@@ -822,7 +822,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     problem->clearNotationTags();
     // discretize input segments
-    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL);
+    discretizeInputSegments(*problem, nodelst, linelst, dL);
 
     // discretize input arc segments
     discretizeInputArcSegments(*problem, nodelst, linelst);
@@ -833,7 +833,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
     // figure out a good default mesh size for block labels where
     // mesh size isn't explicitly specified
-    double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, DoSmartMesh);
+    double DefaultMeshSize = defaultMeshSizeHeuristics(nodelst, problem->DoSmartMesh);
 
 #ifdef DEBUG
     WarnMessage("writepoly: about to call triangle\n");
@@ -1675,7 +1675,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     // "normal" way and write .poly file.
 
     // discretize input segments
-    discretizeInputSegments(*problem, nodelst, linelst, DoSmartMesh, dL, SegmentFilter::OnlyUnselected);
+    discretizeInputSegments(*problem, nodelst, linelst, dL, SegmentFilter::OnlyUnselected);
 
     // discretize input arc segments
     discretizeInputArcSegments(*problem, nodelst, linelst, SegmentFilter::OnlyUnselected);

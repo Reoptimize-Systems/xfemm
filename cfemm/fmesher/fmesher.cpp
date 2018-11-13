@@ -55,7 +55,6 @@ constexpr double DEFAULT_MINANGLE=30.;
 
 FMesher::FMesher()
     : problem(nullptr)
-    , DoSmartMesh(false)
     , Verbose(true)
     , WarnMessage(&PrintWarningMsg)
     , TriMessage(nullptr)
@@ -68,7 +67,6 @@ FMesher::FMesher()
 
 FMesher::FMesher(std::shared_ptr<FemmProblem> p)
     : problem(p)
-    , DoSmartMesh(false)
     , Verbose(true)
     , WarnMessage(&PrintWarningMsg)
     , TriMessage(nullptr)
@@ -77,11 +75,6 @@ FMesher::FMesher(std::shared_ptr<FemmProblem> p)
 
 bool FMesher::Initialize(femm::FileType t)
 {
-    DoSmartMesh = false;
-
-    // fire up lua
-    //initalise_lua();
-
     // clear out all current lines, nodes, and block labels
     meshnode.clear ();
     meshline.clear ();
