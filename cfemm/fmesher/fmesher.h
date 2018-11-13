@@ -76,15 +76,14 @@ public:
     explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
 
     std::shared_ptr<femm::FemmProblem> problem;
-    bool    DoSmartMesh = false;
-    bool    Verbose = true;
+    bool Verbose = true;
     bool writePolyFiles = false; ///< write .poly files when calling triangle
 
 	std::string BinDir;
 
 	// vectors containing the mesh information
-    std::vector< std::unique_ptr<femm::IntPoint> >      meshline;
-    std::vector< std::unique_ptr<femm::IntPoint> >      greymeshline;
+    std::vector< std::unique_ptr<femm::IntPoint> > meshline;
+    std::vector< std::unique_ptr<femm::IntPoint> > greymeshline;
     std::vector< std::unique_ptr<femm::CNode> >	meshnode;
 
     // used to echo start of input file to output
@@ -169,7 +168,6 @@ double defaultMeshSizeHeuristics(const std::vector<std::unique_ptr<femm::CNode>>
  * @param problem
  * @param nodelst
  * @param linelst
- * @param doSmartMesh enable smart meshing
  * @param dL distance to corner for smart meshing
  *
  * \internal
@@ -180,7 +178,6 @@ void discretizeInputSegments(
         const femm::FemmProblem &problem,
         std::vector <std::unique_ptr<femm::CNode>> &nodelst,
         std::vector <std::unique_ptr<femm::CSegment>> &linelst,
-        bool doSmartMesh,
         double dL,
         SegmentFilter filter = SegmentFilter::AllSegments
         );
