@@ -285,6 +285,10 @@ public:
     // lua extensions
     bool luafired;
 
+private:
+
+    char warnBuf [1028];
+
 //#ifdef _DEBUG
     //virtual void AssertValid() const;
     //virtual void Dump(CDumpContext& dc) const;
