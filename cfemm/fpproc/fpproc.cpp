@@ -1952,10 +1952,19 @@ bool FPProc::OpenDocument(string pathname)
                 if (!bMultiplyDefinedLabels)
                 {
                     string msg = "Some regions in the problem have been defined\n";
-                    msg += "by more than one block label.  These potentially\n";
-                    msg += "problematic regions will appear as selected in\n";
-                    msg += "the initial view.\n";
-                    WarnMessage(msg.c_str());
+                    msg +=       "by more than one block label.\n";
+                    SNPRINTF(warnBuf, sizeof(warnBuf),
+                                 "%sThe offending labels are numbers %i and %i with block types:\n%s\nand\n%s\nand at locations (%g,%g) and (%g,%g)",
+                             msg.c_str(),
+                             k,
+                             meshelem[i].lbl,
+                             blocklist[k].BlockTypeName.c_str (),
+                             blocklist[meshelem[i].lbl].BlockTypeName.c_str (),
+                             blocklist[k].x,
+                             blocklist[k].y,
+                             blocklist[meshelem[i].lbl].x,
+                             blocklist[meshelem[i].lbl].y );
+                    WarnMessage(warnBuf);
                     bMultiplyDefinedLabels = true;
                 }
             }
