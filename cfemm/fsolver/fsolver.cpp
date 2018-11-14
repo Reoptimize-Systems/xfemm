@@ -409,7 +409,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 
 #ifdef DEBUG
     {
-        char buf[1048]; snprintf(buf, sizeof(buf), "Read in %i pbcs\n", pbclist.size ());
+        char buf[1048]; SNPRINTF(buf, sizeof(buf), "Read in %i pbcs\n", pbclist.size ());
         WarnMessage(buf);
     }
 #endif // DEBUG
@@ -420,7 +420,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 
 #ifdef DEBUG
     {
-        char buf[1048]; snprintf(buf, sizeof(buf), "Found %i ages, line was: \"%s\"\n", NumAirGapElems, s);
+        char buf[1048]; SNPRINTF(buf, sizeof(buf), "Found %i ages, line was: \"%s\"\n", NumAirGapElems, s);
         WarnMessage(buf);
     }
 #endif // DEBUG
@@ -436,7 +436,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 		fgets(s,80,fp);
 #ifdef DEBUG
         {
-            char buf[1048]; snprintf( buf, sizeof(buf), "Read line:\n%s\n", s);
+            char buf[1048]; SNPRINTF( buf, sizeof(buf), "Read line:\n%s\n", s);
             WarnMessage(buf);
         }
 #endif // DEBUG
@@ -459,7 +459,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
 
 #ifdef DEBUG
         {
-            char buf[1048]; snprintf( buf, sizeof(buf), "Read age:\n\tBdryFormat: %i \n\tInnerAngle: %lf \n\tOuterAngle %lf \n\ttotalArcElements: %i \n",
+            char buf[1048]; SNPRINTF( buf, sizeof(buf), "Read age:\n\tBdryFormat: %i \n\tInnerAngle: %lf \n\tOuterAngle %lf \n\ttotalArcElements: %i \n",
                                       age.BdryFormat,
                                       age.InnerAngle,
                                       age.OuterAngle,
@@ -494,7 +494,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
     sprintf(infile,"%s.ele",PathName.c_str());
 #ifdef DEBUG
     {
-        char buf[1028]; snprintf(buf, sizeof(buf), "Reading in elements from %s\n", infile);
+        char buf[1028]; SNPRINTF(buf, sizeof(buf), "Reading in elements from %s\n", infile);
         WarnMessage(buf);
     }
 #endif // DEBUG
@@ -538,10 +538,8 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
         if(elm.lbl<0)
         {
 
-            string msg = "Material properties have not been defined for\n";
-            msg += "all regions. Press the \"Run Mesh Generator\"\n";
-            msg += "button to highlight the problem regions.\n";
-            char buf[1028]; snprintf(buf, sizeof(buf), "The element number %i had label %i\n", i, elm.lbl);
+            string msg = "Material properties have not been defined for all regions.\n";
+            char buf[1028]; SNPRINTF(buf, sizeof(buf), "The element number %i had label %i\n", i, elm.lbl);
             msg += std::string (buf);
             WarnMessage(msg.c_str());
             fclose(fp);
@@ -564,7 +562,7 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
         if (!(elm.lbl < (int)labellist.size()))
         {
             char buf[1028];
-            snprintf(buf, sizeof(buf), "The element number %i had label %i which is greater than the number of available labels (%i)\n", i+1, elm.lbl+1, (int)labellist.size());
+            SNPRINTF(buf, sizeof(buf), "The element number %i had label %i which is greater than the number of available labels (%i)\n", i+1, elm.lbl+1, (int)labellist.size());
             WarnMessage(buf);
             fclose(fp);
             if (deleteFiles)
@@ -957,7 +955,7 @@ bool FSolver::loadPreviousSolution(bool loadAprev)
 
     FILE *fp;
     if ((fp=fopen(previousSolutionFile.c_str(),"rt"))==NULL){
-        snprintf (warnbuf, sizeof(warnbuf),
+        SNPRINTF (warnbuf, sizeof(warnbuf),
                   "Failed to open the specified previous solution file, file path was:\n%s\n",
                   previousSolutionFile.c_str());
         WarnMessage(warnbuf);
@@ -983,7 +981,7 @@ bool FSolver::loadPreviousSolution(bool loadAprev)
             if (prevFreq!=0)
             {
                 fclose(fp);
-                snprintf (warnbuf, sizeof(warnbuf),
+                SNPRINTF (warnbuf, sizeof(warnbuf),
                           "Previous solution file (%s) appears to be an AC problem, only DC previous solutions are presently supported\n",
                           previousSolutionFile.c_str());
                 WarnMessage(warnbuf);
@@ -1002,7 +1000,7 @@ bool FSolver::loadPreviousSolution(bool loadAprev)
     if (!hasSolution)
     {
         fclose(fp);
-        snprintf (warnbuf, sizeof(warnbuf),
+        SNPRINTF (warnbuf, sizeof(warnbuf),
                   "No solution was found in previous solution file, file path was:\n%s\n",
                   previousSolutionFile.c_str());
         WarnMessage(warnbuf);
