@@ -233,11 +233,7 @@ void femm::FemmProblem::writeProblemDescription(std::ostream &output) const
 
     // write out list of holes;
     int numHoles=countHoles();
-#ifdef DEBUG_MEX
-    {
-        mexPrintf ("LabelList size is %i, numHoles is %i\n", labellist.size(), numHoles);
-    }
-#endif // DEBUG_MEX
+
     output << "[NumHoles] = " << numHoles << "\n";
     for (const auto &label: labellist)
     {
@@ -347,7 +343,7 @@ bool femm::FemmProblem::addArcSegment(femm::CArcSegment &asegm, double tol)
     }
 
     // add proposed arc to the linelist
-    asegm.IsSelected = 0;
+    asegm.IsSelected = false;
 
     CComplex p[2];
     std::vector < CComplex > newnodes;
@@ -588,7 +584,7 @@ bool femm::FemmProblem::addSegment(int n0, int n1, const femm::CSegment *parsegm
     // add proposed line to the linelist
     segm.BoundaryMarkerName="<None>";
     if (parsegm!=NULL) segm=*parsegm;
-    segm.IsSelected=0;
+    segm.IsSelected=false;
     segm.n0=n0; segm.n1=n1;
 
     // check to see if there are intersections with segments
@@ -1286,7 +1282,7 @@ bool femm::FemmProblem::deleteSelectedNodes()
         int i=0;
         do
         {
-            if(nodelist[i]->IsSelected!=0)
+            if(nodelist[i]->IsSelected!=false)
             {
                 changed=true;
                 // first remove all lines that contain the point;
@@ -2396,9 +2392,7 @@ void femm::FemmProblem::undoArcs()
 {
 	for(int i=0;i<arclist.size();i++)
 	{
-	    std::cout << "FemmProblem.cpp undoArcs mySideLength " << arclist[i]->mySideLength << std::endl;
 		arclist[i]->mySideLength=arclist[i]->MaxSideLength;
-		std::cout << "FemmProblem.cpp undoArcs mySideLength " << arclist[i]->mySideLength << std::endl;
 		arclist[i]->MaxSideLength=undoarclist[i]->MaxSideLength;
 	}
 }
