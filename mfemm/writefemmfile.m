@@ -547,9 +547,9 @@ function writefemmfile(filename, FemmProblem, varargin)
             
             case ftype.magnetics
             
-                if isfield(FemmProblem, 'NodeProps')
-                    for j = 1:numel(FemmProblem.NodeProps)
-                        if isequal(FemmProblem.NodeProps(j).Name, FemmProblem.Nodes(i).PointPropName)
+                if isfield(FemmProblem, 'PointProps')
+                    for j = 1:numel(FemmProblem.PointProps)
+                        if strcmp(FemmProblem.PointProps(j).Name, FemmProblem.Nodes(i).PointPropName)
                             t = j;
                         end
                     end
@@ -563,9 +563,9 @@ function writefemmfile(filename, FemmProblem, varargin)
                   
             case ftype.heatflow
             
-                if isfield(FemmProblem, 'NodeProps')
-                    for j = 1:numel(FemmProblem.NodeProps)
-                        if isequal(FemmProblem.NodeProps(j).Name, FemmProblem.Nodes(i).PointPropName)
+                if isfield(FemmProblem, 'PointProps')
+                    for j = 1:numel(FemmProblem.PointProps)
+                        if isequal(FemmProblem.PointProps(j).Name, FemmProblem.Nodes(i).PointPropName)
                             t = j;
                         end
                     end
