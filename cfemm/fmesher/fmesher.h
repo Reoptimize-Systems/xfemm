@@ -55,6 +55,17 @@
 #define BoundingBoxFraction 100.0
 #endif
 
+#ifndef _MSC_VER
+#define _strnicmp strncasecmp
+#ifndef SNPRINTF
+  #define SNPRINTF std::snprintf
+#endif
+#else
+#ifndef SNPRINTF
+  #define SNPRINTF _snprintf
+#endif
+#endif
+
 namespace fmesher
 {
 
