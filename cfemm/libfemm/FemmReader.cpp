@@ -569,7 +569,6 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                     if (!line.empty())
                     {
                         asegm->mySideLength = std::stod(line, &pos);
-                        std::cout << "Read mySideLength as " << asegm->mySideLength << std::endl;
                     }
                 }
 
