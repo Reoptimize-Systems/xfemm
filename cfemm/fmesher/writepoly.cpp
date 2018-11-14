@@ -299,30 +299,70 @@ void fmesher::discretizeInputSegments(const FemmProblem &problem, std::vector<st
                 linelst.push_back(segm.clone());
             }
             else{
-                // add extra points at a distance of dL from the ends of the line.
-                // this forces Triangle to finely mesh near corners
-                int l = (int) nodelst.size();
+//                // add extra points at a distance of dL from the ends of the line.
+//                // this forces Triangle to finely mesh near corners
+//                int l = (int) nodelst.size();
+//
+//                // first part
+//                CComplex a2 = a0 + dL * (a1-a0) / abs(a1-a0);
+//                CNode node1 (a2.re, a2.im);
+//                nodelst.push_back(node1.clone());
+//                segm.n0 = line.n0;
+//                segm.n1 = l;
+//                linelst.push_back(segm.clone());
+//
+//                // middle part
+//                a2 = a1 + dL * (a0-a1) / abs(a1-a0);
+//                CNode node2 (a2.re, a2.im);
+//                nodelst.push_back(node2.clone());
+//                segm.n0 = l;
+//                segm.n1 = l + 1;
+//                linelst.push_back(segm.clone());
+//
+//                // end part
+//                segm.n0 = l + 2;
+//                segm.n1 = line.n1;
+//                linelst.push_back(segm.clone());
 
-                // first part
-                CComplex a2 = a0 + dL * (a1-a0) / abs(a1-a0);
-                CNode node1 (a2.re, a2.im);
-                nodelst.push_back(node1.clone());
-                segm.n0 = line.n0;
-                segm.n1 = l;
-                linelst.push_back(segm.clone());
+// add extra points at a distance of dL from the ends of the line.
+                CComplex a2;
+                CNode node;
+                int l = 0;
 
-                // middle part
-                a2 = a1 + dL * (a0-a1) / abs(a1-a0);
-                CNode node2 (a2.re, a2.im);
-                nodelst.push_back(node2.clone());
-                segm.n0 = l;
-                segm.n1 = l + 1;
-                linelst.push_back(segm.clone());
+				// this forces Triangle to finely mesh near corners
+				for(int j=0;j<3;j++)
+				{
+					if(j==0)
+					{
+						a2=a0+dL*(a1-a0)/abs(a1-a0);
+						node.x=a2.re; node.y=a2.im;
+						l=(int) nodelst.size();
+						nodelst.push_back (node.clone());
+						segm.n0=line.n0;
+						segm.n1=l;
+						linelst.push_back (segm.clone());
+					}
 
-                // end part
-                segm.n0 = l + 2;
-                segm.n1 = line.n1;
-                linelst.push_back(segm.clone());
+					if(j==1)
+					{
+						a2=a1+dL*(a0-a1)/abs(a1-a0);
+						node.x=a2.re; node.y=a2.im;
+						l=(int) nodelst.size ();
+						nodelst.push_back(node.clone());
+						segm.n0=l-1;
+						segm.n1=l;
+						linelst.push_back(segm.clone());
+					}
+
+					if(j==2)
+					{
+						l=(int) nodelst.size()-1;
+						segm.n0=l;
+						segm.n1=line.n1;
+						linelst.push_back(segm.clone());
+					}
+
+				}
             }
         }
         else{
@@ -1060,7 +1100,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 #ifdef DEBUG
     {
         char buf[1048];
-        snprintf(buf, sizeof(buf), "writepoly: lineproplist.size() is %i\n", problem->lineproplist.size());
+        SNPRINTF(buf, sizeof(buf), "writepoly: lineproplist.size() is %li\n", problem->lineproplist.size());
         WarnMessage(buf);
     }
 #endif // DEBUG
@@ -1072,7 +1112,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 #ifdef DEBUG
         {
             char buf[1048];
-            snprintf(buf, sizeof(buf), "writepoly: searching for periodic boundaries, checking boundary %i called %s\n", i, problem->lineproplist[i]->BdryName);
+            SNPRINTF(buf, sizeof(buf), "writepoly: searching for periodic boundaries, checking boundary %i called %s\n", i, problem->lineproplist[i]->BdryName.c_str ());
             WarnMessage(buf);
         }
 #endif // DEBUG
@@ -1091,7 +1131,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 #ifdef DEBUG
             {
                 char buf[1048];
-                snprintf(buf, sizeof(buf), "writepoly: found air gap boundary in boundary %i\n", i);
+                SNPRINTF(buf, sizeof(buf), "writepoly: found air gap boundary in boundary %i\n", i);
                 WarnMessage(buf);
             }
 #endif // DEBUG
@@ -1108,7 +1148,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 #ifdef DEBUG
                 {
                     char buf[1048];
-                    snprintf(buf, sizeof(buf), "writepoly: added air gap boundary to agelist\n");
+                    SNPRINTF(buf, sizeof(buf), "writepoly: added air gap boundary to agelist\n");
                     WarnMessage(buf);
                 }
 #endif // DEBUG
@@ -1118,7 +1158,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 #ifdef DEBUG
     {
         char buf[1048];
-        snprintf(buf, sizeof(buf), "writepoly: found %i air gap boundaries\n", agelst.size ());
+        SNPRINTF(buf, sizeof(buf), "writepoly: found %i air gap boundaries\n", agelst.size ());
         WarnMessage(buf);
     }
 #endif // DEBUG
@@ -1236,7 +1276,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 if (pbclst[j]->nseg==2)
                 {
                     char buf[2048];
-                    snprintf(buf, sizeof(buf), "An (anti)periodic BC (named \"%s\") is assigned to more than two segments", pbclst[j]->BdryName.c_str ());
+                    SNPRINTF(buf, sizeof(buf), "An (anti)periodic BC (named \"%s\") is assigned to more than two segments", pbclst[j]->BdryName.c_str ());
                     WarnMessage(buf);
                     problem->undo();  problem->unselectAll();
                     return -1;
@@ -1259,7 +1299,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
                 if (pbclst[j]->narc==2)
                 {
                     char buf[2048];
-                    snprintf(buf, sizeof(buf), "An (anti)periodic BC (named \"%s\") is assigned to more than two arcs", pbclst[j]->BdryName.c_str ());
+                    SNPRINTF(buf, sizeof(buf), "An (anti)periodic BC (named \"%s\") is assigned to more than two arcs", pbclst[j]->BdryName.c_str ());
                     WarnMessage(buf);
                     problem->undo();  problem->unselectAll();
                     return -1;
@@ -1369,8 +1409,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             s0=pbclst[n]->seg[0];
             s1=pbclst[n]->seg[1];
-            problem->linelist[s0]->IsSelected=1;
-            problem->linelist[s1]->IsSelected=1;
+            problem->linelist[s0]->IsSelected=true;
+            problem->linelist[s1]->IsSelected=true;
 
             // make it so that first point on first line
             // maps to first point on second line...
@@ -1478,8 +1518,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
             s0 = pbclst[n]->seg[0];
             s1 = pbclst[n]->seg[1];
-            problem->arclist[s0]->IsSelected = 1;
-            problem->arclist[s1]->IsSelected = 1;
+            problem->arclist[s0]->IsSelected = true;
+            problem->arclist[s1]->IsSelected = true;
 
             k = (int) ceil(problem->arclist[s0]->ArcLength/problem->arclist[s0]->MaxSideLength);
             segm.BoundaryMarkerName = problem->arclist[s0]->BoundaryMarkerName;
@@ -1604,8 +1644,8 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 		z = (agelst[n]->ro + agelst[n]->ri)/2.;
 
 		for(i=0;i<problem->arclist.size();i++)
-		if((problem->arclist[i]->IsSelected==0) && (problem->arclist[i]->BoundaryMarkerName==agelst[n]->BdryName)){
-			problem->arclist[i]->IsSelected=1;
+		if((problem->arclist[i]->IsSelected==false) && (problem->arclist[i]->BoundaryMarkerName==agelst[n]->BdryName)){
+			problem->arclist[i]->IsSelected=true;
 			a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
 			k=(int) ceil(problem->arclist[i]->ArcLength/problem->arclist[i]->MaxSideLength);
 			segm.BoundaryMarker=problem->arclist[i]->BoundaryMarker;
@@ -1793,7 +1833,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 #ifdef DEBUG
     {
         char buf[1048];
-        snprintf(buf, sizeof(buf), "writepoly: writing out %i air gap boundaries\n", agelst.size ());
+        SNPRINTF(buf, sizeof(buf), "writepoly: writing out %i air gap boundaries\n", agelst.size ());
         WarnMessage(buf);
     }
 #endif // DEBUG
@@ -2160,7 +2200,14 @@ bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool for
             // the tag <No Mesh>
             if(label->isHole())
             {
-                //fprintf(fp,"%i    %.17g    %.17g\n", k, blocklist[i]->x, blocklist[i]->y);
+#ifdef DEBUG
+                {
+                    char buf[1028];
+                    SNPRINTF (buf, sizeof(buf), "Adding hole (at (%g,%g)) to triangle input hole list\n",
+                              label->x,label->y);
+                    WarnMessage(buf);
+                }
+#endif // DEBUG
                 in.holelist[k++] = label->x;
                 in.holelist[k++] = label->y;
             }
@@ -2183,7 +2230,14 @@ bool TriangulateHelper::initHolesAndRegions(const FemmProblem &problem, bool for
             in.regionlist[j] = label->x;
             in.regionlist[j+1] = label->y;
             in.regionlist[j+2] = k + 1; // Regional attribute (for whole mesh).
-
+#ifdef DEBUG
+            {
+                char buf[1028];
+                SNPRINTF (buf, sizeof(buf), "Adding region (at (%g,%g)) with attribute value %g to triangle input region list\n",
+                          label->x, label->y, in.regionlist[j+2]);
+                WarnMessage(buf);
+            }
+#endif // DEBUG
             // Note(ZaJ): this is the code that was used in the periodic bc triangulation:
             //  if (label->MaxArea>0 && (label->MaxArea<defaultMeshSize))
             //      in.regionlist[j+3] = label->MaxArea;  // Area constraint
