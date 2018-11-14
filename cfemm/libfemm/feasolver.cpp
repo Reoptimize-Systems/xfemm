@@ -494,7 +494,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 //            }
 #ifdef DEBUG
             {
-                char buf[1048]; snprintf(buf, sizeof(buf), "feasolver: Expected %i block labels, labellist length is %i\n", NumBlockLabels, (int) labellist.size ());
+                char buf[1048]; SNPRINTF(buf, sizeof(buf), "feasolver: Expected %i block labels, labellist length is %i\n", NumBlockLabels, (int) labellist.size ());
                 WarnMessage(buf);
             }
 #endif // DEBUG
