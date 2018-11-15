@@ -45,7 +45,6 @@
 		<Unit filename="hpproc.cpp" />
 		<Unit filename="hpproc.h" />
 		<Unit filename="hproblem.cpp" />
-		<Unit filename="hproblem.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
