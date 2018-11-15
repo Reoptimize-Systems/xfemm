@@ -977,41 +977,9 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
         }
     }
 
-    return 0;
+    checkAGEResult (result, myBdryName);
 
-//     switch (result)
-//     {
-//         case FPProcError::NoError :
-//
-//             return 0;
-//
-//         case AGENameNotFound :
-//
-//             mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENameNotFound",
-//                            "Air gap boundary with name %s was not found", myBdryName);
-//
-//         case AGENoHarmonics :
-//
-//             mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENoHarmonics",
-//                            "Air gap boundary with name %s has no harmonics", type);
-//
-//         case AGENegativeHarmonicRequested :
-//
-//             mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENegativeHarmonicRequested",
-//                            "Invalid block integral type selected %d",type);
-//
-//         case AGERequestedHarmonicTooLarge :
-//
-//             mexErrMsgIdAndTxt( "MFEMM:fpproc:AGERequestedHarmonicTooLarge",
-//                            "Invalid block integral type selected %d",type);
-//
-//         else
-//
-//              mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidinttype",
-//                            "Invalid block integral type selected %d",type);
-//
-//
-//     }
+    return 1;
 
 }
 
@@ -1875,7 +1843,9 @@ int FPProc_interface::getgapb (int nlhs, mxArray *plhs[], int nrhs, const mxArra
     CComplex br = 0;
     CComplex bt = 0;
 
-    theFPProc.getAGEflux(myBdryName, angle, br, bt);
+    FPProcError result = theFPProc.getAGEflux(myBdryName, angle, br, bt);
+
+    checkAGEResult (result, myBdryName);
 
     mxSetLHS (br, 1, nlhs, plhs);
     mxSetLHS (bt, 2, nlhs, plhs);
@@ -1909,7 +1879,9 @@ int FPProc_interface::getgapa (int nlhs, mxArray *plhs[], int nrhs, const mxArra
 
     CComplex ac = 0;
 
-    theFPProc.getGapA(myBdryName, angle, ac);
+    FPProcError result = theFPProc.getGapA(myBdryName, angle, ac);
+
+    checkAGEResult (result, myBdryName);
 
     mxSetLHS (ac, 1, nlhs, plhs);
 
@@ -1947,7 +1919,9 @@ int FPProc_interface::getgapharmonics (int nlhs, mxArray *plhs[], int nrhs, cons
     CComplex btc = 0;
     CComplex bts = 0;
 
-    theFPProc.getGapHarmonics(myBdryName,  n, acc, acs, brc, brs, btc, bts);
+    FPProcError result = theFPProc.getGapHarmonics(myBdryName,  n, acc, acs, brc, brs, btc, bts);
+
+    checkAGEResult (result, myBdryName);
 
     mxSetLHS (acc, 1, nlhs, plhs);
     mxSetLHS (acs, 1, nlhs, plhs);
@@ -1958,6 +1932,51 @@ int FPProc_interface::getgapharmonics (int nlhs, mxArray *plhs[], int nrhs, cons
 
     return 0;
 
+}
+
+
+void FPProc_interface::checkAGEResult (FPProcError result, std::string boundname)
+{
+    switch (result)
+    {
+        case FPProcError::NoError :
+        {
+            break;
+        }
+        case FPProcError::AGENameNotFound :
+        {
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENameNotFound",
+                            "Air gap boundary with name %s was not found", boundname.c_str ());
+
+            break;
+        }
+
+        case FPProcError::AGENoHarmonics :
+        {
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENoHarmonics",
+                            "Air gap boundary with name %s has no harmonics", boundname.c_str ());
+            break;
+        }
+        case FPProcError::AGENegativeHarmonicRequested :
+        {
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:AGENegativeHarmonicRequested",
+                            "Negative harmonic requested for gap boundary %s", boundname.c_str ());
+            break;
+        }
+        case FPProcError::AGERequestedHarmonicTooLarge :
+        {
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:AGERequestedHarmonicTooLarge",
+                            "Requested harmonicfor gap boundary %s was too large", boundname.c_str ());
+            break;
+        }
+        default :
+        {
+            mexErrMsgIdAndTxt( "MFEMM:fpproc:unexpectedresult",
+                            "Unexpected result %d", (int)result);
+            break;
+        }
+
+     }
 }
 
 
