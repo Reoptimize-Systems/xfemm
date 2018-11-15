@@ -21,7 +21,7 @@ function [rules, vars] = mmake_rule_1 (mexname, vars, varargin)
         end
     end
     
-    if ~isoctave && options.AddStdCppLib
+    if ~mfemmdeps.isoctave () && options.AddStdCppLib
         if ispc
             vars.LINKLIBS = sprintf(' -L"''%s''" -llibmx -llibmex -llibmat -lm -llibmwlapack -llibmwblas -lstdc++ ' , fullfile (matlabroot, 'extern', 'lib', 'win64', 'mingw64'));
         else
