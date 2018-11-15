@@ -49,7 +49,11 @@ public:
     int getgapb (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     int getgapa (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     int getgapharmonics (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
-    
+
+private:
+
+    void checkAGEResult (FPProcError result, std::string boundname);
+
 // To be created
 //	int addcontour(lua_State * L);
 //	int clearcontour(lua_State * L);
@@ -88,7 +92,7 @@ private:
 
     // The one and only FPProc object to which we are interfacing
     FPProc theFPProc;
-    
+
     int countGroupElements (int);
 
 };
