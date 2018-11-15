@@ -87,7 +87,11 @@ tq_femm_all = mo_gapintegral ('AGE', 0);
 
 sol = fpproc (newansfilename);
     
-tq_femm_sol_fpproc_pp = sol.gapintegral ('AGE', 0);
+try
+    tq_femm_sol_fpproc_pp = sol.gapintegral ('AGE', 0);
+catch
+    tq_femm_sol_fpproc_pp = nan;
+end
 
 delete (newfemfilename);
 delete (newansfilename);
@@ -128,7 +132,11 @@ for ind = 2:numel (angles)
     
     sol = fpproc (newansfilename);
     
-    tq_femm_sol_fpproc_pp(ind) = sol.gapintegral ('AGE', 0);
+    try
+        tq_femm_sol_fpproc_pp(ind) = sol.gapintegral ('AGE', 0);
+    catch
+        tq_femm_sol_fpproc_pp(ind) = nan;
+    end
     
     delete (femfilename);
     delete (ansfilename);
@@ -183,7 +191,11 @@ tq_femm_all = mo_gapintegral ('AGE', 0);
 
 sol = fpproc (newansfilename);
     
-tq_femm_sol_fpproc_pp = sol.gapintegral ('AGE', 0);
+try
+    tq_femm_sol_fpproc_pp = sol.gapintegral ('AGE', 0);
+catch
+    tq_femm_sol_fpproc_pp = nan;
+end
 
 delete (newfemfilename);
 delete (newansfilename);
@@ -224,7 +236,11 @@ for ind = 2:numel (angles)
     
     sol = fpproc (newansfilename);
     
-    tq_femm_sol_fpproc_pp(ind) = sol.gapintegral ('AGE', 0);
+    try
+        tq_femm_sol_fpproc_pp(ind) = sol.gapintegral ('AGE', 0);
+    catch
+        tq_femm_sol_fpproc_pp(ind) = nan;
+    end
     
     delete (femfilename);
     delete (ansfilename);
