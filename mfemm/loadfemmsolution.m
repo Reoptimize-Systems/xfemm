@@ -975,7 +975,7 @@ function [FemmProblem, Solution] = loadfemmsolution(filename, problemonly)
                     %  number of block labels.
                 end
             else
-                FemmProblem.Holes = struct ();
+                FemmProblem.Holes = [];
             end
             
             % get the next line of input
