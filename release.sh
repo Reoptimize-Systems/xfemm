@@ -8,7 +8,7 @@
 # Run this script from the directory containing it
 
 # stop on first error
-set -e
+set -xe
 
 # A POSIX variable
 OPTIND=1  # Reset in case getopts has been used previously in the shell.
@@ -134,6 +134,7 @@ tar cvzf xfemm_v${version}_linux64.tar.gz ${linux_64_common_dir_name}/
 win_64_common_dir_name="xfemm_mingw_win64"
 win_64_release_dir="${release_prefix}/${win_64_common_dir_name}"
 # win 64 -- x86_64-w64-mingw32 MXE target
+cd ${working_copy_dir}
 hg archive --rev stable ${win_64_release_dir} # TODO: windows line endings?
 # remove file created by hg
 rm ${win_64_release_dir}/.hg_archival.txt
