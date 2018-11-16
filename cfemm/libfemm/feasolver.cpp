@@ -338,7 +338,6 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
         // AC Solver Type
         if( token == "[acsolver]")
         {
-            WarnMessage("***************** feasolver.cpp  in token == \"[acsolver]\"   *****************");
             success &= expectChar(lineStream, '=', err);
             success &= parseValue(lineStream, ACSolver, err);
             continue;
@@ -347,7 +346,6 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 		// Previous solution type
 		if( token == "[prevtype]" )
         {
-            WarnMessage("***************** feasolver.cpp  in token == \"[prevtype]\"   *****************");
 			success &= expectChar(lineStream, '=', err);
 			success &= parseValue(lineStream, PrevType, err);
 			continue;
@@ -355,7 +353,6 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 
         if( token == "[prevsoln]" )
         {
-            WarnMessage("***************** feasolver.cpp  in token == \"[prevsoln]\"   *****************");
             success &= expectChar(lineStream, '=', err);
             success &= parseString(lineStream, &previousSolutionFile, err);
             continue;
