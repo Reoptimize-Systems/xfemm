@@ -47,6 +47,7 @@ class CBoundaryProp
 public:
 
     CBoundaryProp();
+    virtual ~CBoundaryProp() {}
 
     std::string BdryName; /// \verbatim <BdryName> \endverbatim
     /**
