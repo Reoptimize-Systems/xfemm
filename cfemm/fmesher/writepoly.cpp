@@ -1107,7 +1107,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
 	// Search through defined bc's for pbcs and ages;
 	// Allocate space to store their properties if they are detected
-	for(i=0;i<problem->lineproplist.size();i++)
+	for(i=0;i<(int)problem->lineproplist.size();i++)
 	{
 #ifdef DEBUG
         {
@@ -1136,7 +1136,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
             }
 #endif // DEBUG
 			// only add an AGE to the list if it's actually being used
-			for(j=0,k=0;j<problem->arclist.size();j++)
+			for(j=0,k=0;j<(int)problem->arclist.size();j++)
 				if (problem->arclist[j]->BoundaryMarkerName==problem->lineproplist[i]->BdryName) k++;
 			if (k>1)
 			{
@@ -1168,11 +1168,11 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
 	// find out the total arc length and arc elements
 	// corresponding ot each lineproplist entry
-	for(i=0;i<problem->arclist.size();i++)
+	for(i=0;i<(int)problem->arclist.size();i++)
 	{
 		if (problem->arclist[i]->BoundaryMarkerName!="<None>")
 		{
-			for(j=0;j<agelst.size();j++)
+			for(j=0;j<(int)agelst.size();j++)
 			{
 
 				if (problem->arclist[i]->BoundaryMarkerName==agelst[j]->BdryName)
@@ -1196,7 +1196,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 	}
 
 	// cycle through AGEs and fix constituent arcs so that all arcs have the same discretization
-	for (i=0;i<agelst.size();i++)
+	for (i=0;i<(int)agelst.size();i++)
 	{
 		if (agelst[i]->totalArcLength>0) // if the AGE is actually in play
 		{
@@ -1214,18 +1214,18 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 			sscanf(kludge,"%lf",&myMaxSideLength);
 
 			// apply new side length to all arcs in this AGE
-			for(j=0;j<problem->arclist.size();j++)
+			for(j=0;j<(int)problem->arclist.size();j++)
 				if (problem->arclist[j]->BoundaryMarkerName==agelst[i]->BdryName)
 					problem->arclist[j]->MaxSideLength=myMaxSideLength;
 		}
 	}
 
 	// and perform a quick error check; AGE BCs can't be applied to segments (at least yet)
-	for (i=0;i<problem->linelist.size();i++)
+	for (i=0;i<(int)problem->linelist.size();i++)
 	{
 		if (problem->linelist[i]->BoundaryMarkerName!="<None>")
 		{
-			for(j=0;j<agelst.size();j++)
+			for(j=0;j<(int)agelst.size();j++)
 			{
 
 				if (problem->linelist[i]->BoundaryMarkerName==agelst[j]->BdryName)
@@ -1637,13 +1637,13 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 
 
 	// Now, discretize arcs that are part of an AGE
-	for(n=0;n<agelst.size();n++)
+	for(n=0;n<(int)agelst.size();n++)
 	{
 		std::vector <int> myVector;
 
 		z = (agelst[n]->ro + agelst[n]->ri)/2.;
 
-		for(i=0;i<problem->arclist.size();i++)
+		for(i=0;i<(int)problem->arclist.size();i++)
 		if((problem->arclist[i]->IsSelected==false) && (problem->arclist[i]->BoundaryMarkerName==agelst[n]->BdryName)){
 			problem->arclist[i]->IsSelected=true;
 			a2.Set(problem->nodelist[problem->arclist[i]->n0]->x,problem->nodelist[problem->arclist[i]->n0]->y);
@@ -1707,7 +1707,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 		agelst[n]->nodeNums.shrink_to_fit ();
 		agelst[n]->nodeNums.reserve (myVector.size()+1);
 		agelst[n]->nodeNums[0]=(int) myVector.size();
-		for(k=0;k<myVector.size();k++) agelst[n]->nodeNums[k+1]=myVector[k];
+		for(k=0;k<(int)myVector.size();k++) agelst[n]->nodeNums[k+1]=myVector[k];
 	}
 
 
@@ -1838,7 +1838,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     }
 #endif // DEBUG
 	fprintf(fp,"%i\n",(int) agelst.size());
-	for(k=0;k<agelst.size();k++)
+	for(k=0;k<(int)agelst.size();k++)
 	{
 		double dtta;
 		std::vector<CQuadPoint> InnerRing;

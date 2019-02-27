@@ -2390,7 +2390,7 @@ void femm::FemmProblem::undoLines()
 
 void femm::FemmProblem::undoArcs()
 {
-	for(int i=0;i<arclist.size();i++)
+	for(int i=0;i<(int)arclist.size();i++)
 	{
 		arclist[i]->mySideLength=arclist[i]->MaxSideLength;
 		arclist[i]->MaxSideLength=undoarclist[i]->MaxSideLength;
