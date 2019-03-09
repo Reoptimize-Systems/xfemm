@@ -28,6 +28,26 @@ namespace femmcli
 {
 
 /**
+ * @brief luaExpectParameterCount checks that the parameter count is between min and max.
+ * If the argument count is not in range, an error message is printed using lua_error().
+ * 
+ * @param L
+ * @param min lower bound (inclusive) for argument count
+ * @param max upper bound (inclusive) for argument count
+ * @return \c true, if the parameter count is ok, \c false if the wrong number of parameters is present.
+ */
+bool luaExpectParameterCount(lua_State *L, int min, int max);
+
+/**
+ * @brief luaExpectParameterCount checks that the parameter count is equal to the expected one.
+ * If the check fails, an error message is printed using lua_error().
+ * @param L
+ * @param expected value for parameter count
+ * @return \c true, if the parameter count is ok, \c false if the wrong number of parameters is present.
+ */
+bool luaExpectParameterCount(lua_State *L, int expected);
+
+/**
  * LuaCommonCommands provides lua commands which are shared between different modules.
  * These commands are registered by the individual module's registerCommands().
  *
