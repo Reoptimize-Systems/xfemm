@@ -44,6 +44,33 @@
 using namespace femm;
 using std::swap;
 
+bool femmcli::luaExpectParameterCount(lua_State *L, int min, int max)
+{
+    const int count = lua_gettop(L);
+    if (count >= min && count <= max)
+        return true;
+
+    std::string msg = luaCurrentFunctionName(L) + "(): expected " + std::to_string(min)
+            + "-" + std::to_string(max) + " parameters, but got " + std::to_string(count)
+            +"!";
+    lua_error(L, msg.c_str());
+    return false;
+}
+
+bool femmcli::luaExpectParameterCount(lua_State *L, int expected)
+{
+    const int count = lua_gettop(L);
+    if (count == expected)
+        return true;
+
+    std::string msg = luaCurrentFunctionName(L) + "(): expected " + std::to_string(expected)
+            + " parameters, but got " + std::to_string(count)
+            +"!";
+    lua_error(L, msg.c_str());
+    return false;
+}
+
+
 /**
  * @brief Add a new arc segment.
  * Add a new arc segment from the nearest node to (x1,y1) to the
@@ -69,6 +96,8 @@ int femmcli::LuaCommonCommands::luaAddArc(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+    
+    luaExpectParameterCount(L, 6);
 
     double sx = lua_todouble(L,1);
     double sy = lua_todouble(L,2);
@@ -123,6 +152,7 @@ int femmcli::LuaCommonCommands::luaAddBlocklabel(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 2);
     double x = lua_todouble(L,1);
     double y = lua_todouble(L,2);
 
@@ -182,6 +212,7 @@ int femmcli::LuaCommonCommands::luaAddContourPoint(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     CComplex z(lua_todouble(L,1),lua_todouble(L,2));
 
     pproc->addContourPoint(z);
@@ -222,6 +253,7 @@ int femmcli::LuaCommonCommands::luaAddContourPointFromNode(lua_State *L)
     // Note(ZaJ): editAction should not be relevant to anything this method does
     //theView->EditAction=1; // make sure things update OK
 
+    luaExpectParameterCount(L, 2);
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
@@ -255,6 +287,7 @@ int femmcli::LuaCommonCommands::luaAddLine(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 4);
     double sx=lua_todouble(L,1);
     double sy=lua_todouble(L,2);
 
@@ -299,6 +332,7 @@ int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 2);
     double x=lua_todouble(L,1);
     double y=lua_todouble(L,2);
 
@@ -360,6 +394,7 @@ int femmcli::LuaCommonCommands::luaAttachDefault(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     bool isFirstSelected = true;
     for (auto &label: doc->labellist)
     {
@@ -396,6 +431,7 @@ int femmcli::LuaCommonCommands::luaAttachOuterSpace(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     for (auto &label: doc->labellist)
     {
         if (label->IsSelected)
@@ -440,6 +476,7 @@ int femmcli::LuaCommonCommands::luaBendContourLine(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     pproc->bendContour(lua_todouble(L,1),lua_todouble(L,2));
     return 0;
 }
@@ -471,6 +508,7 @@ int femmcli::LuaCommonCommands::luaClearBlockSelection(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 0);
     pproc->clearSelection();
     //pproc->d_EditMode = EditNodes;
     return 0;
@@ -503,6 +541,7 @@ int femmcli::LuaCommonCommands::luaClearContourPoint(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 0);
     //theView->EraseUserContour(TRUE);
     pproc->clearContour();
 
@@ -533,6 +572,7 @@ int femmcli::LuaCommonCommands::luaClearSelected(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     doc->unselectAll();
     return 0;
 }
@@ -562,12 +602,8 @@ int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
     std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
-    int n = lua_gettop(L);
-    if(n!=4 && n!=5)
-    {
-        lua_error(L,"Invalid number of parameters for copy rotate\n");
+    if (!luaExpectParameterCount(L, 4,5))
         return 0;
-    }
 
     double x = lua_todouble(L,1);
     double y = lua_todouble(L,2);
@@ -575,6 +611,7 @@ int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
     int copies = (int) lua_todouble(L,4);
 
     EditMode editAction;
+    int n = lua_gettop(L);
     if (n==5) {
         editAction = intToEditMode((int)lua_todouble(L,5));
     } else {
@@ -623,18 +660,15 @@ int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
     std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
-    int n = lua_gettop(L);
-    if(n!=3 && n!=4)
-    {
-        lua_error(L,"Invalid number of parameters for copy translate\n");
+    if (!luaExpectParameterCount(L, 3,4))
         return 0;
-    }
 
     double x = lua_todouble(L,1);
     double y = lua_todouble(L,2);
     int copies = (int) lua_todouble(L,3);
 
     EditMode editAction;
+    int n = lua_gettop(L);
     if (n==4) {
         editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
@@ -682,6 +716,7 @@ int femmcli::LuaCommonCommands::luaDeleteBoundaryProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 1);
     std::string propName = lua_tostring(L,1);
     doc->lineproplist.erase(
                 std::remove_if(doc->lineproplist.begin(),doc->lineproplist.end(),
@@ -718,6 +753,7 @@ int femmcli::LuaCommonCommands::luaDeleteCircuitProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 1);
     std::string propName = lua_tostring(L,1);
     doc->circproplist.erase(
                 std::remove_if(doc->circproplist.begin(),doc->circproplist.end(),
@@ -754,6 +790,7 @@ int femmcli::LuaCommonCommands::luaDeleteMaterial(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 1);
     std::string propName = lua_tostring(L,1);
     doc->blockproplist.erase(
                 std::remove_if(doc->blockproplist.begin(),doc->blockproplist.end(),
@@ -790,6 +827,7 @@ int femmcli::LuaCommonCommands::luaDeletePointProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 1);
     std::string propName = lua_tostring(L,1);
     doc->nodeproplist.erase(
                 std::remove_if(doc->nodeproplist.begin(),doc->nodeproplist.end(),
@@ -826,6 +864,7 @@ int femmcli::LuaCommonCommands::luaDeleteSelected(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     doc->deleteSelectedSegments();
     doc->deleteSelectedArcSegments();
     doc->deleteSelectedNodes();
@@ -858,6 +897,7 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedArcSegments(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     doc->deleteSelectedArcSegments();
     return 0;
 }
@@ -886,6 +926,7 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedBlockLabels(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     doc->deleteSelectedBlockLabels();
     return 0;
 }
@@ -914,6 +955,7 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedNodes(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     doc->deleteSelectedNodes();
 
     return 0;
@@ -943,6 +985,7 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedSegments(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     doc->deleteSelectedSegments();
 
     return 0;
@@ -972,6 +1015,7 @@ int femmcli::LuaCommonCommands::luaDetachDefault(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     for (auto &label: doc->labellist)
     {
         if (label->IsSelected)
@@ -1005,6 +1049,7 @@ int femmcli::LuaCommonCommands::luaDetachOuterSpace(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     for (auto &label: doc->labellist)
     {
         if (label->IsSelected)
@@ -1037,6 +1082,7 @@ int femmcli::LuaCommonCommands::luaExitPost(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    luaExpectParameterCount(L, 0);
     femmState->closeSolution();
     return 0;
 }
@@ -1061,6 +1107,7 @@ int femmcli::LuaCommonCommands::luaExitPre(lua_State *L)
 {
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    luaExpectParameterCount(L, 0);
     femmState->close();
     return 0;
 }
@@ -1089,6 +1136,7 @@ int femmcli::LuaCommonCommands::luaGetBoundingBox(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     double x[2],y[2];
     if (doc->getBoundingBox(x,y))
     {
@@ -1144,6 +1192,7 @@ int femmcli::LuaCommonCommands::luaGetConductorProperties(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     std::string conductorname = lua_tostring(L,1);
 
     const auto doc = pproc->getProblem();
@@ -1223,6 +1272,7 @@ int femmcli::LuaCommonCommands::luaGetElement(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     // Note: in lua code, indices start at 1.
     int idx=(int) lua_todouble(L,1);
     idx--;
@@ -1266,12 +1316,9 @@ int femmcli::LuaCommonCommands::luaGetMaterialFromLib(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int n=lua_gettop(L);
-    std::string matname;
-    if (n>0)
-        matname=lua_tostring(L,1);
-    else
+    if (!luaExpectParameterCount(L, 1))
         return 0;
+    std::string matname = lua_tostring(L,1);
 
 	 std::string matlib;
      switch (doc->filetype) {
@@ -1340,6 +1387,7 @@ int femmcli::LuaCommonCommands::luaGetMeshNode(lua_State *L)
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<PostProcessor> pproc = std::dynamic_pointer_cast<PostProcessor>(femmState->getPostProcessor());
 
+    luaExpectParameterCount(L, 1);
     int idx = (int)lua_todouble(L,1);
     idx--; // convert to 0-based indexing
 
@@ -1389,6 +1437,7 @@ int femmcli::LuaCommonCommands::luaGetProblemInfo(lua_State *L)
 
     int num=0;
 
+    luaExpectParameterCount(L, 0);
     lua_pushnumber(L,doc->problemType);
     num++;
     if (doc->filetype == FileType::MagneticsFile)
@@ -1454,6 +1503,7 @@ int femmcli::LuaCommonCommands::luaGetTitle(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     lua_pushstring(L, doc->getTitle().c_str());
     return 1;
 }
@@ -1489,6 +1539,7 @@ int femmcli::LuaCommonCommands::luaGroupSelectBlock(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 0,1);
     //pproc->d_EditMode = EditLabels;
 
     if (pproc->numElements() > 0)
@@ -1534,6 +1585,7 @@ int femmcli::LuaCommonCommands::luaLoadSolution(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0);
     if (doc->pathName.empty())
     {
         lua_error(L,"No results to display");
@@ -1584,13 +1636,8 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int n = lua_gettop(L);
-
-    if (n!=4 && n!=5)
-    {
-        lua_error(L,"Invalid number of parameters for mirror\n");
+    if (!luaExpectParameterCount(L,4,5))
         return 0;
-    }
 
     double m_pax = lua_todouble(L,1);
     double m_pay = lua_todouble(L,2);
@@ -1598,6 +1645,7 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
     double m_pby = lua_todouble(L,4);
 
     EditMode editAction;
+    int n = lua_gettop(L);
     if (n==5) {
         editAction = intToEditMode((int)lua_todouble(L,5));
     } else {
@@ -1641,20 +1689,15 @@ int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
-    int n;
-    n=lua_gettop(L);
-
-    if(n!=4 && n!=3)
-    {
-        lua_error(L,"Invalid number of parameters for move rotate!\n");
+    if(!luaExpectParameterCount(L, 3,4))
         return 0;
-    }
 
     double x = lua_todouble(L,1);
     double y = lua_todouble(L,2);
     double shiftangle = lua_todouble(L,3);
 
     EditMode editAction;
+    int n=lua_gettop(L);
     if (n==4) {
         editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
@@ -1701,17 +1744,14 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
-    int n = lua_gettop(L);
-    if( n<2 || n>3)
-    {
-        lua_error(L,"Invalid number of parameters for move translate!\n");
+    if(!luaExpectParameterCount(L, 2,3))
         return 0;
-    }
 
     double x = lua_todouble(L,1);
     double y = lua_todouble(L,2);
 
     EditMode editAction;
+    int n = lua_gettop(L);
     if (n==3) {
         editAction = intToEditMode((int)lua_todouble(L,3));
     } else {
@@ -1762,6 +1802,7 @@ int femmcli::LuaCommonCommands::luaNumElements(lua_State *L)
         lua_error(L,"No output in focus");
         return 0;
     }
+    luaExpectParameterCount(L, 0);
     lua_pushnumber(L,pproc->numElements());
     return 1;
 }
@@ -1795,6 +1836,7 @@ int femmcli::LuaCommonCommands::luaNumNodes(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 0);
     lua_pushnumber(L,pproc->numNodes());
     return 1;
 }
@@ -1824,6 +1866,7 @@ int femmcli::LuaCommonCommands::luaPurgeMesh(lua_State *L)
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
+    luaExpectParameterCount(L, 0);
     femmState->closeSolution();
     mesher->meshline.clear();
     mesher->meshnode.clear();
@@ -1869,6 +1912,7 @@ int femmcli::LuaCommonCommands::luaCreateMesh(lua_State *L)
     std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
     std::shared_ptr<fmesher::FMesher> mesher = femmState->getMesher();
 
+    luaExpectParameterCount(L, 0);
     std::string pathName = doc->pathName;
     if (pathName.empty())
     {
@@ -1950,8 +1994,7 @@ int femmcli::LuaCommonCommands::luaCreateRadius(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int n = lua_gettop(L);
-    if (n!=3)
+    if (!luaExpectParameterCount(L, 3))
         return 0;
 
     double x = lua_todouble(L,1);
@@ -2004,8 +2047,7 @@ int femmcli::LuaCommonCommands::luaDefineOuterSpace(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int n = lua_gettop(L);
-    if (n!=3)
+    if (!luaExpectParameterCount(L, 3))
         return 0;
 
     doc->extZo = fabs(lua_todouble(L,1));
@@ -2079,13 +2121,13 @@ int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int n = lua_gettop(L);
-
+    luaExpectParameterCount(L, 3,4);
     double x=lua_todouble(L,1);
     double y=lua_todouble(L,2);
     double scalefactor=lua_todouble(L,3);
 
     EditMode editAction;
+    int n = lua_gettop(L);
     if (n==4) {
         editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
@@ -2135,6 +2177,7 @@ int femmcli::LuaCommonCommands::luaSelectArcsegment(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 2);
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
@@ -2177,6 +2220,7 @@ int femmcli::LuaCommonCommands::luaSelectBlocklabel(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 2);
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
@@ -2225,8 +2269,7 @@ int femmcli::LuaCommonCommands::luaSelectConductor(lua_State *L)
         lua_error(L,"No output in focus");
         return 0;
     }
-    int n=lua_gettop(L);
-    if (n==0)
+    if (!luaExpectParameterCount(L, 1))
         return 0;
 
     std::string conductorName = lua_tostring(L,1);
@@ -2267,6 +2310,7 @@ int femmcli::LuaCommonCommands::luaSelectGroup(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 1);
     int group=(int) lua_todouble(L,1);
 
     if(group<0)
@@ -2339,6 +2383,7 @@ int femmcli::LuaCommonCommands::luaSelectNode(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 2);
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
@@ -2417,6 +2462,7 @@ int femmcli::LuaCommonCommands::luaSelectSegment(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 2);
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
@@ -2458,14 +2504,14 @@ int femmcli::LuaCommonCommands::luaSelectWithinCircle(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int n=lua_gettop(L);
-    if (n<3)
+    if (!luaExpectParameterCount(L, 3,4))
         return 0;
 
     CComplex c=lua_tonumber(L,1)+I*lua_tonumber(L,2);
     double R=lua_todouble(L,3);
 
     EditMode editAction;
+    int n=lua_gettop(L);
     if (n>3) {
         editAction = intToEditMode((int)lua_todouble(L,4));
     } else {
@@ -2547,8 +2593,7 @@ int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int n = lua_gettop(L);
-    if (n<4)
+    if (luaExpectParameterCount(L, 4,5))
         return 0;
 
     double mx = lua_todouble(L,1);
@@ -2557,6 +2602,7 @@ int femmcli::LuaCommonCommands::luaSelectWithinRectangle(lua_State *L)
     double wzy = lua_todouble(L,4);
 
     EditMode editAction;
+    int n = lua_gettop(L);
     if (n>4) {
         editAction = intToEditMode((int)lua_todouble(L,5));
     } else {
@@ -2663,6 +2709,7 @@ int femmcli::LuaCommonCommands::luaSetBlocklabelProperty(lua_State *L)
     double meshsize = 0;
     int group = 0;
 
+    luaExpectParameterCount(L, 0,4);
     int n=lua_gettop(L);
 
     // Note: blockname may be 0 (as in number 0, not string "0").
@@ -2717,6 +2764,7 @@ int femmcli::LuaCommonCommands::luaSetEditMode(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 1);
     EditMode mode;
     std::string modeString (lua_tostring(L,1));
     if (modeString == "nodes")
@@ -2774,10 +2822,8 @@ int femmcli::LuaCommonCommands::luaSetFocus(lua_State *L)
     auto luaInstance = LuaInstance::instance(L);
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
 
-    int n = lua_gettop(L);
-    if (n==0)
+    if (!luaExpectParameterCount(L, 1))
         return 0;
-    // deviation from femm42: femm42 uses lua_tostring(L,n)
     std::string title = lua_tostring(L,1);
 
     if (!femmState->activateProblemSet(title))
@@ -2812,12 +2858,9 @@ int femmcli::LuaCommonCommands::luaSetGroup(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
-    int n=lua_gettop(L);
-    int grp;
-    if (n>0)
-        grp =(int) lua_todouble(L,1);
-    else
+    if (!luaExpectParameterCount(L, 1))
         return 0;
+    int grp =(int) lua_todouble(L,1);
 
     for(auto &node: doc->nodelist)
     {
@@ -2870,6 +2913,7 @@ int femmcli::LuaCommonCommands::luaSetNodeProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 3);
     int nodepropidx = -1;
     std::string nodeprop = "<None>";
     // Note: propname may be 0 (as in number 0, not string "0").
@@ -2939,6 +2983,7 @@ int femmcli::LuaCommonCommands::luaSetSegmentProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 6);
     int boundpropidx = -1;
     std::string boundprop = "<None>";
     if (!lua_isnil(L,1))
@@ -3016,6 +3061,7 @@ int femmcli::LuaCommonCommands::luaSetSmoothing(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     std::string flag (lua_tostring(L,1));
     to_lower(flag);
     if (flag == "on")

@@ -343,4 +343,15 @@ void femm::LuaInstance::luaStackHook(lua_State *L, lua_Debug *ar)
     std::cout << "]\n";
 }
 
+std::string femm::luaCurrentFunctionName(lua_State *L)
+{
+    lua_Debug ar; // activation record
+    // collect frame info for current frame
+    if (!lua_getstack(L,0,&ar))
+        return "???";
+    
+    lua_getinfo(L, "n", &ar);
+    return ar.name;
+}
+
 // vi:expandtab:tabstop=4 shiftwidth=4:

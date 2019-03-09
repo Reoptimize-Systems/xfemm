@@ -189,6 +189,8 @@ private:
     static void luaStackHook(lua_State *L, lua_Debug *ar);
 };
 
+std::string luaCurrentFunctionName(lua_State *L);
+
 } /* namespace */
 
 #endif /* LUAINSTANCE_H */

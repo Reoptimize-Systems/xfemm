@@ -407,6 +407,7 @@ int femmcli::LuaMagneticsCommands::luaAddBoundaryProperty(lua_State *L)
 
     std::unique_ptr<CMBoundaryProp> m = MAKE_UNIQUE<CMBoundaryProp>();
 
+    luaExpectParameterCount(L, 0,10);
     int n=lua_gettop(L);
     if (n>0) m->BdryName = lua_tostring(L,1);
     if (n>1) m->A0 = lua_todouble(L,2);
@@ -452,6 +453,7 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProperty(lua_State *L)
     }
 
     std::unique_ptr<CMCircuit> m = MAKE_UNIQUE<CMCircuit>();
+    luaExpectParameterCount(L, 0,3);
     int n=lua_gettop(L);
 
     if (n>0) m->CircName=lua_tostring(L,1);
@@ -489,6 +491,7 @@ int femmcli::LuaMagneticsCommands::luaAddContourPoint(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     CComplex z(lua_todouble(L,1),lua_todouble(L,2));
 
     if (!fpproc->contour.empty())
@@ -532,6 +535,7 @@ int femmcli::LuaMagneticsCommands::luaAddMatProperty(lua_State *L)
     }
 
     std::unique_ptr<CMSolverMaterialProp> m = MAKE_UNIQUE<CMSolverMaterialProp>();
+    luaExpectParameterCount(L, 0,14);
     int n=lua_gettop(L);
 
     if (n>0)
@@ -605,6 +609,7 @@ int femmcli::LuaMagneticsCommands::luaAddPointProperty(lua_State *L)
     }
 
     std::unique_ptr<CMPointProp> m = MAKE_UNIQUE<CMPointProp>();
+    luaExpectParameterCount(L, 0,3);
     int n=lua_gettop(L);
 
     if (n>0) m->PointName = lua_tostring(L,1);
@@ -642,6 +647,7 @@ int femmcli::LuaMagneticsCommands::luaAnalyze(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<femm::FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 0,1);
     // check to see if all blocklabels are kosher...
     if (doc->labellist.size()==0){
         std::string msg = "No block information has been defined\n"
@@ -853,6 +859,7 @@ int femmcli::LuaMagneticsCommands::luaBendContourLine(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     fpproc->BendContour(lua_todouble(L,1),lua_todouble(L,2));
     return 0;
 }
@@ -888,6 +895,7 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     int type = (int) lua_todouble(L,1);
     if((type<0) || (type>24))
     {
@@ -1112,6 +1120,7 @@ int femmcli::LuaMagneticsCommands::luaClearBHPoints(lua_State *L)
     // find the index of the material to modify;
     if (doc->blockproplist.empty())
         return 0; // Note(ZaJ): femm42 returns TRUE
+    luaExpectParameterCount(L, 1);
     std::string BlockName = lua_tostring(L,1);
 
     int blockIdx;
@@ -1155,6 +1164,7 @@ int femmcli::LuaMagneticsCommands::luaClearBlock(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 0);
     fpproc->bHasMask= false;
     for(auto &block: fpproc->blocklist)
     {
@@ -1190,6 +1200,7 @@ int femmcli::LuaMagneticsCommands::luaClearContourPoint(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 0);
     //theView->EraseUserContour(TRUE);
     fpproc->contour.clear();
 
@@ -1236,6 +1247,7 @@ int femmcli::LuaMagneticsCommands::luaGetCircuitProperties(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     std::string circuitname = lua_tostring(L,1);
 
     // ok we need to find the correct entry for the circuit name
@@ -1293,6 +1305,7 @@ int femmcli::LuaMagneticsCommands::luaGetElement(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     // Note: in lua code, indices start at 1.
     int idx=(int) lua_todouble(L,1);
     idx--;
@@ -1331,6 +1344,7 @@ int femmcli::LuaMagneticsCommands::luaGetMeshNode(lua_State *L)
     auto femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FPProc> fpproc = std::dynamic_pointer_cast<FPProc>(femmState->getPostProcessor());
 
+    luaExpectParameterCount(L, 1);
     int idx = (int)lua_todouble(L,1);
     idx--; // convert to 0-based indexing
 
@@ -1375,6 +1389,7 @@ int femmcli::LuaMagneticsCommands::luaGetPointValues(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     double px,py;
     px=lua_tonumber(L,1).re;
     py=lua_tonumber(L,2).re;
@@ -1434,6 +1449,7 @@ int femmcli::LuaMagneticsCommands::luaBGradient(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     double xo=lua_todouble(L,1);
     double yo=lua_todouble(L,2);
 
@@ -1501,6 +1517,7 @@ int femmcli::LuaMagneticsCommands::luaGroupSelectBlock(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     //fpproc->d_EditMode = EditLabels;
 
     if (!fpproc->meshelem.empty())
@@ -1567,6 +1584,7 @@ int femmcli::LuaMagneticsCommands::luaLineIntegral(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     int type=(int) lua_todouble(L,1);
     // 0- B.n
     // 1 - H.t
@@ -1650,6 +1668,7 @@ int femmcli::LuaMagneticsCommands::luaModifyBoundaryProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 3);
     // find the index of the boundary property to modify;
     std::string BdryName = lua_tostring(L,1);
     CMBoundaryProp *m = nullptr;
@@ -1733,6 +1752,7 @@ int femmcli::LuaMagneticsCommands::luaModifyCircuitProperty(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 3);
     if (doc->circproplist.empty())
         return 0;
 
@@ -1807,6 +1827,8 @@ int femmcli::LuaMagneticsCommands::luaModifyMaterialProperty(lua_State *L)
         return 0;
     }
 
+    // FIXME(jzarl): check whether WireD being param 4 is a bug in femm42
+    luaExpectParameterCount(L, 3,4);
     // find the index of the material to modify;
     std::string BlockName = lua_tostring(L,1);
     CMSolverMaterialProp *m = nullptr;
@@ -1903,6 +1925,7 @@ int femmcli::LuaMagneticsCommands::luaModifyPointProperty(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 3);
     // find the index of the material to modify;
     std::string PointName = lua_tostring(L,1);
     CMPointProp *p = nullptr;
@@ -1955,6 +1978,7 @@ int femmcli::LuaMagneticsCommands::luaNewDocument(lua_State *L)
 {
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(LuaInstance::instance(L)->femmState());
     femmState->setDocument(std::make_shared<femm::FemmProblem>(femm::FileType::MagneticsFile));
+    luaExpectParameterCount(L, 0);
     return 0;
 }
 
@@ -1977,6 +2001,7 @@ int femmcli::LuaMagneticsCommands::luaSetPrevious(lua_State *L)
 {
     int n = lua_gettop(L);
 
+    luaExpectParameterCount(L, 1);
     if (n>0)
     {
         auto luaInstance = LuaInstance::instance(L);
@@ -2012,8 +2037,8 @@ int femmcli::LuaMagneticsCommands::luaProblemDefinition(lua_State * L)
     std::shared_ptr<femm::FemmProblem> magDoc = femmState->femmDocument();
 
     // argument count
-    int n;
-    n=lua_gettop(L);
+    luaExpectParameterCount(L, 1,7);
+    int n=lua_gettop(L);
 
     // Frequency
     double frequency = lua_tonumber(L,1).re;
@@ -2103,6 +2128,7 @@ int femmcli::LuaMagneticsCommands::luaSelectOutputBlocklabel(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     double px=lua_todouble(L,1);
     double py=lua_todouble(L,2);
 
@@ -2163,6 +2189,7 @@ int femmcli::LuaMagneticsCommands::luaAddContourPointFromNode(lua_State *L)
     // Note(ZaJ): editAction should not be relevant to anything this method does
     //theView->EditAction=1; // make sure things update OK
 
+    luaExpectParameterCount(L, 2);
     double mx = lua_todouble(L,1);
     double my = lua_todouble(L,2);
 
@@ -2311,6 +2338,7 @@ int femmcli::LuaMagneticsCommands::luaSetArcsegmentProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 4);
     double maxsegdeg = lua_todouble(L,1);
     std::string boundprop;
     int boundpropidx = -1;
@@ -2374,6 +2402,7 @@ int femmcli::LuaMagneticsCommands::luaSetBlocklabelProperty(lua_State *L)
     int group = 0;
     int turns = 1;
 
+    luaExpectParameterCount(L, 0,7);
     int n=lua_gettop(L);
 
     // Note: blockname and/or incircuit may be 0 (as in number 0, not string "0").
@@ -2450,6 +2479,7 @@ int femmcli::LuaMagneticsCommands::luaSetNodeProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 2);
     int nodepropidx = -1;
     std::string nodeprop = "<None>";
     // Note: propname may be 0 (as in number 0, not string "0").
@@ -2505,6 +2535,7 @@ int femmcli::LuaMagneticsCommands::luaSetSegmentProperty(lua_State *L)
     std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
     std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
 
+    luaExpectParameterCount(L, 5);
     int boundpropidx = -1;
     std::string boundprop = "<None>";
     if (!lua_isnil(L,1))
@@ -2568,6 +2599,7 @@ int femmcli::LuaMagneticsCommands::luaSetSmoothing(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 1);
     std::string flag (lua_tostring(L,1));
     to_lower(flag);
     if (flag == "on")
@@ -2611,6 +2643,7 @@ int femmcli::LuaMagneticsCommands::luaGetGapB(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     std::string myBdryName = std::string (lua_tostring(L,1));
     double angle = lua_todouble(L,2);
 
@@ -2655,6 +2688,7 @@ int femmcli::LuaMagneticsCommands::luaGetGapA(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     std::string myBdryName = std::string (lua_tostring(L,1));
     double angle = lua_todouble(L,2);
 
@@ -2713,6 +2747,7 @@ int femmcli::LuaMagneticsCommands::luaGetGapHarmonics(lua_State *L)
         return 0;
     }
 
+    luaExpectParameterCount(L, 2);
     std::string myBdryName = std::string (lua_tostring(L,1));
     int k;
 
