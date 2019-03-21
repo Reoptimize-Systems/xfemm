@@ -155,7 +155,7 @@ int main(int argc, char ** argv)
                 std::cerr << "Using custom init.lua: " << luaInit << std::endl;
             continue;
         }
-        if (arg == "--lua-enable-tracing" )
+        if (arg == "--lua-trace-functions" )
         {
             luaTrace = true;
             continue;
@@ -197,13 +197,13 @@ int main(int argc, char ** argv)
         }
         std::cout << "Command-line interpreter for FEMM-specific lua files.\n";
         std::cout << "\n";
-        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-enable-tracing] [--lua-init=<init.lua>] [--lua-base-dir=<dir>] --lua-script=<file.lua>\n";
+        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-trace-functions] [--lua-init=<init.lua>] [--lua-base-dir=<dir>] --lua-script=<file.lua>\n";
         std::cout << "       " << exe << " [-h|--help] [--version]\n";
         std::cout << "\n";
         std::cout << "Command line arguments:\n";
         std::cout << " --lua-base-dir=<dir>     Set base directory for matlib.dat.\n";
         std::cout << "                          [default: " << baseDir << "]\n";
-        std::cout << " --lua-enable-tracing     Show what lua functions are being executed.\n";
+        std::cout << " --lua-trace-functions    Show what lua functions are being executed.\n";
         std::cout << " --lua-init=<init.lua>    Initialize the lua state with a custom lua script.\n";
         std::cout << "                          [default: " << luaInit <<"]\n";
         std::cout << " --lua-script=<file.lua>  Execute the lua file.\n";
