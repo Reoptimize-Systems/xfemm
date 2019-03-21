@@ -40,6 +40,7 @@
 femm::LuaInstance::LuaInstance(int stackSize)
     : fs ()
     , compatMode(false)
+    , pedanticMode(false)
 {
     initializeLua(stackSize);
 }
@@ -153,6 +154,16 @@ std::string femm::LuaInstance::getBaseDir() const
 void femm::LuaInstance::setBaseDir(const std::string &value)
 {
     baseDir = value;
+}
+
+bool femm::LuaInstance::getPedanticMode() const
+{
+    return pedanticMode;
+}
+
+void femm::LuaInstance::setPedanticMode(bool value)
+{
+    pedanticMode = value;
 }
 
 void femm::LuaInstance::initializeLua(int stackSize)

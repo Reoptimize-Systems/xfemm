@@ -50,6 +50,10 @@ bool femmcli::luaExpectParameterCount(lua_State *L, int min, int max)
     if (count >= min && count <= max)
         return true;
 
+    auto luaInstance = LuaInstance::instance(L);
+    if (!luaInstance->getPedanticMode())
+        return false;
+
     std::string msg = luaCurrentFunctionName(L) + "(): expected " + std::to_string(min)
             + "-" + std::to_string(max) + " parameters, but got " + std::to_string(count)
             +"!";
@@ -62,6 +66,10 @@ bool femmcli::luaExpectParameterCount(lua_State *L, int expected)
     const int count = lua_gettop(L);
     if (count == expected)
         return true;
+
+    auto luaInstance = LuaInstance::instance(L);
+    if (!luaInstance->getPedanticMode())
+        return false;
 
     std::string msg = luaCurrentFunctionName(L) + "(): expected " + std::to_string(expected)
             + " parameters, but got " + std::to_string(count)
