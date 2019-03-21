@@ -50,7 +50,7 @@ bool quiet = false;
  * \param luaBaseDir base directory for lua
  * \return the result of lua_dostring()
  */
-int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace, const std::string &luaBaseDir)
+int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace, const std::string &luaBaseDir, bool luaPedanticMode)
 {
     // initialize interpreter
     shared_ptr<FemmState> state = make_shared<FemmState>();
@@ -60,6 +60,7 @@ int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool 
     LuaElectrostaticsCommands::registerCommands(li);
     LuaHeatflowCommands::registerCommands(li);
     li.enableTracing(luaTrace);
+    li.setPedanticMode(luaPedanticMode);
     li.setBaseDir(luaBaseDir);
     // canned initialization
     if (!luaInit.empty())
@@ -122,6 +123,7 @@ int main(int argc, char ** argv)
     std::string inputFile;
     std::string luaInit = location::locateFile(location::LocationType::SystemData, "xfemm", "release/init.lua");
     bool luaTrace = false;
+    bool luaPedanticMode = false;
 
     for(int i=1; i<argc; i++)
     {
@@ -188,6 +190,11 @@ int main(int argc, char ** argv)
             quiet = true;
             continue;
         }
+        if (arg == "--lua-pedantic-mode" )
+        {
+            luaPedanticMode = true;
+            continue;
+        }
         // unhandled argument -> print usage and exit
         int exitval = 0;
         if (arg != "-h" && arg != "--help")
@@ -197,16 +204,17 @@ int main(int argc, char ** argv)
         }
         std::cout << "Command-line interpreter for FEMM-specific lua files.\n";
         std::cout << "\n";
-        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-trace-functions] [--lua-init=<init.lua>] [--lua-base-dir=<dir>] --lua-script=<file.lua>\n";
+        std::cout << "Usage: " << exe << " [-q|--quiet] [--lua-trace-functions] [--lua-pedantic-mode] [--lua-init=<init.lua>] [--lua-base-dir=<dir>] --lua-script=<file.lua>\n";
         std::cout << "       " << exe << " [-h|--help] [--version]\n";
         std::cout << "\n";
         std::cout << "Command line arguments:\n";
         std::cout << " --lua-base-dir=<dir>     Set base directory for matlib.dat.\n";
         std::cout << "                          [default: " << baseDir << "]\n";
-        std::cout << " --lua-trace-functions    Show what lua functions are being executed.\n";
         std::cout << " --lua-init=<init.lua>    Initialize the lua state with a custom lua script.\n";
         std::cout << "                          [default: " << luaInit <<"]\n";
+        std::cout << " --lua-pedantic-mode      Additional checks for lua scripts.\n";
         std::cout << " --lua-script=<file.lua>  Execute the lua file.\n";
+        std::cout << " --lua-trace-functions    Show what lua functions are being executed.\n";
         std::cout << "\n";
         std::cout << "Additional options:\n";
         std::cout << " -h, --help               Show this help message and exit.\n";
@@ -231,6 +239,6 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    return execLuaFile(inputFile, luaInit, luaTrace, baseDir);
+    return execLuaFile(inputFile, luaInit, luaTrace, baseDir, luaPedanticMode);
 }
 // vi:expandtab:tabstop=4 shiftwidth=4:

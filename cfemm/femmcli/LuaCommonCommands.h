@@ -29,21 +29,32 @@ namespace femmcli
 
 /**
  * @brief luaExpectParameterCount checks that the parameter count is between min and max.
- * If the argument count is not in range, an error message is printed using lua_error().
- * 
+ *
+ * If pedanticMode is enabled and the argument count is not in range, an error message is printed using lua_error().
+ * If pedanticMode is not enabled, no error is printed, but you can still use the return value.
+ *
  * @param L
  * @param min lower bound (inclusive) for argument count
  * @param max upper bound (inclusive) for argument count
  * @return \c true, if the parameter count is ok, \c false if the wrong number of parameters is present.
+ *
+ * @see LuaInstance::getPedanticMode()
+ * @see LuaInstance::setPedanticMode()
  */
 bool luaExpectParameterCount(lua_State *L, int min, int max);
 
 /**
  * @brief luaExpectParameterCount checks that the parameter count is equal to the expected one.
- * If the check fails, an error message is printed using lua_error().
+ *
+ * If pedanticMode is enabled and the argument count does not match, an error message is printed using lua_error().
+ * If pedanticMode is not enabled, no error is printed, but you can still use the return value.
+ *
  * @param L
  * @param expected value for parameter count
  * @return \c true, if the parameter count is ok, \c false if the wrong number of parameters is present.
+ *
+ * @see LuaInstance::getPedanticMode()
+ * @see LuaInstance::setPedanticMode()
  */
 bool luaExpectParameterCount(lua_State *L, int expected);
 

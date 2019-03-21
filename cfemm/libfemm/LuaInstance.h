@@ -168,10 +168,27 @@ public:
      */
     void setBaseDir(const std::string &value);
 
+    /**
+     * @brief Pedantic mode enforces correct API use for lua functions.
+     * This only applies to (x)femm related lua functions.
+     * By enabling pedantic mode, the number of parameters is checked when calling
+     * the various femm lua functions, and an error results when a lua function is
+     * called with an incorrect number of parameters.
+     * @return \c true, if pedantic mode is active, \c false otherwise.
+     */
+    bool getPedanticMode() const;
+    /**
+     * @brief setPedanticMode
+     * @param value the new value for pedantic mode
+     * @see getPedanticMode()
+     */
+    void setPedanticMode(bool value);
+
 private:
     lua_State *lua;
     std::shared_ptr<FemmStateBase> fs;
     bool compatMode;
+    bool pedanticMode;
 
     std::string baseDir;
 
