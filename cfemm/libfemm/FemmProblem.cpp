@@ -1358,7 +1358,7 @@ void femm::FemmProblem::enforcePSLG(double tol)
     double d = tol;
     if (tol==0)
     {
-        if (newnodelist.size()==1)
+        if (newnodelist.size()<=1)
             d = 1.e-08;
         else
         {
@@ -1376,33 +1376,41 @@ void femm::FemmProblem::enforcePSLG(double tol)
     }
 
     // put in all of the nodes;
-    for (auto &node: newnodelist)
+    for (const auto &node: newnodelist)
     {
-        addNode(std::move(node), d);
+        addNode(node->clone(), d);
     }
 
     // put in all of the lines;
     for (const auto &line: newlinelist)
     {
         // Note(ZaJ): the original code uses a variant of AddSegment that uses coordinates instead of node indices.
-        // since I don't see any advantage to that, I just use the regular AddSegment method:
-        //CComplex p0 (newnodelist[line->n0]->x, newnodelist[line->n0]->y);
-        //CComplex p1 (newnodelist[line->n1]->x, newnodelist[line->n1]->y);
-        //AddSegment(p0,p1,newlinelist[i]);
+        // As far as I can tell, we can use our "default" implementation that uses node indices,
+        // as long as we search the correct endpoints using ClosestNode().
+        // This is necessary, because calling addNode to copy the nodes from the newnodelist does
+        // not necessarily preserve all nodes and therefore inices into the newnodelist are not always
+        // valid at this point.
 
+        CComplex p0 (newnodelist[line->n0]->x, newnodelist[line->n0]->y);
+        CComplex p1 (newnodelist[line->n1]->x, newnodelist[line->n1]->y);
         // using the raw pointer is ok here, because AddSegment creates a copy anyways
-        addSegment(line->n0, line->n1, line.get(), d);
+        addSegment(ClosestNode(p0.re,p0.im), ClosestNode(p1.re,p1.im), line.get(), d);
     }
 
     // put in all of the arcs;
     for (const auto &arc: newarclist)
     {
-        // Note(ZaJ): the original code uses a variant of AddArcSegment that uses coordinates instead of the node indices
-        // since I don't see any advantage to that, I just use the regular AddArcSegment method:
-        //CComplex p0 (newnodelist[arc->n0]->x, newnodelist[arc->n0]->y);
-        //CComplex p1 (newnodelist[arc->n1]->x, newnodelist[arc->n1]->y);
-        //AddArcSegment(p0,p1,newarclist[i]);
+        // Note(ZaJ): the original code uses a variant of AddArcSegment that uses coordinates instead of the node indices.
+        // As far as I can tell, we can use our "default" implementation that uses node indices,
+        // as long as we search the correct endpoints using ClosestNode().
+        // This is necessary, because calling addNode to copy the nodes from the newnodelist does
+        // not necessarily preserve all nodes and therefore inices into the newnodelist are not always
+        // valid at this point.
 
+        CComplex p0 (newnodelist[arc->n0]->x, newnodelist[arc->n0]->y);
+        CComplex p1 (newnodelist[arc->n1]->x, newnodelist[arc->n1]->y);
+        arc->n0 = closestNode(p0.re,p0.im);
+        arc->n1 = closestNode(p1.re,p1.im);
         // using the raw pointer is ok here, because AddArcSegment creates a copy anyways
         addArcSegment(*arc.get(), d);
     }
@@ -1949,6 +1957,7 @@ void femm::FemmProblem::rotateMove(CComplex c, double t, femm::EditMode selector
                 label->x = x.re;
                 label->y = x.im;
 
+                // only relevant to magnetics problems:
                 for (const auto &bprop : blockproplist)
                 {
                     CMMaterialProp *prop = dynamic_cast<CMMaterialProp*>(bprop.get());
