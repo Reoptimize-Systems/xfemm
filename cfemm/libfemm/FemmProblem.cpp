@@ -18,7 +18,7 @@ femm::FemmProblem::~FemmProblem()
 {
 }
 
-bool femm::FemmProblem::saveFEMFile(std::string &filename) const
+bool femm::FemmProblem::saveFEMFile(const std::string &filename) const
 {
     if ( filetype == FileType::Unknown )
     {
