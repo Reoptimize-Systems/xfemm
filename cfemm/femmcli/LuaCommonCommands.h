@@ -1,4 +1,4 @@
-/* Copyright 2017 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
+/* Copyright 2017-2019 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
  * Mechatronics GmbH (LCM)
  *
@@ -57,6 +57,15 @@ bool luaExpectParameterCount(lua_State *L, int min, int max);
  * @see LuaInstance::setPedanticMode()
  */
 bool luaExpectParameterCount(lua_State *L, int expected);
+
+/**
+ * @brief luaDebugWriteFEMFile writes the active input document into a file.
+ * The file will be named "debug-<seq>-<luaFunctionName>.<fileType>", e.g.
+ * "debug-0-mi_addarc.fem".
+ *
+ * @param L
+ */
+void luaDebugWriteFEMFile(lua_State *L);
 
 /**
  * LuaCommonCommands provides lua commands which are shared between different modules.

@@ -1,4 +1,4 @@
-/* Copyright 2016-2017 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+/* Copyright 2016-2019 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  * Mechatronics GmbH (LCM)
  * Copyright 1998-2016 David Meeker <dmeeker@ieee.org>
@@ -382,6 +382,9 @@ int femmcli::LuaMagneticsCommands::luaAddBHPoint(lua_State *L)
         }
         if (!swapped) break;
     }
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -422,6 +425,9 @@ int femmcli::LuaMagneticsCommands::luaAddBoundaryProperty(lua_State *L)
 
     doc->lineproplist.push_back(std::move(m));
     doc->updateLineMap();
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -463,6 +469,9 @@ int femmcli::LuaMagneticsCommands::luaAddCircuitProperty(lua_State *L)
     femmState->femmDocument()->circproplist.push_back(std::move(m));
     femmState->femmDocument()->updateCircuitMap();
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -503,6 +512,9 @@ int femmcli::LuaMagneticsCommands::luaAddContourPoint(lua_State *L)
         fpproc->contour.push_back(z);
 
     //theView->DrawUserContour(FALSE);
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -577,6 +589,9 @@ int femmcli::LuaMagneticsCommands::luaAddMatProperty(lua_State *L)
 
     femmState->femmDocument()->blockproplist.push_back(std::move(m));
     femmState->femmDocument()->updateBlockMap();
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -618,6 +633,9 @@ int femmcli::LuaMagneticsCommands::luaAddPointProperty(lua_State *L)
 
     doc->nodeproplist.push_back(std::move(m));
     doc->updateNodeMap();
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 

@@ -1,4 +1,4 @@
-/* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+/* Copyright 2016-2019 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
  * Mechatronics GmbH (LCM)
  *
@@ -174,7 +174,7 @@ public:
      * By enabling pedantic mode, the number of parameters is checked when calling
      * the various femm lua functions, and an error results when a lua function is
      * called with an incorrect number of parameters.
-     * @return \c true, if pedantic mode is active, \c false otherwise.
+     * @return \c true if pedantic mode is active, \c false otherwise.
      */
     bool getPedanticMode() const;
     /**
@@ -184,10 +184,23 @@ public:
      */
     void setPedanticMode(bool value);
 
+    /**
+     * @brief getDebugGeometry causes lua functions that change the geometry of the document to write the transformed model to disk.
+     * @return \c true if geometry-changing commands should be debugged, \c false otherwise.
+     */
+    bool getDebugGeometry() const;
+    /**
+     * @brief setDebugGeometry
+     * @param value
+     * @see getDebugGeometry()
+     */
+    void setDebugGeometry(bool value);
+
 private:
     lua_State *lua;
     std::shared_ptr<FemmStateBase> fs;
     bool compatMode;
+    bool debugGeometry;
     bool pedanticMode;
 
     std::string baseDir;

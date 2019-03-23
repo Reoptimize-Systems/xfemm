@@ -1,4 +1,4 @@
-/* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+/* Copyright 2016-2019 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
  * Mechatronics GmbH (LCM)
  *
@@ -40,6 +40,7 @@
 femm::LuaInstance::LuaInstance(int stackSize)
     : fs ()
     , compatMode(false)
+    , debugGeometry(false)
     , pedanticMode(false)
 {
     initializeLua(stackSize);
@@ -48,6 +49,8 @@ femm::LuaInstance::LuaInstance(int stackSize)
 femm::LuaInstance::LuaInstance(std::shared_ptr<FemmStateBase> state, int stackSize)
     : fs(state)
     , compatMode(false)
+    , debugGeometry(false)
+    , pedanticMode(false)
 {
     initializeLua(stackSize);
 }
@@ -164,6 +167,16 @@ bool femm::LuaInstance::getPedanticMode() const
 void femm::LuaInstance::setPedanticMode(bool value)
 {
     pedanticMode = value;
+}
+
+bool femm::LuaInstance::getDebugGeometry() const
+{
+    return debugGeometry;
+}
+
+void femm::LuaInstance::setDebugGeometry(bool value)
+{
+    debugGeometry = value;
 }
 
 void femm::LuaInstance::initializeLua(int stackSize)

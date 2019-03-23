@@ -1,4 +1,4 @@
-/* Copyright 2016-2017 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+/* Copyright 2016-2019 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
  * Mechatronics GmbH (LCM)
  *
@@ -50,7 +50,7 @@ bool quiet = false;
  * \param luaBaseDir base directory for lua
  * \return the result of lua_dostring()
  */
-int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace, const std::string &luaBaseDir, bool luaPedanticMode)
+int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool luaTrace, const std::string &luaBaseDir, bool luaPedanticMode, bool luaDebugGeometry)
 {
     // initialize interpreter
     shared_ptr<FemmState> state = make_shared<FemmState>();
@@ -61,6 +61,7 @@ int execLuaFile( const std::string &inputFile, const std::string &luaInit, bool 
     LuaHeatflowCommands::registerCommands(li);
     li.enableTracing(luaTrace);
     li.setPedanticMode(luaPedanticMode);
+    li.setDebugGeometry(luaDebugGeometry);
     li.setBaseDir(luaBaseDir);
     // canned initialization
     if (!luaInit.empty())
@@ -124,6 +125,7 @@ int main(int argc, char ** argv)
     std::string luaInit = location::locateFile(location::LocationType::SystemData, "xfemm", "release/init.lua");
     bool luaTrace = false;
     bool luaPedanticMode = false;
+    bool luaDebugGeometry = false;
 
     for(int i=1; i<argc; i++)
     {
@@ -195,6 +197,11 @@ int main(int argc, char ** argv)
             luaPedanticMode = true;
             continue;
         }
+        if (arg == "--lua-debug-geometry" )
+        {
+            luaDebugGeometry = true;
+            continue;
+        }
         // unhandled argument -> print usage and exit
         int exitval = 0;
         if (arg != "-h" && arg != "--help")
@@ -210,6 +217,7 @@ int main(int argc, char ** argv)
         std::cout << "Command line arguments:\n";
         std::cout << " --lua-base-dir=<dir>     Set base directory for matlib.dat.\n";
         std::cout << "                          [default: " << baseDir << "]\n";
+        std::cout << " --lua-debug-geometry     Debug lua functions that change the geometry of the model\n";
         std::cout << " --lua-init=<init.lua>    Initialize the lua state with a custom lua script.\n";
         std::cout << "                          [default: " << luaInit <<"]\n";
         std::cout << " --lua-pedantic-mode      Additional checks for lua scripts.\n";
@@ -239,6 +247,6 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    return execLuaFile(inputFile, luaInit, luaTrace, baseDir, luaPedanticMode);
+    return execLuaFile(inputFile, luaInit, luaTrace, baseDir, luaPedanticMode, luaDebugGeometry);
 }
 // vi:expandtab:tabstop=4 shiftwidth=4:

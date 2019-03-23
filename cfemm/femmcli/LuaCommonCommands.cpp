@@ -1,4 +1,4 @@
-/* Copyright 2017 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
+/* Copyright 2017-2019 Johannes Zarl-Zierl <johannes@zarl-zierl.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  * Mechatronics GmbH (LCM)
  * Copyright 1998-2016 David Meeker <dmeeker@ieee.org>
@@ -79,6 +79,29 @@ bool femmcli::luaExpectParameterCount(lua_State *L, int expected)
 }
 
 
+
+void femmcli::luaDebugWriteFEMFile(lua_State *L)
+{
+    auto luaInstance = LuaInstance::instance(L);
+    std::shared_ptr<FemmState> femmState = std::dynamic_pointer_cast<FemmState>(luaInstance->femmState());
+    std::shared_ptr<FemmProblem> doc = femmState->femmDocument();
+
+    // debug files are numbered sequentially:
+    constexpr auto s_sequenceVarName = "XFEMM_DEBUG_FILE_SEQUENCE_NUMBER";
+    bool ok=false;
+    int sequenceNumber = luaInstance->getGlobal(s_sequenceVarName, &ok).Re();
+    if (!ok)
+        sequenceNumber = 0;
+    luaInstance->setGlobal(s_sequenceVarName, sequenceNumber+1);
+
+    std::string fileName = "debug-" + std::to_string(sequenceNumber)
+            + "-" + luaCurrentFunctionName(L)
+            + extensionForFileType(doc->filetype);
+
+    debug << "Writing " << fileName << ".\n";
+    doc->saveFEMFile(fileName);
+}
+
 /**
  * @brief Add a new arc segment.
  * Add a new arc segment from the nearest node to (x1,y1) to the
@@ -132,6 +155,9 @@ int femmcli::LuaCommonCommands::luaAddArc(lua_State *L)
     //    else theView->DrawPSLG();
     //}
     //else theView->DrawPSLG();
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -190,6 +216,9 @@ int femmcli::LuaCommonCommands::luaAddBlocklabel(lua_State *L)
     //    else theView->DrawPSLG();
     //}
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -224,6 +253,9 @@ int femmcli::LuaCommonCommands::luaAddContourPoint(lua_State *L)
     CComplex z(lua_todouble(L,1),lua_todouble(L,2));
 
     pproc->addContourPoint(z);
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -267,6 +299,9 @@ int femmcli::LuaCommonCommands::luaAddContourPointFromNode(lua_State *L)
 
     // note: compared to FEMM42, a huge portion of the code has been moved into this method:
     pproc->addContourPointFromNode(mx,my);
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -312,6 +347,9 @@ int femmcli::LuaCommonCommands::luaAddLine(lua_State *L)
     //    else theView->DrawPSLG();
     //}
     //else theView->DrawPSLG();
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -369,6 +407,9 @@ int femmcli::LuaCommonCommands::luaAddNode(lua_State *L)
     //    if(theView->MeshFlag==TRUE) theView->lnu_show_mesh();
     //    else theView->DrawPSLG();
     //}
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -486,6 +527,9 @@ int femmcli::LuaCommonCommands::luaBendContourLine(lua_State *L)
 
     luaExpectParameterCount(L, 2);
     pproc->bendContour(lua_todouble(L,1),lua_todouble(L,2));
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -552,6 +596,9 @@ int femmcli::LuaCommonCommands::luaClearContourPoint(lua_State *L)
     luaExpectParameterCount(L, 0);
     //theView->EraseUserContour(TRUE);
     pproc->clearContour();
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -640,6 +687,9 @@ int femmcli::LuaCommonCommands::luaCopyRotate(lua_State *L)
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -697,6 +747,9 @@ int femmcli::LuaCommonCommands::luaCopyTranslate(lua_State *L)
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -733,6 +786,9 @@ int femmcli::LuaCommonCommands::luaDeleteBoundaryProperty(lua_State *L)
                 );
     doc->lineproplist.shrink_to_fit();
     doc->updateLineMap();
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -771,6 +827,9 @@ int femmcli::LuaCommonCommands::luaDeleteCircuitProperty(lua_State *L)
     doc->circproplist.shrink_to_fit();
     doc->updateCircuitMap();
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -807,6 +866,9 @@ int femmcli::LuaCommonCommands::luaDeleteMaterial(lua_State *L)
                 );
     doc->blockproplist.shrink_to_fit();
     doc->updateBlockMap();
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -878,6 +940,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelected(lua_State *L)
     doc->deleteSelectedNodes();
     doc->deleteSelectedBlockLabels();
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -907,6 +972,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedArcSegments(lua_State *L)
 
     luaExpectParameterCount(L, 0);
     doc->deleteSelectedArcSegments();
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -936,6 +1004,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedBlockLabels(lua_State *L)
 
     luaExpectParameterCount(L, 0);
     doc->deleteSelectedBlockLabels();
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -966,6 +1037,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedNodes(lua_State *L)
     luaExpectParameterCount(L, 0);
     doc->deleteSelectedNodes();
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -995,6 +1069,9 @@ int femmcli::LuaCommonCommands::luaDeleteSelectedSegments(lua_State *L)
 
     luaExpectParameterCount(L, 0);
     doc->deleteSelectedSegments();
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -1669,6 +1746,9 @@ int femmcli::LuaCommonCommands::luaMirrorCopy(lua_State *L)
     doc->updateUndo();
     doc->mirrorCopy(m_pax,m_pay,m_pbx,m_pby,editAction);
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -1724,6 +1804,9 @@ int femmcli::LuaCommonCommands::luaMoveRotate(lua_State *L)
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
 
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
+
     return 0;
 }
 
@@ -1778,6 +1861,9 @@ int femmcli::LuaCommonCommands::luaMoveTranslate(lua_State *L)
     mesher->meshline.clear();
     mesher->meshnode.clear();
     mesher->greymeshline.clear();
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
@@ -2157,6 +2243,9 @@ int femmcli::LuaCommonCommands::luaScaleMove(lua_State *L)
 
     doc->updateUndo();
     doc->scaleMove(x,y,scalefactor,editAction);
+
+    if (luaInstance->getDebugGeometry())
+        luaDebugWriteFEMFile(L);
 
     return 0;
 }
