@@ -64,7 +64,7 @@ template class FEASolver<
         , femmsolver::CAirGapElement
         >;
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 #define _strnicmp strncasecmp
 #endif
 
