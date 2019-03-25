@@ -55,7 +55,7 @@
 #define BoundingBoxFraction 100.0
 #endif
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 #define _strnicmp strncasecmp
 #ifndef SNPRINTF
   #define SNPRINTF std::snprintf

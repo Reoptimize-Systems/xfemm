@@ -32,7 +32,7 @@
 #include <math.h>
 #include <string>
 
-#ifdef _MSC_VER
+#ifdef _WIN32
   #ifndef SNPRINTF
   #define SNPRINTF _snprintf
   #endif

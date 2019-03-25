@@ -45,7 +45,7 @@
 #include <stdlib.h>
 #include <string>
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 #define _strnicmp strncasecmp
 #endif
 
