@@ -1348,14 +1348,12 @@ bool FPProc::OpenDocument(string pathname)
 	for (i=0;i<(int)agelist.size();i++)
 	{
 		int m;
-		double tta,R,dr,ri,ro,n,dt;
+		double tta,R,dr,n,dt;
 		CComplex brc,brs,btc,bts;
 		double brcPrev,brsPrev,btcPrev,btsPrev;
 
 		R=(agelist[i].ri + agelist[i].ro)/2.;
 		dr=(agelist[i].ro - agelist[i].ri);
-		ri=agelist[i].ri/R;
-		ro=agelist[i].ro/R;
 		dt=(PI/180.)*agelist[i].totalArcLength/((double) agelist[i].totalArcElements);
 
 		if (agelist[i].BdryFormat==0)
