@@ -1661,7 +1661,7 @@ int femmcli::LuaMagneticsCommands::luaLineIntegral(lua_State *L)
             return 2;
         }
     default:
-        assert(false);
+        lua_error(L, "mo_lineintegral(): invalid integral type!");
     }
     return 0;
 }
@@ -1915,7 +1915,9 @@ int femmcli::LuaMagneticsCommands::luaModifyMaterialProperty(lua_State *L)
         break;
     case 13:
         m->WireD = lua_todouble(L,4);
+        break;
     default:
+        lua_error(L, "mi_modifymaterial(): invalid propnum!");
         break;
     }
 
@@ -1979,6 +1981,7 @@ int femmcli::LuaMagneticsCommands::luaModifyPointProperty(lua_State *L)
         p->J = lua_tonumber(L,3);
         break;
     default:
+        lua_error(L, "mi_modifypointprop(): invalid propnum!");
         break;
     }
 
