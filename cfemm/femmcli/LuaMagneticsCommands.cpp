@@ -1736,7 +1736,14 @@ int femmcli::LuaMagneticsCommands::luaModifyBoundaryProperty(lua_State *L)
     case 9:
         m->BdryFormat = (int)lua_todouble(L,3);
         break;
+    case 10:
+        m->InnerAngle = lua_todouble(L,3);
+        break;
+    case 11:
+        m->OuterAngle = lua_todouble(L,3);
+        break;
     default:
+        lua_error(L, "mi_modifyboundprop(): invalid property number!");
         break;
     }
     return 0;
