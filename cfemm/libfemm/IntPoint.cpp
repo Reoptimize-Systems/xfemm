@@ -20,22 +20,18 @@
 */
 
 
-// vectors: overloading operators example
-//#include <stdlib.h>
 #include "IntPoint.h"
 
 //using namespace std;
 
 femm::IntPoint::IntPoint ()
+    : x(0), y(0)
 {
-  x = 0;
-  y = 0;
 }
 
 femm::IntPoint::IntPoint (long a, long b)
+    : x(a), y(b)
 {
-  x = a;
-  y = b;
 }
 
 femm::IntPoint femm::IntPoint::operator+ (femm::IntPoint point) {
