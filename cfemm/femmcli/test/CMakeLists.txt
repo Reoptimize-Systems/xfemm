@@ -72,6 +72,9 @@ test_lua_setup(femmcli_epproc "femmcli_epproc.fee")
 test_lua(femmcli_hpproc)
 test_lua_setup(femmcli_hpproc "femmcli_hpproc.feh")
 
+test_lua(femmcli_TorqueBenchmark)
+test_lua_setup(femmcli_TorqueBenchmark "femmcli_TorqueBenchmark.fem")
+
 # different working directory
 add_test(NAME femmcli_chdir.lua
     COMMAND femmcli-bin --lua-script "${CMAKE_CURRENT_LIST_DIR}/femmcli_chdir.lua"
