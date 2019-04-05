@@ -1,5 +1,23 @@
 # Changelog
 
+## Not yet released:
+
+### Notes
+
+### Added
+- Add femmcli argument --lua-pedantic-mode
+- Add femmcli argument --lua-debug-geometry
+
+### Modified
+- Rename femmcli argument --lua-enable-tracing to --lua-trace-functions
+- More rigorous parameter checking in lua functions
+
+### Fixed
+- Fix bug in enforcePSLG() that garbled the geometry in some cases
+- Fix double free in electrostatics and heatflow postprocessor
+  (Thanks to Timothy Pearson for the patch!)
+
+
 ## [2.0] - 2018-07-20
 
 ### Notes
