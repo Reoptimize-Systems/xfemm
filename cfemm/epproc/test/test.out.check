@@ -1,0 +1,15 @@
+Stored Energy Integral for block 0 0.000000
+Block Cross-section Integral for block 0 1.513797
+Block Volume Integral for block 0 4.156622
+Average D Integral for block 0 Fx: -0.000000, Fy: 0.000000
+Average E Integral for block 0 Gx: -6.609329, Gy: 1.359289
+Field Smoothing OFF
+Point vals at x = 0.250000, y = 0.000000
+Dx: 0.000000	Dy: 0.000000	Ex: 30.117813	Ey: 1.169330	V: 48.386490	ex: 4.000000	ey: 4.000000	 nrg: 0.000000
+Point vals at x = 0.100000, y = 0.800000
+Dx: -0.000000	Dy: -0.000000	Ex: -2.867381	Ey: -6.263881	V: 38.170717	ex: 4.000000	ey: 4.000000	 nrg: 0.000000
+Field Smoothing ON
+Point vals at x = 0.250000, y = 0.000000
+Dx: 0.000000	Dy: 0.000000	Ex: 32.241565	Ey: 2.438517	V: 48.386490	ex: 4.000000	ey: 4.000000	 nrg: 0.000000
+Point vals at x = 0.100000, y = 0.800000
+Dx: -0.000000	Dy: -0.000000	Ex: -2.928129	Ey: -5.972544	V: 38.170717	ex: 4.000000	ey: 4.000000	 nrg: 0.000000
