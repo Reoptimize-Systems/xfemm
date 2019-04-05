@@ -943,6 +943,7 @@ int femmcli::LuaHeatflowCommands::luaModifyBoundaryProperty(lua_State *L)
         m->beta = lua_todouble(L,3);
         break;
     default:
+        lua_error(L, "hi_modifyboundprop(): invalid propnum!");
         break;
     }
     return 0;
@@ -1008,6 +1009,7 @@ int femmcli::LuaHeatflowCommands::luaModifyConductorProperty(lua_State *L)
         prop->q = lua_todouble(L,3);
         break;
     default:
+        lua_error(L, "hi_modifyconductorprop(): invalid propnum!");
         break;
     }
 
@@ -1071,6 +1073,7 @@ int femmcli::LuaHeatflowCommands::luaModifyMaterialProperty(lua_State *L)
         m->Kt = lua_todouble(L,3);
         break;
     default:
+        lua_error(L, "hi_modifymaterial(): invalid propnum!");
         break;
     }
 
@@ -1126,6 +1129,7 @@ int femmcli::LuaHeatflowCommands::luaModifyPointProperty(lua_State *L)
         p->qp = lua_todouble(L,3);
         break;
     default:
+        lua_error(L, "hi_modifypointprop(): invalid propnum!");
         break;
     }
 

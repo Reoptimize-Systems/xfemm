@@ -55,7 +55,7 @@
 #define BoundingBoxFraction 100.0
 #endif
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 #define _strnicmp strncasecmp
 #ifndef SNPRINTF
   #define SNPRINTF std::snprintf
@@ -85,6 +85,7 @@ public:
     explicit FMesher();
     explicit FMesher(std::string);
     explicit FMesher(std::shared_ptr<femm::FemmProblem> p);
+    virtual ~FMesher() {}
 
     std::shared_ptr<femm::FemmProblem> problem;
     bool Verbose = true;
