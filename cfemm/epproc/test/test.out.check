@@ -3,6 +3,8 @@ Block Cross-section Integral for block 0 1.513797
 Block Volume Integral for block 0 4.156622
 Average D Integral for block 0 Fx: -0.000000, Fy: 0.000000
 Average E Integral for block 0 Gx: -6.609329, Gy: 1.359289
+Weighted Stress Tensor Force Integral for block 0 Gx: 0.000000, Gy: 0.000000
+Weighted Stress Tensor Torque Integral for block 0 Gx: 0.000000, Gy: 0.000000
 Field Smoothing OFF
 Point vals at x = 0.250000, y = 0.000000
 Dx: 0.000000	Dy: 0.000000	Ex: 30.117813	Ey: 1.169330	V: 48.386490	ex: 4.000000	ey: 4.000000	 nrg: 0.000000
