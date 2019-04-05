@@ -7,7 +7,7 @@ endif()
 # Add tests to solve <name>.fem, and to compare the output file against a stored version:
 # 1. Run fmesher (if <premeshed> is false)
 # 2. Run fsolver <name>
-# 3. Compare <name>.ans against <name>.ans.check (if not WIN32)
+# 3. Add disabled check to compare <name>.ans against <name>.ans.check
 function(test_fsolver name premeshed)
     # convert check file to native line endings:
     configure_file("${CMAKE_CURRENT_LIST_DIR}/${name}.fem" "${CMAKE_CURRENT_BINARY_DIR}/${name}.fem" @ONLY NEWLINE_STYLE ${NEWLINE_NATIVE})
@@ -41,16 +41,14 @@ function(test_fsolver name premeshed)
 
     # DISABLED property was introduced in cmake 3.9
     # skip test alltogether in earlier versions
-    if(NOT WIN32 OR NOT "${CMAKE_VERSION}" VERSION_LESS 3.9)
+    if(NOT "${CMAKE_VERSION}" VERSION_LESS 3.9)
         add_test(NAME fsolver_${name}.check
             COMMAND "${CMAKE_COMMAND}"
             -E compare_files "${name}.ans" "${name}.ans.check"
             )
         set_tests_properties(fsolver_${name}.check PROPERTIES DEPENDS fsolver_${name}.solve)
-        if(WIN32)
-            # disable hair-trigger comparison on WIN32
-            set_tests_properties(fsolver_${name}.check PROPERTIES DISABLED TRUE)
-        endif()
+        # disable hair-trigger comparison by default
+        set_tests_properties(fsolver_${name}.check PROPERTIES DISABLED TRUE)
     endif()
 endfunction()
 

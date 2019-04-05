@@ -20,21 +20,9 @@ function(test_lua_setup testname)
     endforeach()
 endfunction()
 
-## test_lua_check(<name> <suffix> <file> <excluded_platform>...)
+## test_lua_check(<name> <suffix> <file> <enabled>...)
 # Add a test <name>.check.<suffix> that compares an output file of <name>.lua with <file>.
-# If <excluded_platform> is set, the test will be disabled on this/these platforms.
-function(test_lua_check testname suffix file)
-    set(enabled TRUE)
-    if(ARGN)
-        foreach(var IN LISTS ARGN)
-            if(DEFINED "${var}")
-                #message("${testname} disabled (${var})")
-                set(enabled FALSE)
-                break()
-            endif()
-        endforeach()
-    endif()
-
+function(test_lua_check testname suffix file enabled)
     # DISABLED property was introduced in cmake 3.9
     # skip test alltogether in earlier versions
     if(enabled OR NOT "${CMAKE_VERSION}" VERSION_LESS 3.9)
@@ -59,14 +47,14 @@ test_lua(femmcli_compatmode)
 test_lua(femmcli_trace)
 test_lua(femmcli_femfile)
 test_lua_setup(femmcli_femfile "femmcli_femfile.fem")
-# these tests are on a hair trigger - don't enable them for windows builds
-test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem" WIN32)
-test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans" WIN32)
+# these tests are on a hair trigger - don't enable them by default
+test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem" FALSE)
+test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans" FALSE)
 test_lua(femmcli_fpproc)
 test_lua_setup(femmcli_fpproc "femmcli_fpproc.fem")
 test_lua(femmcli_matlib)
-# these tests are on a hair trigger - don't enable them for windows builds
-test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem" WIN32)
+# these tests are on a hair trigger - don't enable them by default
+test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem" FALSE)
 test_lua(femmcli_epproc)
 test_lua_setup(femmcli_epproc "femmcli_epproc.fee")
 test_lua(femmcli_hpproc)

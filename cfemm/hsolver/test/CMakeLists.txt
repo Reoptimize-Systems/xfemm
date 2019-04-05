@@ -7,7 +7,7 @@ endif()
 # Add tests to mesh and solve <name>.feh, and to compare the output file against a stored version:
 # 1. Run fmesher <name>.feh
 # 2. Run hsolver <name>
-# 3. Compare <name>.anh against <name>.anh.check (if not WIN32)
+# 3. Add disabled check to compare <name>.anh against <name>.anh.check
 function(test_hsolver name)
     # convert check file to native line endings:
     configure_file("${CMAKE_CURRENT_LIST_DIR}/${name}.feh" "${CMAKE_CURRENT_BINARY_DIR}/${name}.feh" @ONLY NEWLINE_STYLE ${NEWLINE_NATIVE})
@@ -22,15 +22,13 @@ function(test_hsolver name)
 
     # DISABLED property was introduced in cmake 3.9
     # skip test alltogether in earlier versions
-    if(NOT WIN32 OR NOT "${CMAKE_VERSION}" VERSION_LESS 3.9)
+    if(NOT "${CMAKE_VERSION}" VERSION_LESS 3.9)
         add_test(NAME hsolver_${name}.check
             COMMAND "${CMAKE_COMMAND}"
             -E compare_files "${name}.anh" "${name}.anh.check"
             )
         set_tests_properties(hsolver_${name}.check PROPERTIES DEPENDS hsolver_${name}.solve)
-        if (WIN32)
-            set_tests_properties(hsolver_${name}.check PROPERTIES DISABLED TRUE)
-        endif()
+        set_tests_properties(hsolver_${name}.check PROPERTIES DISABLED TRUE)
     endif()
 endfunction()
 
