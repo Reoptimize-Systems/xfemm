@@ -77,6 +77,7 @@ class CBlockLabel
 {
 public:
     CBlockLabel();
+    virtual ~CBlockLabel() {}
 
     double x,y;
     double MaxArea;  ///< desired mesh size

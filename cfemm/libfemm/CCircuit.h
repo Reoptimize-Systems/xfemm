@@ -45,6 +45,7 @@ class CCircuit
 public:
 
     CCircuit();
+    virtual ~CCircuit() {}
 
     /// \verbatim <circuitName> \endverbatim
     std::string CircName;
