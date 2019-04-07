@@ -10,6 +10,9 @@ function(test_lua testname)
     add_test(NAME ${testname}.lua
         COMMAND femmcli-bin --lua-base-dir "${CMAKE_CURRENT_LIST_DIR}/../debug" --lua-script "${CMAKE_CURRENT_LIST_DIR}/${testname}.lua"
         )
+    set_tests_properties(${testname}.lua PROPERTIES
+        LABELS "lua"
+        )
 endfunction()
 
 ## test_lua_setup(<name> <files>...)

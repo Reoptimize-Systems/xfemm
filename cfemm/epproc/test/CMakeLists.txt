@@ -14,12 +14,18 @@ function(test_epproc name)
     add_test(NAME epproc_${name}
         COMMAND epproc-test "${name}.res" "${name}.out"
         )
+    set_tests_properties(epproc_${name} PROPERTIES
+        LABELS "electrostatics;postprocessor"
+        )
 
     add_test(NAME epproc_${name}.out.check
         COMMAND "${CMAKE_COMMAND}"
         -E compare_files "${name}.out" "${name}.out.check"
         )
-    set_tests_properties(epproc_${name}.out.check PROPERTIES DEPENDS epproc_${name})
+    set_tests_properties(epproc_${name}.out.check PROPERTIES
+        DEPENDS epproc_${name}
+        LABELS "electrostatics"
+        )
 endfunction()
 
 test_epproc(test)

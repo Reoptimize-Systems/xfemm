@@ -15,10 +15,16 @@ function(test_esolver name)
     add_test(NAME esolver_${name}.mesh
         COMMAND fmesher-bin "${name}.fee"
         )
+    set_tests_properties(esolver_${name}.mesh PROPERTIES
+        LABELS "electrostatics;mesher"
+        )
     add_test(NAME esolver_${name}.solve
         COMMAND esolver-bin "${name}"
         )
-    set_tests_properties(esolver_${name}.solve PROPERTIES DEPENDS esolver_${name}.mesh)
+    set_tests_properties(esolver_${name}.solve PROPERTIES
+        DEPENDS esolver_${name}.mesh
+        LABELS "electrostatics;solver"
+        )
 
     # DISABLED property was introduced in cmake 3.9
     # skip test alltogether in earlier versions
@@ -27,7 +33,10 @@ function(test_esolver name)
             COMMAND "${CMAKE_COMMAND}"
             -E compare_files "${name}.res" "${name}.res.check"
             )
-        set_tests_properties(esolver_${name}.check PROPERTIES DEPENDS esolver_${name}.solve)
+        set_tests_properties(esolver_${name}.check PROPERTIES
+            DEPENDS esolver_${name}.solve
+            LABELS "electrostatics"
+            )
         # disable hair-trigger comparison by default
         set_tests_properties(esolver_${name}.check PROPERTIES DISABLED TRUE)
     endif()

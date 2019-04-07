@@ -29,9 +29,15 @@ function(test_fsolver name premeshed)
         add_test(NAME fsolver_${name}.mesh
             COMMAND fmesher-bin "${name}.fem"
             )
+        set_tests_properties(fsolver_${name}.mesh PROPERTIES
+            LABELS "magnetics;mesher"
+            )
     endif()
     add_test(NAME fsolver_${name}.solve
         COMMAND fsolver-bin "${name}"
+        )
+    set_tests_properties(fsolver_${name}.solve PROPERTIES
+        LABELS "magnetics;solver"
         )
     if(premeshed)
         set_tests_properties(fsolver_${name}.solve PROPERTIES DEPENDS fsolver_${name}.setup)
@@ -46,7 +52,10 @@ function(test_fsolver name premeshed)
             COMMAND "${CMAKE_COMMAND}"
             -E compare_files "${name}.ans" "${name}.ans.check"
             )
-        set_tests_properties(fsolver_${name}.check PROPERTIES DEPENDS fsolver_${name}.solve)
+        set_tests_properties(fsolver_${name}.check PROPERTIES
+            DEPENDS fsolver_${name}.solve
+            LABELS "magnetics"
+            )
         # disable hair-trigger comparison by default
         set_tests_properties(fsolver_${name}.check PROPERTIES DISABLED TRUE)
     endif()

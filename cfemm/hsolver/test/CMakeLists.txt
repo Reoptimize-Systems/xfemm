@@ -15,10 +15,16 @@ function(test_hsolver name)
     add_test(NAME hsolver_${name}.mesh
         COMMAND fmesher-bin "${name}.feh"
         )
+    set_tests_properties(hsolver_${name}.mesh PROPERTIES
+        LABELS "heatflow;mesher"
+        )
     add_test(NAME hsolver_${name}.solve
         COMMAND hsolver-bin "${name}"
         )
-    set_tests_properties(hsolver_${name}.solve PROPERTIES DEPENDS hsolver_${name}.mesh)
+    set_tests_properties(hsolver_${name}.solve PROPERTIES
+        DEPENDS hsolver_${name}.mesh
+        LABELS "heatflow;solver"
+        )
 
     # DISABLED property was introduced in cmake 3.9
     # skip test alltogether in earlier versions
@@ -27,7 +33,10 @@ function(test_hsolver name)
             COMMAND "${CMAKE_COMMAND}"
             -E compare_files "${name}.anh" "${name}.anh.check"
             )
-        set_tests_properties(hsolver_${name}.check PROPERTIES DEPENDS hsolver_${name}.solve)
+        set_tests_properties(hsolver_${name}.check PROPERTIES
+            DEPENDS hsolver_${name}.solve
+            LABELS "heatflow"
+            )
         set_tests_properties(hsolver_${name}.check PROPERTIES DISABLED TRUE)
     endif()
 endfunction()
