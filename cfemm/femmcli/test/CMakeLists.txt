@@ -1,17 +1,31 @@
+# required for cmake <= 3.4:
+include(CMakeParseArguments)
+
 if(WIN32)
     set(NEWLINE_NATIVE WIN32)
 else()
     set(NEWLINE_NATIVE UNIX)
 endif()
 
-## test_lua(<name>)
+## test_lua(<name> [LABELS "a;b;c"] [WORKING_DIRECTORY "dir"])
 # Add a lua test for <name>.lua.
 function(test_lua testname)
+    cmake_parse_arguments(test_lua
+        "" # options
+        "WORKING_DIRECTORY" # oneValueArgs
+        "LABELS" # multiValueArgs
+        "${ARGN}"
+        )
     add_test(NAME ${testname}.lua
         COMMAND femmcli-bin --lua-base-dir "${CMAKE_CURRENT_LIST_DIR}/../debug" --lua-script "${CMAKE_CURRENT_LIST_DIR}/${testname}.lua"
         )
+    if(test_lua_WORKING_DIRECTORY)
+        set_tests_properties(${testname}.lua PROPERTIES
+            WORKING_DIRECTORY "${test_lua_WORKING_DIRECTORY}"
+            )
+    endif()
     set_tests_properties(${testname}.lua PROPERTIES
-        LABELS "lua"
+        LABELS "lua;${test_lua_LABELS}"
         )
 endfunction()
 
@@ -44,31 +58,33 @@ endfunction()
 
 ############################################################
 
-test_lua(femmcli_pureLua)
-test_lua(femmcli_complex)
+### base tests:
+test_lua(femmcli_chdir WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
 test_lua(femmcli_compatmode)
+test_lua(femmcli_complex)
+test_lua(femmcli_pureLua)
 test_lua(femmcli_trace)
-test_lua(femmcli_femfile)
-test_lua_setup(femmcli_femfile "femmcli_femfile.fem")
-# these tests are on a hair trigger - don't enable them by default
-test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem" FALSE)
-test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans" FALSE)
-test_lua(femmcli_fpproc)
-test_lua_setup(femmcli_fpproc "femmcli_fpproc.fem")
-test_lua(femmcli_matlib)
-# these tests are on a hair trigger - don't enable them by default
-test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem" FALSE)
-test_lua(femmcli_epproc)
-test_lua_setup(femmcli_epproc "femmcli_epproc.fee")
-test_lua(femmcli_hpproc)
-test_lua_setup(femmcli_hpproc "femmcli_hpproc.feh")
 
-test_lua(femmcli_TorqueBenchmark)
+### magnetics tests:
+test_lua(femmcli_femfile LABELS "magnetics;solver")
+test_lua_setup(femmcli_femfile "femmcli_femfile.fem")
+# these checks are on a hair trigger - don't enable by default:
+test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans" FALSE)
+test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem" FALSE)
+test_lua(femmcli_fpproc LABELS "magnetics;postprocessor")
+test_lua_setup(femmcli_fpproc "femmcli_fpproc.fem")
+test_lua(femmcli_matlib LABELS "magnetics")
+# this check is on a hair trigger - don't enable by default:
+test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem" FALSE)
+test_lua(femmcli_TorqueBenchmark LABELS "magnetics;postprocessor;fromWiki")
 test_lua_setup(femmcli_TorqueBenchmark "femmcli_TorqueBenchmark.fem")
 
-# different working directory
-add_test(NAME femmcli_chdir.lua
-    COMMAND femmcli-bin --lua-script "${CMAKE_CURRENT_LIST_DIR}/femmcli_chdir.lua"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-    )
+### electrostatics tests:
+test_lua(femmcli_epproc LABELS "electrostatics;postprocessor")
+test_lua_setup(femmcli_epproc "femmcli_epproc.fee")
+
+### heatflow tests:
+test_lua(femmcli_hpproc LABELS "heatflow;postprocessor")
+test_lua_setup(femmcli_hpproc "femmcli_hpproc.feh")
+
 # vi:expandtab:tabstop=4 shiftwidth=4:
