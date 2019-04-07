@@ -13,12 +13,18 @@ function(test_hpproc name)
     add_test(NAME hpproc_${name}
         COMMAND hpproc-test "${name}.anh" "${name}.out"
         )
+    set_tests_properties(hpproc_${name} PROPERTIES
+        LABELS "heatflow;postprocessor"
+        )
 
     add_test(NAME hpproc_${name}.out.check
         COMMAND "${CMAKE_COMMAND}"
         -E compare_files "${name}.out" "${name}.out.check"
         )
-    set_tests_properties(hpproc_${name}.out.check PROPERTIES DEPENDS hpproc_${name})
+    set_tests_properties(hpproc_${name}.out.check PROPERTIES
+        DEPENDS hpproc_${name}
+        LABELS "heatflow"
+        )
 endfunction()
 
 test_hpproc(Temp0)
