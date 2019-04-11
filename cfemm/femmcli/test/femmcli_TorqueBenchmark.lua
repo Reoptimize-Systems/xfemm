@@ -6,18 +6,25 @@ showconsole()
 
 -- check variable <name>,
 -- compare <value> against <expected> value
--- if the absolute difference is greater than the margin, complain and return 1
-function check(name, value, expected, margin)
+-- if the absolute or relative difference is greater than the margin, complain and return 1
+-- if the expected value is 0, the relative margin is ignored
+-- relative margin is in percent
+function check(name, value, expected, marginAbs, marginRel)
 	diff=value - expected
-	if abs(diff) > margin then
+	diffRel=0
+	if (expected~=0) then
+		diffRel=100*diff/expected
+	end
+	if abs(diff) > marginAbs or abs(diffRel) > marginRel then
 		fail=1
 		result="[FAILED] "
 	else
 		fail=0
 		result="[  ok  ] "
 	end
-	print(result .. name .. ": " .. value .. " (expected: " .. expected .. ", diff: " .. diff .. ", margin: " .. margin .. ")")
-	--print("check(\""..name.."\", "..name..", "..value..", "..margin..")")
+	print(result .. name .. ": " .. value .. " (expected: " .. expected
+	.. ", diff: " .. diff .. " [" .. diffRel .. "%]"
+		.. ", margin: " .. marginAbs .. " [" .. marginRel .. "%])")
 	return fail
 end
 
@@ -26,7 +33,8 @@ end
 
 -- Reference values = analytically predicted torque
 -- using absolute error margins because reference value for 0° is 0.
-tq_tolerance = 0.000042 -- worst error between FEMM and predicted torque was .000041 for 80°.
+tq_tolerance = 0.000042 -- worst error between FEMM and predicted torque was .000041 at 80°.
+tq_toleranceRel = 0.006 -- worst relative error was 0.0057% at 10°
 tq_ref = {}
 tq_ref[0] = 0
 tq_ref[10] = 0.173648
@@ -52,7 +60,7 @@ for deg = 0, 90, 10 do
 	mi_loadsolution()
 
 	tq=mo_gapintegral("AGE", 0)
-	failed= failed +check("Torque_"..deg, tq, tq_ref[deg], tq_tolerance)
+	failed= failed +check("Torque_"..deg, tq, tq_ref[deg], tq_tolerance, tq_toleranceRel)
 end
 
 assert(failed==0)
