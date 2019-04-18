@@ -1,0 +1,14 @@
+# run valgrind on fmesher
+valgrind --error-limit=no --leak-check=yes --tool=memcheck -v --log-file=fmesher_valgrind.log --track-origins=yes ~/src/xfemm-hg/cfemm/bin/fmesher ~/src/xfemm-hg/test/TorqueBenchmark.fem
+
+
+# run valgrind on fsolver
+valgrind --error-limit=no --leak-check=yes --tool=memcheck -v --log-file=fsolver_valgrind.log --track-origins=yes ~/src/xfemm-hg/cfemm/bin/fsolver ~/src/xfemm-hg/test/TorqueBenchmark
+
+
+matlab -nojvm -nosplash -r "$1" -D"valgrind --error-limit=no --tool=memcheck -v --leak-check=full --log-file=$2"
+
+
+matlab -nojvm -nosplash -r "$1" -D"valgrind --error-limit=no --tool=memcheck -v --leak-check=full --log-file=$2"
+
+
