@@ -41,6 +41,7 @@ enum ClassMethods { evNotDefined,
                     getgapb,
                     getgapa,
                     getgapharmonics,
+                    numgapharmonics,
                   };
 
 // Map to associate the command strings with the class
@@ -80,6 +81,7 @@ void Initialize()
     s_mapClassMethodStrs["getgapb"]           = getgapb;
     s_mapClassMethodStrs["getgapa"]           = getgapa;
     s_mapClassMethodStrs["getgapharmonics"]   = getgapharmonics;
+    s_mapClassMethodStrs["numgapharmonics"]   = numgapharmonics;
 }
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
@@ -194,7 +196,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     case numgroupelements:
         FPProc_interface_instance->numgroupelements(nlhs, plhs, nrhs, prhs);
-        return;    
+        return;
     case getgroupelements:
         FPProc_interface_instance->getgroupelements(nlhs, plhs, nrhs, prhs);
         return;
@@ -212,12 +214,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         return;
     case getgapb:
         FPProc_interface_instance->getgapb(nlhs, plhs, nrhs, prhs);
-        return;    
+        return;
     case getgapa:
         FPProc_interface_instance->getgapa(nlhs, plhs, nrhs, prhs);
         return;
 	case getgapharmonics:
         FPProc_interface_instance->getgapharmonics(nlhs, plhs, nrhs, prhs);
+        return;
+    case numgapharmonics:
+        FPProc_interface_instance->numgapharmonics(nlhs, plhs, nrhs, prhs);
         return;
     default:
         mexErrMsgTxt("Unrecognised class command string.");

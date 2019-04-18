@@ -736,7 +736,7 @@ int FPProc_interface::blockintegral(int nlhs, mxArray *plhs[], int nrhs, const m
                            "One input required.");
     else if(nlhs != 1)
         mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-                           "Wrong number of output arguments.");
+                           "Too many of output arguments.");
 
     /*  get the dimensions of the matrix input x */
     mrows = mxGetM(prhs[2]);
@@ -837,7 +837,7 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
     }
 //     else if(nlhs != 1)
 //         mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-//                            "Wrong number of output arguments.");
+//                            "Too many of output arguments.");
 
     // 1st 'real' input (3rd actual input) must be a string, the gap
     // boundary name (first two are used for the class interface) */
@@ -859,10 +859,10 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
     {
         case 0:
         {
-            if(nlhs != 1)
+            if(nlhs > 1)
             {
                 mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-                                   "Wrong number of output arguments.");
+                                   "Too many output arguments.");
             }
 
             double tq = 0;
@@ -875,10 +875,10 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
         }
         case 1:
         {
-            if(nlhs != 2)
+            if(nlhs > 2)
             {
                 mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-                                   "Wrong number of output arguments.");
+                                   "Too many of output arguments.");
             }
 
             CComplex fx = 0;
@@ -893,10 +893,10 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
         }
         case 2:
         {
-            if(nlhs != 1)
+            if(nlhs > 1)
             {
                 mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-                                   "Wrong number of output arguments.");
+                                   "Too many of output arguments.");
             }
 
             CComplex W = 0;
@@ -909,10 +909,10 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
         }
         case 3:
         {
-            if(nlhs != 1)
+            if(nlhs > 1)
             {
                 mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-                                   "Wrong number of output arguments.");
+                                   "Too many of output arguments.");
             }
 
             CComplex tq = 0;
@@ -925,10 +925,10 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
         }
         case 4:
         {
-            if(nlhs != 2)
+            if(nlhs > 2)
             {
                 mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-                                   "Wrong number of output arguments.");
+                                   "Too many of output arguments.");
             }
 
             CComplex fx = 0;
@@ -943,10 +943,10 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
         }
         case 5:
         {
-            if(nlhs != 1)
+            if(nlhs > 1)
             {
                 mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-                                   "Wrong number of output arguments.");
+                                   "Too many of output arguments.");
             }
 
             CComplex tq = 0;
@@ -959,10 +959,10 @@ int FPProc_interface::gapintegral(int nlhs, mxArray *plhs[], int nrhs, const mxA
         }
         case 6:
         {
-            if(nlhs != 2)
+            if(nlhs > 2)
             {
                 mexErrMsgIdAndTxt( "MFEMM:fpproc:maxlhs",
-                                   "Wrong number of output arguments.");
+                                   "Too many of output arguments.");
             }
 
             CComplex fx=0;
@@ -1840,6 +1840,10 @@ int FPProc_interface::getgapb (int nlhs, mxArray *plhs[], int nrhs, const mxArra
     /*  get the angle input */
     double angle = mxnthargscalar (nrhs, prhs, 2, 2);
 
+//#ifdef _MEX_DEBUG
+    mexPrintf("getgapb, requested angle is %g\n", angle);
+//#endif
+
     CComplex br = 0;
     CComplex bt = 0;
 
@@ -1919,16 +1923,42 @@ int FPProc_interface::getgapharmonics (int nlhs, mxArray *plhs[], int nrhs, cons
     CComplex btc = 0;
     CComplex bts = 0;
 
-    FPProcError result = theFPProc.getGapHarmonics(myBdryName,  n, acc, acs, brc, brs, btc, bts);
+    FPProcError result = theFPProc.getGapHarmonics(myBdryName, n, acc, acs, brc, brs, btc, bts);
 
     checkAGEResult (result, myBdryName);
 
     mxSetLHS (acc, 1, nlhs, plhs);
-    mxSetLHS (acs, 1, nlhs, plhs);
-    mxSetLHS (brc, 1, nlhs, plhs);
-    mxSetLHS (brs, 1, nlhs, plhs);
-    mxSetLHS (btc, 1, nlhs, plhs);
-    mxSetLHS (bts, 1, nlhs, plhs);
+    mxSetLHS (acs, 2, nlhs, plhs);
+    mxSetLHS (brc, 3, nlhs, plhs);
+    mxSetLHS (brs, 4, nlhs, plhs);
+    mxSetLHS (btc, 5, nlhs, plhs);
+    mxSetLHS (bts, 6, nlhs, plhs);
+
+    return 0;
+
+}
+
+int FPProc_interface::numgapharmonics (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+{
+    // check for proper number of arguments (note first two used are for
+    // class handle args, real args follow this)
+    if(nrhs!=3)
+    {
+        mexErrMsgIdAndTxt( "MFEMM:fpproc:invalidNumInputs",
+                           "Too many inputs, 1 expected.");
+    }
+
+    // 1st 'real' input (3rd actual input) must be a string, the gap
+    // boundary name (first two are used for the class interface) */
+    std::string myBdryName = mxnthargstring (nrhs, prhs, 1, 2);
+
+    int nh;
+
+    FPProcError result = theFPProc.numGapHarmonics (myBdryName, nh);
+
+    checkAGEResult (result, myBdryName);
+
+    mxSetLHS (nh, 1, nlhs, plhs);
 
     return 0;
 
