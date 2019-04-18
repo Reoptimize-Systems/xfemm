@@ -200,6 +200,7 @@ function FemmProblem = newproblem_mfemm(probtype, varargin)
     FemmProblem.BoundaryProps = [];
     FemmProblem.Circuits = [];
     FemmProblem.BlockLabels = [];
+    FemmProblem.Holes = [];
     FemmProblem.PointProps = [];
     FemmProblem.Groups = struct ();
     FemmProblem.PrevSolutionFile = Inputs.PrevSolutionFile;
