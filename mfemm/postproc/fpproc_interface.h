@@ -49,6 +49,7 @@ public:
     int getgapb (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     int getgapa (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
     int getgapharmonics (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
+    int numgapharmonics (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]);
 
 private:
 

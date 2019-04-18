@@ -1350,45 +1350,75 @@ classdef fpproc < mfemmpproc
             
         end
         
-        
-        function B = getgapharmonics(this, bound_name, angles)
-            % Get the vector potential values for air gap boundary at specified angles
+        function nh = numgapharmonics (this, bound_name)
+            % Get the number of harmonics for an air gap boundary
             %
             % Syntax
             %
-            % B = fpproc.getgapa(X, Y)
+            % nh = fpproc.numgapharmonics (bound_name)
+            %
+            % Input
+            %
+            %   bound_name - name of the air gap boundary for which the
+            %    number of harmonics is to be returned
+            %
+            % Output
+            %
+            %   nh - scalar value, the number of harmonics for this air gap
+            %     boundary
+            %
+            %
+            
+            nh = fpproc_interface_mex ('numgapharmonics', this.objectHandle, bound_name);
+            
+        end
+        
+        function [acc, acs, brc, brs, btc, bts] = getgapharmonics (this, bound_name, n)
+            % get values of harmonics of air gap boundary
+            %
+            % Syntax
+            %
+            % [acc, acs, brc, brs, btc, bts] = fpproc.getgapharmonics (bound_name, n)
             %
             % Input
             %
             %   bound_name - name of the air gap boundary for which the
             %    flux density is to be evaluated
             %
-            %   angle - angle is  containinga set of angles along the
-            %    centerline of an air gap boundary region at which the flux
-            %    density is to be determined. Internally this will be
-            %    reshaped as angles(:) i.e. a column vector.
+            %   n - harmonic number
             %
             % Output
             %
-            %   B - (n x 2) matrix containing the radial and tangential 
-            %    flux density at the requested angles in the specified air
-            %    gap region
+            %   acc - 
+            %
+            %   acs - 
+            %
+            %   brc - 
+            %
+            %   brs - 
+            %
+            %   btc - 
+            %
+            %   bts - 
             %
             %
             
-%             
-%             B = nan * ones (numel(angles), 2);
-%             
-%             for ind = 1:numel(angles)
-%             
-%                 [Br, Bt] = fpproc_interface_mex('getgroupvolumes', this.objectHandle, bound_name, angles(ind));
-%                 
-%                 B(ind,1:2) = [Br, Bt];
-%             
-%             end
-%             
+            
+            acc = nan * ones (numel(n), 1); 
+            acs = acc;
+            brc = acc;
+            brs = acc;
+            btc = acc;
+            bts = acc;
+            
+            for ind = 1:numel(n)
+            
+                [acc(ind,1), acs(ind,1), brc(ind,1), brs(ind,1), btc(ind,1), bts(ind,1)] ...
+                    = fpproc_interface_mex('getgapharmonics', this.objectHandle, bound_name, n(ind));
+            
+            end
+            
         end
-        
         
         
     end
