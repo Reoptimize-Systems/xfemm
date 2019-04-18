@@ -60,6 +60,10 @@ function varargout = mfemm_setup(varargin)
             return;
         end
     end
+    
+    % restore user's directory once we're done
+    userdir = pwd ();
+    CC = onCleanup (@() cd (userdir));
 
     % add the required directories to the path
     thisfilepath = which('mfemm_setup.m');
