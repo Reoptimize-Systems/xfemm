@@ -1,4 +1,4 @@
-/* Copyright 2016 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+/* Copyright 2016-2019 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of 
  * Mechatronics GmbH (LCM)
  *
@@ -40,6 +40,8 @@
 femm::LuaInstance::LuaInstance(int stackSize)
     : fs ()
     , compatMode(false)
+    , debugGeometry(false)
+    , pedanticMode(false)
 {
     initializeLua(stackSize);
 }
@@ -47,6 +49,8 @@ femm::LuaInstance::LuaInstance(int stackSize)
 femm::LuaInstance::LuaInstance(std::shared_ptr<FemmStateBase> state, int stackSize)
     : fs(state)
     , compatMode(false)
+    , debugGeometry(false)
+    , pedanticMode(false)
 {
     initializeLua(stackSize);
 }
@@ -153,6 +157,26 @@ std::string femm::LuaInstance::getBaseDir() const
 void femm::LuaInstance::setBaseDir(const std::string &value)
 {
     baseDir = value;
+}
+
+bool femm::LuaInstance::getPedanticMode() const
+{
+    return pedanticMode;
+}
+
+void femm::LuaInstance::setPedanticMode(bool value)
+{
+    pedanticMode = value;
+}
+
+bool femm::LuaInstance::getDebugGeometry() const
+{
+    return debugGeometry;
+}
+
+void femm::LuaInstance::setDebugGeometry(bool value)
+{
+    debugGeometry = value;
 }
 
 void femm::LuaInstance::initializeLua(int stackSize)
@@ -341,6 +365,17 @@ void femm::LuaInstance::luaStackHook(lua_State *L, lua_Debug *ar)
     if (ar->linedefined != -1)
         std::cout << ":" << ar->linedefined;
     std::cout << "]\n";
+}
+
+std::string femm::luaCurrentFunctionName(lua_State *L)
+{
+    lua_Debug ar; // activation record
+    // collect frame info for current frame
+    if (!lua_getstack(L,0,&ar))
+        return "???";
+    
+    lua_getinfo(L, "n", &ar);
+    return ar.name;
 }
 
 // vi:expandtab:tabstop=4 shiftwidth=4:

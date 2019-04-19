@@ -80,6 +80,7 @@ class CBlockLabel
 {
 public:
     CBlockLabel();
+    virtual ~CBlockLabel() {}
 
     std::shared_ptr<FemmProblem> problem;
 

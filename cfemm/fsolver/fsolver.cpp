@@ -1100,16 +1100,22 @@ void FSolver::GetFillFactor(int lbl)
     // procedure for round wires;
     switch (wiretype)
     {
+        // wiretype = 0 for magnet wire
+//    case 0:
+//        R=bp->WireD*0.0005;
+//        awire=PI*R*R*((double) bp->NStrands)*((double) bl->Turns);
+//        break;
+
         // wiretype = 1 for stranded but non-litz wire
-        case 1:
-            R=bp->WireD*0.0005*sqrt((double) bp->NStrands);
-            awire=PI*R*R*((double) bl->Turns);
+    case 1:
+        R=bp->WireD*0.0005*sqrt((double) bp->NStrands);
+        awire=PI*R*R*((double) bl->Turns);
         break;
 
-        // magnet wire, litz wire, 10% CCA, 15%CCA
-        default:
-            R=bp->WireD*0.0005;
-            awire=PI*R*R*((double) bp->NStrands)*((double) bl->Turns);
+        // wiretype = 2 for litz wire
+    case 2:
+        R=bp->WireD*0.0005;
+        awire=PI*R*R*((double) bp->NStrands)*((double) bl->Turns);
         break;
     }
     fill=fabs(awire/atot);

@@ -1,4 +1,4 @@
-/* Copyright 2016-2017 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
+/* Copyright 2016-2019 Johannes Zarl-Zierl <johannes.zarl-zierl@jku.at>
  * Contributions by Johannes Zarl-Zierl were funded by Linz Center of
  * Mechatronics GmbH (LCM)
  *
