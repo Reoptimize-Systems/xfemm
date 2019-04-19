@@ -107,8 +107,9 @@ CMBlockLabel::CMBlockLabel()
 {
 }
 
-CMBlockLabel CMBlockLabel::fromStream(istream &input, ostream &)
+CMBlockLabel CMBlockLabel::fromStream(istream &input, ostream &, std::shared_ptr<FemmProblem> fp)
 {
+
     std::string line;
     // read whole line to prevent reading from the next line if a line is malformed/too short
     std::getline(input, line);
@@ -120,6 +121,7 @@ CMBlockLabel CMBlockLabel::fromStream(istream &input, ostream &)
 #endif
 
     CMBlockLabel prop;
+    prop.problem = fp;
     // scan in data
     inputStream >> prop.x;
     inputStream >> prop.y;
@@ -189,9 +191,11 @@ CHBlockLabel::CHBlockLabel()
 {
 }
 
-CHBlockLabel CHBlockLabel::fromStream(istream &input, ostream &)
+CHBlockLabel CHBlockLabel::fromStream(istream &input, ostream &, std::shared_ptr<FemmProblem> fp)
 {
     CHBlockLabel prop;
+
+    prop.problem = fp;
 
     // scan in data
     input >> prop.x;
@@ -244,7 +248,7 @@ CSBlockLabel::CSBlockLabel()
 
 }
 
-CSBlockLabel CSBlockLabel::fromStream(istream &input, ostream &)
+CSBlockLabel CSBlockLabel::fromStream(istream &input, ostream &, std::shared_ptr<FemmProblem> fp)
 {
     std::string line;
     // read whole line to prevent reading from the next line if a line is malformed/too short
@@ -257,6 +261,9 @@ CSBlockLabel CSBlockLabel::fromStream(istream &input, ostream &)
 #endif
 
     CSBlockLabel prop;
+
+    prop.problem = fp;
+
     // scan in data
     inputStream >> prop.x;
     inputStream >> prop.y;
