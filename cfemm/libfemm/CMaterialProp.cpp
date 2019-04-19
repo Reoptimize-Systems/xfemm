@@ -38,6 +38,10 @@
 #include <ctype.h>
 #include <istream>
 
+#ifdef DEBUG_MEX
+#include "mex.h"
+#endif // DEBUG_MEX
+
 #define ElementsPerSkinDepth 10
 
 #ifdef DEBUG_CMATERIALPROP
@@ -148,7 +152,7 @@ void CMMaterialProp::GetSlopes(double omega)
 
     // first, we need to doctor the curve if the problem is
     // being evaluated at a nonzero frequency.
-    if(omega!=0)
+    if(omega>0)
     {
         debug << "fixing the curve for a harmonic problem.\n";
         // Make an effective B-H curve for harmonic problems.
@@ -292,7 +296,7 @@ void CMMaterialProp::GetSlopes(double omega)
             // curve for the material for AC problems.  Essentially, we have
             // to solve a 1-D finite element problem at each B-H point to
             // figure out how much flux the lamination is really carrying.
-            if((omega!=0) && (Lam_d!=0) && (Cduct!=0))
+            if((omega>0) && (Lam_d!=0) && (Cduct!=0))
             {
                 // Calculate a new apparent b and h for each point on the
                 // curve to account for the laminations.
@@ -1157,7 +1161,7 @@ CComplex CMSolverMaterialProp::LaminatedBH(double w, int i)
     return mu;
 }
 
-CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::ostream &err, PropertyParseMode mode)
+CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::ostream &err, std::shared_ptr<FemmProblem> problem, PropertyParseMode mode)
 {
     using namespace femm;
     CMSolverMaterialProp prop;
@@ -1302,8 +1306,58 @@ CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::
                 }
                 continue;
             }
+
             if (token != "<endblock>")
                 err << "CMSolverMaterialProp: unexpected token: "<<token << "\n";
+        }
+
+#ifdef DEBUG_MEX
+        mexPrintf ("In here 0");
+#endif // DEBUG_MEX
+
+        if (problem)
+        {
+#ifdef DEBUG_MEX
+            mexPrintf ("In here 1");
+#endif // DEBUG_MEX
+            if (prop.BHpoints>0)
+            {
+                if((!problem->previousSolutionFile.empty()) && (problem->Frequency>0))
+                {
+                    std::vector<CComplex> tmpHdata ;
+                    std::vector<double> tmpBdata;
+                    tmpHdata.reserve(prop.BHpoints);
+                    tmpBdata.reserve(prop.BHpoints);
+
+                    int i = 0;
+
+                    // first time through was just to get MuMax from AC curve...
+                    for(i=0;i<prop.BHpoints;i++)
+                    {
+                        tmpHdata[i]=prop.Hdata[i];
+                        tmpBdata[i]=prop.Bdata[i];
+                    }
+                    prop.GetSlopes(problem->Frequency*2.*PI);
+                    for(i=0;i<prop.BHpoints;i++)
+                    {
+                        prop.Hdata[i]=tmpHdata[i];
+                        prop.Bdata[i]=tmpBdata[i];
+                    }
+
+                    prop.slope.clear ();
+                    prop.slope.shrink_to_fit ();
+
+                    // second time through is to get the DC curve
+                    prop.GetSlopes(0);
+                }
+                else
+                {
+#ifdef DEBUG_MEX
+                    mexPrintf ("In here 2");
+#endif // DEBUG_MEX
+                    prop.GetSlopes(problem->Frequency*2.*PI);
+                }
+            }
         }
     }
 
@@ -1391,7 +1445,7 @@ CComplex CHMaterialProp::GetK(double t) const
     return (Kx+I*Ky);
 }
 
-CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err, PropertyParseMode mode)
+CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err, std::shared_ptr<FemmProblem> problem, PropertyParseMode mode)
 {
     CHMaterialProp prop;
 
@@ -1534,7 +1588,7 @@ CSMaterialProp::~CSMaterialProp()
 {
 }
 
-CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err, PropertyParseMode mode)
+CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err, std::shared_ptr<FemmProblem> problem, PropertyParseMode mode)
 {
     using namespace femm;
     CSMaterialProp prop;
