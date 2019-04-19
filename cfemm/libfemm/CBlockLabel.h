@@ -32,12 +32,15 @@
 #ifndef FEMM_CBLOCKLABEL_H
 #define FEMM_CBLOCKLABEL_H
 
+#include "FemmProblem.h"
 #include "femmcomplex.h"
 #include <iostream>
 #include <memory>
 #include <string>
 
 namespace femm {
+
+class FemmProblem;
 
 /**
  * @brief The CBlockLabel class holds block label information
@@ -77,6 +80,8 @@ class CBlockLabel
 {
 public:
     CBlockLabel();
+
+    std::shared_ptr<FemmProblem> problem;
 
     double x,y;
     double MaxArea;  ///< desired mesh size
@@ -170,7 +175,7 @@ public:
      * @param err output stream for error messages
      * @return a CMSolverBlockLabel
      */
-    static CMBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr );
+    static CMBlockLabel fromStream( std::istream &input, std::ostream &err = std::cerr, std::shared_ptr<FemmProblem> problem = nullptr );
     virtual void toStream( std::ostream &out ) const;
     virtual std::unique_ptr<CBlockLabel> clone() const;
 private:
@@ -191,7 +196,7 @@ public:
      * @param err output stream for error messages
      * @return a CBlockLabel
      */
-    static CHBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
+    static CHBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr, std::shared_ptr<FemmProblem> problem = nullptr);
     virtual void toStream( std::ostream &out ) const;
     virtual std::unique_ptr<CBlockLabel> clone() const;
 };
@@ -217,7 +222,7 @@ public:
      * ### FEMM reference source:
      * - \femm42{femm/beladrawDoc.cpp,CbeladrawDoc::OnOpenDocument()}
      */
-    static CSBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr);
+    static CSBlockLabel fromStream(std::istream &input, std::ostream &err = std::cerr, std::shared_ptr<FemmProblem> problem = nullptr);
     virtual void toStream( std::ostream &out ) const;
     virtual std::unique_ptr<CBlockLabel> clone() const;
 };
