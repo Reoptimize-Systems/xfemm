@@ -204,7 +204,7 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
 
     // parse the file
 #ifdef DEBUG_PARSER
-    std::cout << "feasolver starting parsing" << std::endl;
+    std::cout << "feasolver starting parsing file " << file << std::endl;
 #endif // DEBUG_PARSER
 
     string line;
@@ -476,9 +476,18 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
             success &= expectChar(lineStream, '=', err);
             success &= parseValue(lineStream, NumBlockLabels, err);
             if (NumBlockLabels>0) labellist.reserve(NumBlockLabels);
+
+#ifdef DEBUG_PARSER
+            {
+                char buf[1048]; SNPRINTF(buf, sizeof(buf), "feasolver reserved space for %i block labels, labellist length is %i\n", NumBlockLabels, (int) labellist.size ());
+                WarnMessage(buf);
+            }
+#endif // DEBUG_PARSER
+
             for(int i=0; i<NumBlockLabels; i++)
             {
-                BlockLabelT blk = BlockLabelT::fromStream(input,err);
+
+                BlockLabelT blk = BlockLabelT::fromStream(input, err);
 
                 labellist.push_back(blk);
             }
@@ -495,6 +504,12 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
                 WarnMessage(buf);
             }
 #endif // DEBUG
+#ifdef DEBUG_PARSER
+            {
+                char buf[1048]; SNPRINTF(buf, sizeof(buf), "feasolver: finished reading block labels\n");
+                WarnMessage(buf);
+            }
+#endif // DEBUG_PARSER
             continue;
         }
 
@@ -541,6 +556,10 @@ bool FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,Mesh
     {
         WarnMessage(err.str().c_str());
     }
+
+#ifdef DEBUG_PARSER
+    std::cout << "feasolver finished parsing file " << file << std::endl;
+#endif // DEBUG_PARSER
 
     return true;
 }
