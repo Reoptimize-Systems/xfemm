@@ -47,6 +47,7 @@ class CBoundaryProp
 public:
 
     CBoundaryProp();
+    virtual ~CBoundaryProp() {}
 
     std::string BdryName; /// \verbatim <BdryName> \endverbatim
     /**
@@ -78,7 +79,7 @@ public:
     int BdryFormat;
 
     /**
-     * @brief InnerAngle
+     * @brief Air Gap parameter: InnerAngle
      * Inner rotor angle (for building air gap element)
      * \verbatim
      * <InnerAngle>
@@ -87,7 +88,7 @@ public:
     double InnerAngle;
 
     /**
-     * @brief OuterAngle
+     * @brief Air Gap parameter: OuterAngle
      * Outer rotor angle (for building air gap element)
      * \verbatim
      * <OuterAngle>
@@ -131,7 +132,7 @@ class CMBoundaryProp : public CBoundaryProp
 public:
     CMBoundaryProp();
     /**
-     * @brief A0
+     * @brief Prescribed A parameter: A0
      * Magnetic vector potential on the segment (for BdryFormat=0).
      *
      * Unit: \c Wb/m
@@ -141,7 +142,7 @@ public:
      */
     double A0;
     /**
-     * @brief A1
+     * @brief Prescribed A parameter: A1
      * Magnetic vector potential on the segment in x direction (for BdryFormat=0).
      *
      * Unit:
@@ -153,7 +154,7 @@ public:
      */
     double A1;
     /**
-     * @brief A2
+     * @brief Prescribed A parameter: A2
      * Magnetic vector potential on the segment in y direction (for BdryFormat=0).
      *
      * Unit: \c Wb/m
@@ -163,7 +164,7 @@ public:
      */
     double A2;
     /**
-     * @brief phi
+     * @brief Prescribed A parameter: phi
      * Angle (for BdryFormat=0).
      *
      * Unit: \c deg
@@ -174,7 +175,7 @@ public:
     double phi;
 
     /**
-     * @brief Mu
+     * @brief Small skin depth parameter: Mu
      * Relative permeability (for BdryFormat=1).
      * Necessary to apply eddy current BC.
      * \verbatim
@@ -183,7 +184,7 @@ public:
      */
     double Mu;
     /**
-     * @brief Sig
+     * @brief Small skin depth parameter: Sig
      * Conductivity (for BdryFormat=1).
      * Necessary to apply eddy current BC.
      *
@@ -195,7 +196,7 @@ public:
     double Sig;
 
     /**
-     * @brief c0
+     * @brief Mixed BC parameter: c0
      * First coefficient for mixed BC (for BdryFormat=2).
      * \verbatim
      * <c0> <c0i>
@@ -203,7 +204,7 @@ public:
      */
     CComplex c0;
     /**
-     * @brief c1
+     * @brief Mixed BC parameter: c1
      * Second coefficient for mixed BC (for BdryFormat=2).
      * \verbatim
      * <c1> <c1i>

@@ -37,7 +37,7 @@ double Power(double x, int y);
 
 int FSolver::Harmonic2D(CBigComplexLinProb &L)
 {
-    int i,j,k,ww,s,pctr;
+    int i,j,k,ww,s;
     CComplex Mx[3][3],My[3][3],Mxy[3][3];
     CComplex Me[3][3],be[3];		// element matrices;
     double l[3],p[3],q[3];		// element shape parameters;
@@ -383,6 +383,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
         }
 
         // build element matrices using the matrices derived in Allaire's book.
+        int pctr = 0;
         for(i=0; i<NumEls; i++)
         {
         	// update ``building matrix'' progress bar...
