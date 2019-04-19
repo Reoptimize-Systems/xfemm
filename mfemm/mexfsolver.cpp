@@ -87,7 +87,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                            "Third input must be a scalar.");
     }
 
-    /* get the flag determiing if mesh files are deleted after loading */
+    /* get the flag determining if mesh files are deleted after loading */
     bool deleteMeshFiles = (bool)mxGetScalar (prhs[2]);
 
     if (verbose == true)
