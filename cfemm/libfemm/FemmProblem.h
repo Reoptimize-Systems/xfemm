@@ -72,7 +72,7 @@ public:
      * @param filename
      * @return \c true if saving was successful, \c false otherwise
      */
-    bool saveFEMFile( std::string &filename ) const;
+    bool saveFEMFile(const std::string &filename ) const;
 
     /**
      * @brief writeProblemDescription writes the problem description into an output stream.

@@ -1350,7 +1350,7 @@ bool FPProc::OpenDocument(string pathname)
 	fclose(fp);
 
 	// figure out amplitudes of harmonics for AGE boundary conditions
-	for (i=0;i<agelist.size();i++)
+	for (i=0;i<(int)agelist.size();i++)
 	{
 		int m;
 		double tta,R,dr,ri,ro,n,dt;
@@ -5953,7 +5953,7 @@ bool FPProc::AGEBoundNumFromName(const std::string myBdryName, int &n) const
 
     n = -1;
 
-	for(k=0; k<agelist.size(); k++)
+	for(k=0; k<(int)agelist.size(); k++)
     {
 		if (agelist[k].BdryName==myBdryName)
         {

@@ -276,6 +276,7 @@ int FSolver::Static2D(CBigLinProb &L)
             // Add each annulus element to the global stiffness matrix
             for(k=0;k<agelist[i].totalArcElements;k++)
             {
+
                 // inner nodes
                 if ((k-1)<0){
                     nn[0]=agelist[i].quadNode[agelist[i].totalArcElements-1].n0;
@@ -350,6 +351,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
         for(i = 0; i < NumEls; i++)
         {
+
             // update ``building matrix'' progress bar...
             j = (i*20) / NumEls + 1;
             if(j > pctr)

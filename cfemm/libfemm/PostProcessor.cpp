@@ -1,3 +1,4 @@
+
 /*
    This code is a modified version of an algorithm
    forming part of the software program Finite
@@ -38,7 +39,7 @@
 #include <cstring>
 #include <string>
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 #define _strnicmp strncasecmp
 #ifndef SNPRINTF
 #define SNPRINTF std::snprintf
@@ -668,7 +669,6 @@ bool PostProcessor::makeMask()
                 return false;
             }
         }
-        free(lblflag);
 
         // Each element weighted by its region's
         // mesh size specification;
@@ -707,6 +707,8 @@ bool PostProcessor::makeMask()
             L.b[n[j]]-=be[j];
         }
     }
+
+    free(lblflag);
 
     // solve the problem;
     if (!L.PCGSolve(false))
