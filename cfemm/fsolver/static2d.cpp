@@ -66,8 +66,8 @@ int FSolver::Static2D(CBigLinProb &L)
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     int Iter=0,pctr;
-    int LinearFlag=true;
-    int bIncremental = 0;
+    bool LinearFlag=true;
+    int bIncremental = MS_LEGACY_FALSE;
 	double murel, muinc;
 
 	if (!previousSolutionFile.empty()) bIncremental = PrevType;
@@ -276,11 +276,6 @@ int FSolver::Static2D(CBigLinProb &L)
             // Add each annulus element to the global stiffness matrix
             for(k=0;k<agelist[i].totalArcElements;k++)
             {
-
-#ifdef DEBUG
-//std::raise(SIGINT); // try to stop in debugger
-#endif // DEBUG
-
                 // inner nodes
                 if ((k-1)<0){
                     nn[0]=agelist[i].quadNode[agelist[i].totalArcElements-1].n0;
@@ -355,7 +350,6 @@ int FSolver::Static2D(CBigLinProb &L)
 
         for(i = 0; i < NumEls; i++)
         {
-
             // update ``building matrix'' progress bar...
             j = (i*20) / NumEls + 1;
             if(j > pctr)
@@ -488,15 +482,19 @@ int FSolver::Static2D(CBigLinProb &L)
             for(j = 0; j<3; j++)
             {
                 t = 0;
-                if(labellist[El->lbl].InCircuit>=0)
+                if ( labellist[El->lbl].InCircuit >= 0 )
                 {
                     k = labellist[El->lbl].InCircuit;
+
                     if(circproplist[k].Case==1)
                     {
                         t = circproplist[k].J.Re();
                     }
+
                     if(circproplist[k].Case==0)
+                    {
                         t = -circproplist[k].dV.Re()*blockproplist[El->blk].Cduct;
+                    }
                 }
 
                 K = -(blockproplist[El->blk].J.re+t)*a/3.;
@@ -504,7 +502,7 @@ int FSolver::Static2D(CBigLinProb &L)
                 be[j]+=K;
 
                 // record avg current density in the block for use in incremental solutions
-                if (bIncremental==0) El->Jprev+=(blockproplist[El->blk].J.Re()+t)/3.;
+                if (bIncremental==MS_LEGACY_FALSE) El->Jprev+=(blockproplist[El->blk].J.Re()+t)/3.;
             }
 
             // contribution to be from magnetization in the block;
@@ -633,7 +631,7 @@ int FSolver::Static2D(CBigLinProb &L)
 
                 if (blockproplist[k].BHpoints != 0)
                 {
-                    if (bIncremental == 0)
+                    if (bIncremental == MS_LEGACY_FALSE)
                     {
                         // There's no previous solution.  This is a standard nonlinear problem
                         LinearFlag = false;
