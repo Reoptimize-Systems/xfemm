@@ -33,4 +33,13 @@
 #define MINANGLE_MAX  33.8
 #define CLOSE_ENOUGH 1.e-06 ///< preprocessor tolerance
 
+#ifndef MS_LEGACY_FALSE
+#define MS_LEGACY_FALSE               0
+#endif
+
+#ifndef MS_LEGACY_TRUE
+#define MS_LEGACY_TRUE                1
+#endif
+
+
 #endif
