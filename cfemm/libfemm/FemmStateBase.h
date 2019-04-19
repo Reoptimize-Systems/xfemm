@@ -29,7 +29,7 @@ namespace femm
 class FemmStateBase
 {
 public:
-    virtual ~FemmStateBase();
+    virtual ~FemmStateBase() = default;
 };
 
 } /* namespace */

@@ -848,6 +848,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyBoundaryProperty(lua_State *L)
         m->BdryFormat = (int)lua_todouble(L,3);
         break;
     default:
+        lua_error(L, "ei_modifyboundprop(): invalid propnum!");
         break;
     }
     return 0;
@@ -975,6 +976,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyMaterialProperty(lua_State *L)
         m->qv = lua_todouble(L,3);
         break;
     default:
+        lua_error(L, "ei_modifymaterial(): invalid propnum!");
         break;
     }
 
@@ -1029,6 +1031,7 @@ int femmcli::LuaElectrostaticsCommands::luaModifyPointProperty(lua_State *L)
         p->qp = lua_todouble(L,3);
         break;
     default:
+        lua_error(L, "ei_modifypointprop(): invalid propnum!");
         break;
     }
 
