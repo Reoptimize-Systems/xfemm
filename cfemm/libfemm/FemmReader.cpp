@@ -97,7 +97,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
     // parse the file
 
 #ifdef DEBUG_PARSER
-    std::cout << "FemmReader starting parsing" << std::endl;
+    std::cout << "FemmReader starting parsing file " << file << std::endl;
 #endif // DEBUG_PARSER
 
     bool success = true;
@@ -328,7 +328,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while (input && (int)problem->blockproplist.size() < k)
             {
                 std::unique_ptr<BlockPropT> next;
-                next = MAKE_UNIQUE<BlockPropT>(BlockPropT::fromStream(input, err));
+                next = MAKE_UNIQUE<BlockPropT>(BlockPropT::fromStream(input, err, problem));
                 problem->blockproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done
@@ -337,6 +337,9 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
                 err << "Expected "<<k<<" BlockProps, but got " << problem->blockproplist.size() << "\n";
                 break; // stop parsing
             }
+#ifdef DEBUG_PARSER
+            std::cout << "FemmReader: finished reading block properties" << std::endl;
+#endif // DEBUG_PARSER
             continue;
         }
 
@@ -622,6 +625,10 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             return F_FILE_MALFORMED;
         }
     }
+
+#ifdef DEBUG_PARSER
+    std::cout << "FemmReader finished parsing file " << file << std::endl;
+#endif // DEBUG_PARSER
 
     return success ? F_FILE_OK : F_FILE_MALFORMED;
 }
