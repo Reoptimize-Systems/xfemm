@@ -50,9 +50,9 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
     femmsolver::CMElement *El;
     int Iter=0;
     bool LinearFlag=true;
-    int bIncremental=0;
+    int bIncremental=MS_LEGACY_FALSE;
 
-    if (!previousSolutionFile.empty()) bIncremental = 1;
+    if (!previousSolutionFile.empty()) bIncremental = MS_LEGACY_TRUE;
 
     res=0;
 
@@ -570,7 +570,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
                 meshele[i].mu2=Mu[k][1];
                 meshele[i].v12=0;
                 if (blockproplist[k].BHpoints != 0) {
-                    if (bIncremental == 0) {
+                    if (bIncremental == MS_LEGACY_FALSE) {
                         // There's no previous solution.  This is a standard nonlinear time harmonic problem
                         LinearFlag=false;
                     } else {
