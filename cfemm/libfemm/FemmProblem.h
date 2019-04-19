@@ -39,6 +39,9 @@
 
 namespace femm {
 
+class CBlockLabel;
+class CMaterialProp;
+
 /**
  * \brief The FemmProblem class holds all data concerning a problem.
  *
