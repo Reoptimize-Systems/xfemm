@@ -123,7 +123,7 @@ public:
     int  d_LineIntegralPoints;
     bool d_ShiftH;
     bool bHasMask;
-    bool bIncremental;
+    int bIncremental;
 
     // lists of nodes, segments, and block labels
     std::vector< femm::CNode >        nodelist;

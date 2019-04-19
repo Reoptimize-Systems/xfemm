@@ -58,6 +58,10 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+#ifdef DEBUG_MEX
+#include "mex.h"
+#endif // DEBUG_MEX
+
 //using namespace std;
 using namespace femm;
 using namespace femmsolver;
@@ -97,7 +101,7 @@ FPProc::FPProc()
     NumList = NULL;
     ConList = NULL;
     bHasMask = false;
-    bIncremental = false;
+    bIncremental = MS_LEGACY_FALSE;
     LengthConv = (double *)calloc(6,sizeof(double));
     LengthConv[0] = 0.0254;   //inches
     LengthConv[1] = 0.001;    //millimeters
@@ -404,30 +408,31 @@ bool FPProc::OpenDocument(string pathname)
             PrevSoln=v;
 			if(PrevSoln.empty ())
             {
-                bIncremental=false;
+                bIncremental = MS_LEGACY_FALSE;
             }
 			else
             {
                 // prevType can be 0, 1 or 2, 1 or 2 will evaluate to true
-                switch (PrevType)
-                {
-                    case 0:
-                    {
-                        bIncremental=false;
-                        break;
-                    }
-                    case 1:
-                    {
-                        bIncremental=true;
-                        break;
-                    }
-                    case 2:
-                    {
-                        bIncremental=true;
-                        break;
-                    }
-
-                }
+                bIncremental = PrevType;
+//                switch (PrevType)
+//                {
+//                    case 0:
+//                    {
+//                        bIncremental=false;
+//                        break;
+//                    }
+//                    case 1:
+//                    {
+//                        bIncremental=true;
+//                        break;
+//                    }
+//                    case 2:
+//                    {
+//                        bIncremental=true;
+//                        break;
+//                    }
+//
+//                }
             }
             q[0]= '\0';
         }
@@ -803,7 +808,7 @@ bool FPProc::OpenDocument(string pathname)
         if( _strnicmp(q,"<endblock>",9)==0)
         {
 
-            if (bIncremental){
+            if (bIncremental != 0){
                 // first time through was just to get MuMax from AC curve...
                 CComplex *tmpHdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
                 double *tmpBdata=(double *)calloc(MProp.BHpoints,sizeof(double));
@@ -824,7 +829,7 @@ bool FPProc::OpenDocument(string pathname)
                 MProp.slope.shrink_to_fit();
 
                 // set a flag for DC incremental permeability problems
-                if ((bIncremental == true) && (Frequency==0)) MProp.MuMax = 1;
+                if ((bIncremental == MS_LEGACY_TRUE) && (Frequency==0)) MProp.MuMax = 1;
 
                 // second time through is to get the DC curve
                 MProp.GetSlopes(0);
@@ -1379,7 +1384,7 @@ bool FPProc::OpenDocument(string pathname)
 		agelist[i].nh=(int *)calloc(agelist[i].nn,sizeof(int));
 
 		// for previous solution;
-		if (!bIncremental)
+		if (bIncremental == MS_LEGACY_FALSE)
 		{
 			agelist[i].brcPrev=NULL;
 			agelist[i].brsPrev=NULL;
@@ -5846,7 +5851,8 @@ FPProcError FPProc::gapTimeAvgStoredEnergyIntegral(const std::string myBdryName,
 FPProcError FPProc::getAGEflux(const std::string myBdryName, const double angle, CComplex &br, CComplex &bt) const
 {
 
-    int i, tta, k, n;
+    int i, k, n;
+    double tta;
 
 	// figure out which AGE is being asked for
 	i=-1;
@@ -5862,7 +5868,7 @@ FPProcError FPProc::getAGEflux(const std::string myBdryName, const double angle,
 	br = 0;
 	bt = 0;
 	if (i>=0){
-		tta=angle*PI/180;
+		tta=angle*PI/180.0;
 		for(k=0;k<agelist[i].nn;k++)
 		{
 			n=agelist[i].nh[k];
