@@ -47,7 +47,6 @@ tq_ref[70] = 0.939693
 tq_ref[80] = 0.984808
 tq_ref[90] = 1
 
-write("SUCCESS\n")
 open("femmcli_TorqueBenchmark.fem")
 
 failed=0
@@ -64,3 +63,4 @@ for deg = 0, 90, 10 do
 end
 
 assert(failed==0)
+write("SUCCESS\n")
