@@ -1,5 +1,5 @@
--- femmcli_antisymmetricBC_flux.lua
--- This checks the correct flux density calculation for a motor with antisymmetric BC.
+-- femmcli_antiperiodicBC_flux.lua
+-- This checks the correct flux density calculation for a motor with antiperiodic BC.
 -- (The calculation contained errors in xfemm 2.0)
 -- Output:
 -- SUCCE
@@ -38,7 +38,7 @@ end
 
 
 show_console()
-open("femmcli_antisymmetricBC_flux.fem")
+open("femmcli_antiperiodicBC_flux.fem")
 
 mi_saveas("result.fem")
 mi_analyze(1)
