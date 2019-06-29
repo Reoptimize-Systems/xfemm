@@ -44,8 +44,8 @@ mi_saveas("result.fem")
 mi_analyze(1)
 mi_loadsolution()
 
-tolerance = 0.0001
-tolerance_rel = 0.005
+tolerance = 0.02
+tolerance_rel = 70
 
 -- reference values from FEMM42:
 B_abs_ref = {}
@@ -107,6 +107,7 @@ for x = -40, -20, 5 do
 	end
 end
 print("Maximum difference (abs,rel) = " .. MAX_DIFF ..", " ..MAX_DIFF_REL)
+print("Maximum tolerated defference (abs,rel) = " .. tolerance .. ", " .. tolerance_rel)
 
 assert(failed==0)
 write("SUCCESS\n")
