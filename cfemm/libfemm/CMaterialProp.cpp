@@ -152,7 +152,7 @@ void CMMaterialProp::GetSlopes(double omega)
 
     // first, we need to doctor the curve if the problem is
     // being evaluated at a nonzero frequency.
-    if(omega>0)
+    if(omega!=0)
     {
         debug << "fixing the curve for a harmonic problem.\n";
         // Make an effective B-H curve for harmonic problems.
@@ -1322,8 +1322,9 @@ CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::
 #endif // DEBUG_MEX
             if (prop.BHpoints>0)
             {
-                if((!problem->previousSolutionFile.empty()) && (problem->Frequency>0))
+                if(problem->PrevType != 0)
                 {
+                    debug << "Adjusting input BH point data for previous problem...";
                     std::vector<CComplex> tmpHdata ;
                     std::vector<double> tmpBdata;
                     tmpHdata.reserve(prop.BHpoints);
@@ -1346,16 +1347,21 @@ CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::
 
                     prop.slope.clear ();
                     prop.slope.shrink_to_fit ();
+                    // set a flag for DC incremental permeability problems
+                    if (problem->PrevType == 1 && (problem->Frequency==0))
+                        prop.MuMax = 1;
 
                     // second time through is to get the DC curve
                     prop.GetSlopes(0);
                 }
                 else
                 {
+                    debug << "Adjusting BH point data...";
 #ifdef DEBUG_MEX
                     mexPrintf ("In here 2");
 #endif // DEBUG_MEX
                     prop.GetSlopes(problem->Frequency*2.*PI);
+                    prop.MuMax = 0; // this is the hint to the materials prop that this is _not_ incremental
                 }
             }
         }
