@@ -240,33 +240,41 @@ bool FSolver::LoadProblemFile ()
     }
 
     // do some precomputations
+    // original code location: FEMM42/femm/FemmviewDoc.cpp
     for (auto &prop : blockproplist)
     {
-        debug << "doing precomputations for material " << prop.BlockName << "\n";
-        if (!previousSolutionFile.empty() && Frequency>0 && PrevType != 0)
+        if (prop.BHpoints>0)
         {
-            // first time through was just to get MuMax from AC curve...
-            // -> backup Hdata and Bdata:
-            std::vector<double> oldBdata;
-            std::vector<CComplex> oldHdata;
-            oldBdata.reserve(prop.BHpoints);
-            oldHdata.reserve(prop.BHpoints);
-            std::copy(prop.Bdata.begin(), prop.Bdata.end(), oldBdata.begin());
-            std::copy(prop.Hdata.begin(), prop.Hdata.end(), oldHdata.begin());
+            debug << "doing precomputations for material " << prop.BlockName << "\n";
+            if(PrevType != 0)
+            {
+                // first time through was just to get MuMax from AC curve...
+                // -> backup Hdata and Bdata:
+                std::vector<double> oldBdata;
+                std::vector<CComplex> oldHdata;
+                oldBdata.reserve(prop.BHpoints);
+                oldHdata.reserve(prop.BHpoints);
+                std::copy(prop.Bdata.begin(), prop.Bdata.end(), oldBdata.begin());
+                std::copy(prop.Hdata.begin(), prop.Hdata.end(), oldHdata.begin());
 
-            prop.GetSlopes(Frequency*2.*PI);
+                prop.GetSlopes(Frequency*2.*PI);
 
-            std::copy(oldBdata.begin(), oldBdata.end(), prop.Bdata.begin());
-            std::copy(oldHdata.begin(), oldHdata.end(), prop.Hdata.begin());
-            prop.clearSlopes();
+                std::copy(oldBdata.begin(), oldBdata.end(), prop.Bdata.begin());
+                std::copy(oldHdata.begin(), oldHdata.end(), prop.Hdata.begin());
+                prop.clearSlopes();
 
-            // second time through is to get the DC curve
-            prop.GetSlopes(0);
-        } else {
-            prop.GetSlopes(Frequency*2.*PI);
+                // set a flag for DC incremental permeability problems
+                if (PrevType == 1 && (Frequency==0))
+                    prop.MuMax = 1;
+
+                // second time through is to get the DC curve
+                prop.GetSlopes(0);
+            } else {
+                prop.GetSlopes(Frequency*2.*PI);
+                prop.MuMax = 0; // this is the hint to the materials prop that this is _not_ incremental
+            }
         }
     }
-
 
     if (NumCircProps==0) return true;
 
