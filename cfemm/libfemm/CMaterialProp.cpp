@@ -44,6 +44,7 @@
 
 #define ElementsPerSkinDepth 10
 
+#define DEBUG_CMATERIALPROP
 #ifdef DEBUG_CMATERIALPROP
 #define debug std::cerr << __func__ << "(): "
 #else
@@ -349,6 +350,7 @@ void CMMaterialProp::GetSlopes(double omega)
 
 CComplex CMMaterialProp::LaminatedBH(double w, int i)
 {
+    debug << "CMMaterialProp::LaminatedBH("<<w<<", "<<i<<")\n";
     int k,n,iter=0;
     CComplex *m0,*m1,*b,*x;
     double L,o,d,ds,B,lastres;
@@ -1053,6 +1055,7 @@ void CMSolverMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
 // from fsolver
 CComplex CMSolverMaterialProp::LaminatedBH(double w, int i)
 {
+    debug << "CMSolverMaterialProp::LaminatedBH("<<w<<", "<<i<<")\n";
     int k,n,iter=0;
     CComplex *m0,*m1,*b,*x;
     double L,o,d,ds,B,lastres,res;
@@ -1311,60 +1314,8 @@ CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::
                 err << "CMSolverMaterialProp: unexpected token: "<<token << "\n";
         }
 
-#ifdef DEBUG_MEX
-        mexPrintf ("In here 0");
-#endif // DEBUG_MEX
-
-        if (problem)
-        {
-#ifdef DEBUG_MEX
-            mexPrintf ("In here 1");
-#endif // DEBUG_MEX
-            if (prop.BHpoints>0)
-            {
-                if(problem->PrevType != 0)
-                {
-                    debug << "Adjusting input BH point data for previous problem...";
-                    std::vector<CComplex> tmpHdata ;
-                    std::vector<double> tmpBdata;
-                    tmpHdata.reserve(prop.BHpoints);
-                    tmpBdata.reserve(prop.BHpoints);
-
-                    int i = 0;
-
-                    // first time through was just to get MuMax from AC curve...
-                    for(i=0;i<prop.BHpoints;i++)
-                    {
-                        tmpHdata[i]=prop.Hdata[i];
-                        tmpBdata[i]=prop.Bdata[i];
-                    }
-                    prop.GetSlopes(problem->Frequency*2.*PI);
-                    for(i=0;i<prop.BHpoints;i++)
-                    {
-                        prop.Hdata[i]=tmpHdata[i];
-                        prop.Bdata[i]=tmpBdata[i];
-                    }
-
-                    prop.slope.clear ();
-                    prop.slope.shrink_to_fit ();
-                    // set a flag for DC incremental permeability problems
-                    if (problem->PrevType == 1 && (problem->Frequency==0))
-                        prop.MuMax = 1;
-
-                    // second time through is to get the DC curve
-                    prop.GetSlopes(0);
-                }
-                else
-                {
-                    debug << "Adjusting BH point data...";
-#ifdef DEBUG_MEX
-                    mexPrintf ("In here 2");
-#endif // DEBUG_MEX
-                    prop.GetSlopes(problem->Frequency*2.*PI);
-                    prop.MuMax = 0; // this is the hint to the materials prop that this is _not_ incremental
-                }
-            }
-        }
+        // Note: this code is shared between all problem stages - processing needs to be done in the stage-specific code
+        // (e.g. in the solver)
     }
 
     return prop;
