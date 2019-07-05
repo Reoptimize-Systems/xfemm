@@ -107,7 +107,7 @@ for x = -40, -20, 5 do
 	end
 end
 print("Maximum difference (abs,rel) = " .. MAX_DIFF ..", " ..MAX_DIFF_REL)
-print("Maximum tolerated defference (abs,rel) = " .. tolerance .. ", " .. tolerance_rel)
+print("Maximum tolerated difference (abs,rel) = " .. tolerance .. ", " .. tolerance_rel)
 
 assert(failed==0)
 write("SUCCESS\n")
