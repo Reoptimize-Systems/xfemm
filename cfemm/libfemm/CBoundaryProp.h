@@ -219,6 +219,12 @@ public:
      * @param input
      * @param err output stream for error messages
      * @return a CMBoundaryProp
+     * \internal
+     * ### FEMM sources:
+     * - \femm42{femm/FemmeDoc.cpp,CFemmeDoc::OnOpenDocument()}
+     * - \femm42{femm/FemmeviewDoc.cpp,CFemmeviewDoc::OnOpenDocument()}
+     * - \femm42{fkn/femmedoccore.cpp,CFemmeDocCore::OnOpenDocument()}
+     * \endinternal
      */
     static CMBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
     virtual void toStream( std::ostream &out ) const override;
@@ -247,6 +253,12 @@ public:
      * @param input
      * @param err output stream for error messages
      * @return a CHBoundaryProp
+     * \internal
+     * ### FEMM sources:
+     * - \femm42{femm/HDRAWDOC.cpp,ChdrawDoc::OnOpenDocument()}
+     * - \femm42{femm/hviewDoc.cpp,ChviewDoc::OnOpenDocument()}
+     * - \femm42{hsolv/hsolvdoc.cpp,Chsolvdoc::OnOpenDocument()}
+     * \endinternal
      */
     static CHBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
     virtual void toStream( std::ostream &out ) const override;
@@ -273,6 +285,12 @@ public:
      * @param input
      * @param err output stream for error messages
      * @return a CSBoundaryProp
+     * \internal
+     * ### FEMM sources:
+     * - \femm42{femm/beladrawLua.cpp,CbeladrawDoc::OnOpenDocument()}
+     * - \femm42{femm/belaviewLua.cpp,CbelaviewDoc::OnOpenDocument()}
+     * - \femm42{belasolv/femmedoccore.cpp,CFemmeDocCore::OnOpenDocument()}
+     * \endinternal
      */
     static CSBoundaryProp fromStream( std::istream &input, std::ostream &err = std::cerr );
     virtual void toStream( std::ostream &out ) const override;
