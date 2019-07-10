@@ -85,9 +85,11 @@ void mxSetLHS (const std::vector <CComplex> out, int argn, int size, const int n
 }
 
 
-void FPProcInterfaceWarning(const char* warningmsg)
+int FPProcInterfaceWarning(const char* warningmsg, ...)
 {
     mexWarnMsgIdAndTxt("MFEMM:fpproc", warningmsg);
+
+    return 0;
 }
 
 //////////////////      MEX Interface        //////////////////////

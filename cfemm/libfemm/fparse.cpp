@@ -148,7 +148,7 @@ char *parseString(char *t, string *s)
 }
 
 // default function for displaying warning messages
-int PrintWarningMsg(const char* message)
+int PrintWarningMsg(const char* message, ...)
 {
     return printf("%s", message);
 }
