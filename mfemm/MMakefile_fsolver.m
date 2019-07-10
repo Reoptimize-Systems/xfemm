@@ -68,7 +68,7 @@ function [rules,vars] = MMakefile_fsolver (varargin)
     if mfemmdeps.isoctave
         setenv('CFLAGS','-std=c++11'); %vars.CXXFLAGS = [vars.CXXFLAGS, ' -std=c++11'];
         setenv('CXXFLAGS','-std=c++11');
-        vars.MEXFLAGS = [vars.MEXFLAGS, ' ''-Wl,--no-undefined'' -L/usr/local/lib/octave/5.1.1 -loctinterp -loctave -lstdc++'];
+        vars.MEXFLAGS = [vars.MEXFLAGS, ' ''-Wl,--no-undefined'' -L/usr/local/lib/octave/5.1.0 -loctinterp -loctave -lstdc++'];
     end
 %     vars.CXXFLAGS = [vars.CXXFLAGS, ' -std=c++14'];
 
