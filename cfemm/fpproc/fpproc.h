@@ -238,7 +238,7 @@ public:
     void GetFillFactor(int lbl);
 
     // pointer to function to call when issuing warning messages
-    void (*WarnMessage)(const char*);
+    int (*WarnMessage)(const char*, ...);
 //	void MsgBox(const char* message);
 
     CComplex GetStrandedVoltageDrop(int lbl) const;

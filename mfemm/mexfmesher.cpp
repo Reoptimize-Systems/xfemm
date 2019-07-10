@@ -16,9 +16,9 @@
  *
  */
 
-int FmesherInterfaceWarning(const char* warningmsg)
+void FmesherInterfaceWarning(const char* warningmsg)
 {
-    return mexWarnMsgIdAndTxt("MFEMM:fmesher", warningmsg);
+    mexWarnMsgIdAndTxt("MFEMM:fmesher", warningmsg);
 }
 
 // extern void _main();

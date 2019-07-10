@@ -19,8 +19,8 @@
  */
 
 // extern void _main();
-int voidmexPrintF(const char *message);
-int dummymexPrintF(const char *message);
+int voidmexPrintF(const char *message, ...);
+int dummymexPrintF(const char *message, ...);
 
 using namespace femm;
 using namespace femmsolver;
@@ -451,12 +451,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
 }
 
 
-int voidmexPrintF(const char *message)
+int voidmexPrintF(const char *message, ...)
 {
     return mexPrintf(message);
 }
 
-int dummymexPrintF(const char *message)
+int dummymexPrintF(const char *message, ...)
 {
     return 0;
 }
