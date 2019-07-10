@@ -78,7 +78,7 @@ bool parseValue(std::istream &input, int &val, std::ostream &err = std::cerr);
 bool parseValue(std::istream &input, bool &val, std::ostream &err = std::cerr);
 
 // declare a default warning message function
-void PrintWarningMsg(const char* message);
+int PrintWarningMsg(const char* message);
 
 }
 #endif
