@@ -99,7 +99,7 @@ private:
 };
 
 // function to display warnings
-void FPProcInterfaceWarning(const char*);
+int FPProcInterfaceWarning(const char*, ...);
 
 #endif
 
