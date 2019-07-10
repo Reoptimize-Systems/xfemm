@@ -70,7 +70,7 @@ public:
     /**
      * @brief Type for message callback functions.
      */
-    typedef void (*MessageCB)(const char*);
+    typedef int (*MessageCB)(const char*, ...);
 
     virtual ~PostProcessor();
 
