@@ -137,7 +137,7 @@ public:
 	bool HasPeriodicBC();
 
     // pointer to function to call when issuing warning messages
-    void (*WarnMessage)(const char*);
+    int (*WarnMessage)(const char*);
 
     // pointer to function to use for triangle to issue warning messages
     int (*TriMessage)(const char * format, ...);
