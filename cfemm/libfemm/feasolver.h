@@ -164,8 +164,8 @@ public:
     int SortElements();
 
     // pointer to function to call when issuing warning messages
-    void (*WarnMessage)(const char*);
-    void (*PrintMessage)(const char*);
+    int (*WarnMessage)(const char*, ...);
+    int (*PrintMessage)(const char*, ...);
 
     virtual void CleanUp();
 
