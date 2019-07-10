@@ -89,7 +89,7 @@ private:
 };
 
 // function to display warnings
-void HPProcInterfaceWarning(const char*);
+int HPProcInterfaceWarning(const char*, ...);
 
 #endif
 
