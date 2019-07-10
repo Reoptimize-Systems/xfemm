@@ -17,9 +17,11 @@
 
 using namespace std;
 
-void HPProcInterfaceWarning(const char* warningmsg)
+int HPProcInterfaceWarning(const char* warningmsg, ...)
 {
     mexWarnMsgIdAndTxt("MFEMM:hpproc", warningmsg);
+    
+    return 0;
 }
 
 //////////////////      MEX Interface        //////////////////////
