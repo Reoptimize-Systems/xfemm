@@ -7,6 +7,8 @@
 [ProblemType] =  planar
 [Coordinates] =  cartesian
 [ACSolver]    =  0
+[PrevSoln]    = ""
+[PrevType]    =  0
 [Comment]     =  ""
 [PointProps]  =  0
 [BdryProps]   = 0
