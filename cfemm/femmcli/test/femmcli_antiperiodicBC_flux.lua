@@ -40,7 +40,7 @@ end
 show_console()
 open("femmcli_antiperiodicBC_flux.fem")
 
-mi_saveas("result.fem")
+mi_saveas("femmcli_antiperiodicBC_flux.result.fem")
 mi_analyze(1)
 mi_loadsolution()
 
