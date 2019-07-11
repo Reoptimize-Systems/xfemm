@@ -37,12 +37,15 @@ function(test_lua_setup testname)
     endforeach()
 endfunction()
 
-## test_lua_check(<name> <suffix> <file> <enabled>...)
+option(ENABLE_HAIRTRIGGER_TESTS "Enable tests that are prone to fail" OFF)
+
+## test_lua_check(<name> <suffix> <file> ...)
 # Add a test <name>.check.<suffix> that compares an output file of <name>.lua with <file>.
-function(test_lua_check testname suffix file enabled)
+# This kind of test is really prone to false positives.
+function(test_lua_check testname suffix file)
     # DISABLED property was introduced in cmake 3.9
     # skip test alltogether in earlier versions
-    if(enabled OR NOT "${CMAKE_VERSION}" VERSION_LESS 3.9)
+    if(ENABLE_HAIRTRIGGER_TESTS OR NOT "${CMAKE_VERSION}" VERSION_LESS 3.9)
         # convert check file to native line endings:
         configure_file("${CMAKE_CURRENT_LIST_DIR}/${file}.check" "${CMAKE_CURRENT_BINARY_DIR}/${file}.check" @ONLY NEWLINE_STYLE ${NEWLINE_NATIVE})
         add_test(NAME ${testname}.check.${suffix}
@@ -50,7 +53,7 @@ function(test_lua_check testname suffix file enabled)
             -E compare_files "${file}" "${file}.check"
             )
         set_tests_properties(${testname}.check.${suffix} PROPERTIES DEPENDS ${testname}.lua)
-        if(NOT enabled)
+        if(NOT ENABLE_HAIRTRIGGER_TESTS)
             set_tests_properties(${testname}.check.${suffix} PROPERTIES DISABLED TRUE)
         endif()
     endif()
@@ -68,14 +71,12 @@ test_lua(femmcli_trace)
 ### magnetics tests:
 test_lua(femmcli_femfile LABELS "magnetics;solver")
 test_lua_setup(femmcli_femfile "femmcli_femfile.fem")
-# these checks are on a hair trigger - don't enable by default:
-test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans" FALSE)
-test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem" FALSE)
+test_lua_check(femmcli_femfile ans "femmcli_femfile.result.ans")
+test_lua_check(femmcli_femfile fem "femmcli_femfile.result.fem")
 test_lua(femmcli_fpproc LABELS "magnetics;postprocessor")
 test_lua_setup(femmcli_fpproc "femmcli_fpproc.fem")
 test_lua(femmcli_matlib LABELS "magnetics")
-# this check is on a hair trigger - don't enable by default:
-test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem" FALSE)
+test_lua_check(femmcli_matlib fem "femmcli_matlib.result.fem")
 test_lua(femmcli_TorqueBenchmark LABELS "magnetics;postprocessor;fromWiki")
 test_lua_setup(femmcli_TorqueBenchmark "femmcli_TorqueBenchmark.fem")
 test_lua(femmcli_antiperiodicBC_flux LABELS "magnetics;postprocessor")
