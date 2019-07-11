@@ -76,7 +76,7 @@ public:
     double ChargeOnConductor(int conductor, CBigLinProb &L);
     int WriteResults(CBigLinProb &L);
     int AnalyzeProblem(CBigLinProb &L);
-    void (*WarnMessage)(const char*);
+    int (*WarnMessage)(const char*, ...);
 
     virtual bool runSolver(bool verbose=false) override;
 private:
