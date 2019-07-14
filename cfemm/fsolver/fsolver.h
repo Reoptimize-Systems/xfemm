@@ -94,6 +94,15 @@ public:
     bool LoadAGEsFromSolution(FILE* fp);
     bool LoadProblemFile();
     int Static2D(CBigLinProb &L);
+    /**
+     * @brief WriteStatic2D
+     * @param L
+     * @return \c true on success, \c false otherwise.
+     * \internal
+     * ### FEMM reference source
+     *  - \femm42{fkn/prob1big.cpp,CFemmeDocCore::WriteStatic2D()}
+     * \endinternal
+     */
     int WriteStatic2D(CBigLinProb &L);
     int Harmonic2D(CBigComplexLinProb &L);
     int WriteHarmonic2D(CBigComplexLinProb &L);
