@@ -44,7 +44,6 @@
 
 #define ElementsPerSkinDepth 10
 
-#define DEBUG_CMATERIALPROP
 #ifdef DEBUG_CMATERIALPROP
 #define debug std::cerr << __func__ << "(): "
 #else
