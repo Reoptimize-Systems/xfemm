@@ -328,7 +328,7 @@ ParserResult FemmReader<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLa
             while (input && (int)problem->blockproplist.size() < k)
             {
                 std::unique_ptr<BlockPropT> next;
-                next = MAKE_UNIQUE<BlockPropT>(BlockPropT::fromStream(input, err, problem));
+                next = MAKE_UNIQUE<BlockPropT>(BlockPropT::fromStream(input, err));
                 problem->blockproplist.push_back(std::move(next));
             }
             // message will be printed after parsing is done

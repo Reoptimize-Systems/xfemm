@@ -28,7 +28,6 @@
 #define FEMM_CMATERIALPROP_H
 
 #include "femmcomplex.h"
-#include "FemmProblem.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -43,16 +42,12 @@ enum class PropertyParseMode {
     NoBeginBlock /// Don't expect the \c <beginBlock> token.
 };
 
-class FemmProblem;
-
 class CMaterialProp
 {
 public:
     virtual ~CMaterialProp();
 
     std::string BlockName;
-
-    //std::shared_ptr<FemmProblem> problem;
 
     /**
      * @brief isAir is used by PostProcessor::makeMask().
@@ -220,7 +215,7 @@ public:
      * @param mode
      * @return a CMaterialProp
      */
-    static CMSolverMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, std::shared_ptr<FemmProblem> fp = nullptr, PropertyParseMode mode = PropertyParseMode::Normal );
+    static CMSolverMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, PropertyParseMode mode = PropertyParseMode::Normal );
     virtual void toStream( std::ostream &out ) const override;
 private:
 };
@@ -254,7 +249,7 @@ public:
      * @param mode
      * @return a CHMaterialProp
      */
-    static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, std::shared_ptr<FemmProblem> problem = nullptr, PropertyParseMode mode = PropertyParseMode::Normal );
+    static CHMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, PropertyParseMode mode = PropertyParseMode::Normal );
 
     /**
      * @brief isAir is not relevant to heat flow problems and therefore always returns false.
@@ -288,7 +283,7 @@ public:
      * @param mode
      * @return a CSMaterialProp
      */
-    static CSMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, std::shared_ptr<FemmProblem> problem = nullptr, PropertyParseMode mode = PropertyParseMode::Normal );
+    static CSMaterialProp fromStream( std::istream &input, std::ostream &err = std::cerr, PropertyParseMode mode = PropertyParseMode::Normal );
     bool isAir() const override;
     /**
      * \internal
