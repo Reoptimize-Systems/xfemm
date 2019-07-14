@@ -383,17 +383,8 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
         }
 
         // build element matrices using the matrices derived in Allaire's book.
-        int pctr = 0;
         for(i=0; i<NumEls; i++)
         {
-        	// update ``building matrix'' progress bar...
-            j=(i*20)/NumEls+1;
-            if(j>pctr){
-                j=pctr*5; if (j>100) j=100;
-                //TheView->m_prog1.SetPos(j);
-                pctr++;
-            }
-
             // zero out Me, be;
             for(j=0; j<3; j++)
             {
