@@ -1164,7 +1164,7 @@ CComplex CMSolverMaterialProp::LaminatedBH(double w, int i)
     return mu;
 }
 
-CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::ostream &err, std::shared_ptr<FemmProblem> problem, PropertyParseMode mode)
+CMSolverMaterialProp CMSolverMaterialProp::fromStream(std::istream &input, std::ostream &err, PropertyParseMode mode)
 {
     using namespace femm;
     CMSolverMaterialProp prop;
@@ -1402,7 +1402,7 @@ CComplex CHMaterialProp::GetK(double t) const
     return (Kx+I*Ky);
 }
 
-CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err, std::shared_ptr<FemmProblem> , PropertyParseMode mode)
+CHMaterialProp CHMaterialProp::fromStream(std::istream &input, std::ostream &err, PropertyParseMode mode)
 {
     CHMaterialProp prop;
 
@@ -1545,7 +1545,7 @@ CSMaterialProp::~CSMaterialProp()
 {
 }
 
-CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err, std::shared_ptr<FemmProblem> , PropertyParseMode mode)
+CSMaterialProp CSMaterialProp::fromStream(istream &input, ostream &err, PropertyParseMode mode)
 {
     using namespace femm;
     CSMaterialProp prop;
