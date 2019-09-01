@@ -7,6 +7,8 @@
 [ProblemType] =  planar
 [Coordinates] =  cartesian
 [ACSolver]    =  0
+[PrevSoln]    = ""
+[PrevType]    =  0
 [Comment]     =  "Add comments here."
 [PointProps]  =  0
 [BdryProps]   = 9
@@ -23,6 +25,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
   <BeginBdry>
     <BdryName> = "Periodic 1"
@@ -37,6 +41,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
   <BeginBdry>
     <BdryName> = "Periodic 2"
@@ -51,6 +57,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
   <BeginBdry>
     <BdryName> = "Periodic 3"
@@ -65,6 +73,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
   <BeginBdry>
     <BdryName> = "Periodic 4"
@@ -79,6 +89,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
   <BeginBdry>
     <BdryName> = "Periodic 5"
@@ -93,6 +105,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
   <BeginBdry>
     <BdryName> = "Periodic 6"
@@ -107,6 +121,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
   <BeginBdry>
     <BdryName> = "Periodic 7"
@@ -121,6 +137,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
   <BeginBdry>
     <BdryName> = "Periodic 8"
@@ -135,6 +153,8 @@
     <c1i> = 0
     <Mu_ssd> = 0
     <Sigma_ssd> = 0
+    <innerangle> = 0
+    <outerangle> = 0
   <EndBdry>
 [BlockProps]  = 4
   <BeginBlock>
