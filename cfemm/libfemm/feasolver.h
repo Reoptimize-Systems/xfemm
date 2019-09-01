@@ -35,6 +35,7 @@
 #include "femmenums.h"
 #include "fparse.h"
 #include "spars.h"
+#include "CAirGapElement.h"
 #include "CBoundaryProp.h"
 #include "CCommonPoint.h"
 #include "CNode.h"
@@ -71,21 +72,19 @@ template< class PointPropT
           , class CircuitPropT
           , class BlockLabelT
           , class MeshElementT
-          , class AirGapElementT
           >
 class FEASolver
 {
 
 // Attributes
 public:
-    using FEASolver_type = FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT,AirGapElementT>;
+    using FEASolver_type = FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshElementT>;
     using PointProp_type = PointPropT;
     using BoundaryProp_type = BoundaryPropT;
     using BlockProp_type = BlockPropT;
     using CircuitProp_type = CircuitPropT;
     using BlockLabel_type = BlockLabelT;
     using MeshElement_type = MeshElementT;
-    using AirGapElement_type = AirGapElementT;
 
     FEASolver();
     virtual ~FEASolver();
@@ -139,7 +138,7 @@ public:
     std::vector< BlockPropT > blockproplist;
     std::vector< CircuitPropT > circproplist;
     std::vector< BlockLabelT > labellist;
-    std::vector< AirGapElementT > agelist;
+    std::vector< femmsolver::CAirGapElement > agelist;
     std::vector< femm::CNode > nodes;
 // Operations
 public:

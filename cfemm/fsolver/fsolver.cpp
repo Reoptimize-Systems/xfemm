@@ -61,7 +61,6 @@ template class FEASolver<
         , femm::CMCircuit
         , femm::CMBlockLabel
         , femmsolver::CMElement
-        , femmsolver::CAirGapElement
         >;
 
 #ifndef _MSC_VER
