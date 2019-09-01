@@ -54,7 +54,6 @@ template class FEASolver<
         , femm::CSCircuit
         , femm::CSBlockLabel
         , femmsolver::CElement
-        , femmsolver::CAirGapElement
         >;
 
 #ifndef _WIN32

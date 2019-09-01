@@ -40,7 +40,6 @@
 #include "CBoundaryProp.h"
 #include "CCircuit.h"
 #include "CElement.h"
-#include "CAirGapElement.h"
 #include "CNode.h"
 #include "CMaterialProp.h"
 #include "CPointProp.h"
@@ -54,7 +53,6 @@ class HSolver : public FEASolver<
         , femm::CHConductor
         , femm::CHBlockLabel
         , femmsolver::CElement
-        , femmsolver::CAirGapElement
         >
 {
 
