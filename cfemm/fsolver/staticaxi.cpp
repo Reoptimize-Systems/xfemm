@@ -52,7 +52,7 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
     double *V_old=NULL,*CircInt1=NULL,*CircInt2=NULL,*CircInt3=NULL;
-    int flag,Iter=0,pctr;
+    int flag,Iter=0;
     int LinearFlag=true;
     int bIncremental = 0;
 	double murel, muinc;
@@ -149,22 +149,22 @@ int FSolver::StaticAxisymmetric(CBigLinProb &L)
 //	TheView->SetDlgItemText(IDC_FRAME1,"Matrix Construction");
 //	TheView->m_prog1.SetPos(0);
         printf("Matrix Construction\n");
-        pctr=0;
+//        pctr=0;
 
         if(Iter>0) L.Wipe();
 
         for(i=0; i<NumEls; i++)
         {
 
-            // update ``building matrix'' progress bar...
-            j=(i*20)/NumEls+1;
-            if(j>pctr)
-            {
-                j=pctr*5;
-                if (j>100) j=100;
-//			TheView->m_prog1.SetPos(j);
-                pctr++;
-            }
+//            // update ``building matrix'' progress bar...
+//            j=(i*20)/NumEls+1;
+//            if(j>pctr)
+//            {
+//                j=pctr*5;
+//                if (j>100) j=100;
+//                TheView->m_prog1.SetPos(j);
+//                pctr++;
+//            }
 
             // zero out Me, be;
             for(j=0; j<3; j++)
