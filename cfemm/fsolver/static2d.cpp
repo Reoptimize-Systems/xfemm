@@ -65,7 +65,7 @@ int FSolver::Static2D(CBigLinProb &L)
     double *CircInt3=nullptr;
     double c=PI*4.e-05;
     double units[]= {2.54,0.1,1.,100.,0.00254,1.e-04};
-    int Iter=0,pctr;
+    int Iter=0;
     bool LinearFlag=true;
     int bIncremental = MS_LEGACY_FALSE;
 	double murel, muinc;
@@ -181,7 +181,7 @@ int FSolver::Static2D(CBigLinProb &L)
 //	TheView->m_prog1.SetPos(0);
         PrintMessage("Matrix Construction\n");
 
-        pctr = 0;
+//        pctr = 0;
 
         if(Iter > 0)
         {
@@ -352,19 +352,18 @@ int FSolver::Static2D(CBigLinProb &L)
         for(i = 0; i < NumEls; i++)
         {
 
-            // update ``building matrix'' progress bar...
-            j = (i*20) / NumEls + 1;
-            if(j > pctr)
-            {
-                j = pctr * 5;
-
-                if (j>100)
-                {
-                    j = 100;
-                }
-//			TheView->m_prog1.SetPos(j);
-                pctr++;
-            }
+//            // update ``building matrix'' progress bar...
+//            j = (i*20) / NumEls + 1;
+//            if(j > pctr)
+//            {
+//                j = pctr * 5;
+//                if (j>100)
+//                {
+//                    j = 100;
+//                }
+//                TheView->m_prog1.SetPos(j);
+//                pctr++;
+//            }
 
             // zero out Me, be;
             for(j = 0; j < 3; j++)
