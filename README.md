@@ -42,7 +42,7 @@ access to fpproc).
 Released versions of xfemm come with pre-built binaries. But if you want
 to compile xfemm on your platform, you can do so quite easily with cmake
 and your compiler of choice. Run cmake on the CMakeLists.txt in the cfemm
-directory to create the build system, and then build the project. OnLinus
+directory to create the build system, and then build the project. On Linux
 this would be done as
 
 cd <install dir>/xfemm/cfemm
