@@ -1,5 +1,4 @@
-Welcome to xfemm
-================
+# Welcome to xfemm
 
 Welcome to the xfemm project. xfemm is a software project intended to
 create a direct interface to a high quality magnetics finite element code
@@ -8,8 +7,7 @@ command line magnetics finite element solver written in standard C++, a
 set of magnetics problem definition and post-processing functions in
 native Matlab/Octave code, and a mex interface to the solvers
 
-NOTE TO USERS
--------------
+## NOTE TO USERS
 
 If you use xfemm, particularly for industrial work, but also academic, 
 it will be greatly appreciated if you could write an email stating this 
@@ -27,8 +25,7 @@ International Conference on Electric Machines (ICEM 2016), September
 
 We would also suggest you cite the original FEMM program.
 
-Installation and Setup
------------------------
+## Installation and Setup
 
 There are two ways to make use of the xfemm project. One is to use it as
 a collections of standalone programs run from the command line. The other
@@ -40,8 +37,7 @@ interface is provided to this at this time, you will have to create your
 own (note that the Matlab/Octave interface does, however, provide full
 access to fpproc). 
 
-Compiling Standalone Binary Programs
-------------------------------------
+## Compiling Standalone Binary Programs
 
 Released versions of xfemm come with pre-built binaries. But if you want
 to compile xfemm on your platform, you can do so quite easily with cmake
@@ -56,8 +52,7 @@ make
 the binary files are found in the xfemm/cfemm/bin directory
 
 
-Side-note: Compiling with an external triangle
-**********************************************
+### Side-note: Compiling with an external triangle
 
 Xfemm ships with triangle 1.6 by Jonathan Shewchuk of the Carnegie Mellon
 University, which was released in 2005.  There is a newer (unofficial) version
@@ -77,8 +72,7 @@ cd <install dir>/xfemm/cfemm
 cmake . -DCMAKE_PREFIX_PATH=<triangle install dir>
 make
 
-Compiling Matlab Interface
---------------------------
+## Compiling Matlab Interface
 
 Detailed instructions for compiling the Matlab inteface can be found in
 the README file provided in the mfemm directory. The process is fairly well 
