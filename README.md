@@ -6,9 +6,10 @@ create a direct interface to a high quality magnetics finite element code
 based on FEMM. The objective of xfemm is to create a cross-platform
 command line magnetics finite element solver written in standard C++, a
 set of magnetics problem definition and post-processing functions in
-native !Matlab/Octave code, and a mex interface to the solvers
+native Matlab/Octave code, and a mex interface to the solvers
 
---------    NOTE TO USERS  --------
+NOTE TO USERS
+-------------
 
 If you use xfemm, particularly for industrial work, but also academic, 
 it will be greatly appreciated if you could write an email stating this 
@@ -25,9 +26,6 @@ International Conference on Electric Machines (ICEM 2016), September
 2016.
 
 We would also suggest you cite the original FEMM program.
-
-----------------------------------
-
 
 Installation and Setup
 -----------------------
@@ -58,7 +56,7 @@ make
 the binary files are found in the xfemm/cfemm/bin directory
 
 
-** Side-note: Compiling with an external triangle **
+*Side-note: Compiling with an external triangle*
 
 Xfemm ships with triangle 1.6 by Jonathan Shewchuk of the Carnegie Mellon
 University, which was released in 2005.  There is a newer (unofficial) version
