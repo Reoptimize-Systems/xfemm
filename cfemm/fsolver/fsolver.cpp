@@ -1108,10 +1108,10 @@ void FSolver::GetFillFactor(int lbl)
     switch (wiretype)
     {
         // wiretype = 0 for magnet wire
-//    case 0:
-//        R=bp->WireD*0.0005;
-//        awire=PI*R*R*((double) bp->NStrands)*((double) bl->Turns);
-//        break;
+    case 0:
+        R=bp->WireD*0.0005;
+        awire=PI*R*R*((double) bp->NStrands)*((double) bl->Turns);
+        break;
 
         // wiretype = 1 for stranded but non-litz wire
     case 1:
