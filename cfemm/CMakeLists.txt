@@ -87,7 +87,7 @@ install(
 
 ## installer support using cpack (this section should come last):
 set(CPACK_PACKAGE_NAME "xfemm")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/../README.txt")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/../README.md")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "xfemm - cross platform FEMM")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "xfemm")
 # maybe find a more useful vendor name?
