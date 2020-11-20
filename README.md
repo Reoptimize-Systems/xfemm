@@ -45,9 +45,9 @@ and your compiler of choice. Run cmake on the CMakeLists.txt in the cfemm
 directory to create the build system, and then build the project. On Linux
 this would be done as
 
-cd <install dir>/xfemm/cfemm
-cmake .
-make
+    cd <install dir>/xfemm/cfemm
+    cmake .
+    make
 
 the binary files are found in the xfemm/cfemm/bin directory
 
@@ -68,9 +68,9 @@ xfemm will automatically pick it up. You can notice this by the line "Found
 triangle <version>" when you run cmake.  If you install the external triangle
 in a different location, you'll need to tell cmake where to find it:
 
-cd <install dir>/xfemm/cfemm
-cmake . -DCMAKE_PREFIX_PATH=<triangle install dir>
-make
+    cd <install dir>/xfemm/cfemm
+    cmake . -DCMAKE_PREFIX_PATH=<triangle install dir>
+    make
 
 ## Compiling Matlab Interface
 
