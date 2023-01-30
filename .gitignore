@@ -21,3 +21,4 @@ mfemm/xfemm_mex_files_for_gnu-linux-x86_64/mexfsolver.mex
 mfemm/xfemm_mex_files_for_gnu-linux-x86_64/mexhsolver.mex
 *.asv
 *.o
+cfemm/libfemm/femmversion.h
