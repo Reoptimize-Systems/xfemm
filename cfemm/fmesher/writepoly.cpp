@@ -777,7 +777,7 @@ int FMesher::DoNonPeriodicBCTriangulation(string PathName)
         WarnMessage("Couldn't write to specified .pbc file");
         return -1;
     }
-    fprintf(fp,"0\n");
+    fprintf(fp,"0\n0\n");
     fclose(fp);
 
     // **********         call triangle       ***********
