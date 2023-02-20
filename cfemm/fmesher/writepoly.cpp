@@ -838,7 +838,7 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
     std::vector < std::unique_ptr<CNode> >              nodelst;
     std::vector < std::unique_ptr<CSegment> >           linelst;
     //std::vector < std::unique_ptr<CCBlockLabel> >       blocklst;
-	std::vector < std::unique_ptr<CPeriodicBoundary> >  pbclst;
+    std::vector < std::unique_ptr<CPeriodicBoundary> >  pbclst;
     std::vector < std::unique_ptr<CAirGapElement> >     agelst;
     std::vector < std::unique_ptr<CCommonPoint> >       ptlst;
     CNode node;
