@@ -100,6 +100,7 @@ FPProc::FPProc()
     Smooth = true;
     NumList = NULL;
     ConList = NULL;
+    WeightingScheme = 0;
     bHasMask = false;
     bIncremental = MS_LEGACY_FALSE;
     LengthConv = (double *)calloc(6,sizeof(double));
@@ -186,8 +187,6 @@ void FPProc::ClearDocument()
     contour.shrink_to_fit();
     agelist.clear();
     agelist.shrink_to_fit();
-    Aprev.clear();
-    Aprev.shrink_to_fit();
 
 }
 
@@ -1118,7 +1117,6 @@ bool FPProc::OpenDocument(string pathname)
                 else
                 {
                     int bc;
-                    double tmpAprev = 0;
 
                     sscanf(s,"%lf\t%lf\t%lf\t%lf\t%i\t%lf",
                            &mnode.x,
@@ -1126,9 +1124,7 @@ bool FPProc::OpenDocument(string pathname)
                            &mnode.A.re,
                            &mnode.A.im,
                            &bc,
-                           &tmpAprev);
-
-                    Aprev.push_back(tmpAprev);
+                           &mnode.Aprev);
 
                     if (sscnt != 6)
                     {
@@ -1167,16 +1163,13 @@ bool FPProc::OpenDocument(string pathname)
                 else
                 {
                     int bc;
-                    double tmpAprev = 0;
 
                     sscnt = sscanf(s, "%lf\t%lf\t%lf\t%i\t%lf",
                                    &mnode.x,
                                    &mnode.y,
                                    &mnode.A.re,
                                    &bc,
-                                   &tmpAprev);
-
-                    Aprev.push_back(tmpAprev);
+                                   &mnode.Aprev);
 
                     if (sscnt != 5)
                     {
@@ -1499,7 +1492,7 @@ bool FPProc::OpenDocument(string pathname)
 			if (bIncremental)
 			{
 				for(kk=0;kk<10;kk++){
-					a[kk]=Aprev[nn[kk]]*ww[kk];
+					a[kk]=meshnode[nn[kk]].Aprev*ww[kk];
 				}
 
                 agelist[i].brPrev[k]=Re((-(ci*a[1])-2*a[2]+2*a[3]+ci*(a[2]+a[3]-a[4])-ci*ci*ci*(a[0]-4*a[1]+6*a[2]-4*a[3]+a[4])+ci*ci*(a[0]-5*a[1]+9*a[2]-7*a[3]+2*a[4])-2*a[7]+
@@ -2903,16 +2896,16 @@ void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm) const
         elm.B2=0;
         for(i=0; i<3; i++)
         {
-            elm.B1+=meshnode[n[i]].A*c[i]/(da*LengthConv[LengthUnits]);
-            elm.B2-=meshnode[n[i]].A*b[i]/(da*LengthConv[LengthUnits]);
+            elm.B1 += meshnode[n[i]].A * c[i] / (da * LengthConv[LengthUnits]);
+            elm.B2 -= meshnode[n[i]].A * b[i] / (da * LengthConv[LengthUnits]);
         }
 
 		if (bIncremental)
 		{
 			for(i=0;i<3;i++)
 			{
-				elm.B1p+=Aprev[n[i]]*c[i]/(da*LengthConv[LengthUnits]);
-				elm.B2p-=Aprev[n[i]]*b[i]/(da*LengthConv[LengthUnits]);
+				elm.B1p += meshnode[n[i]].Aprev*c[i] / (da * LengthConv[LengthUnits]);
+				elm.B2p -= meshnode[n[i]].Aprev*b[i] / (da * LengthConv[LengthUnits]);
 			}
 		}
 
@@ -2960,9 +2953,9 @@ void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm) const
         if (bIncremental)
 		{
 			// corner nodes
-			v[0]=Aprev[n[0]];
-			v[2]=Aprev[n[1]];
-			v[4]=Aprev[n[2]];
+			v[0]=meshnode[n[0]].Aprev;
+			v[2]=meshnode[n[1]].Aprev;
+			v[4]=meshnode[n[2]].Aprev;
 
 			// construct values for mid-side nodes;
 			if ((R[0]<1.e-06) && (R[1]<1.e-06)) v[1]=(v[0]+v[2])/2.;

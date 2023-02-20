@@ -15,8 +15,6 @@
 //extern bool bLinehook;
 //extern CLuaConsoleDlg *LuaConsole;
 
-#define WeightingScheme 4
-
 // #define SIMPLE
 
 using namespace femm;
@@ -257,17 +255,17 @@ bool FPProc::MakeMask()
 
 		switch(WeightingScheme)
 		{
-			case 0:
+			case 1:
 				// all elements evenly weighted
 				v=1;
 				break;
 
-			case 1:
+			case 2:
 				// weights each element with the sqrt of its own area;
 				v=std::sqrt(a);
 				break;
 
-			case 2:
+			case 3:
 				// determine a weighting for the element
 				// based on an error measure;
 				for(j=0,bsq=0,dbsq=0;j<3;j++)
@@ -283,7 +281,7 @@ bool FPProc::MakeMask()
 				else(v=1);
 				break;
 
-			case 3:
+			case 4:
 				// determine a weighting for the element
 				// based on an error measure;
 				for(k=0,dbsq=0,bsq=0;k<3;k++)
@@ -356,7 +354,7 @@ bool FPProc::MakeMask()
 	{
 		switch(WeightingScheme)
 		{
-			case 4:
+			case 0:
 				if(L.V[i]>0.5)
 				{
 				    meshnode[i].msk=1;
@@ -366,12 +364,6 @@ bool FPProc::MakeMask()
 				    meshnode[i].msk=0;
 				}
 
-				break;
-
-			case 5:
-				meshnode[i].msk=2.*L.V[i]-0.5;
-				if (meshnode[i].msk>1.) meshnode[i].msk=1.;
-				if (meshnode[i].msk<0.) meshnode[i].msk=0.;
 				break;
 
 			default:

@@ -98,11 +98,11 @@ public:
     string  ProblemNote;
     bool    Smooth;
     bool    bMultiplyDefinedLabels;
+    int	    WeightingScheme;
     double  extRo,extRi,extZo;
     int     NumAirGapElems;
     std::string PrevSoln;
     int     PrevType;
-    std::vector <double> Aprev;
 
 
     double  A_High, A_Low;
@@ -165,6 +165,7 @@ public:
     bool GetPointValues(double x, double y, CMPointVals &u) const;
     bool GetPointValues(double x, double y, int k, CMPointVals &u) const;
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
+    // void GetGapValues(CXYPlot &p, int PlotType, int npoints, int myAGE);
     void GetElementB(femmpostproc::CPostProcMElement &elm) const;
     void FindBoundaryEdges();
     CComplex Ctr(int i) const;

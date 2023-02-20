@@ -71,6 +71,7 @@ public:
      */
     static CMMeshNode fromStream( std::istream &input, std::ostream &err = std::cerr );
     CComplex A;
+    double Aprev;
 };
 
 class CHMeshNode : public CMeshNode
