@@ -780,6 +780,13 @@ void CMMaterialProp::GetMu(const double b1, const double b2, double &mu1, double
 
     mu1=mu2=muo;            // default
 
+    // catch the incremental permeability case
+	if (MuMax>0) // for DC problems, MuMax is sleazily used as a flag to tell that it's incremental
+	{
+		IncrementalPermeability(std::sqrt(b1*b1 + b2*b2), mu1, mu2);
+		return;
+	}
+
     // easiest case: the material is linear!
     if (BHpoints==0)
     {
