@@ -653,6 +653,8 @@ bool FPProc::OpenDocument(string pathname)
             MProp.LamFill=1.;            // lamination fill factor;
             MProp.LamType=0;            // type of lamination;
             MProp.BHpoints=0;
+            MProp.MuMax=0;
+            MProp.Frequency=Frequency;
             q[0] = '\0';
         }
 
@@ -806,38 +808,39 @@ bool FPProc::OpenDocument(string pathname)
 
         if( _strnicmp(q,"<endblock>",9)==0)
         {
+            if (MProp.BHpoints>0)
+            {
+                if (bIncremental != 0){
+                    // first time through was just to get MuMax from AC curve...
+                    CComplex *tmpHdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
+                    double *tmpBdata=(double *)calloc(MProp.BHpoints,sizeof(double));
+                    for(i=0;i<MProp.BHpoints;i++)
+                    {
+                        tmpHdata[i]=MProp.Hdata[i];
+                        tmpBdata[i]=MProp.Bdata[i];
+                    }
+                    MProp.GetSlopes(Frequency*2.*PI);
+                    for(i=0;i<MProp.BHpoints;i++)
+                    {
+                        MProp.Hdata[i]=tmpHdata[i];
+                        MProp.Bdata[i]=tmpBdata[i];
+                    }
+                    free(tmpHdata);
+                    free(tmpBdata);
+                    MProp.slope.clear ();
+                    MProp.slope.shrink_to_fit();
 
-            if (bIncremental != 0){
-                // first time through was just to get MuMax from AC curve...
-                CComplex *tmpHdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
-                double *tmpBdata=(double *)calloc(MProp.BHpoints,sizeof(double));
-                for(i=0;i<MProp.BHpoints;i++)
-                {
-                    tmpHdata[i]=MProp.Hdata[i];
-                    tmpBdata[i]=MProp.Bdata[i];
+                    // set a flag for DC incremental permeability problems
+                    if ((bIncremental == MS_LEGACY_TRUE) && (Frequency==0)) MProp.MuMax = 1;
+
+                    // second time through is to get the DC curve
+                    MProp.GetSlopes(0);
                 }
-                MProp.GetSlopes(Frequency*2.*PI);
-                for(i=0;i<MProp.BHpoints;i++)
-                {
-                    MProp.Hdata[i]=tmpHdata[i];
-                    MProp.Bdata[i]=tmpBdata[i];
+                else{
+                    MProp.GetSlopes(Frequency*2.*PI);
+                    MProp.MuMax=0; // this is the hint to the materials prop that this is _not_ incremental
                 }
-                free(tmpHdata);
-                free(tmpBdata);
-                MProp.slope.clear ();
-                MProp.slope.shrink_to_fit();
-
-                // set a flag for DC incremental permeability problems
-                if ((bIncremental == MS_LEGACY_TRUE) && (Frequency==0)) MProp.MuMax = 1;
-
-                // second time through is to get the DC curve
-                MProp.GetSlopes(0);
             }
-            else{
-                MProp.GetSlopes(Frequency*2.*PI);
-                MProp.MuMax=0; // this is the hint to the materials prop that this is _not_ incremental
-            }
-
 
             blockproplist.push_back(MProp);
 
@@ -964,8 +967,9 @@ bool FPProc::OpenDocument(string pathname)
                 int hidden = 0;
                 fgets(s,1024,fp);
                 sscanf(s,"%i\t%i\t%lf\t%lf %i\t%i\n",&asegm.n0,&asegm.n1,
-                       &asegm.ArcLength,&asegm.MaxSideLength,&t,&hidden);
+                       &asegm.ArcLength,&asegm.MaxSideLength,&t,&hidden,&b);
                 asegm.BoundaryMarker=t-1;
+                if (b>0) asegm.MaxSideLength=b; // use as-meshed max side length for display purposes
                 if (hidden == 0)
                 {
                     asegm.Hidden = false;
@@ -1018,7 +1022,7 @@ bool FPProc::OpenDocument(string pathname)
                 blk.Turns=1;
                 blk.InCircuit=0;
                 blk.InGroup=0;
-                int isexternal = 0;
+                int external_and_default_flags = 0;
                 blk.IsExternal=false;
 
                 // scan in data
@@ -1030,15 +1034,24 @@ bool FPProc::OpenDocument(string pathname)
                 v=ParseDbl(v,&blk.MagDir);
                 v=ParseInt(v,&blk.InGroup);
                 v=ParseInt(v,&blk.Turns);
-                v=ParseInt(v,&isexternal);
+                v=ParseInt(v,&external_and_default_flags);
 
-                if (isexternal == 0)
+                if ((external_and_default_flags & 1) == 0)
                 {
                     blk.IsExternal = false;
                 }
                 else
                 {
                     blk.IsExternal = true;
+                }
+
+                if ((external_and_default_flags & 2) == 0)
+                {
+                    blk.IsDefault = false;
+                }
+                else
+                {
+                    blk.IsDefault = true;
                 }
 
                 v=parseString(v,&blk.MagDirFctn);
@@ -1548,7 +1561,7 @@ bool FPProc::OpenDocument(string pathname)
 				btc /= ((double) agelist[i].totalArcElements)/2.;
 				bts /= ((double) agelist[i].totalArcElements)/2.;
 				brcPrev /= ((double) agelist[i].totalArcElements)/2.;
-				brcPrev /= ((double) agelist[i].totalArcElements)/2.;
+				brsPrev /= ((double) agelist[i].totalArcElements)/2.;
 				btcPrev /= ((double) agelist[i].totalArcElements)/2.;
 				btsPrev /= ((double) agelist[i].totalArcElements)/2.;
 			}
@@ -1801,7 +1814,41 @@ bool FPProc::OpenDocument(string pathname)
         double H_Low;
         double Hr_Low, Hr_High;
         double Hi_Low, Hi_High;
+        double logB_Low, logB_High;
+        double a0,a1;
         CComplex h1,h2;
+
+        // Do a little bit of work to exclude external region from the extreme value calculation
+        // Otherwise, flux in the external regions can give a spurious indication of limits
+        std::vector<bool> isExt;
+        isExt.resize(meshelem.size());
+        std::string myBlockName;
+        for(i=0,j=0;i<(int)meshelem.size();i++)
+        {
+            if (blocklist[meshelem[i].lbl].IsExternal==true)
+            {
+                isExt[i]=true;
+            }
+            myBlockName = blockproplist[meshelem[i].blk].BlockName;
+            if ((myBlockName[0]=='u') && (myBlockName.length()>1))
+            {
+                for(k=1;k<10;k++)
+                {
+                    if (myBlockName[1]==('0'+k)){
+                        isExt[i]=true;
+                        break;
+                    }
+                }
+            }
+            if (isExt[i]==true) j++;
+        }
+
+        // catch the special case where _every_ element seems to be in an external region...
+        if (j == (int)meshelem.size()) {
+            for(i=0;i<(int)meshelem.size();i++) {
+                isExt[i]=false;
+            }
+        }
 
         Br_Low  = sqrt(sqr(meshelem[0].B1.re) + sqr(meshelem[0].B2.re));
         Br_High = Br_Low;
@@ -1809,6 +1856,7 @@ bool FPProc::OpenDocument(string pathname)
         Bi_High = Bi_Low;
         B_Low   = sqrt(Br_Low*Br_Low + Bi_Low*Bi_Low);
         B_High  = B_Low;
+        a0      = sqrt(meshelem[i].rsqr) * B_High * B_High;
 
         if (Frequency!=0)
             GetH(meshelem[0].B1,meshelem[0].B2,h1,h2,0);
@@ -1837,12 +1885,21 @@ bool FPProc::OpenDocument(string pathname)
                         sqr(meshelem[i].b2[j].im));
                 b=sqrt(br*br+bi*bi);
 
-                if(b>B_High)   B_High=b;
-                if(b<B_Low)   B_Low=b;
-                if(br>Br_High) Br_High=br;
-                if(br<Br_Low) Br_Low=br;
-                if(bi>Bi_High) Bi_High=bi;
-                if(bi<Bi_Low) Bi_Low=bi;
+                // used to be: if(b>B_High)   B_High=b;
+                // new form is a heuristic that discounts really small elements
+                // with really high flux density, which sometimes happens in corners.
+                a1=sqrt(meshelem[i].rsqr)*b*b;
+                if ((a1>a0) && (isExt[i] == false))
+                {
+                    B_High=b;
+                    a0=a1;
+                }
+
+                if (isExt[i] == false){
+                    if(b<B_Low)   B_Low=b;
+                    if(br>Br_High) Br_High=br; if(br<Br_Low) Br_Low=br;
+                    if(bi>Bi_High) Bi_High=bi; if(bi<Bi_Low) Bi_Low=bi;
+                }
             }
 
             // getting lazy--just consider element averages for H
@@ -1851,15 +1908,17 @@ bool FPProc::OpenDocument(string pathname)
             else
                 GetH(meshelem[i].B1.re,meshelem[i].B2.re,h1.re,h2.re,i);
 
-            br=sqrt(sqr(h1.re) + sqr(h2.re));
-            bi=sqrt(sqr(h1.im) + sqr(h2.im));
-            b=sqrt(br*br+bi*bi);
-            if(b>H_High)   H_High=b;
-            if(b<H_Low)   H_Low=b;
-            if(br>Hr_High) Hr_High=br;
-            if(br<Hr_Low) Hr_Low=br;
-            if(bi>Hi_High) Hi_High=bi;
-            if(bi<Hi_Low) Hi_Low=bi;
+            if (isExt[i] == false){
+                br=sqrt(sqr(h1.re) + sqr(h2.re));
+                bi=sqrt(sqr(h1.im) + sqr(h2.im));
+                b=sqrt(br*br+bi*bi);
+                if(b>H_High)   H_High=b;
+                if(b<H_Low)   H_Low=b;
+                if(br>Hr_High) Hr_High=br;
+                if(br<Hr_Low) Hr_Low=br;
+                if(bi>Hi_High) Hi_High=bi;
+                if(bi<Hi_Low) Hi_Low=bi;
+            }
 
         }
 

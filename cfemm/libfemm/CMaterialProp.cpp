@@ -84,6 +84,7 @@ CMMaterialProp::CMMaterialProp()
     , WireD(0)
     , mu_fdx()
     , mu_fdy()
+    , Frequency(0.)
 {
 }
 

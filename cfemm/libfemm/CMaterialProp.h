@@ -160,6 +160,7 @@ public:
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
     double MuMax; // maximum permeability for AC problems
+    double Frequency;		// problem frequency in Hz, needed for incremental permeability problems
 
     virtual bool isAir() const override;
     /**
