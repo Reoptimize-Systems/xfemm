@@ -2142,7 +2142,7 @@ int FPProc::InTriangle(double x, double y) const
     return (-1);
 }
 
-bool FPProc::GetPointValues(double x, double y, CMPointVals &u) const
+bool FPProc::GetPointValues(double x, double y, CMPointVals &u)
 {
     int k;
 
@@ -2162,7 +2162,7 @@ bool FPProc::GetPointValues(double x, double y, CMPointVals &u) const
     return true;
 }
 
-bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u) const
+bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u)
 {
     int i,j,n[3],lbl;
     double a[3],b[3],c[3],da,ravg;
@@ -2575,7 +2575,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u) const
 }
 
 void FPProc::GetPointB(const double x, const double y, CComplex &B1, CComplex &B2,
-                       const femmpostproc::CPostProcMElement &elm) const
+                       const femmpostproc::CPostProcMElement &elm)
 {
     // elm is a reference to the element that contains the point of interest.
     int i,n[3];
@@ -2875,7 +2875,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2, femmpostproc::CPostProcMEleme
     }
 }
 
-void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm) const
+void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm)
 {
     int i,n[3];
     double b[3],c[3],da;
@@ -3547,7 +3547,7 @@ CComplex FPProc::HenrotteVector(int k) const
     return v;
 }
 
-CComplex FPProc::BlockIntegral(const int inttype) const
+CComplex FPProc::BlockIntegral(const int inttype)
 {
     int i,k;
     CComplex c,y,z,J,mu1,mu2,B1,B2,H1,H2,F1,F2;
@@ -3999,7 +3999,7 @@ CComplex temp;
     return z;
 }
 
-void FPProc::LineIntegral(int inttype, CComplex *z) const
+void FPProc::LineIntegral(int inttype, CComplex *z)
 {
 // inttype    Integral
 //        0    B.n
@@ -5164,7 +5164,7 @@ CComplex FPProc::GetFluxLinkage(int circnum) const
     return FluxLinkage;
 }
 
-void FPProc::GetMagnetization(int n, CComplex &M1, CComplex &M2) const
+void FPProc::GetMagnetization(int n, CComplex &M1, CComplex &M2)
 {
     // Puts the piece-wise constant magnetization for an element into
     // M1 and M2.  The magnetization could be useful for some kinds of
@@ -5213,7 +5213,7 @@ double FPProc::AECF(int k) const
 
 // versions of GetMu that sort out whether or not the AECF should be applied,
 // as well as the corrections required for wound regions.
-void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i) const
+void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i)
 {
     if(blockproplist[meshelem[i].blk].LamType>2) // is a region subject to prox effects
     {
@@ -5227,7 +5227,7 @@ void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i)
     mu2/=aecf;
 }
 
-void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i) const
+void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i)
 {
     blockproplist[meshelem[i].blk].GetMu(b1,b2,mu1,mu2);
     double aecf=AECF(i);
@@ -5235,7 +5235,7 @@ void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i) const
     mu2/=aecf;
 }
 
-void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k) const
+void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k)
 {
     double mu1,mu2;
     CComplex Hc;
@@ -5252,7 +5252,7 @@ void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k) const
     }
 }
 
-void FPProc::GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k) const
+void FPProc::GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k)
 {
     CComplex mu1,mu2;
 

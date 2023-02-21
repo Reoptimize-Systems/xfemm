@@ -591,7 +591,7 @@ double CMMaterialProp::GetCoEnergy(const double b) const
     return (fabs(b)*GetH(b) - GetEnergy(b));
 }
 
-double CMMaterialProp::DoEnergy(const double b1, const double b2) const
+double CMMaterialProp::DoEnergy(const double b1, const double b2)
 {
     // calls the raw routine to get point energy,
     // but deals with the load of special cases that
@@ -649,7 +649,7 @@ double CMMaterialProp::DoEnergy(const double b1, const double b2) const
     return nrg;
 }
 
-double CMMaterialProp::DoCoEnergy(const double b1, const double b2) const
+double CMMaterialProp::DoCoEnergy(const double b1, const double b2)
 {
     double nrg,biron,bair;
     nrg=biron=bair = 0;
@@ -676,7 +676,7 @@ double CMMaterialProp::DoCoEnergy(const double b1, const double b2) const
 }
 
 
-double CMMaterialProp::DoEnergy(const CComplex b1, const CComplex b2) const
+double CMMaterialProp::DoEnergy(const CComplex b1, const CComplex b2)
 {
     // This one is meant for the frequency!=0 case.
     // Fortunately, there's not so much effort in this case.
@@ -689,7 +689,7 @@ double CMMaterialProp::DoEnergy(const CComplex b1, const CComplex b2) const
 
 }
 
-double CMMaterialProp::DoCoEnergy(const CComplex b1, const CComplex b2) const
+double CMMaterialProp::DoCoEnergy(const CComplex b1, const CComplex b2)
 {
     return DoEnergy(b1,b2);
 }
@@ -719,7 +719,7 @@ void CMMaterialProp::toStream(ostream &) const
 }
 
 void CMMaterialProp::GetMu(const CComplex b1, const CComplex b2,
-                           CComplex &mu1, CComplex &mu2) const
+                           CComplex &mu1, CComplex &mu2)
 {
     // gets the permeability, given a flux density
     // version for frequency!=0
@@ -771,7 +771,7 @@ void CMMaterialProp::GetMu(const CComplex b1, const CComplex b2,
 }
 
 
-void CMMaterialProp::GetMu(const double b1, const double b2, double &mu1, double &mu2) const
+void CMMaterialProp::GetMu(const double b1, const double b2, double &mu1, double &mu2)
 {
     // gets the permeability, given a flux density
     //
@@ -842,6 +842,94 @@ void CMMaterialProp::GetMu(const double b1, const double b2, double &mu1, double
     return;
 }
 
+void CMMaterialProp::incrementalPermeability(const double B, const double w, CComplex &mu1, CComplex &mu2)
+{
+    // B == flux density in Tesla
+    // w == frequency in rad/s
+
+    // get incremental permeability of the DC material
+    // (i.e. incremental permeability at the offset)
+    double muinc=1./(muo*Re(GetdHdB(B)));
+    double murel=1./(muo*Re(Get_v(B)));
+
+    // if material is not laminated, just apply hysteresis lag...
+    if ((Lam_d==0) || (LamFill==0))
+    {
+        mu1=muinc*exp(-I*Theta_hn*DEG*muinc/MuMax);
+        mu2=murel*exp(-I*Theta_hn*DEG*murel/MuMax);
+        return;
+    }
+
+    // crap.  Need to make an equivalent permeability that rolls in the effects of laminated
+    // eddy currents, using the incremental permeability as the basis for creating the impedance.
+    // this can get annoying because we need to back out the iron portion of the permeability
+    // in the lamfill<1 case...
+
+
+    if (Cduct!=0)
+    {
+        const CComplex deg45=1+I;
+
+        // incremental permeability direction
+        double mu = (muinc - (1.-LamFill))/LamFill;
+        CComplex halflag=exp(-I*Theta_hn*DEG*mu/(2.*MuMax));
+        double ds=sqrt(2./(0.4*PI*w*Cduct*mu));
+        CComplex K=halflag*deg45*Lam_d*0.001/(2.*ds);
+        mu1=(LamFill*mu*tanh(K)/K + (1.- LamFill));
+
+        // normal permeability direction
+        mu = (murel - (1.-LamFill))/LamFill;
+        halflag=exp(-I*Theta_hn*DEG*mu/(2.*MuMax));
+        ds=sqrt(2./(0.4*PI*w*Cduct*mu));
+        K=halflag*deg45*Lam_d*0.001/(2.*ds);
+        mu2=(LamFill*mu*tanh(K)/K + (1.- LamFill));
+    }
+    else{
+        // incremental permeability direction
+        double mu = (muinc - (1.-LamFill))/LamFill;
+        mu1=(mu*exp(-I*Theta_hn*DEG*mu/MuMax)*LamFill + (1.-LamFill));
+
+        // normal permeability direction
+        mu = (murel - (1.-LamFill))/LamFill;
+        mu2=(mu*exp(-I*Theta_hn*DEG*mu/MuMax)*LamFill + (1.-LamFill));
+    }
+}
+
+CComplex CMMaterialProp::Get_v(double B)
+{
+    if (B==0) return slope[0];
+
+    return (GetH(B)/B);
+}
+
+// get incremental permeability of a nonlinear material for use in
+// incremental permeability formulation about DC offset
+void CMMaterialProp::IncrementalPermeability(const double B, double &mu1, double &mu2)
+{
+	// B == flux density in Tesla
+
+	double muinc, murel;
+
+	// get incremental permeability of the DC material
+	// (i.e. incremental permeability at the offset)
+	muinc = 1. / (muo*Re(GetdHdB(B)));
+	murel = 1. / (muo*Re(Get_v(B)));
+
+	// if material is not laminated, just return
+	if ((Lam_d == 0) || (LamFill == 0)){
+		mu1 = muinc;
+		mu2 = murel;
+		return;
+	}
+
+	// incremental permeability direction
+	mu1 = (muinc*LamFill + (1. - LamFill));
+
+	// normal permeability direction
+	mu2 = (murel*LamFill + (1. - LamFill));
+
+	return;
+}
 
 ostream &operator<<(ostream &os, const CMMaterialProp &prop)
 {
@@ -898,13 +986,6 @@ CComplex CMSolverMaterialProp::GetH(double B)
 }
 
 
-CComplex CMSolverMaterialProp::Get_v(double B)
-{
-    if (B==0) return slope[0];
-
-    return (GetH(B)/B);
-}
-
 CComplex CMSolverMaterialProp::Get_dvB2(double B)
 {
     if (B==0) return 0;
@@ -921,88 +1002,6 @@ void CMSolverMaterialProp::GetBHProps(double B, double &v, double &dv)
     GetBHProps(B,vc,dvc);
     v =Re(vc);
     dv=Re(dvc);
-}
-
-void CMSolverMaterialProp::incrementalPermeability(double B, double w, CComplex &mu1, CComplex &mu2)
-{
-    // B == flux density in Tesla
-    // w == frequency in rad/s
-
-    // get incremental permeability of the DC material
-    // (i.e. incremental permeability at the offset)
-    double muinc=1./(muo*Re(GetdHdB(B)));
-    double murel=1./(muo*Re(Get_v(B)));
-
-    // if material is not laminated, just apply hysteresis lag...
-    if ((Lam_d==0) || (LamFill==0))
-    {
-        mu1=muinc*exp(-I*Theta_hn*DEG*muinc/MuMax);
-        mu2=murel*exp(-I*Theta_hn*DEG*murel/MuMax);
-        return;
-    }
-
-    // crap.  Need to make an equivalent permeability that rolls in the effects of laminated
-    // eddy currents, using the incremental permeability as the basis for creating the impedance.
-    // this can get annoying because we need to back out the iron portion of the permeability
-    // in the lamfill<1 case...
-
-
-    if (Cduct!=0)
-    {
-        const CComplex deg45=1+I;
-
-        // incremental permeability direction
-        double mu = (muinc - (1.-LamFill))/LamFill;
-        CComplex halflag=exp(-I*Theta_hn*DEG*mu/(2.*MuMax));
-        double ds=sqrt(2./(0.4*PI*w*Cduct*mu));
-        CComplex K=halflag*deg45*Lam_d*0.001/(2.*ds);
-        mu1=(LamFill*mu*tanh(K)/K + (1.- LamFill));
-
-        // normal permeability direction
-        mu = (murel - (1.-LamFill))/LamFill;
-        halflag=exp(-I*Theta_hn*DEG*mu/(2.*MuMax));
-        ds=sqrt(2./(0.4*PI*w*Cduct*mu));
-        K=halflag*deg45*Lam_d*0.001/(2.*ds);
-        mu2=(LamFill*mu*tanh(K)/K + (1.- LamFill));
-    }
-    else{
-        // incremental permeability direction
-        double mu = (muinc - (1.-LamFill))/LamFill;
-        mu1=(mu*exp(-I*Theta_hn*DEG*mu/MuMax)*LamFill + (1.-LamFill));
-
-        // normal permeability direction
-        mu = (murel - (1.-LamFill))/LamFill;
-        mu2=(mu*exp(-I*Theta_hn*DEG*mu/MuMax)*LamFill + (1.-LamFill));
-    }
-}
-
-// get incremental permeability of a nonlinear material for use in
-// incremental permeability formulation about DC offset
-void CMSolverMaterialProp::IncrementalPermeability(double B, double &mu1, double &mu2)
-{
-	// B == flux density in Tesla
-
-	double muinc, murel;
-
-	// get incremental permeability of the DC material
-	// (i.e. incremental permeability at the offset)
-	muinc = 1. / (muo*Re(GetdHdB(B)));
-	murel = 1. / (muo*Re(Get_v(B)));
-
-	// if material is not laminated, just return
-	if ((Lam_d == 0) || (LamFill == 0)){
-		mu1 = muinc;
-		mu2 = murel;
-		return;
-	}
-
-	// incremental permeability direction
-	mu1 = (muinc*LamFill + (1. - LamFill));
-
-	// normal permeability direction
-	mu2 = (murel*LamFill + (1. - LamFill));
-
-	return;
 }
 
 void CMSolverMaterialProp::GetBHProps(double B, CComplex &v, CComplex &dv)
