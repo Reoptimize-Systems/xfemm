@@ -1118,15 +1118,25 @@ int FMesher::DoPeriodicBCTriangulation(string PathName)
 #endif // DEBUG
 
 		// pbc
-		if ((problem->lineproplist[i]->BdryFormat==4) ||
-			(problem->lineproplist[i]->BdryFormat==5)){
+		if ( (problem->lineproplist[i]->BdryFormat==4)
+             || (problem->lineproplist[i]->BdryFormat==5))
+        {
+#ifdef DEBUG
+        {
+            char buf[1048];
+            SNPRINTF(buf, sizeof(buf), "writepoly: %s is periodic boundary, updating pbc\n", problem->lineproplist[i]->BdryName.c_str ());
+            WarnMessage(buf);
+        }
+#endif // DEBUG
 			pbc.BdryName=problem->lineproplist[i]->BdryName;
-			pbc.BdryFormat=problem->lineproplist[i]->BdryFormat-4; // 0 for pbc, 1 for apbc
+			pbc.BdryFormat = problem->lineproplist[i]->BdryFormat - 4; // 0 for pbc, 1 for apbc
+			pbc.antiPeriodic = problem->lineproplist[i]->isPeriodic(CBoundaryProp::PeriodicityType::AntiPeriodic);
 			pbclst.push_back(pbc.clone());
 		}
 
 		// age
-		if ((problem->lineproplist[i]->BdryFormat==6) || (problem->lineproplist[i]->BdryFormat==7))
+		if ( (problem->lineproplist[i]->BdryFormat==6)
+             || (problem->lineproplist[i]->BdryFormat==7) )
 		{
 #ifdef DEBUG
             {
