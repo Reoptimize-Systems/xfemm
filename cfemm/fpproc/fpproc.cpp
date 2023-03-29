@@ -100,6 +100,7 @@ FPProc::FPProc()
     Smooth = true;
     NumList = NULL;
     ConList = NULL;
+    WeightingScheme = 0;
     bHasMask = false;
     bIncremental = MS_LEGACY_FALSE;
     LengthConv = (double *)calloc(6,sizeof(double));
@@ -186,8 +187,6 @@ void FPProc::ClearDocument()
     contour.shrink_to_fit();
     agelist.clear();
     agelist.shrink_to_fit();
-    Aprev.clear();
-    Aprev.shrink_to_fit();
 
 }
 
@@ -654,6 +653,8 @@ bool FPProc::OpenDocument(string pathname)
             MProp.LamFill=1.;            // lamination fill factor;
             MProp.LamType=0;            // type of lamination;
             MProp.BHpoints=0;
+            MProp.MuMax=0;
+            MProp.Frequency=Frequency;
             q[0] = '\0';
         }
 
@@ -807,38 +808,39 @@ bool FPProc::OpenDocument(string pathname)
 
         if( _strnicmp(q,"<endblock>",9)==0)
         {
+            if (MProp.BHpoints>0)
+            {
+                if (bIncremental != 0){
+                    // first time through was just to get MuMax from AC curve...
+                    CComplex *tmpHdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
+                    double *tmpBdata=(double *)calloc(MProp.BHpoints,sizeof(double));
+                    for(i=0;i<MProp.BHpoints;i++)
+                    {
+                        tmpHdata[i]=MProp.Hdata[i];
+                        tmpBdata[i]=MProp.Bdata[i];
+                    }
+                    MProp.GetSlopes(Frequency*2.*PI);
+                    for(i=0;i<MProp.BHpoints;i++)
+                    {
+                        MProp.Hdata[i]=tmpHdata[i];
+                        MProp.Bdata[i]=tmpBdata[i];
+                    }
+                    free(tmpHdata);
+                    free(tmpBdata);
+                    MProp.slope.clear ();
+                    MProp.slope.shrink_to_fit();
 
-            if (bIncremental != 0){
-                // first time through was just to get MuMax from AC curve...
-                CComplex *tmpHdata=(CComplex *)calloc(MProp.BHpoints,sizeof(CComplex));
-                double *tmpBdata=(double *)calloc(MProp.BHpoints,sizeof(double));
-                for(i=0;i<MProp.BHpoints;i++)
-                {
-                    tmpHdata[i]=MProp.Hdata[i];
-                    tmpBdata[i]=MProp.Bdata[i];
+                    // set a flag for DC incremental permeability problems
+                    if ((bIncremental == MS_LEGACY_TRUE) && (Frequency==0)) MProp.MuMax = 1;
+
+                    // second time through is to get the DC curve
+                    MProp.GetSlopes(0);
                 }
-                MProp.GetSlopes(Frequency*2.*PI);
-                for(i=0;i<MProp.BHpoints;i++)
-                {
-                    MProp.Hdata[i]=tmpHdata[i];
-                    MProp.Bdata[i]=tmpBdata[i];
+                else{
+                    MProp.GetSlopes(Frequency*2.*PI);
+                    MProp.MuMax=0; // this is the hint to the materials prop that this is _not_ incremental
                 }
-                free(tmpHdata);
-                free(tmpBdata);
-                MProp.slope.clear ();
-                MProp.slope.shrink_to_fit();
-
-                // set a flag for DC incremental permeability problems
-                if ((bIncremental == MS_LEGACY_TRUE) && (Frequency==0)) MProp.MuMax = 1;
-
-                // second time through is to get the DC curve
-                MProp.GetSlopes(0);
             }
-            else{
-                MProp.GetSlopes(Frequency*2.*PI);
-                MProp.MuMax=0; // this is the hint to the materials prop that this is _not_ incremental
-            }
-
 
             blockproplist.push_back(MProp);
 
@@ -965,8 +967,9 @@ bool FPProc::OpenDocument(string pathname)
                 int hidden = 0;
                 fgets(s,1024,fp);
                 sscanf(s,"%i\t%i\t%lf\t%lf %i\t%i\n",&asegm.n0,&asegm.n1,
-                       &asegm.ArcLength,&asegm.MaxSideLength,&t,&hidden);
+                       &asegm.ArcLength,&asegm.MaxSideLength,&t,&hidden,&b);
                 asegm.BoundaryMarker=t-1;
+                if (b>0) asegm.MaxSideLength=b; // use as-meshed max side length for display purposes
                 if (hidden == 0)
                 {
                     asegm.Hidden = false;
@@ -1019,7 +1022,7 @@ bool FPProc::OpenDocument(string pathname)
                 blk.Turns=1;
                 blk.InCircuit=0;
                 blk.InGroup=0;
-                int isexternal = 0;
+                int external_and_default_flags = 0;
                 blk.IsExternal=false;
 
                 // scan in data
@@ -1031,15 +1034,24 @@ bool FPProc::OpenDocument(string pathname)
                 v=ParseDbl(v,&blk.MagDir);
                 v=ParseInt(v,&blk.InGroup);
                 v=ParseInt(v,&blk.Turns);
-                v=ParseInt(v,&isexternal);
+                v=ParseInt(v,&external_and_default_flags);
 
-                if (isexternal == 0)
+                if ((external_and_default_flags & 1) == 0)
                 {
                     blk.IsExternal = false;
                 }
                 else
                 {
                     blk.IsExternal = true;
+                }
+
+                if ((external_and_default_flags & 2) == 0)
+                {
+                    blk.IsDefault = false;
+                }
+                else
+                {
+                    blk.IsDefault = true;
                 }
 
                 v=parseString(v,&blk.MagDirFctn);
@@ -1118,7 +1130,6 @@ bool FPProc::OpenDocument(string pathname)
                 else
                 {
                     int bc;
-                    double tmpAprev = 0;
 
                     sscanf(s,"%lf\t%lf\t%lf\t%lf\t%i\t%lf",
                            &mnode.x,
@@ -1126,9 +1137,7 @@ bool FPProc::OpenDocument(string pathname)
                            &mnode.A.re,
                            &mnode.A.im,
                            &bc,
-                           &tmpAprev);
-
-                    Aprev.push_back(tmpAprev);
+                           &mnode.Aprev);
 
                     if (sscnt != 6)
                     {
@@ -1167,16 +1176,13 @@ bool FPProc::OpenDocument(string pathname)
                 else
                 {
                     int bc;
-                    double tmpAprev = 0;
 
                     sscnt = sscanf(s, "%lf\t%lf\t%lf\t%i\t%lf",
                                    &mnode.x,
                                    &mnode.y,
                                    &mnode.A.re,
                                    &bc,
-                                   &tmpAprev);
-
-                    Aprev.push_back(tmpAprev);
+                                   &mnode.Aprev);
 
                     if (sscnt != 5)
                     {
@@ -1499,7 +1505,7 @@ bool FPProc::OpenDocument(string pathname)
 			if (bIncremental)
 			{
 				for(kk=0;kk<10;kk++){
-					a[kk]=Aprev[nn[kk]]*ww[kk];
+					a[kk]=meshnode[nn[kk]].Aprev*ww[kk];
 				}
 
                 agelist[i].brPrev[k]=Re((-(ci*a[1])-2*a[2]+2*a[3]+ci*(a[2]+a[3]-a[4])-ci*ci*ci*(a[0]-4*a[1]+6*a[2]-4*a[3]+a[4])+ci*ci*(a[0]-5*a[1]+9*a[2]-7*a[3]+2*a[4])-2*a[7]+
@@ -1555,7 +1561,7 @@ bool FPProc::OpenDocument(string pathname)
 				btc /= ((double) agelist[i].totalArcElements)/2.;
 				bts /= ((double) agelist[i].totalArcElements)/2.;
 				brcPrev /= ((double) agelist[i].totalArcElements)/2.;
-				brcPrev /= ((double) agelist[i].totalArcElements)/2.;
+				brsPrev /= ((double) agelist[i].totalArcElements)/2.;
 				btcPrev /= ((double) agelist[i].totalArcElements)/2.;
 				btsPrev /= ((double) agelist[i].totalArcElements)/2.;
 			}
@@ -1808,7 +1814,41 @@ bool FPProc::OpenDocument(string pathname)
         double H_Low;
         double Hr_Low, Hr_High;
         double Hi_Low, Hi_High;
+        double logB_Low, logB_High;
+        double a0,a1;
         CComplex h1,h2;
+
+        // Do a little bit of work to exclude external region from the extreme value calculation
+        // Otherwise, flux in the external regions can give a spurious indication of limits
+        std::vector<bool> isExt;
+        isExt.resize(meshelem.size());
+        std::string myBlockName;
+        for(i=0,j=0;i<(int)meshelem.size();i++)
+        {
+            if (blocklist[meshelem[i].lbl].IsExternal==true)
+            {
+                isExt[i]=true;
+            }
+            myBlockName = blockproplist[meshelem[i].blk].BlockName;
+            if ((myBlockName[0]=='u') && (myBlockName.length()>1))
+            {
+                for(k=1;k<10;k++)
+                {
+                    if (myBlockName[1]==('0'+k)){
+                        isExt[i]=true;
+                        break;
+                    }
+                }
+            }
+            if (isExt[i]==true) j++;
+        }
+
+        // catch the special case where _every_ element seems to be in an external region...
+        if (j == (int)meshelem.size()) {
+            for(i=0;i<(int)meshelem.size();i++) {
+                isExt[i]=false;
+            }
+        }
 
         Br_Low  = sqrt(sqr(meshelem[0].B1.re) + sqr(meshelem[0].B2.re));
         Br_High = Br_Low;
@@ -1816,6 +1856,7 @@ bool FPProc::OpenDocument(string pathname)
         Bi_High = Bi_Low;
         B_Low   = sqrt(Br_Low*Br_Low + Bi_Low*Bi_Low);
         B_High  = B_Low;
+        a0      = sqrt(meshelem[i].rsqr) * B_High * B_High;
 
         if (Frequency!=0)
             GetH(meshelem[0].B1,meshelem[0].B2,h1,h2,0);
@@ -1844,12 +1885,21 @@ bool FPProc::OpenDocument(string pathname)
                         sqr(meshelem[i].b2[j].im));
                 b=sqrt(br*br+bi*bi);
 
-                if(b>B_High)   B_High=b;
-                if(b<B_Low)   B_Low=b;
-                if(br>Br_High) Br_High=br;
-                if(br<Br_Low) Br_Low=br;
-                if(bi>Bi_High) Bi_High=bi;
-                if(bi<Bi_Low) Bi_Low=bi;
+                // used to be: if(b>B_High)   B_High=b;
+                // new form is a heuristic that discounts really small elements
+                // with really high flux density, which sometimes happens in corners.
+                a1=sqrt(meshelem[i].rsqr)*b*b;
+                if ((a1>a0) && (isExt[i] == false))
+                {
+                    B_High=b;
+                    a0=a1;
+                }
+
+                if (isExt[i] == false){
+                    if(b<B_Low)   B_Low=b;
+                    if(br>Br_High) Br_High=br; if(br<Br_Low) Br_Low=br;
+                    if(bi>Bi_High) Bi_High=bi; if(bi<Bi_Low) Bi_Low=bi;
+                }
             }
 
             // getting lazy--just consider element averages for H
@@ -1858,15 +1908,17 @@ bool FPProc::OpenDocument(string pathname)
             else
                 GetH(meshelem[i].B1.re,meshelem[i].B2.re,h1.re,h2.re,i);
 
-            br=sqrt(sqr(h1.re) + sqr(h2.re));
-            bi=sqrt(sqr(h1.im) + sqr(h2.im));
-            b=sqrt(br*br+bi*bi);
-            if(b>H_High)   H_High=b;
-            if(b<H_Low)   H_Low=b;
-            if(br>Hr_High) Hr_High=br;
-            if(br<Hr_Low) Hr_Low=br;
-            if(bi>Hi_High) Hi_High=bi;
-            if(bi<Hi_Low) Hi_Low=bi;
+            if (isExt[i] == false){
+                br=sqrt(sqr(h1.re) + sqr(h2.re));
+                bi=sqrt(sqr(h1.im) + sqr(h2.im));
+                b=sqrt(br*br+bi*bi);
+                if(b>H_High)   H_High=b;
+                if(b<H_Low)   H_Low=b;
+                if(br>Hr_High) Hr_High=br;
+                if(br<Hr_Low) Hr_Low=br;
+                if(bi>Hi_High) Hi_High=bi;
+                if(bi<Hi_Low) Hi_Low=bi;
+            }
 
         }
 
@@ -2149,7 +2201,7 @@ int FPProc::InTriangle(double x, double y) const
     return (-1);
 }
 
-bool FPProc::GetPointValues(double x, double y, CMPointVals &u) const
+bool FPProc::GetPointValues(double x, double y, CMPointVals &u)
 {
     int k;
 
@@ -2169,7 +2221,7 @@ bool FPProc::GetPointValues(double x, double y, CMPointVals &u) const
     return true;
 }
 
-bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u) const
+bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u)
 {
     int i,j,n[3],lbl;
     double a[3],b[3],c[3],da,ravg;
@@ -2582,7 +2634,7 @@ bool FPProc::GetPointValues(double x, double y, int k, CMPointVals &u) const
 }
 
 void FPProc::GetPointB(const double x, const double y, CComplex &B1, CComplex &B2,
-                       const femmpostproc::CPostProcMElement &elm) const
+                       const femmpostproc::CPostProcMElement &elm)
 {
     // elm is a reference to the element that contains the point of interest.
     int i,n[3];
@@ -2882,7 +2934,7 @@ void FPProc::GetNodalB(CComplex *b1, CComplex *b2, femmpostproc::CPostProcMEleme
     }
 }
 
-void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm) const
+void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm)
 {
     int i,n[3];
     double b[3],c[3],da;
@@ -2903,16 +2955,16 @@ void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm) const
         elm.B2=0;
         for(i=0; i<3; i++)
         {
-            elm.B1+=meshnode[n[i]].A*c[i]/(da*LengthConv[LengthUnits]);
-            elm.B2-=meshnode[n[i]].A*b[i]/(da*LengthConv[LengthUnits]);
+            elm.B1 += meshnode[n[i]].A * c[i] / (da * LengthConv[LengthUnits]);
+            elm.B2 -= meshnode[n[i]].A * b[i] / (da * LengthConv[LengthUnits]);
         }
 
 		if (bIncremental)
 		{
 			for(i=0;i<3;i++)
 			{
-				elm.B1p+=Aprev[n[i]]*c[i]/(da*LengthConv[LengthUnits]);
-				elm.B2p-=Aprev[n[i]]*b[i]/(da*LengthConv[LengthUnits]);
+				elm.B1p += meshnode[n[i]].Aprev*c[i] / (da * LengthConv[LengthUnits]);
+				elm.B2p -= meshnode[n[i]].Aprev*b[i] / (da * LengthConv[LengthUnits]);
 			}
 		}
 
@@ -2960,9 +3012,9 @@ void FPProc::GetElementB(femmpostproc::CPostProcMElement &elm) const
         if (bIncremental)
 		{
 			// corner nodes
-			v[0]=Aprev[n[0]];
-			v[2]=Aprev[n[1]];
-			v[4]=Aprev[n[2]];
+			v[0]=meshnode[n[0]].Aprev;
+			v[2]=meshnode[n[1]].Aprev;
+			v[4]=meshnode[n[2]].Aprev;
 
 			// construct values for mid-side nodes;
 			if ((R[0]<1.e-06) && (R[1]<1.e-06)) v[1]=(v[0]+v[2])/2.;
@@ -3554,7 +3606,7 @@ CComplex FPProc::HenrotteVector(int k) const
     return v;
 }
 
-CComplex FPProc::BlockIntegral(const int inttype) const
+CComplex FPProc::BlockIntegral(const int inttype)
 {
     int i,k;
     CComplex c,y,z,J,mu1,mu2,B1,B2,H1,H2,F1,F2;
@@ -4006,7 +4058,7 @@ CComplex temp;
     return z;
 }
 
-void FPProc::LineIntegral(int inttype, CComplex *z) const
+void FPProc::LineIntegral(int inttype, CComplex *z)
 {
 // inttype    Integral
 //        0    B.n
@@ -5171,7 +5223,7 @@ CComplex FPProc::GetFluxLinkage(int circnum) const
     return FluxLinkage;
 }
 
-void FPProc::GetMagnetization(int n, CComplex &M1, CComplex &M2) const
+void FPProc::GetMagnetization(int n, CComplex &M1, CComplex &M2)
 {
     // Puts the piece-wise constant magnetization for an element into
     // M1 and M2.  The magnetization could be useful for some kinds of
@@ -5220,7 +5272,7 @@ double FPProc::AECF(int k) const
 
 // versions of GetMu that sort out whether or not the AECF should be applied,
 // as well as the corrections required for wound regions.
-void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i) const
+void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i)
 {
     if(blockproplist[meshelem[i].blk].LamType>2) // is a region subject to prox effects
     {
@@ -5234,7 +5286,7 @@ void FPProc::GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i)
     mu2/=aecf;
 }
 
-void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i) const
+void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i)
 {
     blockproplist[meshelem[i].blk].GetMu(b1,b2,mu1,mu2);
     double aecf=AECF(i);
@@ -5242,7 +5294,7 @@ void FPProc::GetMu(double b1, double b2, double &mu1, double &mu2, int i) const
     mu2/=aecf;
 }
 
-void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k) const
+void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k)
 {
     double mu1,mu2;
     CComplex Hc;
@@ -5259,7 +5311,7 @@ void FPProc::GetH(double b1, double b2, double &h1, double &h2, int k) const
     }
 }
 
-void FPProc::GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k) const
+void FPProc::GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k)
 {
     CComplex mu1,mu2;
 

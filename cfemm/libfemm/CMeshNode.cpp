@@ -70,6 +70,7 @@ double CMeshNode::GetDistance(const double xo, const double yo) const
 CMMeshNode::CMMeshNode()
     : CMeshNode()
     , A(0)
+    , Aprev(0)
 {
     Q = -2; // hack for PostProcessor::makeMask; Q is not used in magnetics problems
 }

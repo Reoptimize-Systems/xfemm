@@ -89,11 +89,40 @@ public:
 
     double GetH(const double b) const;
     CComplex GetH(const CComplex b) const;            // ``raw'' results
+    CComplex Get_v(double B);
     virtual CComplex GetdHdB(const double B) const;
     double GetB(const double h) const;
 
-    void GetMu(const double b1, const double b2, double &mu1, double &mu2) const;
-    void GetMu(const CComplex b1, const CComplex b2, CComplex &mu1, CComplex &mu2) const;
+    void GetMu(const double b1, const double b2, double &mu1, double &mu2);
+    void GetMu(const CComplex b1, const CComplex b2, CComplex &mu1, CComplex &mu2);
+    /**
+     * @brief Get the incremental permeability of a nonlinear material for use in incremental permeability formulation about DC offset.
+     * @param B
+     * @param w
+     * @param mu1
+     * @param mu2
+     *
+     * \internal
+     * ### FEMM reference source:
+     *  - \femm42{fkn/matprop.cpp,CMaterialProp::IncrementalPermeability(double B, double w, CComplex &mu1, CComplex &mu2)}
+     * \endinternal
+     */
+    void incrementalPermeability(const double B, const double w, CComplex &mu1, CComplex &mu2);
+
+    /**
+     * @brief Get the incremental permeability of a nonlinear material for use in incremental permeability formulation about DC offset.
+     * @param B
+     * @param w
+     * @param mu1
+     * @param mu2
+     *
+     * \internal
+     * ### FEMM reference source:
+     *  - \femm42{fkn/matprop.cpp,CMaterialProp::IncrementalPermeability(double B, double &mu1, double &mu2)}
+     *  - \femm42{femm/Problem.h,,CMaterialProp::IncrementalPermeability(double B, double &mu1, double &mu2)}
+     * \endinternal
+     */
+    void IncrementalPermeability(const double B, double &mu1, double &mu2);
     double GetEnergy(const double b) const;        // straight from the
     double GetCoEnergy(const double b) const;    // BH curve data
 
@@ -101,10 +130,10 @@ public:
     // energy and coenergy.  These catch and take
     // care of all of the weird special cases
     // that arise with laminated materials.
-    double DoEnergy(const double bx, const double by) const;
-    double DoCoEnergy(const double bx, const double by) const;
-    double DoEnergy(const CComplex bx, const CComplex by) const;
-    double DoCoEnergy(const CComplex b1, const CComplex b2) const;
+    double DoEnergy(const double bx, const double by);
+    double DoCoEnergy(const double bx, const double by);
+    double DoEnergy(const CComplex bx, const CComplex by);
+    double DoCoEnergy(const CComplex b1, const CComplex b2);
 
     double mu_x,mu_y;       // permeabilities, relative
     int BHpoints;           // number of points in the BH curve...
@@ -131,6 +160,7 @@ public:
     CComplex mu_fdx,mu_fdy; // complex permeability for harmonic problems;
 
     double MuMax; // maximum permeability for AC problems
+    double Frequency;		// problem frequency in Hz, needed for incremental permeability problems
 
     virtual bool isAir() const override;
     /**
@@ -175,37 +205,9 @@ public:
     CMSolverMaterialProp( const CMSolverMaterialProp & );
     CComplex GetH(double B); // ill-matched override
     CComplex Get_dvB2(double B);
-    CComplex Get_v(double B);
     void GetBHProps(double B, CComplex &v, CComplex &dv);
     void GetBHProps(double B, double &v, double &dv);
-    /**
-     * @brief Get the incremental permeability of a nonlinear material for use in incremental permeability formulation about DC offset.
-     * @param B
-     * @param w
-     * @param mu1
-     * @param mu2
-     *
-     * \internal
-     * ### FEMM reference source:
-     *  - \femm42{fkn/matprop.cpp,CMaterialProp::IncrementalPermeability(double B, double w, CComplex &mu1, CComplex &mu2)}
-     * \endinternal
-     */
-    void incrementalPermeability(double B, double w, CComplex &mu1, CComplex &mu2);
 
-    /**
-     * @brief Get the incremental permeability of a nonlinear material for use in incremental permeability formulation about DC offset.
-     * @param B
-     * @param w
-     * @param mu1
-     * @param mu2
-     *
-     * \internal
-     * ### FEMM reference source:
-     *  - \femm42{fkn/matprop.cpp,CMaterialProp::IncrementalPermeability(double B, double &mu1, double &mu2)}
-     *  - \femm42{femm/Problem.h,,CMaterialProp::IncrementalPermeability(double B, double &mu1, double &mu2)}
-     * \endinternal
-     */
-    void IncrementalPermeability(double B, double &mu1, double &mu2);
     virtual CComplex LaminatedBH(double omega, int i) override;
 
     /**

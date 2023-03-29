@@ -98,11 +98,11 @@ public:
     string  ProblemNote;
     bool    Smooth;
     bool    bMultiplyDefinedLabels;
+    int	    WeightingScheme;
     double  extRo,extRi,extZo;
     int     NumAirGapElems;
     std::string PrevSoln;
     int     PrevType;
-    std::vector <double> Aprev;
 
 
     double  A_High, A_Low;
@@ -162,17 +162,18 @@ public:
     // member functions
     int InTriangle(double x, double y) const;
     bool InTriangleTest(double x, double y, int i) const;
-    bool GetPointValues(double x, double y, CMPointVals &u) const;
-    bool GetPointValues(double x, double y, int k, CMPointVals &u) const;
+    bool GetPointValues(double x, double y, CMPointVals &u);
+    bool GetPointValues(double x, double y, int k, CMPointVals &u);
     // void GetLineValues(CXYPlot &p, int PlotType, int npoints);
-    void GetElementB(femmpostproc::CPostProcMElement &elm) const;
+    // void GetGapValues(CXYPlot &p, int PlotType, int npoints, int myAGE);
+    void GetElementB(femmpostproc::CPostProcMElement &elm);
     void FindBoundaryEdges();
     CComplex Ctr(int i) const;
     double ElmArea(int i) const;
     double ElmArea(femmpostproc::CPostProcMElement *elm) const;
     double ElmVolume(int i) const;
     //double ElmVolume(CElement *elm);
-    void GetPointB(const double x, const double y, CComplex &B1, CComplex &B2, const femmpostproc::CPostProcMElement &elm) const;
+    void GetPointB(const double x, const double y, CComplex &B1, CComplex &B2, const femmpostproc::CPostProcMElement &elm);
     void GetNodalB(CComplex *b1, CComplex *b2,femmpostproc::CPostProcMElement &elm);
     /**
      * @brief Compute the block integral over selected blocks.
@@ -217,8 +218,8 @@ public:
      * @param inttype The identifier of the block integral.
      * @return the requested block integral
      */
-    CComplex BlockIntegral(const int inttype) const;
-    void LineIntegral(int inttype, CComplex *z) const;
+    CComplex BlockIntegral(const int inttype);
+    void LineIntegral(int inttype, CComplex *z);
 
     int ClosestNode(const double x, const double y) const;
     int ClosestArcSegment(double x, double y) const;
@@ -248,11 +249,11 @@ public:
     CComplex GetSolidAxisymmetricLinkage(int lbl) const;
     CComplex GetParallelLinkage(int numcirc) const;
     CComplex GetParallelLinkageAlt(int numcirc) const;
-    void GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i) const;
-    void GetMu(double b1, double b2, double &mu1, double &mu2, int i) const;
-    void GetMagnetization(int n, CComplex &M1, CComplex &M2) const;
-    void GetH(double b1, double b2, double &h1, double &h2, int k) const;
-    void GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k) const;
+    void GetMu(CComplex b1, CComplex b2,CComplex &mu1, CComplex &mu2, int i);
+    void GetMu(double b1, double b2, double &mu1, double &mu2, int i);
+    void GetMagnetization(int n, CComplex &M1, CComplex &M2);
+    void GetH(double b1, double b2, double &h1, double &h2, int k);
+    void GetH(CComplex b1, CComplex b2, CComplex &h1, CComplex &h2, int k);
     int numElements() const override;
     int numNodes() const override;
     FPProcError getGapHarmonics(const std::string myBdryName, const int n, CComplex &acc, CComplex &acs, CComplex &brc, CComplex &brs, CComplex &btc, CComplex &bts) const;
