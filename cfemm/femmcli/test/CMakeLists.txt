@@ -81,8 +81,8 @@ test_lua(femmcli_TorqueBenchmark LABELS "magnetics;postprocessor;fromWiki")
 test_lua_setup(femmcli_TorqueBenchmark "femmcli_TorqueBenchmark.fem")
 test_lua(femmcli_antiperiodicBC_flux LABELS "magnetics;postprocessor")
 test_lua_setup(femmcli_antiperiodicBC_flux "femmcli_antiperiodicBC_flux.fem")
-test_lua(femmcli_antiperiodicBC_flux LABELS "magnetics;postprocessor;fromWiki")
-test_lua_setup(femmcli_antiperiodicBC_flux "femmcli_antiperiodicBC_AGE_TorqueBenchmark.fem")
+test_lua(femmcli_antiperiodicBC_AGE_TorqueBenchmark LABELS "magnetics;postprocessor;fromWiki")
+test_lua_setup(femmcli_antiperiodicBC_AGE_TorqueBenchmark "femmcli_antiperiodicBC_AGE_TorqueBenchmark.fem")
 
 ### electrostatics tests:
 test_lua(femmcli_epproc LABELS "electrostatics;postprocessor")
