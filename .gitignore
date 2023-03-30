@@ -30,4 +30,3 @@ cfemm/libfemm/femmversion.h
 *.a
 *.result.ans
 *.result.fem
-cfemm/fsolver/test/Temp.ans
