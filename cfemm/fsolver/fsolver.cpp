@@ -213,7 +213,7 @@ bool FSolver::LoadProblemFile ()
     // any previous mesh so we know whether to bother loading the previous
     // solution data as well as just the mesh
     std::string femFile = PathName+".fem";
-    WarnMessage ("FSolver::LoadProblemFile\n");
+
     if (!FEASolver_type::LoadProblemFile(femFile))
     {
         return false;
