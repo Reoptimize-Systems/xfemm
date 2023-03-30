@@ -45,10 +45,7 @@
 		<Unit filename="hpproc.cpp" />
 		<Unit filename="hpproc.h" />
 		<Unit filename="hproblem.cpp" />
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Unit filename="test/CMakeLists.txt" />
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

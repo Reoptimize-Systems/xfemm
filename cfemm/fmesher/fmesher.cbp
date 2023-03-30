@@ -65,9 +65,7 @@
 		</Linker>
 		<Unit filename="CMakeLists.txt" />
 		<Unit filename="main.cpp" />
-		<Extensions>
-			<code_completion />
-			<debugger />
-		</Extensions>
+		<Unit filename="test/CMakeLists.txt" />
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

@@ -66,10 +66,8 @@
 		<Unit filename="hsolver.cpp" />
 		<Unit filename="hsolver.h" />
 		<Unit filename="hspars.h" />
+		<Unit filename="test/CMakeLists.txt" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

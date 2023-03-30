@@ -39,10 +39,8 @@
 		</Linker>
 		<Unit filename="CMakeLists.txt" />
 		<Unit filename="main.cpp" />
+		<Unit filename="test/CMakeLists.txt" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

@@ -79,6 +79,7 @@
 		<Unit filename="debug/init.lua" />
 		<Unit filename="main.cpp" />
 		<Unit filename="release/init.lua" />
+		<Unit filename="test/CMakeLists.txt" />
 		<Unit filename="test/femmcli_chdir.lua" />
 		<Unit filename="test/femmcli_compatmode.lua" />
 		<Unit filename="test/femmcli_complex.lua" />
@@ -91,9 +92,6 @@
 		<Unit filename="test/femmcli_pureLua.lua" />
 		<Unit filename="test/femmcli_trace.lua" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
