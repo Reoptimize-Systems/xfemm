@@ -949,7 +949,7 @@ int femmcli::LuaMagneticsCommands::luaBlockIntegral(lua_State *L)
 }
 
 /**
- * @brief Calculate a block integral for the selected blocks.
+ * @brief Calculate a integral for the desired air gap (AGE) region
  * @param L
  * @return 1 on success, 0 otherwise
  * \ingroup LuaMM
