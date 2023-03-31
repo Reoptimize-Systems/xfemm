@@ -83,9 +83,11 @@ mkdir -p ${release_prefix}
 linux_64_common_dir_name="xfemm_linux64"
 linux_64_release_dir="$release_prefix/${linux_64_common_dir_name}"
 # export from the working directory to the release directory
-hg archive --rev stable ${linux_64_release_dir}
-# remove file created by mercurial
-rm ${linux_64_release_dir}/.hg_archival.txt
+#hg archive --rev stable ${linux_64_release_dir}
+git archive --format=zip  HEAD --output ${linux_64_release_dir}.zip
+mkdir ${linux_64_release_dir}
+cd ${linux_64_release_dir}
+unzip ../${linux_64_release_dir}.zip
 # remove the release script
 rm ${linux_64_release_dir}/release.sh
 rm ${linux_64_release_dir}/test_release.sh
@@ -135,7 +137,10 @@ win_64_common_dir_name="xfemm_mingw_win64"
 win_64_release_dir="${release_prefix}/${win_64_common_dir_name}"
 # win 64 -- x86_64-w64-mingw32 MXE target
 cd ${working_copy_dir}
-hg archive --rev stable ${win_64_release_dir} # TODO: windows line endings?
+git archive --format=zip  HEAD --output ${win_64_release_dir}.zip
+mkdir ${win_64_release_dir}
+cd ${win_64_release_dir}
+unzip ../${win_64_release_dir}.zip
 # remove file created by hg
 rm ${win_64_release_dir}/.hg_archival.txt
 # remove release scripts
