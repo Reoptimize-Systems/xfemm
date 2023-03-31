@@ -490,6 +490,25 @@ LoadMeshErr FSolver::LoadMesh(bool deleteFiles)
                 &qp.n2, &qp.w2,
                 &qp.n3, &qp.w3);
 
+            if ( (qp.n0 < 0)
+                  || (qp.n1 < 0)
+                  || (qp.n2 < 0)
+                  || (qp.n3 < 0) )
+            {
+                std::string msg = std::string("An error occured while reading file, quadNode has negative node number. ")
+                            + std::string("\nFile: ") + std::string(infile)
+                            + std::string("\nq number: ") + std::to_string(k)
+                            + std::string(" n0: ") + std::to_string(qp.n0)
+                            + std::string(" n1: ") + std::to_string(qp.n1)
+                            + std::string(" n2: ") + std::to_string(qp.n2)
+                            + std::string(" n3: ") + std::to_string(qp.n3)
+                            + std::string("\n");
+                WarnMessage(msg.c_str()); /* Error */
+                //WarnMessage("quadNode has negative node number k: %i, n0: %i, n1: %i, n2: %i,n3: %i.\n", k, qp.n0, qp.n1, qp.n2, qp.n3); /* Error */
+                fclose(fp);
+                return BADPBCFILE;
+            }
+
             age.quadNode.push_back(qp);
         }
         agelist.push_back (age);
@@ -942,6 +961,23 @@ bool FSolver::LoadAGEsFromSolution(FILE* fp)
                      &qp.n3,
                      &qp.w3);
 
+            if ( (qp.n0 < 0)
+                  || (qp.n1 < 0)
+                  || (qp.n2 < 0)
+                  || (qp.n3 < 0) )
+            {
+                std::string msg = std::string("An error occured while reading pbc file, quadNode has negative node number. ")
+                            + std::string("qp num: ") + std::to_string(k)
+                            + std::string(" n0: ") + std::to_string(qp.n0)
+                            + std::string(" n1: ") + std::to_string(qp.n1)
+                            + std::string(" n2: ") + std::to_string(qp.n2)
+                            + std::string(" n3: ") + std::to_string(qp.n3)
+                            + std::string("\n");
+                WarnMessage(msg.c_str()); /* Error */
+                //WarnMessage("quadNode has negative node number k: %i, n0: %i, n1: %i, n2: %i,n3: %i.\n", k, qp.n0, qp.n1, qp.n2, qp.n3); /* Error */
+                return false;
+            }
+
             age.quadNode.push_back (qp);
 
         }
@@ -1302,7 +1338,7 @@ bool FSolver::runSolver(bool verbose)
 }
 
 // SortNodes: sorts mesh nodes based on a new numbering
-void FSolver::SortNodes (int* newnum)
+void FSolver::SortNodes (std::vector<int> newnum)
 {
     // sort mesh nodes based on newnum;
     for(int i = 0; i < NumNodes; i++)

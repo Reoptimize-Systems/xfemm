@@ -942,7 +942,13 @@ bool FPProc::OpenDocument(string pathname)
             {
                 int hidden = 0;
                 fgets(s,1024,fp);
-                sscanf(s,"%i\t%i\t%lf %i\t%i\n",&segm.n0,&segm.n1,&segm.MaxSideLength,&t,&hidden);
+                sscanf(s,"%i\t%i\t%lf %i\t%i\t%i\n",
+                        &segm.n0,
+                        &segm.n1,
+                        &segm.MaxSideLength,
+                        &t,
+                        &hidden,
+                        &segm.InGroup);
                 segm.BoundaryMarker = t-1;
                 if (hidden == 0)
                 {
@@ -966,8 +972,15 @@ bool FPProc::OpenDocument(string pathname)
             {
                 int hidden = 0;
                 fgets(s,1024,fp);
-                sscanf(s,"%i\t%i\t%lf\t%lf %i\t%i\n",&asegm.n0,&asegm.n1,
-                       &asegm.ArcLength,&asegm.MaxSideLength,&t,&hidden,&b);
+                sscanf(s,"%i\t%i\t%lf\t%lf %i\t%i\t%i\t%lf\n",
+                       &asegm.n0,
+                       &asegm.n1,
+                       &asegm.ArcLength,
+                       &asegm.MaxSideLength,
+                       &t,
+                       &hidden,
+                       &asegm.InGroup,
+                       &b);
                 asegm.BoundaryMarker=t-1;
                 if (b>0) asegm.MaxSideLength=b; // use as-meshed max side length for display purposes
                 if (hidden == 0)
@@ -1344,6 +1357,26 @@ bool FPProc::OpenDocument(string pathname)
 				&q.n1, &q.w1,
 				&q.n2, &q.w2,
 				&q.n3, &q.w3);
+
+            if ( (q.n0 < 0)
+                  || (q.n1 < 0)
+                  || (q.n2 < 0)
+                  || (q.n3 < 0) )
+            {
+                std::string msg = std::string("An error occured while reading input file\n")
+                            + pathname
+                            + std::string("\nquadNode has negative node number. ")
+                            + std::string("qp number: ") + std::to_string(j)
+                            + std::string(" n0: ") + std::to_string(q.n0)
+                            + std::string(" n1: ") + std::to_string(q.n1)
+                            + std::string(" n2: ") + std::to_string(q.n2)
+                            + std::string(" n3: ") + std::to_string(q.n3)
+                            + std::string("\n");
+                WarnMessage(msg.c_str()); /* Error */
+                //WarnMessage("quadNode has negative node number j: %i, n0: %i, n1: %i, n2: %i,n3: %i.\n", j, q.n0, q.n1, q.n2, q.n3); /* Error */
+                fclose(fp);
+                return false;
+            }
 			age.quadNode.push_back(q);
 		}
 

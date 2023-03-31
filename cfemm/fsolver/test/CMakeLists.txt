@@ -22,7 +22,7 @@ function(test_fsolver name premeshed)
             "${CMAKE_CURRENT_LIST_DIR}/${name}.ele"
             "${CMAKE_CURRENT_LIST_DIR}/${name}.node"
             "${CMAKE_CURRENT_LIST_DIR}/${name}.pbc"
-            "${CMAKE_CURRENT_LIST_DIR}/${name}.poly"
+            #"${CMAKE_CURRENT_LIST_DIR}/${name}.poly"
             .
             )
     else()
