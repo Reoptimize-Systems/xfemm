@@ -98,8 +98,9 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
     FILE *fp;
     int i,n0,n1,n;
     long int j,k;
-    int newwide,*newnum,**ocon;
-    int  *numcon,*nxtnum;
+    int newwide, **ocon;
+    std::vector<int> newnum, numcon, nxtnum;
+    //int  *numcon,*nxtnum;
     char infile[256];
 
     // read in connectivity from nodefile
@@ -114,9 +115,12 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
     fscanf(fp,"%li",&j);	// read in boundarymarker flag;
 
     // allocate storage for numbering
-    nxtnum=(int *)calloc(NumNodes,sizeof(int));
-    newnum=(int *)calloc(NumNodes,sizeof(int));
-    numcon=(int *)calloc(NumNodes,sizeof(int));
+    //nxtnum=(int *)calloc(NumNodes,sizeof(int));
+    nxtnum.resize(NumNodes);
+    //newnum=(int *)calloc(NumNodes,sizeof(int));
+    newnum.resize(NumNodes);
+    //numcon=(int *)calloc(NumNodes,sizeof(int));
+    numcon.resize(NumNodes);
     ocon=(int **)calloc(NumNodes,sizeof(int *));
 
     // initialize node array;
@@ -307,8 +311,8 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
     // }
 
     // free up the variables that we needed during the routine....
-    free(numcon);
-    free(nxtnum);
+    //free(numcon);
+    //free(nxtnum);
     free(ocon[0]);
     free(ocon);
 
@@ -339,7 +343,7 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
     // as the mesh nodes class type varies
     SortNodes (newnum);
 
-    free(newnum);
+    //free(newnum);
 
     SortElements();
 

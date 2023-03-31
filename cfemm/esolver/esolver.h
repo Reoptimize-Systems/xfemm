@@ -83,7 +83,7 @@ private:
     void CleanUp() override;
 
     // override parent class virtual method
-    void SortNodes (int* newnum) override;
+    void SortNodes (std::vector<int> newnum) override;
 
     virtual bool handleToken(const std::string &, std::istream &, std::ostream &) override;
 

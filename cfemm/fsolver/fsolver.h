@@ -139,7 +139,7 @@ private:
     void getPrev2DB(int k, double &B1p, double &B2p) const;
 
     // override parent class virtual method
-    void SortNodes (int* newnum) override;
+    void SortNodes (std::vector<int> newnum) override;
 
     bool handleToken(const std::string &token, std::istream &input, std::ostream &err) override;
 

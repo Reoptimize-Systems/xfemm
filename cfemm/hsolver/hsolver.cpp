@@ -1036,7 +1036,7 @@ double HSolver::ChargeOnConductor(int u, CBigLinProb &L)
 
 
 // SortNodes: sorts mesh nodes based on a new numbering
-void HSolver::SortNodes (int* newnum)
+void HSolver::SortNodes (std::vector<int> newnum)
 {
     // sort mesh nodes based on newnum;
     for(int i = 0; i < NumNodes; i++)

@@ -204,7 +204,7 @@ protected:
 
 private:
 
-    virtual void SortNodes (int* newnum) = 0;
+    virtual void SortNodes (std::vector<int> newnum) = 0;
 
 };
 
