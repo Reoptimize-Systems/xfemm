@@ -25,13 +25,15 @@ matlab_extra_cmds=""
 make_win_mex=false
 matlab_win_lib_dir=""
 output_dir=/tmp
+make_jobs=1
 
-usage="$(basename "$0") [-h] [-v <version>] [-o] [-t] [-m] [-z] [-c] [-l <matlab_win_lib_dir>] [-e <matlab_extra_cmds>] -- creates xfemm release
+usage="$(basename "$0") [-h] [-v <version>] [-o] [-j] [-t] [-m] [-z] [-c] [-l <matlab_win_lib_dir>] [-e <matlab_extra_cmds>] -- creates xfemm release
 
 where:
     -h  show this help text
     -v  set the release version string (default: $version)
     -o  set the output directory where the relase package will be created, default: ${output_dir}
+    -j  number of make jobs, passed to make command, default: ${make_jobs}
     -t  run tests
     -m  skip building mex files (requires matlab)
     -z  create zip file
@@ -40,7 +42,7 @@ where:
     -l  matlab windows libraries directory path
     -e  additional command(s) to be run by matlab before building the mex files"
 
-while getopts "h?v:o:twmzc:wl:e:" opt; do
+while getopts "h?v:o:j:twmzc:wl:e:" opt; do
     case "$opt" in
     h|\?)
         echo "$usage"
@@ -51,6 +53,9 @@ while getopts "h?v:o:twmzc:wl:e:" opt; do
         ;;
     o)  output_dir=$OPTARG
         echo "Output directory changed to: $output_dir"
+        ;;
+    j)  make_jobs=$OPTARG
+        echo "Number of make jobs changed to: $make_jobs"
         ;;
     t)  run_tests=true
         echo "run_tests: $run_tests"
@@ -112,7 +117,7 @@ mkdir -p ${native_build_dir}
 # run cmake from temp dir and build
 cd ${native_build_dir}
 cmake -DCMAKE_BUILD_TYPE=Release ${linux_64_release_dir}/cfemm
-make
+make -j ${make_jobs}
 #make package
 
 if [ "$skip_mex" = false ]; then
@@ -176,7 +181,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -DEXTRA_CMAKE_CXX_FLAGS="-static -static-libgcc -static-libstdc++" \
       -DEXTRA_CMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
       -DCMAKE_TOOLCHAIN_FILE=$(dirname $(which x86_64-w64-mingw32.static-g++))/../x86_64-w64-mingw32.static/share/cmake/mxe-conf.cmake ${win_64_release_dir}/cfemm
-make
+make -j ${make_jobs}
 make package
 make package_source
 
@@ -207,8 +212,9 @@ else
 fi
 
 # zip up the result in the release directory
-#cd ${release_prefix}
-#zip -r xfemm_v${version}_mingw_win64.zip ${win_64_common_dir_name}/
+cd ${release_prefix}
+zip -r xfemm-${version}-mingw-win64.zip xfemm/ xfemm-*.exe
+rm -r ${win_64_common_dir_name} xfemm/ xfemm-*.exe
 
 if [ "$run_tests" = true ]; then
   # test
