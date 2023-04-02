@@ -155,7 +155,7 @@ cd /tmp/${win_64_common_dir_name}
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DEXTRA_CMAKE_CXX_FLAGS="-static -static-libgcc -static-libstdc++" \
       -DEXTRA_CMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
-      -DCMAKE_TOOLCHAIN_FILE=/opt/mxe/usr/x86_64-w64-mingw32.static/share/cmake/mxe-conf.cmake ${win_64_release_dir}/cfemm
+      -DCMAKE_TOOLCHAIN_FILE=$(dirname $(which x86_64-w64-mingw32.static-g++))/../x86_64-w64-mingw32.static/share/cmake/mxe-conf.cmake ${win_64_release_dir}/cfemm
 make
 
 # copy over the windows dlls, and delete from dist
