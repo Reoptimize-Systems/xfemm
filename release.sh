@@ -24,12 +24,16 @@ matlab_cmd="matlab"
 matlab_extra_cmds=""
 make_win_mex=false
 matlab_win_lib_dir=""
+output_dir=/tmp
+make_jobs=1
 
-usage="$(basename "$0") [-h] [-v <version>] [-t] [-m] [-z] [-c] [-l <matlab_win_lib_dir>] [-e <matlab_extra_cmds>] -- creates xfemm release
+usage="$(basename "$0") [-h] [-v <version>] [-o] [-j] [-t] [-m] [-z] [-c] [-l <matlab_win_lib_dir>] [-e <matlab_extra_cmds>] -- creates xfemm release
 
 where:
     -h  show this help text
     -v  set the release version string (default: $version)
+    -o  set the output directory where the relase package will be created, default: ${output_dir}
+    -j  number of make jobs, passed to make command, default: ${make_jobs}
     -t  run tests
     -m  skip building mex files (requires matlab)
     -z  create zip file
@@ -38,7 +42,7 @@ where:
     -l  matlab windows libraries directory path
     -e  additional command(s) to be run by matlab before building the mex files"
 
-while getopts "h?v:twmzc:wl:e:" opt; do
+while getopts "h?v:o:j:twmzc:wl:e:" opt; do
     case "$opt" in
     h|\?)
         echo "$usage"
@@ -46,6 +50,12 @@ while getopts "h?v:twmzc:wl:e:" opt; do
         ;;
     v)  version=$OPTARG
         echo "Version string changed to: $version"
+        ;;
+    o)  output_dir=$OPTARG
+        echo "Output directory changed to: $output_dir"
+        ;;
+    j)  make_jobs=$OPTARG
+        echo "Number of make jobs changed to: $make_jobs"
         ;;
     t)  run_tests=true
         echo "run_tests: $run_tests"
@@ -75,7 +85,8 @@ echo "Working copy dir is: ${working_copy_dir}"
 
 
 # create release directory
-release_prefix=/tmp/xfemm_release
+release_prefix=${output_dir}/xfemm_release
+rm -r ${release_prefix}
 mkdir -p ${release_prefix}
 
 # linux 64 bit
@@ -89,19 +100,25 @@ mkdir -p ${linux_64_release_dir}
 git archive --format=zip  HEAD --output ${linux_64_release_dir}/../release.zip
 cd ${linux_64_release_dir}
 unzip ../release.zip
-# remove the release script
+rm ../release.zip
+# remove the release script and other things we don't need
 rm ${linux_64_release_dir}/release.sh
 rm ${linux_64_release_dir}/test_release.sh
+rm -r ${linux_64_release_dir}/.github
+rm ${linux_64_release_dir}/.gitignore
+rm ${linux_64_release_dir}/.hgignore
 # create version file for cmake to find
 echo "${version}" > "${linux_64_release_dir}/cfemm/VERSION"
 
 # create temp build directory
-rm -rf /tmp/${linux_64_common_dir_name}
-mkdir -p /tmp/${linux_64_common_dir_name}
+native_build_dir=/tmp/build_${linux_64_common_dir_name}
+rm -rf ${native_build_dir}
+mkdir -p ${native_build_dir}
 # run cmake from temp dir and build
-cd /tmp/${linux_64_common_dir_name}
+cd ${native_build_dir}
 cmake -DCMAKE_BUILD_TYPE=Release ${linux_64_release_dir}/cfemm
-make
+make -j ${make_jobs}
+#make package
 
 if [ "$skip_mex" = false ]; then
 
@@ -125,8 +142,11 @@ fi
 
 # tar up the result in the release directory
 cd ${release_prefix}
-tar cvzf xfemm_v${version}_linux64.tar.gz ${linux_64_common_dir_name}/
-
+tar cvzf xfemm-${version}-Linux64.tar.gz ${linux_64_common_dir_name}/
+rm -r ${linux_64_release_dir}/cfemm/bin
+src_package_dir_name=$(dirname ${linux_64_release_dir})/xfemm
+mv  ${linux_64_release_dir} ${src_package_dir_name}
+zip -r xfemm-${version}-Source.zip $(basename ${src_package_dir_name})
 
 # repeat the above, but cross-compiling for windows, requires MXE: http://mxe.cc/
 #
@@ -142,21 +162,33 @@ mkdir -p ${win_64_release_dir}
 git archive --format=zip  HEAD --output ${win_64_release_dir}/../release.zip
 cd ${win_64_release_dir}
 unzip ../release.zip
+rm ../release.zip
 # remove release scripts
 rm ${win_64_release_dir}/release.sh
 rm ${win_64_release_dir}/test_release.sh
+#rm -r ${win64_release_dir}/.github
+#rm ${win64_release_dir}/.gitignore
+#rm ${win64_release_dir}/.hgignore
 # create version file for cmake to find
 echo "${version}" > "${win_64_release_dir}/cfemm/VERSION"
 # create temp build directory
-rm -rf /tmp/${win_64_common_dir_name}
-mkdir -p /tmp/${win_64_common_dir_name}
+win64_build_dir=/tmp/build_${win_64_common_dir_name}
+rm -rf ${win64_build_dir}
+mkdir -p ${win64_build_dir}
 # run cmake from temp dir and build cfemm
-cd /tmp/${win_64_common_dir_name}
+cd ${win64_build_dir}
 cmake -DCMAKE_BUILD_TYPE=Release \
       -DEXTRA_CMAKE_CXX_FLAGS="-static -static-libgcc -static-libstdc++" \
       -DEXTRA_CMAKE_EXE_LINKER_FLAGS="-static  -static-libgcc -static-libstdc++" \
-      -DCMAKE_TOOLCHAIN_FILE=/opt/mxe/usr/x86_64-w64-mingw32.static/share/cmake/mxe-conf.cmake ${win_64_release_dir}/cfemm
-make
+      -DCMAKE_TOOLCHAIN_FILE=$(dirname $(which x86_64-w64-mingw32.static-g++))/../x86_64-w64-mingw32.static/share/cmake/mxe-conf.cmake ${win_64_release_dir}/cfemm
+make -j ${make_jobs}
+make package
+make package_source
+
+# source package (all platforms
+#cp ${win64_build_dir}/xfemm-*-Source.zip  ${release_prefix}/
+# windows installer
+cp ${win64_build_dir}/xfemm-*.exe  ${release_prefix}/
 
 # copy over the windows dlls, and delete from dist
 #cp ${working_copy_dir}/release/xfemm_mingw_win64/windeps/* ${working_copy_dir}/release/xfemm_mingw_win64/cfemm/lib/
@@ -180,8 +212,9 @@ else
 fi
 
 # zip up the result in the release directory
-#cd ${working_copy_dir}/release
-#zip -r xfemm_v${version}_mingw_win64.zip ${win_64_common_dir_name}/
+cd ${release_prefix}
+zip -r xfemm-${version}-mingw-win64.zip xfemm/ xfemm-*.exe
+rm -r ${win_64_common_dir_name} xfemm/ xfemm-*.exe
 
 if [ "$run_tests" = true ]; then
   # test
