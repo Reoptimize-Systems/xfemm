@@ -132,12 +132,15 @@ LoadMeshErr ESolver::LoadMesh(bool deleteFiles)
     char s[1024];
 
     //read meshnodes;
-    sprintf(infile,"%s.node",PathName.c_str());
+    std::sprintf(infile,"%s.node",PathName.c_str());
     if((fp=fopen(infile,"rt"))==NULL){
         return BADELEMENTFILE;
     }
-    fgets(s,1024,fp);
-    sscanf(s,"%i",&k);
+    if (fgets(s,1024,fp)==NULL)
+    {
+        return BADELEMENTFILE;
+    }
+    std::sscanf(s,"%i",&k);
     NumNodes=k;
 
     meshnode = new CNode[k];
