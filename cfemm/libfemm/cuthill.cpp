@@ -96,11 +96,10 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
 {
 
     FILE *fp;
-    int i,n0,n1,n;
-    long int j,k;
-    int newwide, **ocon;
+    int i, n0, n1, n, newwide;
+    long int j, n_lines;
+    std::vector<std::vector<int>> ocon;
     std::vector<int> newnum, numcon, nxtnum;
-    //int  *numcon,*nxtnum;
     char infile[256];
 
     // read in connectivity from nodefile
@@ -111,17 +110,24 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
         printf("Couldn't open %s",infile);
         return false;
     }
-    fscanf(fp,"%li",&k);	// read in number of lines
-    fscanf(fp,"%li",&j);	// read in boundarymarker flag;
+    // read in number of lines
+    if (fscanf(fp,"%li",&n_lines) != 1)
+    {
+        printf("Couldn't read the number of lines");
+        return false;
+    }
+    // read in boundarymarker flag;
+    if (fscanf(fp,"%li",&j) != 1)
+    {
+        printf("Couldn't read in the boundarymarker flag");
+        return false;
+    }
 
     // allocate storage for numbering
-    //nxtnum=(int *)calloc(NumNodes,sizeof(int));
     nxtnum.resize(NumNodes);
-    //newnum=(int *)calloc(NumNodes,sizeof(int));
     newnum.resize(NumNodes);
-    //numcon=(int *)calloc(NumNodes,sizeof(int));
     numcon.resize(NumNodes);
-    ocon=(int **)calloc(NumNodes,sizeof(int *));
+    ocon.resize(NumNodes);
 
     // initialize node array;
     for(i=0; i<NumNodes; i++)
@@ -130,38 +136,72 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
     }
 
     // allocate space for connections;
-    ocon[0]=(int *)calloc(2*k,sizeof(int));
+    //ocon[0].resize(2*n_lines);
 
     // with first pass, figure out how many connections
     // there are for each node;
-    for(i=0; i<k; i++)
+    for(i=0; i<n_lines; i++)
     {
-        fscanf(fp,"%li",&j);
-        fscanf(fp,"%i",&n0);
-        fscanf(fp,"%i",&n1);
-        fscanf(fp,"%li",&j);
+        if (fscanf(fp,"%li",&j) != 1)
+        {
+            return false;
+        }
+        if (fscanf(fp,"%i",&n0) != 1)
+        {
+            return false;
+        }
+        if (fscanf(fp,"%i",&n1) != 1)
+        {
+            return false;
+        }
+        if (fscanf(fp,"%li",&j) != 1)
+        {
+            return false;
+        }
 
         numcon[n0]++;
         numcon[n1]++;
     }
 
     // mete out connection storage space;
-    for(i=1,n=0; i<NumNodes; i++)
+    for(i=0, n=0; i<NumNodes; i++)
     {
-        n+=numcon[i-1];
-        ocon[i]=ocon[0]+n;
+        //n += numcon[i-1];
+        //ocon[i] = ocon[0] + n;
+        ocon[i].resize(numcon[i]);
     }
 
     // on second pass through file, store connections;
     rewind(fp);
-    fscanf(fp,"%li",&k);	// read in number of lines
-    fscanf(fp,"%li",&j);	// read in boundarymarker flag;
-    for(i=0; i<k; i++)
+    // read in number of lines
+    if (fscanf(fp,"%li",&n_lines) != 1)
     {
-        fscanf(fp,"%li",&j);
-        fscanf(fp,"%i",&n0);
-        fscanf(fp,"%i",&n1);
-        fscanf(fp,"%li",&j);
+        return false;
+    }
+    // read in boundarymarker flag;
+    if (fscanf(fp,"%li",&j) != 1)
+    {
+        return false;
+    }
+
+    for(i=0; i<n_lines; i++)
+    {
+        if (fscanf(fp,"%li",&j) != 1) 
+        { 
+            return false; 
+        }
+        if (fscanf(fp,"%i",&n0) != 1) 
+        { 
+            return false; 
+        }
+        if (fscanf(fp,"%i",&n1) != 1) 
+        { 
+            return false; 
+        }
+        if (fscanf(fp,"%li",&j) != 1) 
+        { 
+            return false; 
+        }
 
         ocon[n0][nxtnum[n0]]=n1;
         nxtnum[n0]++;
@@ -191,8 +231,8 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
 
 
     // search for a node to start with;
-    j=numcon[0];
-    n0=0;
+    j = numcon[0];
+    n0 = 0;
     for(i=1; i<NumNodes; i++)
     {
         if(numcon[i]<j)
@@ -200,7 +240,7 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
             j=numcon[i];
             n0=i;
         }
-        if(j==2) i=k;	// break out if j==2,
+        if(j==2) i=n_lines;	// break out if j==2,
         // because this is the best we can do
     }
 
@@ -278,9 +318,9 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
     }
 
 	// remap air gap element information
-	for(i=0;i<NumAirGapElems;i++)
+	for(i=0; i<NumAirGapElems; i++)
 	{
-		for(k=0;k<=agelist[i].totalArcElements;k++)
+		for(int k=0; k<=agelist[i].totalArcElements; k++)
 		{
 			agelist[i].quadNode[k].n0=newnum[agelist[i].quadNode[k].n0];
 			agelist[i].quadNode[k].n1=newnum[agelist[i].quadNode[k].n1];
@@ -313,8 +353,8 @@ int FEASolver<PointPropT,BoundaryPropT,BlockPropT,CircuitPropT,BlockLabelT,MeshE
     // free up the variables that we needed during the routine....
     //free(numcon);
     //free(nxtnum);
-    free(ocon[0]);
-    free(ocon);
+    //free(ocon[0]);
+    //free(ocon);
 
     // new mapping remains in newnum;
     // apply this mapping to elements first.
