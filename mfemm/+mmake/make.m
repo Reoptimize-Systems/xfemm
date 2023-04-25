@@ -127,11 +127,12 @@ if ~strcmp(pwd,mmakefile_dir)
 else
     wd = '';
 end
+
 % try
     % Read the makefile
     [state.implicitRules, state.vars] = implicit_mmakefile(options);
     state = read_mmakefile(state, mmakefilename, options.FcnMakeFileArgs);
-
+    
     if isempty(target)
         target = state.rules(1).target{1};
     end
@@ -174,7 +175,8 @@ function [rules, vars] = implicit_mmakefile(options)
             ismscompiler = false;
         end
     end
-    vars.PWD = pwd;
+    % ###fix: replace backslash for Windows
+    vars.PWD = pathsep_to_unix(pwd);
     
     vars.MEXFLAGS = '-O'; % Mirror MATLAB's default, but be explicit about it
     
@@ -382,6 +384,7 @@ function result = maketarget(target, state)
 end
 
 function state = read_mmakefile(state,path,fcnfileargs)
+       
     if regexp(path,'\.m$','once')
         state = read_functional_mmakefile(state,path,fcnfileargs);
     else
@@ -391,6 +394,7 @@ end
 
 % Parse a MATLAB-function style MMakefile.
 function state = read_functional_mmakefile(state,path,fcnfileargs)
+
     % We have an m-file function
     [~,fcn] = fileparts(path);
     assert(strcmp(path,which(fcn)),'Function that is called (%s) and filename (%s) do not match',which(fcn),path);
@@ -402,6 +406,12 @@ function state = read_functional_mmakefile(state,path,fcnfileargs)
         error(['MJB:mmake:' EX.identifier],'Error reading MMakefile (%s):%s',path,EX.message);
     end
     
+    % ###fix: replace backslash for Windows
+    for k = 1:numel(state.rules)
+        state.rules(k).target = pathsep_to_unix(state.rules(k).target);
+        state.rules(k).deps = pathsep_to_unix(state.rules(k).deps);
+    end
+        
     % Iterate through the defined variables, add them to state and expand them
     fn = fieldnames(vars)';
     for fcell = fn
@@ -688,6 +698,7 @@ function out = find_matching_rules(target, ruleset)
             out(loc).commands = expand_auto_vars(ruleset(i).commands, out(loc));
         end
     end
+    
 end
 
 % Check if the path is absolute
@@ -891,4 +902,13 @@ function t = isoctave()
         t=0;
     end
 
+end
+
+function [paths] = pathsep_to_unix(paths)
+% Replace Windows file seps by unix style
+% note: only for GNU Octave for now, because not tested in Matlab...
+
+    if ispc() && isoctave && ~isempty(paths)
+        paths = strrep(paths,'\','/');
+    end
 end
