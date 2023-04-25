@@ -1059,7 +1059,7 @@ int CBigComplexLinProb::KludgeSolve(int flag)
 // Calls PCGSQStart to do a small number of iterations,
 // moving the starting point for PBCG away from the
 // pathological starting points that can sometimes crop up.
-int CBigComplexLinProb::PBCGSolveMod(int flag)
+int CBigComplexLinProb::PBCGSolveMod(int flag,bool verbose)
 {
     // if this is a N-R iteration, call the appropriate solver
     if (bNewton)
@@ -1070,7 +1070,8 @@ int CBigComplexLinProb::PBCGSolveMod(int flag)
     if(flag==false)
     {
 //		TheView->SetDlgItemText(IDC_FRAME1,"Initializing Solver");
-        printf("Initializing Solver");
+        if(verbose)
+            printf("Initializing Solver");
         if (PCGSQStart()==0) return 0;
     }
 

@@ -35,7 +35,7 @@
 
 double Power(double x, int y);
 
-int FSolver::Harmonic2D(CBigComplexLinProb &L)
+int FSolver::Harmonic2D(CBigComplexLinProb &L,bool verbose)
 {
     int i,j,k,ww,s;
     CComplex Mx[3][3],My[3][3],Mxy[3][3];
@@ -219,7 +219,8 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
 
 //		TheView->SetDlgItemText(IDC_FRAME1,"Matrix Construction");
 //		TheView->m_prog1.SetPos(0);
-        printf("Matrix Construction\n");
+        if(verbose)
+            printf("Matrix Construction\n");
 
         if(Iter>0) L.Wipe();
 
@@ -822,7 +823,7 @@ int FSolver::Harmonic2D(CBigComplexLinProb &L)
             L.Precision=std::min(1.e-4,0.001*res);
             if (L.Precision<Precision) L.Precision=Precision;
         }
-        if (L.PBCGSolveMod(Iter)==false) return false;
+        if (L.PBCGSolveMod(Iter,verbose)==false) return false;
 
 
         if (LinearFlag==false)

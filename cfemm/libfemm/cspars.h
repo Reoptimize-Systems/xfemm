@@ -82,7 +82,7 @@ public:
 
     // flag==false initializes solution to zero
     // flag==true  starts from solution of previous call
-    int PBCGSolveMod(int flag);	// Precondition Biconjugate Gradient
+    int PBCGSolveMod(int flag,bool verbose=false);	// Precondition Biconjugate Gradient
     int PCGSQStart();
     int PBCGSolve(int flag);
     int BiCGSTAB(int flag);
