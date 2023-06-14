@@ -1305,7 +1305,7 @@ bool FSolver::runSolver(bool verbose)
             {
                 WarnMessage("Harmonic planar incremental permeability problems are work in progress. RESULTS WON'T BE VALID!\n");
             }
-            if (!Harmonic2D(L))
+            if (!Harmonic2D(L,verbose))
             {
                 WarnMessage("Couldn't solve the problem\n");
                 return false;
@@ -1319,7 +1319,7 @@ bool FSolver::runSolver(bool verbose)
                 WarnMessage("Cannot handle harmonic axisymmetric incremental problems.\n");
                 return false;
             }
-            if (!HarmonicAxisymmetric(L))
+            if (!HarmonicAxisymmetric(L,verbose))
             {
                 WarnMessage("Couldn't solve the problem\n");
                 return false;

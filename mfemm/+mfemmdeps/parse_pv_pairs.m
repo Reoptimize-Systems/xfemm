@@ -76,7 +76,9 @@ for i=1:n
   p_i = lower(pv_pairs{2*i-1});
   v_i = pv_pairs{2*i};
   
-  ind = strmatch(p_i,lpropnames,'exact');
+  % ###fix: deprecated strmatch() replaced
+  %ind = strmatch(p_i,lpropnames,'exact');
+  ind = find(strcmp(p_i,lpropnames),1);
   if isempty(ind)
     ind = find(strncmp(p_i,lpropnames,length(p_i)));
     if isempty(ind)

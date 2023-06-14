@@ -61,13 +61,12 @@ function checkforexisting (FemmProblem, groupno)
 % tests if group numbers are already present in the FemmProblem
 
     % check the group number is unique in the groups
-    if isfield (FemmProblem, 'Groups')
-        for fname = fieldnames (FemmProblem.Groups)
-            
-            if FemmProblem.Groups.(fname) == groupno
+    if isfield (FemmProblem, 'Groups') 
+        for fname = fieldnames (FemmProblem.Groups)     
+            if FemmProblem.Groups.(fname{1}) == groupno
                 error ( 'MFEMM::badgroupno', ...
                         'Group number %f already exists in the list of groups, for group with name %s', ...
-                        groupno, fname );
+                        groupno, fname{1} );
             end
             
         end
