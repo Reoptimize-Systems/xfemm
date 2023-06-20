@@ -995,7 +995,7 @@ int femmcli::LuaMagneticsCommands::luaGapIntegral(lua_State *L)
 		return 1;
     }
 
-    IntegralType = (int) lua_todouble(L,1);
+    IntegralType = (int) lua_todouble(L,2);
     if((IntegralType<0) || (IntegralType>6))
     {
         lua_error(L, "Invalid gap integral type selected");
