@@ -40,6 +40,8 @@
 #include "lualib.h"
 #include "fpproc.h"
 
+//#define DEBUG_FPPROC 1
+
 
 #ifndef _MSC_VER
 #define _strnicmp strncasecmp
@@ -1241,7 +1243,7 @@ bool FPProc::OpenDocument(string pathname)
             {
                 sscnt = sscanf(s,"%i\t%i\t%i\t%i",&elm.p[0],&elm.p[1],&elm.p[2],&elm.lbl);
 #ifdef DEBUG_FPPROC
-                printf("s: %s\n", s);
+                printf("s[%d]: %s", i,s);
                 //getchar();
 #endif // DEBUG_FPPROC
                 if (sscnt != 4)
@@ -1274,7 +1276,7 @@ bool FPProc::OpenDocument(string pathname)
             elm.blk=blocklist[elm.lbl].BlockType;
             meshelem[i] = elm;
 #ifdef DEBUG_FPPROC
-            printf("numelement: %d\n", k);
+            //printf("numelement: %d\n", k); //###note: this debug line make no sense here, is already before the loop...
 #endif // DEBUG_FPPROC
         }
         else
@@ -1285,9 +1287,13 @@ bool FPProc::OpenDocument(string pathname)
             return false;
         }
     }
-
+    
     // read in circuit data;
     fscanf(fp,"%i\n",&k);
+    #ifdef DEBUG_FPPROC
+    printf("numcircuits: %d\n",k);
+    fflush(stdout);
+    #endif
     for(i=0; i<k; i++)
     {
         fgets(s,1024,fp);
@@ -1309,6 +1315,10 @@ bool FPProc::OpenDocument(string pathname)
 
 	// fpproc doesn't actively use PBC data, but it needs to read it to get to the
 	// air gap element data beyond
+    #ifdef DEBUG_FPPROC
+    printf("PBC data skip\n");
+    fflush(stdout);
+    #endif
 	if (fgets(s,1024,fp)!=NULL)
 	{
 		sscanf(s,"%i",&k);
@@ -1317,11 +1327,20 @@ bool FPProc::OpenDocument(string pathname)
 	}
 
 	// Read in Air Gap Element information
-	fgets(s,1024,fp); sscanf(s,"%i",&k);
+	fgets(s,1024,fp);
+    sscanf(s,"%i",&k);
+    #ifdef DEBUG_FPPROC
+    printf("airgaps: %d\n",k);
+    fflush(stdout);
+    #endif
 	for(i=0;i<k;i++){
 		CAirGapElement age;
 
 		fgets(s,1024,fp);
+        #ifdef DEBUG_FPPROC
+        printf("airgap[%d]: %s",i,s);
+        fflush(stdout);
+        #endif
 		age.BdryName = std::string(s);
 		age.BdryName = std::regex_replace (age.BdryName, std::regex("\""), "");
 		age.BdryName = std::regex_replace (age.BdryName, std::regex("\n"), "");
@@ -1387,8 +1406,17 @@ bool FPProc::OpenDocument(string pathname)
 	}
 
 	fclose(fp);
+    
+    #ifdef DEBUG_FPPROC
+    printf("Loading ANS file done!\n");
+    fflush(stdout);
+    #endif
 
 	// figure out amplitudes of harmonics for AGE boundary conditions
+    #ifdef DEBUG_FPPROC
+    printf("agelist.size: %d\n",agelist.size());
+    fflush(stdout);
+    #endif
 	for (i=0;i<(int)agelist.size();i++)
 	{
 		int m;
@@ -1613,12 +1641,21 @@ bool FPProc::OpenDocument(string pathname)
 			}
 		}
 	}
+    
+    #ifdef DEBUG_FPPROC
+    printf("Scaling length units\n");
+    fflush(stdout);
+    #endif
 
     // scale depth to meters for internal computations;
     if(Depth==-1) Depth=1;
     else Depth*=LengthConv[LengthUnits];
 
     // element centroids and radii;
+    #ifdef DEBUG_FPPROC
+    printf("meshelem.size: %d\n",meshelem.size());
+    fflush(stdout);
+    #endif
     for(i=0; i<(int)meshelem.size(); i++)
     {
         meshelem[i].ctr=Ctr(i);
@@ -1631,6 +1668,10 @@ bool FPProc::OpenDocument(string pathname)
     }
 
     // Compute magnetization direction in each element
+    #ifdef DEBUG_FPPROC
+    printf("Computing magnetization direction\n");
+    fflush(stdout);
+    #endif
     lua_State *LocalLua = lua_open(4096);
     lua_baselibopen(LocalLua);
     lua_strlibopen(LocalLua);
@@ -1680,9 +1721,17 @@ bool FPProc::OpenDocument(string pathname)
     lua_close(LocalLua);
 
     // Find flux density in each element;
+    #ifdef DEBUG_FPPROC
+    printf("Find flux density in each element\n");
+    fflush(stdout);
+    #endif
     for(i=0; i<(int)meshelem.size(); i++) GetElementB(meshelem[i]);
 
     // Find extreme values of A;
+    #ifdef DEBUG_FPPROC
+    printf("Find extreme values of A;\n");
+    fflush(stdout);
+    #endif
     A_Low = meshnode[0].A.re;
     A_High = meshnode[0].A.re;
     for(i=1; i<(int)meshnode.size(); i++)
@@ -1702,6 +1751,10 @@ bool FPProc::OpenDocument(string pathname)
 
     if(Frequency!=0)  // compute frequency-dependent permeabilities for linear blocks;
     {
+        #ifdef DEBUG_FPPROC
+        printf("compute frequency-dependent permeabilities for linear blocks\n");
+        fflush(stdout);
+        #endif
 
         CComplex deg45;
         deg45=1+I;
@@ -1758,6 +1811,10 @@ bool FPProc::OpenDocument(string pathname)
     }
 
     // compute fill factor associated with each block label
+    #ifdef DEBUG_FPPROC
+    printf("compute fill factor associated with each block label\n");
+    fflush(stdout);
+    #endif
     for(k=0; k<(int)blocklist.size(); k++)
     {
         GetFillFactor(k);
@@ -1765,6 +1822,10 @@ bool FPProc::OpenDocument(string pathname)
 
     // build list of elements connected to each node;
     // allocate connections list;
+    #ifdef DEBUG_FPPROC
+    printf("build list of elements connected to each node, allocate connections list\n");
+    fflush(stdout);
+    #endif
     NumList=(int *)calloc(meshnode.size(),sizeof(int));
     ConList=(int **)calloc(meshnode.size(),sizeof(int *));
     // find out number of connections to each node;
@@ -1786,6 +1847,11 @@ bool FPProc::OpenDocument(string pathname)
 
     // find extreme values of J;
     {
+        #ifdef DEBUG_FPPROC
+        printf("find extreme values of J\n");
+        fflush(stdout);
+        #endif
+    
         CComplex Jelm[3],Aelm[3];
 
         double J_Low, J_High;
@@ -1842,6 +1908,11 @@ bool FPProc::OpenDocument(string pathname)
 
     // Find extreme values of B and H;
     {
+        #ifdef DEBUG_FPPROC
+        printf("find extreme values of B and H\n");
+        fflush(stdout);
+        #endif
+        
         double Br_Low, Br_High;
         double Bi_Low, Bi_High;
         double H_Low;
@@ -1853,6 +1924,10 @@ bool FPProc::OpenDocument(string pathname)
 
         // Do a little bit of work to exclude external region from the extreme value calculation
         // Otherwise, flux in the external regions can give a spurious indication of limits
+        #ifdef DEBUG_FPPROC
+        printf("excluding outer region\n");
+        fflush(stdout);
+        #endif
         std::vector<bool> isExt;
         isExt.resize(meshelem.size());
         std::string myBlockName;
@@ -1877,6 +1952,10 @@ bool FPProc::OpenDocument(string pathname)
         }
 
         // catch the special case where _every_ element seems to be in an external region...
+        #ifdef DEBUG_FPPROC
+        printf("check if all elements in external region\n");
+        fflush(stdout);
+        #endif
         if (j == (int)meshelem.size()) {
             for(i=0;i<(int)meshelem.size();i++) {
                 isExt[i]=false;
@@ -1889,7 +1968,8 @@ bool FPProc::OpenDocument(string pathname)
         Bi_High = Bi_Low;
         B_Low   = sqrt(Br_Low*Br_Low + Bi_Low*Bi_Low);
         B_High  = B_Low;
-        a0      = sqrt(meshelem[i].rsqr) * B_High * B_High;
+        //a0      = sqrt(meshelem[i].rsqr) * B_High * B_High; // ### typo! index [i], is always i == meshelem.size(), it was causing random segfaults!
+        a0      = sqrt(meshelem[0].rsqr) * B_High * B_High; 
 
         if (Frequency!=0)
             GetH(meshelem[0].B1,meshelem[0].B2,h1,h2,0);
@@ -1992,6 +2072,10 @@ bool FPProc::OpenDocument(string pathname)
 
     // compute total resulting current for circuits with an a priori defined
     // voltage gradient;  Need this to display circuit results & impedance.
+    #ifdef DEBUG_FPPROC
+    printf("circproplist.size: %d\n",circproplist.size());
+    fflush(stdout);
+    #endif
     for(i=0; i<(int)circproplist.size(); i++)
     {
         CComplex Jelm[3],Aelm[3];
@@ -2013,11 +2097,19 @@ bool FPProc::OpenDocument(string pathname)
     }
 
     // Build adjacency information for each element.
+    #ifdef DEBUG_FPPROC
+    printf("Build adjacency information for each element.\n");
+    fflush(stdout);
+    #endif
     FindBoundaryEdges();
 
     // Check to see if any regions are multiply defined
     // (i.e. tagged by more than one block label). If so,
     // display an error message and mark the problem blocks.
+    #ifdef DEBUG_FPPROC
+    printf("Check to see if any regions are multiply defined.\n");
+    fflush(stdout);
+    #endif
     for(k=0,bMultiplyDefinedLabels=false; k<(int)blocklist.size(); k++)
     {
         // test if the label is inside the meshed region, by attempting to find
@@ -2064,6 +2156,10 @@ bool FPProc::OpenDocument(string pathname)
 
     // Get some information needed to compute energy stored in
     // permanent magnets with a nonlinear demagnetization curve
+    #ifdef DEBUG_FPPROC
+    printf("Get some information needed to compute energy stored in permanent magnets with a nonlinear demagnetization curve.\n");
+    fflush(stdout);
+    #endif
     if (Frequency==0)
     {
         for(k=0; k<(int)blockproplist.size(); k++)
@@ -2074,6 +2170,11 @@ bool FPProc::OpenDocument(string pathname)
             }
         }
     }
+    
+    #ifdef DEBUG_FPPROC
+    printf("FPProc::OpenDocument() done!\n");
+    fflush(stdout);
+    #endif
 
     return true;
 }
