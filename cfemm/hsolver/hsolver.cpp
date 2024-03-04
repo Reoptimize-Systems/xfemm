@@ -882,8 +882,8 @@ bool HSolver::runSolver(bool verbose)
         std::string stats = "Problem Statistics:\n";
         stats += to_string(NumNodes) + " nodes\n";
         stats += to_string(NumEls) + " elements\n";
-        stats += "Precision: " + to_string(Precision) + "\n";
         PrintMessage(stats.c_str());
+        std::cout << "Precision: " << Precision << "\n";
     }
 
     CBigLinProb L;
